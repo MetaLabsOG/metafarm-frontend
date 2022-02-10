@@ -15,8 +15,10 @@ export const ALGONODE = {
 export const TESTNET = 'TestNet';
 export const MAINNET = 'MainNet';
 
-export const ALGONET = MAINNET;
+export const ALGONET = TESTNET;
 console.log(ALGONET);
 
 export const IS_MOBILE = (window.innerWidth <= 768);
 console.log('Is mobile:', IS_MOBILE);
+
+export const FOMO_APP_ID = 70273121;
