@@ -1,0 +1,23 @@
+.menu {
+    background-color: rgba(0, 0, 0, 0.66);
+    height: 50px;
+
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+
+    border-bottom: 1px solid #5cfc3c;
+}
+
+.menu_item {
+    font-size: 20px;
+    margin-left: 30px;
+    cursor: pointer;
+    color: #5cfc3c;
+    text-decoration: none;
+}
+
+.menu_item:hover {
+    color: black;
+    background-color: #5cfc3c;
+}

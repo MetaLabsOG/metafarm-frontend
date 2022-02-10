@@ -1,0 +1,60 @@
+.connect_wallet {
+    width: 250px;
+    height: 50px;
+    /*margin: 21px 0 26px;*/
+    font-size: 20px;
+    border: 1px solid #5cfc3c;
+    color: #5cfc3c;
+    background-color: #000;
+    /*text-transform: uppercase;*/
+    font-family: "Korona One";
+
+    cursor: pointer;
+}
+
+.connect_wallet:hover {
+     color: black;
+     background-color: #5cfc3c;
+ }
+
+.wallet_header {
+    line-height: 1;
+    color: black;
+    font-family: "Korona One";
+    font-size: 20px;
+    font-style: normal;
+    font-weight: normal;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 20px;
+}
+
+.wallet-button {
+    width: 70%;
+    height: 50px;
+    color: white;
+    background-color: #000;
+    border: 0;
+    font-family: "Inter";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: normal;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.wallet-button:hover {
+    color: black;
+    background-color: white;
+    border: 2px solid black;
+}
+
+.account_info {
+    font-size: 13px;
+    color: #197303;
+    width: 200px;
+
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
