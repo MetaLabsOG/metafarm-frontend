@@ -1,16 +1,17 @@
 import React from 'react';
 
 import './css/fomo.css';
-import * as fomo from './fomo_interface/fomo.main.mjs';
+import * as fomo from './fomo_interface/index.main.mjs';
 import algo from "./imgs/algo.png";
 import Modal from "react-awesome-modal";
-import {AppContext, FOMO_APP_ID} from "./AppContext";
+import {AppContext, ALGONET, FOMO_APP_ID, TESTNET} from "./AppContext";
 import {Timer} from "./Timer";
 
 
 async function getAssetInfo(assetId) {
+    const preffix = (ALGONET === TESTNET) ? "testnet." : "";
     return (
-        fetch("https://" + "algoindexer.algoexplorerapi.io/v2/assets/" + assetId, {method: 'GET'})
+        fetch("https://algoindexer." + preffix + "algoexplorerapi.io/v2/assets/" + assetId, {method: 'GET'})
         .then(res => res.json())
         .then(data => {
             if (!data.asset) {
@@ -36,13 +37,15 @@ function RulesModal({isModalOpen, setIsModalOpen}) {
 
 
 export class Fomo extends React.Component {
+    static contextType = AppContext
     constructor(props) {
         super(props);
         this.state = {
             isAccountConnected: false,
             isFomoSet: false,
             isModalOpen: false,
-            deadline: 0,
+            endTime: 0,
+            startTime: 0,
             nftPrize: 0,
             currentPrice: 0,
             currentTotal: 0,
@@ -55,55 +58,67 @@ export class Fomo extends React.Component {
         this.state.isModalOpen = isModalOpen;
     }
 
-    unpackValue = (res) => {
-        if (res[0] !== 'None') {
-            return parseInt(res[1]._hex, 16);
-        }
-        return null;
-    }
-
     async connectToContract(account) {
+        const { reach } = this.context;
         const ctc = account.contract(fomo, FOMO_APP_ID);
         this.setState({ctc: ctc});
         fomo.Buyer(ctc, this).catch(e => console.log('[ERROR]', e));
 
-        const nftPrize = await ctc.views.Fomo.nftPrize();
-        this.setState({nftPrize: this.unpackValue(nftPrize)});
+        const fomoInfo = await ctc.views.Fomo.info();
+        if (fomoInfo[0] === 'None') {
+            return;
+        }
+
+        this.setState({nftPrize: parseInt(fomoInfo[1].nftPrize._hex, 16)});
         getAssetInfo(this.state.nftPrize).then(res => {this.setState({nftLink: res})});
 
-        const deadline = await ctc.views.Fomo.deadline();
-        this.setState({deadline: this.unpackValue(deadline)});
+        this.setState({currentPrice: parseInt(fomoInfo[1].currentPrice._hex, 16) / 1000000});
 
-        const currentPrice = await ctc.views.Fomo.currentPrice();
-        this.setState({currentPrice: this.unpackValue(currentPrice) / 1000000});
+        const paidToFunder = parseInt(fomoInfo[1].paidToFunder._hex, 16) / 1000000;
+        this.setState({currentTotal: parseInt(fomoInfo[1].currentTotal._hex, 16) / 1000000 - paidToFunder});
+        this.setState({currentWinner: reach.formatAddress(fomoInfo[1].currentWinner)});
 
-        const currentTotal = await ctc.views.Fomo.currentTotal();
-        this.setState({currentTotal: this.unpackValue(currentTotal) / 1000000});
+        this.setState({endTime: parseInt(fomoInfo[1].deadlineSecs[1]._hex, 16)});
+        this.setState({startTime: parseInt(fomoInfo[1].startSecs[1]._hex, 16)});
 
-        const currentWinner = await ctc.views.Fomo.currentWinner();
-        this.setState({currentWinner: currentWinner[1]}); //TODO parse string
-
-        // TODO get last winner price
-        // TODO get time left or start time
+        if (this.state.currentPrice > 0) {
+            const winnerPriceHex = await ctc.views.Fomo.prevPrice(this.state.currentPrice);
+            const winnerPrice = parseInt(winnerPriceHex[1]._hex, 16) / 1000000;
+            this.setState({winnerPrice: winnerPrice});
+        }
 
         this.setState({isFomoSet: true});
-        console.log(this.state);
+        // console.log(this.state);
     }
 
     // REACH BUYER INTERFACE
-    showPurchase(winner_address, winner_bid) {
-        const winnerPrice = parseInt(winner_bid._hex, 16) / 1000000;
-        console.log('WINNER', winner_address, winnerPrice);
+    async showPurchase(winnerAddress, winnerPriceHex, newPriceHex) {
+        const winnerPrice = parseInt(winnerPriceHex._hex, 16) / 1000000;
+        if (winnerPrice < this.state.currentPrice) {
+            return;
+        }
+
+        const { reach } = this.context;
+
+        const newPrice = parseInt(newPriceHex._hex, 16) / 1000000;
+        console.log('WINNER', winnerAddress, winnerPrice, newPrice);
+
         this.setState({
-            currentWinner: winner_address,
+            currentWinner: reach.formatAddress(winnerAddress),
             winnerPrice: winnerPrice,
+            currentPrice: newPrice,
         });
-        // TODO update current bid
+
+        const fomoInfo = await this.state.ctc.views.Fomo.info();
+        if (fomoInfo[0] === 'None') {
+            return;
+        }
+        this.setState({currentTotal: parseInt(fomoInfo[1].currentTotal._hex, 16) / 1000000});
     }
 
     buyTicket = () => {
         if (this.state.ctc) {
-            this.state.ctc.apis.Api.buyTicket().then(res => console.log(res));
+            this.state.ctc.apis.Api.buyTicket();
         } else {
             alert('Please, connect the wallet.');
         }
@@ -142,7 +157,7 @@ export class Fomo extends React.Component {
                     <img alt="Algo" src={algo} style={{marginLeft: "3px", width: "16px"}}/>
                 </div>
                 <RulesModal isModalOpen={this.state.isModalOpen} setIsModalOpen={this.setIsModalOpen}/>
-                <Timer init_seconds={this.state.deadline} />
+                <Timer totalSec={this.state.endTime - this.state.startTime} leftSec={this.state.endTime - Math.floor(Date.now() / 1000)} />
                 <a href={"https://www.nftexplorer.app/asset/" + this.state.nftPrize}>
                     <img className="fomo_nft" src={this.state.nftLink} alt="NFT"/>
                 </a>

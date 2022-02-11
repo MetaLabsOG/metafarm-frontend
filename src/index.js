@@ -11,6 +11,7 @@ import {ALGONODE, AppContext} from "./AppContext";
 
 const reach = loadStdlib(ALGONODE);
 
+
 const App = () => {
     const [isWalletModalOpen, setIsWalletModalOpen] = React.useState(false);
     const [account, setAccount] = React.useState(false);
