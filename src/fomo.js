@@ -43,9 +43,11 @@ export class Fomo extends React.Component {
         this.state = {
             isAccountConnected: false,
             isFomoSet: false,
+            isFinish: false,
             isModalOpen: false,
             endTime: 0,
             startTime: 0,
+            currentTime: Math.floor(Date.now() / 1000),
             nftPrize: 0,
             currentPrice: 0,
             currentTotal: 0,
@@ -62,7 +64,12 @@ export class Fomo extends React.Component {
         const { reach } = this.context;
         const ctc = account.contract(fomo, FOMO_APP_ID);
         this.setState({ctc: ctc});
-        fomo.Buyer(ctc, this).catch(e => console.log('[ERROR]', e));
+        fomo.Buyer(ctc, this).catch(e => {
+            console.log('[ERROR]', e);
+            if (e.message.includes('no application found')) {
+                this.setState({isFinish: true});
+            }
+        });
 
         const fomoInfo = await ctc.views.Fomo.info();
         if (fomoInfo[0] === 'None') {
@@ -80,6 +87,10 @@ export class Fomo extends React.Component {
 
         this.setState({endTime: parseInt(fomoInfo[1].deadlineSecs[1]._hex, 16)});
         this.setState({startTime: parseInt(fomoInfo[1].startSecs[1]._hex, 16)});
+
+        if (this.state.currentTime > this.state.endTime) {
+            this.setState({isFinish: true});
+        }
 
         if (this.state.currentPrice > 0) {
             const winnerPriceHex = await ctc.views.Fomo.prevPrice(this.state.currentPrice);
@@ -116,6 +127,11 @@ export class Fomo extends React.Component {
         this.setState({currentTotal: parseInt(fomoInfo[1].currentTotal._hex, 16) / 1000000});
     }
 
+    showOutcome(address) {
+        const { reach } = this.context;
+        console.log('WINNER!!!', reach.formatAddress(address));
+    }
+
     buyTicket = () => {
         if (this.state.ctc) {
             this.state.ctc.apis.Api.buyTicket();
@@ -132,6 +148,14 @@ export class Fomo extends React.Component {
     }
 
     render() {
+        if (this.state.isFinish) {
+            return (
+                <div className="fomo">
+                    <h1 style={{fontSize: "20px", marginTop: "20px"}}>THE FOMO IS FINISHED.</h1>
+                </div>
+            );
+        }
+
         if (!this.props.account) {
             return (
                 <div className="fomo">
@@ -157,7 +181,7 @@ export class Fomo extends React.Component {
                     <img alt="Algo" src={algo} style={{marginLeft: "3px", width: "16px"}}/>
                 </div>
                 <RulesModal isModalOpen={this.state.isModalOpen} setIsModalOpen={this.setIsModalOpen}/>
-                <Timer totalSec={this.state.endTime - this.state.startTime} leftSec={this.state.endTime - Math.floor(Date.now() / 1000)} />
+                <Timer totalSec={this.state.endTime - this.state.startTime} leftSec={this.state.endTime - this.state.currentTime} />
                 <a href={"https://www.nftexplorer.app/asset/" + this.state.nftPrize}>
                     <img className="fomo_nft" src={this.state.nftLink} alt="NFT"/>
                 </a>
