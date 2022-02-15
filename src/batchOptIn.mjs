@@ -1,6 +1,6 @@
-import { getProvider } from "@reach-sh/stdlib/ALGO";
 import algosdk from "algosdk";
 import buffer from 'buffer';
+import {ALGONET, TESTNET} from "./AppContext.js";
 
 const {Buffer} = buffer;
 
@@ -12,13 +12,13 @@ const {Buffer} = buffer;
  * @return {Promise<*>} pending transaction information
  * @throws Throws an error if the transaction is not confirmed or rejected in the next timeout rounds
  */
-async function waitForConfirmation (algodClient, txId, timeout) {
+async function waitForConfirmation(algodClient, txId, timeout) {
     if (algodClient == null || txId == null || timeout < 0) {
         throw new Error("Bad arguments");
     }
 
     const status = (await algodClient.status().do());
-    if (status === undefined) {=
+    if (status === undefined) {
         throw new Error("Unable to get node status");
     }
 
@@ -42,7 +42,7 @@ async function waitForConfirmation (algodClient, txId, timeout) {
         currentround++;
     }
     throw new Error("Transaction " + txId + " not confirmed after " + timeout + " rounds!");
-};
+}
 
 /**
  * Opt-ins to a few asaIds in one go.
@@ -50,14 +50,15 @@ async function waitForConfirmation (algodClient, txId, timeout) {
  * @param asaIds ids to opt-in. Should be not empty and not more that 16.
  * @returns always true. It's a hack for reach smart contracts. TODO
  */
-export async function batchOptIn(addr, asaIds, waitConfirmation = true) {
+export async function batchOptIn(reach, addr, asaIds, waitConfirmation = true) {
     if (asaIds.length === 0) {
         throw Error("Empty opt-in asa id list");
     }
     if (asaIds.length > 16) {
         throw Error(`Too many asa ids in the list. Should be at most 16 but is: ${asaIds}`)
     }
-    const p = await getProvider();
+
+    const p = await reach.getProvider();
     const algodClient = p.algodClient;
     const ps = await algodClient.getTransactionParams().do();
     const revocationTarget = undefined;
@@ -105,4 +106,26 @@ export async function multiBatchOptIn(addr) {
         console.log(i, Math.min(asaIdsCount, i + BATCH_SIZE));
         await batchOptIn(addr, batch, false);
     }
+}
+
+export function checkOptIn(addr, asaId) {
+    const preffix = (ALGONET === TESTNET) ? "testnet." : "";
+    return (
+        fetch("https://algoindexer." + preffix + "algoexplorerapi.io/v2/accounts/" + addr, {method: 'GET'})
+        .then(res => res.json())
+        .then(data => {
+            if (!data.account || !data.account.assets) {
+                return false;
+            }
+            for (const asset in data.account.assets) {
+                if (asset['asset-id'] === asaId) {
+                    return true;
+                }
+            }
+            return false;
+        }).catch(err => {
+            console.log('ERR', err);
+            return false;
+        })
+    );
 }

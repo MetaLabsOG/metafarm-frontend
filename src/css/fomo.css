@@ -8,6 +8,13 @@
     font-size: 20px;
 }
 
+.fomo_status {
+    font-size: 20px;
+    text-align: left;
+    position: relative;
+    white-space: pre-line;
+}
+
 .fomo_rules {
     border: 0;
     color: #197303;

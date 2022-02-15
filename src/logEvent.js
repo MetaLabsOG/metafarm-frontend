@@ -1,4 +1,4 @@
-export function logEvent(address, status="", log_name="") {
+export function logEvent(address, status="") {
     // console.log('LOG', address, status, error);
     const requestOptions = {
         method: 'POST',

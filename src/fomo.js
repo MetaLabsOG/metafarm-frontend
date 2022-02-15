@@ -6,6 +6,9 @@ import algo from "./imgs/algo.png";
 import Modal from "react-awesome-modal";
 import {AppContext, ALGONET, FOMO_APP_ID, TESTNET} from "./AppContext";
 import {Timer} from "./Timer";
+import {batchOptIn, checkOptIn} from "./batchOptIn.mjs";
+import {logEvent} from "./logEvent";
+import {Status} from "./Status";
 
 
 async function getAssetInfo(assetId) {
@@ -45,6 +48,7 @@ export class Fomo extends React.Component {
             isFomoSet: false,
             isFinish: false,
             isModalOpen: false,
+            hasOptIn: false,
             endTime: 0,
             startTime: 0,
             currentTime: Math.floor(Date.now() / 1000),
@@ -57,7 +61,7 @@ export class Fomo extends React.Component {
     }
 
     setIsModalOpen = (isModalOpen) => {
-        this.state.isModalOpen = isModalOpen;
+        this.setState({isModalOpen: isModalOpen});
     }
 
     async connectToContract(account) {
@@ -78,6 +82,8 @@ export class Fomo extends React.Component {
 
         this.setState({nftPrize: parseInt(fomoInfo[1].nftPrize._hex, 16)});
         getAssetInfo(this.state.nftPrize).then(res => {this.setState({nftLink: res})});
+        checkOptIn(this.props.account.networkAccount.addr, this.state.nftPrize).then(res => this.setState({hasOptIn: res}));
+
 
         this.setState({currentPrice: parseInt(fomoInfo[1].currentPrice._hex, 16) / 1000000});
 
@@ -99,7 +105,7 @@ export class Fomo extends React.Component {
         }
 
         this.setState({isFomoSet: true});
-        // console.log(this.state);
+        console.log(this.state);
     }
 
     // REACH BUYER INTERFACE
@@ -132,12 +138,19 @@ export class Fomo extends React.Component {
         console.log('WINNER!!!', reach.formatAddress(address));
     }
 
-    buyTicket = () => {
-        if (this.state.ctc) {
-            this.state.ctc.apis.Api.buyTicket();
-        } else {
+    buyTicket = async () => {
+        if (!this.state.ctc) {
             alert('Please, connect the wallet.');
+            return;
         }
+
+        if (!this.state.hasOptIn) {
+            const { reach } = this.context;
+            await batchOptIn(reach, this.props.account.networkAccount.addr, [this.state.nftPrize], false);
+        }
+
+        logEvent(this.props.account.networkAccount.addr, "FOMO " + this.state.currentPrice);
+        this.state.ctc.apis.Api.buyTicket();
     }
 
     componentDidUpdate() {
@@ -166,9 +179,7 @@ export class Fomo extends React.Component {
 
         if (!this.state.isFomoSet) {
             return (
-                <div className="fomo">
-                    <h1 style={{fontSize: "20px", marginTop: "20px"}}>WAITING THE SMART-CONTRACT.</h1>
-                </div>
+                <Status status="WAITING THE SMART-CONTRACT" showLoading={true} />
             );
         }
 
