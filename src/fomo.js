@@ -99,7 +99,7 @@ export class Fomo extends React.Component {
         }
 
         if (this.state.currentPrice > 0) {
-            const winnerPriceHex = await ctc.views.Fomo.prevPrice(this.state.currentPrice);
+            const winnerPriceHex = await ctc.views.Fomo.prevPrice(this.state.currentPrice * 1000000);
             const winnerPrice = parseInt(winnerPriceHex[1]._hex, 16) / 1000000;
             this.setState({winnerPrice: winnerPrice});
         }
@@ -179,7 +179,7 @@ export class Fomo extends React.Component {
 
         if (!this.state.isFomoSet) {
             return (
-                <Status status="WAITING THE SMART-CONTRACT" showLoading={true} />
+                <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />
             );
         }
 
