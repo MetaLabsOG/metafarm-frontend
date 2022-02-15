@@ -49,10 +49,12 @@ export class Fomo extends React.Component {
             isFinish: false,
             isModalOpen: false,
             hasOptIn: false,
-            endTime: 0,
+            isLoading: false,
             startTime: 0,
-            currentTime: Math.floor(Date.now() / 1000),
+            endTime: 0,
+            currentTime: 0,
             nftPrize: 0,
+            nftLink: "",
             currentPrice: 0,
             currentTotal: 0,
             currentWinner: "",
@@ -65,7 +67,6 @@ export class Fomo extends React.Component {
     }
 
     async connectToContract(account) {
-        const { reach } = this.context;
         const ctc = account.contract(fomo, FOMO_APP_ID);
         this.setState({ctc: ctc});
         fomo.Buyer(ctc, this).catch(e => {
@@ -75,33 +76,47 @@ export class Fomo extends React.Component {
             }
         });
 
-        const fomoInfo = await ctc.views.Fomo.info();
-        if (fomoInfo[0] === 'None') {
+        await this.updateFomoInfo();
+    }
+
+    async updateFomoInfo() {
+        if (!this.state.ctc) {
             return;
         }
 
-        this.setState({nftPrize: parseInt(fomoInfo[1].nftPrize._hex, 16)});
-        getAssetInfo(this.state.nftPrize).then(res => {this.setState({nftLink: res})});
-        checkOptIn(this.props.account.networkAccount.addr, this.state.nftPrize).then(res => this.setState({hasOptIn: res}));
+        const {reach} = this.context;
 
+        const [fomoInfoStatus, fomoInfo] = await this.state.ctc.views.Fomo.info();
+        if (fomoInfoStatus === 'None') {
+            return;
+        }
 
-        this.setState({currentPrice: parseInt(fomoInfo[1].currentPrice._hex, 16) / 1000000});
+        if (!this.state.nftPrize) {
+            this.setState({nftPrize: reach.bigNumberToNumber(fomoInfo.nftPrize)});
+            const nftLink = await getAssetInfo(this.state.nftPrize);
+            this.setState({nftLink: nftLink});
+        }
+        if (!this.state.hasOptIn) {
+            const hasOptIn = await checkOptIn(this.props.account.networkAccount.addr, this.state.nftPrize);
+            this.setState({hasOptIn: hasOptIn});
+        }
 
-        const paidToFunder = parseInt(fomoInfo[1].paidToFunder._hex, 16) / 1000000;
-        this.setState({currentTotal: parseInt(fomoInfo[1].currentTotal._hex, 16) / 1000000 - paidToFunder});
-        this.setState({currentWinner: reach.formatAddress(fomoInfo[1].currentWinner)});
+        const paidToFunder = reach.formatCurrency(fomoInfo.paidToFunder);
+        const now = await reach.getNetworkSecs();
+        const winnerPrice = await this.state.ctc.views.Fomo.prevPrice(fomoInfo.currentPrice);
+        this.setState({
+            currentPrice: reach.formatCurrency(fomoInfo.currentPrice),
+            currentTotal: reach.formatCurrency(fomoInfo.currentTotal) - paidToFunder,
+            winnerPrice: reach.formatCurrency(winnerPrice[1]),
+            currentWinner: reach.formatAddress(fomoInfo.currentWinner),
 
-        this.setState({endTime: parseInt(fomoInfo[1].deadlineSecs[1]._hex, 16)});
-        this.setState({startTime: parseInt(fomoInfo[1].startSecs[1]._hex, 16)});
+            endTime: reach.bigNumberToNumber(fomoInfo.deadlineSecs[1]),
+            startTime: reach.bigNumberToNumber(fomoInfo.startSecs[1]),
+            currentTime: reach.bigNumberToNumber(now) + 4 * 3600
+        });
 
         if (this.state.currentTime > this.state.endTime) {
             this.setState({isFinish: true});
-        }
-
-        if (this.state.currentPrice > 0) {
-            const winnerPriceHex = await ctc.views.Fomo.prevPrice(this.state.currentPrice * 1000000);
-            const winnerPrice = parseInt(winnerPriceHex[1]._hex, 16) / 1000000;
-            this.setState({winnerPrice: winnerPrice});
         }
 
         this.setState({isFomoSet: true});
@@ -110,32 +125,23 @@ export class Fomo extends React.Component {
 
     // REACH BUYER INTERFACE
     async showPurchase(winnerAddress, winnerPriceHex, newPriceHex) {
-        const winnerPrice = parseInt(winnerPriceHex._hex, 16) / 1000000;
+        const winnerPrice = this.context.reach.formatCurrency(winnerPriceHex);
         if (winnerPrice < this.state.currentPrice) {
             return;
         }
 
-        const { reach } = this.context;
+        console.log('NEW WINNER', this.context.reach.formatAddress(winnerAddress), winnerPrice);
 
-        const newPrice = parseInt(newPriceHex._hex, 16) / 1000000;
-        console.log('WINNER', winnerAddress, winnerPrice, newPrice);
-
-        this.setState({
-            currentWinner: reach.formatAddress(winnerAddress),
-            winnerPrice: winnerPrice,
-            currentPrice: newPrice,
-        });
-
-        const fomoInfo = await this.state.ctc.views.Fomo.info();
-        if (fomoInfo[0] === 'None') {
-            return;
-        }
-        this.setState({currentTotal: parseInt(fomoInfo[1].currentTotal._hex, 16) / 1000000});
+        await this.updateFomoInfo();
     }
 
     showOutcome(address) {
-        const { reach } = this.context;
-        console.log('WINNER!!!', reach.formatAddress(address));
+        const winnerAddress = this.context.reach.formatAddress(address);
+        console.log('WINNER!!!', winnerAddress);
+        this.setState({
+            isFinish: true,
+            currentWinner: winnerAddress
+        });
     }
 
     buyTicket = async () => {
@@ -144,13 +150,15 @@ export class Fomo extends React.Component {
             return;
         }
 
+        this.setState({isLoading: true});
+
         if (!this.state.hasOptIn) {
-            const { reach } = this.context;
-            await batchOptIn(reach, this.props.account.networkAccount.addr, [this.state.nftPrize], false);
+            await batchOptIn(this.context.reach, this.props.account.networkAccount.addr, [this.state.nftPrize], false);
         }
 
         logEvent(this.props.account.networkAccount.addr, "FOMO " + this.state.currentPrice);
-        this.state.ctc.apis.Api.buyTicket();
+        await this.state.ctc.apis.Api.buyTicket();
+        this.setState({isLoading: false});
     }
 
     componentDidUpdate() {
@@ -161,14 +169,6 @@ export class Fomo extends React.Component {
     }
 
     render() {
-        if (this.state.isFinish) {
-            return (
-                <div className="fomo">
-                    <h1 style={{fontSize: "20px", marginTop: "20px"}}>THE FOMO IS FINISHED.</h1>
-                </div>
-            );
-        }
-
         if (!this.props.account) {
             return (
                 <div className="fomo">
@@ -180,6 +180,20 @@ export class Fomo extends React.Component {
         if (!this.state.isFomoSet) {
             return (
                 <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />
+            );
+        }
+
+        if (this.state.isFinish) {
+            return (
+                <div className="fomo">
+                    <h1 style={{fontSize: "20px", marginTop: "20px"}}>THE FOMO IS FINISHED.</h1>
+                    {this.state.currentWinner ?
+                        <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
+                            <h2 className="fomo_info">winner: </h2>
+                            <a className="fomo_info" href={"https://algoexplorer.io/address/" + this.state.currentWinner}>{this.state.currentWinner}</a>
+                        </div> : <br/>
+                    }
+                </div>
             );
         }
 
@@ -205,7 +219,12 @@ export class Fomo extends React.Component {
                     <h1 className="fomo_phrase">bid: {this.state.currentPrice}</h1>
                     <img alt="Algo" src={algo} style={{marginLeft: "3px", width: "16px"}}/>
                 </div>
-                <button className="fomo_button" onClick={this.buyTicket}>FOMO!!!</button>
+                {/*<button className="fomo_button" onClick={this.buyTicket}>FOMO!!!</button>*/}
+                <button className={!this.state.isLoading ? "fomo_button" : "fomo_button_loading" } onClick={!this.state.isLoading ? this.buyTicket : undefined}>
+                    FOMO!!!
+                    {this.state.isLoading ? <span className="fomo_loading">
+                        <img style={{ maxWidth: '100%', maxHeight: '100%' }} src={require('./imgs/loader.gif').default}/></span> : <br/>}
+                </button>
             </div>
         );
     }

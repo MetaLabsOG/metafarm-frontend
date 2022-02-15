@@ -72,3 +72,27 @@
     color: #5cfc3c;
     background-color: #000;
 }
+
+.fomo_loading {
+    background-color: inherit;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fomo_button_loading {
+    width: 300px;
+    height: 50px;
+    margin-top: 10px;
+    position: relative;
+
+    background-color: #000000;
+    border: 2px solid #5cfc3c;
+
+    cursor: pointer;
+}

@@ -117,8 +117,8 @@ export function checkOptIn(addr, asaId) {
             if (!data.account || !data.account.assets) {
                 return false;
             }
-            for (const asset in data.account.assets) {
-                if (asset['asset-id'] === asaId) {
+            for (let asset_num in data.account.assets) {
+                if (data.account.assets[asset_num]['asset-id'] === asaId) {
                     return true;
                 }
             }
