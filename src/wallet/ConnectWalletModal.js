@@ -5,6 +5,7 @@ import Modal from 'react-awesome-modal';
 
 import MyAlgoConnect from '@reach-sh/stdlib/ALGO_MyAlgoConnect';
 // import WalletConnect from '@reach-sh/stdlib/ALGO_WalletConnect';
+import {logEvent} from "../logEvent";
 
 const { detect } = require('detect-browser');
 const browser = detect();
@@ -20,9 +21,15 @@ export function ConnectWalletModal() {
             setAccount(account);
             console.log('Address:', account.networkAccount.addr);
             console.log('Browser:', browser.name, browser.version, browser.os);
+            logEvent(account.networkAccount.addr, "Wallet connect " +
+                    walletType + ", window width: " + window.innerWidth + ", " +
+                    browser.name + ": " + browser.version + ": " + browser.os
+            );
+
             return account;
         }).catch(e => {
             console.log('ERROR. ConnectWallet: ' + e.name + ": " + e.message);
+            logEvent('', 'ERROR. ConnectWallet: ' + e.name + ": " + e.message);
         });
     }
 
