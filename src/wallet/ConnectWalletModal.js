@@ -35,7 +35,7 @@ export function ConnectWalletModal() {
 
     const myAlgoWalletClick = () => {
         setWalletType('MyAlgo');
-        reach.setWalletFallback(reach.walletFallback({providerEnv: ALGONET, MyAlgoConnect}));
+        reach.setWalletFallback(reach.walletFallback({providerEnv: ALGONET, MyAlgoConnect})); // ALGONODE
         connectWallet();
     }
 

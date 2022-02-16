@@ -7,7 +7,7 @@ export const ALGONODE = {
     // ALGO_SERVER: 'https://mainnet-algorand.api.purestake.io/ps2',
     // ALGO_TOKEN: {'X-API-Key': 'd5bjYQye8f6tfntYkkFZ32l9Yb1b9e098KyNZ69B'},
     // ALGO_PORT: '',
-    // ALGO_INDEXER_SERVER: 'https://mainnet-algorand.api.purestake.io/idx2',
+    // ALGO_INDEXER_SERVER: 'https://testnet-algorand.api.purestake.io/idx2',
     // ALGO_INDEXER_TOKEN: {'X-API-Key': 'd5bjYQye8f6tfntYkkFZ32l9Yb1b9e098KyNZ69B'},
     // ALGO_INDEXER_PORT: ''
 }

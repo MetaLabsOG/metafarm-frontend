@@ -59,6 +59,7 @@ export class Fomo extends React.Component {
             currentTotal: 0,
             currentWinner: "",
             winnerPrice: 0,
+            ctc: null,
         };
     }
 
@@ -66,12 +67,12 @@ export class Fomo extends React.Component {
         this.setState({isModalOpen: isModalOpen});
     }
 
-    async connectToContract(account) {
+    connectToContract = async (account) => {
         const ctc = account.contract(fomo, FOMO_APP_ID);
-        console.log('Connecting...');
+        console.log('Connecting to', FOMO_APP_ID);
         this.setState({ctc: ctc});
+
         fomo.Buyer(ctc, this)
-        .then(_ => console.log('Contract is connected'))
         .catch(e => {
             console.log('[ERROR]', e);
             if (e.message.includes('no application found')) {
@@ -79,18 +80,17 @@ export class Fomo extends React.Component {
             }
         });
 
-        await this.updateFomoInfo();
+        await this.updateFomoInfo(ctc);
     }
 
-    async updateFomoInfo() {
-        if (!this.state.ctc) {
+    updateFomoInfo = async (ctc) => {
+        if (!ctc) {
             return;
         }
-
         const {reach} = this.context;
         console.log('Getting info');
 
-        const [fomoInfoStatus, fomoInfo] = await this.state.ctc.views.Fomo.info();
+        const [fomoInfoStatus, fomoInfo] = await ctc.views.Fomo.info();
         if (fomoInfoStatus === 'None') {
             return;
         }
@@ -106,24 +106,29 @@ export class Fomo extends React.Component {
         }
 
         const paidToFunder = reach.formatCurrency(fomoInfo.paidToFunder);
+        const winnerPrice = await ctc.views.Fomo.prevPrice(fomoInfo.currentPrice);
+
         const now = await reach.getNetworkSecs();
-        const winnerPrice = await this.state.ctc.views.Fomo.prevPrice(fomoInfo.currentPrice);
+        const currentTime = reach.bigNumberToNumber(now);
+        const endTime = reach.bigNumberToNumber(fomoInfo.deadlineSecs[1]);
+        if (currentTime > endTime) {
+            this.setState({isFinish: true});
+            return;
+        }
+
         this.setState({
             currentPrice: reach.formatCurrency(fomoInfo.currentPrice),
             currentTotal: reach.formatCurrency(fomoInfo.currentTotal) - paidToFunder,
             winnerPrice: reach.formatCurrency(winnerPrice[1]),
             currentWinner: reach.formatAddress(fomoInfo.currentWinner),
 
-            endTime: reach.bigNumberToNumber(fomoInfo.deadlineSecs[1]),
+            endTime: endTime,
             startTime: reach.bigNumberToNumber(fomoInfo.startSecs[1]),
-            currentTime: reach.bigNumberToNumber(now) + 4 * 3600
+            currentTime: currentTime,
+
+            isFomoSet: true
         });
 
-        if (this.state.currentTime > this.state.endTime) {
-            this.setState({isFinish: true});
-        }
-
-        this.setState({isFomoSet: true});
         console.log(this.state);
     }
 
@@ -136,7 +141,7 @@ export class Fomo extends React.Component {
 
         console.log('NEW WINNER', this.context.reach.formatAddress(winnerAddress), winnerPrice);
 
-        await this.updateFomoInfo();
+        await this.updateFomoInfo(this.state.ctc);
     }
 
     showOutcome(address) {
