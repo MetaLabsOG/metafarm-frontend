@@ -68,8 +68,11 @@ export class Fomo extends React.Component {
 
     async connectToContract(account) {
         const ctc = account.contract(fomo, FOMO_APP_ID);
+        console.log('Connecting...');
         this.setState({ctc: ctc});
-        fomo.Buyer(ctc, this).catch(e => {
+        fomo.Buyer(ctc, this)
+        .then(_ => console.log('Contract is connected'))
+        .catch(e => {
             console.log('[ERROR]', e);
             if (e.message.includes('no application found')) {
                 this.setState({isFinish: true});
@@ -85,6 +88,7 @@ export class Fomo extends React.Component {
         }
 
         const {reach} = this.context;
+        console.log('Getting info');
 
         const [fomoInfoStatus, fomoInfo] = await this.state.ctc.views.Fomo.info();
         if (fomoInfoStatus === 'None') {
@@ -223,7 +227,7 @@ export class Fomo extends React.Component {
                 <button className={!this.state.isLoading ? "fomo_button" : "fomo_button_loading" } onClick={!this.state.isLoading ? this.buyTicket : undefined}>
                     FOMO!!!
                     {this.state.isLoading ? <span className="fomo_loading">
-                        <img style={{ maxWidth: '100%', maxHeight: '100%' }} src={require('./imgs/loader.gif').default}/></span> : <br/>}
+                        <img style={{ maxWidth: '100%', maxHeight: '100%' }} alt='loader' src={require('./imgs/loader.gif').default}/></span> : <br/>}
                 </button>
             </div>
         );
