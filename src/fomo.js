@@ -50,9 +50,9 @@ export class Fomo extends React.Component {
             isModalOpen: false,
             hasOptIn: false,
             isLoading: false,
-            startTime: 0,
-            endTime: 0,
+            fomoDuration: 0,
             currentTime: 0,
+            endTime: 0,
             nftPrize: 0,
             nftLink: "",
             currentPrice: 0,
@@ -106,11 +106,12 @@ export class Fomo extends React.Component {
         }
 
         const paidToFunder = reach.formatCurrency(fomoInfo.paidToFunder);
+        const currentTotal = reach.formatCurrency(fomoInfo.currentTotal) - paidToFunder;
         const winnerPrice = await ctc.views.Fomo.prevPrice(fomoInfo.currentPrice);
 
         const now = await reach.getNetworkSecs();
         const currentTime = reach.bigNumberToNumber(now);
-        const endTime = reach.bigNumberToNumber(fomoInfo.deadlineSecs[1]);
+        const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
         if (currentTime > endTime) {
             this.setState({isFinish: true});
             return;
@@ -118,13 +119,13 @@ export class Fomo extends React.Component {
 
         this.setState({
             currentPrice: reach.formatCurrency(fomoInfo.currentPrice),
-            currentTotal: reach.formatCurrency(fomoInfo.currentTotal) - paidToFunder,
-            winnerPrice: reach.formatCurrency(winnerPrice[1]),
+            currentTotal: currentTotal,
+            winnerPrice: (currentTotal > 0) ? reach.formatCurrency(winnerPrice[1]) : 0,
             currentWinner: reach.formatAddress(fomoInfo.currentWinner),
 
-            startTime: reach.bigNumberToNumber(fomoInfo.startSecs[1]),
-            endTime: endTime,
+            fomoDuration: reach.bigNumberToNumber(fomoInfo.deadline),
             currentTime: currentTime,
+            endTime: endTime,
 
             isFomoSet: true
         });
@@ -218,7 +219,7 @@ export class Fomo extends React.Component {
                     <img alt="Algo" src={algo} style={{marginLeft: "3px", width: "16px"}}/>
                 </div>
                 <RulesModal isModalOpen={this.state.isModalOpen} setIsModalOpen={this.setIsModalOpen}/>
-                <Timer totalSec={this.state.endTime - this.state.startTime} leftSec={this.state.endTime - this.state.currentTime} />
+                <Timer totalSec={this.state.fomoDuration} leftSec={this.state.endTime - this.state.currentTime} />
                 <a href={"https://www.nftexplorer.app/asset/" + this.state.nftPrize}>
                     <img className="fomo_nft" src={this.state.nftLink} alt="NFT"/>
                 </a>
