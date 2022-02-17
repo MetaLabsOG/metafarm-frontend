@@ -122,8 +122,8 @@ export class Fomo extends React.Component {
             winnerPrice: reach.formatCurrency(winnerPrice[1]),
             currentWinner: reach.formatAddress(fomoInfo.currentWinner),
 
-            endTime: endTime,
             startTime: reach.bigNumberToNumber(fomoInfo.startSecs[1]),
+            endTime: endTime,
             currentTime: currentTime,
 
             isFomoSet: true
@@ -151,6 +151,9 @@ export class Fomo extends React.Component {
             isFinish: true,
             currentWinner: winnerAddress
         });
+    }
+
+    deployed() {
     }
 
     buyTicket = async () => {

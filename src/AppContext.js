@@ -21,4 +21,4 @@ console.log(ALGONET);
 export const IS_MOBILE = (window.innerWidth <= 768);
 console.log('Is mobile:', IS_MOBILE);
 
-export const FOMO_APP_ID = 71324532;
+export const FOMO_APP_ID = 71532591;
