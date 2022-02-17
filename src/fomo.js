@@ -92,6 +92,7 @@ export class Fomo extends React.Component {
 
         const [fomoInfoStatus, fomoInfo] = await ctc.views.Fomo.info();
         if (fomoInfoStatus === 'None') {
+            console.log('fomoInfoStatus None');
             return;
         }
 
@@ -113,6 +114,7 @@ export class Fomo extends React.Component {
         const currentTime = reach.bigNumberToNumber(now);
         const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
         if (currentTime > endTime) {
+            console.log('fomo is finished');
             this.setState({isFinish: true});
             return;
         }
