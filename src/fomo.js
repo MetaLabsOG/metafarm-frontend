@@ -97,25 +97,20 @@ export class Fomo extends React.Component {
             return;
         }
 
-        console.log(fomoInfo);
-
         if (!this.state.nftPrize) {
             this.setState({nftPrize: reach.bigNumberToNumber(fomoInfo.nftPrize)});
             const nftLink = await getAssetInfo(this.state.nftPrize);
             this.setState({nftLink: nftLink});
         }
         if (!this.state.hasOptIn) {
-            console.log(this.props.account.networkAccount.addr, this.state.nftPrize);
             const hasOptIn = await checkOptIn(this.props.account.networkAccount.addr, this.state.nftPrize);
-            console.log(hasOptIn);
             this.setState({hasOptIn: hasOptIn});
         }
 
         const paidToFunder = reach.formatCurrency(fomoInfo.paidToFunder);
         const currentTotal = reach.formatCurrency(fomoInfo.currentTotal) - paidToFunder;
-        console.log(currentTotal, fomoInfo.currentPrice);
         const winnerPrice = await ctc.views.Fomo.prevPrice(fomoInfo.currentPrice);
-        console.log(winnerPrice);
+
         const now = await reach.getNetworkSecs();
         const currentTime = reach.bigNumberToNumber(now);
         const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
@@ -178,8 +173,15 @@ export class Fomo extends React.Component {
         }
 
         logEvent(this.props.account.networkAccount.addr, "FOMO " + this.state.currentPrice);
-        await this.state.ctc.apis.Api.buyTicket();
-        this.setState({isLoading: false});
+        this.state.ctc.apis.Api.buyTicket().then(_ => {
+            this.setState({isLoading: false});
+        }).catch(e => {
+            console.log('[ERROR]', e);
+            if (e.message.includes('logic eval error')) {
+                alert('Sorry, someone beat you');
+            }
+            this.setState({isLoading: false});
+        });
     }
 
     componentDidUpdate() {
@@ -223,7 +225,7 @@ export class Fomo extends React.Component {
                 <h1 style={{fontSize: "20px", marginTop: "20px", color: "#197303"}}>THE ONLY WAY YOU LOSE IN THIS GAME IS IF YOU STOP PLAYING</h1>
                 <button className="fomo_rules" onClick={() => this.setIsModalOpen(true)}>game rules</button>
                 <div style={{display: "flex", alignItems: "center", marginTop: "20px"}}>
-                    <h2 className="fomo_phrase">prize: NFT + {this.state.currentTotal}</h2>
+                    <h2 className="fomo_phrase">prize: NFT + {this.state.currentTotal.toPrecision(3)}</h2>
                     <img alt="Algo" src={algo} style={{marginLeft: "3px", width: "16px"}}/>
                 </div>
                 <RulesModal isModalOpen={this.state.isModalOpen} setIsModalOpen={this.setIsModalOpen}/>
