@@ -5,16 +5,18 @@ export function Timer({totalSec, leftSec}) {
     const [seconds, setSeconds] = React.useState(leftSec);
 
     useEffect(() => {
-        let interval = null;
-        if (seconds) {
-            interval = setInterval(() => {
+        let timeout;
+        if (seconds > 0) {
+            timeout = setTimeout(() => {
                 setSeconds(seconds => Math.max(0, seconds - 1));
             }, 1000);
-        } else {
-            clearInterval(interval);
         }
-        return () => clearInterval(interval);
+        return () => clearTimeout(timeout);
     }, [seconds]);
+
+    useEffect(() => {
+        setSeconds(leftSec);
+    }, [leftSec]);
 
     return (
         <React.Fragment>
