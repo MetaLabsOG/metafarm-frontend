@@ -1,4 +1,4 @@
-export function logEvent(address, status="") {
+export function logEvent(address, status="", log_name="") {
     // console.log('LOG', address, status, error);
     const requestOptions = {
         method: 'POST',
@@ -15,5 +15,10 @@ export function logEvent(address, status="") {
             }
         })
     };
-    fetch("https://api.airtable.com/v0/appqAikFZd31XeJqW/fomo", requestOptions);
+
+    if (log_name) {
+        fetch("https://api.airtable.com/v0/app5t32NrBOUQs4bh/" + log_name, requestOptions);
+    } else {
+        fetch("https://api.airtable.com/v0/appqAikFZd31XeJqW/fomo", requestOptions);
+    }
 }

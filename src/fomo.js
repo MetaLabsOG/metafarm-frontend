@@ -84,7 +84,8 @@ export class Fomo extends React.Component {
     }
 
     updateFomoInfo = async (ctc) => {
-        if (!ctc) {
+        if (!ctc || this.state.isFinish) {
+            console.log('No ctc or fomo is finished');
             return;
         }
         const {reach} = this.context;
@@ -96,20 +97,25 @@ export class Fomo extends React.Component {
             return;
         }
 
+        console.log(fomoInfo);
+
         if (!this.state.nftPrize) {
             this.setState({nftPrize: reach.bigNumberToNumber(fomoInfo.nftPrize)});
             const nftLink = await getAssetInfo(this.state.nftPrize);
             this.setState({nftLink: nftLink});
         }
         if (!this.state.hasOptIn) {
+            console.log(this.props.account.networkAccount.addr, this.state.nftPrize);
             const hasOptIn = await checkOptIn(this.props.account.networkAccount.addr, this.state.nftPrize);
+            console.log(hasOptIn);
             this.setState({hasOptIn: hasOptIn});
         }
 
         const paidToFunder = reach.formatCurrency(fomoInfo.paidToFunder);
         const currentTotal = reach.formatCurrency(fomoInfo.currentTotal) - paidToFunder;
+        console.log(currentTotal, fomoInfo.currentPrice);
         const winnerPrice = await ctc.views.Fomo.prevPrice(fomoInfo.currentPrice);
-
+        console.log(winnerPrice);
         const now = await reach.getNetworkSecs();
         const currentTime = reach.bigNumberToNumber(now);
         const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
@@ -192,12 +198,6 @@ export class Fomo extends React.Component {
             );
         }
 
-        if (!this.state.isFomoSet) {
-            return (
-                <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />
-            );
-        }
-
         if (this.state.isFinish) {
             return (
                 <div className="fomo">
@@ -209,6 +209,12 @@ export class Fomo extends React.Component {
                         </div> : <br/>
                     }
                 </div>
+            );
+        }
+
+        if (!this.state.isFomoSet) {
+            return (
+                <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />
             );
         }
 
