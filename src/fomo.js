@@ -242,7 +242,7 @@ export class Fomo extends React.Component {
                     <h1 className="fomo_phrase">bid: {this.state.currentPrice}</h1>
                     <img alt="Algo" src={algo} style={{marginLeft: "3px", width: "16px"}}/>
                 </div>
-                {/*<button className="fomo_button" onClick={this.buyTicket}>FOMO!!!</button>*/}
+                
                 <button className={!this.state.isLoading ? "fomo_button" : "fomo_button_loading" } onClick={!this.state.isLoading ? this.buyTicket : undefined}>
                     FOMO!!!
                     {this.state.isLoading ? <span className="fomo_loading">
