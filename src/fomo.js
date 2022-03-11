@@ -60,6 +60,7 @@ export class Fomo extends React.Component {
             currentWinner: "",
             winnerPrice: 0,
             ctc: null,
+            token: ""
         };
     }
 
@@ -107,6 +108,10 @@ export class Fomo extends React.Component {
             this.setState({hasOptIn: hasOptIn});
         }
 
+        if(!this.state.token) {
+            this.setState({token: reach.bigNumberToNumber(fomoInfo.token)})
+        }
+
         const paidToFunder = reach.formatCurrency(fomoInfo.paidToFunder);
         const currentTotal = reach.formatCurrency(fomoInfo.currentTotal) - paidToFunder;
         const winnerPrice = await ctc.views.Fomo.prevPrice(fomoInfo.currentPrice);
@@ -133,7 +138,6 @@ export class Fomo extends React.Component {
             isFomoSet: true
         });
 
-        console.log(this.state);
     }
 
     // REACH BUYER INTERFACE
@@ -160,7 +164,56 @@ export class Fomo extends React.Component {
     deployed() {
     }
 
+    buyDiscount = async () => {
+
+      
+        
+        if (!this.state.ctc) {
+            alert('Please, connect the wallet.');
+            return;
+        }
+
+        if (!this.state.hasOptIn) {
+            await batchOptIn(this.context.reach, this.props.account.networkAccount.addr, [this.state.nftPrize, this.state.token], false);
+        }
+
+        logEvent(this.props.account.networkAccount.addr, "FOMO " + this.state.currentPrice);
+        this.state.ctc.apis.Api.buyDiscount().then(_ => {
+            this.setState({isLoading: false});
+        }).catch(e => {
+            console.log('[ERROR]', e);
+            if (e.message.includes('logic eval error')) {
+                alert('Sorry, someone beat you');
+            }
+            this.setState({isLoading: false});
+        });
+     }
+
+     buyTimeReduction = async () => {
+        if (!this.state.ctc) {
+            alert('Please, connect the wallet.');
+            return;
+        }
+
+      
+        await batchOptIn(this.context.reach, this.props.account.networkAccount.addr, [this.state.nftPrize, this.state.token], false);
+        
+
+        logEvent(this.props.account.networkAccount.addr, "FOMO " + this.state.currentPrice);
+        this.state.ctc.apis.Api.buyTimeReduction().then(_ => {
+            this.setState({isLoading: false});
+        }).catch(e => {
+            console.log('[ERROR]', e);
+            if (e.message.includes('logic eval error')) {
+                alert('Sorry, someone beat you');
+            }
+            this.setState({isLoading: false});
+        });
+     }
+    
+
     buyTicket = async () => {
+
         if (!this.state.ctc) {
             alert('Please, connect the wallet.');
             return;
@@ -168,9 +221,9 @@ export class Fomo extends React.Component {
 
         this.setState({isLoading: true});
 
-        if (!this.state.hasOptIn) {
-            await batchOptIn(this.context.reach, this.props.account.networkAccount.addr, [this.state.nftPrize], false);
-        }
+   
+        await batchOptIn(this.context.reach, this.props.account.networkAccount.addr, [this.state.nftPrize, this.state.token], false);
+  
 
         logEvent(this.props.account.networkAccount.addr, "FOMO " + this.state.currentPrice);
         this.state.ctc.apis.Api.buyTicket().then(_ => {
@@ -192,6 +245,7 @@ export class Fomo extends React.Component {
     }
 
     render() {
+       
         if (!this.props.account) {
             return (
                 <div className="fomo">
@@ -242,7 +296,12 @@ export class Fomo extends React.Component {
                     <h1 className="fomo_phrase">bid: {this.state.currentPrice}</h1>
                     <img alt="Algo" src={algo} style={{marginLeft: "3px", width: "16px"}}/>
                 </div>
-                
+                <h2 className="fomo_info">current supply: {this.state.token} </h2>
+                {/*<button className="fomo_button" onClick={this.buyTicket}>FOMO!!!</button>*/}
+                <div className='fomo_buttons_group'>
+                    <button className="fomo_button" onClick={this.buyTicket}>Discount</button>
+                    <button className="fomo_button" onClick={this.buyTimeReduction}>Time Reduction</button>
+                </div>
                 <button className={!this.state.isLoading ? "fomo_button" : "fomo_button_loading" } onClick={!this.state.isLoading ? this.buyTicket : undefined}>
                     FOMO!!!
                     {this.state.isLoading ? <span className="fomo_loading">
