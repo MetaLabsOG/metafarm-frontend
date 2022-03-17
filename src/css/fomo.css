@@ -5,7 +5,7 @@
 }
 
 .fomo_phrase {
-    font-size: 20px;
+    font-size: 35px;
 }
 
 .fomo_status {
@@ -19,7 +19,7 @@
     border: 0;
     color: #197303;
     background-color: #000;
-    font-family: "Korona One";
+    font-family: 'Korona One';
     font-size: 20px;
     text-decoration: underline;
     margin-top: 20px;
@@ -37,8 +37,9 @@
 }
 
 .fomo_nft {
-    width: 300px;
-    margin-top: 20px;
+    width: 100%;
+    border-radius: 15px;
+    cursor: pointer;
 }
 
 .fomo_info {
@@ -61,7 +62,7 @@
     background-color: #5cfc3c;
     border: 0;
 
-    font-family: "Korona One";
+    font-family: 'Korona One';
     font-size: 20px;
 
     cursor: pointer;

@@ -19,7 +19,7 @@ export function Timer({totalSec, leftSec}) {
     }, [leftSec]);
 
     return (
-        <React.Fragment>
+        <div>
             <h1 className="fomo_phrase" style={{marginTop: "20px"}}>{new Date(seconds * 1000).toISOString().substr(11, 8)}</h1>
             <ProgressBar
                 completed={Math.floor((1 - seconds/totalSec) * 100)}
@@ -29,6 +29,6 @@ export function Timer({totalSec, leftSec}) {
                 bgColor="#5cfc3c"
                 isLabelVisible={false}
             />
-        </React.Fragment>
+        </div>
     );
 }
