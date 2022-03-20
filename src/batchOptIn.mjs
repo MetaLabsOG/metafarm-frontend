@@ -1,6 +1,6 @@
 import algosdk from "algosdk";
 import buffer from 'buffer';
-import {ALGONET, TESTNET} from "./AppContext.js";
+import {ALGONET, TESTNET} from "./AppContext";
 
 const {Buffer} = buffer;
 

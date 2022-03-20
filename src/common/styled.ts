@@ -5,12 +5,13 @@ export const NFTCard = styled.div`
     border: 0.91px solid #3d3d3d;
     width: 50%;
     max-width: 550px;
+    max-height: 530px;
 `;
 
 export const NFTCardInfo = styled.div`
     display: flex;
-    height: 175px;
+    height: 31%;
     flex-direction: column;
-    align-items: center;
-    padding: 0 26px 0 26px;
+    padding: 0 26px 30px 26px;
+    align-items: flex-start;
 `;

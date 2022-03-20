@@ -4,12 +4,30 @@ import '../css/fomo.css';
 import * as fomo from '../fomo_interface/index.main.mjs';
 //@ts-ignore
 import Modal from 'react-awesome-modal';
-import { AppContext, FOMO_APP_ID } from '../AppContext';
+import { AppContext, FOMO_APP_ID, Context } from '../AppContext';
 import { Timer } from '../Timer';
 import { batchOptIn, checkOptIn } from '../batchOptIn.mjs';
+import { getAssetInfo } from '../providers/contractProvider';
 import { logEvent } from '../logEvent';
+
 import { Status } from '../Status';
-import { FomoContainer, Info, Actions, Prize, FomoSupply, Update, UpdateButton } from './styled';
+import {
+    FomoContainer,
+    Info,
+    Actions,
+    Prize,
+    FomoSupply,
+    Update,
+    Winner,
+    Balance,
+    Amount,
+    Amounts,
+    BoostButton,
+    BoostInfo,
+    BoostButtonConteiner,
+    BID,
+    Nft,
+} from './styled';
 import { NFTCard, NFTCardInfo } from '../common/styled';
 
 function RulesModal({ isModalOpen, setIsModalOpen }: { isModalOpen: boolean; setIsModalOpen: any }) {
@@ -31,11 +49,9 @@ function RulesModal({ isModalOpen, setIsModalOpen }: { isModalOpen: boolean; set
     );
 }
 
-//@ts-ignore
-export const Fomo = ({ account }) => {
-    const context = useContext(AppContext);
+export const Fomo = () => {
+    const { reach, account } = useContext(AppContext) as Context;
     const [isAccountConnected, setIsAccountConnected] = useState<boolean>(false);
-    //@ts-ignore
     const [isFomoSet, setIsFomoSet] = useState<boolean>(false);
     const [isFinish, setIsFinish] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -44,98 +60,120 @@ export const Fomo = ({ account }) => {
     const [fomoDuration, setFomoDuration] = useState<number>(0);
     const [currentTime, setCurrentTime] = useState<number>(0);
     const [endTime, setEndTime] = useState<number>(0);
-    const [nftPrize, setNftPrize] = useState<number>(0);
+    const [nftPrize, setNftPrize] = useState<number | null>(null);
+    const [balance, setBalance] = useState<number>(0);
     const [nftLink, setnftLink] = useState<string>('');
     const [currentPrice, setCurrentPrice] = useState<number>(0);
     const [currentTotal, setCurrentTotal] = useState<number>(0);
     const [currentWinner, setCurrentWinner] = useState<string>('');
     const [winnerPrice, setWinnerPrice] = useState<number>(0);
     const [ctc, setCtc] = useState<null>(null);
-    const [token, setToken] = useState<string>('');
+    const [token, setToken] = useState<number | null>(null);
+    const [fomoTokensOnAccount, setFomoTokensOnAccount] = useState<number>(0);
+    const [tokenOwnedByUsers, setTokenOwnedByUsers] = useState<number | null>(null);
 
-    //@ts-ignore
     const updateFomoInfo = useCallback(
         async (ctc) => {
             if (!ctc || isFinish) {
                 console.log('No ctc or fomo is finished');
                 return;
             }
-            //@ts-ignore
-            const { reach } = context;
+
             console.log('Getting info');
 
             const [fomoInfoStatus, fomoInfo] = await ctc.views.Fomo.info();
             if (fomoInfoStatus === 'None') {
                 console.log('fomoInfoStatus None');
-                // return;
-            }
-
-            if (!nftPrize) {
-                setNftPrize(reach.bigNumberToNumber(fomoInfo.nftPrize));
-                //@ts-ignore
-                const nftLink = await getAssetInfo(nftPrize);
-                setnftLink(nftLink);
-            }
-            if (!hasOptIn) {
-                const hasOptIn = await checkOptIn(account.networkAccount.addr, nftPrize);
-                setHasOptIn(hasOptIn);
-            }
-
-            if (!token) {
-                setToken(reach.bigNumberToNumber(fomoInfo.token));
-            }
-
-            const paidToFunder = reach.formatCurrency(fomoInfo.paidToFunder);
-            const currentTotal = reach.formatCurrency(fomoInfo.currentTotal) - paidToFunder;
-            const winnerPrice = await ctc.views.Fomo.prevPrice(fomoInfo.currentPrice);
-
-            const now = await reach.getNetworkSecs();
-            const currentTime = reach.bigNumberToNumber(now);
-            const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
-            if (currentTime > endTime) {
-                console.log('fomo is finished');
-                setIsFinish(true);
                 return;
             }
 
-            setCurrentPrice(reach.formatCurrency(fomoInfo.currentPrice));
-            setCurrentTotal(currentTotal);
-            setWinnerPrice(currentTotal > 0 ? reach.formatCurrency(winnerPrice[1]) : 0);
-            setCurrentWinner(reach.formatAddress(fomoInfo.currentWinner));
-            setFomoDuration(reach.bigNumberToNumber(fomoInfo.deadline));
-            setCurrentTime(currentTime);
-            setEndTime(endTime);
-            setIsFomoSet(true);
+            console.log('FOMO_INFO', fomoInfo);
+
+            if (reach !== undefined && account !== undefined) {
+                if (!nftPrize) {
+                    const { nftPrize } = fomoInfo;
+                    setNftPrize(reach.bigNumberToNumber(nftPrize));
+                    const nftLink = await getAssetInfo(reach.bigNumberToNumber(nftPrize));
+                    setnftLink(nftLink);
+                }
+
+                if (!hasOptIn) {
+                    const hasOptIn = await checkOptIn(account.networkAccount.addr, nftPrize);
+                    setHasOptIn(hasOptIn);
+                }
+
+                if (!token) {
+                    setToken(reach.bigNumberToNumber(fomoInfo.token));
+                }
+
+                if (!tokenOwnedByUsers) {
+                    setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
+                }
+
+                const paidToFunder = Number.parseFloat(reach.formatCurrency(fomoInfo.paidToFunder, 4));
+                const currentTotal = Number.parseFloat(reach.formatCurrency(fomoInfo.currentTotal, 4)) - paidToFunder;
+                const winnerPrice = await ctc.views.Fomo.prevPrice(fomoInfo.currentPrice);
+
+                const now = await reach.getNetworkSecs();
+                const currentTime = reach.bigNumberToNumber(now);
+                const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
+                if (currentTime > endTime) {
+                    console.log('fomo is finished');
+                    setIsFinish(true);
+                    return;
+                }
+
+                const balance = await reach.balanceOf(account);
+                const fomoTokensInfo = await account.tokenMetadata(fomoInfo.nftPrize);
+                const fomoTokensSupply = reach.bigNumberToNumber(fomoTokensInfo.supply);
+
+                setFomoTokensOnAccount(fomoTokensSupply);
+
+                setBalance(Number.parseFloat(reach.formatCurrency(balance, 4)));
+
+                setCurrentPrice(Number.parseFloat(reach.formatCurrency(fomoInfo.currentPrice, 4)));
+                setCurrentTotal(currentTotal);
+                setWinnerPrice(currentTotal > 0 ? Number.parseFloat(reach.formatCurrency(winnerPrice[1], 4)) : 0);
+                setCurrentWinner(reach.formatAddress(fomoInfo.currentWinner));
+                setFomoDuration(reach.bigNumberToNumber(fomoInfo.deadline));
+                setCurrentTime(currentTime);
+                setEndTime(endTime);
+                setIsFomoSet(true);
+            }
         },
-        [account, context, hasOptIn, isFinish, nftPrize, token]
+        [account, reach, hasOptIn, isFinish, nftPrize, token, tokenOwnedByUsers]
     );
     const deployed = () => {};
 
-    //@ts-ignore
-    const showPurchase = async (winnerAddress, winnerPriceHex, newPriceHex) => {
-        //@ts-ignore
-        const winnerPrice = context.reach.formatCurrency(winnerPriceHex);
-        if (winnerPrice < currentPrice) {
-            return;
-        }
+    const showPurchase = useCallback(
+        async (winnerAddress, winnerPriceHex, newPriceHex) => {
+            if (reach !== undefined) {
+                const winnerPrice = Number.parseFloat(reach.formatCurrency(winnerPriceHex, 4));
+                if (winnerPrice < currentPrice) {
+                    return;
+                }
 
-        //@ts-ignore
-        console.log('NEW WINNER', context.reach.formatAddress(winnerAddress), winnerPrice);
+                console.log('NEW WINNER', reach.formatAddress(winnerAddress), winnerPrice);
 
-        await updateFomoInfo(ctc);
-    };
+                await updateFomoInfo(ctc);
+            }
+        },
+        [reach, ctc, currentPrice, updateFomoInfo]
+    );
 
-    //@ts-ignore
-    const showOutcome = (address) => {
-        //@ts-ignore
-        const winnerAddress = context.reach.formatAddress(address);
-        console.log('WINNER!!!', winnerAddress);
-        setIsFinish(true);
-        setCurrentWinner(winnerAddress);
-    };
+    const showOutcome = useCallback(
+        (address) => {
+            if (reach !== undefined) {
+                const winnerAddress = reach.formatAddress(address);
+                console.log('WINNER!!!', winnerAddress);
+                setIsFinish(true);
+                setCurrentWinner(winnerAddress);
+            }
+        },
+        [reach]
+    );
 
     const connectToContract = useCallback(
-        //@ts-ignore
         async (account) => {
             const ctc = account.contract(fomo, FOMO_APP_ID);
             console.log('Connecting to', FOMO_APP_ID);
@@ -150,53 +188,38 @@ export const Fomo = ({ account }) => {
 
             await updateFomoInfo(ctc);
         },
-        [updateFomoInfo]
+        [updateFomoInfo, showOutcome, showPurchase]
     );
 
-    //     //@ts-ignore
-    //    const connectToContract = async (account) => {
-    //         const ctc = account.contract(fomo, FOMO_APP_ID);
-    //         console.log('Connecting to', FOMO_APP_ID);
-    //         setCtc(ctc)
-
-    //         fomo.Buyer(ctc, this)
-    //         .catch(e => {
-    //             console.log('[ERROR]', e);
-    //             if (e.message.includes('no application found')) {
-    //                 setIsFinish(true)
-    //             }
-    //         });
-
-    //         await updateFomoInfo(ctc);
-    //     }
-
     // // REACH BUYER INTERFACE
+    const buyDiscount = async () => {
+        if (!ctc) {
+            alert('Please, connect the wallet.');
+            return;
+        }
 
-    //    const buyDiscount = async () => {
-    //         if (!ctc) {
-    //             alert('Please, connect the wallet.');
-    //             return;
-    //         }
+        if (account !== undefined) {
+            if (!hasOptIn) {
+                await batchOptIn(reach, account.networkAccount.addr, [nftPrize, token], false);
+            }
 
-    //         if (!hasOptIn) {
-    //        //@ts-ignore
-    //             await batchOptIn(context.reach, account.networkAccount.addr, [nftPrize, token], false);
-    //         }
-
-    //         logEvent(account.networkAccount.addr, "FOMO " + currentPrice);
-    //         //@ts-ignore
-    //         ctc.apis.Api.buyDiscount().then(_ => {
-    //             setIsLoading(false);
-    //             //@ts-ignore
-    //         }).catch(e => {
-    //             console.log('[ERROR]', e);
-    //             if (e.message.includes('logic eval error')) {
-    //                 alert('Sorry, someone beat you');
-    //             }
-    //             setIsLoading(false)
-
-    //         });
-    //      }
+            logEvent(account.networkAccount.addr, 'FOMO ' + currentPrice);
+        }
+        //@ts-ignore
+        ctc.apis.Api.buyDiscount()
+            //@ts-ignore
+            .then((_) => {
+                setIsLoading(false);
+                //@ts-ignore
+            })
+            .catch((e: Error) => {
+                console.log('[ERROR]', e);
+                if (e.message.includes('logic eval error')) {
+                    alert('Sorry, someone beat you');
+                }
+                setIsLoading(false);
+            });
+    };
 
     const buyTimeReduction = async () => {
         if (!ctc) {
@@ -204,19 +227,19 @@ export const Fomo = ({ account }) => {
             return;
         }
 
-        //@ts-ignore
-        await batchOptIn(context.reach, account.networkAccount.addr, [nftPrize, token], false);
+        if (account) {
+            await batchOptIn(reach, account.networkAccount.addr, [nftPrize, token], false);
 
-        logEvent(account.networkAccount.addr, 'FOMO ' + currentPrice);
+            logEvent(account.networkAccount.addr, 'FOMO ' + currentPrice);
+        }
+
         //@ts-ignore
         ctc.apis.Api.buyTimeReduction()
             //@ts-ignore
             .then((_) => {
                 setIsLoading(false);
-                //@ts-ignore
             })
-            //@ts-ignore
-            .catch((e) => {
+            .catch((e: Error) => {
                 console.log('[ERROR]', e);
                 if (e.message.includes('logic eval error')) {
                     alert('Sorry, someone beat you');
@@ -231,11 +254,12 @@ export const Fomo = ({ account }) => {
             return;
         }
         setIsLoading(true);
+        if (account) {
+            await batchOptIn(reach, account.networkAccount.addr, [nftPrize, token], false);
 
-        //@ts-ignore
-        await batchOptIn(context.reach, account.networkAccount.addr, [nftPrize, token], false);
+            logEvent(account.networkAccount.addr, 'FOMO ' + currentPrice);
+        }
 
-        logEvent(account.networkAccount.addr, 'FOMO ' + currentPrice);
         //@ts-ignore
         ctc.apis.Api.buyTicket()
             //@ts-ignore
@@ -243,8 +267,7 @@ export const Fomo = ({ account }) => {
                 setIsLoading(false);
                 //@ts-ignore
             })
-            //@ts-ignore
-            .catch((e) => {
+            .catch((e: Error) => {
                 console.log('[ERROR]', e);
                 if (e.message.includes('logic eval error')) {
                     alert('Sorry, someone beat you');
@@ -292,7 +315,7 @@ export const Fomo = ({ account }) => {
 
     return (
         <FomoContainer>
-            <h1 style={{ fontSize: '20px', marginTop: '20px', color: '#197303' }}>
+            <h1 style={{ fontSize: '20px', color: '#197303' }}>
                 THE ONLY WAY YOU LOSE IN THIS GAME IS IF YOU STOP PLAYING
             </h1>
             <button className="fomo_rules" onClick={() => setIsModalOpen(true)}>
@@ -301,48 +324,52 @@ export const Fomo = ({ account }) => {
             <RulesModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
             <Actions>
                 <NFTCard>
-                    {/* <a href={'https://www.nftexplorer.app/asset/' + nftPrize}>
-                    <img className="fomo_nft" src={nftLink} alt="NFT" />
-                </a> */}
-                    <a href={'https://www.nftexplorer.app/asset/485535169'}>
-                        <img
-                            className="fomo_nft"
-                            src="https://arweave.net/azcQlimclL0socA--QYMgpuBOHnKKsVv_L8Dqd282os"
-                            alt="NFT"
-                        />
+                    <a href={`https://www.nftexplorer.app/asset/${nftPrize}`}>
+                        <Nft url={nftLink} />
                     </a>
                     <NFTCardInfo>
                         <Prize>{`prize: NFT + ${currentTotal.toPrecision(3)} algo`}</Prize>
-                        <div>
-                            <h2 className="fomo_info">winner: </h2>
-                            <a className="fomo_info" href={'https://algoexplorer.io/address/' + currentWinner}>
-                                {currentWinner}
-                            </a>
-                        </div>
+                        <Winner>
+                            <h2 className="fomo_info">
+                                winner: &nbsp;
+                                <a className="fomo_info" href={'https://algoexplorer.io/address/' + currentWinner}>
+                                    {currentWinner}
+                                </a>
+                            </h2>
+                        </Winner>
                         <h2 className="fomo_info">winner bid: {winnerPrice} ALGO</h2>
                     </NFTCardInfo>
                 </NFTCard>
                 <Info>
                     <Timer totalSec={fomoDuration} leftSec={endTime - currentTime} />
 
-                    {/* <div style={{ display: 'flex', alignItems: 'center', marginTop: '20px' }}>
-                        <h1 className="fomo_phrase">bid: {currentPrice}</h1>
-                        <img alt="Algo" src={algo} style={{ marginLeft: '3px', width: '16px' }} />
-                    </div> */}
+                    <FomoSupply>FOMO supply: {tokenOwnedByUsers} </FomoSupply>
+                    <Balance>
+                        Balance:
+                        <Amounts>
+                            <Amount>FOMO: {fomoTokensOnAccount}</Amount>
+                            <Amount>ALGO: {balance}</Amount>
+                        </Amounts>
+                    </Balance>
+                    <Update color="#4F4F4F">
+                        {`bid discount level  1(10%)`}
+                        <BoostButtonConteiner onClick={buyDiscount}>
+                            <BoostButton>boost!</BoostButton>
+                            <BoostInfo>boost to 15% (-100 FOMO)</BoostInfo>
+                        </BoostButtonConteiner>
+                    </Update>
 
-                    <FomoSupply>FOMO supply: {token} </FomoSupply>
-                    <Update color="#4F4F4F" onClick={buyTicket}>
-                        {`bid discount level  1(10%)`} <UpdateButton />{' '}
-                    </Update>
-                    <Update color="#5cfc3c">{`upgrade to 15%  -100 FOMO`}</Update>
-                    <Update color="#4F4F4F" onClick={buyTimeReduction}>
+                    <Update color="#4F4F4F">
                         {`reduce time level 1 (-3 sec)`}
-                        <UpdateButton />
+                        <BoostButtonConteiner onClick={buyTimeReduction}>
+                            <BoostButton>boost!</BoostButton>
+                            <BoostInfo>boost to -3 sec (-50 FOMO)</BoostInfo>
+                        </BoostButtonConteiner>
                     </Update>
-                    <Update color="#5cfc3c">{`upgrade to -5 sec -50 FOMO`}</Update>
+
                     {/*<button className="fomo_button" onClick={this.buyTicket}>FOMO!!!</button>*/}
 
-                    <h3>BID 101 ALGO</h3>
+                    <BID>BID {currentPrice} ALGO</BID>
                     <button
                         className={!isLoading ? 'fomo_button' : 'fomo_button_loading'}
                         onClick={!isLoading ? buyTicket : undefined}

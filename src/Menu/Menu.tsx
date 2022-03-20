@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import '../css/menu.css';
 import logo from '../imgs/logo.png';
-import { getCoinRate } from '../providers/couinMarketProvider';
-import { MenuItem, MenuConteiner, MenuItems, ExchangeRates, ExchangeRate, MainMenu, Logo } from './styled';
+import { getCoinRate } from '../providers/binanceProvider';
+import { MenuItem, MenuContainer, MenuItems, ExchangeRates, ExchangeRate, MainMenu, Logo } from './styled';
 import { ConnectWalletButton } from '../wallet/ConnectWalletButton';
 
 export const Menu = () => {
@@ -21,7 +20,7 @@ export const Menu = () => {
     }, []);
 
     return (
-        <MenuConteiner>
+        <MenuContainer>
             <ExchangeRates>
                 <ExchangeRate>ALGO/USDT {toALGORate}$</ExchangeRate>
                 <ExchangeRate>BTC/USDT {toBTCRate}$</ExchangeRate>
@@ -37,6 +36,6 @@ export const Menu = () => {
                 </MenuItems>
                 <ConnectWalletButton />
             </MainMenu>
-        </MenuConteiner>
+        </MenuContainer>
     );
 };
