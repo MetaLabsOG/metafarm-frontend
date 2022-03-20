@@ -7,20 +7,20 @@
     color: #5cfc3c;
     background-color: #000;
     /*text-transform: uppercase;*/
-    font-family: "Korona One";
-
+    font-family: 'Korona One';
+    border-top: 0;
     cursor: pointer;
 }
 
 .connect_wallet:hover {
-     color: black;
-     background-color: #5cfc3c;
- }
+    color: black;
+    background-color: #5cfc3c;
+}
 
 .wallet_header {
     line-height: 1;
     color: black;
-    font-family: "Korona One";
+    font-family: 'Korona One';
     font-size: 20px;
     font-style: normal;
     font-weight: normal;
@@ -35,7 +35,7 @@
     color: white;
     background-color: #000;
     border: 0;
-    font-family: "Inter";
+    font-family: 'Inter';
     font-size: 15px;
     font-style: normal;
     font-weight: normal;
@@ -50,11 +50,11 @@
 }
 
 .account_info {
-    font-size: 13px;
+    font-size: 16px;
     color: #197303;
     width: 200px;
-
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    margin-top: 8px;
 }
