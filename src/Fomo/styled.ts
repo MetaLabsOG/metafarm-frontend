@@ -104,6 +104,6 @@ export const BoostButton = styled.button`
 `;
 
 export const BID = styled.h3`
-    margin-top: 97px;
+    margin-top: 55px;
     font-size: 25px;
 `;
