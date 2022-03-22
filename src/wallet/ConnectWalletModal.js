@@ -3,9 +3,8 @@ import React, { useContext } from 'react';
 import { ALGONET, AppContext } from '../AppContext';
 //TODO REMOVE THIS PACK
 import Modal from 'react-awesome-modal';
-
 import MyAlgoConnect from '@reach-sh/stdlib/ALGO_MyAlgoConnect';
-// import WalletConnect from '@reach-sh/stdlib/ALGO_WalletConnect';
+import WalletConnect from '@reach-sh/stdlib/ALGO_WalletConnect';
 import { logEvent } from '../logEvent';
 
 
@@ -57,9 +56,9 @@ export function ConnectWalletModal() {
     };
 
     const WalletClick = () => {
-        // setWalletType('WalletConnect');
-        // reach.setWalletFallback(reach.walletFallback({providerEnv: ALGONET, WalletConnect }));
-        // connectWallet();
+        setWalletType('WalletConnect');
+        reach.setWalletFallback(reach.walletFallback({providerEnv: ALGONET, WalletConnect }));
+        connectWallet();
     };
 
     return (
@@ -77,7 +76,7 @@ export function ConnectWalletModal() {
                     Connect to MyAlgo
                 </button>
                 <button className="wallet-button" onClick={WalletClick}>
-                    Connect to Algorand Wallet
+                    Connect to perra wallet
                 </button>
             </div>
         </Modal>

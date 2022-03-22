@@ -29,6 +29,7 @@ export const Actions = styled.div`
 `;
 
 export const Prize = styled.h1`
+    position: relative;
     font-size: 22px;
     margin-bottom: 12px;
     margin-top: 30px;
@@ -44,6 +45,33 @@ export const Winner = styled.div`
     width: 100%;
 `;
 
+export const WinnerBid = styled.div`
+    position: relative;
+    font-size: 15px;
+    margin-top: 10px;
+    width: 300px;
+    color: #197303;
+
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+`;
+
+export const Level = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+export const LabelLevel = styled.div`
+    font-size: 18px;
+`;
+
+export const LevelValue = styled.div`
+    margin-top: 5px;
+    font-size: 15px;
+    color: #4f4f4f; ;
+`;
+
 export const Balance = styled.div`
     font-size: 21px;
     display: flex;
@@ -57,11 +85,12 @@ export const Amounts = styled.div`
     display: flex;
 `;
 
-export const Amount = styled.div`
+export const Amount = styled.div<{ withIcon?: boolean }>`
     margin-right: 30px;
+    position: relative;
 `;
 
-export const Update = styled.div<{ color: string }>`
+export const Update = styled.div`
     color: #05ff00;
     margin-bottom: 21px;
     margin-right: 19px;
@@ -81,7 +110,7 @@ export const BoostInfo = styled.div`
     display: none;
     width: 400px;
     left: 115px;
-    top: 5px;
+    top: 10px;
     ${BoostButtonConteiner}:hover & {
         display: inline;
     }
@@ -92,7 +121,7 @@ export const BoostButton = styled.button`
     border-radius: 10px;
     border: 1px solid;
     background: none;
-    height: 32px;
+    height: 40px;
     width: 94px;
     font-size: 16px;
     font-family: 'Korona One';
