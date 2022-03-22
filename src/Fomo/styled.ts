@@ -14,15 +14,6 @@ export const Info = styled.div`
     margin-left: 90px;
 `;
 
-export const Nft = styled.div<{ url: string }>`
-    background-image: url(${(props) => props.url});
-    background-position: center center;
-    background-size: cover;
-    width: 100%;
-    height: 70%;
-    border-radius: 16px;
-`;
-
 export const Actions = styled.div`
     display: flex;
     margin-top: 20px;
@@ -69,7 +60,7 @@ export const LabelLevel = styled.div`
 export const LevelValue = styled.div`
     margin-top: 5px;
     font-size: 15px;
-    color: #4f4f4f; ;
+    color: #4f4f4f;
 `;
 
 export const Balance = styled.div`
@@ -116,8 +107,8 @@ export const BoostInfo = styled.div`
     }
 `;
 
-export const BoostButton = styled.button`
-    color: #05ff00;
+export const BoostButton = styled.button<{ disabled: boolean }>`
+    color: ${({ disabled }) => (disabled ? '#4f4f4f' : '#05ff00')};
     border-radius: 10px;
     border: 1px solid;
     background: none;
@@ -127,8 +118,8 @@ export const BoostButton = styled.button`
     font-family: 'Korona One';
     cursor: pointer;
     :hover {
-        color: black;
-        background: #05ff00;
+        color: ${({ disabled }) => (disabled ? '#4f4f4f' : 'black')};
+        background: ${({ disabled }) => (disabled ? 'none' : '#05ff00;')};
     }
 `;
 

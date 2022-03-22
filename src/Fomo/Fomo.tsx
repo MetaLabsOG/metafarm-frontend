@@ -27,12 +27,11 @@ import {
     BoostButtonConteiner,
     WinnerBid,
     BID,
-    Nft,
     Level,
     LabelLevel,
     LevelValue,
 } from './styled';
-import { NFTCard, NFTCardInfo } from '../common/styled';
+import { NFTCard, NFTCardInfo, Nft } from '../common/styled';
 
 function RulesModal({ isModalOpen, setIsModalOpen }: { isModalOpen: boolean; setIsModalOpen: any }) {
     return (
@@ -74,7 +73,7 @@ export const Fomo = () => {
     const [currentTime, setCurrentTime] = useState<number>(0);
     const [endTime, setEndTime] = useState<number>(0);
     const [nftPrize, setNftPrize] = useState<number | null>(null);
-    const [balance, setBalance] = useState<number>(0);
+    const [balance, setBalance] = useState<string>('0');
     const [nftLink, setnftLink] = useState<string>('');
     const [currentPrice, setCurrentPrice] = useState<number>(0);
     const [currentTotal, setCurrentTotal] = useState<number>(0);
@@ -104,8 +103,30 @@ export const Fomo = () => {
         nextLvlValue: 10,
     });
 
-    const [fomoTokensOnAccount, setFomoTokensOnAccount] = useState<number>(0);
+    const [fomoTokensOnAccount, setFomoTokensOnAccount] = useState<string>('0');
     const [tokenOwnedByUsers, setTokenOwnedByUsers] = useState<number | null>(null);
+    const isBoostAviable = (boostPrice: number) => Number(fomoTokensOnAccount) >= boostPrice;
+
+    const getBalance = useCallback(async () => {
+        if (reach && account) {
+            const balance = await reach.balanceOf(account);
+            const balanceFomo = await reach.balanceOf(account, token);
+
+            const fomoTokensBalance = reach.bigNumberToNumber(balanceFomo);
+            setBalance(reach.formatCurrency(balance, 0));
+
+            setFomoTokensOnAccount(fomoTokensBalance.toString());
+        }
+    }, [account, reach, token]);
+
+    useEffect(() => {
+        if (!ctc || isFinish) {
+            console.log('No ctc or fomo is finished');
+            return;
+        }
+
+        getBalance();
+    }, [isLoading, getBalance, ctc, isFinish]);
 
     const updateFomoInfo = useCallback(
         async (ctc) => {
@@ -118,7 +139,6 @@ export const Fomo = () => {
 
             const [fomoInfoStatus, fomoInfo] = await ctc.views.Fomo.info();
 
-            console.log(fomoInfo);
             if (fomoInfoStatus === 'None') {
                 console.log('fomoInfoStatus None');
                 return;
@@ -158,11 +178,6 @@ export const Fomo = () => {
                     return;
                 }
 
-                const balance = await reach.balanceOf(account);
-                const fomoTokensInfo = await account.tokenMetadata(fomoInfo.nftPrize);
-                const fomoTokensSupply = reach.bigNumberToNumber(fomoTokensInfo.supply);
-
-                setFomoTokensOnAccount(fomoTokensSupply);
                 const { timeReductionLevel, discountLevel } = await ctc.apis.Api.getParticipantStats();
                 setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
                 setDiscountLevel(reach.bigNumberToNumber(discountLevel));
@@ -183,8 +198,6 @@ export const Fomo = () => {
 
                 setDiscountTimePercentAndPrice(discountTimePercentAndPrice);
                 setTimeReductionSecAndPrice(timeReductionSecAndPrice);
-
-                setBalance(Number.parseFloat(reach.formatCurrency(balance, 0)));
 
                 setCurrentPrice(Number.parseFloat(reach.formatCurrency(fomoInfo.currentPrice, 4)));
                 setCurrentTotal(currentTotal);
@@ -210,7 +223,7 @@ export const Fomo = () => {
 
                 console.log('NEW WINNER', reach.formatAddress(winnerAddress), winnerPrice);
 
-                await updateFomoInfo(ctc);
+                updateFomoInfo(ctc);
             }
         },
         [reach, ctc, currentPrice, updateFomoInfo]
@@ -241,7 +254,7 @@ export const Fomo = () => {
                 }
             });
 
-            await updateFomoInfo(ctc);
+            updateFomoInfo(ctc);
         },
         [updateFomoInfo, showOutcome, showPurchase]
     );
@@ -250,6 +263,10 @@ export const Fomo = () => {
     const buyDiscount = async () => {
         if (!ctc) {
             alert('Please, connect the wallet.');
+            return;
+        }
+
+        if (!isBoostAviable(discountTimePercentAndPrice.price)) {
             return;
         }
 
@@ -274,11 +291,18 @@ export const Fomo = () => {
                 }
                 setIsLoading(false);
             });
+
+        updateFomoInfo(ctc);
+        getBalance();
     };
 
     const buyTimeReduction = async () => {
         if (!ctc) {
             alert('Please, connect the wallet.');
+            return;
+        }
+
+        if (!isBoostAviable(timeReductionSecAndPrice.price)) {
             return;
         }
 
@@ -301,6 +325,8 @@ export const Fomo = () => {
                 }
                 setIsLoading(false);
             });
+        updateFomoInfo(ctc);
+        getBalance();
     };
 
     const buyTicket = async () => {
@@ -329,6 +355,9 @@ export const Fomo = () => {
                 }
                 setIsLoading(false);
             });
+
+        updateFomoInfo(ctc);
+        getBalance();
     };
 
     useEffect(() => {
@@ -420,10 +449,12 @@ export const Fomo = () => {
                             </LevelValue>
                         </Level>
                         <BoostButtonConteiner onClick={buyDiscount}>
-                            <BoostButton>boost!</BoostButton>
+                            <BoostButton disabled={!isBoostAviable(discountTimePercentAndPrice.price)}>
+                                boost!
+                            </BoostButton>
                             <BoostInfo>
                                 boost to {discountTimePercentAndPrice.nextLvlValue}% (-
-                                {discountTimePercentAndPrice.price}FOMO)
+                                {discountTimePercentAndPrice.price} FOMO)
                             </BoostInfo>
                         </BoostButtonConteiner>
                     </Update>
@@ -436,7 +467,7 @@ export const Fomo = () => {
                             </LevelValue>
                         </Level>
                         <BoostButtonConteiner onClick={buyTimeReduction}>
-                            <BoostButton>boost!</BoostButton>
+                            <BoostButton disabled={!isBoostAviable(timeReductionSecAndPrice.price)}>boost!</BoostButton>
                             <BoostInfo>
                                 boost to -{timeReductionSecAndPrice.nextLvlValue} sec (-{timeReductionSecAndPrice.price}{' '}
                                 FOMO)
