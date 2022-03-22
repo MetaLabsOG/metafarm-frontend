@@ -9,7 +9,7 @@ import { Timer } from '../Timer';
 import { batchOptIn, checkOptIn } from '../batchOptIn.mjs';
 import { getAssetInfo } from '../providers/contractProvider';
 import { logEvent } from '../logEvent';
-
+import { AlgoIcon } from '../imgs/algo';
 import { Status } from '../Status';
 import {
     FomoContainer,
@@ -25,8 +25,12 @@ import {
     BoostButton,
     BoostInfo,
     BoostButtonConteiner,
+    WinnerBid,
     BID,
     Nft,
+    Level,
+    LabelLevel,
+    LevelValue,
 } from './styled';
 import { NFTCard, NFTCardInfo } from '../common/styled';
 
@@ -49,6 +53,15 @@ function RulesModal({ isModalOpen, setIsModalOpen }: { isModalOpen: boolean; set
     );
 }
 
+//@ts-ignore
+const setLevelAndValue = (prices, values, lvl, reach) => {
+    return {
+        price: reach.bigNumberToNumber(prices[lvl]),
+        value: reach.bigNumberToNumber(values[lvl]),
+        nextLvlValue: reach.bigNumberToNumber(values[lvl + 1]),
+    };
+};
+
 export const Fomo = () => {
     const { reach, account } = useContext(AppContext) as Context;
     const [isAccountConnected, setIsAccountConnected] = useState<boolean>(false);
@@ -69,6 +82,28 @@ export const Fomo = () => {
     const [winnerPrice, setWinnerPrice] = useState<number>(0);
     const [ctc, setCtc] = useState<null>(null);
     const [token, setToken] = useState<number | null>(null);
+    const [discountLevel, setDiscountLevel] = useState<number>(0);
+    const [discountTimePercentAndPrice, setDiscountTimePercentAndPrice] = useState<{
+        price: number;
+        value: number;
+        nextLvlValue: number;
+    }>({
+        price: 0,
+        value: 0,
+        nextLvlValue: 3,
+    });
+
+    const [timeReductionLevel, setTimeReductionLevel] = useState<number>(0);
+    const [timeReductionSecAndPrice, setTimeReductionSecAndPrice] = useState<{
+        price: number;
+        value: number;
+        nextLvlValue: number;
+    }>({
+        price: 0,
+        value: 0,
+        nextLvlValue: 10,
+    });
+
     const [fomoTokensOnAccount, setFomoTokensOnAccount] = useState<number>(0);
     const [tokenOwnedByUsers, setTokenOwnedByUsers] = useState<number | null>(null);
 
@@ -82,14 +117,14 @@ export const Fomo = () => {
             console.log('Getting info');
 
             const [fomoInfoStatus, fomoInfo] = await ctc.views.Fomo.info();
+
+            console.log(fomoInfo);
             if (fomoInfoStatus === 'None') {
                 console.log('fomoInfoStatus None');
                 return;
             }
 
-            console.log('FOMO_INFO', fomoInfo);
-
-            if (reach !== undefined && account !== undefined) {
+            if (reach && account) {
                 if (!nftPrize) {
                     const { nftPrize } = fomoInfo;
                     setNftPrize(reach.bigNumberToNumber(nftPrize));
@@ -128,8 +163,28 @@ export const Fomo = () => {
                 const fomoTokensSupply = reach.bigNumberToNumber(fomoTokensInfo.supply);
 
                 setFomoTokensOnAccount(fomoTokensSupply);
+                const { timeReductionLevel, discountLevel } = await ctc.apis.Api.getParticipantStats();
+                setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
+                setDiscountLevel(reach.bigNumberToNumber(discountLevel));
 
-                setBalance(Number.parseFloat(reach.formatCurrency(balance, 4)));
+                const timeReductionSecAndPrice = setLevelAndValue(
+                    fomoInfo.timeReductionPrices,
+                    fomoInfo.timeReductionSecs,
+                    reach.bigNumberToNumber(timeReductionLevel),
+                    reach
+                );
+
+                const discountTimePercentAndPrice = setLevelAndValue(
+                    fomoInfo.discountPrices,
+                    fomoInfo.discountPercents,
+                    reach.bigNumberToNumber(discountLevel),
+                    reach
+                );
+
+                setDiscountTimePercentAndPrice(discountTimePercentAndPrice);
+                setTimeReductionSecAndPrice(timeReductionSecAndPrice);
+
+                setBalance(Number.parseFloat(reach.formatCurrency(balance, 0)));
 
                 setCurrentPrice(Number.parseFloat(reach.formatCurrency(fomoInfo.currentPrice, 4)));
                 setCurrentTotal(currentTotal);
@@ -141,7 +196,7 @@ export const Fomo = () => {
                 setIsFomoSet(true);
             }
         },
-        [account, reach, hasOptIn, isFinish, nftPrize, token, tokenOwnedByUsers]
+        [isFinish, reach, account, nftPrize, hasOptIn, token, tokenOwnedByUsers]
     );
     const deployed = () => {};
 
@@ -328,7 +383,9 @@ export const Fomo = () => {
                         <Nft url={nftLink} />
                     </a>
                     <NFTCardInfo>
-                        <Prize>{`prize: NFT + ${currentTotal.toPrecision(3)} algo`}</Prize>
+                        <Prize>
+                            {`prize: NFT + ${currentTotal.toPrecision(3)}`} <AlgoIcon fill="#5cfc3c" width="22px" />
+                        </Prize>
                         <Winner>
                             <h2 className="fomo_info">
                                 winner: &nbsp;
@@ -337,7 +394,9 @@ export const Fomo = () => {
                                 </a>
                             </h2>
                         </Winner>
-                        <h2 className="fomo_info">winner bid: {winnerPrice} ALGO</h2>
+                        <WinnerBid>
+                            winner bid: {winnerPrice} <AlgoIcon fill="#197303" width="15px" />
+                        </WinnerBid>
                     </NFTCardInfo>
                 </NFTCard>
                 <Info>
@@ -347,29 +406,49 @@ export const Fomo = () => {
                     <Balance>
                         Balance:
                         <Amounts>
-                            <Amount>FOMO: {fomoTokensOnAccount}</Amount>
-                            <Amount>ALGO: {balance}</Amount>
+                            <Amount>{fomoTokensOnAccount} FOMO</Amount>
+                            <Amount>
+                                {balance} <AlgoIcon fill="#5cfc3c" width="20px" />
+                            </Amount>
                         </Amounts>
                     </Balance>
-                    <Update color="#4F4F4F">
-                        {`bid discount level  1(10%)`}
+                    <Update>
+                        <Level>
+                            <LabelLevel>bid discount</LabelLevel>
+                            <LevelValue>
+                                level {discountLevel} ({discountTimePercentAndPrice.value}%)
+                            </LevelValue>
+                        </Level>
                         <BoostButtonConteiner onClick={buyDiscount}>
                             <BoostButton>boost!</BoostButton>
-                            <BoostInfo>boost to 15% (-100 FOMO)</BoostInfo>
+                            <BoostInfo>
+                                boost to {discountTimePercentAndPrice.nextLvlValue}% (-
+                                {discountTimePercentAndPrice.price}FOMO)
+                            </BoostInfo>
                         </BoostButtonConteiner>
                     </Update>
 
-                    <Update color="#4F4F4F">
-                        {`reduce time level 1 (-3 sec)`}
+                    <Update>
+                        <Level>
+                            <LabelLevel>reduce time</LabelLevel>
+                            <LevelValue>
+                                level {timeReductionLevel} (-{timeReductionSecAndPrice.value} sec)
+                            </LevelValue>
+                        </Level>
                         <BoostButtonConteiner onClick={buyTimeReduction}>
                             <BoostButton>boost!</BoostButton>
-                            <BoostInfo>boost to -3 sec (-50 FOMO)</BoostInfo>
+                            <BoostInfo>
+                                boost to -{timeReductionSecAndPrice.nextLvlValue} sec (-{timeReductionSecAndPrice.price}{' '}
+                                FOMO)
+                            </BoostInfo>
                         </BoostButtonConteiner>
                     </Update>
 
                     {/*<button className="fomo_button" onClick={this.buyTicket}>FOMO!!!</button>*/}
 
-                    <BID>BID {currentPrice} ALGO</BID>
+                    <BID>
+                        BID {currentPrice} <AlgoIcon fill="#5cfc3c" width="25px" />
+                    </BID>
                     <button
                         className={!isLoading ? 'fomo_button' : 'fomo_button_loading'}
                         onClick={!isLoading ? buyTicket : undefined}

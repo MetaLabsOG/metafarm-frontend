@@ -10,7 +10,7 @@ export const NFTCard = styled.div`
 
 export const NFTCardInfo = styled.div`
     display: flex;
-    height: 31%;
+    height: 35%;
     flex-direction: column;
     padding: 0 26px 30px 26px;
     align-items: flex-start;
