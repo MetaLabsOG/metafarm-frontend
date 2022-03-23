@@ -127,3 +127,7 @@ export const BID = styled.h3`
     margin-top: 55px;
     font-size: 25px;
 `;
+
+export const MaxedOut = styled.div`
+    color: #027a00; ;
+`;
