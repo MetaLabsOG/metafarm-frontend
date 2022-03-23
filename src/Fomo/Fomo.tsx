@@ -103,8 +103,6 @@ export const Fomo = () => {
                 return;
             }
 
-            console.log('Getting info');
-
             const [fomoInfoStatus, fomoInfo] = await ctc.views.Fomo.info();
 
             if (fomoInfoStatus === 'None') {
