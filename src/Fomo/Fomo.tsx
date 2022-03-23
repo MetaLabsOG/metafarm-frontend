@@ -103,6 +103,8 @@ export const Fomo = () => {
                 return;
             }
 
+            console.log('Getting info');
+
             const [fomoInfoStatus, fomoInfo] = await ctc.views.Fomo.info();
 
             if (fomoInfoStatus === 'None') {
@@ -260,7 +262,7 @@ export const Fomo = () => {
             //@ts-ignore
             const { discountLevel } = await ctc.apis.Api.buyDiscount();
             if (reach) {
-                console.log('DISCOUNT_LVL', reach.bigNumberToNumber(discountLevel));
+                console.log('DISCOUNT_LVL after BOOST', reach.bigNumberToNumber(discountLevel));
                 setDiscountLevel(reach.bigNumberToNumber(discountLevel));
                 const discountTimePercentAndPrice = setLevelAndValue(
                     discountPrices,
@@ -271,7 +273,6 @@ export const Fomo = () => {
 
                 setDiscountTimePercentAndPrice(discountTimePercentAndPrice);
             }
-
             await updateFomoInfo(ctc);
         } catch (e: any) {
             console.log('[ERROR]', e);
@@ -298,6 +299,7 @@ export const Fomo = () => {
             const { timeReductionLevel } = await ctc.apis.Api.buyTimeReduction();
 
             if (reach) {
+                console.log('TIME_REDUCTION_LEVEL after BOOST', reach.bigNumberToNumber(timeReductionLevel));
                 setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
                 const timeReductionSecAndPrice = setLevelAndValue(
                     timeReductionPrices,
