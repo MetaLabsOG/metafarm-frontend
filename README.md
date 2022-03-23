@@ -1,3 +1,8 @@
+# Cometa
+This is a monorepo for Cometa, yield farm and intelligent yield optimizer.
+
+It contains both frontend and smart contracts. The reason is that they share some dependencies (especially Reach) and Reach backend files.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
