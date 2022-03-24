@@ -1,0 +1,45 @@
+{
+  "name": "cometa",
+  "version": "0.0.1",
+  "description": "Cometa smart contracts in Reach",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint --ignore-path .gitignore --ext .mjs .",
+    "compile": "./reach compile",
+    "transform-commonjs": "npx babel --plugins @babel/plugin-transform-modules-commonjs build/index.main.mjs > build/index.main.js",
+    "build" : "npm run compile && npm run transform-commonjs",
+    "index": "node --experimental-modules --unhandled-rejections=strict index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MetaLabsOG/cometa-stacking-contract.git"
+  },
+  "keywords": [
+    "Reach",
+    "Yield Farming",
+    "Stacking",
+    "Cometa",
+    "Smart contract"
+  ],
+  "author": "MetaBoy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MetaLabsOG/cometa-stacking-contract/issues"
+  },
+  "homepage": "https://cometa.farm",
+  "devDependencies": {
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.7",
+    "@babel/plugin-transform-modules-commonjs": "^7.17.7",
+    "@types/jest": "^27.4.1",
+    "babel-cli": "^6.26.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.3",
+    "typescript": "^4.6.2"
+  },
+  "dependencies": {
+    "@reach-sh/stdlib": "^0.1.9-rc.4",
+    "inquirer": "^8.2.1"
+  }
+}
