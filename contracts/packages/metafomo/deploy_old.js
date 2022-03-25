@@ -1,5 +1,6 @@
 import { loadStdlib, ask } from '@reach-sh/stdlib';
 import * as backend from './build/index.main.mjs';
+import { parseBigNumber } from '@cometa/common';
 
 const stdlib = loadStdlib();
 stdlib.setProviderByName('TestNet')
@@ -57,7 +58,7 @@ if (NEW) {
 }
 
 ctc.getInfo().then((info) => {
-console.log(`The contract is deployed as = ${JSON.stringify(info)}`); });
+console.log(`The contract is deployed as = ${parseBigNumber(info)}`); });
 
 const fmt = (x) => stdlib.formatCurrency(x, 4);
 const getBalance = async () => fmt(await stdlib.balanceOf(acc));
