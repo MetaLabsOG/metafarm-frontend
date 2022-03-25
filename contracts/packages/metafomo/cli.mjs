@@ -33,15 +33,13 @@ const playerInteract = (player) => ({
         console.log(`Player ${player} deployed`)
     },
     showPurchase: (addr, lastPrice, newPrice) => {
-        console.log(`Player ${player} showPurchase`, addr, lastPrice, newPrice)
+        console.log(`Player ${player} showPurchase`, addr, parseBigNumber(lastPrice), parseBigNumber(newPrice))
     },
-    updateDiscountLevel: (level) => {
-        console.log(`Player ${player} updateDiscountLevel`, level)
-        console.log("lololol\n\n\nlololol\n\n\nlololol\n\n\n")
-
+    updateDiscountLevel: (addr, level) => {
+        console.log(`Player ${player} updateDiscountLevel`, addr, parseBigNumber(level))
     },
-    updateTimeReductionLevel: (level) => {
-        console.log(`Player ${player} updateTimeReductionLevel`, level)
+    updateTimeReductionLevel: (addr, level) => {
+        console.log(`Player ${player} updateTimeReductionLevel`, addr, parseBigNumber(level))
     }
 })
 
