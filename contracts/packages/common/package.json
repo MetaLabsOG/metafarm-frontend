@@ -1,0 +1,7 @@
+{
+  "name": "@cometa/common",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "license": "MIT",
+  "description": "Common files for Cometa smart contracts"
+}

@@ -1,0 +1,78 @@
+import * as backend from './build/index.main.mjs'
+import { stdlib, parseBigNumber, isBigNumber, getBalance, printObjectWithBigNumbers, getContractId } from '@cometa/common'
+
+// Creates accounts etc.
+export async function init(accountsNumber) {
+    const creatorAcc = await stdlib.newTestAccount(stdlib.parseCurrency(100))
+    const playerAccs = await stdlib.newTestAccounts(accountsNumber, stdlib.parseCurrency(10))
+    console.log("Accounts created and funded with ALGO")
+
+    const nftPrize = await stdlib.launchToken(creatorAcc, "FOMO NFT prize", "FOMONFT", {
+        url: "https://arweave.net/CKu5PrxNiIfIHeY8eM_6zYt5pgMlKVfDgzXPCiMr5Vk"
+    })
+    console.log("NFT minted")
+
+    if (stdlib.connector === 'ETH' || stdlib.connector === 'CFX') {
+        const myGasLimit = 5000000;
+        for (const acc of playerAccs) {
+            acc.setGasLimit(myGasLimit);
+        }
+    } else if (stdlib.connector === 'ALGO') {
+        for (const acc of playerAccs) {
+            await acc.tokenAccept(nftPrize.id)
+        }
+        console.log("Players opted in")
+    } else {
+        console.log("Unsupported connector " + stdlib.connector)
+    }
+  
+    return {
+        creatorAcc, playerAccs, nftPrize
+    }
+}
+
+
+export async function deploy(creatorAcc, nftPrize) {
+    const creatorCtc = creatorAcc.contract(backend)
+    const creatorInteract = {
+        getParams: () => ({
+            // Relative deadline (how long timer will tick after the beginning/refresh).
+            deadline: 60 * 1000,
+            deltaDeadline: 30,
+            // Initial price of tickets.
+            ticketPrice: stdlib.parseCurrency(0.1),
+            // An NFT which will serve as additional prize to the winner.
+            nftPrize: nftPrize.id,
+            // Affects how the ticket price changes as tickets are sold (0 means constant price).
+            // TODO: consider something more interesting?
+            unitPrice: stdlib.parseCurrency(0.01),
+            // Funder gets part of ticket sales. This number represents denominator. Examples:
+            // * ticketFeeDenominator = 2 means Funder will get 50% of sales
+            // * ticketFeeDenominator = 100 means Funder will get 1% of sales
+            ticketFeeDenominator: 100,
+            tokensGivenPerTicket: 10
+        }),
+
+        showPurchase: async (address, p1, p2) => {
+            console.log("showPurchase", address, p1, p2);
+        },
+        showOutcome: async (address) => {
+            console.log("showOutcome", address);
+        },
+        deployed: async () => {
+            throw ['done', {}]
+        }
+    }
+
+    try {
+        await creatorCtc.p.Funder(creatorInteract)
+    } catch (e) {
+        if (e[0] === 'done') {
+            console.log("Funder.deployed was called. Funder is going to disconnect")
+        } else {
+            throw e
+        }
+    }
+
+    return getContractId(creatorCtc)
+}

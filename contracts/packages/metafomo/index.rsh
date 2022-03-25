@@ -121,6 +121,11 @@ export const main = Reach.App(() => {
     // =====
     // INIT
     // =====
+
+    setOptions({
+      untrustworthyMaps: true
+    });
+
     init();
         
     // Funder sets initial parameters.
@@ -231,10 +236,12 @@ export const main = Reach.App(() => {
 
     commit();
 
-    // For test purposes
-    Buyer.interact.deployed();
-
     Funder.pay([[1, nftPrize]]);
+    
+    // For test purposes
+    each([Buyer, Funder], () => {
+      interact.deployed();
+    });
 
     // Until timeout, allow buyers to buy ticket
     const [
@@ -285,8 +292,6 @@ export const main = Reach.App(() => {
           (callback) => {
             require(ticketFeeDenominator > 1);
             require(balance(fomoToken) > tokensGivenPerTicket);
-            const participantStats = getParticipantStats(this);
-            callback(participantStats);
 
             const funderFee = price / ticketFeeDenominator;
             const buyer = this;
@@ -297,6 +302,8 @@ export const main = Reach.App(() => {
 
             const reducedDelta = deltaDeadline - getTimeReductionSecs(this);
 
+            const participantStats = getParticipantStats(this);
+            callback(participantStats);
             return [ true,
               buyer,
               ticketsSold + 1,
@@ -314,8 +321,6 @@ export const main = Reach.App(() => {
           (callback) => {
             const discountLevel = getDiscountLevel(this);
             require(discountLevel < maxDiscountLevel);
-            const participantStats = getParticipantStats(this);
-            callback(participantStats);
 
             //const spent = discountPrices[getDiscountLevel(this)];
 
@@ -327,6 +332,8 @@ export const main = Reach.App(() => {
               }
             });
             
+            const participantStats = getParticipantStats(this);
+            callback(participantStats);
             return [ true, winner, ticketsSold, totalRaised, price, paidToFunder, currentDeadline ];
           }
         )
@@ -337,8 +344,6 @@ export const main = Reach.App(() => {
           (callback) => {
             const timeReductionLevel = getTimeReductionLevel(this);
             require(timeReductionLevel < maxTimeReductionLevel);
-            const participantStats = getParticipantStats(this);
-            callback(participantStats);
 
             //const spent = timeReductionPrices[getTimeReductionLevel(this)];
 
@@ -350,6 +355,8 @@ export const main = Reach.App(() => {
               }
             });
 
+            const participantStats = getParticipantStats(this);
+            callback(participantStats);
             return [ true, winner, ticketsSold, totalRaised, price, paidToFunder, currentDeadline ];
           }
         )

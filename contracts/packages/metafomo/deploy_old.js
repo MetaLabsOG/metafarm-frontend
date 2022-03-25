@@ -1,22 +1,12 @@
 import { loadStdlib, ask } from '@reach-sh/stdlib';
 import * as backend from './build/index.main.mjs';
 
-export const ALGONODE = {
-    REACH_CONNECTOR_MODE: 'ALGO-live',
-    // ALGO_SERVER: 'https://mainnet-algorand.api.purestake.io/ps2',
-    // ALGO_TOKEN: {'X-API-Key': 'd5bjYQye8f6tfntYkkFZ32l9Yb1b9e098KyNZ69B'},
-    // ALGO_PORT: '',
-    // ALGO_INDEXER_SERVER: 'https://mainnet-algorand.api.purestake.io/idx2',
-    // ALGO_INDEXER_TOKEN: {'X-API-Key': 'd5bjYQye8f6tfntYkkFZ32l9Yb1b9e098KyNZ69B'},
-    // ALGO_INDEXER_PORT: ''
-}
-
 const stdlib = loadStdlib();
 stdlib.setProviderByName('TestNet')
 
 // ACCOUNT DATA
-const mnemonic = "letter nerve pepper calm outdoor that report bulk actress lumber water arrive super note embark squirrel office wonder someone holiday upper large onion able outer"
-const nftPrize = 79656490;
+const mnemonic = "lounge canvas lemon omit about yard security mother fame much armor earn nation furnace reward image merry craft rocket strong stay object tail absorb pepper"
+const nftPrize = 80010410;
 
 const acc = await stdlib.newAccountFromMnemonic(mnemonic);
 

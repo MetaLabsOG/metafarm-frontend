@@ -1,0 +1,32 @@
+{
+  "name": "@cometa/farm",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "license": "MIT",
+  "description": "Yield farming smart contract in Reach",
+  "scripts": {
+    "test": "npx jest",
+    "lint": "eslint --ignore-path .gitignore --ext .mjs .",
+    "compile": "../../reach compile",
+    "transform-commonjs": "npx babel --plugins @babel/plugin-transform-modules-commonjs build/index.main.mjs > build/index.main.js",
+    "build": "npm run compile && npm run transform-commonjs",
+    "cli": "node --experimental-modules --unhandled-rejections=strict index.mjs"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.7",
+    "@babel/plugin-transform-modules-commonjs": "^7.17.7",
+    "@babel/preset-env": "^7.16.11",
+    "@types/jest": "^27.4.1",
+    "babel-cli": "^6.26.0",
+    "babel-jest": "^27.5.1",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.3",
+    "typescript": "^4.6.2"
+  },
+  "dependencies": {
+    "@reach-sh/stdlib": "^0.1.9-rc.4",
+    "inquirer": "^8.2.1",
+    "promise-all-properties": "^3.0.5"
+  }
+}

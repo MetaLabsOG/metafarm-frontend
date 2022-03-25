@@ -86,6 +86,12 @@ export const main = Reach.App(() => {
   /*=====
     INIT
     =====*/
+
+  // TODO DANGER CHECK CARETULLY
+  setOptions({
+    untrustworthyMaps: true
+  });
+
   init();
 
   

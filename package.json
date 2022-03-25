@@ -49,6 +49,7 @@
     "@types/axios": "^0.14.0",
     "@types/styled-components": "^5.1.24",
     "eslint-config-prettier": "^8.5.0",
+    "lerna": "^4.0.0",
     "prettier": "2.5.1",
     "react-scripts": "4.0.3",
     "stylelint-config-prettier": "^9.0.3"
