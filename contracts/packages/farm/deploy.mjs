@@ -1,5 +1,5 @@
 import * as backend from './build/index.main.mjs'
-import { stdlib, parseBigNumber, isBigNumber, getBalance, printObjectWithBigNumbers, getContractId } from '@cometa/common'
+import { stdlib, parseBigNumber, isBigNumber, getBalance, printObjectWithBigNumbers, getContractId, config } from '@cometa/common'
 
 // Creates accounts etc.
 export async function init(accountsNumber) {
@@ -68,5 +68,7 @@ export async function deploy(creatorAcc, stakeToken, rewardToken) {
     }
   }
 
-  return getContractId(creatorCtc)
+  const contractId = await getContractId(creatorCtc)
+  config.set('farm.lastDeployed', contractId)
+  return contractId 
 }

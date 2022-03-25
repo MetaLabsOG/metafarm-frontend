@@ -1,6 +1,6 @@
 import { loadStdlib, ask } from '@reach-sh/stdlib'
 import * as backend from './build/index.main.mjs'
-import { stdlib, parseBigNumber, isBigNumber, getBalance, printObjectWithBigNumbers } from '@cometa/common'
+import { stdlib, parseBigNumber, isBigNumber, getBalance, printObjectWithBigNumbers, call, config } from '@cometa/common'
 import inquirer from 'inquirer'
 import { init, deploy } from './deploy.mjs'
 
@@ -11,7 +11,8 @@ async function printState(ctc) {
 
 const accountsNumber = 2
 const { creatorAcc, stakerAccs, stakeToken, rewardToken } = await init(accountsNumber)
-const contractId = await deploy(creatorAcc, stakeToken, rewardToken)
+await deploy(creatorAcc, stakeToken, rewardToken)
+const contractId = config.get("farm.lastDeployed")
 console.log(`The contract is deployed as = ${contractId}`);
 
 
@@ -55,21 +56,6 @@ const questions = [
 ];
 
 console.log("Going to farm a bit :)")
-
-const call = async (f) => {
-
-    let res = undefined
-    try {
-        res = await f()
-    } catch (e) {
-        res = [`err`, e]
-    }
-    console.log(`Result:\n`)
-    printObjectWithBigNumbers(res)
-    console.log('\n')
-
-};
-
 
 while (true) {
     const answers = await inquirer.prompt(questions)
