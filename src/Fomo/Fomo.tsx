@@ -233,7 +233,7 @@ export const Fomo = () => {
     );
 
     const updateTimeReductionLevel = useCallback(
-        (timeReductionLevel: BigNumber) => {
+        (addres, timeReductionLevel: BigNumber) => {
             if (reach) {
                 setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
             }
@@ -242,7 +242,7 @@ export const Fomo = () => {
     );
 
     const updateDiscountLevel = useCallback(
-        (discountLevel: BigNumber) => {
+        (address, discountLevel: BigNumber) => {
             if (reach) {
                 setDiscountLevel(reach.bigNumberToNumber(discountLevel));
             }
