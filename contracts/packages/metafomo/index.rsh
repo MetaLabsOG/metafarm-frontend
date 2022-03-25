@@ -76,8 +76,8 @@ export const main = Reach.App(() => {
       ...Common,
       // [address of winner, last price, new price without discount]
       showPurchase: Fun([Address, UInt, UInt], Null),
-      updateDiscountLevel: Fun([UInt], Null),
-      updateTimeReductionLevel: Fun([UInt], Null),
+      updateDiscountLevel: Fun([Address, UInt], Null),
+      updateTimeReductionLevel: Fun([Address, UInt], Null),
     });
 
     // =====
@@ -327,9 +327,9 @@ export const main = Reach.App(() => {
             discountM[this] = discountLevel + 1;
 
             Buyer.only(() => {
-              if (didPublish()) {
-                interact.updateDiscountLevel(discountLevel + 1);
-              }
+              // if (didPublish()) {
+                interact.updateDiscountLevel(this, discountLevel + 1);
+              // }
             });
             
             const participantStats = getParticipantStats(this);
@@ -350,9 +350,10 @@ export const main = Reach.App(() => {
             timeReductionM[this] = timeReductionLevel + 1;
             
             Buyer.only(() => {
-              if (didPublish()) {
-                interact.updateTimeReductionLevel(timeReductionLevel + 1);
-              }
+              // TODO I have no idea why it doesn't work, so have to return address too. Same for discounts
+              //if (didPublish()) {
+                interact.updateTimeReductionLevel(this, timeReductionLevel + 1);
+              //}
             });
 
             const participantStats = getParticipantStats(this);

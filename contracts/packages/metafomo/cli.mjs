@@ -28,6 +28,30 @@ if (stdlib.connector === "ALGO") {
     console.log(`All players opted-in into token ${metafomoToken}`)
 }
 
+const playerInteract = (player) => ({
+    deployed: () => {
+        console.log(`Player ${player} deployed`)
+    },
+    showPurchase: (addr, lastPrice, newPrice) => {
+        console.log(`Player ${player} showPurchase`, addr, lastPrice, newPrice)
+    },
+    updateDiscountLevel: (level) => {
+        console.log(`Player ${player} updateDiscountLevel`, level)
+        console.log("lololol\n\n\nlololol\n\n\nlololol\n\n\n")
+
+    },
+    updateTimeReductionLevel: (level) => {
+        console.log(`Player ${player} updateTimeReductionLevel`, level)
+    }
+})
+
+// Connect to receive events
+playerCtcs.forEach(function (player, i) {
+    player.p.Buyer(playerInteract(i))
+})
+
+
+
 const FOMO = 'Bid'
 const TIME_REDUCTION = 'Time Reduction'
 const DISCOUNT = 'Discount'
@@ -91,4 +115,9 @@ while (true) {
     
     console.log("After call")
     await printState(ctc)
+
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    // Sleeping here to make sure participants interacts were called and printed info
+    await sleep(1000)
 }
