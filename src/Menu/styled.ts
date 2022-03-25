@@ -61,4 +61,5 @@ export const ExchangeRates = styled.div`
 
 export const ExchangeRate = styled.div`
     margin-left: 20px;
+    animation: count 10s ease-in-out infinite alternate;
 `;

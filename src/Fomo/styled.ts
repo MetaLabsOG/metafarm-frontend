@@ -6,6 +6,12 @@ export const FomoContainer = styled.div`
     align-items: center;
 `;
 
+export const FomoRulesTitle = styled.h1`
+    text-align: center;
+    font-size: 20px;
+    color: #197303;
+`;
+
 export const Info = styled.div`
     width: 50%;
     display: flex;
@@ -107,16 +113,29 @@ export const BoostInfo = styled.div`
     }
 `;
 
-export const BoostButton = styled.button<{ disabled: boolean }>`
+export const BoostButton = styled.button<{ disabled: boolean; isLoading: boolean }>`
+    position: relative;
     color: ${({ disabled }) => (disabled ? '#4f4f4f' : '#05ff00')};
+    font-size: 16px;
+    font-family: 'Korona One';
     border-radius: 10px;
     border: 1px solid;
     background: none;
     height: 40px;
     width: 94px;
-    font-size: 16px;
-    font-family: 'Korona One';
     cursor: pointer;
+    ::before {
+        position: absolute;
+        top: ${({ isLoading }) => (isLoading ? ' 5px' : '8px')};
+        left: ${({ isLoading }) => (isLoading ? '30px' : '14px')};
+        content: 'boost!';
+        background-image: ${({ isLoading }) => (isLoading ? `url(${require('../imgs/loader.gif').default})` : null)};
+        background-position: center center;
+        background-size: cover;
+        width: 40px;
+        height: 70%;
+    }
+
     :hover {
         color: ${({ disabled }) => (disabled ? '#4f4f4f' : 'black')};
         background: ${({ disabled }) => (disabled ? 'none' : '#05ff00;')};
@@ -126,6 +145,7 @@ export const BoostButton = styled.button<{ disabled: boolean }>`
 export const BID = styled.h3`
     margin-top: 55px;
     font-size: 25px;
+    width: 300px;
 `;
 
 export const MaxedOut = styled.div`
