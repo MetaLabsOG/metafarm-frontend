@@ -76,7 +76,7 @@ export function ConnectWalletModal() {
                     Connect to MyAlgo
                 </button>
                 <button className="wallet-button" onClick={WalletClick}>
-                    Connect to perra wallet
+                    Connect to Pera wallet
                 </button>
             </div>
         </Modal>
