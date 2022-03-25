@@ -70,5 +70,4 @@ export async function deploy(creatorAcc, stakeToken, rewardToken) {
 
   const contractId = await getContractId(creatorCtc)
   config.set('farm.lastDeployed', contractId)
-  return contractId 
 }

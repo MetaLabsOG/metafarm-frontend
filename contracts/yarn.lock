@@ -7908,11 +7908,6 @@ process-nextick-args@~2.0.0:
   resolved "https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-2.0.1.tgz"
   integrity sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==
 
-promise-all-properties@^3.0.5:
-  version "3.0.5"
-  resolved "https://registry.npmjs.org/promise-all-properties/-/promise-all-properties-3.0.5.tgz"
-  integrity sha512-bJdK7JfDAl5WKWHB1SP3BIJA9mNEM7dv73+MKXpcaLFfKDiAGZ+PqwEtxoPd8Z9e5wgHIdbMl5e79Ev942pjdg==
-
 promise-inflight@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/promise-inflight/-/promise-inflight-1.0.1.tgz"
