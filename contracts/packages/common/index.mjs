@@ -1,4 +1,7 @@
-import { loadStdlib} from "@reach-sh/stdlib";
+import Configstore from 'configstore'
+export const config = new Configstore('cometa')
+
+import { loadStdlib } from "@reach-sh/stdlib";
 
 export const stdlib = loadStdlib(process.env)
 

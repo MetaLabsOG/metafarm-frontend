@@ -1,0 +1,12 @@
+Make console interface more convenient.
+* Separate devnet deploy from connect. Run deploy once, save contract id in configstore.
+* Connect from single account and use stored configstore.
+* Write all participant interact calls (hopefully they will only update UI) in logs.
+* Possibly create script which will filter events in log to show one participant interface per console window
+
+Use Typescript. 
+It is not so easy to do because of the stack but definitely doable.
+
+Create standard template for new smart contracts.
+
+Write unit test. They should also use configstore. Use jest.
