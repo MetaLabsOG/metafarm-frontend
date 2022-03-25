@@ -113,11 +113,6 @@ export const Fomo = () => {
             }
 
             if (!token && reach) {
-                const { timeReductionLevel, discountLevel } = await ctc.apis.Api.getParticipantStats();
-                setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
-
-                setDiscountLevel(reach.bigNumberToNumber(discountLevel));
-
                 setDiscountPrices(fomoInfo.discountPrices);
                 setDiscountPercents(fomoInfo.discountPercents);
 
@@ -194,7 +189,18 @@ export const Fomo = () => {
                 setIsLoading(false);
             }
         },
-        [isFinish, token, reach, account, nftPrize, isAcceptedFomo, isAcceptedNFT, getBalance]
+        [
+            isFinish,
+            token,
+            reach,
+            account,
+            discountLevel,
+            timeReductionLevel,
+            nftPrize,
+            isAcceptedFomo,
+            isAcceptedNFT,
+            getBalance,
+        ]
     );
 
     const deployed = () => {};
@@ -214,8 +220,6 @@ export const Fomo = () => {
         [reach]
     );
 
-    console.log('CURRENT_OUTSIDE', currentPrice);
-
     const showOutcome = useCallback(
         (address) => {
             if (reach) {
@@ -223,6 +227,24 @@ export const Fomo = () => {
                 console.log('WINNER!!!', winnerAddress);
                 setIsFinish(true);
                 setCurrentWinner(winnerAddress);
+            }
+        },
+        [reach]
+    );
+
+    const updateTimeReductionLevel = useCallback(
+        (timeReductionLevel: BigNumber) => {
+            if (reach) {
+                setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
+            }
+        },
+        [reach]
+    );
+
+    const updateDiscountLevel = useCallback(
+        (discountLevel: BigNumber) => {
+            if (reach) {
+                setDiscountLevel(reach.bigNumberToNumber(discountLevel));
             }
         },
         [reach]
@@ -240,6 +262,8 @@ export const Fomo = () => {
                 .Buyer(ctc, {
                     showOutcome,
                     showPurchase,
+                    updateDiscountLevel,
+                    updateTimeReductionLevel,
                     deployed,
                 })
                 .catch((e) => {
@@ -249,7 +273,7 @@ export const Fomo = () => {
                     }
                 });
         },
-        [showOutcome, showPurchase, updateFomoInfo]
+        [showOutcome, showPurchase, updateDiscountLevel, updateFomoInfo, updateTimeReductionLevel]
     );
 
     // // REACH BUYER INTERFACE
@@ -442,7 +466,7 @@ export const Fomo = () => {
                     </Balance>
                     <Update>
                         <Level>
-                            <LabelLevel>bid discount</LabelLevel>
+                            <LabelLevel>bid discount: {discountTimePercentAndPrice.value} </LabelLevel>
                             <LevelValue>level {discountLevel}</LevelValue>
                         </Level>
                         <BoostButtonConteiner onClick={buyDiscount}>
@@ -464,7 +488,7 @@ export const Fomo = () => {
 
                     <Update>
                         <Level>
-                            <LabelLevel>reduce time</LabelLevel>
+                            <LabelLevel>reduce time: {timeReductionSecAndPrice.value}</LabelLevel>
                             <LevelValue>level {timeReductionLevel}</LevelValue>
                         </Level>
 
