@@ -164,21 +164,18 @@ export const Fomo = () => {
                     setIsAccceptedNFT(isAcceptedNFT);
                 }
 
-                if (!tokenOwnedByUsers) {
-                    setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
-                }
+                setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
 
                 getBalance(reach.bigNumberToNumber(fomoInfo.token));
 
-                setCurrentPrice(Number.parseFloat(reach.formatCurrency(fomoInfo.currentPrice, 4)));
-
                 const paidToFunder = Number.parseFloat(reach.formatCurrency(fomoInfo.paidToFunder, 4));
                 const currentTotal = Number.parseFloat(reach.formatCurrency(fomoInfo.currentTotal, 3)) - paidToFunder;
-                setCurrentTotal(currentTotal);
 
+                setCurrentTotal(currentTotal);
                 const winnerPrice = await ctc.views.Fomo.prevPrice(fomoInfo.currentPrice);
 
                 setWinnerPrice(currentTotal > 0 ? Number.parseFloat(reach.formatCurrency(winnerPrice[1], 4)) : 0);
+                setCurrentPrice(Number.parseFloat(reach.formatCurrency(fomoInfo.currentPrice, 2)));
 
                 const now = await reach.getNetworkSecs();
                 const currentTime = reach.bigNumberToNumber(now);
@@ -197,7 +194,7 @@ export const Fomo = () => {
                 setIsLoading(false);
             }
         },
-        [isFinish, token, reach, account, nftPrize, isAcceptedFomo, isAcceptedNFT, tokenOwnedByUsers, getBalance]
+        [isFinish, token, reach, account, nftPrize, isAcceptedFomo, isAcceptedNFT, getBalance]
     );
 
     const deployed = () => {};
@@ -209,12 +206,15 @@ export const Fomo = () => {
                 if (winnerPrice < currentPrice) {
                     return;
                 }
-
-                console.log('NEW WINNER', reach.formatAddress(winnerAddress), winnerPrice);
+                setCurrentWinner(reach.formatAddress(winnerAddress));
+                setWinnerPrice(winnerPrice);
+                setCurrentPrice(Number.parseFloat(reach.formatCurrency(newPriceHex, 2)));
             }
         },
         [reach]
     );
+
+    console.log('CURRENT_OUTSIDE', currentPrice);
 
     const showOutcome = useCallback(
         (address) => {
@@ -233,14 +233,21 @@ export const Fomo = () => {
             const ctc = account.contract(fomo, FOMO_APP_ID);
             console.log('Connecting to', FOMO_APP_ID);
             setCtc(ctc);
+
             await updateFomoInfo(ctc);
 
-            await fomo.Buyer(ctc, { showOutcome, showPurchase, deployed }).catch((e) => {
-                console.log('[ERROR]', e);
-                if (e.message.includes('no application found')) {
-                    setIsFinish(true);
-                }
-            });
+            await fomo
+                .Buyer(ctc, {
+                    showOutcome,
+                    showPurchase,
+                    deployed,
+                })
+                .catch((e) => {
+                    console.log('[ERROR]', e);
+                    if (e.message.includes('no application found')) {
+                        setIsFinish(true);
+                    }
+                });
         },
         [showOutcome, showPurchase, updateFomoInfo]
     );
@@ -270,10 +277,9 @@ export const Fomo = () => {
                     discountLevel,
                     reach
                 );
-
                 setDiscountTimePercentAndPrice(discountTimePercentAndPrice);
+                await updateFomoInfo(ctc);
             }
-            await updateFomoInfo(ctc);
         } catch (e: any) {
             console.log('[ERROR]', e);
             if (e.message.includes('logic eval error')) {
@@ -309,7 +315,6 @@ export const Fomo = () => {
                 );
 
                 setTimeReductionSecAndPrice(timeReductionSecAndPrice);
-
                 await updateFomoInfo(ctc);
             }
         } catch (e: any) {
@@ -407,7 +412,7 @@ export const Fomo = () => {
                     </a>
                     <NFTCardInfo>
                         <Prize>
-                            {`prize: NFT + ${currentTotal.toPrecision(3)}`} <AlgoIcon fill="#5cfc3c" width="17px" />
+                            {`prize: NFT + ${currentTotal.toPrecision(2)}`} <AlgoIcon fill="#5cfc3c" width="17px" />
                         </Prize>
                         <Winner>
                             <h2 className="fomo_info">
@@ -438,9 +443,7 @@ export const Fomo = () => {
                     <Update>
                         <Level>
                             <LabelLevel>bid discount</LabelLevel>
-                            <LevelValue>
-                                level {discountLevel} ({discountTimePercentAndPrice.value}%)
-                            </LevelValue>
+                            <LevelValue>level {discountLevel}</LevelValue>
                         </Level>
                         <BoostButtonConteiner onClick={buyDiscount}>
                             {discountPrices.length >= discountLevel + 1 ? (
@@ -462,9 +465,7 @@ export const Fomo = () => {
                     <Update>
                         <Level>
                             <LabelLevel>reduce time</LabelLevel>
-                            <LevelValue>
-                                level {timeReductionLevel} (-{timeReductionSecAndPrice.value} sec)
-                            </LevelValue>
+                            <LevelValue>level {timeReductionLevel}</LevelValue>
                         </Level>
 
                         <BoostButtonConteiner onClick={buyTimeReduction}>
