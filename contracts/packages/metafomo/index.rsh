@@ -35,6 +35,7 @@ const ParticipantStats = Struct([
 ]);
 
 const Common = {
+  ...hasConsoleLogger,
   // Show the address of winner
   showOutcome: Fun([Address], Null),
   // For test purposes.
@@ -187,7 +188,7 @@ export const main = Reach.App(() => {
     const getPriceWithDiscount = (who, price) => {
       const d = getDiscountPercent(who);
       check(d < 100);
-      return price * (1-d/100);
+      return price * (100-d) / 100;
     }
 
     // ==============
@@ -293,10 +294,11 @@ export const main = Reach.App(() => {
             require(ticketFeeDenominator > 1);
             require(balance(fomoToken) > tokensGivenPerTicket);
 
-            const funderFee = price / ticketFeeDenominator;
             const buyer = this;
+            const priceWithDiscount = getPriceWithDiscount(buyer, price)
+            const funderFee = priceWithDiscount / ticketFeeDenominator;
             const newPriceWithoutDiscount = getNewPrice(price, unitPrice);
-            Buyer.only(() => interact.showPurchase(buyer, price, newPriceWithoutDiscount));
+            Buyer.only(() => interact.showPurchase(buyer, priceWithDiscount, newPriceWithoutDiscount));
             transfer(funderFee).to(Funder);
             transfer([[tokensGivenPerTicket, fomoToken]]).to(buyer);
 
