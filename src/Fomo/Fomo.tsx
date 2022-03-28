@@ -276,7 +276,12 @@ export const Fomo = () => {
     const updateTimeReductionLevel = useCallback(
         (address, timeReductionLevel: BigNumber) => {
             if (reach && account) {
-                console.log('ADDRES_ON_PARAM_FUNCT', address, 'ACCOUNT_ADDRES', account.getAddress());
+                console.log(
+                    'ADDRES_ON_PARAM_FUNCT',
+                    reach.formatAddress(address),
+                    'ACCOUNT_ADDRES',
+                    reach.formatAddress(account.getAddress())
+                );
                 if (address === account?.getAddress()) {
                     setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
                 }
@@ -286,10 +291,15 @@ export const Fomo = () => {
     );
 
     const updateDiscountLevel = useCallback(
-        (address, discountLevel: BigNumber) => {
+        (addressp, discountLevel: BigNumber) => {
             if (reach && account) {
-                console.log('ADDRES_ON_PARAM_FUNCT', address, 'ACCOUNT_ADDRES', account.getAddress());
-                if (address === account?.getAddress()) {
+                console.log(
+                    'ADDRES_ON_PARAM_FUNCT',
+                    reach.formatAddress(addressp),
+                    'ACCOUNT_ADDRES',
+                    reach.formatAddress(account.getAddress())
+                );
+                if (addressp === account?.getAddress()) {
                     setDiscountLevel(reach.bigNumberToNumber(discountLevel));
                 }
             }
@@ -334,9 +344,7 @@ export const Fomo = () => {
 
         try {
             //@ts-ignore
-            const { discountLevel } = await ctc.apis.Api.buyDiscount();
-
-            updateDiscountLevel(account?.getAddress(), discountLevel);
+            await ctc.apis.Api.buyDiscount();
         } catch (e: any) {
             console.log('[ERROR]', e);
             if (e.message.includes('logic eval error')) {
@@ -357,8 +365,7 @@ export const Fomo = () => {
         setIsLoading(true);
         try {
             //@ts-ignore
-            const { timeReductionLevel } = await ctc.apis.Api.buyTimeReduction();
-            updateTimeReductionLevel(account?.getAddress(), timeReductionLevel);
+            await ctc.apis.Api.buyTimeReduction();
         } catch (e: any) {
             console.log('[ERROR]', e);
             if (e.message.includes('logic eval error')) {
