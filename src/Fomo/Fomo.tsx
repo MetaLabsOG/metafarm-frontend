@@ -4,7 +4,7 @@ import '../css/fomo.css';
 import * as fomo from '../fomo_interface/index.main.mjs';
 import { RulesModal } from './RulesModal';
 import { AppContext, FOMO_APP_ID, Context } from '../AppContext';
-import { Timer } from '../Timer';
+import { Timer } from './Timer';
 import { batchOptIn } from '../batchOptIn.mjs';
 import { getAssetInfo } from '../providers/contractProvider';
 import { logEvent } from '../logEvent';
@@ -38,9 +38,9 @@ import { BigNumber } from 'ethers';
 
 export const Fomo = () => {
     const { reach, account } = useContext(AppContext) as Context;
+    const [ctc, setCtc] = useState<null>(null);
     const [isAccountConnected, setIsAccountConnected] = useState<boolean>(false);
     const [isFomoSet, setIsFomoSet] = useState<boolean>(false);
-    const [isInializateValue, setInutalizateValue] = useState(false);
     const [isFinish, setIsFinish] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -55,7 +55,7 @@ export const Fomo = () => {
     const [currentTotal, setCurrentTotal] = useState<number>(0);
     const [currentWinner, setCurrentWinner] = useState<string>('');
     const [winnerPrice, setWinnerPrice] = useState<number>(0);
-    const [ctc, setCtc] = useState<null>(null);
+
     const [token, setToken] = useState<number | null>(null);
 
     const [discountLevel, setDiscountLevel] = useState<number>(0);
@@ -83,6 +83,11 @@ export const Fomo = () => {
 
     const [isAcceptedNFT, setIsAccceptedNFT] = useState<boolean>(false);
     const [isAcceptedFomo, setIsAcceptedFomo] = useState<boolean>(false);
+    const [showPurchaseOutput, setShowPurschaseOutput] = useState<{
+        currentWinner: string;
+        winnerPrice: number;
+        currentPrice: number;
+    }>({ currentWinner: '', winnerPrice: 0, currentPrice: 0 });
 
     const isBoostAviable = (boostPrice: number) => Number(fomoTokensOnAccount) >= boostPrice;
 
@@ -213,20 +218,30 @@ export const Fomo = () => {
     const deployed = () => {};
 
     const showPurchase = useCallback(
-        (winnerAddress, winnerPriceHex, newPriceHex, currentPrice) => {
+        (winnerAddress, winnerPriceHex, newPriceHex) => {
             if (reach) {
                 const winnerPrice = Number.parseFloat(reach.formatCurrency(winnerPriceHex, 2));
-                if (winnerPrice < currentPrice) {
-                    return;
-                }
-                setCurrentWinner(reach.formatAddress(winnerAddress));
-                setWinnerPrice(winnerPrice);
-                setCurrentPrice(Number.parseFloat(reach.formatCurrency(newPriceHex, 2)));
-                console.log('newWinner', reach.formatAddress(winnerAddress), 'Price', winnerPrice);
+
+                setShowPurschaseOutput({
+                    currentWinner: reach.formatAddress(winnerAddress),
+                    winnerPrice,
+                    currentPrice: Number.parseFloat(reach.formatCurrency(newPriceHex, 2)),
+                });
+
+                // console.log('Show purchase step: newWinner', reach.formatAddress(winnerAddress), 'Price', winnerPrice);
             }
         },
         [reach]
     );
+
+    useEffect(() => {
+        if (showPurchaseOutput.currentPrice < currentPrice) {
+            return;
+        }
+        setCurrentPrice(showPurchaseOutput.currentPrice);
+        setCurrentWinner(showPurchaseOutput.currentWinner);
+        setWinnerPrice(showPurchaseOutput.winnerPrice);
+    }, [currentPrice, showPurchase, showPurchaseOutput]);
 
     const showOutcome = useCallback(
         (address) => {
@@ -261,6 +276,7 @@ export const Fomo = () => {
     const updateTimeReductionLevel = useCallback(
         (address, timeReductionLevel: BigNumber) => {
             if (reach && account) {
+                console.log('ADDRES_ON_PARAM_FUNCT', address, 'ACCOUNT_ADDRES', account.getAddress());
                 if (address === account?.getAddress()) {
                     setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
                 }
@@ -272,6 +288,7 @@ export const Fomo = () => {
     const updateDiscountLevel = useCallback(
         (address, discountLevel: BigNumber) => {
             if (reach && account) {
+                console.log('ADDRES_ON_PARAM_FUNCT', address, 'ACCOUNT_ADDRES', account.getAddress());
                 if (address === account?.getAddress()) {
                     setDiscountLevel(reach.bigNumberToNumber(discountLevel));
                 }
@@ -288,8 +305,6 @@ export const Fomo = () => {
 
             await updateFomoInfo(ctc);
 
-            console.log('INFO_FINISH');
-
             await fomo
                 .Buyer(ctc, {
                     showOutcome,
@@ -304,19 +319,12 @@ export const Fomo = () => {
                         setIsFinish(true);
                     }
                 });
-
-            setInutalizateValue(true);
         },
         [showOutcome, showPurchase, updateDiscountLevel, updateFomoInfo, updateTimeReductionLevel]
     );
 
     // // REACH BUYER INTERFACE
     const buyDiscount = async () => {
-        if (!ctc) {
-            alert('Please, connect the wallet.');
-            return;
-        }
-
         if (!isBoostAviable(discountTimePercentAndPrice.price)) {
             return;
         }
@@ -329,23 +337,18 @@ export const Fomo = () => {
             const { discountLevel } = await ctc.apis.Api.buyDiscount();
 
             updateDiscountLevel(account?.getAddress(), discountLevel);
-
-            await updateFomoInfo(ctc);
         } catch (e: any) {
             console.log('[ERROR]', e);
             if (e.message.includes('logic eval error')) {
+                await updateFomoInfo(ctc);
                 alert('Sorry, someone beat you');
             }
             setIsLoading(false);
+            await updateFomoInfo(ctc);
         }
     };
 
     const buyTimeReduction = async () => {
-        if (!ctc) {
-            alert('Please, connect the wallet.');
-            return;
-        }
-
         if (!isBoostAviable(timeReductionSecAndPrice.price)) {
             return;
         }
@@ -356,22 +359,17 @@ export const Fomo = () => {
             //@ts-ignore
             const { timeReductionLevel } = await ctc.apis.Api.buyTimeReduction();
             updateTimeReductionLevel(account?.getAddress(), timeReductionLevel);
-            await updateFomoInfo(ctc);
         } catch (e: any) {
             console.log('[ERROR]', e);
             if (e.message.includes('logic eval error')) {
                 alert('Sorry, someone beat you');
             }
+            await updateFomoInfo(ctc);
             setIsLoading(false);
         }
     };
 
     const buyTicket = async () => {
-        if (!ctc) {
-            alert('Please, connect the wallet.');
-            return;
-        }
-
         setIsLoading(true);
 
         if (account && !isAcceptedFomo && !isAcceptedNFT) {
@@ -381,17 +379,18 @@ export const Fomo = () => {
 
         try {
             //@ts-ignore
-            const { discountLevel, timeReductionLevel } = await ctc.apis.Api.buyTicket();
-            if (reach) {
-                setDiscountLevel(reach.bigNumberToNumber(discountLevel));
-                setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
-            }
-            await updateFomoInfo(ctc);
+            const rez = await ctc.apis.Api.buyTicket();
+            console.log(rez);
+            // if (reach) {
+            //     setDiscountLevel(reach.bigNumberToNumber(discountLevel));
+            //     setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
+            // }
         } catch (e: any) {
             console.log('[ERROR]', e);
             if (e.message.includes('logic eval error')) {
                 alert('Sorry, someone beat you');
             }
+            await updateFomoInfo(ctc);
             setIsLoading(false);
         }
     };

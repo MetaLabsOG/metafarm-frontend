@@ -1,7 +1,6 @@
 import React from 'react';
 
-//@ts-ignore
-export const AlgoIcon = ({ fill, width }) => {
+export const AlgoIcon = ({ fill, width }: { fill: string; width: string }) => {
     return (
         <svg
             id="Layer_1"
