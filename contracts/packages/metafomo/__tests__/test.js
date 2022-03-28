@@ -48,7 +48,7 @@ async function getView() {
 }
 
 beforeEach(async () => {
-  const accountsNumber = 3
+  const accountsNumber = 2
   const initResult = await init(accountsNumber)
   const { creatorAcc, nftPrize } = initResult
   playerAccs = initResult.playerAccs
@@ -57,6 +57,7 @@ beforeEach(async () => {
 
   playerLogs = Array(accountsNumber).fill([])
 
+  // TODO this is called asynchronously, we need a way to wait for it in tests...
   const playerInteract = (logArray) => ({
     deployed: () => {
       logArray.push(["deployed"])
@@ -84,7 +85,7 @@ beforeEach(async () => {
   }
 
   // TODO need to push it to some array so we can stop when test finishes
-  playerListeners = Array()
+  playerListeners = Array(0)
   playerCtcs.forEach(function (player, i) {
      playerListeners.push(cancelable(player.p.Buyer(playerInteract(playerLogs[i]))))
   })
@@ -93,6 +94,9 @@ beforeEach(async () => {
 
 afterEach(async () => {
   // Does not really finish stuff
+
+  console.log(playerListeners)
+
   for (const listener of playerListeners) {
     await listener.cancel()
   }
@@ -158,6 +162,26 @@ test('discount actually makes bids cheaper', async() => {
   expectEqualIgnoringFees(algoBalances[0], oldBalance - priceWithDiscount)
 })
 
+test('levels updated properly', async() => {
+  // get META
+  await bid(0)
+  await bid(1)
+  await bid(1)
+  await bid(1)
+
+  await buyDiscount(0)
+  await buyDiscount(1)
+  await buyDiscount(1)
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  await sleep(2000)
+
+  console.log("player 0 logs")
+  console.log(playerLogs[0])
+})
+
+/*
 test('bids actually increase time', async() => {
   // get time
   // bid
@@ -179,4 +203,6 @@ test('the game finishes and current winner gets prize', async() => {
   // move time a lot
   // final action (?)
   // check current winner got ALGO
+  // check random winner (decided by us?) got NFT
 })
+*/

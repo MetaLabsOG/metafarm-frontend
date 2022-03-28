@@ -336,11 +336,12 @@ export const main = Reach.App(() => {
 
             //const spent = discountPrices[getDiscountLevel(this)];
 
-            discountM[this] = discountLevel + 1;
+            const buyer = this;
+            discountM[buyer] = discountLevel + 1;
 
             Buyer.only(() => {
               // if (didPublish()) {
-                interact.updateDiscountLevel(this, discountLevel + 1);
+                interact.updateDiscountLevel(buyer, discountLevel + 1);
               // }
             });
             
@@ -359,12 +360,13 @@ export const main = Reach.App(() => {
 
             //const spent = timeReductionPrices[getTimeReductionLevel(this)];
 
-            timeReductionM[this] = timeReductionLevel + 1;
+            const buyer = this;
+            timeReductionM[buyer] = timeReductionLevel + 1;
             
             Buyer.only(() => {
               // TODO I have no idea why it doesn't work, so have to return address too. Same for discounts
               //if (didPublish()) {
-                interact.updateTimeReductionLevel(this, timeReductionLevel + 1);
+                interact.updateTimeReductionLevel(buyer, timeReductionLevel + 1);
               //}
             });
 
