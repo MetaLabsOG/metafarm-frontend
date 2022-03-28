@@ -10,7 +10,12 @@ const maxTimeReductionLevel = 5;
 const Info = Struct([
     ["deadline", UInt],
     ["deltaDeadline", UInt],
+    ["initialPrice", UInt],
     ["nftPrize", Token],
+    ["priceStep", UInt],
+    ["ticketFeeDenominator", UInt],
+    ["tokensGivenPerTicket", UInt],
+
 
     ["tokenOwnedByUsers", UInt],
     ["token", Token],
@@ -259,7 +264,12 @@ export const main = Reach.App(() => {
           Fomo.info.set(Info.fromObject({
             deadline,
             deltaDeadline,
+            initialPrice: ticketPrice,
             nftPrize,
+            priceStep: unitPrice,
+            ticketFeeDenominator,
+            tokensGivenPerTicket,
+
             tokenOwnedByUsers: fomoToken.supply() - balance(fomoToken),
             token: fomoToken,
 

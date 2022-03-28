@@ -14,10 +14,9 @@ async function printState(ctc) {
 
 const accountsNumber = 2
 const { creatorAcc, playerAccs, nftPrize } = await init(accountsNumber)
-const contractId = await deploy(creatorAcc, nftPrize)
+const {contractId, creatorCtc, playerCtcs} = await deploy(creatorAcc, playerAccs, nftPrize)
 console.log(`The contract is deployed as = ${contractId}`)
 
-const playerCtcs = playerAccs.map(acc => acc.contract(backend, contractId))
 const initialInfo = await playerCtcs[0].views.Fomo.info()
 const metafomoToken = parseBigNumber(initialInfo[1]["token"])
 

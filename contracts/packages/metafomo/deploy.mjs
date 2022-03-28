@@ -10,7 +10,7 @@ export async function init(accountsNumber) {
     const nftPrize = await stdlib.launchToken(creatorAcc, "FOMO NFT prize", "FOMONFT", {
         url: "https://arweave.net/CKu5PrxNiIfIHeY8eM_6zYt5pgMlKVfDgzXPCiMr5Vk"
     })
-    console.log("NFT minted")
+    console.log(`NFT minted as ${nftPrize.id}`)
 
     if (stdlib.connector === 'ETH' || stdlib.connector === 'CFX') {
         const myGasLimit = 5000000;
@@ -21,7 +21,7 @@ export async function init(accountsNumber) {
         for (const acc of playerAccs) {
             await acc.tokenAccept(nftPrize.id)
         }
-        console.log("Players opted in")
+        console.log("Players opted in NFT")
     } else {
         console.log("Unsupported connector " + stdlib.connector)
     }
@@ -32,7 +32,11 @@ export async function init(accountsNumber) {
 }
 
 
-export async function deploy(creatorAcc, nftPrize) {
+export async function deploy(
+    creatorAcc,
+    playerAccs,
+    nftPrize
+) {
     const creatorCtc = creatorAcc.contract(backend)
     const creatorInteract = {
         getParams: () => ({
@@ -74,5 +78,10 @@ export async function deploy(creatorAcc, nftPrize) {
         }
     }
 
-    return getContractId(creatorCtc)
+    const contractId = await getContractId(creatorCtc)
+    return {
+        contractId,
+        creatorCtc,
+        playerCtcs: playerAccs.map(acc => acc.contract(backend, contractId)),
+    }
 }

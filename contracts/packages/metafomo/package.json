@@ -4,14 +4,13 @@
   "main": "index.mjs",
   "license": "MIT",
   "description": "METAFOMO gamefied token sale contract",
-  "type": "module",
   "scripts": {
-    "test": "echo testing metafomo with version: $npm_package_version",
+    "test": "npx jest",
     "compile": "../../reach compile"
   },
   "dependencies": {
     "@cometa/common": "1.0.0",
-
-    "@reach-sh/stdlib": "^0.1.9-rc.4"
+    "@reach-sh/stdlib": "^0.1.9-rc.4",
+    "cancelable-promise": "^4.3.0"
   }
 }

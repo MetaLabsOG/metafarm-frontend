@@ -40,7 +40,7 @@ export async function init(accountsNumber) {
 }
 
 
-export async function deploy(creatorAcc, stakeToken, rewardToken) {
+export async function deploy(creatorAcc, stakerAccs, stakeToken, rewardToken) {
   const creatorCtc = creatorAcc.contract(backend)
   const currentBlock = Math.floor(Date.now() / 1000)
   const runningBlocks = 1000
@@ -70,4 +70,10 @@ export async function deploy(creatorAcc, stakeToken, rewardToken) {
 
   const contractId = await getContractId(creatorCtc)
   config.set('farm.lastDeployed', contractId)
+
+  const stakerCtcs = stakerAccs.map(acc => acc.contract(backend, contractId));
+  
+  return {
+    creatorCtc, stakerCtcs
+  }
 }
