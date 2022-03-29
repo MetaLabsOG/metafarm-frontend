@@ -312,7 +312,7 @@ export const main = Reach.App(() => {
             transfer(funderFee).to(Funder);
             transfer([[tokensGivenPerTicket, fomoToken]]).to(buyer);
 
-            const reducedDelta = deltaDeadline - getTimeReductionSecs(this);
+            const reducedDelta = deltaDeadline - getTimeReductionSecs(this) * 1000;
 
             const participantStats = getParticipantStats(this);
             callback(participantStats);
