@@ -47,6 +47,13 @@ async function getView() {
   return convertBns(object)
 }
 
+async function getLocalView(addr) {
+  const ctc = playerCtcs[0]
+  // TODO should it be () ()?
+  const [status, object] = await ctc.views.Fomo.participantInfo(addr)
+  return convertBns(object)
+}
+
 beforeAll(() => {
   jest.setTimeout(10 * 1000)
 })
@@ -232,6 +239,24 @@ test('events are emitted', async () => {
   //const showPurchaseEvents = [p]
   //const showPurchaseEvent = await e.showPurchase.next()
   // console.log(showPurchaseEvent)
+})
+
+test('participantInfo is correct', async() => {
+  const initialP0View = await getLocalView(playerAccs[0].networkAccount.addr)
+  expect(initialP0View.discountLevel).toBe(0)
+  expect(initialP0View.timeReductionLevel).toBe(0)
+
+  await bid(0)
+  await buyDiscount(0)
+
+  const laterP0View = await getLocalView(playerAccs[0].networkAccount.addr)
+  expect(laterP0View.discountLevel).toBe(1)
+  expect(laterP0View.timeReductionLevel).toBe(0)
+
+  const p1View = await getLocalView(playerAccs[1].networkAccount.addr)
+  expect(p1View.discountLevel).toBe(0)
+  expect(p1View.timeReductionLevel).toBe(0)
+
 })
 
 test('levels updated properly', async () => {
