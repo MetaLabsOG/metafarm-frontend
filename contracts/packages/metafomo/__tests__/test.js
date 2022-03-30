@@ -47,6 +47,10 @@ async function getView() {
   return convertBns(object)
 }
 
+beforeAll(() => {
+  jest.setTimeout(10 * 1000)
+})
+
 beforeEach(async () => {
   const accountsNumber = 2
   const initResult = await init(accountsNumber)
@@ -136,39 +140,103 @@ test('discount actually makes bids cheaper', async () => {
   expectEqualIgnoringFees(algoBalances[0], oldBalance - priceWithDiscount)
 })
 
+// TODO implement not strict mode (subarray of events)
+async function checkEvents(eventStream, events) {
+  let totalExpectedEvents = events.map(e => e.length).reduce((a, b) => a + b)
+
+  const ptrs = playerAccs.map((_) => 0)
+
+  async function checkPurchases() {
+    await eventStream.monitor(({ when, what }) => {
+      const eventAddr = stdlib.formatAddress(what[0])
+      const eventArgs = convertBns(what.slice(1))
+      const addrs = playerAccs.map((acc) => acc.networkAccount.addr)
+      const playerIndex = addrs.indexOf(eventAddr)
+
+      const playerEvents = events[playerIndex]
+      const currentEventIndex = ptrs[playerIndex]
+      const currentEvent = playerEvents[currentEventIndex]
+
+      expect(eventArgs).toStrictEqual(currentEvent)
+      ptrs[playerIndex]++
+      totalExpectedEvents--
+
+      if (totalExpectedEvents == 0) {
+        throw "done"
+      }
+    })
+  }
+
+  try {
+    await checkPurchases()
+  } catch (e) {
+    if (e === 'done') {
+      // Do nothing
+    } else {
+      throw e
+    }
+  }
+}
 
 test('events are emitted', async () => {
   const e = creatorCtc.e
 
-  const getLog = (f) => async () => {
-    const { when, what } = await f.next();
-    const lastTime = await f.lastTime();
-    //assertEq(lastTime, when);
-    return what;
-  }
+  await bid(0)
+  await bid(1)
+  await bid(0)
+  await bid(1)
 
-  await bid(0)
-  await bid(1)
-  await bid(0)
-  await bid(1)
-  
   await buyDiscount(0)
   await buyDiscount(1)
   await buyTimeReduction(0)
-  await buyTimeReduction(1)
 
-  const expectedEvents = [playerAccs[0]]
+  const info = await getView()
+  const initialPrice = info.initialPrice
+  const step = info.priceStep
 
-  console.log(expectedEvents)
+  const purchaseEvents = [
+    [
+      [initialPrice, initialPrice + step],
+      [initialPrice + step * 2, initialPrice + step * 3],
+    ],
+    [
+      [initialPrice + step, initialPrice + step * 2],
+      [initialPrice + step * 3, initialPrice + step * 4],
+    ],
+  ]
 
-  const showPurchaseEvent = await e.showPurchase.next()
+  await checkEvents(e.showPurchase, purchaseEvents)
 
-  console.log(showPurchaseEvent)
+  const buyDiscountEvents = [
+    [
+      [1],
+    ],
+    [
+      [1],
+    ],
+  ]
+
+  await checkEvents(e.updateDiscountLevel, buyDiscountEvents)
+
+  
+  const buyTimeReductionEvents = [
+    [
+      [1],
+    ],
+    [
+      [],
+    ],
+  ]
+
+
+  //const showPurchaseEvents = [p]
+  //const showPurchaseEvent = await e.showPurchase.next()
+  // console.log(showPurchaseEvent)
 })
 
 test('levels updated properly', async () => {
   // get META
-  bid(0)
+  /*bid(0)
   await waitFor('showPurchase', playerPcEmitter)
   bid(0)
   await waitFor('showPurchase', playerPcEmitter)
@@ -190,7 +258,7 @@ test('levels updated properly', async () => {
   await sleep(2000)
 
   console.log("player 0 logs")
-  console.log(playerLogs[0])
+  console.log(playerLogs[0])*/
 })
 
 /*
