@@ -18,6 +18,7 @@ export const Info = styled.div`
     flex-direction: column;
     max-width: 400px;
     margin-left: 90px;
+    flex-grow: 0;
 `;
 
 export const Actions = styled.div`
@@ -92,7 +93,7 @@ export const Update = styled.div`
     margin-bottom: 21px;
     margin-right: 19px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     width: 100%;
 `;
@@ -128,7 +129,7 @@ export const BoostButton = styled.button<{ disabled: boolean; isLoading: boolean
         position: absolute;
         top: ${({ isLoading }) => (isLoading ? ' 5px' : '8px')};
         left: ${({ isLoading }) => (isLoading ? '30px' : '14px')};
-        content: 'boost!';
+        content: ' ';
         background-image: ${({ isLoading }) => (isLoading ? `url(${require('../imgs/loader.gif').default})` : null)};
         background-position: center center;
         background-size: cover;
@@ -149,5 +150,7 @@ export const BID = styled.h3`
 `;
 
 export const MaxedOut = styled.div`
-    color: #027a00; ;
+    color: #027a00;
+    font-size: 18px;
+    width: 94px;
 `;
