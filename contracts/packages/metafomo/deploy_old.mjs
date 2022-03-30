@@ -7,7 +7,7 @@ stdlib.setProviderByName('TestNet')
 
 // ACCOUNT DATA
 const mnemonic = "educate bitter north zoo long apology tuition voice spell luxury advice turn margin curve raccoon leader fruit clay kind dizzy denial flee chief absorb roast"
-const nftPrize = 80010410;
+const nftPrize = 81107247;
 
 const acc = await stdlib.newAccountFromMnemonic(mnemonic);
 

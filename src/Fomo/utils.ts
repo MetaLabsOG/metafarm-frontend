@@ -1,7 +1,7 @@
-import { FOMO_APP_ID } from '../AppContext';
+type PricesAndValuesType = { price: number; value: number; nextLvlValue: number };
 
 //@ts-ignore
-export const setLevelAndValue = (prices, values, lvl, reach) => {
+export const setLevelAndValue = (prices: any, values: any, lvl: any, reach: any): PricesAndValuesType => {
     if (!prices.length || !values.length) {
         return { price: 0, value: 0, nextLvlValue: 0 };
     }
@@ -19,22 +19,4 @@ export const setLevelAndValue = (prices, values, lvl, reach) => {
     }
 
     return { price: 0, value: 0, nextLvlValue: 0 };
-};
-
-export const getLevelValue = (key: string) => {
-    const fomoAppId = localStorage.getItem('fomo_id');
-    if (fomoAppId !== FOMO_APP_ID && FOMO_APP_ID) {
-        localStorage.removeItem('discountLevel');
-        localStorage.removeItem('timeReductionLevel');
-        localStorage.setItem('fomo_id', FOMO_APP_ID);
-        return 0;
-    }
-
-    const value = localStorage.getItem(key);
-
-    if (!value) {
-        localStorage.setItem(key, '0');
-        return 0;
-    }
-    return Number(value);
 };

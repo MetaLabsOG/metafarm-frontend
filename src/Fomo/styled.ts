@@ -139,7 +139,7 @@ export const BoostButton = styled.button<{ disabled: boolean; isLoading: boolean
 
     :hover {
         color: ${({ disabled }) => (disabled ? '#4f4f4f' : 'black')};
-        background: ${({ disabled }) => (disabled ? 'none' : '#05ff00;')};
+        background: ${({ disabled, isLoading }) => (disabled || isLoading ? 'none' : '#05ff00;')};
     }
 `;
 
@@ -150,7 +150,8 @@ export const BID = styled.h3`
 `;
 
 export const MaxedOut = styled.div`
-    color: #027a00;
+    color: #4f4f4f;
     font-size: 18px;
     width: 94px;
+    text-align: center;
 `;

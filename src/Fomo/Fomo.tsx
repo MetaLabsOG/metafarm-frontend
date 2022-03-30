@@ -10,7 +10,6 @@ import { getAssetInfo } from '../providers/contractProvider';
 import { logEvent } from '../logEvent';
 import { AlgoIcon } from '../imgs/algo';
 import { Status } from '../Status';
-
 import {
     FomoContainer,
     Info,
@@ -34,7 +33,7 @@ import {
     FomoRulesTitle,
 } from './styled';
 import { NFTCard, NFTCardInfo, Nft } from '../common/styled';
-import { setLevelAndValue, getLevelValue } from './utils';
+import { setLevelAndValue } from './utils';
 import { BigNumber } from 'ethers';
 
 export const Fomo = () => {
@@ -47,7 +46,7 @@ export const Fomo = () => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [fomoDuration, setFomoDuration] = useState<number>(0);
-    const [currentTime, setCurrentTime] = useState<number>(0);
+    // const [currentTime, setCurrentTime] = useState<number>(0);
     const [endTime, setEndTime] = useState<number>(0);
     const [nftPrize, setNftPrize] = useState<number | null>(null);
     const [balance, setBalance] = useState<string>('0');
@@ -57,10 +56,10 @@ export const Fomo = () => {
     const [currentWinner, setCurrentWinner] = useState<string>('');
     const [winnerPrice, setWinnerPrice] = useState<number>(0);
 
-    const [token, setToken] = useState<BigNumber | null>(null);
+    const [token, setToken] = useState<number | null>(null);
 
-    const [discountLevel, setDiscountLevel] = useState<number>(getLevelValue('discountLevel'));
-    const [timeReductionLevel, setTimeReductionLevel] = useState<number>(getLevelValue('timeReductionLevel'));
+    const [discountLevel, setDiscountLevel] = useState<number>(0);
+    const [timeReductionLevel, setTimeReductionLevel] = useState<number>(0);
 
     const [discountPrices, setDiscountPrices] = useState<BigNumber[]>([]);
     const [discountPercents, setDiscountPercents] = useState<BigNumber[]>([]);
@@ -119,8 +118,6 @@ export const Fomo = () => {
 
             const [fomoInfoStatus, fomoInfo] = await ctc.views.Fomo.info();
 
-            console.log(fomoInfo);
-
             if (fomoInfoStatus === 'None') {
                 console.log('fomoInfoStatus None');
                 return;
@@ -145,7 +142,7 @@ export const Fomo = () => {
                 }
 
                 if (!token) {
-                    setToken(fomoInfo.token);
+                    setToken(reach.bigNumberToNumber(fomoInfo.token));
                 }
 
                 if (!isAcceptedFomo) {
@@ -157,27 +154,23 @@ export const Fomo = () => {
                     setIsAccceptedNFT(isAcceptedNFT);
                 }
 
+                const [status, { discountLevel, timeReductionLevel }] = await ctc.views.Fomo.participantInfo(
+                    account?.getAddress()
+                );
+
+                setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
+                setDiscountLevel(reach.bigNumberToNumber(discountLevel));
+
                 const paidToFunder = Number.parseFloat(reach.formatCurrency(fomoInfo.paidToFunder, 4));
                 const currentTotal = Number.parseFloat(reach.formatCurrency(fomoInfo.currentTotal, 3)) - paidToFunder;
 
-                getBalance(fomoInfo.token);
+                getBalance(reach.bigNumberToNumber(fomoInfo.token));
 
                 const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
-
-                console.log(endTime);
+                console.log('CURRENT_DEADLINE', endTime);
 
                 const now = await reach.getNetworkSecs();
                 const currentTime = reach.bigNumberToNumber(now);
-                setCurrentTime(currentTime);
-
-                console.log(
-                    'NETWORK_TIME',
-                    new Date(currentTime).toISOString().substr(11, 11),
-                    'DEADLINE',
-                    new Date(reach.bigNumberToNumber(fomoInfo.deadline)).toISOString().substr(11, 11),
-                    'END_TIMESAMP',
-                    new Date(endTime).toISOString().substr(11, 11)
-                );
 
                 if (currentTime > endTime) {
                     console.log('fomo is finished');
@@ -185,15 +178,9 @@ export const Fomo = () => {
                     return;
                 }
 
-                const winnerPrice = await ctc.views.Fomo.prevPrice(fomoInfo.currentPrice);
-
                 setCurrentTotal(currentTotal);
-                setWinnerPrice(currentTotal > 0 ? Number.parseFloat(reach.formatCurrency(winnerPrice[1], 4)) : 0);
-                setCurrentPrice(Number.parseFloat(reach.formatCurrency(fomoInfo.currentPrice, 2)));
                 setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
-                setCurrentWinner(reach.formatAddress(fomoInfo.currentWinner));
                 setFomoDuration(reach.bigNumberToNumber(fomoInfo.deadline));
-
                 setEndTime(endTime);
                 setIsFomoSet(true);
             }
@@ -214,10 +201,8 @@ export const Fomo = () => {
         ]
     );
 
-    const deployed = () => {};
-
     const showPurchase = useCallback(
-        (winnerAddress, winnerPriceHex, newPriceHex) => {
+        ([winnerAddress, winnerPriceHex, newPriceHex]) => {
             if (reach) {
                 const winnerPrice = Number.parseFloat(reach.formatCurrency(winnerPriceHex, 2));
 
@@ -226,8 +211,6 @@ export const Fomo = () => {
                     winnerPrice,
                     currentPrice: Number.parseFloat(reach.formatCurrency(newPriceHex, 2)),
                 });
-
-                // console.log('WINNER', reach.formatAddress(winnerAddress), 'PRICE', winnerPrice);
             }
         },
         [reach]
@@ -237,12 +220,15 @@ export const Fomo = () => {
         if (showPurchaseOutput.currentPrice < currentPrice) {
             return;
         }
+        if (reach) {
+            console.log('WINNER', showPurchaseOutput.currentWinner, 'PRICE', showPurchaseOutput.winnerPrice);
+        }
         Promise.all([
             setCurrentPrice(showPurchaseOutput.currentPrice),
             setCurrentWinner(showPurchaseOutput.currentWinner),
             setWinnerPrice(showPurchaseOutput.winnerPrice),
         ]);
-    }, [ctc, currentPrice, showPurchase, showPurchaseOutput]);
+    }, [ctc, currentPrice, reach, showPurchase, showPurchaseOutput]);
 
     const showOutcome = useCallback(
         (address) => {
@@ -277,23 +263,25 @@ export const Fomo = () => {
             console.log('Connecting to', FOMO_APP_ID);
             setCtc(ctc);
             setIsAccountConnected(true);
-            Promise.race([
-                updateFomoInfo(ctc),
-                fomo.Buyer(ctc, {
-                    showOutcome,
-                    showPurchase,
-                    updateTimeReductionLevel: () => {},
-                    updateDiscountLevel: () => {},
-                    deployed,
-                }),
-            ])
-                .then(() => {})
-                .catch((e) => {
-                    console.log('[ERROR]', e);
-                    if (e.message.includes('no application found')) {
-                        setIsFinish(true);
-                    }
-                });
+
+            const events = ctc.events;
+
+            await updateFomoInfo(ctc);
+
+            fomo.Buyer(ctc, {}).catch((e) => {
+                console.log('[ERROR]', e);
+                if (e.message.includes('no application found')) {
+                    setIsFinish(true);
+                }
+            });
+
+            await events.showPurchase.monitor(({ when, what }: { when: BigNumber; what: BigNumber[] }) => {
+                showPurchase(what);
+            });
+            //@ts-ignore
+            await events.showOutcome.monitor(({ when, what }) => {
+                showOutcome(what);
+            });
         },
         [showOutcome, showPurchase, updateFomoInfo]
     );
@@ -308,11 +296,11 @@ export const Fomo = () => {
 
         //@ts-ignore
         ctc.apis.Api.buyDiscount()
-            // .then(() => getBalance(ctc))
+            .then(() => {
+                updateFomoInfo(ctc);
+            })
             .then(() => {
                 setIsLoadingBoostDiscount(false);
-                setDiscountLevel(discountLevel + 1);
-                localStorage.setItem('discountLevel', (discountLevel + 1).toString());
             })
             .catch((e: any) => {
                 setIsLoadingBoostDiscount(false);
@@ -331,11 +319,9 @@ export const Fomo = () => {
 
         //@ts-ignore
         ctc.apis.Api.buyTimeReduction()
-            // .then(() => getBalance(token))
+            .then(() => updateFomoInfo(ctc))
             .then(() => {
                 setIsLoadingTimeReduction(false);
-                setTimeReductionLevel(timeReductionLevel + 1);
-                localStorage.setItem('timeReductionLevel', (timeReductionLevel + 1).toString());
             })
             .catch((e: Error) => {
                 console.log(e);
@@ -349,8 +335,8 @@ export const Fomo = () => {
     const buyTicket = useCallback(async () => {
         setIsLoading(true);
 
-        if (account && (!isAcceptedFomo || !isAcceptedNFT) && reach && token) {
-            await batchOptIn(reach, account.networkAccount.addr, [nftPrize, reach.bigNumberToNumber(token)], false);
+        if (account && (!isAcceptedFomo || !isAcceptedNFT)) {
+            await batchOptIn(reach, account.networkAccount.addr, [nftPrize, token], false);
             logEvent(account.networkAccount.addr, 'FOMO ' + currentPrice);
         }
 
@@ -363,6 +349,9 @@ export const Fomo = () => {
                 setIsLoading(false);
                 if (e.message.includes('logic eval error')) {
                     alert('Sorry, someone beat you');
+                }
+                if (e.message.includes('below min')) {
+                    alert('Not enough Algo');
                 }
             });
     }, [account, ctc, currentPrice, isAcceptedFomo, isAcceptedNFT, nftPrize, reach, token, updateFomoInfo]);
