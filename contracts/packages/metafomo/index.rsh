@@ -42,7 +42,7 @@ const ParticipantStats = Struct([
 const Common = {
   ...hasConsoleLogger,
   // Show the address of winner
-  showOutcome: Fun([Address], Null),
+  //showOutcome: Fun([Address], Null),
   // For test purposes.
   deployed: Fun([], Null),
 };
@@ -78,13 +78,27 @@ export const main = Reach.App(() => {
       })),
     });
 
+    
+    // ======
+    // EVENTS
+    // ======
+    const Event = Events({
+      showPurchase: [Address, UInt, UInt],
+      updateDiscountLevel: [Address, UInt],
+      updateTimeReductionLevel: [Address, UInt],
+      
+      showOutcome: [Address],
+    })
+
     const Buyer = ParticipantClass('Buyer', {
-      ...Common,
       // [address of winner, last price, new price without discount]
-      showPurchase: Fun([Address, UInt, UInt], Null),
-      updateDiscountLevel: Fun([Address, UInt], Null),
-      updateTimeReductionLevel: Fun([Address, UInt], Null),
+      //showPurchase: Fun([Address, UInt, UInt], Null),
+      //updateDiscountLevel: Fun([Address, UInt], Null),
+      //updateTimeReductionLevel: Fun([Address, UInt], Null),
     });
+
+    // We just need to connect somehow, do not need to call any interact objects
+    void(Buyer);
 
     // =====
     // VIEWS
@@ -92,6 +106,8 @@ export const main = Reach.App(() => {
     // TODO return one object cause otherwise it is slower/inconvenient
     const Fomo = View('Fomo', {
       info: Info,
+      participantInfo: Fun([Address], ParticipantStats),
+
       nextPrice: Fun([UInt], UInt),
       prevPrice: Fun([UInt], UInt),
     })
@@ -110,9 +126,9 @@ export const main = Reach.App(() => {
     // =======
     // HELPERS
     // =======
-    const showOutcome = (who) =>
+    /*const showOutcome = (who) =>
       each([Funder, Buyer], () => {
-        interact.showOutcome(who); });
+        interact.showOutcome(who); });*/
 
     const getNewPrice = (price, unitPrice) =>
         price + unitPrice;
@@ -245,7 +261,7 @@ export const main = Reach.App(() => {
     Funder.pay([[1, nftPrize]]);
     
     // For test purposes
-    each([Buyer, Funder], () => {
+    each([Funder], () => {
       interact.deployed();
     });
 
@@ -286,6 +302,8 @@ export const main = Reach.App(() => {
             timeReductionSecs,
           }));
 
+          Fomo.participantInfo.set((addr) => getParticipantStats(addr));
+
           Fomo.nextPrice.set((p) => getNewPrice(p, unitPrice));
           Fomo.prevPrice.set((p) => getOldPrice(p, unitPrice));
         })
@@ -308,7 +326,7 @@ export const main = Reach.App(() => {
             const priceWithDiscount = getPriceWithDiscount(buyer, price)
             const funderFee = priceWithDiscount / ticketFeeDenominator;
             const newPriceWithoutDiscount = getNewPrice(price, unitPrice);
-            Buyer.only(() => interact.showPurchase(buyer, priceWithDiscount, newPriceWithoutDiscount));
+            Event.showPurchase(buyer, priceWithDiscount, newPriceWithoutDiscount);
             transfer(funderFee).to(Funder);
             transfer([[tokensGivenPerTicket, fomoToken]]).to(buyer);
 
@@ -339,11 +357,7 @@ export const main = Reach.App(() => {
             const buyer = this;
             discountM[buyer] = discountLevel + 1;
 
-            Buyer.only(() => {
-              // if (didPublish()) {
-                interact.updateDiscountLevel(buyer, discountLevel + 1);
-              // }
-            });
+            Event.updateDiscountLevel(buyer, discountLevel + 1);
             
             const participantStats = getParticipantStats(this);
             callback(participantStats);
@@ -363,12 +377,7 @@ export const main = Reach.App(() => {
             const buyer = this;
             timeReductionM[buyer] = timeReductionLevel + 1;
             
-            Buyer.only(() => {
-              // TODO I have no idea why it doesn't work, so have to return address too. Same for discounts
-              //if (didPublish()) {
-                interact.updateTimeReductionLevel(buyer, timeReductionLevel + 1);
-              //}
-            });
+            Event.updateTimeReductionLevel(buyer, timeReductionLevel + 1);
 
             const participantStats = getParticipantStats(this);
             callback(participantStats);
@@ -391,8 +400,8 @@ export const main = Reach.App(() => {
 
     // Whoever buys last wins and receives balance
     transfer([balance(), [1, nftPrize]]).to(winner);
+    Event.showOutcome(winner);
     commit();
-    showOutcome(winner);
 
     // Inifinite loop which does nothing.
     Anybody.publish();

@@ -3,7 +3,7 @@ const { init, deploy } = require("../deploy.mjs")
 const { BigNumber } = require("ethers")
 const { cancelable } = require("cancelable-promise")
 
-let playerAccs, playerCtcs, metafomoToken, playerLogs, playerListeners
+let playerAccs, playerCtcs, metafomoToken, playerLogs, playerCtcConnection, creatorCtc
 
 async function bid(account) {
   const api = playerCtcs[account].a.Api
@@ -53,26 +53,10 @@ beforeEach(async () => {
   const { creatorAcc, nftPrize } = initResult
   playerAccs = initResult.playerAccs
   const ctcs = await deploy(creatorAcc, playerAccs, nftPrize)
+  creatorCtc = ctcs.creatorCtc
   playerCtcs = ctcs.playerCtcs
 
   playerLogs = Array(accountsNumber).fill([])
-
-  // TODO this is called asynchronously, we need a way to wait for it in tests...
-  const playerInteract = (logArray) => ({
-    deployed: () => {
-      logArray.push(["deployed"])
-    },
-    showPurchase: (addr, lastPrice, newPrice) => {
-      logArray.push(["showPurchase", addr, lastPrice.toNumber(), newPrice.toNumber()])
-    },
-    updateDiscountLevel: (addr, level) => {
-      logArray.push(["updateDiscountLevel", addr, level.toNumber()])
-    },
-    updateTimeReductionLevel: (addr, level) => {
-      logArray.push(["updateTimeReductionLevel", addr, level.toNumber()])
-    }
-  })
-
 
   const [infoStatus, initialInfo] = await playerCtcs[0].views.Fomo.info()
   metafomoToken = parseBigNumber(initialInfo.token)
@@ -84,22 +68,12 @@ beforeEach(async () => {
     console.log(`All players opted-in into token ${metafomoToken}`)
   }
 
-  // TODO need to push it to some array so we can stop when test finishes
-  playerListeners = Array(0)
-  playerCtcs.forEach(function (player, i) {
-     playerListeners.push(cancelable(player.p.Buyer(playerInteract(playerLogs[i]))))
-  })
-  console.log(playerListeners)
+  playerCtcConnection = cancelable(playerCtcs[0].p.Buyer({}))
 })
 
 afterEach(async () => {
-  // Does not really finish stuff
-
-  console.log(playerListeners)
-
-  for (const listener of playerListeners) {
-    await listener.cancel()
-  }
+  // TODO does not really finish stuff
+  await playerCtcConnection.cancel()
 })
 
 
@@ -141,7 +115,7 @@ test('can bid', async () => {
   const ticketPrice = info.currentPrice
   const initialBalance = parseInt(await stdlib.balanceOf(playerAccs[0]))
   await bid(0)
-  const {global, algoBalances, metaBalances} = await getAllInfo()
+  const { global, algoBalances, metaBalances } = await getAllInfo()
   console.log(initialBalance, ticketPrice, algoBalances)
   expectEqualIgnoringFees(algoBalances[0], initialBalance - ticketPrice)
   expect(metaBalances[0]).toBe(global.tokensGivenPerTicket)
@@ -149,25 +123,63 @@ test('can bid', async () => {
   expect(global.currentPrice).toBe(global.initialPrice + global.priceStep)
 })
 
-test('discount actually makes bids cheaper', async() => {
+test('discount actually makes bids cheaper', async () => {
   await bid(0)
   await buyDiscount(0)
-  let {global, algoBalances, metaBalances} = await getAllInfo()
+  let { global, algoBalances, metaBalances } = await getAllInfo()
   expect(global.tokenOwnedByUsers).toBe(0)
   expect(metaBalances[0]).toBe(0)
   const oldBalance = algoBalances[0]
   const priceWithDiscount = global.currentPrice * (100 - global.discountPercents[1]) / 100
   await bid(0);
-  ({global, algoBalances, metaBalances} = await getAllInfo());
+  ({ global, algoBalances, metaBalances } = await getAllInfo());
   expectEqualIgnoringFees(algoBalances[0], oldBalance - priceWithDiscount)
 })
 
-test('levels updated properly', async() => {
-  // get META
+
+test('events are emitted', async () => {
+  const e = creatorCtc.e
+
+  const getLog = (f) => async () => {
+    const { when, what } = await f.next();
+    const lastTime = await f.lastTime();
+    //assertEq(lastTime, when);
+    return what;
+  }
+
   await bid(0)
   await bid(1)
+  await bid(0)
   await bid(1)
+  
+  await buyDiscount(0)
+  await buyDiscount(1)
+  await buyTimeReduction(0)
+  await buyTimeReduction(1)
+
+  const expectedEvents = [playerAccs[0]]
+
+  console.log(expectedEvents)
+
+  const showPurchaseEvent = await e.showPurchase.next()
+
+  console.log(showPurchaseEvent)
+})
+
+test('levels updated properly', async () => {
+  // get META
+  bid(0)
+  await waitFor('showPurchase', playerPcEmitter)
+  bid(0)
+  await waitFor('showPurchase', playerPcEmitter)
+  bid(1)
+  await waitFor('showPurchase', playerPcEmitter)
+  //await waitFor('showPurchase', playerPcEmitter)
   await bid(1)
+  //await waitFor('showPurchase', playerPcEmitter)
+  await bid(1)
+  //await waitFor('showPurchase', playerPcEmitter)
+
 
   await buyDiscount(0)
   await buyDiscount(1)
