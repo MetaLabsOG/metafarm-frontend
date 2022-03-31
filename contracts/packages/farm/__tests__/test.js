@@ -37,7 +37,6 @@ function convertBns(obj) {
   }
 }
 
-
 async function getView() {
     const ctc = stakerCtcs[0]
     const [status, object] = await ctc.views.State.info()
@@ -51,6 +50,10 @@ beforeEach(async () => {
   stakerCtcs = ctcs.stakerCtcs
 })
 
+
+beforeAll(() => {
+  jest.setTimeout(10 * 1000)
+})
 
 /*test('contract can be deployed and id is written in configstore', async () => {
   const lastPublishedContractId = config.get("farm.lastDeployed")
