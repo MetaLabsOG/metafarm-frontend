@@ -5,5 +5,6 @@ module.exports = {
     "^.+\\.m?jsx?$": "babel-jest"
   },
   // Fucking jest wants to parse my dependencies
-  transformIgnorePatterns: ["node_modules/(?!(.+)/)"]
+  transformIgnorePatterns: ["node_modules/(?!(.+)/)"],
+  testTimeout: 20000
 };

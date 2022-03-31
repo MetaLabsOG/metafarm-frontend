@@ -74,6 +74,6 @@ export async function deploy(creatorAcc, stakerAccs, stakeToken, rewardToken) {
   const stakerCtcs = stakerAccs.map(acc => acc.contract(backend, contractId));
   
   return {
-    creatorCtc, stakerCtcs
+    contractId, creatorCtc, stakerCtcs
   }
 }
