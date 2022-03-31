@@ -1,5 +1,6 @@
 import Configstore from 'configstore'
 export const config = new Configstore('cometa')
+import {BigNumber} from 'ethers'
 
 import { loadStdlib } from "@reach-sh/stdlib";
 
@@ -56,6 +57,57 @@ export const mintToken = async (tokenParams, accounts) => {
 
 }
 
-export function commonFunction() {
-    console.log("common function")
+export function convertBns(obj) {
+  if (obj instanceof BigNumber) {
+    return obj.toNumber()
+  }
+  else if (obj instanceof Array) {
+    return obj.map((e) => convertBns(e))
+  } else if (typeof obj == "object") {
+    const newObj = {}
+    for (const p in obj) {
+      newObj[p] = convertBns(obj[p])
+    }
+    return newObj
+  } else {
+    return obj
+  }
+}
+
+// TODO implement not strict mode (subarray of events)
+export async function checkEvents(eventStream, events) {
+  let totalExpectedEvents = events.map(e => e.length).reduce((a, b) => a + b)
+
+  const ptrs = playerAccs.map((_) => 0)
+
+  async function checkPurchases() {
+    await eventStream.monitor(({ when, what }) => {
+      const eventAddr = stdlib.formatAddress(what[0])
+      const eventArgs = convertBns(what.slice(1))
+      const addrs = playerAccs.map((acc) => acc.networkAccount.addr)
+      const playerIndex = addrs.indexOf(eventAddr)
+
+      const playerEvents = events[playerIndex]
+      const currentEventIndex = ptrs[playerIndex]
+      const currentEvent = playerEvents[currentEventIndex]
+
+      expect(eventArgs).toStrictEqual(currentEvent)
+      ptrs[playerIndex]++
+      totalExpectedEvents--
+
+      if (totalExpectedEvents == 0) {
+        throw "done"
+      }
+    })
+  }
+
+  try {
+    await checkPurchases()
+  } catch (e) {
+    if (e === 'done') {
+      // Do nothing
+    } else {
+      throw e
+    }
+  }
 }

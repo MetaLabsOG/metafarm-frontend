@@ -1,43 +1,22 @@
-const { config, stdlib, parseBigNumber } = require("@cometa/common")
+const { config, stdlib, parseBigNumber, checkEvents, convertBns } = require("@cometa/common")
 const { init, deploy } = require("../deploy.mjs")
-const { BigNumber } = require("ethers")
 const { cancelable } = require("cancelable-promise")
 
 let playerAccs, playerCtcs, metafomoToken, playerLogs, playerCtcConnection, creatorCtc
 
 async function bid(account) {
   const api = playerCtcs[account].a.Api
-
   return await api.buyTicket()
 }
 
 async function buyTimeReduction(account) {
   const api = playerCtcs[account].a.Api
-
   return await api.buyTimeReduction()
 }
 
 async function buyDiscount(account) {
   const api = playerCtcs[account].a.Api
-
   return await api.buyDiscount()
-}
-
-function convertBns(obj) {
-  if (obj instanceof BigNumber) {
-    return obj.toNumber()
-  }
-  else if (obj instanceof Array) {
-    return obj.map((e) => convertBns(e))
-  } else if (typeof obj == "object") {
-    const newObj = {}
-    for (const p in obj) {
-      newObj[p] = convertBns(obj[p])
-    }
-    return newObj
-  } else {
-    return obj
-  }
 }
 
 
@@ -147,44 +126,6 @@ test('discount actually makes bids cheaper', async () => {
   expectEqualIgnoringFees(algoBalances[0], oldBalance - priceWithDiscount)
 })
 
-// TODO implement not strict mode (subarray of events)
-async function checkEvents(eventStream, events) {
-  let totalExpectedEvents = events.map(e => e.length).reduce((a, b) => a + b)
-
-  const ptrs = playerAccs.map((_) => 0)
-
-  async function checkPurchases() {
-    await eventStream.monitor(({ when, what }) => {
-      const eventAddr = stdlib.formatAddress(what[0])
-      const eventArgs = convertBns(what.slice(1))
-      const addrs = playerAccs.map((acc) => acc.networkAccount.addr)
-      const playerIndex = addrs.indexOf(eventAddr)
-
-      const playerEvents = events[playerIndex]
-      const currentEventIndex = ptrs[playerIndex]
-      const currentEvent = playerEvents[currentEventIndex]
-
-      expect(eventArgs).toStrictEqual(currentEvent)
-      ptrs[playerIndex]++
-      totalExpectedEvents--
-
-      if (totalExpectedEvents == 0) {
-        throw "done"
-      }
-    })
-  }
-
-  try {
-    await checkPurchases()
-  } catch (e) {
-    if (e === 'done') {
-      // Do nothing
-    } else {
-      throw e
-    }
-  }
-}
-
 test('events are emitted', async () => {
   const e = creatorCtc.e
 
@@ -256,7 +197,6 @@ test('participantInfo is correct', async() => {
   const p1View = await getLocalView(playerAccs[1].networkAccount.addr)
   expect(p1View.discountLevel).toBe(0)
   expect(p1View.timeReductionLevel).toBe(0)
-
 })
 
 test('levels updated properly', async () => {
