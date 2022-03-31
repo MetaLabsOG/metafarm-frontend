@@ -46,7 +46,7 @@ export const Fomo = () => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [fomoDuration, setFomoDuration] = useState<number>(0);
-    // const [currentTime, setCurrentTime] = useState<number>(0);
+    const [currentTime, setCurrentTime] = useState<number>(0);
     const [endTime, setEndTime] = useState<number>(0);
     const [nftPrize, setNftPrize] = useState<number | null>(null);
     const [balance, setBalance] = useState<string>('0');
@@ -167,10 +167,11 @@ export const Fomo = () => {
                 getBalance(reach.bigNumberToNumber(fomoInfo.token));
 
                 const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
-                console.log('CURRENT_DEADLINE', endTime);
 
                 const now = await reach.getNetworkSecs();
                 const currentTime = reach.bigNumberToNumber(now);
+                setCurrentTime(currentTime * 1000);
+                console.log('CURRENT_DEADLINE', endTime, 'NOW', currentTime);
 
                 if (currentTime > endTime) {
                     console.log('fomo is finished');
@@ -425,7 +426,7 @@ export const Fomo = () => {
                     </NFTCardInfo>
                 </NFTCard>
                 <Info>
-                    <Timer totalSec={fomoDuration} leftSec={endTime} />
+                    <Timer totalSec={fomoDuration} leftSec={currentTime - endTime} />
 
                     <FomoSupply>FOMO supply: {tokenOwnedByUsers} </FomoSupply>
                     <Balance>
