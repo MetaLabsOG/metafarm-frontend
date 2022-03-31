@@ -10,3 +10,24 @@ It is not so easy to do because of the stack but definitely doable.
 Create standard template for new smart contracts.
 
 Write unit test. They should also use configstore. Use jest.
+
+Adopt syncpack to manage package versions (keep different package dependencies in sync)
+
+Adopt commitizen?
+
+Use some better logger instead of console.log
+
+Important: set up a particular style for contracts. Ideas:
+* Do not use participants at all. Only dummy participant to connect and get ctc.
+* Store all initial state in view
+* Store all current global state in view
+* Store all local state in view
+* Emit events instead of participant interact object stuff
+* Maybe never return data in API? Just use events for all output and API for all input?
+* Have single view, api, events etc. per contract. So there will be no naming problems. 
+* Always use milliseconds?
+* Maybe have Common interface for Creator and User participants? It will have ...hasRandom, ...hasLogger, contractStarted(), contractFinished()
+* parallelReduceParams, initial data from getParams() and global view should have SAME NAMES.
+
+## Testing:
+* Make it possible to easily wait.
