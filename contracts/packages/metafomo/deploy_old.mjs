@@ -70,7 +70,7 @@ const interact = {
     ...stdlib.hasRandom,
     getParams: () => ({
         // Relative deadline (how long timer will tick after the beginning/refresh).
-        deadline: 60*1000,
+        deadline: 60*13,
         deltaDeadline: 30,
         // Initial price of tickets.
         ticketPrice: stdlib.parseCurrency(0.1),
