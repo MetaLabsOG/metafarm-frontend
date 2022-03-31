@@ -170,7 +170,7 @@ export const Fomo = () => {
 
                 const now = await reach.getNetworkSecs();
                 const currentTime = reach.bigNumberToNumber(now);
-                setCurrentTime(currentTime * 1000);
+                setCurrentTime(currentTime);
                 console.log('CURRENT_DEADLINE', endTime, 'NOW', currentTime);
 
                 if (currentTime > endTime) {
