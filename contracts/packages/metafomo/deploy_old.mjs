@@ -6,8 +6,8 @@ const stdlib = loadStdlib();
 stdlib.setProviderByName('TestNet')
 
 // ACCOUNT DATA
-const mnemonic = "educate bitter north zoo long apology tuition voice spell luxury advice turn margin curve raccoon leader fruit clay kind dizzy denial flee chief absorb roast"
-const nftPrize = 81107247;
+const mnemonic = "flip approve fire proud amazing solid stay oyster among reflect note echo adult gold owner wave quarter patient girl earth when trigger dream above search"
+const nftPrize = 81364807;
 
 const acc = await stdlib.newAccountFromMnemonic(mnemonic);
 
