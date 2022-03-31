@@ -41,6 +41,7 @@ export const FomoSupply = styled.div`
 
 export const Winner = styled.div`
     width: 100%;
+    color: #fbf33b;
 `;
 
 export const WinnerBid = styled.div`

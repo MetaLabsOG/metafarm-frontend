@@ -171,13 +171,6 @@ export const Fomo = () => {
                 const now = await reach.getNetworkSecs();
                 const currentTime = reach.bigNumberToNumber(now);
                 setCurrentTime(currentTime);
-                console.log('CURRENT_DEADLINE', endTime, 'NOW', currentTime);
-
-                if (currentTime > endTime) {
-                    console.log('fomo is finished');
-                    setIsFinish(true);
-                    return;
-                }
 
                 setCurrentTotal(currentTotal);
                 setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
@@ -286,6 +279,14 @@ export const Fomo = () => {
         },
         [showOutcome, showPurchase, updateFomoInfo]
     );
+
+    useEffect(() => {
+        if (currentTime > endTime) {
+            console.log('fomo is finished');
+            setIsFinish(true);
+            return;
+        }
+    }, [currentTime, endTime, currentWinner]);
 
     // // REACH BUYER INTERFACE
     const buyDiscount = async () => {
@@ -426,7 +427,7 @@ export const Fomo = () => {
                     </NFTCardInfo>
                 </NFTCard>
                 <Info>
-                    <Timer totalSec={fomoDuration} leftSec={currentTime - endTime} />
+                    <Timer totalSec={fomoDuration} leftSec={endTime - currentTime} />
 
                     <FomoSupply>FOMO supply: {tokenOwnedByUsers} </FomoSupply>
                     <Balance>

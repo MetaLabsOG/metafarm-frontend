@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import dayjs from 'dayjs';
 import ProgressBar from '@ramonak/react-progress-bar';
 
 type TimerProps = {
@@ -15,7 +14,7 @@ export function Timer({ totalSec, leftSec }: TimerProps) {
         let timeout;
         if (seconds > 0) {
             timeout = setTimeout(() => {
-                setSeconds((seconds) => Math.max(0, seconds - 1000));
+                setSeconds((seconds) => Math.max(0, seconds - 1));
             }, 1000);
         }
         //@ts-ignore
@@ -28,9 +27,9 @@ export function Timer({ totalSec, leftSec }: TimerProps) {
 
     return (
         <div>
-            <h1 className="fomo_phrase">{dayjs(seconds).format('HH:MM:ss')}</h1>
+            <h1 className="fomo_phrase">{new Date(seconds * 1000).toISOString().substring(11, 19)}</h1>
             <ProgressBar
-                completed={Math.floor(1 - leftSec)}
+                completed={Math.floor((1 - leftSec / totalSec) * 100)}
                 className="fomo_bar_wrapper"
                 barContainerClassName="fomo_bar_container"
                 transitionTimingFunction="ease-in"
