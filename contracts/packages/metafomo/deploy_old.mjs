@@ -91,6 +91,9 @@ const interact = {
     },
     showOutcome: async (address) => {
         console.log("showOutcome", address);
+    },
+    deployed: () => {
+        console.log("Contract was properly initialized and ready to work")
     }
 };
 
