@@ -87,7 +87,9 @@ export const main = Reach.App(() => {
       updateDiscountLevel: [Address, UInt],
       updateTimeReductionLevel: [Address, UInt],
       
-      showOutcome: [Address],
+      showOutcome: [
+        Address, // Winner
+      ],
     })
 
     const Buyer = ParticipantClass('Buyer', {
@@ -95,7 +97,13 @@ export const main = Reach.App(() => {
       //showPurchase: Fun([Address, UInt, UInt], Null),
       //updateDiscountLevel: Fun([Address, UInt], Null),
       //updateTimeReductionLevel: Fun([Address, UInt], Null),
-      showOutcome: Fun([Address], Null),
+      showOutcome: Fun([
+        Address, // Winner
+        UInt,    // Tickets sold
+        UInt,    // Total raised
+        UInt,    // Winner bid (Without discount)
+        UInt,    // Fee paid to us
+      ], Null),
     });
 
     // We just need to connect somehow, do not need to call any interact objects
@@ -403,7 +411,13 @@ export const main = Reach.App(() => {
     transfer([balance(), [1, nftPrize]]).to(winner);
     Event.showOutcome(winner);
     Buyer.only(() => {
-      interact.showOutcome(winner);
+      interact.showOutcome(
+        winner,
+        ticketsSold,
+        totalRaised,
+        price,
+        paidToFunder
+      );
     });
     commit();
 
