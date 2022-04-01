@@ -2,7 +2,7 @@ const { config, stdlib, checkGlobalEvents, convertBns } = require("@cometa/commo
 const { init, deploy } = require("../deploy.mjs")
 const { BigNumber } = require("ethers")
 
-let creatorCtc, userCtcs, userAccs
+let contractId, creatorAcc, userAccs, creatorCtc, userCtcs, stakeToken, rewardToken
 
 async function stake(account, amount) {
   const api = userCtcs[account].a
@@ -64,11 +64,11 @@ beforeAll(() => {
 
 beforeEach(async () => {
   const accountsNumber = 3
-  const { creatorAcc, stakerAccs, stakeToken, rewardToken } = await init(accountsNumber)
-  userAccs = stakerAccs
-  const ctcs = await deploy(creatorAcc, stakerAccs, stakeToken, rewardToken)
-  creatorCtc = ctcs.creatorCtc
-  userCtcs = ctcs.stakerCtcs
+  let tokens
+  ({ creatorAcc, userAccs, tokens } = await init(accountsNumber));
+  ({ stakeToken, rewardToken } = tokens);
+  ({contractId, creatorCtc, userCtcs} =
+    await deploy(creatorAcc, userAccs, stakeToken, rewardToken));
 
   // We need somebody to log contract events.
   userCtcs[0].p.User({
@@ -79,7 +79,6 @@ beforeEach(async () => {
       console.log("deployed for monitoring user")
     },
   })
-
 })
 
 
@@ -209,7 +208,7 @@ test('rewards are added', async () => {
 })
 
 function randInt(n) {
-    return Math.floor(Math.random() * n)
+  return Math.floor(Math.random() * n)
 }
 
 test('state is still proper after many actions', async () => {
