@@ -20,6 +20,11 @@ async function claim(account) {
   return convertBns(await api.claim())
 }
 
+async function withdraw(account) {
+  const api = userCtcs[account].a
+  return convertBns(await api.withdraw())
+}
+
 async function update(account) {
   const api = userCtcs[account].a
   return convertBns(await api.update())
@@ -254,4 +259,15 @@ test('cannot stake when contract finished', async () => {
   const e = creatorCtc.e
   // One empty event
   await checkGlobalEvents(e.noRewardsLeft, [[]])
+})
+
+test('can withdraw', async () => {
+  await stake(1, 1)
+  await setTime(1000)
+
+  await withdraw(1)
+})
+
+test('cannot withdraw at the beginning', async () => {
+  await expect(withdraw(1)).rejects.toBeDefined()
 })
