@@ -94,7 +94,7 @@ const interact = {
     },
     deployed: () => {
         console.log("Contract was properly initialized and ready to work")
-    }
+    },
 };
 
 const part = ctc.p.Funder;

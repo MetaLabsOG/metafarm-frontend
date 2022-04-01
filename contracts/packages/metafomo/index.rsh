@@ -95,6 +95,7 @@ export const main = Reach.App(() => {
       //showPurchase: Fun([Address, UInt, UInt], Null),
       //updateDiscountLevel: Fun([Address, UInt], Null),
       //updateTimeReductionLevel: Fun([Address, UInt], Null),
+      showOutcome: Fun([Address], Null),
     });
 
     // We just need to connect somehow, do not need to call any interact objects
@@ -401,6 +402,9 @@ export const main = Reach.App(() => {
     // Whoever buys last wins and receives balance
     transfer([balance(), [1, nftPrize]]).to(winner);
     Event.showOutcome(winner);
+    Buyer.only(() => {
+      interact.showOutcome(winner);
+    });
     commit();
 
     // Inifinite loop which does nothing.

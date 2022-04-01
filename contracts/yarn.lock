@@ -4,13 +4,6 @@
 __metadata:
   version: 6
 
-<<<<<<< HEAD
-"contracts@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "contracts@workspace:."
-  languageName: unknown
-  linkType: soft
-=======
 "@ampproject/remapping@^2.1.0":
   version "2.1.2"
   resolved "https://registry.npmjs.org/@ampproject/remapping/-/remapping-2.1.2.tgz"
@@ -9948,4 +9941,3 @@ yarn@^1.22.18:
   version "1.22.18"
   resolved "https://registry.npmjs.org/yarn/-/yarn-1.22.18.tgz"
   integrity sha512-oFffv6Jp2+BTUBItzx1Z0dpikTX+raRdqupfqzeMKnoh7WD6RuPAxcqDkMUy9vafJkrB0YaV708znpuMhEBKGQ==
->>>>>>> 874a2c6 (Move to events from participant interact object)

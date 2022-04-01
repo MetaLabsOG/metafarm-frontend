@@ -1,48 +1,63 @@
 const { config, stdlib, checkEvents, convertBns } = require("@cometa/common")
 const { init, deploy } = require("../deploy.mjs")
 const { BigNumber } = require("ethers")
-const { syncBuiltinESMExports } = require("module")
+
+
+function promiseToCallbackFunction(promise) {
+  return (code, lang, cb) => {
+    (async () => {
+      const result = "Code block";
+      return result;
+    })().then((res) => cb(null, res), (err) => cb(err));
+  }
+}
 
 let creatorCtc, userCtcs, userAccs
 
 async function stake(account, amount) {
-    const api = userCtcs[account].a
-
-    return convertBns(await api.stake(amount))
+  const api = userCtcs[account].a
+  return convertBns(await api.stake(amount))
 }
 
 async function unstake(account, amount) {
-    const api = userCtcs[account].a
-    
-    return convertBns(await api.unstake(amount))
+  const api = userCtcs[account].a
+
+  return convertBns(await api.unstake(amount))
 }
 
 async function claim(account) {
-    const api = userCtcs[account].a
-    return convertBns(await api.claim())
+  const api = userCtcs[account].a
+  return convertBns(await api.claim())
 }
 
 async function update(account) {
-    const api = userCtcs[account].a
-    return convertBns(await api.update())
+  const api = userCtcs[account].a
+  return convertBns(await api.update())
 }
 
-async function setTime(account, time) {
-    const api = userCtcs[account].a
-    return convertBns(await api.setTime(time))
+async function updateAll() {
+  // TODO use Promise.all
+  for (const x of Array(3).keys()) {
+    await update(x)
+  }
+}
+
+async function setTime(time) {
+  const api = userCtcs[0].a
+  return convertBns(await api.setTime(time))
 }
 
 
 async function getInitialState() {
-    const ctc = userCtcs[0]
-    const [status, object] = await ctc.views.initial()
-    return convertBns(object)
+  const ctc = userCtcs[0]
+  const [status, object] = await ctc.views.initial()
+  return convertBns(object)
 }
 
 async function getGlobalState() {
-    const ctc = userCtcs[0]
-    const [status, object] = await ctc.views.global()
-    return convertBns(object)
+  const ctc = userCtcs[0]
+  const [status, object] = await ctc.views.global()
+  return convertBns(object)
 }
 
 
@@ -70,7 +85,7 @@ beforeEach(async () => {
   // We need somebody to log contract events.
   userCtcs[0].p.User({
     log: (...args) => {
-      console.log(convertBns(args))
+      //console.log(convertBns(args))
     },
     deployed: () => {
       console.log("deployed for monitoring user")
@@ -113,7 +128,7 @@ async function getAllInfo() {
 
 test('can stake and unstake', async () => {
   let view, staked, reward;
-  ({staked, reward} = await stake(1, 10))
+  ({ staked, reward } = await stake(1, 10))
   expect(staked).toBe(10)
   view = await getGlobalState()
   expect(view.totalStaked).toBe(10)
@@ -137,61 +152,105 @@ test('rewards are calculated properly', async () => {
   const rewardPerBlock = initial.totalRewardAmount / length
   const stakeAmount1 = 10
   const stakeAmount2 = 20
-  await stake(1, stakeAmount1);
-  ({staked, reward} = await stake(2, stakeAmount2))
+  stake(1, stakeAmount1);
+  ({ staked, reward } = stake(2, stakeAmount2))
 
   console.log("after 2nd user stake", staked, reward)
   const wasStaked = staked
 
   // We waited but did not touch contract, so it should not be updated
   let oldState1 = await getLocalState(1)
-  console.log(oldState1)
   let oldState2 = await getLocalState(2)
 
 
   expect(oldState1.reward).toBe(0)
-  expect(oldState2.reward).toBe(0);
-  await update(1)
-  await update(2)
-  await update(1)
-  await update(2)
-  const oldState1AfterUpdates = await getLocalState(1)
-  const oldState2AfterUpdates = await getLocalState(2)
-  console.log(oldState1AfterUpdates)
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
-  expect(oldState1AfterUpdates.reward).toBeGreaterThan(0)
-  
-  const waitTime = 100
-  await stdlib.wait(waitTime, (stats) => {
-    //console.log(convertBns(stats))
-  });
+  expect(oldState2.reward).toBe(0)
 
-  await update(1)
-  await update(2)
-  await update(1)
-  await update(2)
-  
+  const waitTime = 100
+  await setTime(waitTime)
+  await updateAll()
+
   const state1 = await getLocalState(1)
   const state2 = await getLocalState(2)
   console.log("reward 1 after update;", state1.reward)
-  expect(state1.reward).toBe(oldState1AfterUpdates.reward + waitTime * rewardPerBlock * stakeAmount1 / (stakeAmount1 + stakeAmount2))
-  expect(state2.reward).toBe(oldState2AfterUpdates.reward + waitTime * rewardPerBlock * stakeAmount2 / (stakeAmount1 + stakeAmount2))
-  ({staked, reward} = await claim(1))
+  let totalStaked = stakeAmount1 + stakeAmount2
+  let expectedRewardP1S1 = stakeAmount1 * Math.floor(waitTime * rewardPerBlock / totalStaked)
+  let expectedRewardP2S1 = stakeAmount2 * Math.floor(waitTime * rewardPerBlock / totalStaked)
+  expect(state1.reward).toBe(expectedRewardP1S1)
+  expect(state2.reward).toBe(expectedRewardP2S1);
+  ({ staked, reward } = await claim(1))
+  // Already claimed
+  expect(reward).toBe(0)
+
+  const waitTime2 = 10
+
+  await stake(1, 10)
+
+  // Update only one
+  await setTime(waitTime + waitTime2)
+  await update(1)
+
+  totalStaked = 40
+  let expectedRewardP1S2 = 20 * Math.floor(waitTime2 * rewardPerBlock / 40)
+  let expectedRewardP2S2 = expectedRewardP2S1
+
+  const state1_now = await getLocalState(1)
+  const state2_now = await getLocalState(2)
+
+  expect(state1_now.reward).toBe(expectedRewardP1S2)
+  expect(state2_now.reward).toBe(expectedRewardP2S2)
+
   // Already claimed reward
   expect(reward).toBe(0)
 
   console.log(staked, reward)
 
-  await sleep(1000)
-
 })
 
 test('rewards are added', async () => {
-  await stake(1, 10)
-  let {staked, reward} = await setTime(1, 1)
+  const res = stake(1, 10);
+
+  console.log(res)
+  /*
+  let { staked, reward } = await setTime(1, 1)
 
   console.log(reward)
 
   expect(reward).toBeGreaterThan(0)
-  
+  */
+})
+
+function randInt(n) {
+    return Math.floor(Math.random() * n)
+}
+
+test('state is still proper after many actions', async () => {
+  let staked = Array(3).fill(0)
+  let time = 0
+
+  for (let i = 0; i < 70; i++) {
+    const action = randInt(4)
+    const p = randInt(3)
+
+    if (action == 0) {
+      const toStake = randInt(100)
+      staked[p] += toStake
+      await stake(p, toStake)
+    } else if (action == 1) {
+      const toUnstake = Math.min(randInt(100), staked[p])
+      staked[p] -= toUnstake
+      await unstake(p, toUnstake)
+    } else if (action == 2) {
+      await claim(p)
+    } else if (action == 3) {
+      time += randInt(100)
+      await setTime(time)
+    }
+  }
+
+  for (let p = 0; p < 3; p++) {
+    const contractLocalState = await getLocalState(p)
+    expect(contractLocalState.staked).toBe(staked[p])
+  }
+
 })

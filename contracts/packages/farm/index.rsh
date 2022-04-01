@@ -318,7 +318,6 @@ export const main = Reach.App(() => {
     .api(
       Api.setTime,
       (time, callback) => {
-        const [newLastUpdateTime, newRewardPerTokenStored] = updateReward(this, totalStaked, lastUpdateTime, rewardPerTokenStored, time);
         callback(getLocalState(this))
         return [true, totalStaked, newLastUpdateTime, newRewardPerTokenStored, time];
       }

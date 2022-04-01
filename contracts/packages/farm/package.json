@@ -27,6 +27,9 @@
   "dependencies": {
     "@reach-sh/stdlib": "^0.1.9-rc.4",
     "configstore": "^6.0.0",
-    "inquirer": "^8.2.1"
+    "deasync": "^0.1.25",
+    "deasync-promise": "^1.0.1",
+    "inquirer": "^8.2.1",
+    "make-synchronous": "^1.0.0"
   }
 }
