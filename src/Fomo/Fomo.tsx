@@ -169,7 +169,15 @@ export const Fomo = () => {
                 const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
 
                 const now = await reach.getNetworkSecs();
+
                 const currentTime = reach.bigNumberToNumber(now);
+
+                if (currentTime > endTime) {
+                    console.log('fomo is finished');
+                    setIsFinish(true);
+                    return;
+                }
+
                 setCurrentTime(currentTime);
 
                 setCurrentTotal(currentTotal);
@@ -262,7 +270,10 @@ export const Fomo = () => {
 
             await updateFomoInfo(ctc);
 
-            fomo.Buyer(ctc, {}).catch((e) => {
+            fomo.Buyer(ctc, {
+                showOutcome,
+                deployed: () => {},
+            }).catch((e) => {
                 console.log('[ERROR]', e);
                 if (e.message.includes('no application found')) {
                     setIsFinish(true);
@@ -272,21 +283,9 @@ export const Fomo = () => {
             await events.showPurchase.monitor(({ when, what }: { when: BigNumber; what: BigNumber[] }) => {
                 showPurchase(what);
             });
-            //@ts-ignore
-            await events.showOutcome.monitor(({ when, what }) => {
-                showOutcome(what);
-            });
         },
         [showOutcome, showPurchase, updateFomoInfo]
     );
-
-    useEffect(() => {
-        if (currentTime > endTime) {
-            console.log('fomo is finished');
-            setIsFinish(true);
-            return;
-        }
-    }, [currentTime, endTime, currentWinner]);
 
     // // REACH BUYER INTERFACE
     const buyDiscount = async () => {
@@ -348,6 +347,7 @@ export const Fomo = () => {
             .then(() => setIsLoading(false))
             .catch((e: Error) => {
                 console.log(e.message);
+                updateFomoInfo(ctc);
                 setIsLoading(false);
                 if (e.message.includes('logic eval error')) {
                     alert('Sorry, someone beat you');
