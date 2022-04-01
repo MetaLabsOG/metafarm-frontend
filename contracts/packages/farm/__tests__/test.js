@@ -2,16 +2,6 @@ const { config, stdlib, checkEvents, convertBns } = require("@cometa/common")
 const { init, deploy } = require("../deploy.mjs")
 const { BigNumber } = require("ethers")
 
-
-function promiseToCallbackFunction(promise) {
-  return (code, lang, cb) => {
-    (async () => {
-      const result = "Code block";
-      return result;
-    })().then((res) => cb(null, res), (err) => cb(err));
-  }
-}
-
 let creatorCtc, userCtcs, userAccs
 
 async function stake(account, amount) {
@@ -252,5 +242,4 @@ test('state is still proper after many actions', async () => {
     const contractLocalState = await getLocalState(p)
     expect(contractLocalState.staked).toBe(staked[p])
   }
-
 })
