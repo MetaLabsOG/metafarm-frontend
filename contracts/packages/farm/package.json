@@ -30,6 +30,7 @@
     "deasync": "^0.1.25",
     "deasync-promise": "^1.0.1",
     "inquirer": "^8.2.1",
+    "loglevel": "^1.8.0",
     "make-synchronous": "^1.0.0"
   }
 }

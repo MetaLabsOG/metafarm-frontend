@@ -1,4 +1,4 @@
-const { config, stdlib, checkEvents, convertBns } = require("@cometa/common")
+const { config, stdlib, checkGlobalEvents, convertBns } = require("@cometa/common")
 const { init, deploy } = require("../deploy.mjs")
 const { BigNumber } = require("ethers")
 
@@ -53,10 +53,8 @@ async function getGlobalState() {
 
 async function getLocalState(acc) {
   const addr = userAccs[acc].networkAccount.addr
-  //console.log("addr", addr)
   const ctc = userCtcs[0]
   const [status, object] = await ctc.views.local(addr)
-  //console.log("object", object)
   return convertBns(object)
 }
 
@@ -242,4 +240,23 @@ test('state is still proper after many actions', async () => {
     const contractLocalState = await getLocalState(p)
     expect(contractLocalState.staked).toBe(staked[p])
   }
+})
+
+test('cannot stake when contract finished', async () => {
+
+  await stake(1, 1)
+  await setTime(999)
+  // still can stake here
+  await stake(1, 1)
+  // too late now
+  await setTime(1000)
+  await stake(1, 1)
+  // OK BUT NOW DEFINITELY TOO LATE RIGHT
+  await setTime(2000)
+  await stake(1, 1)
+  await stake(1, 1)
+
+  const e = creatorCtc.e
+  // One empty event
+  await checkGlobalEvents(e.noRewardsLeft, [[]])
 })

@@ -6,7 +6,7 @@ import { loadStdlib } from "@reach-sh/stdlib";
 
 export const stdlib = loadStdlib(process.env)
 
-export const fmt = (x) => stdlib.formatCurrency(x, 4);
+export const fmt = (x) => stdlib.formatCurrency(BigNumber.from(x), 4);
 export const getBalance = async (acc) => fmt(await stdlib.balanceOf(acc));
 export const isBigNumber = (n) => n.hasOwnProperty("_isBigNumber")
 
@@ -71,6 +71,37 @@ export function convertBns(obj) {
     return newObj
   } else {
     return obj
+  }
+}
+
+export async function checkGlobalEvents(eventStream, events) {
+  let totalExpectedEvents = events.length
+
+  const ptr = 0
+
+  async function checkPurchases() {
+    await eventStream.monitor(({ when, what }) => {
+      const eventArgs = convertBns(what)
+
+      const currentEvent = events[ptr]
+      expect(eventArgs).toStrictEqual(currentEvent)
+      ptrs++
+      totalExpectedEvents--
+
+      if (totalExpectedEvents == 0) {
+        throw "done"
+      }
+    })
+  }
+
+  try {
+    await checkPurchases()
+  } catch (e) {
+    if (e === 'done') {
+      // Do nothing
+    } else {
+      throw e
+    }
   }
 }
 

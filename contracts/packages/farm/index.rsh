@@ -92,9 +92,14 @@ export const main = Reach.App(() => {
   });
 
   const Api = API({
+    // Stage 1
     stake: Fun([UInt], LocalState),
     unstake: Fun([UInt], LocalState),
     claim: Fun([], LocalState),
+
+    // Stage 2
+    withdraw: Fun([], LocalState),
+
     // This is mostly for testing
     update: Fun([], LocalState),
     setTime: Fun([UInt], LocalState)
@@ -104,8 +109,10 @@ export const main = Reach.App(() => {
     staked: [Address, UInt],
     unstaked: [Address, UInt],
     claimed: [Address],
-
     updated: [Address],
+
+    noRewardsLeft: [],
+    withdrawn: [Address],
   })
 
   init();
@@ -224,17 +231,17 @@ export const main = Reach.App(() => {
     });
   }
 
+  const keepGoing = (time) => endBlock > time;
+
   // ====
   // MAIN
   // ====
   const [
-    keepGoing,
     totalStaked,
     lastUpdateTime,
     rewardPerTokenStored,
     currentTime
   ] = parallelReduce([
-    true,
     0,
     0, // TODO lastConsensusTime(),
     0,
@@ -256,7 +263,7 @@ export const main = Reach.App(() => {
       State.local.set(getLocalState);
     })
     .invariant(true) // TODO
-    .while(keepGoing)
+    .while(keepGoing(currentTime))
     .paySpec([stakeToken, rewardToken])
     .api(
       Api.stake,
@@ -268,7 +275,7 @@ export const main = Reach.App(() => {
 
         callback(getLocalState(this));
         Event.staked(this, toStake);
-        return [true, totalStaked + toStake, newLastUpdateTime, newRewardPerTokenStored, currentTime];
+        return [totalStaked + toStake, newLastUpdateTime, newRewardPerTokenStored, currentTime];
       }
     )
     .api(
@@ -290,7 +297,7 @@ export const main = Reach.App(() => {
 
         callback(getLocalState(this));
         Event.unstaked(this, toUnstake);
-        return [true, totalStaked - toUnstake, newLastUpdateTime, newRewardPerTokenStored, currentTime];
+        return [totalStaked - toUnstake, newLastUpdateTime, newRewardPerTokenStored, currentTime];
       }
     )
     .api(
@@ -302,7 +309,7 @@ export const main = Reach.App(() => {
 
         callback(getLocalState(this));
         Event.claimed(this);
-        return [true, totalStaked, newLastUpdateTime, newRewardPerTokenStored, currentTime];
+        return [totalStaked, newLastUpdateTime, newRewardPerTokenStored, currentTime];
       }
     )
     .api(
@@ -312,14 +319,46 @@ export const main = Reach.App(() => {
 
         callback(getLocalState(this));
         Event.updated(this);
-        return [true, totalStaked, newLastUpdateTime, newRewardPerTokenStored, currentTime];
+        return [totalStaked, newLastUpdateTime, newRewardPerTokenStored, currentTime];
       }
     )
     .api(
       Api.setTime,
       (time, callback) => {
         callback(getLocalState(this))
-        return [true, totalStaked, newLastUpdateTime, newRewardPerTokenStored, time];
+        return [totalStaked, lastUpdateTime, rewardPerTokenStored, time];
+      }
+    )
+
+  Event.noRewardsLeft();
+
+  // Stage 2: withdraw only
+
+  const [
+    totalStaked2,
+    lastUpdateTime2,
+    rewardPerTokenStored2,
+    currentTime2
+  ] = parallelReduce([
+    totalStaked,
+    lastUpdateTime,
+    rewardPerTokenStored,
+    currentTime
+  ])
+    .invariant(true) // TODO
+    .while(true)
+    .paySpec([stakeToken, rewardToken])
+    .api(
+      Api.withdraw,
+      (callback) => {
+        const [newLastUpdateTime, newRewardPerTokenStored] = updateReward(this, totalStaked2, lastUpdateTime2, rewardPerTokenStored2, currentTime2);
+        rewardM[this] = 0;
+        transfer([[reward(this), rewardToken]]).to(this);
+        // implement unstake here TODO
+
+        callback(getLocalState(this));
+        Event.withdrawn(this);
+        return [totalStaked2, newLastUpdateTime, newRewardPerTokenStored, currentTime2];
       }
     )
 

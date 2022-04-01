@@ -6,8 +6,8 @@ const stdlib = loadStdlib();
 stdlib.setProviderByName('TestNet')
 
 // ACCOUNT DATA
-const mnemonic = "flip approve fire proud amazing solid stay oyster among reflect note echo adult gold owner wave quarter patient girl earth when trigger dream above search"
-const nftPrize = 81364807;
+const mnemonic = "antenna excite poet divorce donate fetch fluid truth ordinary enhance crater obvious whisper salad galaxy faculty diary element slot loop knock foam move ability final"
+const nftPrize = 80010410;
 
 const acc = await stdlib.newAccountFromMnemonic(mnemonic);
 
@@ -70,7 +70,7 @@ const interact = {
     ...stdlib.hasRandom,
     getParams: () => ({
         // Relative deadline (how long timer will tick after the beginning/refresh).
-        deadline: 60*13,
+        deadline: 60*30,
         deltaDeadline: 30,
         // Initial price of tickets.
         ticketPrice: stdlib.parseCurrency(0.1),
