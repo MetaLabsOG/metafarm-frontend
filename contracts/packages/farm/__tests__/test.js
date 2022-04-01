@@ -247,13 +247,9 @@ test('cannot stake when contract finished', async () => {
   await setTime(999)
   // still can stake here
   await stake(1, 1)
-  // too late now
   await setTime(1000)
-  await stake(1, 1)
-  // OK BUT NOW DEFINITELY TOO LATE RIGHT
-  await setTime(2000)
-  await stake(1, 1)
-  await stake(1, 1)
+  // too late now
+  await expect(stake(1, 1)).rejects.toBeDefined()
 
   const e = creatorCtc.e
   // One empty event
