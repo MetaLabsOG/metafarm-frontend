@@ -203,6 +203,10 @@ export const Fomo = () => {
         ]
     );
 
+    useEffect(() => {
+        updateFomoInfo(ctc);
+    }, [ctc, currentWinner, updateFomoInfo]);
+
     const showPurchase = useCallback(
         ([winnerAddress, winnerPriceHex, newPriceHex]) => {
             if (reach) {
@@ -297,9 +301,6 @@ export const Fomo = () => {
 
         //@ts-ignore
         ctc.apis.Api.buyDiscount()
-            .then(() => {
-                updateFomoInfo(ctc);
-            })
             .then(() => {
                 setIsLoadingBoostDiscount(false);
             })
