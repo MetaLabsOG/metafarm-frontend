@@ -189,8 +189,8 @@ export const Fomo = () => {
         },
         [
             isFinish,
-            discountPrices.length,
-            timeReductionPrices.length,
+            discountPrices,
+            timeReductionPrices,
             reach,
             account,
             discountTimePercentAndPrice,
@@ -200,12 +200,13 @@ export const Fomo = () => {
             isAcceptedFomo,
             isAcceptedNFT,
             getBalance,
+            currentTime,
         ]
     );
 
     useEffect(() => {
         updateFomoInfo(ctc);
-    }, [ctc, currentWinner, updateFomoInfo]);
+    }, [ctc, currentWinner, updateFomoInfo, discountLevel, timeReductionLevel]);
 
     const showPurchase = useCallback(
         ([winnerAddress, winnerPriceHex, newPriceHex]) => {
