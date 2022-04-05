@@ -77,7 +77,7 @@ export function convertBns(obj) {
 export async function checkGlobalEvents(eventStream, events) {
   let totalExpectedEvents = events.length
 
-  const ptr = 0
+  let ptr = 0
 
   async function checkPurchases() {
     await eventStream.monitor(({ when, what }) => {
@@ -85,7 +85,7 @@ export async function checkGlobalEvents(eventStream, events) {
 
       const currentEvent = events[ptr]
       expect(eventArgs).toStrictEqual(currentEvent)
-      ptrs++
+      ptr++
       totalExpectedEvents--
 
       if (totalExpectedEvents == 0) {
