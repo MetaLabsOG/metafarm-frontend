@@ -70,15 +70,15 @@ const interact = {
     ...stdlib.hasRandom,
     getParams: () => ({
         // Relative deadline (how long timer will tick after the beginning/refresh).
-        deadline: 60*30,
+        deadline: 60*60,
         deltaDeadline: 30,
         // Initial price of tickets.
-        ticketPrice: stdlib.parseCurrency(0.1),
+        ticketPrice: stdlib.parseCurrency(1),
         // An NFT which will serve as additional prize to the winner.
         nftPrize,
         // Affects how the ticket price changes as tickets are sold (0 means constant price).
         // TODO: consider something more interesting?
-        unitPrice: stdlib.parseCurrency(0.01),
+        unitPrice: stdlib.parseCurrency(0.5),
         // Funder gets part of ticket sales. This number represents denominator. Examples:
         // * ticketFeeDenominator = 2 means Funder will get 50% of sales
         // * ticketFeeDenominator = 100 means Funder will get 1% of sales

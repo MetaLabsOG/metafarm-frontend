@@ -4,8 +4,8 @@
 // ======
 // COMMON
 // ======
-const maxDiscountLevel = 5;
-const maxTimeReductionLevel = 5;
+const maxDiscountLevel = 7;
+const maxTimeReductionLevel = 4;
 
 const Info = Struct([
     ["deadline", UInt],
@@ -184,9 +184,9 @@ export const main = Reach.App(() => {
     // DISCOUNT
     // =======
 
-    const discountPercents = array(UInt, [0, 5, 10, 15, 20, 25]);
+    const discountPercents = array(UInt, [0, 10, 20, 30, 40, 50, 60, 70]);
     // In FOMO token. TODO: add additional ALGO fee?
-    const discountPrices = array(UInt, [10, 20, 40, 80, 160]);
+    const discountPrices = array(UInt, [8, 14, 20, 26, 32, 38, 44]);
 
     check(discountPrices.size() == maxDiscountLevel);
     check(discountPercents.size() == maxDiscountLevel + 1);
@@ -226,8 +226,8 @@ export const main = Reach.App(() => {
     // ==============
 
     // Levels of time reduction
-    const timeReductionSecs = array(UInt, [0, 1, 2, 3, 4, 5]);
-    const timeReductionPrices = array(UInt, [10, 20, 40, 80, 160]);
+    const timeReductionSecs = array(UInt, [0, 4, 8, 12, 16]);
+    const timeReductionPrices = array(UInt, [10, 25, 40, 60]);
 
     check(timeReductionPrices.size() == maxTimeReductionLevel);
     check(timeReductionSecs.size() == maxTimeReductionLevel + 1);

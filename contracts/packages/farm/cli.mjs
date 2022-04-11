@@ -10,7 +10,7 @@ async function printState(ctc) {
 }
 
 const accountsNumber = 2
-const { creatorAcc, stakerAccs, stakeToken, rewardToken } = await init(accountsNumber)
+const { creatorAcc, userAccs, stakeToken, rewardToken } = await init(accountsNumber)
 await deploy(creatorAcc, stakeToken, rewardToken)
 const contractId = config.get("farm.lastDeployed")
 console.log(`The contract is deployed as = ${contractId}`);

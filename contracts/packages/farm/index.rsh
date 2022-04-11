@@ -26,8 +26,8 @@ const InitialStateObj = {
   beginBlock: UInt,
   // Last possible block when pool will cease to provide rewards.
   endBlock: UInt,
-  // Total reward of *rewardToken* distributed to users of the pool between *beginBlock* and *endBlock*
-  totalRewardAmount: UInt,
+  // *rewardToken* distributed per block.
+  rewardPerBlock: UInt,
 };
 
 // THIS IS REQUIRED TO BE THE SAME AS IinitialStateObj
@@ -42,7 +42,7 @@ const InitialState = Struct([
 const GlobalState = Struct([
   // initially set to 0
   ["totalStaked", UInt],
-  ["lastUpdateTime", UInt], // TODO is it UINT?
+  ["lastUpdateBlock", UInt], // TODO is it UINT?
   ["rewardPerTokenStored", UInt],
 ]);
 
@@ -52,9 +52,9 @@ const LocalState = Struct([
 ]);
 
 export const main = Reach.App(() => {
-  // TODO DANGER CHECK CARETULLY
+  // TODO DANGER CHECK CAREFULLY
   setOptions({
-    untrustworthyMaps: true
+    //untrustworthyMaps: true
   });
 
   // TODO I am not sure if we need this at all.
@@ -97,9 +97,6 @@ export const main = Reach.App(() => {
     unstake: Fun([UInt], LocalState),
     claim: Fun([], LocalState),
 
-    // Stage 2
-    withdraw: Fun([], LocalState),
-
     // This is mostly for testing
     update: Fun([], LocalState),
     setTime: Fun([UInt], LocalState)
@@ -112,7 +109,6 @@ export const main = Reach.App(() => {
     updated: [Address],
 
     noRewardsLeft: [],
-    withdrawn: [Address],
   })
 
   init();
@@ -124,14 +120,14 @@ export const main = Reach.App(() => {
       rewardToken,
       beginBlock,
       endBlock,
-      totalRewardAmount
+      rewardPerBlock
     } = declassify(interact.getParams());
     // TODO sometimes we may want to have stakeToken == rewardToken. Need to handle it. Probably with Maybe(...)
     assume(stakeToken != rewardToken);
 
-    // TODO concept of block is not really defined yet. It can be second, actual block, or some other "network time"
-    // depending on chain implementation.
-    const rewardPerBlock = totalRewardAmount / (endBlock - beginBlock);
+    assume(beginBlock < endBlock);
+
+    const totalRewardAmount = (endBlock - beginBlock) * rewardPerBlock;
   });
 
 
@@ -150,69 +146,41 @@ export const main = Reach.App(() => {
   // LINEAR STATE
   // ============
   // Amount of staked *stakeToken* for each Creator participant.
-  const stakedM = new Map(UInt);
-  const staked = (p) => fromSome(stakedM[p], 0);
+  const stakedM = new Map(UInt); const staked = (p) => fromSome(stakedM[p], 0);
   // Amount of *rewardToken* farmed but not claimed for each Creator participant.
-  const rewardM = new Map(UInt);
-  const reward = (p) => fromSome(rewardM[p], 0);
+  const rewardM = new Map(UInt); const reward = (p) => fromSome(rewardM[p], 0);
   // TODO DANGER SECURITY ISSUE!!! You cannot trust maps in Algorand, so this can be set to 0 by user.
   // Already claimed rewards per token. Similar to synthetix rewards: https://solidity-by-example.org/defi/staking-rewards/
-  const rewardPerTokenPaidM = new Map(UInt);
-  const rewardPerTokenPaid = (p) => fromSome(rewardPerTokenPaidM[p], 0);
-
+  const rewardPerTokenPaidM = new Map(UInt); const rewardPerTokenPaid = (p) => fromSome(rewardPerTokenPaidM[p], 0);
 
   // ===================
   // REWARDS CALCULATION
   // ===================
-  // TODO we use 1 instead of 1e18 in synthetix contracts
-  const rewardPerToken = (totalStaked, lastUpdateTime, rewardPerTokenStored, time) => {
-    if (totalStaked == 0) {
-      return 0;
-    } else {
-      return rewardPerTokenStored + (((time - lastUpdateTime) * rewardPerBlock) / totalStaked);
-    }
+  const lastBlockWithRewards = (currentBlock) => currentBlock < endBlock ? currentBlock : endBlock;
+
+  const rewardPerToken = (totalStaked, lastUpdateBlock, rewardPerTokenStored, currentBlock) => {
+    const rewardBlocksPassed = lastBlockWithRewards(currentBlock) - lastUpdateBlock;
+    return totalStaked == 0
+      ? 0
+      : rewardPerTokenStored + (rewardBlocksPassed * rewardPerBlock) / totalStaked;
   }
 
-  // TODO we use 1 instead of 1e18 in synthetix contracts
   // TODO in synthetix they call rewardPerToken() again instead of passing rewardPerTokenStored, hopefully they had a bug?
-  const earned = (p, rewardPerTokenStored) => {
-    return (staked(p) * (rewardPerTokenStored - rewardPerTokenPaid(p)) / 1) + reward(p);
-  }
+  const earned = (p, rewardPerTokenStored) => (staked(p) * (rewardPerTokenStored - rewardPerTokenPaid(p))) + reward(p);
 
   // This should be called every time when participant does any action. E.g. stake and unstake.
   // The reason is this we calculate amount to claim from the last known state (staked amount, time when staked, reward amount),
   // update state, give rewards, and pending rewards becomes zero until the next state update.
 
-  // Returns new lastUpdateTime and rewardPerTokenStored.
+  // Returns new lastUpdateBlock and rewardPerTokenStored.
   // Modifies linear state.
-  const updateReward = (p, totalStaked, lastUpdateTime, rewardPerTokenStored, time) => {
-    const rewardPerTokenStoredNew = rewardPerToken(totalStaked, lastUpdateTime, rewardPerTokenStored, time);
-
-    User.interact.log("before")
-    User.interact.log({
-      p,
-      lastUpdateTime,
-      time,
-      reward: reward(p),
-      staked: staked(p),
-      rewardPerTokenStored,
-      rewardPerTokenStoredNew,
-      rewardPerTokenPaid: rewardPerTokenPaid(p)
-    })
+  const updateReward = (p, totalStaked, lastUpdateBlock, rewardPerTokenStored, currentBlock) => {
+    const rewardPerTokenStoredNew = rewardPerToken(totalStaked, lastUpdateBlock, rewardPerTokenStored, currentBlock);
 
     rewardM[p] = earned(p, rewardPerTokenStoredNew);
     rewardPerTokenPaidM[p] = rewardPerTokenStoredNew;
 
-    User.interact.log("after")
-
-    User.interact.log({
-      time,
-      reward: reward(p),
-      staked: staked(p),
-      rewardPerTokenPaid: rewardPerTokenPaid(p)
-    });
-
-    return [time, rewardPerTokenStoredNew];
+    return [lastBlockWithRewards(currentBlock), rewardPerTokenStoredNew];
   }
 
   // ====
@@ -224,6 +192,9 @@ export const main = Reach.App(() => {
     interact.deployed();
   });
 
+  // ====
+  // MAIN
+  // ====
   const getLocalState = (addr) => {
     return LocalState.fromObject({
       staked: staked(addr),
@@ -231,19 +202,18 @@ export const main = Reach.App(() => {
     });
   }
 
-  const keepGoing = (time) => endBlock > time;
+  const keepGoing = (time) => time < endBlock;
 
-  // ====
-  // MAIN
-  // ====
   const [
     totalStaked,
-    lastUpdateTime,
+    lastUpdateBlock,
     rewardPerTokenStored,
+    rewardsPaid, // TODO add to view
     currentTime
   ] = parallelReduce([
     0,
     0, // TODO lastConsensusTime(),
+    0,
     0,
     0 // TODO for test
   ])
@@ -257,25 +227,36 @@ export const main = Reach.App(() => {
       }));
       State.global.set(GlobalState.fromObject({
         totalStaked,
-        lastUpdateTime,
+        lastUpdateBlock,
         rewardPerTokenStored
       }));
       State.local.set(getLocalState);
     })
-    .invariant(true) // TODO
+    .invariant(
+      totalStaked == balance(stakeToken) && totalStaked == stakedM.sum() &&
+      currentTime >= lastUpdateBlock
+    )
     .while(keepGoing(currentTime))
     .paySpec([stakeToken, rewardToken])
     .api(
       Api.stake,
-      (_) => assume(true), // TODO
+      (_) => {
+        assume(true)
+      }, // TODO
       (toStake) => [0, [toStake, stakeToken], [0, rewardToken]],
       (toStake, callback) => {
-        const [newLastUpdateTime, newRewardPerTokenStored] = updateReward(this, totalStaked, lastUpdateTime, rewardPerTokenStored, currentTime);
+        callback(getLocalState(this));
+        const [newlastUpdateBlock, newRewardPerTokenStored] = updateReward(this, totalStaked, lastUpdateBlock, rewardPerTokenStored, currentTime);
         stakedM[this] = fromSome(stakedM[this], 0) + toStake;
 
-        callback(getLocalState(this));
         Event.staked(this, toStake);
-        return [totalStaked + toStake, newLastUpdateTime, newRewardPerTokenStored, currentTime];
+        return [
+          totalStaked + toStake,
+          newlastUpdateBlock,
+          newRewardPerTokenStored,
+          rewardsPaid,
+          currentTime
+        ];
       }
     )
     .api(
@@ -286,88 +267,103 @@ export const main = Reach.App(() => {
       },
       (_) => [0, [0, stakeToken], [0, rewardToken]],
       (toUnstake, callback) => {
+        callback(getLocalState(this));
         const oldStaked = staked(this);
         check(toUnstake <= oldStaked);
         check(toUnstake <= balance(stakeToken));
 
-        const [newLastUpdateTime, newRewardPerTokenStored] = updateReward(this, totalStaked, lastUpdateTime, rewardPerTokenStored, currentTime);
+        const [newlastUpdateBlock, newRewardPerTokenStored] = updateReward(this, totalStaked, lastUpdateBlock, rewardPerTokenStored, currentTime);
+
+        // TODO temporarily disable unstake
         stakedM[this] = oldStaked - toUnstake;
 
         transfer([[toUnstake, stakeToken]]).to(this);
 
-        callback(getLocalState(this));
         Event.unstaked(this, toUnstake);
-        return [totalStaked - toUnstake, newLastUpdateTime, newRewardPerTokenStored, currentTime];
+        return [
+          totalStaked - toUnstake,
+          newlastUpdateBlock,
+          newRewardPerTokenStored,
+          rewardsPaid,
+          currentTime
+        ];
       }
     )
     .api(
       Api.claim,
+      () => {
+        check(reward(this) < balance(rewardToken))
+      },
+      () => [0, [0, stakeToken], [0, rewardToken]],
       (callback) => { // TODO what is k
-        const [newLastUpdateTime, newRewardPerTokenStored] = updateReward(this, totalStaked, lastUpdateTime, rewardPerTokenStored, currentTime);
-        rewardM[this] = 0;
-        transfer([[reward(this), rewardToken]]).to(this);
-
+        check(reward(this) < balance(rewardToken))
         callback(getLocalState(this));
+        const [newlastUpdateBlock, newRewardPerTokenStored] = updateReward(this, totalStaked, lastUpdateBlock, rewardPerTokenStored, currentTime);
+
+        const claimedReward = reward(this);
+
+        if (reward(this) < balance(rewardToken)) {
+          transfer([[reward(this), rewardToken]]).to(this);
+        }
+        rewardM[this] = 0;
+
         Event.claimed(this);
-        return [totalStaked, newLastUpdateTime, newRewardPerTokenStored, currentTime];
+        return [
+          totalStaked,
+          newlastUpdateBlock,
+          newRewardPerTokenStored,
+          rewardsPaid + claimedReward,
+          currentTime
+        ];
       }
     )
     .api(
       Api.update,
       (callback) => { // TODO what is k
-        const [newLastUpdateTime, newRewardPerTokenStored] = updateReward(this, totalStaked, lastUpdateTime, rewardPerTokenStored, currentTime);
-
         callback(getLocalState(this));
+        const [newlastUpdateBlock, newRewardPerTokenStored] = updateReward(this, totalStaked, lastUpdateBlock, rewardPerTokenStored, currentTime);
+
         Event.updated(this);
-        return [totalStaked, newLastUpdateTime, newRewardPerTokenStored, currentTime];
+        return [
+          totalStaked,
+          newlastUpdateBlock,
+          newRewardPerTokenStored,
+          rewardsPaid,
+          currentTime
+        ];
       }
     )
     .api(
       Api.setTime,
+      (time) => {
+        check(time > currentTime);
+      },
+      (_) => [0, [0, stakeToken], [0, rewardToken]],
       (time, callback) => {
-        callback(getLocalState(this))
-        return [totalStaked, lastUpdateTime, rewardPerTokenStored, time];
+        check(time > currentTime);
+        callback(getLocalState(this));
+        return [
+          totalStaked,
+          lastUpdateBlock,
+          rewardPerTokenStored,
+          rewardsPaid,
+          time
+        ];
       }
     )
+
+// TODO another loop with withdraw or add withdraw to the same thing?
 
   Event.noRewardsLeft();
 
   // Stage 2: withdraw only
 
-  const [
-    totalStaked2,
-    lastUpdateTime2,
-    rewardPerTokenStored2,
-    currentTime2
-  ] = parallelReduce([
-    totalStaked,
-    lastUpdateTime,
-    rewardPerTokenStored,
-    currentTime
-  ])
-    .invariant(true) // TODO
-    .while(true)
-    .paySpec([stakeToken, rewardToken])
-    .api(
-      Api.withdraw,
-      (callback) => {
-        const [newLastUpdateTime, newRewardPerTokenStored] = updateReward(this, totalStaked2, lastUpdateTime2, rewardPerTokenStored2, currentTime2);
-        rewardM[this] = 0;
-        transfer([[reward(this), rewardToken]]).to(this);
-        // implement unstake here TODO
-
-        callback(getLocalState(this));
-        Event.withdrawn(this);
-        return [totalStaked2, newLastUpdateTime, newRewardPerTokenStored, currentTime2];
-      }
-    )
-
   commit();
+
   Anybody.publish();
-  var [] = []
-  invariant(true)
-  while (true) { commit(); Creator.publish(); continue; }
+  transfer([balance(), [balance(rewardToken), rewardToken], [balance(stakeToken), stakeToken]]).to(Creator);
   commit();
+
   /*
   TODO need a way for provider to manage this stuff
   .case(Provider,
