@@ -89,6 +89,11 @@ export const Amount = styled.div<{ withIcon?: boolean }>`
     position: relative;
 `;
 
+export const AvailableBalance = styled.div`
+    color: #4f4f4f;
+    font-size: 14px;
+`;
+
 export const Update = styled.div`
     color: #05ff00;
     margin-bottom: 21px;
@@ -155,4 +160,38 @@ export const MaxedOut = styled.div`
     font-size: 18px;
     width: 94px;
     text-align: center;
+`;
+
+export const RulesItems = styled.div`
+    color: #3d3d3d;
+    margin: 35px 26px 40px 26px;
+    font-family: Korona One;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 22px;
+    letter-spacing: 0em;
+    text-align: left;
+`;
+
+export const RulesStrong = styled.span`
+    font-weight: 800;
+    color: black;
+    font-size: 13.5px;
+`;
+
+export const Subitems = styled.div`
+    margin-left: 10px;
+`;
+
+export const RulesItemOrdinalNumber = styled.span`
+    margin-right: 3px;
+`;
+
+export const RulesItemText = styled.div`
+    display: block;
+`;
+
+export const RulesItem = styled.div`
+    margin-bottom: 3px;
+    display: flex;
 `;
