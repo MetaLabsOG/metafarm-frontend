@@ -30,7 +30,7 @@ export function ConnectWalletModal() {
                         action: 'WALLET CONNECT',
                         status: `Wallet connect ${walletType} window width: ${window.innerWidth} ${browser.name} ${browser.version} ${browser.os}`
                     },
-                    'fomo'
+                    'wallet'
                   
                 )
                 return account;
