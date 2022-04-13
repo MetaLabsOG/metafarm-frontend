@@ -73,6 +73,7 @@ export const Fomo = () => {
     const [avableBalance, setAviableBalance] = useState('0');
     const [nftLink, setnftLink] = useState<string>('');
     const [currentPrice, setCurrentPrice] = useState('0');
+    const [currentTime, setCurrentTime] = useState(0);
     const [currentTotal, setCurrentTotal] = useState<number>(0);
     const [currentWinner, setCurrentWinner] = useState<string>('');
     const [winnerPrice, setWinnerPrice] = useState('0');
@@ -214,12 +215,12 @@ export const Fomo = () => {
 
                     const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
 
-                    let currentTime = 0;
                     try {
                         if (!token) {
                             const now = await reach.getNetworkSecs();
 
-                            currentTime = reach.bigNumberToNumber(now);
+                            const currentTime = reach.bigNumberToNumber(now);
+                            setCurrentTime(currentTime);
 
                             if (currentTime > endTime) {
                                 console.log('fomo is finished');
@@ -258,6 +259,7 @@ export const Fomo = () => {
             isAcceptedFomo,
             isAcceptedNFT,
             getBalance,
+            currentTime,
         ]
     );
 
