@@ -274,9 +274,9 @@ export const Fomo = () => {
     );
 
     useEffect(() => {
-        if (showPurchaseOutput.currentPrice < currentPrice) {
-            return;
-        }
+        // if (showPurchaseOutput.currentPrice < currentPrice) {
+        //     return;
+        // }
         if (reach) {
             console.log('WINNER', showPurchaseOutput.currentWinner, 'PRICE', showPurchaseOutput.winnerPrice);
 
