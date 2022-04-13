@@ -215,21 +215,10 @@ export const Fomo = () => {
 
                     const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
 
-                    try {
-                        if (!token) {
-                            const now = await reach.getNetworkSecs();
-
-                            const currentTime = reach.bigNumberToNumber(now);
-                            setCurrentTime(currentTime);
-
-                            if (currentTime > endTime) {
-                                console.log('fomo is finished');
-                                setIsFinish(true);
-                                return;
-                            }
-                        }
-                    } catch (error) {
-                        logEvent(account.networkAccount.addr, { message: 'GET NETWORK SEC FAIL' }, 'errors');
+                    if (currentTime > endTime) {
+                        console.log('fomo is finished');
+                        setIsFinish(true);
+                        return;
                     }
 
                     setTimeLeft(endTime - currentTime);
@@ -332,6 +321,16 @@ export const Fomo = () => {
             setIsAccountConnected(true);
 
             const events = ctc.events;
+
+            try {
+                if (reach) {
+                    const now = await reach.getNetworkSecs();
+                    const currentTime = reach.bigNumberToNumber(now);
+                    setCurrentTime(currentTime);
+                }
+            } catch (error) {
+                logEvent(account.networkAccount.addr, { message: 'GET NETWORK SEC FAIL' }, 'errors');
+            }
 
             await updateFomoInfo(ctc);
 
