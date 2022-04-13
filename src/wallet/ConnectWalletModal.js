@@ -26,24 +26,18 @@ export function ConnectWalletModal() {
                 console.log('Browser:', browser.name, browser.version, browser.os);
                 logEvent(
                     account.networkAccount.addr,
-                    'Wallet connect ' +
-                        walletType +
-                        ', window width: ' +
-                        window.innerWidth +
-                        ', ' +
-                        browser.name +
-                        ': ' +
-                        browser.version +
-                        ': ' +
-                        browser.os,
-                    'wallet'
-                );
-
+                    {
+                        action: 'WALLET CONNECT',
+                        status: `Wallet connect ${walletType} window width: ${window.innerWidth} ${browser.name} ${browser.version} ${browser.os}`
+                    },
+                    'fomo'
+                  
+                )
                 return account;
             })
             .catch((e) => {
                 console.log('ERROR. ConnectWallet: ' + e.name + ': ' + e.message);
-                logEvent('', 'ERROR. ConnectWallet: ' + e.name + ': ' + e.message, 'wallet');
+                logEvent('', { message: 'ERROR. ConnectWallet: ' + e.name + ': ' + e.message }, 'error');
             });
     };
 

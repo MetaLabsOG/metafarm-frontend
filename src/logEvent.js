@@ -1,4 +1,4 @@
-export function logEvent(address, status="", log_name="") {
+export function logEvent(address, params, log_name="") {
     // console.log('LOG', address, status, error);
     const requestOptions = {
         method: 'POST',
@@ -8,16 +8,18 @@ export function logEvent(address, status="", log_name="") {
         },
         body: JSON.stringify({
             "fields": {
-                "address": address,
-                "status": status,
-                "timestamp": Date.now(),
-                "date": new Date(Date.now()).toUTCString(),
+                address,
+                timestamp: Date.now(),
+                date: new Date(Date.now()).toUTCString(),
+                ...params
             }
         })
     };
 
+    
+
     if (log_name) {
-        fetch("https://api.airtable.com/v0/app5t32NrBOUQs4bh/" + log_name, requestOptions);
+        fetch("https://api.airtable.com/v0/appqAikFZd31XeJqW/" + log_name, requestOptions);
     } else {
         fetch("https://api.airtable.com/v0/appqAikFZd31XeJqW/fomo", requestOptions);
     }

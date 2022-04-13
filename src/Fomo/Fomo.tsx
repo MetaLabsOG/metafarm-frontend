@@ -67,8 +67,7 @@ export const Fomo = () => {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [fomoDuration, setFomoDuration] = useState<number>(0);
-    const [currentTime, setCurrentTime] = useState<number>(0);
-    const [endTime, setEndTime] = useState<number>(0);
+    const [timeLeft, setTimeLeft] = useState(0);
     const [nftPrize, setNftPrize] = useState<null | number>(null);
     const [balance, setBalance] = useState<string>('0');
     const [avableBalance, setAviableBalance] = useState('0');
@@ -125,7 +124,7 @@ export const Fomo = () => {
                     setBalance(reach.formatCurrency(balance, 0));
                     setAviableBalance(availableBalanceFormatted);
                 } catch (error) {
-                    console.log('Balnce get error', error);
+                    logEvent(account.networkAccount.addr, { message: 'GET BALANCE FAIL' }, 'errors');
                 }
 
                 if (token) {
@@ -134,7 +133,7 @@ export const Fomo = () => {
                         const fomoTokensBalance = reach.bigNumberToNumber(balanceFomo);
                         setFomoTokensOnAccount(fomoTokensBalance.toString());
                     } catch (error) {
-                        console.log('Fomo Balnce get error', error);
+                        logEvent(account.networkAccount.addr, { message: 'GET FOMO BALANCE FAIL' }, 'errors');
                     }
                 }
             }
@@ -173,7 +172,7 @@ export const Fomo = () => {
                         const { nftPrize } = fomoInfo;
                         setNftPrize(reach.bigNumberToNumber(nftPrize));
                         const nftLink = await getAssetInfo(reach.bigNumberToNumber(nftPrize));
-                        console.log('ASSETS', nftLink);
+                        logEvent(account.networkAccount.addr, { message: 'GET ASSETS FAIL' }, 'errors');
                         setnftLink(nftLink);
                     }
                     if (!token) {
@@ -183,10 +182,9 @@ export const Fomo = () => {
                     if (!isAcceptedFomo) {
                         try {
                             const isAcceptedFomo = await account.tokenAccepted(fomoInfo.token);
-                            console.log('isAcceptedFomo', isAcceptedFomo);
                             setIsAcceptedFomo(isAcceptedFomo);
                         } catch (error) {
-                            console.log('AcceptedToken Fail', error);
+                            logEvent(account.networkAccount.addr, { message: 'GET ACCEPTED TOKEN FAIL' }, 'errors');
                         }
                     }
                     if (!isAcceptedNFT) {
@@ -203,7 +201,7 @@ export const Fomo = () => {
                         const [status, { discountLevel, timeReductionLevel }] = await ctc.views.Fomo.participantInfo(
                             account?.getAddress()
                         );
-                        console.log('PARTISIPANT');
+                        logEvent(account.networkAccount.addr, { message: 'GET PARTISIPANT INFO FAIL' }, 'errors');
                         setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
                         setDiscountLevel(reach.bigNumberToNumber(discountLevel));
                     }
@@ -221,7 +219,6 @@ export const Fomo = () => {
                             const now = await reach.getNetworkSecs();
 
                             const currentTime = reach.bigNumberToNumber(now);
-                            console.log('NOW_TIME', now);
 
                             if (currentTime > endTime) {
                                 console.log('fomo is finished');
@@ -229,20 +226,22 @@ export const Fomo = () => {
                                 return;
                             }
 
-                            setCurrentTime(currentTime);
+                            setTimeLeft(endTime - currentTime);
                         }
                     } catch (error) {
-                        console.log('GET_NOW_TIME', error);
+                        logEvent(account.networkAccount.addr, { message: 'GET NETWORK SEC FAIL' }, 'errors');
                     }
 
                     setCurrentTotal(currentTotal);
                     setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
                     setFomoDuration(reach.bigNumberToNumber(fomoInfo.deadline));
-                    setEndTime(endTime);
                     setIsFomoSet(true);
+                    setIsLoading(false);
                 }
             } catch (error) {
-                console.log('Get Info fail', error);
+                if (account) {
+                    logEvent(account.networkAccount.addr, { message: 'GET NETWORK INFO FAIL' }, 'errors');
+                }
             }
         },
         [
@@ -262,7 +261,9 @@ export const Fomo = () => {
     );
 
     useInterval(() => {
-        updateFomoInfo(ctc);
+        if (!isLoading && !isFinish) {
+            updateFomoInfo(ctc);
+        }
     }, 10000);
 
     const showPurchase = useCallback(
@@ -281,7 +282,6 @@ export const Fomo = () => {
     );
 
     useEffect(() => {
-        //@ts-ignore
         if (showPurchaseOutput.currentPrice < currentPrice) {
             return;
         }
@@ -325,7 +325,6 @@ export const Fomo = () => {
     const connectToContract = useCallback(
         async (account) => {
             const ctc = account.contract(fomo, FOMO_APP_ID);
-            console.log('Connecting to', FOMO_APP_ID);
             setCtc(ctc);
             setIsAccountConnected(true);
 
@@ -338,6 +337,7 @@ export const Fomo = () => {
                 deployed: () => {},
             }).catch((e) => {
                 console.log('[ERROR]', e);
+                logEvent(account.networkAccount.addr, { message: e }, 'errors');
                 if (e.message.includes('no application found')) {
                     setIsFinish(true);
                 }
@@ -364,11 +364,31 @@ export const Fomo = () => {
                 if (reach) {
                     setDiscountLevel(reach.bigNumberToNumber(discountLevel));
                 }
+                if (account) {
+                    logEvent(
+                        account?.networkAccount.addr,
+                        {
+                            action: 'boost discount',
+                            status: `BOOST ${discountTimePercentAndPrice.price} FOMO`,
+                            boostSaleValue: discountTimePercentAndPrice.value,
+                            bid: currentPrice,
+                            prize: Number(currentTotal).toFixed(2),
+                            accBalance: balance,
+                            fomoBalance: fomoTokensOnAccount,
+                            totalFomoBalance: tokenOwnedByUsers,
+                            timeLeft: timeLeft,
+                        },
+                        'fomo'
+                    );
+                }
                 setIsLoadingBoostDiscount(false);
             })
             .catch((e: any) => {
                 setIsLoadingBoostDiscount(false);
                 console.log('[ERROR]', e);
+                if (account) {
+                    logEvent(account.networkAccount.addr, { message: e }, 'errors');
+                }
                 if (e.message.includes('logic eval error')) {
                     alert('Sorry, someone beat you');
                 }
@@ -387,6 +407,24 @@ export const Fomo = () => {
                 if (reach) {
                     setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
                 }
+                if (account) {
+                    logEvent(
+                        account?.networkAccount.addr,
+                        {
+                            action: 'boost time reduction',
+                            status: `BOOST ${timeReductionSecAndPrice.price} FOMO`,
+                            boostTimeValue: timeReductionSecAndPrice.value,
+                            boostSaleValue: discountTimePercentAndPrice.value,
+                            bid: currentPrice,
+                            prize: Number(currentTotal).toFixed(2),
+                            accBalance: balance,
+                            fomoBalance: fomoTokensOnAccount,
+                            totalFomoBalance: tokenOwnedByUsers,
+                            timeLeft: timeLeft,
+                        },
+                        'fomo'
+                    );
+                }
             })
             .then(() => {
                 setIsLoadingTimeReduction(false);
@@ -394,6 +432,7 @@ export const Fomo = () => {
             .catch((e: Error) => {
                 console.log(e);
                 setIsLoadingTimeReduction(false);
+
                 if (e.message.includes('logic eval error')) {
                     alert('Sorry, someone beat you');
                 }
@@ -405,14 +444,28 @@ export const Fomo = () => {
 
         if (account && (!isAcceptedFomo || !isAcceptedNFT)) {
             await batchOptIn(reach, account.networkAccount.addr, [nftPrize, token], false);
-            logEvent(account.networkAccount.addr, 'FOMO ' + currentPrice);
         }
 
         //@ts-ignore
         ctc.apis.Api.buyTicket()
             .then(() => {
                 updateFomoInfo(ctc);
-                setIsLoading(false);
+                logEvent(
+                    account?.networkAccount.addr,
+                    {
+                        action: 'fomo',
+                        status: `FOMO ${fomoTokensOnAccount}`,
+                        bid: currentPrice,
+                        prize: Number(currentTotal).toFixed(2),
+                        accBalance: balance,
+                        fomoBalance: fomoTokensOnAccount,
+                        totalFomoBalance: tokenOwnedByUsers,
+                        timeLeft: timeLeft,
+                        boostTimeValue: timeReductionSecAndPrice.value,
+                        boostSaleValue: discountTimePercentAndPrice.value,
+                    },
+                    'fomo'
+                );
             })
             .catch((e: Error) => {
                 console.log(e.message);
@@ -425,7 +478,24 @@ export const Fomo = () => {
                     alert('Not enough Algo');
                 }
             });
-    }, [account, ctc, currentPrice, isAcceptedFomo, isAcceptedNFT, nftPrize, reach, token, updateFomoInfo]);
+    }, [
+        account,
+        balance,
+        ctc,
+        currentPrice,
+        currentTotal,
+        discountTimePercentAndPrice.value,
+        fomoTokensOnAccount,
+        isAcceptedFomo,
+        isAcceptedNFT,
+        nftPrize,
+        reach,
+        timeLeft,
+        timeReductionSecAndPrice.value,
+        token,
+        tokenOwnedByUsers,
+        updateFomoInfo,
+    ]);
 
     useEffect(() => {
         if (account && !isAccountConnected && !ctc) {
@@ -496,7 +566,7 @@ export const Fomo = () => {
                     </NFTCardInfo>
                 </NFTCard>
                 <Info>
-                    <Timer totalSec={fomoDuration} leftSec={endTime - currentTime} />
+                    <Timer totalSec={fomoDuration} leftSec={timeLeft} />
 
                     <FomoSupply>FOMO supply: {tokenOwnedByUsers} </FomoSupply>
                     <Balance>
