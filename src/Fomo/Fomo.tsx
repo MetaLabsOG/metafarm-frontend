@@ -214,23 +214,24 @@ export const Fomo = () => {
 
                     const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
 
+                    let currentTime = 0;
                     try {
                         if (!token) {
                             const now = await reach.getNetworkSecs();
 
-                            const currentTime = reach.bigNumberToNumber(now);
+                            currentTime = reach.bigNumberToNumber(now);
 
                             if (currentTime > endTime) {
                                 console.log('fomo is finished');
                                 setIsFinish(true);
                                 return;
                             }
-
-                            setTimeLeft(endTime - currentTime);
                         }
                     } catch (error) {
                         logEvent(account.networkAccount.addr, { message: 'GET NETWORK SEC FAIL' }, 'errors');
                     }
+
+                    setTimeLeft(endTime - currentTime);
 
                     setCurrentTotal(currentTotal);
                     setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
