@@ -455,7 +455,7 @@ export const Fomo = () => {
                     account?.networkAccount.addr,
                     {
                         action: 'fomo',
-                        status: `FOMO ${fomoTokensOnAccount}`,
+                        status: `FOMO ${currentPrice} ALGO`,
                         bid: currentPrice,
                         prize: Number(currentTotal).toFixed(2),
                         accBalance: balance,
