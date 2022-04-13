@@ -172,7 +172,7 @@ export const Fomo = () => {
                         const { nftPrize } = fomoInfo;
                         setNftPrize(reach.bigNumberToNumber(nftPrize));
                         const nftLink = await getAssetInfo(reach.bigNumberToNumber(nftPrize));
-                        logEvent(account.networkAccount.addr, { message: 'GET ASSETS FAIL' }, 'errors');
+                        logEvent(account.networkAccount.addr, { message: 'GET NFT LINK FAIL' }, 'errors');
                         setnftLink(nftLink);
                     }
                     if (!token) {
@@ -455,7 +455,7 @@ export const Fomo = () => {
                     account?.networkAccount.addr,
                     {
                         action: 'fomo',
-                        status: `FOMO ${currentPrice} ALGO`,
+                        status: `BID ${currentPrice} ALGO`,
                         bid: currentPrice,
                         prize: Number(currentTotal).toFixed(2),
                         accBalance: balance,
