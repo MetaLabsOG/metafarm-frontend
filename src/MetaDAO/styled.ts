@@ -61,7 +61,7 @@ export const MetaTreasuryChartStyled = styled.div`
 
 export const MetaTreasuryChartContainer = styled.div`
     width: 90%;
-    margin-top: 22px;
+    margin-top: 30px;
 `;
 
 export const MetaTreasuryChartXTitle = styled.div`
@@ -72,7 +72,7 @@ export const MetaTreasuryChartXTitle = styled.div`
 
 export const MetaTreasuryChartYTitle = styled.div`
     position: absolute;
-    top: 10%;
+    top: 15%;
     left: 3%;
 `;
 
@@ -92,7 +92,7 @@ export const NFTListContainer = styled.div`
     display: flex;
     flex-wrap: wrap;
     width: 100%;
-    justify-content: flex-start;
+    justify-content: space-around;
 `;
 
 export const NFTCard = styled.div`
