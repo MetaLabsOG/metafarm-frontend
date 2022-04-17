@@ -1,5 +1,5 @@
 import * as backend from './build/index.main.mjs'
-import { stdlib,  getContractId } from '@cometa/common'
+import { stdlib, getContractId } from '@cometa/common'
 import { BigNumber } from 'ethers'
 import log from 'loglevel'
 
@@ -55,7 +55,7 @@ export async function init(accountsNumber) {
 
   return {
     creatorAcc,
-    userAccs, 
+    userAccs,
     tokens: {
       stakeToken,
       rewardToken,
@@ -72,7 +72,7 @@ export async function deploy(
   beginBlock = 0,
   blocksToRun = 1000,
   rewardPerBlock = 1000
-  ) {
+) {
   const creatorCtc = creatorAcc.contract(backend)
   const creatorInteract = {
     getParams: () => ({
