@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "main": "index.mjs",
   "license": "MIT",
-  "description": "Common files for Cometa smart contracts"
+  "description": "Common files for Cometa smart contracts",
+  "dependencies": {
+    "@reach-sh/stdlib": "^0.1.10-rc.0"
+  }
 }

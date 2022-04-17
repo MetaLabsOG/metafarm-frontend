@@ -80,7 +80,7 @@ export async function deploy(
       rewardToken: rewardToken.id,
       beginBlock,
       endBlock: beginBlock + blocksToRun,
-      totalRewardAmount: rewardPerBlock * blocksToRun,
+      rewardPerBlock,
     }),
     deployed: async () => {
       throw ['done', {}]
@@ -97,8 +97,9 @@ export async function deploy(
 
   const contractId = await getContractId(creatorCtc)
   const userCtcs = userAccs.map(acc => acc.contract(backend, contractId));
-  
   return {
-    contractId, creatorCtc, userCtcs
+    contractId,
+    creatorCtc,
+    userCtcs,
   }
 }
