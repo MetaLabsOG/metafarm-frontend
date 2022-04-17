@@ -198,16 +198,14 @@ test("rewards are calculated properly", async () => {
 })
 
 test("rewards are added", async () => {
-  const res = stake(1, 10)
+  await stake(1, 10)
+  await setTime(100)
 
-  console.log(res)
-  /*
-  let { staked, reward } = await setTime(1, 1)
+  let { reward } = await update(1)
 
   console.log(reward)
 
   expect(reward).toBeGreaterThan(0)
-  */
 })
 
 function randInt(n) {
@@ -245,7 +243,6 @@ test("state is still proper after many actions", async () => {
 })
 
 test("cannot stake when contract finished", async () => {
-
   await stake(1, 1)
   await setTime(999)
   // still can stake here
@@ -259,13 +256,11 @@ test("cannot stake when contract finished", async () => {
   await checkGlobalEvents(e.noRewardsLeft, [[]])
 })
 
-test("can withdraw", async () => {
-  await stake(1, 1)
-  await setTime(1000)
-
-  await withdraw(1)
+// TODO
+/*test("can withdraw", async () => {
 })
+
 
 test("cannot withdraw at the beginning", async () => {
   await expect(withdraw(1)).rejects.toBeDefined()
-})
+})*/
