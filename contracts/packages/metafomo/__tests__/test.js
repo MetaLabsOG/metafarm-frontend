@@ -4,6 +4,8 @@ const { cancelable } = require("cancelable-promise")
 
 let playerAccs, playerCtcs, metafomoToken, playerLogs, playerCtcConnection, creatorCtc
 
+const accountsNumber = 2
+
 async function bid(account) {
   const api = playerCtcs[account].a.Api
   return await api.buyTicket()
@@ -38,7 +40,6 @@ beforeAll(() => {
 })
 
 beforeEach(async () => {
-  const accountsNumber = 2
   const initResult = await init(accountsNumber)
   const { creatorAcc, nftPrize } = initResult
   playerAccs = initResult.playerAccs
@@ -153,7 +154,7 @@ test('events are emitted', async () => {
     ],
   ]
 
-  await checkEvents(e.showPurchase, purchaseEvents)
+  await checkEvents(e.showPurchase, purchaseEvents, playerAccs)
 
   const buyDiscountEvents = [
     [
@@ -164,7 +165,7 @@ test('events are emitted', async () => {
     ],
   ]
 
-  await checkEvents(e.updateDiscountLevel, buyDiscountEvents)
+  await checkEvents(e.updateDiscountLevel, buyDiscountEvents, playerAccs)
 
   
   const buyTimeReductionEvents = [

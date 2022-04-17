@@ -1,17 +1,17 @@
 {
   "name": "@cometa/metafomo",
-  "version": "1.0.0",
-  "main": "index.mjs",
-  "license": "MIT",
   "description": "METAFOMO gamefied token sale contract",
-  "scripts": {
-    "test": "npx jest",
-    "compile": "../../reach compile"
-  },
+  "version": "1.0.0",
   "dependencies": {
     "@cometa/common": "1.0.0",
-    "@reach-sh/stdlib": "^0.1.9-rc.4",
+    "@reach-sh/stdlib": "^0.1.10-rc.0",
     "cancelable-promise": "^4.3.0",
     "wait-for-event": "^2.0.1"
+  },
+  "license": "MIT",
+  "main": "index.mjs",
+  "scripts": {
+    "compile": "../../reach compile",
+    "test": "npx jest"
   }
 }

@@ -5,19 +5,16 @@ import inquirer from 'inquirer'
 import { init, deploy } from './deploy.mjs'
 
 async function printState(ctc) {
-    const [status, object] = await ctc.views.State.info()
+    const [status, object] = await ctc.views.global()
     printObjectWithBigNumbers(object)
 }
 
 const accountsNumber = 2
-const { creatorAcc, userAccs, stakeToken, rewardToken } = await init(accountsNumber)
-await deploy(creatorAcc, stakeToken, rewardToken)
-const contractId = config.get("farm.lastDeployed")
+const { creatorAcc, userAccs, tokens } = await init(accountsNumber)
+
+const { stakeToken, rewardToken } = tokens
+const { contractId, creatorCtc, userCtcs } = await deploy(creatorAcc, userAccs, stakeToken, rewardToken)
 console.log(`The contract is deployed as = ${contractId}`);
-
-
-// TODO const stakerCtcs = 
-const stakerCtcs = stakerAccs.map(acc => acc.contract(backend, contractId));
 
 const STAKE = 'Stake'
 const UNSTAKE = 'Unstake'
@@ -62,8 +59,8 @@ while (true) {
     console.log(JSON.stringify(answers, null, ' '))
 
     // TODO
-    const ctc = stakerCtcs[answers.account - 1]
-    const api = ctc.a.Farm;
+    const ctc = userCtcs[answers.account - 1]
+    const api = ctc.a;
 
     console.log("Before call")
     await printState(ctc)

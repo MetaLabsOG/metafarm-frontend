@@ -1,9 +1,9 @@
 import Configstore from 'configstore'
-export const config = new Configstore('cometa')
 import {BigNumber} from 'ethers'
 
 import {loadStdlib} from "@reach-sh/stdlib";
 
+export const config = new Configstore('cometa')
 export const stdlib = loadStdlib(process.env)
 
 export const fmt = (x) => stdlib.formatCurrency(BigNumber.from(x), 4);
@@ -88,7 +88,7 @@ export async function checkGlobalEvents(eventStream, events) {
       ptr++
       totalExpectedEvents--
 
-      if (totalExpectedEvents == 0) {
+      if (totalExpectedEvents === 0) {
         throw "done"
       }
     })
@@ -106,16 +106,16 @@ export async function checkGlobalEvents(eventStream, events) {
 }
 
 // TODO implement not strict mode (subarray of events)
-export async function checkEvents(eventStream, events) {
+export async function checkEvents(eventStream, events, userAccs) {
   let totalExpectedEvents = events.map(e => e.length).reduce((a, b) => a + b)
 
-  const ptrs = playerAccs.map((_) => 0)
+  const ptrs = userAccs.map((_) => 0)
 
   async function checkPurchases() {
     await eventStream.monitor(({ when, what }) => {
       const eventAddr = stdlib.formatAddress(what[0])
       const eventArgs = convertBns(what.slice(1))
-      const addrs = playerAccs.map((acc) => acc.networkAccount.addr)
+      const addrs = userAccs.map((acc) => acc.networkAccount.addr)
       const playerIndex = addrs.indexOf(eventAddr)
 
       const playerEvents = events[playerIndex]
@@ -126,7 +126,7 @@ export async function checkEvents(eventStream, events) {
       ptrs[playerIndex]++
       totalExpectedEvents--
 
-      if (totalExpectedEvents == 0) {
+      if (totalExpectedEvents === 0) {
         throw "done"
       }
     })

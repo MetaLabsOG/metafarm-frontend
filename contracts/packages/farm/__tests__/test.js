@@ -73,7 +73,7 @@ beforeEach(async () => {
   ({ creatorAcc, userAccs, tokens } = await init(accountsNumber));
   ({ stakeToken, rewardToken } = tokens);
   ({contractId, creatorCtc, userCtcs} =
-    await deploy(creatorAcc, userAccs, stakeToken, rewardToken));
+    await deploy(creatorAcc, userAccs, stakeToken, rewardToken))
 
   // We need somebody to log contract events.
   userCtcs[0].p.User({
@@ -99,7 +99,7 @@ async function getAllInfo() {
   const global = await getView()
   const algoBalances = []
   const metaBalances = []
-  for (const p of playerAccs) {
+  for (const p of userAccs) {
     algoBalances.push((await stdlib.balanceOf(p)).toNumber())
     metaBalances.push((await stdlib.balanceOf(p, metafomoToken)).toNumber())
   }
@@ -118,7 +118,7 @@ async function getAllInfo() {
   expect(newContractId).not.toBe(lastPublishedContractId)
 });*/
 
-test('can stake and unstake', async () => {
+test("can stake and unstake", async () => {
   let view, staked, reward;
   ({ staked, reward } = await stake(1, 10))
   expect(staked).toBe(10)
@@ -129,14 +129,14 @@ test('can stake and unstake', async () => {
   expect(view.totalStaked).toBe(0)
 })
 
-test('if both staked total raises', async () => {
+test("if both staked total raises", async () => {
   await stake(1, 10)
   await stake(2, 20)
   let view = await getGlobalState()
   expect(view.totalStaked).toBe(30)
 })
 
-test('rewards are calculated properly', async () => {
+test("rewards are calculated properly", async () => {
   jest.setTimeout(100 * 1000)
   let global, initial, staked, reward
   initial = await getInitialState()
@@ -148,42 +148,40 @@ test('rewards are calculated properly', async () => {
   ({ staked, reward } = stake(2, stakeAmount2))
 
   console.log("after 2nd user stake", staked, reward)
-  const wasStaked = staked
 
   // We waited but did not touch contract, so it should not be updated
   let oldState1 = await getLocalState(1)
   let oldState2 = await getLocalState(2)
 
-
   expect(oldState1.reward).toBe(0)
   expect(oldState2.reward).toBe(0)
 
-  const waitTime = 100
-  await setTime(waitTime)
+  const waitBlocks = 100
+  await setTime(waitBlocks)
   await updateAll()
 
   const state1 = await getLocalState(1)
   const state2 = await getLocalState(2)
   console.log("reward 1 after update;", state1.reward)
   let totalStaked = stakeAmount1 + stakeAmount2
-  let expectedRewardP1S1 = stakeAmount1 * Math.floor(waitTime * rewardPerBlock / totalStaked)
-  let expectedRewardP2S1 = stakeAmount2 * Math.floor(waitTime * rewardPerBlock / totalStaked)
+  let expectedRewardP1S1 = stakeAmount1 * Math.floor(waitBlocks * rewardPerBlock / totalStaked)
+  let expectedRewardP2S1 = stakeAmount2 * Math.floor(waitBlocks * rewardPerBlock / totalStaked)
   expect(state1.reward).toBe(expectedRewardP1S1)
   expect(state2.reward).toBe(expectedRewardP2S1);
   ({ staked, reward } = await claim(1))
   // Already claimed
   expect(reward).toBe(0)
 
-  const waitTime2 = 10
+  const waitBlocks2 = 10
 
   await stake(1, 10)
 
   // Update only one
-  await setTime(waitTime + waitTime2)
+  await setTime(waitBlocks + waitBlocks2)
   await update(1)
 
   totalStaked = 40
-  let expectedRewardP1S2 = 20 * Math.floor(waitTime2 * rewardPerBlock / 40)
+  let expectedRewardP1S2 = 20 * Math.floor(waitBlocks2 * rewardPerBlock / totalStaked)
   let expectedRewardP2S2 = expectedRewardP2S1
 
   const state1_now = await getLocalState(1)
@@ -199,24 +197,22 @@ test('rewards are calculated properly', async () => {
 
 })
 
-test('rewards are added', async () => {
-  const res = stake(1, 10);
+test("rewards are added", async () => {
+  await stake(1, 10)
+  await setTime(100)
 
-  console.log(res)
-  /*
-  let { staked, reward } = await setTime(1, 1)
+  let { reward } = await update(1)
 
   console.log(reward)
 
   expect(reward).toBeGreaterThan(0)
-  */
 })
 
 function randInt(n) {
   return Math.floor(Math.random() * n)
 }
 
-test('state is still proper after many actions', async () => {
+test("state is still proper after many actions", async () => {
   let staked = Array(3).fill(0)
   let time = 0
 
@@ -224,17 +220,17 @@ test('state is still proper after many actions', async () => {
     const action = randInt(4)
     const p = randInt(3)
 
-    if (action == 0) {
+    if (action === 0) {
       const toStake = randInt(100)
       staked[p] += toStake
       await stake(p, toStake)
-    } else if (action == 1) {
+    } else if (action === 1) {
       const toUnstake = Math.min(randInt(100), staked[p])
       staked[p] -= toUnstake
       await unstake(p, toUnstake)
-    } else if (action == 2) {
+    } else if (action === 2) {
       await claim(p)
-    } else if (action == 3) {
+    } else if (action === 3) {
       time += randInt(100)
       await setTime(time)
     }
@@ -246,8 +242,7 @@ test('state is still proper after many actions', async () => {
   }
 })
 
-test('cannot stake when contract finished', async () => {
-
+test("cannot stake when contract finished", async () => {
   await stake(1, 1)
   await setTime(999)
   // still can stake here
@@ -261,13 +256,11 @@ test('cannot stake when contract finished', async () => {
   await checkGlobalEvents(e.noRewardsLeft, [[]])
 })
 
-test('can withdraw', async () => {
-  await stake(1, 1)
-  await setTime(1000)
-
-  await withdraw(1)
+// TODO
+/*test("can withdraw", async () => {
 })
 
-test('cannot withdraw at the beginning', async () => {
+
+test("cannot withdraw at the beginning", async () => {
   await expect(withdraw(1)).rejects.toBeDefined()
-})
+})*/

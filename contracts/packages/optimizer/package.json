@@ -1,15 +1,13 @@
 {
-  "name": "@cometa/farm",
-  "description": "Yield farming smart contract in Reach",
+  "name": "@cometa/optimizer",
+  "description": "Yield optimizer smart contract in Reach",
   "version": "1.0.0",
   "dependencies": {
+    "@cometa/common": "1.0.0",
+    "@cometa/farm": "1.0.0",
     "@reach-sh/stdlib": "^0.1.10-rc.0",
-    "configstore": "^6.0.0",
-    "deasync": "^0.1.25",
-    "deasync-promise": "^1.0.1",
     "inquirer": "^8.2.1",
-    "loglevel": "^1.8.0",
-    "make-synchronous": "^1.0.0"
+    "loglevel": "^1.8.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.6",
@@ -20,11 +18,10 @@
     "babel-cli": "^6.26.0",
     "babel-jest": "^27.5.1",
     "jest": "^27.5.1",
-    "ts-jest": "^27.1.3",
     "typescript": "^4.6.2"
   },
   "license": "MIT",
-  "main": "deploy.mjs",
+  "main": "index.mjs",
   "scripts": {
     "build": "npm run compile && npm run transform-commonjs",
     "cli": "node --experimental-modules --unhandled-rejections=strict index.mjs",
