@@ -11,8 +11,6 @@ Create standard template for new smart contracts.
 
 Write unit test. They should also use configstore. Use jest.
 
-Adopt syncpack to manage package versions (keep different package dependencies in sync)
-
 Adopt commitizen?
 
 Use some better logger instead of console.log
