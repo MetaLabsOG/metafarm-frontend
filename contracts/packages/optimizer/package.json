@@ -1,0 +1,33 @@
+{
+  "name": "@cometa/optimizer",
+  "description": "Yield optimizer smart contract in Reach",
+  "version": "1.0.0",
+  "dependencies": {
+    "@cometa/common": "1.0.0",
+    "@cometa/farm": "1.0.0",
+    "@reach-sh/stdlib": "^0.1.10-rc.0",
+    "inquirer": "^8.2.1",
+    "loglevel": "^1.8.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.7",
+    "@babel/plugin-transform-modules-commonjs": "^7.17.7",
+    "@babel/preset-env": "^7.16.11",
+    "@types/jest": "^27.4.1",
+    "babel-cli": "^6.26.0",
+    "babel-jest": "^27.5.1",
+    "jest": "^27.5.1",
+    "typescript": "^4.6.2"
+  },
+  "license": "MIT",
+  "main": "index.mjs",
+  "scripts": {
+    "build": "npm run compile && npm run transform-commonjs",
+    "cli": "node --experimental-modules --unhandled-rejections=strict index.mjs",
+    "compile": "../../reach compile",
+    "lint": "eslint --ignore-path .gitignore --ext .mjs .",
+    "test": "npx jest",
+    "transform-commonjs": "npx babel --plugins @babel/plugin-transform-modules-commonjs build/index.main.mjs > build/index.main.js"
+  }
+}
