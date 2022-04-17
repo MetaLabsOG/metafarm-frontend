@@ -1,16 +1,15 @@
 {
   "name": "@cometa/farm",
-  "version": "1.0.0",
-  "main": "deploy.mjs",
-  "license": "MIT",
   "description": "Yield farming smart contract in Reach",
-  "scripts": {
-    "test": "npx jest",
-    "lint": "eslint --ignore-path .gitignore --ext .mjs .",
-    "compile": "../../reach compile",
-    "transform-commonjs": "npx babel --plugins @babel/plugin-transform-modules-commonjs build/index.main.mjs > build/index.main.js",
-    "build": "npm run compile && npm run transform-commonjs",
-    "cli": "node --experimental-modules --unhandled-rejections=strict index.mjs"
+  "version": "1.0.0",
+  "dependencies": {
+    "@reach-sh/stdlib": "^0.1.10-rc.0",
+    "configstore": "^6.0.0",
+    "deasync": "^0.1.25",
+    "deasync-promise": "^1.0.1",
+    "inquirer": "^8.2.1",
+    "loglevel": "^1.8.0",
+    "make-synchronous": "^1.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.6",
@@ -24,13 +23,14 @@
     "ts-jest": "^27.1.3",
     "typescript": "^4.6.2"
   },
-  "dependencies": {
-    "@reach-sh/stdlib": "^0.1.10-rc.0",
-    "configstore": "^6.0.0",
-    "deasync": "^0.1.25",
-    "deasync-promise": "^1.0.1",
-    "inquirer": "^8.2.1",
-    "loglevel": "^1.8.0",
-    "make-synchronous": "^1.0.0"
+  "license": "MIT",
+  "main": "deploy.mjs",
+  "scripts": {
+    "build": "npm run compile && npm run transform-commonjs",
+    "cli": "node --experimental-modules --unhandled-rejections=strict index.mjs",
+    "compile": "../../reach compile",
+    "lint": "eslint --ignore-path .gitignore --ext .mjs .",
+    "test": "npx jest",
+    "transform-commonjs": "npx babel --plugins @babel/plugin-transform-modules-commonjs build/index.main.mjs > build/index.main.js"
   }
 }

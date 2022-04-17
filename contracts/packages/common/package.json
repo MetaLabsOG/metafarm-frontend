@@ -1,10 +1,10 @@
 {
   "name": "@cometa/common",
-  "version": "1.0.0",
-  "main": "index.mjs",
-  "license": "MIT",
   "description": "Common files for Cometa smart contracts",
+  "version": "1.0.0",
   "dependencies": {
     "@reach-sh/stdlib": "^0.1.10-rc.0"
-  }
+  },
+  "license": "MIT",
+  "main": "index.mjs"
 }
