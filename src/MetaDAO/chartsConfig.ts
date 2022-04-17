@@ -63,6 +63,9 @@ export const metaTreasuryChartOptions = {
                 borderColor: 'white',
             },
             ticks: {
+                callback: function (value: number) {
+                    return Math.floor(value / 1000);
+                },
                 color: 'white',
                 stepSize: 5,
                 font: {

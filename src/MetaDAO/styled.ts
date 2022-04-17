@@ -72,8 +72,8 @@ export const MetaTreasuryChartXTitle = styled.div`
 
 export const MetaTreasuryChartYTitle = styled.div`
     position: absolute;
-    top: 13%;
-    left: 10%;
+    top: 10%;
+    left: 3%;
 `;
 
 export const ChartTitle = styled.div`
