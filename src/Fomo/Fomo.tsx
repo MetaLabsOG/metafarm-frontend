@@ -349,7 +349,7 @@ export const Fomo = () => {
                 showPurchase(what);
             });
         },
-        [showOutcome, showPurchase, updateFomoInfo]
+        [reach, showOutcome, showPurchase, updateFomoInfo]
     );
 
     // // REACH BUYER INTERFACE

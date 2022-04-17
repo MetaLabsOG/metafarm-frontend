@@ -22,6 +22,7 @@ export const MenuItem = styled(Link)`
 export const MenuItems = styled.div`
     display: flex;
     align-items: center;
+    margin-top: 8px;
     justify-content: space-between;
     width: 40%;
 `;
@@ -34,7 +35,8 @@ export const MainMenu = styled.div`
     margin-right: 40px;
     border-top: 1px solid #5cfc3c;
     width: 95%;
-    height: 75px;
+    height: 51px;
+    background: black;
     align-items: flex-start;
     justify-content: space-between;
 `;
