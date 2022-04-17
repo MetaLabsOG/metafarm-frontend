@@ -1,0 +1,1 @@
+export { MetaDAO } from './MetaDAO';

@@ -22,6 +22,8 @@ export const ALGONODE = {
     // ALGO_INDEXER_PORT: ''
 };
 
+export const METAWALLET = 'METAEVEML4X7TXWHCBP4TKJDUZ7X2O7MSRECM57YA5TPFYSAI6J7WKCX3E';
+
 export const TESTNET = 'TestNet';
 export const MAINNET = 'MainNet';
 
