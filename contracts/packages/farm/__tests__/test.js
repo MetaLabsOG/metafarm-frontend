@@ -1,8 +1,7 @@
-const { config, stdlib, checkGlobalEvents, convertBns } = require("@cometa/common")
+const { stdlib, checkGlobalEvents, convertBns, getView } = require("@cometa/common")
 const { init, deploy } = require("../deploy.mjs")
-const { BigNumber } = require("ethers")
 
-let contractId, creatorAcc, userAccs, creatorCtc, userCtcs, stakeToken, rewardToken
+let creatorAcc, userAccs, creatorCtc, userCtcs, stakeToken, rewardToken
 
 async function stake(account, amount) {
   const api = userCtcs[account].a
@@ -27,7 +26,7 @@ async function withdraw(account) {
 
 async function update(account) {
   const api = userCtcs[account].a
-  return convertBns(await api.update())
+  return convertBns(await api.unstake(0))
 }
 
 async function updateAll() {
@@ -43,24 +42,12 @@ async function setTime(time) {
 }
 
 
-async function getInitialState() {
-  const ctc = userCtcs[0]
-  const [status, object] = await ctc.views.initial()
-  return convertBns(object)
-}
-
-async function getGlobalState() {
-  const ctc = userCtcs[0]
-  const [status, object] = await ctc.views.global()
-  return convertBns(object)
-}
-
+const getInitialState = async () => await getView(userCtcs[0], "initial")
+const getGlobalState = async () => await getView(userCtcs[0], "global")
 
 async function getLocalState(acc) {
   const addr = userAccs[acc].networkAccount.addr
-  const ctc = userCtcs[0]
-  const [status, object] = await ctc.views.local(addr)
-  return convertBns(object)
+  return await getView(userCtcs[0], "local", addr)
 }
 
 beforeAll(() => {
@@ -72,7 +59,7 @@ beforeEach(async () => {
   let tokens
   ({ creatorAcc, userAccs, tokens } = await init(accountsNumber));
   ({ stakeToken, rewardToken } = tokens);
-  ({contractId, creatorCtc, userCtcs} =
+  ({creatorCtc, userCtcs} =
     await deploy(creatorAcc, userAccs, stakeToken, rewardToken))
 
   // We need somebody to log contract events.
@@ -86,28 +73,22 @@ beforeEach(async () => {
   })
 })
 
-
-function expectIsBetween(a, l, r) {
-  return expect(a).toBeGreaterThanOrEqual(l) && expect(a).toBeLessThanOrEqual(r)
-}
-
-function expectEqualIgnoringFees(newVal, shouldBe, EPS = 20 * 1000) {
-  expectIsBetween(newVal, shouldBe - EPS, shouldBe)
-}
-
 async function getAllInfo() {
-  const global = await getView()
+  const global = await getGlobalState()
   const algoBalances = []
-  const metaBalances = []
+  const stakeBalances = []
+  const rewardBalances = []
   for (const p of userAccs) {
     algoBalances.push((await stdlib.balanceOf(p)).toNumber())
-    metaBalances.push((await stdlib.balanceOf(p, metafomoToken)).toNumber())
+    stakeBalances.push((await stdlib.balanceOf(p, stakeToken)).toNumber())
+    rewardBalances.push((await stdlib.balanceOf(p, stakeToken)).toNumber())
   }
 
   return {
     global,
     algoBalances,
-    metaBalances
+    stakeBalances,
+    rewardBalances,
   }
 }
 
@@ -256,11 +237,7 @@ test("cannot stake when contract finished", async () => {
   await checkGlobalEvents(e.noRewardsLeft, [[]])
 })
 
-// TODO
-/*test("can withdraw", async () => {
-})
-
 
 test("cannot withdraw at the beginning", async () => {
   await expect(withdraw(1)).rejects.toBeDefined()
-})*/
+})

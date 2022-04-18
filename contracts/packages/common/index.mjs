@@ -1,53 +1,65 @@
-import Configstore from 'configstore'
-import {BigNumber} from 'ethers'
+import Configstore from "configstore"
+import { BigNumber } from "ethers"
 
-import {loadStdlib} from "@reach-sh/stdlib";
+import { loadStdlib } from "@reach-sh/stdlib"
 
-export const config = new Configstore('cometa')
+export const config = new Configstore("cometa")
 export const stdlib = loadStdlib(process.env)
 
-export const fmt = (x) => stdlib.formatCurrency(BigNumber.from(x), 4);
-export const getBalance = async (acc) => fmt(await stdlib.balanceOf(acc));
+export const fmt = (x) => stdlib.formatCurrency(BigNumber.from(x), 4)
+export const getBalance = async (acc) => fmt(await stdlib.balanceOf(acc))
 export const isBigNumber = (n) => n.hasOwnProperty("_isBigNumber")
 
 export const parseBigNumber = (bn) => {
-    const hex = bn._hex.slice(2);
-    return parseInt(hex, 16);
+  const hex = bn._hex.slice(2)
+  return parseInt(hex, 16)
 }
 
 export const printObjectWithBigNumbers = (object) => {
-    if (object == null) {
-        return null;
+  if (object == null) {
+    return null
+  }
+  for (const p in object) {
+    const val = object[p]
+    if (isBigNumber(val)) {
+      console.log(p, parseBigNumber(val))
+    } else {
+      console.log(p, val)
     }
-    for (const p in object) {
-        const val = object[p];
-        if (isBigNumber(val)) {
-            console.log(p, parseBigNumber(val));
-        } else {
-            console.log(p, val);
-        }
-    }
+  }
 }
 
 export const call = async (f) => {
-    let res = undefined
-    try {
-        res = await f()
-    } catch (e) {
-        res = [`err`, e]
-    }
-    console.log(`Result:\n`)
-    printObjectWithBigNumbers(res)
-    console.log('\n')
+  let res = undefined
+  try {
+    res = await f()
+  } catch (e) {
+    res = ["err", e]
+  }
+  console.log("Result:\n")
+  printObjectWithBigNumbers(res)
+  console.log("\n")
+}
+
+export const getView = async (ctc, name, ...args) => {
+  const [status, object] = await ctc.views[name](...args)
+
+  if (status === "Some") {
+    return convertBns(object)
+  } else if (status === "None") {
+    return "UNINITIALIZED"
+  } else {
+    throw Error("Unknown status")
+  }
 }
 
 export const getContractId = async (ctc) => {
-    const info = await ctc.getInfo()
-    if (isBigNumber(info)) {
-        return parseBigNumber(info)
-    } else {
-        return JSON.stringify(info)
-    }
+  const info = await ctc.getInfo()
+  if (isBigNumber(info)) {
+    return parseBigNumber(info)
+  } else {
+    return JSON.stringify(info)
+  }
 }
 
 /* TODO
@@ -74,6 +86,15 @@ export function convertBns(obj) {
   }
 }
 
+export function expectIsBetween(a, l, r) {
+  return expect(a).toBeGreaterThanOrEqual(l) && expect(a).toBeLessThanOrEqual(r)
+}
+
+export function expectEqualIgnoringFees(newVal, shouldBe, EPS = 20 * 1000) {
+  expectIsBetween(newVal, shouldBe - EPS, shouldBe)
+}
+
+
 export async function checkGlobalEvents(eventStream, events) {
   let totalExpectedEvents = events.length
 
@@ -97,7 +118,7 @@ export async function checkGlobalEvents(eventStream, events) {
   try {
     await checkPurchases()
   } catch (e) {
-    if (e === 'done') {
+    if (e === "done") {
       // Do nothing
     } else {
       throw e
@@ -135,7 +156,7 @@ export async function checkEvents(eventStream, events, userAccs) {
   try {
     await checkPurchases()
   } catch (e) {
-    if (e === 'done') {
+    if (e === "done") {
       // Do nothing
     } else {
       throw e

@@ -1,7 +1,7 @@
-import * as backend from './build/index.main.mjs'
-import { stdlib, getContractId } from '@cometa/common'
-import { BigNumber } from 'ethers'
-import log from 'loglevel'
+import * as backend from "./build/index.main.mjs"
+import { stdlib, getContractId } from "@cometa/common"
+import { BigNumber } from "ethers"
+import log from "loglevel"
 
 /*
 interface NetworkState {
@@ -31,13 +31,13 @@ export async function init(accountsNumber) {
   const rewardToken = await stdlib.launchToken(creatorAcc, "Rewardy", "REWARD")
   log.trace("Staking and reward tokens minted")
 
-  if (stdlib.connector === 'ETH' || stdlib.connector === 'CFX') {
-    const gasLimit = 5000000;
+  if (stdlib.connector === "ETH" || stdlib.connector === "CFX") {
+    const gasLimit = 5000000
     creatorAcc.setGasLimit(gasLimit)
     for (const acc of userAccs) {
       acc.setGasLimit(gasLimit)
     }
-  } else if (stdlib.connector === 'ALGO') {
+  } else if (stdlib.connector === "ALGO") {
     for (const acc of userAccs) {
       await acc.tokenAccept(stakeToken.id)
       await acc.tokenAccept(rewardToken.id)
@@ -83,20 +83,20 @@ export async function deploy(
       rewardPerBlock,
     }),
     deployed: async () => {
-      throw ['done', {}]
+      throw ["done", {}]
     }
-  };
+  }
 
   try {
     await creatorCtc.p.Creator(creatorInteract)
   } catch (e) {
-    if (e[0] !== 'done') {
+    if (e[0] !== "done") {
       throw e
     }
   }
 
   const contractId = await getContractId(creatorCtc)
-  const userCtcs = userAccs.map(acc => acc.contract(backend, contractId));
+  const userCtcs = userAccs.map(acc => acc.contract(backend, contractId))
   return {
     contractId,
     creatorCtc,
