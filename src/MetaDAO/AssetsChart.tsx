@@ -12,10 +12,10 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 export const AssetsChart = (assets: any) => {
     const assetsQuery = useQuery(['assets', METAWALLET], () => getAssets(METAWALLET));
 
-    const dataSet = !assetsQuery.isLoading ? assetsQuery.data : [];
+    const dataSet = assetsQuery.data ? assetsQuery.data : [];
 
     const data = {
-        labels: dataSet ? dataSet?.map(({ ticker }) => ticker) : [],
+        labels: dataSet.length ? dataSet?.map(({ ticker }) => ticker) : [],
         overrides: {
             plugins: {
                 legend: {
