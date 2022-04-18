@@ -23,23 +23,29 @@ export const MetaDAO = () => {
 
     return (
         <MetaDAOContainer>
-            <WalletInfo>
-                <Header>The Metapunks holders community</Header>
-                <Wallet target="_blank" href={`https://algoexplorer.io/address/${METAWALLET}`}>
-                    {`Wallet:${METAWALLET}`}
-                </Wallet>
-            </WalletInfo>
-            <MetaTreasury>
-                <MetaTreasuryBalance>{`${
-                    totalCostsQuery.isLoading ? 0 : Math.floor(totalCostsQuery.data[0].cost.usd)
-                }$`}</MetaTreasuryBalance>
-                <MetaTreasuryText>/MetaTreasury</MetaTreasuryText>
-            </MetaTreasury>
-            <Charts>
-                <MetaTreasuryChart dataSet={dataset} />
-                <AssetsChart />
-            </Charts>
-            <NFTList />
+            {dataset.length ? (
+                <>
+                    <WalletInfo>
+                        <Header>The Metapunks holders community</Header>
+                        <Wallet target="_blank" href={`https://algoexplorer.io/address/${METAWALLET}`}>
+                            {`Wallet:${METAWALLET}`}
+                        </Wallet>
+                    </WalletInfo>
+                    <MetaTreasury>
+                        <MetaTreasuryBalance>{`${
+                            totalCostsQuery.isLoading ? 0 : Math.floor(totalCostsQuery.data[0].cost.usd)
+                        }$`}</MetaTreasuryBalance>
+                        <MetaTreasuryText>/MetaTreasury</MetaTreasuryText>
+                    </MetaTreasury>
+                    <Charts>
+                        <MetaTreasuryChart dataSet={dataset} />
+                        <AssetsChart />
+                    </Charts>
+                    <NFTList />
+                </>
+            ) : (
+                <div>Fail, try again...</div>
+            )}
         </MetaDAOContainer>
     );
 };
