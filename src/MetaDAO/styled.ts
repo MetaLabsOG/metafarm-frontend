@@ -155,3 +155,8 @@ export const LegendValues = styled.div`
     left: 123%;
     top: 50%;
 `;
+
+export const Fail = styled.div`
+    margin: 0 auto;
+    font-size: 20px;
+`;

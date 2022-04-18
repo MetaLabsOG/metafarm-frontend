@@ -9,6 +9,7 @@ import {
     Header,
     Charts,
     MetaDAOContainer,
+    Fail,
 } from './styled';
 
 import { getTotalCost } from '../providers/apiProvider';
@@ -44,7 +45,7 @@ export const MetaDAO = () => {
                     <NFTList />
                 </>
             ) : (
-                <div>Fail, try again...</div>
+                <Fail>Fail, try again...</Fail>
             )}
         </MetaDAOContainer>
     );
