@@ -17,6 +17,9 @@ export const MenuItem = styled(Link)`
     :hover {
         color: white;
     }
+    @media (max-width: 640px) {
+        display: none;
+    }
 `;
 
 export const MenuItems = styled.div`
@@ -25,6 +28,14 @@ export const MenuItems = styled.div`
     margin-top: 8px;
     justify-content: space-between;
     width: 40%;
+    @media (max-width: 640px) {
+        > * {
+            &:first-child {
+                margin-bottom: 20px;
+                display: block;
+            }
+        }
+    }
 `;
 
 export const Logo = styled.img``;
@@ -37,8 +48,11 @@ export const MainMenu = styled.div`
     width: 95%;
     height: 51px;
     background: black;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
+    @media (max-width: 640px) {
+        margin: auto;
+    }
 `;
 
 export const MenuContainer = styled.div`
@@ -49,6 +63,10 @@ export const MenuContainer = styled.div`
     justify-content: space-between;
     flex-direction: column;
     z-index: 20;
+
+    @media (max-width: 640px) {
+        justify-content: space-around;
+    }
 `;
 
 export const ExchangeRates = styled.div`
@@ -59,6 +77,9 @@ export const ExchangeRates = styled.div`
     background: #000000;
     color: #027a00;
     font-size: 14px;
+    @media (max-width: 640px) {
+        display: none;
+    }
 `;
 
 export const ExchangeRate = styled.div`

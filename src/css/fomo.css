@@ -8,11 +8,18 @@
     font-size: 35px;
 }
 
+@media (max-width: 640px) {
+    .fomo_phrase {
+        font-size: 30px;
+    }
+}
+
 .fomo_status {
     font-size: 20px;
     text-align: left;
     position: relative;
     white-space: pre-line;
+    text-align: center;
 }
 
 .fomo_rules {
@@ -25,6 +32,13 @@
     margin-top: 20px;
     cursor: pointer;
     text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+    .fomo_rules {
+        font-size: 16px;
+        margin-top: 7px;
+    }
 }
 
 .fomo_bar_wrapper {

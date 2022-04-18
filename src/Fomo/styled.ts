@@ -10,20 +10,33 @@ export const FomoRulesTitle = styled.h1`
     text-align: center;
     font-size: 20px;
     color: #197303;
+    margin: auto 10px;
+    @media (max-width: 640px) {
+        font-size: 12px;
+        margin: 15px 0 5px 0;
+    }
 `;
 
 export const Info = styled.div`
-    width: 50%;
+    width: 40%;
     display: flex;
     flex-direction: column;
     max-width: 400px;
     margin-left: 90px;
     flex-grow: 0;
+    @media (max-width: 640px) {
+        width: 100%;
+        margin: 0 auto;
+    }
 `;
 
 export const Actions = styled.div`
     display: flex;
     margin-top: 20px;
+
+    @media (max-width: 640px) {
+        flex-wrap: wrap-reverse;
+    }
 `;
 
 export const Prize = styled.h1`
@@ -31,29 +44,44 @@ export const Prize = styled.h1`
     font-size: 22px;
     margin-bottom: 12px;
     margin-top: 30px;
+    @media (max-width: 640px) {
+        margin-top: 20px;
+        margin-bottom: 93%;
+        font-size: 20px;
+        text-align: center;
+    }
 `;
 
 export const FomoSupply = styled.div`
     font-size: 18px;
     color: #4f4f4f;
     margin-top: 15px;
+    @media screen {
+        font-size: 16px;
+    }
 `;
 
 export const Winner = styled.div`
     width: 100%;
-    color: #fbf33b;
+    color: #197303;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 15px;
+    margin-top: 10px;
+    text-decoration: none;
+`;
+
+export const WinnerLink = styled.a`
+    color: #027a00;
 `;
 
 export const WinnerBid = styled.div`
     position: relative;
     font-size: 15px;
     margin-top: 10px;
-    width: 300px;
+    width: 85%;
     color: #197303;
-
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
 `;
 
 export const Level = styled.div`
@@ -63,12 +91,18 @@ export const Level = styled.div`
 
 export const LabelLevel = styled.div`
     font-size: 18px;
+    @media screen {
+        font-size: 16px;
+    }
 `;
 
 export const LevelValue = styled.div`
     margin-top: 5px;
     font-size: 15px;
     color: #4f4f4f;
+    @media screen {
+        font-size: 13px;
+    }
 `;
 
 export const Balance = styled.div`
@@ -77,6 +111,13 @@ export const Balance = styled.div`
     flex-direction: column;
     margin-bottom: 48px;
     margin-top: 23px;
+    @media (max-width: 640px) {
+        font-size: 15px;
+        margin-bottom: 26px;
+        position: absolute;
+        right: 5px;
+        top: 2px;
+    }
 `;
 
 export const Amounts = styled.div`
@@ -87,6 +128,9 @@ export const Amounts = styled.div`
 export const Amount = styled.div<{ withIcon?: boolean }>`
     margin-right: 30px;
     position: relative;
+    @media (max-width: 640px) {
+        margin-right: 5px;
+    }
 `;
 
 export const AvailableBalance = styled.div`
@@ -153,6 +197,11 @@ export const BID = styled.h3`
     margin-top: 55px;
     font-size: 25px;
     width: 300px;
+    @media (max-width: 640px) {
+        margin-top: 10px;
+        text-align: center;
+        font-size: 20px;
+    }
 `;
 
 export const MaxedOut = styled.div`
@@ -160,6 +209,9 @@ export const MaxedOut = styled.div`
     font-size: 18px;
     width: 94px;
     text-align: center;
+    @media (max-width: 640px) {
+        font-size: 16px;
+    }
 `;
 
 export const RulesItems = styled.div`

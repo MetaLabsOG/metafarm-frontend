@@ -36,10 +36,16 @@
 }
 
 .content-container {
-    margin-top: 125px;
+    margin-top: 160px;
     display: flex;
     justify-content: center;
     z-index: 10;
+}
+
+@media (max-width: 640px) {
+    .content-container {
+        margin-top: 60px;
+    }
 }
 
 body {
