@@ -52,9 +52,8 @@ const LocalState = Struct([
 ]);
 
 export const main = Reach.App(() => {
-  // TODO DANGER CHECK CAREFULLY
   setOptions({
-    untrustworthyMaps: true
+    untrustworthyMaps: false
   });
 
   // TODO I am not sure if we need this at all.
@@ -98,7 +97,6 @@ export const main = Reach.App(() => {
     claim: Fun([], LocalState),
 
     // This is mostly for testing
-    update: Fun([], LocalState),
     setTime: Fun([UInt], LocalState)
   });
 
@@ -106,7 +104,6 @@ export const main = Reach.App(() => {
     staked: [Address, UInt],
     unstaked: [Address, UInt],
     claimed: [Address],
-    updated: [Address],
 
     noRewardsLeft: [],
   })
@@ -227,7 +224,8 @@ export const main = Reach.App(() => {
       State.local.set(getLocalState);
     })
     .invariant(
-      totalStaked == balance(stakeToken) && totalStaked == stakedM.sum() &&
+      //totalStaked == balance(stakeToken) &&
+      totalStaked == stakedM.sum() &&
       currentBlock >= lastUpdateBlock
     )
     .while(keepGoing(currentBlock))
@@ -235,12 +233,13 @@ export const main = Reach.App(() => {
     .api(
       Api.stake,
       (_) => {
-        assume(true)
-      }, // TODO
+        check(currentBlock <= endBlock)
+      },
       (toStake) => [0, [toStake, stakeToken], [0, rewardToken]],
       (toStake, callback) => {
+        check(currentBlock <= endBlock)
         const [newlastUpdateBlock, newRewardPerTokenStored] = updateReward(this);
-        stakedM[this] = fromSome(stakedM[this], 0) + toStake;
+        stakedM[this] = staked(this) + toStake;
 
         Event.staked(this, toStake);
         callback(getLocalState(this));
@@ -309,22 +308,6 @@ export const main = Reach.App(() => {
           newlastUpdateBlock,
           newRewardPerTokenStored,
           rewardsPaid + claimedReward,
-          currentBlock
-        ];
-      }
-    )
-    .api(
-      Api.update,
-      (callback) => { // TODO what is k
-        const [newlastUpdateBlock, newRewardPerTokenStored] = updateReward(this);
-
-        Event.updated(this);
-        callback(getLocalState(this));
-        return [
-          totalStaked,
-          newlastUpdateBlock,
-          newRewardPerTokenStored,
-          rewardsPaid,
           currentBlock
         ];
       }
