@@ -7,11 +7,9 @@ export const NFTCard = styled.div`
     max-width: 550px;
     max-height: 530px;
     @media (max-width: 640px) {
-        position: absolute;
-        top: 28%;
-        right: 21%;
-        height: 30%;
-        width: 55%;
+        height: 300px;
+        width: 70%;
+        margin-bottom: 15px;
     }
 `;
 
@@ -23,7 +21,7 @@ export const NFTCardInfo = styled.div`
     align-items: flex-start;
     @media (max-width: 640px) {
         width: 100%;
-        padding: 0 10px 30px 10px;
+        padding: 10px;
     }
 `;
 

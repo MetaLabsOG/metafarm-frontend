@@ -552,35 +552,56 @@ export const Fomo = () => {
             )}
             <RulesModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
             <Actions>
-                <NFTCard>
-                    <a href={`https://www.nftexplorer.app/asset/${nftPrize}`}>
-                        <Nft url={nftLink} />
-                    </a>
-                    <NFTCardInfo>
-                        {!IS_MOBILE && (
+                {!IS_MOBILE && (
+                    <NFTCard>
+                        <a href={`https://www.nftexplorer.app/asset/${nftPrize}`}>
+                            <Nft url={nftLink} />
+                        </a>
+                        <NFTCardInfo>
                             <Prize>
                                 {`prize: NFT + ${Number(currentTotal).toFixed(2)}`}{' '}
                                 <AlgoIcon fill="#5cfc3c" width="17px" />
                             </Prize>
-                        )}
-                        <Winner>
-                            winner: &nbsp;
-                            <WinnerLink href={'https://algoexplorer.io/address/' + currentWinner}>
-                                {currentWinner}
-                            </WinnerLink>
-                        </Winner>
-                        <WinnerBid>
-                            winner bid: {winnerPrice} <AlgoIcon fill="#197303" width="11px" />
-                        </WinnerBid>
-                    </NFTCardInfo>
-                </NFTCard>
+
+                            <Winner>
+                                winner: &nbsp;
+                                <WinnerLink href={'https://algoexplorer.io/address/' + currentWinner}>
+                                    {currentWinner}
+                                </WinnerLink>
+                            </Winner>
+                            <WinnerBid>
+                                winner bid: {winnerPrice} <AlgoIcon fill="#197303" width="11px" />
+                            </WinnerBid>
+                        </NFTCardInfo>
+                    </NFTCard>
+                )}
                 <Info>
                     <Timer totalSec={fomoDuration} leftSec={timeLeft} />
                     <FomoSupply>FOMO supply: {tokenOwnedByUsers} </FomoSupply>
                     {IS_MOBILE && (
-                        <Prize>
-                            {`prize: NFT + ${Number(currentTotal).toFixed(2)}`} <AlgoIcon fill="#5cfc3c" width="17px" />
-                        </Prize>
+                        <>
+                            <Prize>
+                                {`prize: NFT + ${Number(currentTotal).toFixed(2)}`}{' '}
+                                <AlgoIcon fill="#5cfc3c" width="17px" />
+                            </Prize>
+                            <NFTCard>
+                                <a href={`https://www.nftexplorer.app/asset/${nftPrize}`}>
+                                    <Nft url={nftLink} />
+                                </a>
+
+                                <NFTCardInfo>
+                                    <Winner>
+                                        winner: &nbsp;
+                                        <WinnerLink href={'https://algoexplorer.io/address/' + currentWinner}>
+                                            {currentWinner}
+                                        </WinnerLink>
+                                    </Winner>
+                                    <WinnerBid>
+                                        winner bid: {winnerPrice} <AlgoIcon fill="#197303" width="11px" />
+                                    </WinnerBid>
+                                </NFTCardInfo>
+                            </NFTCard>
+                        </>
                     )}
 
                     <Balance>

@@ -13,7 +13,7 @@ export const FomoRulesTitle = styled.h1`
     margin: auto 10px;
     @media (max-width: 640px) {
         font-size: 12px;
-        margin: 15px 0 5px 0;
+        margin: 0px 10px 5px 10px;
     }
 `;
 
@@ -25,7 +25,8 @@ export const Info = styled.div`
     margin-left: 90px;
     flex-grow: 0;
     @media (max-width: 640px) {
-        width: 100%;
+        width: 90%;
+        padding: 10px;
         margin: 0 auto;
     }
 `;
@@ -45,10 +46,8 @@ export const Prize = styled.h1`
     margin-bottom: 12px;
     margin-top: 30px;
     @media (max-width: 640px) {
-        margin-top: 20px;
-        margin-bottom: 93%;
+        margin-top: 15px;
         font-size: 20px;
-        text-align: center;
     }
 `;
 
@@ -115,6 +114,7 @@ export const Balance = styled.div`
         font-size: 15px;
         margin-bottom: 26px;
         position: absolute;
+        align-items: baseline;
         right: 5px;
         top: 2px;
     }
