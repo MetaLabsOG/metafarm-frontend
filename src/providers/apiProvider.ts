@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: `http://137.184.11.123:5000/`,
+    baseURL: `https://137.184.11.123:5000/`,
 });
 
 type cost = { usd: number; microalgo: number };
