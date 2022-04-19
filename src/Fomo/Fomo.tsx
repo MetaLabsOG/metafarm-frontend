@@ -3,8 +3,7 @@ import { LevelInfo } from './types';
 import '../css/fomo.css';
 import * as fomo from '../fomo_interface/index.main.mjs';
 import { RulesModal } from './RulesModal';
-import { IS_MOBILE } from '../AppContext';
-import { AppContext, FOMO_APP_ID, Context } from '../AppContext';
+import { AppContext, FOMO_APP_ID, Context, IS_MOBILE } from '../AppContext';
 import { Timer } from './Timer';
 import { Status } from '../Status';
 import { batchOptIn } from '../batchOptIn.mjs';
@@ -33,7 +32,6 @@ import {
     LevelValue,
     FomoRulesTitle,
     AvailableBalance,
-    WinnerLink,
 } from './styled';
 import { NFTCard, NFTCardInfo, Nft } from '../common/styled';
 import { setLevelAndValue } from './utils';
@@ -329,27 +327,29 @@ export const Fomo = () => {
                     const now = await reach.getNetworkSecs();
                     const currentTime = reach.bigNumberToNumber(now);
                     setCurrentTime(currentTime);
-
-                    fomo.Buyer(ctc, {
-                        showOutcome,
-                        deployed: () => {},
-                    }).catch((e) => {
-                        console.log('[ERROR]', e);
-                        logEvent(account.networkAccount.addr, { message: e }, 'errors');
-                        if (e.message.includes('no application found')) {
-                            setIsFinish(true);
-                        }
-                    });
                 }
             } catch (error) {
                 logEvent(account.networkAccount.addr, { message: 'GET NETWORK SEC FAIL' }, 'errors');
             }
 
+            await updateFomoInfo(ctc);
+
+            fomo.Buyer(ctc, {
+                showOutcome,
+                deployed: () => {},
+            }).catch((e) => {
+                console.log('[ERROR]', e);
+                logEvent(account.networkAccount.addr, { message: e }, 'errors');
+                if (e.message.includes('no application found')) {
+                    setIsFinish(true);
+                }
+            });
+
             await events.showPurchase.monitor(({ when, what }: { when: BigNumber; what: BigNumber[] }) => {
                 showPurchase(what);
             });
         },
-        [reach, showOutcome, showPurchase]
+        [reach, showOutcome, showPurchase, updateFomoInfo]
     );
 
     // // REACH BUYER INTERFACE
@@ -511,9 +511,7 @@ export const Fomo = () => {
     if (!account) {
         return (
             <div className="fomo">
-                <h1 style={{ fontSize: '20px', marginTop: '20px', textAlign: 'center' }}>
-                    PLEASE, CONNECT THE WALLET.
-                </h1>
+                <h1 style={{ fontSize: '20px', marginTop: '20px' }}>PLEASE, CONNECT THE WALLET.</h1>
             </div>
         );
     }
@@ -542,68 +540,65 @@ export const Fomo = () => {
 
     return (
         <FomoContainer>
-            {!IS_MOBILE && (
-                <>
-                    <FomoRulesTitle>THE ONLY WAY YOU LOSE IN THIS GAME IS IF YOU STOP PLAYING</FomoRulesTitle>
-                    <button className="fomo_rules" onClick={() => setIsModalOpen(true)}>
-                        game rules
-                    </button>
-                </>
-            )}
+            <FomoRulesTitle>THE ONLY WAY YOU LOSE IN THIS GAME IS IF YOU STOP PLAYING</FomoRulesTitle>
+            <button className="fomo_rules" onClick={() => setIsModalOpen(true)}>
+                game rules
+            </button>
             <RulesModal isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
             <Actions>
-                {!IS_MOBILE && (
-                    <NFTCard>
-                        <a href={`https://www.nftexplorer.app/asset/${nftPrize}`}>
-                            <Nft url={nftLink} />
-                        </a>
-                        <NFTCardInfo>
-                            <Prize>
-                                {`prize: NFT + ${Number(currentTotal).toFixed(2)}`}{' '}
-                                <AlgoIcon fill="#5cfc3c" width="17px" />
-                            </Prize>
-
-                            <Winner>
+                <NFTCard>
+                    <a href={`https://www.nftexplorer.app/asset/${nftPrize}`}>
+                        <Nft url={nftLink} />
+                    </a>
+                    <NFTCardInfo>
+                        {!IS_MOBILE && (
+                            <>
+                                {' '}
+                                <Prize>
+                                    {`prize: NFT + ${Number(currentTotal).toFixed(2)}`}{' '}
+                                    <AlgoIcon fill="#5cfc3c" width="17px" />
+                                </Prize>
+                                <Winner>
+                                    <h2 className="fomo_info">
+                                        winner: &nbsp;
+                                        <a
+                                            className="fomo_info"
+                                            href={'https://algoexplorer.io/address/' + currentWinner}
+                                        >
+                                            {currentWinner}
+                                        </a>
+                                    </h2>
+                                </Winner>
+                                <WinnerBid>
+                                    winner bid: {winnerPrice} <AlgoIcon fill="#197303" width="11px" />
+                                </WinnerBid>{' '}
+                            </>
+                        )}
+                    </NFTCardInfo>
+                </NFTCard>
+                {IS_MOBILE && (
+                    <>
+                        <WinnerBid>
+                            winner bid: {winnerPrice} <AlgoIcon fill="#197303" width="11px" />
+                        </WinnerBid>
+                        <Winner>
+                            <h2 className="fomo_info">
                                 winner: &nbsp;
-                                <WinnerLink href={'https://algoexplorer.io/address/' + currentWinner}>
+                                <a className="fomo_info" href={'https://algoexplorer.io/address/' + currentWinner}>
                                     {currentWinner}
-                                </WinnerLink>
-                            </Winner>
-                            <WinnerBid>
-                                winner bid: {winnerPrice} <AlgoIcon fill="#197303" width="11px" />
-                            </WinnerBid>
-                        </NFTCardInfo>
-                    </NFTCard>
+                                </a>
+                            </h2>
+                        </Winner>
+
+                        <Prize>
+                            {`prize: NFT + ${Number(currentTotal).toFixed(2)}`} <AlgoIcon fill="#5cfc3c" width="17px" />
+                        </Prize>
+                    </>
                 )}
                 <Info>
                     <Timer totalSec={fomoDuration} leftSec={timeLeft} />
+
                     <FomoSupply>FOMO supply: {tokenOwnedByUsers} </FomoSupply>
-                    {IS_MOBILE && (
-                        <>
-                            <Prize>
-                                {`prize: NFT + ${Number(currentTotal).toFixed(2)}`}{' '}
-                                <AlgoIcon fill="#5cfc3c" width="17px" />
-                            </Prize>
-                            <NFTCard>
-                                <a href={`https://www.nftexplorer.app/asset/${nftPrize}`}>
-                                    <Nft url={nftLink} />
-                                </a>
-
-                                <NFTCardInfo>
-                                    <Winner>
-                                        winner: &nbsp;
-                                        <WinnerLink href={'https://algoexplorer.io/address/' + currentWinner}>
-                                            {currentWinner}
-                                        </WinnerLink>
-                                    </Winner>
-                                    <WinnerBid>
-                                        winner bid: {winnerPrice} <AlgoIcon fill="#197303" width="11px" />
-                                    </WinnerBid>
-                                </NFTCardInfo>
-                            </NFTCard>
-                        </>
-                    )}
-
                     <Balance>
                         Balance:
                         <Amounts>
@@ -614,7 +609,6 @@ export const Fomo = () => {
                             </Amount>
                         </Amounts>
                     </Balance>
-
                     <Update>
                         <Level>
                             <LabelLevel>bid discount: {discountTimePercentAndPrice.value}% </LabelLevel>
@@ -687,14 +681,6 @@ export const Fomo = () => {
                     </button>
                 </Info>
             </Actions>
-            {IS_MOBILE && (
-                <>
-                    <FomoRulesTitle>THE ONLY WAY YOU LOSE IN THIS GAME IS IF YOU STOP PLAYING</FomoRulesTitle>
-                    <button className="fomo_rules" onClick={() => setIsModalOpen(true)}>
-                        game rules
-                    </button>
-                </>
-            )}
         </FomoContainer>
     );
 };

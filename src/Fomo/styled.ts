@@ -18,14 +18,14 @@ export const FomoRulesTitle = styled.h1`
 `;
 
 export const Info = styled.div`
-    width: 40%;
+    width: 50%;
     display: flex;
     flex-direction: column;
     max-width: 400px;
     margin-left: 90px;
     flex-grow: 0;
     @media (max-width: 640px) {
-        width: 90%;
+        width: 100%;
         padding: 10px;
         margin: 0 auto;
     }
@@ -47,7 +47,7 @@ export const Prize = styled.h1`
     margin-top: 30px;
     @media (max-width: 640px) {
         margin-top: 15px;
-        font-size: 20px;
+        font-size: 18px;
     }
 `;
 
@@ -55,8 +55,9 @@ export const FomoSupply = styled.div`
     font-size: 18px;
     color: #4f4f4f;
     margin-top: 15px;
-    @media screen {
+    @media (max-width: 640px) {
         font-size: 16px;
+        margin-bottom: 20px;
     }
 `;
 
@@ -69,6 +70,10 @@ export const Winner = styled.div`
     font-size: 15px;
     margin-top: 10px;
     text-decoration: none;
+    @media (max-width: 640px) {
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
 `;
 
 export const WinnerLink = styled.a`
@@ -88,9 +93,13 @@ export const Level = styled.div`
     flex-direction: column;
 `;
 
+export const MobileWrapper = styled.div`
+    display: flex;
+`;
+
 export const LabelLevel = styled.div`
     font-size: 18px;
-    @media screen {
+    @media (max-width: 640px) {
         font-size: 16px;
     }
 `;
@@ -99,7 +108,7 @@ export const LevelValue = styled.div`
     margin-top: 5px;
     font-size: 15px;
     color: #4f4f4f;
-    @media screen {
+    @media (max-width: 640px) {
         font-size: 13px;
     }
 `;
@@ -136,6 +145,9 @@ export const Amount = styled.div<{ withIcon?: boolean }>`
 export const AvailableBalance = styled.div`
     color: #4f4f4f;
     font-size: 14px;
+    @media (max-width: 640px) {
+        font-size: 12px;
+    }
 `;
 
 export const Update = styled.div`
