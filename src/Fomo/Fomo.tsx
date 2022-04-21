@@ -332,8 +332,6 @@ export const Fomo = () => {
                 logEvent(account.networkAccount.addr, { message: 'GET NETWORK SEC FAIL' }, 'errors');
             }
 
-            await updateFomoInfo(ctc);
-
             fomo.Buyer(ctc, {
                 showOutcome,
                 deployed: () => {},
