@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { LevelInfo } from './types';
 import '../css/fomo.css';
-import * as fomo from '../fomo_interface/index.main.mjs';
+import * as fomo from '@metalabsog/metafomo/build/index.main.mjs';
 import { RulesModal } from './RulesModal';
 import { AppContext, FOMO_APP_ID, Context, IS_MOBILE } from '../AppContext';
 import { Timer } from './Timer';
@@ -337,7 +337,7 @@ export const Fomo = () => {
             fomo.Buyer(ctc, {
                 showOutcome,
                 deployed: () => {},
-            }).catch((e) => {
+            }).catch((e: any) => {
                 console.log('[ERROR]', e);
                 logEvent(account.networkAccount.addr, { message: e }, 'errors');
                 if (e.message.includes('no application found')) {
