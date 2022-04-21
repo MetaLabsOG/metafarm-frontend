@@ -110,6 +110,8 @@ export const NFTCardInfo = styled.div`
     flex-direction: column;
     padding: 0 26px 30px 26px;
     align-items: flex-start;
+    text-decoration: none;
+    color: #59f63c;
 `;
 
 export const Nft = styled.div<{ url: string }>`

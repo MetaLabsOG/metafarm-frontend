@@ -22,25 +22,32 @@ export const NFTList = () => {
         <NFTListContainer>
             {data &&
                 data.map((nft: any) => (
-                    <NFTCard key={nft.image_url}>
-                        <Nft url={nft.image_url} />
-                        <NFTCardInfo>
-                            <NftName>{nft.name}</NftName>
-                            <NftPrice>${nft.floor_price.usd}</NftPrice>
-                            {nft.week_price_change && (
-                                <NftWeekPriceChange>
-                                    {nft.week_price_change > 0 ? <ArrowUp /> : <ArrowUp rotate />}
-                                    <NFtPriceValue>
-                                        {`${
-                                            nft.week_price_change > 0
-                                                ? `+${nft.week_price_change}`
-                                                : nft.week_price_change
-                                        }% week`}
-                                    </NFtPriceValue>
-                                </NftWeekPriceChange>
-                            )}
-                        </NFTCardInfo>
-                    </NFTCard>
+                    <a
+                        target="_blank"
+                        href={`https://www.nftexplorer.app/asset/${nft.asa_id}`}
+                        style={{ textDecoration: 'none' }}
+                        rel="noreferrer"
+                    >
+                        <NFTCard key={nft.image_url}>
+                            <Nft url={nft.image_url} />
+                            <NFTCardInfo>
+                                <NftName>{nft.name}</NftName>
+                                <NftPrice>${nft.floor_price.usd}</NftPrice>
+                                {nft.week_price_change && (
+                                    <NftWeekPriceChange>
+                                        {nft.week_price_change > 0 ? <ArrowUp /> : <ArrowUp rotate />}
+                                        <NFtPriceValue>
+                                            {`${
+                                                nft.week_price_change > 0
+                                                    ? `+${nft.week_price_change}`
+                                                    : nft.week_price_change
+                                            }% week`}
+                                        </NFtPriceValue>
+                                    </NftWeekPriceChange>
+                                )}
+                            </NFTCardInfo>
+                        </NFTCard>
+                    </a>
                 ))}
         </NFTListContainer>
     );
