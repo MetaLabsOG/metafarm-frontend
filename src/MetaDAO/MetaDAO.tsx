@@ -1,5 +1,6 @@
 //@ts-nocheck
 import { useQuery } from 'react-query';
+import { last, path } from 'ramda';
 import {
     MetaTreasury,
     MetaTreasuryBalance,
@@ -34,7 +35,9 @@ export const MetaDAO = () => {
                     </WalletInfo>
                     <MetaTreasury>
                         <MetaTreasuryBalance>{`${
-                            totalCostsQuery.isLoading ? 0 : Math.floor(totalCostsQuery.data[0].cost.usd)
+                            totalCostsQuery.isLoading
+                                ? 0
+                                : Math.floor(path(['cost', 'usd'], last(totalCostsQuery.data)))
                         }$`}</MetaTreasuryBalance>
                         <MetaTreasuryText>/MetaTreasury</MetaTreasuryText>
                     </MetaTreasury>
