@@ -66,14 +66,15 @@ export const MetaTreasuryChartContainer = styled.div`
 
 export const MetaTreasuryChartXTitle = styled.div`
     position: absolute;
-    right: 0;
-    bottom: 25%;
+    right: 10px;
+    bottom: 26%;
+    font-size: 16px;
 `;
 
 export const MetaTreasuryChartYTitle = styled.div`
     position: absolute;
-    top: 12%;
-    left: 3%;
+    top: 10%;
+    left: 4%;
 `;
 
 export const ChartTitle = styled.div`

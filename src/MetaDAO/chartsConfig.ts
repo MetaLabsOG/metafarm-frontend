@@ -1,5 +1,4 @@
 export const assetsChartOptions = {
-    responsive: true,
     layout: {
         padding: {
             top: 0,
@@ -41,7 +40,6 @@ export const metaTreasuryChartOptions = {
         borderWidth: 2,
         x: {
             display: true,
-
             grid: {
                 borderColor: 'white',
             },
@@ -49,16 +47,15 @@ export const metaTreasuryChartOptions = {
                 display: true,
                 color: '#59f63c',
                 font: {
-                    size: 16,
+                    size: 15,
                     family: 'Korona One',
                     weight: 'bold',
                 },
             },
         },
         y: {
+            beginAtZero: true,
             type: 'linear',
-            stack: 'demo',
-            stackWeight: 2,
             grid: {
                 borderColor: 'white',
             },
@@ -67,7 +64,6 @@ export const metaTreasuryChartOptions = {
                     return Math.floor(value / 1000);
                 },
                 color: 'white',
-                stepSize: 5,
                 font: {
                     size: 16,
                     family: 'Korona One',

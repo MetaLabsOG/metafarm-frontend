@@ -8,13 +8,15 @@ import {
     MetaTreasuryChartContainer,
     MetaTreasuryChartYTitle,
 } from './styled';
+import dayjs from 'dayjs';
 import { metaTreasuryChartOptions } from './chartsConfig';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip);
 
-const labels = [0, 1, 2, 3, 4, 5];
-
 export const MetaTreasuryChart = ({ dataSet }) => {
+    const labels = dataSet.map((el) => dayjs(el.timestamp * 1000).format('D.MM'));
+    console.log(labels);
+
     const data = {
         labels,
         datasets: [
@@ -32,7 +34,7 @@ export const MetaTreasuryChart = ({ dataSet }) => {
                 <Line data={data} options={metaTreasuryChartOptions} />
             </MetaTreasuryChartContainer>
             <MetaTreasuryChartYTitle>$$</MetaTreasuryChartYTitle>
-            <MetaTreasuryChartXTitle>weeks</MetaTreasuryChartXTitle>
+            <MetaTreasuryChartXTitle>week</MetaTreasuryChartXTitle>
         </MetaTreasuryChartStyled>
     );
 };

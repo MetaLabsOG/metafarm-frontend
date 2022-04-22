@@ -40,7 +40,7 @@ export const AssetsChart = (assets: any) => {
             <Pie data={data} options={assetsChartOptions} />
             <LegendValues>
                 {dataSet.map(({ amount, price }) => (
-                    <Info>
+                    <Info key={`${amount}${price}`}>
                         <div>{amount}</div>
                         <div>({amount * price.usd}$)</div>
                     </Info>

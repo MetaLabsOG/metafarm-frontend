@@ -23,12 +23,13 @@ export const NFTList = () => {
             {data &&
                 data.map((nft: any) => (
                     <a
+                        key={nft.image_url}
                         target="_blank"
                         href={`https://www.nftexplorer.app/asset/${nft.asa_id}`}
                         style={{ textDecoration: 'none' }}
                         rel="noreferrer"
                     >
-                        <NFTCard key={nft.image_url}>
+                        <NFTCard>
                             <Nft url={nft.image_url} />
                             <NFTCardInfo>
                                 <NftName>{nft.name}</NftName>
