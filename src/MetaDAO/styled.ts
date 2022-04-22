@@ -3,6 +3,9 @@ import styled from 'styled-components';
 export const MetaDAOContainer = styled.div`
     width: 100%;
     margin-top: 40px;
+    @media (max-width: 640px) {
+        margin-top: 0px;
+    }
 `;
 
 export const WalletInfo = styled.div`
@@ -23,6 +26,9 @@ export const Wallet = styled.a`
     text-overflow: ellipsis;
     width: 400px;
     overflow: hidden;
+    @media (max-width: 640px) {
+        width: 100%;
+    }
 `;
 
 export const MetaTreasury = styled.div`
@@ -49,6 +55,10 @@ export const Charts = styled.div`
     justify-content: flex-start;
     margin-right: 40px;
     margin-bottom: 60px;
+    @media (max-width: 640px) {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
 `;
 
 export const MetaTreasuryChartStyled = styled.div`
@@ -57,6 +67,12 @@ export const MetaTreasuryChartStyled = styled.div`
     margin-right: 100px;
     position: relative;
     padding-right: 60px;
+    @media (max-width: 640px) {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: 30%;
+    }
 `;
 
 export const MetaTreasuryChartContainer = styled.div`
@@ -69,12 +85,20 @@ export const MetaTreasuryChartXTitle = styled.div`
     right: 10px;
     bottom: 26%;
     font-size: 16px;
+    @media (max-width: 640px) {
+        bottom: 20%;
+        left: 90%;
+    }
 `;
 
 export const MetaTreasuryChartYTitle = styled.div`
     position: absolute;
     top: 10%;
     left: 4%;
+    @media (max-width: 640px) {
+        top: 14%;
+        left: 9%;
+    }
 `;
 
 export const ChartTitle = styled.div`
@@ -86,6 +110,12 @@ export const AssetsChartStyled = styled.div`
     height: 100%;
     width: 25%;
     position: relative;
+    @media (max-width: 640px) {
+        padding: 0;
+        margin: 0;
+        width: 75%;
+        height: 30%;
+    }
 `;
 
 export const NFTListContainer = styled.div`
@@ -94,6 +124,9 @@ export const NFTListContainer = styled.div`
     flex-wrap: wrap;
     width: 100%;
     justify-content: space-around;
+    @media (max-width: 640px) {
+        margin-top: 20px;
+    }
 `;
 
 export const NFTCard = styled.div`
@@ -157,6 +190,10 @@ export const LegendValues = styled.div`
     position: absolute;
     left: 123%;
     top: 28%;
+    @media (max-width: 640px) {
+        left: 100%;
+        top: 50%;
+    }
 `;
 
 export const Fail = styled.div`
