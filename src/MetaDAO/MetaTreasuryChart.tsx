@@ -12,7 +12,7 @@ import { metaTreasuryChartOptions } from './chartsConfig';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip);
 
-const labels = [1, 2, 3, 4, 5, 6];
+const labels = [0, 1, 2, 3, 4, 5];
 
 export const MetaTreasuryChart = ({ dataSet }) => {
     const data = {

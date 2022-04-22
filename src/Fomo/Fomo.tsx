@@ -347,7 +347,7 @@ export const Fomo = () => {
                 showPurchase(what);
             });
         },
-        [reach, showOutcome, showPurchase, updateFomoInfo]
+        [reach, showOutcome, showPurchase]
     );
 
     // // REACH BUYER INTERFACE

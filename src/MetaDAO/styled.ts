@@ -67,12 +67,12 @@ export const MetaTreasuryChartContainer = styled.div`
 export const MetaTreasuryChartXTitle = styled.div`
     position: absolute;
     right: 0;
-    bottom: -10px;
+    bottom: 25%;
 `;
 
 export const MetaTreasuryChartYTitle = styled.div`
     position: absolute;
-    top: 15%;
+    top: 12%;
     left: 3%;
 `;
 
@@ -149,13 +149,13 @@ export const Info = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    margin-bottom: 23px;
+    margin-bottom: 10px;
 `;
 
 export const LegendValues = styled.div`
     position: absolute;
     left: 123%;
-    top: 50%;
+    top: 28%;
 `;
 
 export const Fail = styled.div`
