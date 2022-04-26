@@ -221,7 +221,10 @@ export const Fomo = () => {
                         return;
                     }
 
+                    console.log('END_TIME', endTime);
+
                     setTimeLeft(endTime - currentTime);
+                    console.log('TIMELEFT', endTime - currentTime);
 
                     setCurrentTotal(currentTotal);
                     setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
@@ -254,6 +257,7 @@ export const Fomo = () => {
 
     useInterval(() => {
         if (!isLoading && !isFinish && currentTime !== 0) {
+            console.log('FOMOINFO_CURRENT_TIME', currentTime);
             updateFomoInfo(ctc);
         }
     }, 10000);
@@ -274,9 +278,6 @@ export const Fomo = () => {
     );
 
     useEffect(() => {
-        // if (showPurchaseOutput.currentPrice < currentPrice) {
-        //     return;
-        // }
         if (reach) {
             console.log('WINNER', showPurchaseOutput.currentWinner, 'PRICE', showPurchaseOutput.winnerPrice);
 
