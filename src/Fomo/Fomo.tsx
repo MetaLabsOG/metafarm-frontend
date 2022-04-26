@@ -143,7 +143,7 @@ export const Fomo = () => {
     );
 
     const updateFomoInfo = useCallback(
-        async (ctc) => {
+        async (ctc, isFomo) => {
             if (!ctc || isFinish) {
                 return;
             }
@@ -213,19 +213,25 @@ export const Fomo = () => {
 
                     getBalance(reach.bigNumberToNumber(fomoInfo.token));
 
-                    const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
+                    if (isFomo) {
+                        const now = await reach.getNetworkSecs();
+                        //@ts-ignore
+                        const currentTime = reach.bigNumberToNumber(now);
+                        const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
+                        setTimeLeft(endTime - currentTime);
+                        console.log('BUY_TICKET', 'END_TIME', endTime, 'CT', currentTime);
+                    } else {
+                        const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
+                        if (currentTime > endTime) {
+                            console.log('fomo is finished');
+                            setIsFinish(true);
+                            return;
+                        }
 
-                    if (currentTime > endTime) {
-                        console.log('fomo is finished');
-                        setIsFinish(true);
-                        return;
+                        console.log('END_TIME', endTime, 'CT', currentTime);
+
+                        setTimeLeft(endTime - currentTime);
                     }
-
-                    console.log('END_TIME', endTime);
-
-                    setTimeLeft(endTime - currentTime);
-                    console.log('TIMELEFT', endTime - currentTime);
-
                     setCurrentTotal(currentTotal);
                     setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
                     setFomoDuration(reach.bigNumberToNumber(fomoInfo.deadline));
@@ -257,8 +263,7 @@ export const Fomo = () => {
 
     useInterval(() => {
         if (!isLoading && !isFinish && currentTime !== 0) {
-            console.log('FOMOINFO_CURRENT_TIME', currentTime);
-            updateFomoInfo(ctc);
+            updateFomoInfo(ctc, false);
         }
     }, 10000);
 
@@ -450,7 +455,7 @@ export const Fomo = () => {
         //@ts-ignore
         ctc.apis.Api.buyTicket()
             .then(() => {
-                updateFomoInfo(ctc);
+                updateFomoInfo(ctc, true);
                 logEvent(
                     account?.networkAccount.addr,
                     {
@@ -470,8 +475,8 @@ export const Fomo = () => {
             })
             .catch((e: Error) => {
                 console.log(e.message);
-                updateFomoInfo(ctc);
                 setIsLoading(false);
+                updateFomoInfo(ctc, true);
                 if (e.message.includes('logic eval error')) {
                     alert('Sorry, someone beat you');
                 }
