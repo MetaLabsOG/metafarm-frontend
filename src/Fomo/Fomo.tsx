@@ -76,6 +76,7 @@ export const Fomo = () => {
     const [currentTime, setCurrentTime] = useState(0);
     const [currentTotal, setCurrentTotal] = useState<number>(0);
     const [currentWinner, setCurrentWinner] = useState<string>('');
+    const [endTime, setEndTime] = useState(0);
     const [winnerPrice, setWinnerPrice] = useState('0');
 
     const [token, setToken] = useState<number | null>(null);
@@ -143,7 +144,7 @@ export const Fomo = () => {
     );
 
     const updateFomoInfo = useCallback(
-        async (ctc, isFomo) => {
+        async (ctc) => {
             if (!ctc || isFinish) {
                 return;
             }
@@ -213,25 +214,26 @@ export const Fomo = () => {
 
                     getBalance(reach.bigNumberToNumber(fomoInfo.token));
 
-                    if (isFomo) {
+                    const endTimeCurrent = reach.bigNumberToNumber(fomoInfo.endTimestamp);
+
+                    console.log(endTime, endTimeCurrent);
+
+                    if (endTime !== endTimeCurrent) {
                         const now = await reach.getNetworkSecs();
                         //@ts-ignore
                         const currentTime = reach.bigNumberToNumber(now);
-                        const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
-                        setTimeLeft(endTime - currentTime);
+
+                        setTimeLeft(endTimeCurrent - currentTime);
                         console.log('BUY_TICKET', 'END_TIME', endTime, 'CT', currentTime);
-                    } else {
-                        const endTime = reach.bigNumberToNumber(fomoInfo.endTimestamp);
-                        if (currentTime > endTime) {
-                            console.log('fomo is finished');
-                            setIsFinish(true);
-                            return;
-                        }
-
-                        console.log('END_TIME', endTime, 'CT', currentTime);
-
-                        setTimeLeft(endTime - currentTime);
                     }
+
+                    if (currentTime > endTimeCurrent) {
+                        console.log('fomo is finished');
+                        setIsFinish(true);
+                        return;
+                    }
+
+                    setEndTime(reach.bigNumberToNumber(fomoInfo.endTimestamp));
                     setCurrentTotal(currentTotal);
                     setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
                     setFomoDuration(reach.bigNumberToNumber(fomoInfo.deadline));
@@ -257,13 +259,14 @@ export const Fomo = () => {
             isAcceptedFomo,
             isAcceptedNFT,
             getBalance,
+            endTime,
             currentTime,
         ]
     );
 
     useInterval(() => {
         if (!isLoading && !isFinish && currentTime !== 0) {
-            updateFomoInfo(ctc, false);
+            updateFomoInfo(ctc);
         }
     }, 10000);
 
@@ -455,7 +458,7 @@ export const Fomo = () => {
         //@ts-ignore
         ctc.apis.Api.buyTicket()
             .then(() => {
-                updateFomoInfo(ctc, true);
+                updateFomoInfo(ctc);
                 logEvent(
                     account?.networkAccount.addr,
                     {
@@ -476,7 +479,7 @@ export const Fomo = () => {
             .catch((e: Error) => {
                 console.log(e.message);
                 setIsLoading(false);
-                updateFomoInfo(ctc, true);
+                updateFomoInfo(ctc);
                 if (e.message.includes('logic eval error')) {
                     alert('Sorry, someone beat you');
                 }
