@@ -317,6 +317,7 @@ export const Fomo = () => {
     const connectToContract = useCallback(
         async (account) => {
             const ctc = account.contract(fomo, FOMO_APP_ID);
+            console.log(account);
             setCtc(ctc);
             setIsAccountConnected(true);
 

@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { ALGONET, AppContext } from '../AppContext';
 //TODO REMOVE THIS PACK
 import Modal from 'react-awesome-modal';
-import MyAlgoConnect from '@reach-sh/stdlib/ALGO_MyAlgoConnect';
+import { ALGO_MyAlgoConnect as MyAlgoConnect } from '@reach-sh/stdlib';
 import WalletConnect from '@reach-sh/stdlib/ALGO_WalletConnect';
 import { logEvent } from '../logEvent';
 

@@ -11,7 +11,6 @@ type totalCost = {
     cost: cost;
 };
 
-//@ts-ignore
 export function getTotalCost(
     //@ts-ignore
     address,
@@ -60,4 +59,11 @@ export async function getWalletNFT(wallet: string) {
                 return [];
             })
     );
+}
+
+export async function getPools(type: string) {
+    return instance
+        .get(`/contracts?type=${type}`)
+        .then(({ data }) => data)
+        .catch((err) => console.log('ERR', err));
 }

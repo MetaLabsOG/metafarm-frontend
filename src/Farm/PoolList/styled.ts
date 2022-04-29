@@ -8,8 +8,11 @@ export const PoolListHeader = styled.div`
     height: 60px;
     width: 100%;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
     margin-top: 40px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 4px;
     @media (max-width: 640px) {
         display: none;
     }
