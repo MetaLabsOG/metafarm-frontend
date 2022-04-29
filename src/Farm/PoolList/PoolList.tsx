@@ -18,12 +18,14 @@ export const PoolList = () => {
 
     const connectToContract = useCallback(
         async (account) => {
-            const connectedContracts = poolsQuery.data.reduce((acc: Map<string, any>, pool: PoolT) => {
-                const ctc = account.contract(backend, pool.id);
-                return acc.set(pool.id.toString(), ctc);
-            }, new Map<string, any>());
+            if (poolsQuery.data) {
+                const connectedContracts = poolsQuery.data.reduce((acc: Map<string, any>, pool: PoolT) => {
+                    const ctc = account.contract(backend, pool.id);
+                    return acc.set(pool.id.toString(), ctc);
+                }, new Map<string, any>());
 
-            addPools(connectedContracts);
+                addPools(connectedContracts);
+            }
         },
         [poolsQuery]
     );
