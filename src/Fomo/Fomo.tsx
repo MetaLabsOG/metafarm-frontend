@@ -33,7 +33,7 @@ import {
     FomoRulesTitle,
     AvailableBalance,
 } from './styled';
-import { NFTCard, NFTCardInfo, Nft } from '../common/styled';
+import { NFTCard, NFTCardInfo, Nft, InfoHeader } from '../common/styled';
 import { setLevelAndValue } from './utils';
 import { BigNumber } from 'ethers';
 
@@ -517,11 +517,7 @@ export const Fomo = () => {
     }, [account, connectToContract, ctc, isAccountConnected]);
 
     if (!account) {
-        return (
-            <div className="fomo">
-                <h1 style={{ fontSize: '20px', marginTop: '20px' }}>PLEASE, CONNECT THE WALLET.</h1>
-            </div>
-        );
+        return <InfoHeader>PLEASE, CONNECT THE WALLET.</InfoHeader>;
     }
 
     if (isFinish) {

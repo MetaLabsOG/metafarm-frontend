@@ -4,6 +4,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { loadStdlib } from '@reach-sh/stdlib';
+import GlobalStyle from './common/globalStyles';
+
 import { ConnectWalletModal } from './wallet/ConnectWalletModal';
 
 import { Menu } from './Menu';
@@ -13,6 +15,7 @@ import { Farm } from './Farm';
 import { ALGONODE, AppContext } from './AppContext';
 import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
+import { Container, ContentContainer } from './common/styled';
 import './css/index.css';
 
 const reach = loadStdlib(ALGONODE);
@@ -25,20 +28,21 @@ const App = () => {
 
     return (
         <QueryClientProvider client={queryClient}>
+            <GlobalStyle />
             <AppContext.Provider value={{ reach, isWalletModalOpen, setIsWalletModalOpen, account, setAccount }}>
                 <ThemeProvider theme={theme}>
-                    <div className="container">
+                    <Container>
                         <Menu />
                         <ConnectWalletModal />
-                        <div className="content-container">
+                        <ContentContainer>
                             <Routes>
                                 <Route path="/" element={<Fomo />} />
                                 <Route path="/fomo" element={<Fomo />} />
                                 <Route path="/farm" element={<Farm />} />
                                 <Route path="/meta-dao" element={<MetaDAO />} />
                             </Routes>
-                        </div>
-                    </div>
+                        </ContentContainer>
+                    </Container>
                 </ThemeProvider>
             </AppContext.Provider>
         </QueryClientProvider>

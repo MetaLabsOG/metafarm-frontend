@@ -3,10 +3,10 @@ import { Stdlib_User } from '@reach-sh/stdlib/dist/types/interfaces';
 import { Account } from './types';
 
 export type Context = {
-    reach: Stdlib_User<any, any, any, any, any, any, any, any, any, any> | undefined;
+    reach: Stdlib_User<any, any, any, any, any, any, any, any, any, any>;
     isWalletModalOpen: boolean;
     setIsWalletModalOpen: (value: boolean) => void;
-    account: Account | undefined;
+    account: Account;
     setAccount: (account: Account) => void;
 };
 

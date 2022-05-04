@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { Balance } from './Balance';
 import { PoolList } from './PoolList';
 import { FarmContainer } from './styled';
+import { InfoHeader } from '../common/styled';
 import { AppContext, Context } from '../AppContext';
 
 export const Farm = () => {
@@ -14,9 +15,7 @@ export const Farm = () => {
                     <PoolList />
                 </>
             ) : (
-                <div className="fomo">
-                    <h1 style={{ fontSize: '20px', marginTop: '20px' }}>PLEASE, CONNECT THE WALLET.</h1>
-                </div>
+                <InfoHeader>PLEASE, CONNECT THE WALLET.</InfoHeader>
             )}
         </FarmContainer>
     );
