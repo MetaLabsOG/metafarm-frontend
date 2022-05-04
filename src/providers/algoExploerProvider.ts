@@ -58,9 +58,9 @@ export async function getLPTokenInfo(assetId: number): Promise<LPTokenInfo> {
         console.log('Falling back to fetching balances from Algoexplorer (this might lead to wrong prices!)');
         poolInfo = {
             name: assetParams.name,
-            asset1_reserve: pooledAssets[0].amount,
-            asset2_reserve: pooledAssets[1].amount,
-            total_lp_tokens: 1000.0, // TODO: could be done "better" but its useless anyway
+            asset1_reserve: pooledAssets[0].amount / 10**pooledAssets[0].decimals,
+            asset2_reserve: pooledAssets[1].amount / 10**pooledAssets[0].decimals,
+            total_lp_tokens: 10000.0, // TODO: could be done "better" but its useless anyway
         }
     }
 
