@@ -1,11 +1,8 @@
 import React from 'react';
-import { Stdlib_User } from '@reach-sh/stdlib/dist/types/interfaces';
-import { Account } from './types';
+import { Account, ReachStdlib } from './types';
+import { loadStdlib } from '@reach-sh/stdlib';
 
 export type Context = {
-    reach: Stdlib_User<any, any, any, any, any, any, any, any, any, any>;
-    isWalletModalOpen: boolean;
-    setIsWalletModalOpen: (value: boolean) => void;
     account: Account;
     setAccount: (account: Account) => void;
 };
@@ -21,6 +18,8 @@ export const ALGONODE = {
     // ALGO_INDEXER_TOKEN: {'X-API-Key': 'd5bjYQye8f6tfntYkkFZ32l9Yb1b9e098KyNZ69B'},
     // ALGO_INDEXER_PORT: ''
 };
+
+export const reach: ReachStdlib = loadStdlib(ALGONODE);
 
 export const METAWALLET = 'METAWEJ6MAPBIZBKZBX2RTGVEG4SFTB5BRJRKL3UYVXA6TT5YVWUAXV6PU';
 

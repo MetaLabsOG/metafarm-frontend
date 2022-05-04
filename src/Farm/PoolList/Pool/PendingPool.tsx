@@ -15,7 +15,7 @@ import {
     Link,
     Balance,
 } from './styled';
-import { AppContext, Context } from '../../../AppContext';
+import { AppContext, Context, reach } from '../../../AppContext';
 
 export const PendingPool = ({
     pool,
@@ -32,7 +32,7 @@ export const PendingPool = ({
     id: number;
     currentBlock: number;
 }) => {
-    const { reach, account } = useContext(AppContext) as Context;
+    const { account } = useContext(AppContext) as Context;
     const [withDrawAmount, setWithDrawAmount] = useState('');
     const [balanceToken, setBalanceToken] = useState(0);
     const [stakeAmount, setStakeAmount] = useState('');

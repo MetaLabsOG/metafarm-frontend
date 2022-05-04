@@ -14,7 +14,7 @@ import {
     ActionWrapper,
 } from './styled';
 import { Status } from '../../../Status';
-import { AppContext, Context } from '../../../AppContext';
+import { AppContext, Context, reach } from '../../../AppContext';
 
 export const EndedPool = ({
     pool,
@@ -29,7 +29,7 @@ export const EndedPool = ({
     initialInfo: any;
     id: number;
 }) => {
-    const { reach, account } = useContext(AppContext) as Context;
+    const { account } = useContext(AppContext) as Context;
     const [withDrawAmount, setWithDrawAmount] = useState(reach.bigNumberToNumber(localInfo.staked));
 
     const getTokenInfo = async () => {

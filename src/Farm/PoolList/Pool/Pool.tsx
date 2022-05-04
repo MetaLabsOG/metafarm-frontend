@@ -6,7 +6,7 @@ import { PendingPool } from './PendingPool';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { BigNumber } from 'ethers';
 import dayjs from 'dayjs';
-import { AppContext, Context } from '../../../AppContext';
+import { AppContext, Context, reach } from '../../../AppContext';
 import { Status } from '../../../Status';
 import { CurrentPool } from './CurrentPool';
 
@@ -30,7 +30,7 @@ type initialInfo = {
 //CURRENT BLOCK
 //TOKEN PRICE
 export const Pool = ({ id }: { id: number }) => {
-    const { reach, account } = useContext(AppContext) as Context;
+    const { account } = useContext(AppContext) as Context;
     const pools = useStore($pools);
     const [localInfo, setLocalInfo] = useState<localInfo | undefined>(undefined);
     const [globalInfo, setGlobalInfo] = useState<globalInfo | undefined>(undefined);
