@@ -17,7 +17,7 @@ import {
     Balance,
 } from './styled';
 import { Status } from '../../../Status';
-import { AppContext, Context } from '../../../AppContext';
+import { AppContext, Context, reach } from '../../../AppContext';
 
 //change STYLE FOR GET LP if balance !== 0
 //isActive claim if claim !== 0
@@ -37,7 +37,7 @@ export const CurrentPool = ({
     id: number;
     currentBlock: number;
 }) => {
-    const { reach, account } = useContext(AppContext) as Context;
+    const { account } = useContext(AppContext) as Context;
     const [withDrawAmount, setWithDrawAmount] = useState('');
     const [balanceToken, setBalanceToken] = useState(0);
     const [stakeAmount, setStakeAmount] = useState('');

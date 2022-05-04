@@ -4,7 +4,7 @@ import { LevelInfo } from './types';
 import '../css/fomo.css';
 import * as fomo from '@metalabsog/metafomo/build/index.main.mjs';
 import { RulesModal } from './RulesModal';
-import { AppContext, Context, FOMO_APP_ID, IS_MOBILE } from '../AppContext';
+import { AppContext, reach, Context, IS_MOBILE } from '../AppContext';
 import { Timer } from './Timer';
 import { Status } from '../Status';
 import { batchOptIn } from '../batchOptIn.mjs';
@@ -62,7 +62,7 @@ function useInterval(callback: () => void, delay: number) {
 export const Fomo = () => {
     const { data } = useQuery(['pools', 'fomo'], () => getPools('fomo'));
     const id = data && data[0].id;
-    const { reach, account } = useContext(AppContext) as Context;
+    const { account } = useContext(AppContext) as Context;
     const [ctc, setCtc] = useState<null>(null);
     const [isAccountConnected, setIsAccountConnected] = useState<boolean>(false);
     const [isFomoSet, setIsFomoSet] = useState<boolean>(false);
@@ -144,7 +144,7 @@ export const Fomo = () => {
                 }
             }
         },
-        [account, reach]
+        [account]
     );
 
     const updateFomoInfo = useCallback(
