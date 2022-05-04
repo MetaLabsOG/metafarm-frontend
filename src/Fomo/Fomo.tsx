@@ -1,12 +1,14 @@
 import { useState, useContext, useEffect, useCallback, useRef } from 'react';
+import { useQuery } from 'react-query';
 import { LevelInfo } from './types';
 import '../css/fomo.css';
 import * as fomo from '@metalabsog/metafomo/build/index.main.mjs';
 import { RulesModal } from './RulesModal';
-import { AppContext, FOMO_APP_ID, Context, IS_MOBILE } from '../AppContext';
+import { AppContext, Context, FOMO_APP_ID, IS_MOBILE } from '../AppContext';
 import { Timer } from './Timer';
 import { Status } from '../Status';
 import { batchOptIn } from '../batchOptIn.mjs';
+import { getPools } from '../providers/apiProvider';
 import { getAssetInfo } from '../providers/algoExploerProvider';
 import { logEvent } from '../logEvent';
 import { AlgoIcon } from '../imgs/algo';
@@ -58,6 +60,8 @@ function useInterval(callback: () => void, delay: number) {
 }
 
 export const Fomo = () => {
+    const { data } = useQuery(['pools', 'fomo'], () => getPools('fomo'));
+    const id = data && data[0].id;
     const { reach, account } = useContext(AppContext) as Context;
     const [ctc, setCtc] = useState<null>(null);
     const [isAccountConnected, setIsAccountConnected] = useState<boolean>(false);
@@ -265,7 +269,7 @@ export const Fomo = () => {
     );
 
     useInterval(() => {
-        if (!isLoading && !isFinish && currentTime !== 0) {
+        if (!isLoading && !isFinish && currentTime !== 0 && id) {
             updateFomoInfo(ctc);
         }
     }, 10000);
@@ -325,8 +329,7 @@ export const Fomo = () => {
 
     const connectToContract = useCallback(
         async (account) => {
-            const ctc = account.contract(fomo, FOMO_APP_ID);
-            console.log(account);
+            const ctc = account.contract(fomo, id);
             setCtc(ctc);
             setIsAccountConnected(true);
 
@@ -357,7 +360,7 @@ export const Fomo = () => {
                 showPurchase(what);
             });
         },
-        [reach, showOutcome, showPurchase]
+        [id, reach, showOutcome, showPurchase]
     );
 
     // // REACH BUYER INTERFACE
