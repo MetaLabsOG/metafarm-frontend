@@ -21,12 +21,14 @@ export const EndedPool = ({
     initialInfo,
     localInfo,
     globalInfo,
+    lpTokenInfo,
     id,
 }: {
     pool: any;
     localInfo: any;
     globalInfo: any;
     initialInfo: any;
+    lpTokenInfo: any;
     id: number;
 }) => {
     const { account } = useContext(AppContext) as Context;
@@ -61,11 +63,11 @@ export const EndedPool = ({
 
     return (
         <PoolConainer>
-            {initialInfo && localInfo && globalInfo ? (
+            {initialInfo && localInfo && globalInfo && lpTokenInfo ? (
                 <>
                     <TokenInfo style={{ height: '30%' }}>
                         <div>
-                            <div>META•ALGO LP</div>
+                            <div>{lpTokenInfo.name}</div>
                             <div>EARN META</div>
                         </div>
                     </TokenInfo>

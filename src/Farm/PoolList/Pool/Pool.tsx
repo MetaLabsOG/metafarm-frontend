@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import { AppContext, Context, reach } from '../../../AppContext';
 import { Status } from '../../../Status';
 import { CurrentPool } from './CurrentPool';
+import { getLPTokenInfo, LPTokenInfo } from '../../../providers/algoExploerProvider';
 
 dayjs.extend(relativeTime);
 
@@ -22,8 +23,11 @@ type globalInfo = {
 };
 
 type initialInfo = {
+    stakeToken: BigNumber;
+    rewardToken: BigNumber;
     endBlock: BigNumber;
     beginBlock: BigNumber;
+    rewardPerBlock: BigNumber;
 };
 
 //TODO BLOCK TIME FUNC
@@ -35,6 +39,7 @@ export const Pool = ({ id }: { id: number }) => {
     const [localInfo, setLocalInfo] = useState<localInfo | undefined>(undefined);
     const [globalInfo, setGlobalInfo] = useState<globalInfo | undefined>(undefined);
     const [initialInfo, setInitalInfo] = useState<initialInfo | undefined>(undefined);
+    const [lpTokenInfo, setLpTokenInfo] = useState<LPTokenInfo | undefined>(undefined);
     const [currentBlock, setCurrentBlock] = useState<number>(0);
 
     const [isEnded, setIsEnded] = useState(false);
@@ -53,6 +58,12 @@ export const Pool = ({ id }: { id: number }) => {
 
             const localInfo = await selectedPool.views.local(account?.getAddress());
             setLocalInfo(localInfo[1]);
+
+            if (initialInfo) {
+                const lpTokenInfo = await getLPTokenInfo(reach.bigNumberToNumber(initialInfo.stakeToken));
+                console.log('LP INFO', lpTokenInfo);
+                setLpTokenInfo(lpTokenInfo);
+            }
 
             const currentBlock = await reach.getNetworkTime();
             const currentBlockNumber = reach.bigNumberToNumber(currentBlock);
@@ -87,6 +98,7 @@ export const Pool = ({ id }: { id: number }) => {
                 initialInfo={initialInfo}
                 globalInfo={globalInfo}
                 localInfo={localInfo}
+                lpTokenInfo={lpTokenInfo}
                 id={id}
             />
         );
@@ -100,6 +112,7 @@ export const Pool = ({ id }: { id: number }) => {
                 initialInfo={initialInfo}
                 globalInfo={globalInfo}
                 localInfo={localInfo}
+                lpTokenInfo={lpTokenInfo}
                 id={id}
             />
         );
@@ -113,6 +126,7 @@ export const Pool = ({ id }: { id: number }) => {
                 globalInfo={globalInfo}
                 currentBlock={currentBlock}
                 localInfo={localInfo}
+                lpTokenInfo={lpTokenInfo}
                 id={id}
             />
         );
