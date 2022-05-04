@@ -204,7 +204,7 @@ export const Fomo = () => {
                     }
 
                     if (!token) {
-                        const [status, { discountLevel, timeReductionLevel }] = await ctc.views.Fomo.participantInfo(
+                        const [, { discountLevel, timeReductionLevel }] = await ctc.views.Fomo.participantInfo(
                             account?.getAddress()
                         );
                         logEvent(account.networkAccount.addr, { message: 'GET PARTISIPANT INFO FAIL' }, 'errors');
@@ -220,11 +220,8 @@ export const Fomo = () => {
 
                     const endTimeCurrent = reach.bigNumberToNumber(fomoInfo.endTimestamp);
 
-                    console.log(endTime, endTimeCurrent);
-
                     if (endTime !== endTimeCurrent) {
                         const now = await reach.getNetworkSecs();
-                        //@ts-ignore
                         const currentTime = reach.bigNumberToNumber(now);
 
                         setTimeLeft(endTimeCurrent - currentTime);
@@ -254,7 +251,6 @@ export const Fomo = () => {
             isFinish,
             discountPrices.length,
             timeReductionPrices.length,
-            reach,
             account,
             discountTimePercentAndPrice,
             timeReductionSecAndPrice,
@@ -274,20 +270,17 @@ export const Fomo = () => {
         }
     }, 10000);
 
-    const showPurchase = useCallback(
-        ([winnerAddress, winnerPriceHex, newPriceHex]) => {
-            if (reach) {
-                const winnerPrice = reach.formatCurrency(winnerPriceHex, 2);
+    const showPurchase = useCallback(([winnerAddress, winnerPriceHex, newPriceHex]) => {
+        if (reach) {
+            const winnerPrice = reach.formatCurrency(winnerPriceHex, 2);
 
-                setShowPurschaseOutput({
-                    currentWinner: reach.formatAddress(winnerAddress),
-                    winnerPrice,
-                    currentPrice: newPriceHex,
-                });
-            }
-        },
-        [reach]
-    );
+            setShowPurschaseOutput({
+                currentWinner: reach.formatAddress(winnerAddress),
+                winnerPrice,
+                currentPrice: newPriceHex,
+            });
+        }
+    }, []);
 
     useEffect(() => {
         if (reach) {
@@ -298,19 +291,16 @@ export const Fomo = () => {
             setCurrentWinner(showPurchaseOutput.currentWinner);
             setWinnerPrice(showPurchaseOutput.winnerPrice);
         }
-    }, [ctc, currentPrice, reach, showPurchase, showPurchaseOutput]);
+    }, [ctc, currentPrice, showPurchase, showPurchaseOutput]);
 
-    const showOutcome = useCallback(
-        (address) => {
-            if (reach) {
-                const winnerAddress = reach.formatAddress(address);
-                console.log('WINNER!!!', winnerAddress);
-                setIsFinish(true);
-                setCurrentWinner(winnerAddress);
-            }
-        },
-        [reach]
-    );
+    const showOutcome = useCallback((address) => {
+        if (reach) {
+            const winnerAddress = reach.formatAddress(address);
+            console.log('WINNER!!!', winnerAddress);
+            setIsFinish(true);
+            setCurrentWinner(winnerAddress);
+        }
+    }, []);
 
     useEffect(() => {
         const timeReductionSecAndPrice = setLevelAndValue(
@@ -320,12 +310,12 @@ export const Fomo = () => {
             reach
         );
         setTimeReductionSecAndPrice(timeReductionSecAndPrice);
-    }, [reach, timeReductionLevel, timeReductionPrices, timeReductionSecs]);
+    }, [timeReductionLevel, timeReductionPrices, timeReductionSecs]);
 
     useEffect(() => {
         const discountTimePercentAndPrice = setLevelAndValue(discountPrices, discountPercents, discountLevel, reach);
         setDiscountTimePercentAndPrice(discountTimePercentAndPrice);
-    }, [discountLevel, discountPercents, discountPrices, reach]);
+    }, [discountLevel, discountPercents, discountPrices]);
 
     const connectToContract = useCallback(
         async (account) => {
@@ -360,7 +350,7 @@ export const Fomo = () => {
                 showPurchase(what);
             });
         },
-        [id, reach, showOutcome, showPurchase]
+        [id, showOutcome, showPurchase]
     );
 
     // // REACH BUYER INTERFACE
@@ -502,7 +492,6 @@ export const Fomo = () => {
         isAcceptedFomo,
         isAcceptedNFT,
         nftPrize,
-        reach,
         timeLeft,
         timeReductionSecAndPrice.value,
         token,

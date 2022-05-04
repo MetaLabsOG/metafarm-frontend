@@ -74,7 +74,7 @@ export const Pool = ({ id }: { id: number }) => {
 
             setCurrentBlock(reach?.bigNumberToNumber(currentBlock));
         }
-    }, [account, reach, selectedPool]);
+    }, [account, selectedPool]);
 
     useEffect(() => {
         getInfo();
