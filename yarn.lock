@@ -3103,17 +3103,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metalabsog/common@npm:^13.0.1":
-  version: 13.0.1
-  resolution: "@metalabsog/common@npm:13.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcommon%2F13.0.1%2F2ecde2455b021e29f5faac79aa37def05fcfabe932c0745f15d5863bea93e75d"
-  dependencies:
-    "@reach-sh/stdlib": 0.1.10-rc.1
-    ethers: ^5.6.4
-    loglevel: ^1.8.0
-  checksum: c09dbcda67f85f7657f9262282dae4ce85cbea7f416be3daa881dd7fe1ed01858f45c3e245d51cc2021f3e5086353bd7ba7bf98eb526328a3419f92500eee21a
-  languageName: node
-  linkType: hard
-
 "@metalabsog/common@npm:^14.0.1":
   version: 14.0.1
   resolution: "@metalabsog/common@npm:14.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcommon%2F14.0.1%2F94565789e8a921cb040a276e4df78e5e8c771d28015cbe628634b2a257a7ca8e"
@@ -3122,6 +3111,29 @@ __metadata:
     ethers: ^5.6.4
     loglevel: ^1.8.0
   checksum: 9784905c660fcf11d76468ca1d0ee30ed5fa2297a13ad330d34c2c5483f8e3ca8aa5edc60738a7b6c6995bce2b0ed9c7c932dcb1dc7dbf9a145c6f4e30ea3a1a
+  languageName: node
+  linkType: hard
+
+"@metalabsog/common@npm:^15.0.1":
+  version: 15.0.1
+  resolution: "@metalabsog/common@npm:15.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcommon%2F15.0.1%2F3e206bc63fc5f7f5d81e866c85eb2ac7aa82dcaf2fd7ac3d25f9d6fafce74a22"
+  dependencies:
+    "@reach-sh/stdlib": 0.1.10-rc.3
+    ethers: ^5.6.4
+    loglevel: ^1.8.0
+  checksum: fca860b39cee41a34e2c746932eb11d167366727130eb208c778d6b7ec15e4d3f6d590e78ee7a16a56b52fc9006606fbd3912a32d3c51a35ae9c91d108c64b6a
+  languageName: node
+  linkType: hard
+
+"@metalabsog/farm@npm:^15.0.1":
+  version: 15.0.1
+  resolution: "@metalabsog/farm@npm:15.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F15.0.1%2F68ed8c4dfeaba1a609630c7a79fc8ef4bfc5a35366ab14a0f4f9b49824cd7469"
+  dependencies:
+    "@metalabsog/common": ^15.0.1
+    "@reach-sh/stdlib": 0.1.10-rc.3
+    inquirer: ^8.2.1
+    loglevel: ^1.8.0
+  checksum: 3a3149d35b960faf39b0afad220cd8ee9e7414e7a5f4489c4e6fb78c302deb8d85a62278fd8d601a24a3534f4e72d2151258568e15cb6bd21aa9739163e2d467
   languageName: node
   linkType: hard
 
@@ -3472,28 +3484,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reach-sh/stdlib@npm:0.1.10-rc.1":
-  version: 0.1.10-rc.1
-  resolution: "@reach-sh/stdlib@npm:0.1.10-rc.1"
-  dependencies:
-    "@msgpack/msgpack": ^2.5.1
-    "@randlabs/myalgo-connect": ^1.1.2
-    "@walletconnect/client": ^1.7.3
-    algorand-walletconnect-qrcode-modal: ^1.6.1
-    algosdk: ^1.15.0
-    await-timeout: ^0.6.0
-    ethers: ^5.5.4
-    express: ^4.17.3
-    hi-base32: ^0.5.0
-    js-conflux-sdk: "git+https://github.com/reach-sh/js-conflux-sdk.git#v1_6_0_blockNumber"
-    jsbi: ^3.1.6
-    node-fetch: ^2.6.1
-    tslib: ^2.3.1
-    wait-port: ^0.2.9
-  checksum: e9ebed81b3899098fae698cca07ada415c5d88fb218f1a15e51de3ee37e019f8dc97ce1eaf1e929616297c21d50a345f01a958fabadea160c081d5b0353314c4
-  languageName: node
-  linkType: hard
-
 "@reach-sh/stdlib@npm:0.1.10-rc.2":
   version: 0.1.10-rc.2
   resolution: "@reach-sh/stdlib@npm:0.1.10-rc.2"
@@ -3513,6 +3503,28 @@ __metadata:
     tslib: ^2.3.1
     wait-port: ^0.2.9
   checksum: b72699c4cc6db63b1eb953381da99a99d0244c766b7d17c743750cd6a2daf7055033cc191800897e4efa335ac7c4ef17450fa98155886dc7c570259b07c0b61b
+  languageName: node
+  linkType: hard
+
+"@reach-sh/stdlib@npm:0.1.10-rc.3":
+  version: 0.1.10-rc.3
+  resolution: "@reach-sh/stdlib@npm:0.1.10-rc.3"
+  dependencies:
+    "@msgpack/msgpack": ^2.5.1
+    "@randlabs/myalgo-connect": ^1.1.2
+    "@walletconnect/client": ^1.7.3
+    algorand-walletconnect-qrcode-modal: ^1.6.1
+    algosdk: ^1.15.0
+    await-timeout: ^0.6.0
+    ethers: ^5.5.4
+    express: ^4.17.3
+    hi-base32: ^0.5.0
+    js-conflux-sdk: "git+https://github.com/reach-sh/js-conflux-sdk.git#v1_6_0_blockNumber"
+    jsbi: ^3.1.6
+    node-fetch: ^2.6.1
+    tslib: ^2.3.1
+    wait-port: ^0.2.9
+  checksum: 0184a1f8ce78a1b2ea3cf7b3bc6e97bd2163261c3658a1de363a274fa495238ca0557fd4175cef40355135f51cbf51e425ebb36897c2a637b047389cba6c8ed4
   languageName: node
   linkType: hard
 
@@ -9145,30 +9157,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"farm-13.1.0@npm:@metalabsog/farm@13.1.0":
-  version: 13.1.0
-  resolution: "@metalabsog/farm@npm:13.1.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F13.1.0%2Ffcee0dd54ad88a8b96aeca43c3a89ab965e2ed96ab3bd4afb4115f2d62598045"
-  dependencies:
-    "@metalabsog/common": ^13.0.1
-    "@reach-sh/stdlib": 0.1.10-rc.1
-    inquirer: ^8.2.1
-    loglevel: ^1.8.0
-  checksum: 05769620063601853b041d4827fb9a6c5b219d109f819da12e584b9cc5b6935d132302016e89dcac0346b717091147d9b553e88d6859c3161c39713111f34c09
-  languageName: node
-  linkType: hard
-
-"farm-14.0.1@npm:@metalabsog/farm@14.0.1":
-  version: 14.0.1
-  resolution: "@metalabsog/farm@npm:14.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F14.0.1%2F94cd48622f074e4a6154f596e4d4c83dc1203710243c663b33146ec97d673ad8"
-  dependencies:
-    "@metalabsog/common": ^14.0.1
-    "@reach-sh/stdlib": 0.1.10-rc.2
-    inquirer: ^8.2.1
-    loglevel: ^1.8.0
-  checksum: fa97c495641cac726d1e4bd844fae5985ab313115044a8ad535599223bb338ce08968bafb20db6385a04d873ba5a64abac3faf32078c73a91f77588fc4066219
-  languageName: node
-  linkType: hard
-
 "fast-deep-equal@npm:^3.1.1, fast-deep-equal@npm:^3.1.3":
   version: 3.1.3
   resolution: "fast-deep-equal@npm:3.1.3"
@@ -12975,9 +12963,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "metafarm-frontend@workspace:."
   dependencies:
+    "@metalabsog/farm": ^15.0.1
     "@metalabsog/metafomo": ^14.0.1
     "@ramonak/react-progress-bar": ^4.4.0
-    "@reach-sh/stdlib": 0.1.10-rc.2
+    "@reach-sh/stdlib": 0.1.10-rc.3
     "@types/axios": ^0.14.0
     "@types/jest": ^27.4.1
     "@types/node": ^17.0.21
@@ -12993,8 +12982,6 @@ __metadata:
     effector: ^22.3.0
     effector-react: ^22.0.6
     eslint-config-prettier: ^8.5.0
-    farm-13.1.0: "npm:@metalabsog/farm@13.1.0"
-    farm-14.0.1: "npm:@metalabsog/farm@14.0.1"
     lerna: ^4.0.0
     prettier: 2.5.1
     ramda: ^0.28.0
