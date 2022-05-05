@@ -28,6 +28,8 @@ export const PoolList = () => {
             if (poolsQuery.data) {
                 const connectedContracts = poolsQuery.data.reduce((acc: Map<string, any>, pool: PoolT) => {
                     //@ts-ignore
+                    console.log(poolsVersion[pool.version], pool.version);
+                    //@ts-ignore
                     const ctc = account.contract(poolsVersion[pool.version], pool.id);
                     return acc.set(pool.id.toString(), ctc);
                 }, new Map<string, any>());
