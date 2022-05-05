@@ -1,17 +1,15 @@
-import { useContext, useEffect, useCallback, useState, SyntheticEvent } from 'react';
+import { useContext, useEffect, useCallback, useState } from 'react';
 import { useStore } from 'effector-react';
 import { $pools } from '../store';
 import { EndedPool } from './EndedPool';
 import { PendingPool } from './PendingPool';
-import relativeTime from 'dayjs/plugin/relativeTime';
+
 import { BigNumber } from 'ethers';
-import dayjs from 'dayjs';
+
 import { AppContext, Context, reach } from '../../../AppContext';
 import { Status } from '../../../Status';
 import { CurrentPool } from './CurrentPool';
 import { getLPTokenInfo, LPTokenInfo } from '../../../providers/dexesProvider';
-
-dayjs.extend(relativeTime);
 
 type localInfo = {
     reward: BigNumber;
@@ -89,7 +87,7 @@ export const Pool = ({ id }: { id: number }) => {
 
     useEffect(() => {
         getInfo();
-    }, [getInfo]);
+    });
 
     if (isEnded) {
         return (

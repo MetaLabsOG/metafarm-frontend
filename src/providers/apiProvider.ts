@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { ThemeConsumer } from 'styled-components';
 
 const instance = axios.create({
     baseURL: `https://api.cometa.farm/`,
@@ -82,9 +81,7 @@ export async function getPools(type: string) {
 }
 
 export async function getPoolInfo(asset1: number, asset2: number): Promise<PoolInfo> {
-    return instance
-        .get(`/pool?asset_1_id=${asset1}&asset_2_id=${asset2}`)
-        .then(({ data }) => data);
+    return instance.get(`/pool?asset_1_id=${asset1}&asset_2_id=${asset2}`).then(({ data }) => data);
 }
 
 export async function getSwapCost(asset1: number, asset2: number, amount: number): Promise<SwapCost> {

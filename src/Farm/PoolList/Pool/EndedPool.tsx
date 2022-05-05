@@ -1,4 +1,5 @@
-import { useContext, useEffect, useCallback, useState, SyntheticEvent } from 'react';
+import { useEffect, useState, SyntheticEvent } from 'react';
+import { reach } from '../../../AppContext';
 import {
     PoolConainer,
     TokenInfo,
@@ -11,10 +12,8 @@ import {
     Input,
     ClaimButton,
     HighlightedInfo,
-    ActionWrapper,
 } from './styled';
 import { Status } from '../../../Status';
-import { AppContext, Context, reach } from '../../../AppContext';
 
 export const EndedPool = ({
     pool,
@@ -31,13 +30,12 @@ export const EndedPool = ({
     lpTokenInfo: any;
     id: number;
 }) => {
-    const { account } = useContext(AppContext) as Context;
-    const [withDrawAmount, setWithDrawAmount] = useState(reach.bigNumberToNumber(localInfo.staked));
+    const [withDrawAmount, setWithDrawAmount] = useState(0);
 
     const getTokenInfo = async () => {
-        const { stakeToken } = initialInfo;
-
-        const tokenMeta = await account.tokenMetadata(reach.bigNumberToNumber(stakeToken));
+        if (localInfo.staked) {
+            setWithDrawAmount(reach.bigNumberToNumber(localInfo.staked));
+        }
     };
 
     useEffect(() => {
@@ -46,7 +44,7 @@ export const EndedPool = ({
 
     const withDraw = async () => {
         try {
-            await pool.a.unstake(Number(withDrawAmount));
+            await pool.a.unstake(withDrawAmount);
         } catch (error) {
             console.log(error);
         }

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useCallback, useState, SyntheticEvent } from 'react';
+import { useContext, useEffect, useState, SyntheticEvent } from 'react';
 import {
     PoolConainer,
     TokenInfo,
@@ -18,18 +18,13 @@ import {
 } from './styled';
 import { Status } from '../../../Status';
 import { AppContext, Context, reach } from '../../../AppContext';
-import { getAssetInfo } from '../../../providers/algoExploerProvider';
 
-//change STYLE FOR GET LP if balance !== 0
-//isActive claim if claim !== 0
-//Stake isActive if balance !==0
 export const CurrentPool = ({
     pool,
     initialInfo,
     localInfo,
     globalInfo,
     lpTokenInfo,
-    id,
     currentBlock,
 }: {
     pool: any;
@@ -45,16 +40,20 @@ export const CurrentPool = ({
     const [balanceToken, setBalanceToken] = useState(0);
     const [stakeAmount, setStakeAmount] = useState('');
     const [time, setTime] = useState('');
-    const [stakedToken, setStakedtoken] = useState(reach.bigNumberToNumber(localInfo.staked));
+    const [stakedToken, setStakedToken] = useState(0);
 
     const getTokenInfo = async () => {
-        //@ts-ignore
-        const { stakeToken, endBlock } = initialInfo;
-        const diff = Math.floor(((endBlock - currentBlock) * 4.35) / 86400);
-        setTime(`${diff} DAYS`);
-        const stakeTokenId = reach.bigNumberToNumber(stakeToken);
-        const balanceToken = await reach.balanceOf(account, stakeTokenId);
-        setBalanceToken(lpTokenInfo.price * reach.bigNumberToNumber(balanceToken) / 10**lpTokenInfo.decimals);
+        if (initialInfo) {
+            const { stakeToken, endBlock } = initialInfo;
+            const diff = Math.floor(((endBlock - currentBlock) * 4.35) / 86400);
+            setTime(`${diff} DAYS`);
+            const stakeTokenId = reach.bigNumberToNumber(stakeToken);
+            const balanceToken = await reach.balanceOf(account, stakeTokenId);
+            setBalanceToken((lpTokenInfo.price * reach.bigNumberToNumber(balanceToken)) / 10 ** lpTokenInfo.decimals);
+        }
+        if (localInfo) {
+            setStakedToken(reach.bigNumberToNumber(localInfo.staked));
+        }
     };
 
     useEffect(() => {
@@ -63,7 +62,7 @@ export const CurrentPool = ({
 
     const withDraw = async () => {
         try {
-            await pool.a.unstake(Number(withDrawAmount.substring(2)));
+            await pool.a.unstake(withDrawAmount);
         } catch (error) {
             console.log(error);
         }
@@ -80,7 +79,7 @@ export const CurrentPool = ({
 
     const stake = async () => {
         try {
-            await pool.a.stake(Number(stakeAmount.substring(2)));
+            await pool.a.stake(stakeAmount);
         } catch (error) {
             console.log(error);
         }
@@ -122,7 +121,7 @@ export const CurrentPool = ({
                                     STAKE
                                 </Button>
                             </Action>
-                            <Balance>{`Balance: ${Math.floor(balanceToken)}`}</Balance>
+                            <Balance>{`Balance: ${Math.floor(balanceToken)} LP`}</Balance>
                         </ActionWrapper>
                     </Stake>
                     <WithDraw>
@@ -140,7 +139,7 @@ export const CurrentPool = ({
                                 />
                                 <Button onClick={withDraw}>WITHDRAW</Button>
                             </Action>
-                            <Balance>{`Staked: ${stakedToken}`}</Balance>
+                            <Balance>{`Staked: ${stakedToken} LP`}</Balance>
                         </ActionWrapper>
                     </WithDraw>
                     <Claim>
