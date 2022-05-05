@@ -47,3 +47,4 @@ Dockerfile
 #.pnp.*
 
 .env*
+*.zip

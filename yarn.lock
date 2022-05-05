@@ -3422,6 +3422,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pactfi/pactsdk@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "@pactfi/pactsdk@npm:0.2.2"
+  dependencies:
+    algosdk: ^1.14.0
+    buffer: ^6.0.3
+    decimal.js: ^10.3.1
+  checksum: b630688398eb4fa6892d27e6ce6f85be8498fb3bb660985f062d35a56c3ae1242cc254cdf879f104e3414987aa79c9b003fb5c989213fab017af56d6910ba299
+  languageName: node
+  linkType: hard
+
 "@pmmmwh/react-refresh-webpack-plugin@npm:0.4.3":
   version: 0.4.3
   resolution: "@pmmmwh/react-refresh-webpack-plugin@npm:0.4.3"
@@ -4836,7 +4847,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"algosdk@npm:^1.12.0, algosdk@npm:^1.15.0":
+"algosdk@npm:^1.12.0, algosdk@npm:^1.14.0, algosdk@npm:^1.15.0":
   version: 1.16.0
   resolution: "algosdk@npm:1.16.0"
   dependencies:
@@ -6061,7 +6072,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^6.0.2":
+"buffer@npm:^6.0.2, buffer@npm:^6.0.3":
   version: 6.0.3
   resolution: "buffer@npm:6.0.3"
   dependencies:
@@ -7668,7 +7679,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"decimal.js@npm:^10.2.1":
+"decimal.js@npm:^10.2.1, decimal.js@npm:^10.3.1":
   version: 10.3.1
   resolution: "decimal.js@npm:10.3.1"
   checksum: 0351ac9f05fe050f23227aa6a4573bee2d58fa7378fcf28d969a8c789525032effb488a90320fd3fe86a66e17b4bc507d811b15eada5b7f0e7ec5d2af4c24a59
@@ -12965,6 +12976,7 @@ __metadata:
   dependencies:
     "@metalabsog/farm": ^15.0.1
     "@metalabsog/metafomo": ^14.0.1
+    "@pactfi/pactsdk": ^0.2.2
     "@ramonak/react-progress-bar": ^4.4.0
     "@reach-sh/stdlib": 0.1.10-rc.3
     "@types/axios": ^0.14.0
