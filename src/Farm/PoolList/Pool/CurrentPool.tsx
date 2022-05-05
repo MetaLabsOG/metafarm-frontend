@@ -18,6 +18,7 @@ import {
 } from './styled';
 import { Status } from '../../../Status';
 import { AppContext, Context, reach } from '../../../AppContext';
+import { getAssetInfo } from '../../../providers/algoExploerProvider';
 
 //change STYLE FOR GET LP if balance !== 0
 //isActive claim if claim !== 0
@@ -27,6 +28,7 @@ export const CurrentPool = ({
     initialInfo,
     localInfo,
     globalInfo,
+    lpTokenInfo,
     id,
     currentBlock,
 }: {
@@ -34,6 +36,7 @@ export const CurrentPool = ({
     localInfo: any;
     globalInfo: any;
     initialInfo: any;
+    lpTokenInfo: any;
     id: number;
     currentBlock: number;
 }) => {
@@ -49,9 +52,9 @@ export const CurrentPool = ({
         const { stakeToken, endBlock } = initialInfo;
         const diff = Math.floor(((endBlock - currentBlock) * 4.35) / 86400);
         setTime(`${diff} DAYS`);
-        const tokenMeta = await account.tokenMetadata(reach.bigNumberToNumber(stakeToken));
-        const balanceToken = await reach.balanceOf(account, reach.bigNumberToNumber(stakeToken));
-        setBalanceToken(reach.bigNumberToNumber(balanceToken) / 100000000);
+        const stakeTokenId = reach.bigNumberToNumber(stakeToken);
+        const balanceToken = await reach.balanceOf(account, stakeTokenId);
+        setBalanceToken(lpTokenInfo.price * reach.bigNumberToNumber(balanceToken) / 10**lpTokenInfo.decimals);
     };
 
     useEffect(() => {
@@ -86,11 +89,11 @@ export const CurrentPool = ({
 
     return (
         <PoolConainer>
-            {initialInfo && localInfo && globalInfo ? (
+            {initialInfo && localInfo && globalInfo && lpTokenInfo ? (
                 <>
                     <TokenInfo>
                         <div>
-                            <div>META•ALGO LP</div>
+                            <div>{lpTokenInfo.name}</div>
                             <div>EARN META</div>
                         </div>
                         <Link

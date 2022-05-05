@@ -22,6 +22,7 @@ export const PendingPool = ({
     initialInfo,
     localInfo,
     globalInfo,
+    lpTokenInfo,
     id,
     currentBlock,
 }: {
@@ -29,6 +30,7 @@ export const PendingPool = ({
     localInfo: any;
     globalInfo: any;
     initialInfo: any;
+    lpTokenInfo: any;
     id: number;
     currentBlock: number;
 }) => {
@@ -46,7 +48,7 @@ export const PendingPool = ({
         setTime(`START IN ${diff} DAYS`);
         const tokenMeta = await account.tokenMetadata(reach.bigNumberToNumber(stakeToken));
         const balanceToken = await reach.balanceOf(account, reach.bigNumberToNumber(stakeToken));
-        setBalanceToken(reach.bigNumberToNumber(balanceToken) / 100000000);
+        setBalanceToken(lpTokenInfo.price * reach.bigNumberToNumber(balanceToken) / 10**lpTokenInfo.decimals);
     };
 
     useEffect(() => {
@@ -75,7 +77,7 @@ export const PendingPool = ({
         <PoolConainer>
             <TokenInfo>
                 <div>
-                    <div>META•ALGO LP</div>
+                    <div>{lpTokenInfo?.name}</div>
                     <div>EARN META</div>
                 </div>
                 <Link href="https://app.tinyman.org/#/pool/create-pair?asset_1=0" target="_blank" rel="noreferrer">
@@ -84,7 +86,7 @@ export const PendingPool = ({
             </TokenInfo>
             <Stake>
                 <PoolInfo>
-                    <div>{`$ ${reach?.bigNumberToNumber(globalInfo?.totalStaked)}`}</div>
+                    <div>{`$ ${reach.bigNumberToNumber(globalInfo?.totalStaked)}`}</div>
                     <div>0</div>
                 </PoolInfo>
                 <ActionWrapper>
