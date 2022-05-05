@@ -165,9 +165,25 @@ export function makeDex(provider: DexProvider): Dex {
     return provider === 'PT' ? new PactDex(algod) : provider === 'T2' ? new TinymanDex(algod) : new MockDex();
 }
 
-export async function getLPTokenInfo(assetId: number, provider: DexProvider = 'T2'): Promise<LPTokenInfo> {
-    const dex = makeDex(provider);
+// TODO: this function is a huge costyl
+export function detectAssetProvider({ name }: {name: string}): DexProvider {
+    name = name.toLowerCase();
+    if (name.indexOf('tinyman') !== -1) {
+        return 'T2';
+    } else if (name.indexOf('liquidity') !== -1) {
+        return 'PT';
+    } else {
+        return 'MOCK';
+    }
+}
+
+export async function getLPTokenInfo(assetId: number, provider: DexProvider | undefined = undefined): Promise<LPTokenInfo> {
     const asset = await algod.getAssetByID(assetId).do();
+    if (provider === undefined) {
+        provider = detectAssetProvider(asset.params);
+    }
+
+    const dex = makeDex(provider);
     const { name, creator, decimals } = asset.params;
     const poolInfo = await dex.getPoolInfo(creator);
 
