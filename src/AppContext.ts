@@ -28,6 +28,10 @@ export const MAINNET = 'MainNet';
 
 export const ALGONET = TESTNET;
 
+export const ALGOD_API_KEY = process.env.REACT_APP_ALGOD_API_KEY || undefined; // will lead to errors if not set up in .env file
+export const ALGOD_TESTNET_URL = 'https://testnet-algorand.api.purestake.io/ps2';
+export const ALGOD_MAINNET_URL = 'https://mainnet-algorand.api.purestake.io/ps2';
+
 export const IS_MOBILE = window.innerWidth <= 768;
 console.log('Is mobile:', IS_MOBILE);
 

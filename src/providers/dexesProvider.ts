@@ -1,18 +1,21 @@
+import axios from 'axios';
 import algosdk from 'algosdk';
-import { getSwapCost } from './apiProvider';
+import { getSwapCost as backendGetSwapCost } from './apiProvider';
 import { getCoinRate } from './binanceProvider';
 
 import { getAssetInfo, getWalletInfo } from './algoExploerProvider';
-import { ALGONET, TESTNET } from '../AppContext';
+import { ALGONET, TESTNET, ALGOD_API_KEY, ALGOD_TESTNET_URL, ALGOD_MAINNET_URL } from '../AppContext';
+import pactsdk from '@pactfi/pactsdk';
 
-// const prefix = ALGONET === TESTNET ? 'testnet.' : '';
-// const ALGOEXPLORER_URI = `https://indexer.${prefix}algoexplorerapi.io/`;
+const ALGOD_URL = ALGONET === TESTNET ? ALGOD_TESTNET_URL : ALGOD_MAINNET_URL;
 
-// export const algod = new algosdk.Algodv2('', ALGOEXPLORER_URI, '');
-
-export type DexProvider =
-    | 'T2' // Tinyman v1.1
-    | 'PT'; // Pact
+export const algod = new algosdk.Algodv2(
+    {
+        'x-api-key': ALGOD_API_KEY!,
+    },
+    ALGOD_URL,
+    443
+);
 
 export type PoolInfo = {
     asset1: number;
@@ -28,53 +31,145 @@ export type LPTokenInfo = {
     decimals: number;
 };
 
-async function getPactPoolInfo(poolAddress: string): Promise<PoolInfo> {
-    throw new Error('not implemented');
+export type SwapQuote = {
+    totalPrice: number;
+    perToken: number;
+};
+
+export interface Dex {
+    getPoolInfo: (poolAddress: string) => Promise<PoolInfo>;
+    getSwapCost: (fromAsset: number, toAsset: number, amount: number) => Promise<SwapQuote>;
 }
 
-async function getTinymanPoolInfo(poolAddress: string): Promise<PoolInfo> {
-    // const accountInfo = await algod.accountInformation(poolAddress).do();
-    const accountInfo = await getWalletInfo(poolAddress);
-    console.log(accountInfo);
+/**
+ * Mock API for dexes (yields data with arbitrary numbers)
+ */
+export class MockDex implements Dex {
+    async getPoolInfo(poolAddress: string): Promise<PoolInfo> {
+        return {
+            asset1: 0,
+            asset2: 10000,
+            asset1Reserve: 100000000,
+            asset2Reserve: 200000000,
+            totalLiquidity: 100000000,
+        };
+    }
 
-    let appState: any;
-    try {
+    async getSwapCost(fromAsset: number, toAsset: number, amount: number): Promise<SwapQuote> {
+        const perToken = 0.01;
+        return {
+            totalPrice: perToken * amount,
+            perToken,
+        };
+    }
+}
+
+/**
+ * Subset of Pact API implementation
+ */
+export class PactDex implements Dex {
+    algod: algosdk.Algodv2;
+    pact: pactsdk.PactClient;
+
+    constructor(algod: algosdk.Algodv2) {
+        this.algod = algod;
+        this.pact = new pactsdk.PactClient(
+            this.algod,
+            ALGONET === TESTNET ? { pactApiUrl: 'https://api.testnet.pact.fi' } : {}
+        );
+    }
+
+    // TODO: No easier way to figure out the Pact pool from its address
+    async getPoolInfo(poolAddress: string): Promise<PoolInfo> {
+        const accountInfo = await algod.accountInformation(poolAddress).do();
+        const lpTokenId = accountInfo['created-assets'][0].index;
+        let poolAssets = accountInfo.assets.map((a: any) => a['asset-id']).filter((id: number) => id !== lpTokenId);
+
+        if (poolAssets.length < 2) {
+            poolAssets = [0, ...poolAssets];
+        }
+        const pools = await this.pact.fetchPoolsByAssets(poolAssets[0], poolAssets[1]);
+        const selectedPool = pools.filter((pool: any) => pool.liquidityAsset.index === lpTokenId)[0];
+        return {
+            asset1: selectedPool.primaryAsset.index,
+            asset2: selectedPool.secondaryAsset.index,
+            asset1Reserve: selectedPool.state.totalPrimary,
+            asset2Reserve: selectedPool.state.totalSecondary,
+            totalLiquidity: selectedPool.state.totalLiquidity,
+        };
+    }
+
+    async getSwapCost(fromAsset: number, toAsset: number, amount: number): Promise<SwapQuote> {
+        const pool = (await this.pact.fetchPoolsByAssets(fromAsset, toAsset))[0];
+        const swap = pool.prepareSwap({
+            asset: new pactsdk.Asset(this.algod, toAsset),
+            amount: amount,
+            slippagePct: 2,
+        });
+        const totalPrice = swap.effect.price;
+        const perToken = totalPrice / amount;
+        return {totalPrice, perToken};
+    }
+}
+
+/**
+ * Subset of Tinyman API implementation
+ */
+export class TinymanDex implements Dex {
+    algod: algosdk.Algodv2;
+
+    constructor(algod: algosdk.Algodv2) {
+        this.algod = algod;
+    }
+
+    async getPoolInfo(poolAddress: string): Promise<PoolInfo> {
+        const accountInfo = await algod.accountInformation(poolAddress).do();
+
+        let appState: any;
         appState = accountInfo['apps-local-state'][0]['key-value'].reduce((acc: any, { key, value }: any) => {
             const newKey = Buffer.from(key, 'base64').toString();
             const newVal = value.type === 2 ? value.uint : value.bytes;
             return { [newKey]: newVal, ...acc };
         }, {});
-    } catch (err) {
-        console.error('ERROR: not a tinyman pool!', poolAddress, err);
-        appState = {
-            a1: 0,
-            a2: 10000,
-            s1: 100000000,
-            s2: 200000000,
-            ilt: 100000000,
+
+        let { a1, a2, s1, s2, ilt } = appState;
+        if (a1 > a2) {
+            [a1, a2] = [a2, a1];
+            [s1, s2] = [s2, s1];
         }
+
+        return {
+            asset1: a1,
+            asset2: a2,
+            asset1Reserve: s1,
+            asset2Reserve: s2,
+            totalLiquidity: ilt,
+        };
     }
 
-    let { a1, a2, s1, s2, ilt } = appState;
-    if (a1 > a2) {
-        [a1, a2] = [a2, a1];
-        [s1, s2] = [s2, s1];
+    async getSwapCost(fromAsset: number, toAsset: number, amount: number): Promise<SwapQuote> {
+        const { res_tokens, price_per_token } = await backendGetSwapCost(fromAsset, toAsset, amount);
+        return {
+            totalPrice: res_tokens,
+            perToken: price_per_token,
+        };
     }
+}
 
-    return {
-        asset1: a1,
-        asset2: a2,
-        asset1Reserve: s1,
-        asset2Reserve: s2,
-        totalLiquidity: ilt,
-    };
+export type DexProvider =
+    | 'T2' // Tinyman v1.1
+    | 'PT' // Pact
+    | 'MOCK'; // Mock dex (random tokens are staked)
+
+export function makeDex(provider: DexProvider): Dex {
+    return provider === 'PT' ? new PactDex(algod) : provider === 'T2' ? new TinymanDex(algod) : new MockDex();
 }
 
 export async function getLPTokenInfo(assetId: number, provider: DexProvider = 'T2'): Promise<LPTokenInfo> {
-    // const asset = await algod.getAssetByID(assetId).do();
-    const asset = await getAssetInfo(assetId);
+    const dex = makeDex(provider);
+    const asset = await algod.getAssetByID(assetId).do();
     const { name, creator, decimals } = asset.params;
-    const poolInfo = await (provider === 'PT' ? getPactPoolInfo(creator) : getTinymanPoolInfo(creator));
+    const poolInfo = await dex.getPoolInfo(creator);
 
     // TODO: all of this should NOT be repeated for every fucking token
     const algoRate = await getCoinRate('ALGOUSDT');
@@ -84,71 +179,10 @@ export async function getLPTokenInfo(assetId: number, provider: DexProvider = 'T
     if (poolInfo.asset1 === 0) {
         fstAssetPrice = algoPrice;
     } else {
-        let priceInAlgo;
-
-        // TODO: this is bullshit, can we do it RIGHT?
-        try {
-            // TODO: how many users the backend will actually survive if we use it like this?
-            priceInAlgo = (await getSwapCost(poolInfo.asset1, 0, 1)).price_per_token;
-        } catch (err) {
-            console.error('PRICE GETTIN ERROR', err);
-            priceInAlgo = 0.01; // because fuck you that's why
-        }
+        const priceInAlgo = (await dex.getSwapCost(poolInfo.asset1, 0, 1)).perToken;
         fstAssetPrice = algoPrice * priceInAlgo;
     }
 
     const price = (poolInfo.asset1Reserve * fstAssetPrice) / poolInfo.totalLiquidity;
     return { name, price, decimals };
-
-    // const assetParams = (await getAssetInfo(assetId)).params;
-    // const assetCreator = await getWalletInfo(assetParams.creator);
-    // console.log(assetCreator);
-
-    // let pooledAssets = assetCreator.assets.filter((asset: any) => asset['asset-id'] !== assetId);
-    // if (pooledAssets.length < 2) {
-    //     // this means that one of the assets in the pool is ALGO
-    //     pooledAssets = [{'asset-id': 0, 'amount': assetParams.amount}, ...pooledAssets];
-    // }
-
-    // let poolInfo;
-    // try {
-    //     poolInfo = await getPoolInfo(pooledAssets[0]['asset-id'], pooledAssets[1]['asset-id']);
-    // } catch (err) {
-    //     console.error('POOL INFO ERROR', err);
-    //     console.log('Falling back to fetching balances from Algoexplorer (this might lead to wrong prices!)');
-    //     poolInfo = {
-    //         name: assetParams.name,
-    //         asset1_reserve: pooledAssets[0].amount / 10**pooledAssets[0].decimals,
-    //         asset2_reserve: pooledAssets[1].amount / 10**pooledAssets[0].decimals,
-    //         total_lp_tokens: 10000.0, // TODO: could be done "better" but its useless anyway
-    //     }
-    // }
-
-    // const name = poolInfo.name;
-    // const decimals = assetParams.decimals;
-    // const fstAssetId = pooledAssets[0]['asset-id'];
-
-    // // TODO: all of this should NOT be repeated for every fucking token
-    // const algoRate = await getCoinRate('ALGOUSDT');
-    // const algoPrice = Number(algoRate.price);
-
-    // let fstAssetPrice;
-    // if (fstAssetId === 0) {
-    //     fstAssetPrice = algoPrice;
-    // } else {
-    //     let priceInAlgo;
-
-    //     // TODO: this is bullshit, can we do it RIGHT?
-    //     try {
-    //         // TODO: how many users the backend will actually survive if we use it like this?
-    //         priceInAlgo = (await getSwapCost(fstAssetId, 0, 1)).price_per_token;
-    //     } catch (err) {
-    //         console.error('PRICE GETTIN ERROR', err);
-    //         priceInAlgo = 0.01; // because fuck you that's why
-    //     }
-    //     fstAssetPrice = algoPrice * priceInAlgo;
-    // }
-
-    // const price = poolInfo.asset1_reserve * fstAssetPrice / poolInfo.total_lp_tokens;
-    // return { name, price, decimals }
 }

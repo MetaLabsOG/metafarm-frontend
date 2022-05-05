@@ -5,6 +5,7 @@
   "dependencies": {
     "@metalabsog/farm": "^13.1.0",
     "@metalabsog/metafomo": "^13.0.1",
+    "@pactfi/pactsdk": "^0.2.2",
     "@ramonak/react-progress-bar": "^4.4.0",
     "@reach-sh/stdlib": "^0.1.10-rc.1",
     "algosdk": "^1.12.0",
