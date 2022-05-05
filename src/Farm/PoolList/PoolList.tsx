@@ -6,9 +6,16 @@ import { Pool } from './Pool';
 import { AppContext, Context } from '../../AppContext';
 
 //@ts-ignore
-import * as backend from '@metalabsog/farm/build/index.main.mjs';
+import * as farm13 from 'farm-13.1.0/build/index.main.mjs';
+//@ts-ignore
+import * as farm14 from 'farm-14.0.1/build/index.main.mjs';
 import { PoolListHeader } from './styled';
 import { PoolT } from './types';
+
+const poolsVersion = {
+    '13.1.0': farm13,
+    '14.0.1': farm14,
+};
 
 const columNames = ['POOL', 'TVL', 'APR', 'ENDS IN', 'MY STAKE', 'REWARD'];
 
@@ -20,7 +27,8 @@ export const PoolList = () => {
         async (account) => {
             if (poolsQuery.data) {
                 const connectedContracts = poolsQuery.data.reduce((acc: Map<string, any>, pool: PoolT) => {
-                    const ctc = account.contract(backend, pool.id);
+                    //@ts-ignore
+                    const ctc = account.contract(poolsVersion[pool.version], pool.id);
                     return acc.set(pool.id.toString(), ctc);
                 }, new Map<string, any>());
 
@@ -31,6 +39,7 @@ export const PoolList = () => {
     );
 
     useEffect(() => {
+        console.log('CONNECTING');
         if (account) {
             connectToContract(account);
         }
@@ -43,7 +52,7 @@ export const PoolList = () => {
                     <div>{name}</div>
                 ))}
             </PoolListHeader>
-            {poolsQuery.data && poolsQuery.data.map((pool: PoolT) => <Pool id={pool.id} />)}
+            {poolsQuery.data && poolsQuery.data.reverse().map((pool: PoolT) => <Pool id={pool.id} />)}
         </div>
     );
 };

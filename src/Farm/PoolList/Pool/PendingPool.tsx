@@ -39,16 +39,19 @@ export const PendingPool = ({
     const [balanceToken, setBalanceToken] = useState(0);
     const [stakeAmount, setStakeAmount] = useState('');
     const [time, setTime] = useState('');
-    const [stakedToken, setStakedtoken] = useState(reach.bigNumberToNumber(localInfo.staked));
+    const [stakedToken, setStakedToken] = useState(0);
 
     const getTokenInfo = async () => {
-        //@ts-ignore
-        const { stakeToken, beginBlock } = initialInfo;
-        const diff = Math.round(((beginBlock - currentBlock) * 4.35) / 86400);
-        setTime(`START IN ${diff} DAYS`);
-        const tokenMeta = await account.tokenMetadata(reach.bigNumberToNumber(stakeToken));
-        const balanceToken = await reach.balanceOf(account, reach.bigNumberToNumber(stakeToken));
-        setBalanceToken(lpTokenInfo.price * reach.bigNumberToNumber(balanceToken) / 10**lpTokenInfo.decimals);
+        if (initialInfo) {
+            const { stakeToken, beginBlock } = initialInfo;
+            const diff = Math.round(((beginBlock - currentBlock) * 4.35) / 86400);
+            setTime(`START IN ${diff} DAYS`);
+            const balanceToken = await reach.balanceOf(account, reach.bigNumberToNumber(stakeToken));
+            setBalanceToken((lpTokenInfo.price * reach.bigNumberToNumber(balanceToken)) / 10 ** lpTokenInfo.decimals);
+        }
+        if (localInfo.staked) {
+            setStakedToken(reach.bigNumberToNumber(localInfo.staked));
+        }
     };
 
     useEffect(() => {
@@ -99,7 +102,7 @@ export const PendingPool = ({
                         />
                         <Button onClick={stake}>STAKE</Button>
                     </Action>
-                    <Balance>{`Balance: ${Math.floor(balanceToken)}`}</Balance>
+                    <Balance>{`Balance: ${Math.floor(balanceToken)} LP`}</Balance>
                 </ActionWrapper>
             </Stake>
             <WithDraw>
@@ -117,7 +120,7 @@ export const PendingPool = ({
                         />
                         <Button onClick={withDraw}>WITHDRAW</Button>
                     </Action>
-                    <Balance>{`Staked: ${stakedToken}`}</Balance>
+                    <Balance>{`Staked: ${stakedToken} LP`}</Balance>
                 </ActionWrapper>
             </WithDraw>
             <Claim></Claim>
