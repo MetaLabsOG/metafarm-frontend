@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import { AppContext, Context, reach } from '../../../AppContext';
 import { Status } from '../../../Status';
 import { CurrentPool } from './CurrentPool';
-import { getLPTokenInfo, LPTokenInfo } from '../../../providers/algoExploerProvider';
+import { getLPTokenInfo, LPTokenInfo } from '../../../providers/dexesProvider';
 
 dayjs.extend(relativeTime);
 
