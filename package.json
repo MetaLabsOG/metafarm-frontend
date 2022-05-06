@@ -5,6 +5,7 @@
   "dependencies": {
     "@metalabsog/farm": "^15.0.1",
     "@metalabsog/metafomo": "^14.0.1",
+    "@pactfi/pactsdk": "^0.2.2",
     "@ramonak/react-progress-bar": "^4.4.0",
     "@reach-sh/stdlib": "0.1.10-rc.3",
     "algosdk": "^1.12.0",
@@ -21,7 +22,6 @@
     "react-device-detect": "^2.2.2",
     "react-dom": "^17.0.2",
     "react-hooks-use-modal": "^2.1.0",
-    "react-input-mask": "^3.0.0-alpha.2",
     "react-query": "^3.34.19",
     "react-router-dom": "^6.2.1",
     "styled-components": "^5.3.3",

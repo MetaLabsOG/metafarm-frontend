@@ -9,7 +9,7 @@ import { BigNumber } from 'ethers';
 import { AppContext, Context, reach } from '../../../AppContext';
 import { Status } from '../../../Status';
 import { CurrentPool } from './CurrentPool';
-import { getLPTokenInfo, LPTokenInfo } from '../../../providers/algoExploerProvider';
+import { getLPTokenInfo, LPTokenInfo } from '../../../providers/dexesProvider';
 
 type localInfo = {
     reward: BigNumber;
