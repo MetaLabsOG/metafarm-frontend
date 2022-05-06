@@ -7958,6 +7958,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"disable-scroll@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "disable-scroll@npm:0.6.0"
+  checksum: 89bd07d02331e650972fee0a2ea9fde7e4efff47502445406cb5bd847964137a57bec2320c18c3c1df151dacaafe4b92084143c671100f7eb87ef9f6a6306c74
+  languageName: node
+  linkType: hard
+
 "dns-equal@npm:^1.0.0":
   version: 1.0.0
   resolution: "dns-equal@npm:1.0.0"
@@ -12987,6 +12994,7 @@ __metadata:
     react-device-detect: "npm:^2.2.2"
     react-dom: "npm:^17.0.2"
     react-error-overlay: "npm:6.0.9"
+    react-hooks-use-modal: "npm:^2.1.0"
     react-query: "npm:^3.34.19"
     react-router-dom: "npm:^6.2.1"
     react-scripts: "npm:^4.0.3"
@@ -16184,6 +16192,18 @@ __metadata:
   version: 6.0.11
   resolution: "react-error-overlay@npm:6.0.11"
   checksum: 6895a094484a767fb77f4c8dac084d1ce1cc8f0505dbd94244eadd6f6d8765bf4d4990546a67eccfd2f2204a803e3fec5a548b036fa27fe4a89a10c382e15682
+  languageName: node
+  linkType: hard
+
+"react-hooks-use-modal@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "react-hooks-use-modal@npm:2.1.0"
+  dependencies:
+    disable-scroll: "npm:^0.6.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0
+    react-dom: ^16.8.0 || ^17.0.0
+  checksum: 0c863f5f3b326464c40c9e77b7c3811bc450daee0825d0f21ef29049b15bcf243205f0c4c68e115978ba2b2f299e53af6fb9c69a519fd3cf711bcc26d3279bf9
   languageName: node
   linkType: hard
 
