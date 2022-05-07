@@ -17,6 +17,8 @@ import './css/index.css';
 
 const queryClient = new QueryClient();
 
+console.log('ENV', process.env);
+
 const App = () => {
     const [account, setAccount] = React.useState(undefined);
 

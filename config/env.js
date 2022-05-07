@@ -56,16 +56,22 @@ process.env.NODE_PATH = (process.env.NODE_PATH || '')
   .map(folder => path.resolve(appDirectory, folder))
   .join(path.delimiter);
 
-// Grab NODE_ENV and REACT_APP_* environment variables and prepare them to be
+// Grab NODE_ENV and REACT_APP_* and ALGO_* and REACH_* environment variables and prepare them to be
 // injected into the application via DefinePlugin in webpack configuration.
-const REACT_APP = /^REACT_APP_/i;
+const REACT_APP = /^(REACT_APP_)|(ALGO_)|(REACH_)/i;
 
 function getClientEnvironment(publicUrl) {
   const raw = Object.keys(process.env)
     .filter(key => REACT_APP.test(key))
     .reduce(
       (env, key) => {
-        env[key] = process.env[key];
+        let val = process.env[key];
+        if (typeof val === 'string') {
+          try {
+            val = JSON.parse(val);
+          } catch (e) {};
+        }
+        env[key] = val;
         return env;
       },
       {
