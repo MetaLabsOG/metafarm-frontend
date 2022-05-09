@@ -46,5 +46,4 @@ Dockerfile
 !.yarn/cache
 #.pnp.*
 
-.env*
 *.zip
