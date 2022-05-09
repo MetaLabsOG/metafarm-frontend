@@ -26,8 +26,8 @@ export const AssetsChart = (assets: any) => {
         datasets: [
             {
                 data: dataSet?.map(({ amount }) => amount),
-                backgroundColor: ['#027a00', '#59f63c', '#56CCF2'],
-                borderColor: ['#027a00', '#59f63c', '#56CCF2'],
+                backgroundColor: ['#027a00', '#59f63c', '#56CCF2', '#FBF33B', '#828282'],
+                borderColor: ['#027a00', '#59f63c', '#56CCF2', '#FBF33B', '#828282'],
                 borderWidth: 1,
                 hoverOffset: 4,
             },
@@ -42,7 +42,7 @@ export const AssetsChart = (assets: any) => {
                 {dataSet.map(({ amount, price }) => (
                     <Info key={`${amount}${price}`}>
                         <div>{amount}</div>
-                        <div>({amount * price.usd}$)</div>
+                        <div>({Math.floor(amount * price.usd)}$)</div>
                     </Info>
                 ))}
             </LegendValues>
