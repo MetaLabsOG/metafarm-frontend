@@ -61,7 +61,7 @@ function useInterval(callback: () => void, delay: number) {
 
 export const Fomo = () => {
     const { data } = useQuery(['pools', 'fomo'], () => getPools('fomo'));
-    const id = data && data[0].id;
+    const id = data && data.length ? data[0].id : undefined;
     const { account } = useContext(AppContext) as Context;
     const [ctc, setCtc] = useState<null>(null);
     const [isAccountConnected, setIsAccountConnected] = useState<boolean>(false);
@@ -507,6 +507,10 @@ export const Fomo = () => {
             connect();
         }
     }, [account, connectToContract, ctc, isAccountConnected]);
+
+    if (id === undefined) {
+        <InfoHeader>GAME NOT FOUND</InfoHeader>;
+    }
 
     if (!account) {
         return <InfoHeader>PLEASE, CONNECT THE WALLET.</InfoHeader>;
