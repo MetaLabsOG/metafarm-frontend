@@ -14,6 +14,8 @@ export const AssetsChart = (assets: any) => {
 
     const dataSet = assetsQuery.data ? assetsQuery.data : [];
 
+    console.log(dataSet);
+
     const data = {
         labels: dataSet.length ? dataSet?.map(({ ticker }) => ticker) : [],
         overrides: {
@@ -25,7 +27,7 @@ export const AssetsChart = (assets: any) => {
         },
         datasets: [
             {
-                data: dataSet?.map(({ amount }) => amount),
+                data: dataSet?.map(({ amount, price }) => amount * price.usd),
                 backgroundColor: ['#027a00', '#59f63c', '#56CCF2', '#FBF33B', '#828282'],
                 borderColor: ['#027a00', '#59f63c', '#56CCF2', '#FBF33B', '#828282'],
                 borderWidth: 1,
