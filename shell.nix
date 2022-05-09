@@ -10,7 +10,7 @@ mkShell {
     ];
 
     shellHook = ''
-        export REACH_CONNECTOR_MODE=${connector}-devnet
+        export REACH_CONNECTOR_MODE=${connector}-browser
         export PATH=$PWD/node_modules/.bin:$PATH
     '';
 }
