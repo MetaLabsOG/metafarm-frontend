@@ -6,7 +6,7 @@ import { Pool } from './Pool';
 import { AppContext, Context } from '../../AppContext';
 
 //@ts-ignore
-import * as farm from '@metalabsog/farm/build/index.main.mjs';
+import { backend as farm } from '@metalabsog/farm/';
 
 import { PoolListHeader } from './styled';
 import { PoolT } from './types';

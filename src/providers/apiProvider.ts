@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: `https://api.cometa.farm/`,
+    baseURL: `http://testapi.cometa.farm/`,
 });
 
 type cost = { usd: number; microalgo: number };

@@ -3200,47 +3200,36 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metalabsog/common@npm:^14.0.1":
-  version: 14.0.1
-  resolution: "@metalabsog/common@npm:14.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcommon%2F14.0.1%2F94565789e8a921cb040a276e4df78e5e8c771d28015cbe628634b2a257a7ca8e"
+"@metalabsog/common@npm:^15.0.2":
+  version: 15.0.2
+  resolution: "@metalabsog/common@npm:15.0.2::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcommon%2F15.0.2%2Ff8e09054defcd59affe05f7d458f2c93a46fc2507667da5f5df639bdcfc73494"
   dependencies:
-    "@reach-sh/stdlib": "npm:0.1.10-rc.2"
+    "@reach-sh/stdlib": "npm:0.1.10-rc.4"
     ethers: "npm:^5.6.4"
     loglevel: "npm:^1.8.0"
-  checksum: d60f13ba2e9ff95ad69adc271dd5f433c12dbc249bd984c16297726e993dbfc6155b4777a045b98bbb4727f118cdfe39a2a78267b5aa34b1cb0ef3ebdb35ae7f
+  checksum: dcddc2ed9111af926c8a9441069134ca8520200d0af58eb13fe3370a23789def798625c5c00b9d2e0fd23a182cbfc1103c9fce3b374c37730a9e4b062765d91f
   languageName: node
   linkType: hard
 
-"@metalabsog/common@npm:^15.0.1":
-  version: 15.0.1
-  resolution: "@metalabsog/common@npm:15.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcommon%2F15.0.1%2F3e206bc63fc5f7f5d81e866c85eb2ac7aa82dcaf2fd7ac3d25f9d6fafce74a22"
+"@metalabsog/farm@npm:15.0.3":
+  version: 15.0.3
+  resolution: "@metalabsog/farm@npm:15.0.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F15.0.3%2F226ca12888ff49b21e6044213dfcacf1fac48cd8249df61df68c4f4b3daa5d86"
   dependencies:
-    "@reach-sh/stdlib": "npm:0.1.10-rc.3"
-    ethers: "npm:^5.6.4"
-    loglevel: "npm:^1.8.0"
-  checksum: a259ce9f01394df1a58cc13e7c06d4270ad76eaa5b1c13100c937342a5a5f201371e21e3dd9d3616e57555e4cde4dff742360d27498f6929ecc05e24d1319545
-  languageName: node
-  linkType: hard
-
-"@metalabsog/farm@npm:^15.0.1":
-  version: 15.0.1
-  resolution: "@metalabsog/farm@npm:15.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F15.0.1%2F68ed8c4dfeaba1a609630c7a79fc8ef4bfc5a35366ab14a0f4f9b49824cd7469"
-  dependencies:
-    "@metalabsog/common": "npm:^15.0.1"
-    "@reach-sh/stdlib": "npm:0.1.10-rc.3"
+    "@metalabsog/common": "npm:^15.0.2"
+    "@reach-sh/stdlib": "npm:0.1.10-rc.4"
     inquirer: "npm:^8.2.1"
     loglevel: "npm:^1.8.0"
-  checksum: 48ef7366040066623110087cdc52069abedd356dba63c77856e94c77daa8319fba704c72390a2f9d5df4d6325f73e4e16bbfaf94469c4228fbec04eb31a2ea60
+  checksum: b51d444f56b77da7b75b20c8f4330ca129ae91eb860cb5df4f6224cc5e5923dc1391f02c7ebc2984267958e008cb1a9396a701ee30ce9e32b7978e650aa2dfc4
   languageName: node
   linkType: hard
 
-"@metalabsog/metafomo@npm:^14.0.1":
-  version: 14.0.1
-  resolution: "@metalabsog/metafomo@npm:14.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fmetafomo%2F14.0.1%2F61c39025b2cc3fafa1f4f3441df52f9eae88d4e6e58b7832eb83e7f06c622085"
+"@metalabsog/metafomo@npm:15.0.3":
+  version: 15.0.3
+  resolution: "@metalabsog/metafomo@npm:15.0.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fmetafomo%2F15.0.3%2F041e1865db5b867661a293e30b8e9460ffb758fc5d8c06ceff30beadd464c93f"
   dependencies:
-    "@metalabsog/common": "npm:^14.0.1"
-    "@reach-sh/stdlib": "npm:0.1.10-rc.2"
-  checksum: 4553b9ad6837de3b99e2ab62b2eff8dea842cdefea9ee97e75564360f787a3641b226323ccb70287655ebb43c83f4391d9977c3324368ece05638c3868f49fe8
+    "@metalabsog/common": "npm:^15.0.2"
+    "@reach-sh/stdlib": "npm:0.1.10-rc.4"
+  checksum: a626c47e2ca60ec643470335f7341a3c77fd5dd4155a71430b91226651f5a9235636f3246b77d93d342c246206f603e35fbba14be64dc56cb1d46e262fb4c6ca
   languageName: node
   linkType: hard
 
@@ -3595,9 +3584,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reach-sh/stdlib@npm:0.1.10-rc.2":
-  version: 0.1.10-rc.2
-  resolution: "@reach-sh/stdlib@npm:0.1.10-rc.2"
+"@reach-sh/stdlib@npm:0.1.10-rc.4":
+  version: 0.1.10-rc.4
+  resolution: "@reach-sh/stdlib@npm:0.1.10-rc.4"
   dependencies:
     "@msgpack/msgpack": "npm:^2.5.1"
     "@randlabs/myalgo-connect": "npm:^1.1.2"
@@ -3613,29 +3602,7 @@ __metadata:
     node-fetch: "npm:^2.6.1"
     tslib: "npm:^2.3.1"
     wait-port: "npm:^0.2.9"
-  checksum: 65efab706f0b95cb872d5d01442eb16fed9b1bc0798687f9a1f3d61834ff1c617d65cf26f99e4a36dfdfbcb262f50c51b3562d0b695ebdcf7fecb94301319632
-  languageName: node
-  linkType: hard
-
-"@reach-sh/stdlib@npm:0.1.10-rc.3":
-  version: 0.1.10-rc.3
-  resolution: "@reach-sh/stdlib@npm:0.1.10-rc.3"
-  dependencies:
-    "@msgpack/msgpack": "npm:^2.5.1"
-    "@randlabs/myalgo-connect": "npm:^1.1.2"
-    "@walletconnect/client": "npm:^1.7.3"
-    algorand-walletconnect-qrcode-modal: "npm:^1.6.1"
-    algosdk: "npm:^1.15.0"
-    await-timeout: "npm:^0.6.0"
-    ethers: "npm:^5.5.4"
-    express: "npm:^4.17.3"
-    hi-base32: "npm:^0.5.0"
-    js-conflux-sdk: "git+https://github.com/reach-sh/js-conflux-sdk.git#v1_6_0_blockNumber"
-    jsbi: "npm:^3.1.6"
-    node-fetch: "npm:^2.6.1"
-    tslib: "npm:^2.3.1"
-    wait-port: "npm:^0.2.9"
-  checksum: 0a720f4d6da523eb58558d141a76b58cea5c1916c479f7aa9b265598a50f1f44a40d2ce502a91a3fd48a2a3421f4a74402d1e51885e6d1e83510e8f6d5d5756c
+  checksum: afc9ed7a090e8e49ab9590773d86b9ac328c912d749b2186578a28179118c3807b8cd3ca01f0eb84da5d0c08c2039f87773529e6f0d7a9eb78bf16e123713554
   languageName: node
   linkType: hard
 
@@ -11842,11 +11809,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "metafarm-frontend@workspace:."
   dependencies:
-    "@metalabsog/farm": "npm:^15.0.1"
-    "@metalabsog/metafomo": "npm:^14.0.1"
+    "@babel/core": "npm:^7.16.0"
+    "@metalabsog/farm": "npm:15.0.3"
+    "@metalabsog/metafomo": "npm:15.0.3"
     "@pactfi/pactsdk": "npm:^0.2.2"
+    "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.3"
     "@ramonak/react-progress-bar": "npm:^4.4.0"
-    "@reach-sh/stdlib": "npm:0.1.10-rc.3"
+    "@reach-sh/stdlib": "npm:0.1.10-rc.4"
+    "@svgr/webpack": "npm:^5.5.0"
     "@types/axios": "npm:^0.14.0"
     "@types/jest": "npm:^27.4.1"
     "@types/node": "npm:^17.0.21"
@@ -11856,29 +11826,73 @@ __metadata:
     "@types/styled-components": "npm:^5.1.24"
     algosdk: "npm:^1.12.0"
     axios: "npm:^0.26.1"
+    babel-jest: "npm:^27.4.2"
+    babel-loader: "npm:^8.2.3"
+    babel-plugin-named-asset-import: "npm:^0.3.8"
+    babel-preset-react-app: "npm:^10.0.1"
+    bfj: "npm:^7.0.2"
+    browserslist: "npm:^4.18.1"
+    buffer: "npm:^6.0.3"
+    camelcase: "npm:^6.2.1"
+    case-sensitive-paths-webpack-plugin: "npm:^2.4.0"
     chart.js: "npm:^3.7.1"
+    css-loader: "npm:^6.5.1"
+    css-minimizer-webpack-plugin: "npm:^3.2.0"
     dayjs: "npm:^1.11.0"
     detect-browser: "npm:^5.3.0"
+    dotenv: "npm:^10.0.0"
+    dotenv-expand: "npm:^5.1.0"
     effector: "npm:^22.3.0"
     effector-react: "npm:^22.0.6"
+    eslint: "npm:^8.3.0"
     eslint-config-prettier: "npm:^8.5.0"
+    eslint-config-react-app: "npm:^7.0.1"
+    eslint-webpack-plugin: "npm:^3.1.1"
+    file-loader: "npm:^6.2.0"
+    fs-extra: "npm:^10.0.0"
+    html-webpack-plugin: "npm:^5.5.0"
+    identity-obj-proxy: "npm:^3.0.0"
+    jest: "npm:^27.4.3"
+    jest-resolve: "npm:^27.4.2"
+    jest-watch-typeahead: "npm:^1.0.0"
     lerna: "npm:^4.0.0"
+    mini-css-extract-plugin: "npm:^2.4.5"
+    postcss: "npm:^8.4.4"
+    postcss-flexbugs-fixes: "npm:^5.0.2"
+    postcss-loader: "npm:^6.2.1"
+    postcss-normalize: "npm:^10.0.1"
+    postcss-preset-env: "npm:^7.0.1"
     prettier: "npm:2.5.1"
+    prompts: "npm:^2.4.2"
     ramda: "npm:^0.28.0"
     react: "npm:^17.0.2"
+    react-app-polyfill: "npm:^3.0.0"
     react-awesome-modal: "npm:^2.0.5"
     react-chartjs-2: "npm:^4.1.0"
+    react-dev-utils: "npm:^12.0.1"
     react-device-detect: "npm:^2.2.2"
     react-dom: "npm:^17.0.2"
     react-error-overlay: "npm:6.0.9"
     react-hooks-use-modal: "npm:^2.1.0"
     react-query: "npm:^3.34.19"
+    react-refresh: "npm:^0.11.0"
     react-router-dom: "npm:^6.2.1"
-    react-scripts: "npm:^5.0.1"
+    resolve: "npm:^1.20.0"
+    resolve-url-loader: "npm:^4.0.0"
+    sass-loader: "npm:^12.3.0"
+    semver: "npm:^7.3.5"
+    source-map-loader: "npm:^3.0.0"
+    style-loader: "npm:^3.3.1"
     styled-components: "npm:^5.3.3"
     stylelint-config-prettier: "npm:^9.0.3"
+    tailwindcss: "npm:^3.0.2"
+    terser-webpack-plugin: "npm:^5.2.5"
     typescript: "npm:^4.6.2"
     web-vitals: "npm:^2.1.4"
+    webpack: "npm:^5.64.4"
+    webpack-dev-server: "npm:^4.6.0"
+    webpack-manifest-plugin: "npm:^4.0.2"
+    workbox-webpack-plugin: "npm:^6.4.1"
   languageName: unknown
   linkType: soft
 
@@ -14590,73 +14604,6 @@ __metadata:
   peerDependencies:
     react: ">=16.8"
   checksum: e18db7761282cb28dda7a4f81c4df696f0484c7f998dc339b4939cb9bb9e8d968e33b627a9616adfed141b588ca1885be6be602c12ff52e81b4bab4bf3e629f8
-  languageName: node
-  linkType: hard
-
-"react-scripts@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "react-scripts@npm:5.0.1"
-  dependencies:
-    "@babel/core": "npm:^7.16.0"
-    "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.3"
-    "@svgr/webpack": "npm:^5.5.0"
-    babel-jest: "npm:^27.4.2"
-    babel-loader: "npm:^8.2.3"
-    babel-plugin-named-asset-import: "npm:^0.3.8"
-    babel-preset-react-app: "npm:^10.0.1"
-    bfj: "npm:^7.0.2"
-    browserslist: "npm:^4.18.1"
-    camelcase: "npm:^6.2.1"
-    case-sensitive-paths-webpack-plugin: "npm:^2.4.0"
-    css-loader: "npm:^6.5.1"
-    css-minimizer-webpack-plugin: "npm:^3.2.0"
-    dotenv: "npm:^10.0.0"
-    dotenv-expand: "npm:^5.1.0"
-    eslint: "npm:^8.3.0"
-    eslint-config-react-app: "npm:^7.0.1"
-    eslint-webpack-plugin: "npm:^3.1.1"
-    file-loader: "npm:^6.2.0"
-    fs-extra: "npm:^10.0.0"
-    fsevents: "npm:^2.3.2"
-    html-webpack-plugin: "npm:^5.5.0"
-    identity-obj-proxy: "npm:^3.0.0"
-    jest: "npm:^27.4.3"
-    jest-resolve: "npm:^27.4.2"
-    jest-watch-typeahead: "npm:^1.0.0"
-    mini-css-extract-plugin: "npm:^2.4.5"
-    postcss: "npm:^8.4.4"
-    postcss-flexbugs-fixes: "npm:^5.0.2"
-    postcss-loader: "npm:^6.2.1"
-    postcss-normalize: "npm:^10.0.1"
-    postcss-preset-env: "npm:^7.0.1"
-    prompts: "npm:^2.4.2"
-    react-app-polyfill: "npm:^3.0.0"
-    react-dev-utils: "npm:^12.0.1"
-    react-refresh: "npm:^0.11.0"
-    resolve: "npm:^1.20.0"
-    resolve-url-loader: "npm:^4.0.0"
-    sass-loader: "npm:^12.3.0"
-    semver: "npm:^7.3.5"
-    source-map-loader: "npm:^3.0.0"
-    style-loader: "npm:^3.3.1"
-    tailwindcss: "npm:^3.0.2"
-    terser-webpack-plugin: "npm:^5.2.5"
-    webpack: "npm:^5.64.4"
-    webpack-dev-server: "npm:^4.6.0"
-    webpack-manifest-plugin: "npm:^4.0.2"
-    workbox-webpack-plugin: "npm:^6.4.1"
-  peerDependencies:
-    react: ">= 16"
-    typescript: ^3.2.1 || ^4
-  dependenciesMeta:
-    fsevents:
-      optional: true
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  bin:
-    react-scripts: bin/react-scripts.js
-  checksum: 5cdcd909b5fd5a5dffc77ab275ff74cfb2c1b7899b6044128997ffe928b4c8d439913426009484b902b8fc75a2f02df4e962c673447e778fd8c71f81cac4d63e
   languageName: node
   linkType: hard
 
