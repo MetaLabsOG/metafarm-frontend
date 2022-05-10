@@ -87,7 +87,7 @@ export const Pool = ({ id }: { id: number }) => {
 
     useEffect(() => {
         getInfo();
-    });
+    }, [getInfo]);
 
     if (isEnded) {
         return (
