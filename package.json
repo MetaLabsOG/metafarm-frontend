@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/core": "7.12.3",
-    "@metalabsog/farm": "^15.0.1",
+    "@metalabsog/farm": "^15.0.3",
     "@metalabsog/metafomo": "^14.0.1",
     "@pactfi/pactsdk": "^0.2.2",
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.3",
@@ -87,6 +87,8 @@
     "workbox-webpack-plugin": "5.1.4"
   },
   "scripts": {
+    "dev": "NODE_ENV=development node scripts/start.js",
+    "prod": "NODE_ENV=production .env.prod node scripts/start.js",
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js"

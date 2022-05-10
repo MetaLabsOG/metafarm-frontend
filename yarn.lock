@@ -3114,26 +3114,36 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metalabsog/common@npm:^15.0.1":
-  version: 15.0.1
-  resolution: "@metalabsog/common@npm:15.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcommon%2F15.0.1%2F3e206bc63fc5f7f5d81e866c85eb2ac7aa82dcaf2fd7ac3d25f9d6fafce74a22"
+"@metalabsog/common@npm:^15.0.2":
+  version: 15.0.2
+  resolution: "@metalabsog/common@npm:15.0.2::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcommon%2F15.0.2%2Ff8e09054defcd59affe05f7d458f2c93a46fc2507667da5f5df639bdcfc73494"
   dependencies:
-    "@reach-sh/stdlib": "npm:0.1.10-rc.3"
+    "@reach-sh/stdlib": "npm:0.1.10-rc.4"
     ethers: "npm:^5.6.4"
     loglevel: "npm:^1.8.0"
-  checksum: a259ce9f01394df1a58cc13e7c06d4270ad76eaa5b1c13100c937342a5a5f201371e21e3dd9d3616e57555e4cde4dff742360d27498f6929ecc05e24d1319545
+  checksum: dcddc2ed9111af926c8a9441069134ca8520200d0af58eb13fe3370a23789def798625c5c00b9d2e0fd23a182cbfc1103c9fce3b374c37730a9e4b062765d91f
   languageName: node
   linkType: hard
 
-"@metalabsog/farm@npm:^15.0.1":
-  version: 15.0.1
-  resolution: "@metalabsog/farm@npm:15.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F15.0.1%2F68ed8c4dfeaba1a609630c7a79fc8ef4bfc5a35366ab14a0f4f9b49824cd7469"
+<<<<<<< Updated upstream
+"@metalabsog/farm@npm:^15.0.3":
+  version: 15.0.3
+  resolution: "@metalabsog/farm@npm:15.0.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F15.0.3%2F226ca12888ff49b21e6044213dfcacf1fac48cd8249df61df68c4f4b3daa5d86"
+=======
+"@metalabsog/farm@npm:15.0.2":
+  version: 15.0.2
+  resolution: "@metalabsog/farm@npm:15.0.2::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F15.0.2%2F3d70410986c326802e9323c6399ed5782fd6eb67b9cf318b3ec18936cadabe32"
+>>>>>>> Stashed changes
   dependencies:
-    "@metalabsog/common": "npm:^15.0.1"
-    "@reach-sh/stdlib": "npm:0.1.10-rc.3"
+    "@metalabsog/common": "npm:^15.0.2"
+    "@reach-sh/stdlib": "npm:0.1.10-rc.4"
     inquirer: "npm:^8.2.1"
     loglevel: "npm:^1.8.0"
-  checksum: 48ef7366040066623110087cdc52069abedd356dba63c77856e94c77daa8319fba704c72390a2f9d5df4d6325f73e4e16bbfaf94469c4228fbec04eb31a2ea60
+<<<<<<< Updated upstream
+  checksum: b51d444f56b77da7b75b20c8f4330ca129ae91eb860cb5df4f6224cc5e5923dc1391f02c7ebc2984267958e008cb1a9396a701ee30ce9e32b7978e650aa2dfc4
+=======
+  checksum: 84382a2d965c1db97a6de81434af5c1b9be7b61a1aea286332805907d6cce5ea474d3544d5654eaae1a6cad84244c6fb3f4262fc1509ca8f64593c30c7bb3025
+>>>>>>> Stashed changes
   languageName: node
   linkType: hard
 
@@ -3536,6 +3546,28 @@ __metadata:
     tslib: "npm:^2.3.1"
     wait-port: "npm:^0.2.9"
   checksum: 0a720f4d6da523eb58558d141a76b58cea5c1916c479f7aa9b265598a50f1f44a40d2ce502a91a3fd48a2a3421f4a74402d1e51885e6d1e83510e8f6d5d5756c
+  languageName: node
+  linkType: hard
+
+"@reach-sh/stdlib@npm:0.1.10-rc.4":
+  version: 0.1.10-rc.4
+  resolution: "@reach-sh/stdlib@npm:0.1.10-rc.4"
+  dependencies:
+    "@msgpack/msgpack": "npm:^2.5.1"
+    "@randlabs/myalgo-connect": "npm:^1.1.2"
+    "@walletconnect/client": "npm:^1.7.3"
+    algorand-walletconnect-qrcode-modal: "npm:^1.6.1"
+    algosdk: "npm:^1.15.0"
+    await-timeout: "npm:^0.6.0"
+    ethers: "npm:^5.5.4"
+    express: "npm:^4.17.3"
+    hi-base32: "npm:^0.5.0"
+    js-conflux-sdk: "git+https://github.com/reach-sh/js-conflux-sdk.git#v1_6_0_blockNumber"
+    jsbi: "npm:^3.1.6"
+    node-fetch: "npm:^2.6.1"
+    tslib: "npm:^2.3.1"
+    wait-port: "npm:^0.2.9"
+  checksum: afc9ed7a090e8e49ab9590773d86b9ac328c912d749b2186578a28179118c3807b8cd3ca01f0eb84da5d0c08c2039f87773529e6f0d7a9eb78bf16e123713554
   languageName: node
   linkType: hard
 
@@ -12039,7 +12071,7 @@ __metadata:
     secp256k1: "npm:^3.7.1"
     superagent: "npm:^5.1.0"
     websocket: "npm:^1.0.31"
-  checksum: 3056bbb9db7747f9b5b00aaf0f58d37b4dd2c624fb53b0f25ea24ba2a9d6244cae13496ab70f8a5579ad1b6e509b0912fd41c9ba3c63ef4cd9fadf092c983fda
+  checksum: 65551af7d1b84d0e8b17a06721b3c543a41a916d019365b96af381137aa04ffb6e2b548b9f5b6070ae0556307ba5b5b59c238c78ac8b02298cdd03445c93c837
   languageName: node
   linkType: hard
 
@@ -12965,8 +12997,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "metafarm-frontend@workspace:."
   dependencies:
+<<<<<<< Updated upstream
     "@babel/core": "npm:7.12.3"
-    "@metalabsog/farm": "npm:^15.0.1"
+    "@metalabsog/farm": "npm:^15.0.3"
+=======
+    "@metalabsog/farm": "npm:15.0.2"
+>>>>>>> Stashed changes
     "@metalabsog/metafomo": "npm:^14.0.1"
     "@pactfi/pactsdk": "npm:^0.2.2"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:0.4.3"

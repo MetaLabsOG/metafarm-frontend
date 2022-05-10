@@ -33,6 +33,7 @@ export const EndedPool = ({
     const [withDrawAmount, setWithDrawAmount] = useState(0);
 
     const getTokenInfo = async () => {
+        console.log(localInfo);
         if (localInfo.staked) {
             setWithDrawAmount(reach.bigNumberToNumber(localInfo.staked));
         }
