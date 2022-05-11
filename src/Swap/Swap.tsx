@@ -1,6 +1,6 @@
 import algosdk from "algosdk";
 import {Dispatch, SetStateAction, useContext, useEffect, useState} from "react";
-import {ALGONET, ALGONODE, AppContext, Context, MAINNET} from '../AppContext';
+import {ALGONET, AppContext, Context, MAINNET} from '../AppContext';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
