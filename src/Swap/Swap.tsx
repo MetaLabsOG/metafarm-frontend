@@ -1,6 +1,6 @@
 import algosdk from "algosdk";
 import {Dispatch, SetStateAction, useContext, useEffect, useState} from "react";
-import {ALGONET, AppContext, Context, MAINNET} from '../AppContext';
+import {ALGONET, AppContext, Context, MAINNET, reach} from '../AppContext';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
@@ -88,7 +88,7 @@ async function runRouting(algodClient: algosdk.Algodv2, address: string, asset1_
 }
 
 
-async function swapTokens(reach: Stdlib_User<any, any, any, any, any, any, any, any, any, any>, account: Account | undefined,
+async function swapTokens(account: Account | undefined,
                           bestSwap: BestSwap, token1Id: string, token2Id: string, token1Amount: string,
                           setIsLoading: Dispatch<SetStateAction<boolean>>) {
     if (!account) {
@@ -235,7 +235,7 @@ function BestTokenPrice({token1Amount, bestSwap, token1, token2}:
 
 
 export function Swap() {
-    const { reach, account } = useContext(AppContext) as Context;
+    const { account } = useContext(AppContext) as Context;
 
     const [token1, setToken1] = useState<Option>({value: '', name: '', unit_name: '', logo: '', amount: 0});
     const [token2, setToken2] = useState<Option>({value: '', name: '', unit_name: '', logo: '', amount: 0});
@@ -253,10 +253,6 @@ export function Swap() {
             setOptions(res);
         })
     }, [account]);
-
-    if (!reach) {
-        return <br/>;
-    }
 
     return <div style={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center"}}>
         <h1 style={{marginTop: "15px", fontSize: "27px"}}>BEST SWAP EVER</h1>
@@ -311,7 +307,7 @@ export function Swap() {
                 <BestTokenPrice token1Amount={token1Amount} bestSwap={bestSwap} token1={token1} token2={token2}/>
                 <button
                     className={!isLoading2 ? 'swap_button' : 'button_loading'}
-                    onClick={!isLoading2 ? () => swapTokens(reach, account, bestSwap, token1?.value, token2.value, token1Amount, setIsLoading2) : undefined}
+                    onClick={!isLoading2 ? () => swapTokens(account, bestSwap, token1?.value, token2.value, token1Amount, setIsLoading2) : undefined}
                 >
                     SWAP
                     {isLoading2 &&
