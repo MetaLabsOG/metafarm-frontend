@@ -77,9 +77,10 @@
     "workbox-webpack-plugin": "^6.4.1"
   },
   "scripts": {
-    "prod": "NODE_ENV=production node scripts/start.js",
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
+    "prod": "env-cmd -f .env.prod yarn start",
+    "dev": "env-cmd -f .env.dev yarn build",
     "test": "node scripts/test.js"
   },
   "eslintConfig": {
@@ -109,6 +110,7 @@
     "@types/react-input-mask": "^3.0.1",
     "@types/styled-components": "^5.1.24",
     "buffer": "^6.0.3",
+    "env-cmd": "^10.1.0",
     "eslint-config-prettier": "^8.5.0",
     "lerna": "^4.0.0",
     "prettier": "2.5.1",
