@@ -8998,6 +8998,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fuse.js@npm:^3.4.5":
+  version: 3.6.1
+  resolution: "fuse.js@npm:3.6.1"
+  checksum: 58f2a902f4d1c939b49c140dc1113b18bb9c2427821a08c86ca482abe3113bf253196ae8330e344e24ce3d2027ae11721132b6f9c4799822629c67ce20ba36d2
+  languageName: node
+  linkType: hard
+
 "gauge@npm:^4.0.3":
   version: 4.0.4
   resolution: "gauge@npm:4.0.4"
@@ -10979,7 +10986,7 @@ __metadata:
     secp256k1: "npm:^3.7.1"
     superagent: "npm:^5.1.0"
     websocket: "npm:^1.0.31"
-  checksum: 65551af7d1b84d0e8b17a06721b3c543a41a916d019365b96af381137aa04ffb6e2b548b9f5b6070ae0556307ba5b5b59c238c78ac8b02298cdd03445c93c837
+  checksum: 3056bbb9db7747f9b5b00aaf0f58d37b4dd2c624fb53b0f25ea24ba2a9d6244cae13496ab70f8a5579ad1b6e509b0912fd41c9ba3c63ef4cd9fadf092c983fda
   languageName: node
   linkType: hard
 
@@ -11892,6 +11899,7 @@ __metadata:
     react-query: "npm:^3.34.19"
     react-refresh: "npm:^0.11.0"
     react-router-dom: "npm:^6.2.1"
+    react-select-search: "npm:^3.0.9"
     resolve: "npm:^1.20.0"
     resolve-url-loader: "npm:^4.0.0"
     sass-loader: "npm:^12.3.0"
@@ -14619,6 +14627,22 @@ __metadata:
   peerDependencies:
     react: ">=16.8"
   checksum: e18db7761282cb28dda7a4f81c4df696f0484c7f998dc339b4939cb9bb9e8d968e33b627a9616adfed141b588ca1885be6be602c12ff52e81b4bab4bf3e629f8
+  languageName: node
+  linkType: hard
+
+"react-select-search@npm:^3.0.9":
+  version: 3.0.9
+  resolution: "react-select-search@npm:3.0.9"
+  dependencies:
+    fuse.js: "npm:^3.4.5"
+  peerDependencies:
+    prop-types: ^15.7.2
+    react: ^17.0.1
+    react-dom: ^17.0.1
+  dependenciesMeta:
+    fuse.js:
+      optional: true
+  checksum: 8319582a7b5ebf680939b5d885a03f464c7ba9924cac5fb8b0b5a40011bb924268748d8e2605fcb3b32719710717c5b2e9bc8eaaead2bba9581694d7fb0bf633
   languageName: node
   linkType: hard
 
