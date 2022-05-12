@@ -129,7 +129,7 @@ async function getOptions(account?: Account): Promise<Option[]> {
         value: `${token.id}`,
         name: token.name,
         unit_name: token.unit_name,
-        logo: token.logo.svg,
+        logo: token.logo.png,
         amount: 0
     }))
 
@@ -255,7 +255,7 @@ export function Swap() {
     }, [account]);
 
     return <div style={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center"}}>
-        <h1 style={{marginTop: "15px", fontSize: "27px"}}>BEST SWAP EVER</h1>
+        <h1 style={{marginTop: "10px", fontSize: "27px"}}>BEST SWAP EVER</h1>
         <h3 className="swap_descr">we find the optimal path to swap your token</h3>
         <h3 className="swap_text">FROM</h3>
         <SelectSearch className="select-search"
@@ -297,7 +297,7 @@ export function Swap() {
                     <img
                         style={{ maxWidth: '100%', maxHeight: '100%' }}
                         alt="loader"
-                        src={require('../imgs/loader.gif').default}
+                        src={require('../imgs/loader.gif')}
                     />
                 </span>
             }

@@ -19,7 +19,7 @@ export interface Token {
     name: string;
     unit_name: string;
     logo: {
-        svg: string;
+        png: string;
     }
 }
 
