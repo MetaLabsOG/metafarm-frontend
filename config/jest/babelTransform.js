@@ -1,6 +1,5 @@
 'use strict';
 
-
 const babelJest = require('babel-jest').default;
 
 const hasJsxRuntime = (() => {

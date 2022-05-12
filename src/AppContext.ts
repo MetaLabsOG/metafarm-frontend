@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Account, ReachStdlib } from './types';
 
@@ -11,10 +10,7 @@ export type Context = {
 
 export const AppContext = React.createContext<Context | {}>({});
 
-
 export const reach: ReachStdlib = loadStdlib(process.env as any);
-
-
 
 export const METAWALLET = 'METAWEJ6MAPBIZBKZBX2RTGVEG4SFTB5BRJRKL3UYVXA6TT5YVWUAXV6PU';
 

@@ -1,14 +1,17 @@
 // TODO: Remove this provider, use algosdk indexer instead.
 import axios from 'axios';
+import { ALGONET, TESTNET } from '../AppContext';
 
 export type LPTokenInfo = {
     name: string;
     price: number;
     decimals: number;
-};
+}
+
+const prefix = ALGONET === TESTNET ? 'testnet.' : '';
 
 const instance = axios.create({
-    baseURL: process.env.REACT_APP_ALGO_EXPLOER_API_URL,
+    baseURL: `https://indexer.${prefix}algoexplorerapi.io/v2/`,
 });
 
 export async function getAssetInfo(assetId: number): Promise<any> {

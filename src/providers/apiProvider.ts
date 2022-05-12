@@ -16,7 +16,6 @@ export function getTotalCost(
     address,
     weeks = 6
 ): Promise<totalCost[]> {
-    console.log(process.env);
     return (
         instance
             .get(`total_cost/${address}`, { params: { weeks_count: weeks } })
