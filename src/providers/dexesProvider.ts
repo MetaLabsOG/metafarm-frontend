@@ -1,21 +1,11 @@
-import axios from 'axios';
 import algosdk from 'algosdk';
 import { getSwapCost as backendGetSwapCost } from './apiProvider';
 import { getCoinRate } from './binanceProvider';
 
-import { getAssetInfo, getWalletInfo } from './algoExploerProvider';
-import { ALGONET, TESTNET, ALGOD_API_KEY, ALGOD_TESTNET_URL, ALGOD_MAINNET_URL } from '../AppContext';
+import { ALGONET, TESTNET } from '../AppContext';
 import pactsdk from '@pactfi/pactsdk';
 
-const ALGOD_URL = ALGONET === TESTNET ? ALGOD_TESTNET_URL : ALGOD_MAINNET_URL;
-
-export const algod = new algosdk.Algodv2(
-    {
-        'x-api-key': ALGOD_API_KEY!,
-    },
-    ALGOD_URL,
-    443
-);
+export const algod = new algosdk.Algodv2(process.env.ALGO_TOKEN!, process.env.ALGO_SERVER, process.env.ALGO_PORT);
 
 export type PoolInfo = {
     asset1: number;
@@ -108,7 +98,7 @@ export class PactDex implements Dex {
         });
         const totalPrice = swap.effect.price;
         const perToken = totalPrice / amount;
-        return {totalPrice, perToken};
+        return { totalPrice, perToken };
     }
 }
 
@@ -166,7 +156,7 @@ export function makeDex(provider: DexProvider): Dex {
 }
 
 // TODO: this function is a huge costyl
-export function detectAssetProvider({ name }: {name: string}): DexProvider {
+export function detectAssetProvider({ name }: { name: string }): DexProvider {
     name = name.toLowerCase();
     if (name.indexOf('tinyman') !== -1) {
         return 'T2';
@@ -177,7 +167,10 @@ export function detectAssetProvider({ name }: {name: string}): DexProvider {
     }
 }
 
-export async function getLPTokenInfo(assetId: number, provider: DexProvider | undefined = undefined): Promise<LPTokenInfo> {
+export async function getLPTokenInfo(
+    assetId: number,
+    provider: DexProvider | undefined = undefined
+): Promise<LPTokenInfo> {
     const asset = await algod.getAssetByID(assetId).do();
     if (provider === undefined) {
         provider = detectAssetProvider(asset.params);

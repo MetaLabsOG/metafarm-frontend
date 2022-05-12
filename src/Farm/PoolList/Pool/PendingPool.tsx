@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, SyntheticEvent } from 'react';
+import { useContext, useEffect, useState, SyntheticEvent, useCallback } from 'react';
 import {
     PoolConainer,
     TokenInfo,
@@ -41,7 +41,7 @@ export const PendingPool = ({
     const [time, setTime] = useState('');
     const [stakedToken, setStakedToken] = useState(0);
 
-    const getTokenInfo = async () => {
+    const getTokenInfo = useCallback(async () => {
         if (initialInfo) {
             const { stakeToken, beginBlock } = initialInfo;
             const diff = Math.round(((beginBlock - currentBlock) * 4.35) / 86400);
@@ -52,11 +52,11 @@ export const PendingPool = ({
         if (localInfo.staked) {
             setStakedToken(reach.bigNumberToNumber(localInfo.staked));
         }
-    };
+    }, [account, localInfo, setStakedToken, initialInfo, lpTokenInfo, currentBlock]);
 
     useEffect(() => {
         getTokenInfo();
-    });
+    }, [getTokenInfo]);
 
     const withDraw = async () => {
         try {

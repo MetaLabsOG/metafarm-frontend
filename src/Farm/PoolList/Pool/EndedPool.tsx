@@ -1,4 +1,4 @@
-import { useEffect, useState, SyntheticEvent } from 'react';
+import { useEffect, useState, SyntheticEvent, useCallback } from 'react';
 import { reach } from '../../../AppContext';
 import {
     PoolConainer,
@@ -32,15 +32,15 @@ export const EndedPool = ({
 }) => {
     const [withDrawAmount, setWithDrawAmount] = useState(0);
 
-    const getTokenInfo = async () => {
+    const getTokenInfo = useCallback(async () => {
         if (localInfo.staked) {
             setWithDrawAmount(reach.bigNumberToNumber(localInfo.staked));
         }
-    };
+    }, [localInfo]);
 
     useEffect(() => {
         getTokenInfo();
-    });
+    }, [getTokenInfo]);
 
     const withDraw = async () => {
         try {

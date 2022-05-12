@@ -2,7 +2,7 @@ import { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from 'react-query';
 import { LevelInfo } from './types';
 import '../css/fomo.css';
-import * as fomo from '@metalabsog/metafomo/build/index.main.mjs';
+import { backend as fomo } from '@metalabsog/metafomo';
 import { RulesModal } from './RulesModal';
 import { AppContext, reach, Context, IS_MOBILE } from '../AppContext';
 import { Timer } from './Timer';

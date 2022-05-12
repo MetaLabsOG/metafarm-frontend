@@ -28,6 +28,18 @@ type initialInfo = {
     rewardPerBlock: BigNumber;
 };
 
+//@ts-ignore
+export const getView = async (ctc, name, ...args) => {
+    const [status, object] = await ctc.views[name](...args);
+    if (status === 'Some') {
+        return object;
+    } else if (status === 'None') {
+        return 'UNINITIALIZED';
+    } else {
+        throw Error('Unknown status');
+    }
+};
+
 //TODO BLOCK TIME FUNC
 //CURRENT BLOCK
 //TOKEN PRICE
@@ -47,15 +59,14 @@ export const Pool = ({ id }: { id: number }) => {
     const selectedPool = pools ? pools.get(id.toString()) : undefined;
 
     const getInfo = useCallback(async () => {
+        console.log(selectedPool, 'GET_INFO');
         if (selectedPool) {
-            const [initialInfoStatus, initialInfo] = await selectedPool.views.initial();
-            setInitalInfo(initialInfo);
-
-            const globalInfo = await selectedPool.views.global();
-            setGlobalInfo(globalInfo[1]);
-
-            const localInfo = await selectedPool.views.local(account?.getAddress());
-            setLocalInfo(localInfo[1]);
+            Promise.allSettled([
+                getView(selectedPool, 'initial'),
+                getView(selectedPool, 'global'),
+                getView(selectedPool, 'local', account.networkAccount.addr),
+                reach.getNetworkTime(),
+            ]).then((results) => console.log(id, results));
 
             if (initialInfo) {
                 const lpTokenInfo = await getLPTokenInfo(reach.bigNumberToNumber(initialInfo.stakeToken));
@@ -63,31 +74,36 @@ export const Pool = ({ id }: { id: number }) => {
                 setLpTokenInfo(lpTokenInfo);
             }
 
-            const currentBlock = await reach.getNetworkTime();
-            const currentBlockNumber = reach.bigNumberToNumber(currentBlock);
+            console.log('GET_TOKEN_INFO', localInfo, globalInfo);
 
-            const beginBlock = initialInfoStatus !== 'None' ? reach.bigNumberToNumber(initialInfo.beginBlock) : 0;
-            const endBlock = initialInfoStatus !== 'None' ? reach.bigNumberToNumber(initialInfo.endBlock) : 0;
+            // console.log('CURRENT_BLOCK', currentBlock);
+            // const currentBlockNumber = reach.bigNumberToNumber(currentBlock);
 
-            if (currentBlockNumber < beginBlock) {
-                setIsPending(true);
-            }
+            // const beginBlock = initialInfoStatus !== 'None' ? reach.bigNumberToNumber(initialInfo.beginBlock) : 0;
+            // const endBlock = initialInfoStatus !== 'None' ? reach.bigNumberToNumber(initialInfo.endBlock) : 0;
 
-            if (currentBlockNumber > endBlock) {
-                setIsEnded(true);
-            }
+            // if (currentBlockNumber < beginBlock) {
+            //     setIsPending(true);
+            // }
 
-            if (currentBlockNumber >= beginBlock && currentBlockNumber < endBlock) {
-                setIsCurrent(true);
-            }
+            // if (currentBlockNumber > endBlock) {
+            //     setIsEnded(true);
+            // }
 
-            setCurrentBlock(reach?.bigNumberToNumber(currentBlock));
+            // if (currentBlockNumber >= beginBlock && currentBlockNumber < endBlock) {
+            //     setIsCurrent(true);
+            // }
+
+            // setCurrentBlock(reach?.bigNumberToNumber(currentBlock));
         }
     }, [account, selectedPool]);
 
     useEffect(() => {
-        getInfo();
-    });
+        if (pools.size) {
+            getInfo();
+            console.log('USE_EFF');
+        }
+    }, [pools]);
 
     if (isEnded) {
         return (

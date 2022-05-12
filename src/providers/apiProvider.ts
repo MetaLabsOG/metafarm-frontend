@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: `https://api.cometa.farm/`,
+    baseURL: process.env.REACT_APP_COMETA_API_URL,
 });
 
 type cost = { usd: number; microalgo: number };
