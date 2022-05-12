@@ -60,10 +60,13 @@ export const Pool = ({ id }: { id: number }) => {
 
     const getInfo = useCallback(async () => {
         console.log(selectedPool, 'GET_INFO');
+        const rez = await selectedPool.views.global();
+        console.log(rez);
+
         if (selectedPool) {
             Promise.allSettled([
-                getView(selectedPool, 'initial'),
                 getView(selectedPool, 'global'),
+                getView(selectedPool, 'initial'),
                 getView(selectedPool, 'local', account.networkAccount.addr),
                 reach.getNetworkTime(),
             ]).then((results) => console.log(id, results));
