@@ -8,6 +8,7 @@ import GlobalStyle from './common/globalStyles';
 import { Menu } from './Menu';
 import { Fomo } from './Fomo';
 import { Farm } from './Farm';
+import { Swap } from './Swap';
 
 import { AppContext } from './AppContext';
 import { MetaDAO } from './MetaDAO';
@@ -34,6 +35,7 @@ const App = () => {
                                 <Route path="/" element={<Fomo />} />
                                 <Route path="/fomo" element={<Fomo />} />
                                 <Route path="/farm" element={<Farm />} />
+                                <Route path="/swap" element={<Swap />} />
                                 <Route path="/meta-dao" element={<MetaDAO />} />
                             </Routes>
                         </ContentContainer>

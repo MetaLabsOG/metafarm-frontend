@@ -8,6 +8,7 @@ export type LPTokenInfo = {
     decimals: number;
 }
 
+// @ts-ignore
 const prefix = ALGONET === TESTNET ? 'testnet.' : '';
 
 const instance = axios.create({

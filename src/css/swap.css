@@ -1,0 +1,209 @@
+.swap_text {
+    color: white;
+    font-family: 'Korona One';
+    font-size: 16px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.search_value {
+    margin-top: 10px;
+    padding: 5px;
+    height: 50px;
+    width: 350px;
+    color: white;
+    background-color: #000000;
+
+    border: 1px solid rgba(125, 125, 125, 0.66);
+    border-radius: 8px;
+
+    font-family: 'Korona One';
+    font-size: 20px;
+}
+
+.search_option {
+    height: 50px;
+    width: 350px;
+    color: white;
+    background-color: #000;
+    border: 0;
+
+    font-family: 'Korona One';
+    font-size: 14px;
+}
+
+.token_input {
+    height: 35px;
+    width: 350px;
+    margin-top: 5px;
+    padding: 10px;
+    color: #ffffff;
+    background-color: #000;
+
+    border: 1px solid rgba(125, 125, 125, 0.66);
+    border-radius: 8px;
+
+    font-family: 'Korona One';
+    font-size: 14px;
+}
+
+.swap_button {
+    height: 50px;
+    /*margin: 10px;*/
+    width: 350px;
+    border-radius: 8px;
+    border: 1px solid #5cfc3c;
+    color: #5cfc3c;
+    background-color: #000;
+    margin-top: 20px;
+
+    font-family: 'Korona One';
+    font-size: 15px;
+
+    cursor: pointer;
+}
+
+.swap_button:hover {
+    color: black;
+    background-color: #5cfc3c;
+    border: 0;
+}
+
+.select-search {
+    width: 350px;
+}
+
+.select-search__select {
+    background: black;
+    box-shadow: 0 .0625rem .125rem rgba(125, 125, 125, 0.66);
+}
+
+.select-search__row:not(:first-child) {
+    border-top: 1px solid #525252;
+}
+
+.select-search:not(.is-loading):not(.select-search--multiple) .select-search__value::after {
+    margin-top: 5px;
+    transform: rotate(45deg);
+    border-right: 1px solid #ffffff;
+    border-bottom: 1px solid #ffffff;
+    pointer-events: none;
+}
+
+.swap_text {
+    color: white;
+    font-family: 'Korona One';
+    font-size: 16px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.price_button {
+    height: 50px;
+    /*margin: 10px;*/
+    width: 350px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-size: 15px;
+    font-family: 'Korona One';
+    cursor: pointer;
+
+    border: 1px solid white;
+    color: white;
+    background-color: #000;
+}
+
+.price_button:hover {
+    color: black;
+    background-color: #5cfc3c;
+    border: 0;
+}
+
+.token_price {
+    /*height: 80px;*/
+    width: 350px;
+    padding: 15px;
+    margin-top: 20px;
+
+    background: rgb(35, 35, 35);
+    border-radius: 8px;
+
+}
+
+.token_price_text {
+    color: #a7a7a7;
+    font-family: 'Korona One';
+    font-size: 13px;
+}
+
+.token_price_value {
+    color: #5cfc3c;
+    font-family: 'Korona One', sans-serif;
+    font-size: 13px;
+}
+
+.dex_name {
+    color: rgb(71, 71, 71);
+    font-family: 'Korona One', sans-serif;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.button_loading {
+    height: 50px;
+    /*margin: 10px;*/
+    width: 350px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-size: 15px;
+    font-family: 'Korona One';
+    cursor: pointer;
+
+    border: 1px solid #5cfc3c;
+    color: #5cfc3c;
+    background-color: inherit;
+
+    position: relative;
+}
+
+.loading {
+    background-color: black;
+    position: absolute;
+    border-radius: 8px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.best_swap_text {
+    color: #8b8b8b;
+    font-family: 'Korona One';
+    font-size: 13px;
+}
+
+.best_swap_res {
+    color: white;
+    font-family: 'Korona One';
+    font-size: 15px;
+}
+
+.swap_path {
+    color: #8b8b8b;
+    margin-top: 5px;
+    font-family: 'Korona One';
+    font-size: 11px;
+    text-align: center;
+}
+
+.swap_descr {
+    color: #8b8b8b;
+    margin-top: 5px;
+    font-family: 'Korona One';
+    font-size: 11px;
+    text-align: center;
+    margin-bottom: 10px;
+}
