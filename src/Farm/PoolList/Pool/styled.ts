@@ -119,7 +119,7 @@ export const ClaimButton = styled.div<{ isActive?: boolean }>`
 export const TokenInfo = styled.div`
     display: flex;
     flex-direction: column;
-    width: 18%;
+    width: 17%;
     color: ${(props) => props.theme.green};
     justify-content: space-between;
     height: 77%;

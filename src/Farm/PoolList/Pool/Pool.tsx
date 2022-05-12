@@ -32,9 +32,9 @@ type initialInfo = {
 export const getView = async (ctc, name, ...args) => {
     const [status, object] = await ctc.views[name](...args);
     if (status === 'Some') {
-        return object;
+        return [status, object];
     } else if (status === 'None') {
-        return 'UNINITIALIZED';
+        return [status, {}];
     } else {
         throw Error('Unknown status');
     }
@@ -59,17 +59,12 @@ export const Pool = ({ id }: { id: number }) => {
     const selectedPool = pools ? pools.get(id.toString()) : undefined;
 
     const getInfo = useCallback(async () => {
-        console.log(selectedPool, 'GET_INFO');
-        const rez = await selectedPool.views.global();
-        console.log(rez);
-
         if (selectedPool) {
-            Promise.allSettled([
-                getView(selectedPool, 'global'),
-                getView(selectedPool, 'initial'),
-                getView(selectedPool, 'local', account.networkAccount.addr),
-                reach.getNetworkTime(),
-            ]).then((results) => console.log(id, results));
+            const [, globalInfo] = await getView(selectedPool, 'global');
+            const [ininitalInfoStatus, initalInfo] = await getView(selectedPool, 'initial');
+            const [, localInfo] = await getView(selectedPool, 'local', account.networkAccount.addr);
+
+            const currentBlock = await reach.getNetworkTime();
 
             if (initialInfo) {
                 const lpTokenInfo = await getLPTokenInfo(reach.bigNumberToNumber(initialInfo.stakeToken));
@@ -77,27 +72,29 @@ export const Pool = ({ id }: { id: number }) => {
                 setLpTokenInfo(lpTokenInfo);
             }
 
-            console.log('GET_TOKEN_INFO', localInfo, globalInfo);
+            const currentBlockNumber = reach.bigNumberToNumber(currentBlock);
 
-            // console.log('CURRENT_BLOCK', currentBlock);
-            // const currentBlockNumber = reach.bigNumberToNumber(currentBlock);
+            const beginBlock = ininitalInfoStatus !== 'None' ? reach.bigNumberToNumber(initalInfo.beginBlock) : 0;
+            const endBlock = ininitalInfoStatus !== 'None' ? reach.bigNumberToNumber(initalInfo.endBlock) : 0;
 
-            // const beginBlock = initialInfoStatus !== 'None' ? reach.bigNumberToNumber(initialInfo.beginBlock) : 0;
-            // const endBlock = initialInfoStatus !== 'None' ? reach.bigNumberToNumber(initialInfo.endBlock) : 0;
+            if (lpTokenInfo) {
+                if (currentBlockNumber < beginBlock) {
+                    setIsPending(true);
+                }
 
-            // if (currentBlockNumber < beginBlock) {
-            //     setIsPending(true);
-            // }
+                if (currentBlockNumber > endBlock) {
+                    setIsEnded(true);
+                }
 
-            // if (currentBlockNumber > endBlock) {
-            //     setIsEnded(true);
-            // }
+                if (currentBlockNumber >= beginBlock && currentBlockNumber < endBlock) {
+                    setIsCurrent(true);
+                }
 
-            // if (currentBlockNumber >= beginBlock && currentBlockNumber < endBlock) {
-            //     setIsCurrent(true);
-            // }
-
-            // setCurrentBlock(reach?.bigNumberToNumber(currentBlock));
+                setCurrentBlock(reach?.bigNumberToNumber(currentBlock));
+                setGlobalInfo(globalInfo);
+                setInitalInfo(initalInfo);
+                setLocalInfo(localInfo);
+            }
         }
     }, [account, selectedPool]);
 
