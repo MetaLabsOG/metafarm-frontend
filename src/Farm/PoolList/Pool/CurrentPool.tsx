@@ -56,7 +56,7 @@ export const CurrentPool = ({
         if (localInfo) {
             setStakedToken(reach.bigNumberToNumber(localInfo.staked));
         }
-    }, [account, currentBlock, initialInfo, setStakedToken, lpTokenInfo]);
+    }, [initialInfo, localInfo, currentBlock, account, lpTokenInfo]);
 
     useEffect(() => {
         getTokenInfo();
