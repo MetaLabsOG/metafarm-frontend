@@ -1,25 +1,15 @@
-import { useContext, useEffect, useCallback, useState, SyntheticEvent } from 'react';
+import { useContext, useEffect, useCallback, useState } from 'react';
 import { useStore } from 'effector-react';
 import { $pools } from '../store';
-import {
-    PoolConainer,
-    TokenInfo,
-    Stake,
-    WithDraw,
-    Claim,
-    PoolInfo,
-    Action,
-    Input,
-    Button,
-    GetLpTokenButton,
-    Link,
-    ClaimButton,
-    HighlightedInfo,
-} from './styled';
+import { EndedPool } from './EndedPool';
+import { PendingPool } from './PendingPool';
+
 import { BigNumber } from 'ethers';
-import dayjs from 'dayjs';
-import { AppContext, Context } from '../../../AppContext';
+
+import { AppContext, Context, reach } from '../../../AppContext';
 import { Status } from '../../../Status';
+import { CurrentPool } from './CurrentPool';
+import { getLPTokenInfo, LPTokenInfo } from '../../../providers/dexesProvider';
 
 type localInfo = {
     reward: BigNumber;
@@ -31,129 +21,130 @@ type globalInfo = {
 };
 
 type initialInfo = {
+    stakeToken: BigNumber;
+    rewardToken: BigNumber;
     endBlock: BigNumber;
+    beginBlock: BigNumber;
+    rewardPerBlock: BigNumber;
 };
 
+//@ts-ignore
+export const getView = async (ctc, name, ...args) => {
+    const [status, object] = await ctc.views[name](...args);
+    if (status === 'Some') {
+        return object;
+    } else if (status === 'None') {
+        return 'UNINITIALIZED';
+    } else {
+        throw Error('Unknown status');
+    }
+};
+
+//TODO BLOCK TIME FUNC
+//CURRENT BLOCK
+//TOKEN PRICE
 export const Pool = ({ id }: { id: number }) => {
-    const { reach, account } = useContext(AppContext) as Context;
+    const { account } = useContext(AppContext) as Context;
     const pools = useStore($pools);
     const [localInfo, setLocalInfo] = useState<localInfo | undefined>(undefined);
     const [globalInfo, setGlobalInfo] = useState<globalInfo | undefined>(undefined);
     const [initialInfo, setInitalInfo] = useState<initialInfo | undefined>(undefined);
-    const [stakeAmount, setStakeAmount] = useState('');
-    const [withDrawAmount, setWithDrawAmount] = useState('');
+    const [lpTokenInfo, setLpTokenInfo] = useState<LPTokenInfo | undefined>(undefined);
+    const [currentBlock, setCurrentBlock] = useState<number>(0);
+
+    const [isEnded, setIsEnded] = useState(false);
+    const [isPending, setIsPending] = useState(false);
+    const [isCurrent, setIsCurrent] = useState(false);
 
     const selectedPool = pools ? pools.get(id.toString()) : undefined;
 
     const getInfo = useCallback(async () => {
+        console.log(selectedPool, 'GET_INFO');
         if (selectedPool) {
-            const initialInfo = await selectedPool.views.initial();
-            setInitalInfo(initialInfo[1]);
+            Promise.allSettled([
+                getView(selectedPool, 'initial'),
+                getView(selectedPool, 'global'),
+                getView(selectedPool, 'local', account.networkAccount.addr),
+                reach.getNetworkTime(),
+            ]).then((results) => console.log(id, results));
 
-            const globalInfo = await selectedPool.views.global();
-            setGlobalInfo(globalInfo[1]);
+            if (initialInfo) {
+                const lpTokenInfo = await getLPTokenInfo(reach.bigNumberToNumber(initialInfo.stakeToken));
+                console.log('LP INFO', lpTokenInfo);
+                setLpTokenInfo(lpTokenInfo);
+            }
 
-            const localInfo = await selectedPool.views.local(account?.getAddress());
-            setLocalInfo(localInfo[1]);
+            console.log('GET_TOKEN_INFO', localInfo, globalInfo);
+
+            // console.log('CURRENT_BLOCK', currentBlock);
+            // const currentBlockNumber = reach.bigNumberToNumber(currentBlock);
+
+            // const beginBlock = initialInfoStatus !== 'None' ? reach.bigNumberToNumber(initialInfo.beginBlock) : 0;
+            // const endBlock = initialInfoStatus !== 'None' ? reach.bigNumberToNumber(initialInfo.endBlock) : 0;
+
+            // if (currentBlockNumber < beginBlock) {
+            //     setIsPending(true);
+            // }
+
+            // if (currentBlockNumber > endBlock) {
+            //     setIsEnded(true);
+            // }
+
+            // if (currentBlockNumber >= beginBlock && currentBlockNumber < endBlock) {
+            //     setIsCurrent(true);
+            // }
+
+            // setCurrentBlock(reach?.bigNumberToNumber(currentBlock));
         }
     }, [account, selectedPool]);
 
     useEffect(() => {
-        getInfo();
-    }, [getInfo]);
-
-    const stake = async () => {
-        try {
-            await selectedPool.a.stake(Number(stakeAmount.substring(2)));
-        } catch (error) {
-            console.log(error);
+        if (pools.size) {
+            getInfo();
+            console.log('USE_EFF');
         }
-        setStakeAmount('');
-        await getInfo();
-    };
+    }, [pools]);
 
-    const withDraw = async () => {
-        try {
-            await selectedPool.a.unstake(Number(withDrawAmount.substring(2)));
-        } catch (error) {
-            console.log(error);
-        }
-        setWithDrawAmount('');
-        await getInfo();
-    };
+    if (isEnded) {
+        return (
+            <EndedPool
+                pool={selectedPool}
+                initialInfo={initialInfo}
+                globalInfo={globalInfo}
+                localInfo={localInfo}
+                lpTokenInfo={lpTokenInfo}
+                id={id}
+            />
+        );
+    }
 
-    const claim = async () => {
-        try {
-            await selectedPool.a.claim();
-            await getInfo();
-        } catch (error) {
-            console.log(error);
-        }
-    };
+    if (isCurrent) {
+        return (
+            <CurrentPool
+                currentBlock={currentBlock}
+                pool={selectedPool}
+                initialInfo={initialInfo}
+                globalInfo={globalInfo}
+                localInfo={localInfo}
+                lpTokenInfo={lpTokenInfo}
+                id={id}
+            />
+        );
+    }
 
-    return (
-        <PoolConainer>
-            {initialInfo && localInfo && globalInfo ? (
-                <>
-                    <TokenInfo>
-                        <div>
-                            <div>META•ALGO LP</div>
-                            <div>EARN META</div>
-                        </div>
-                        <Link
-                            href="https://app.tinyman.org/#/pool/create-pair?asset_1=0"
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            <GetLpTokenButton>Get LP Tokens</GetLpTokenButton>
-                        </Link>
-                    </TokenInfo>
-                    <Stake>
-                        <PoolInfo>
-                            <div>{`$ ${reach?.bigNumberToNumber(globalInfo?.totalStaked)}`}</div>
-                            <div>10%</div>
-                        </PoolInfo>
-                        <Action>
-                            <Input
-                                value={stakeAmount}
-                                mask="$ 99999999999"
-                                placeholder="$ 0"
-                                maskPlaceholder=""
-                                //@ts-ignore
-                                onChange={(e: SyntheticEvent) => setStakeAmount(e.currentTarget.value)}
-                            />
-                            <Button onClick={stake}>STAKE</Button>
-                        </Action>
-                    </Stake>
-                    <WithDraw>
-                        <PoolInfo style={{ width: '80%' }}>
-                            <div>{`${dayjs(reach?.bigNumberToNumber(initialInfo.endBlock)).format('D')} days`}</div>
-                            <HighlightedInfo>{`$ ${reach?.bigNumberToNumber(localInfo.staked)}`}</HighlightedInfo>
-                        </PoolInfo>
-                        <Action customColor>
-                            <Input
-                                value={withDrawAmount}
-                                mask="$ 99999999999"
-                                placeholder="$ 0"
-                                maskPlaceholder=""
-                                //@ts-ignore
-                                onChange={(e: SyntheticEvent) => setWithDrawAmount(e.currentTarget.value)}
-                            />
-                            <Button onClick={withDraw}>WITHDRAW</Button>
-                        </Action>
-                    </WithDraw>
-                    <Claim>
-                        <PoolInfo>
-                            <HighlightedInfo style={{ marginLeft: '40px' }}>{`$ ${reach?.bigNumberToNumber(
-                                localInfo.reward
-                            )}`}</HighlightedInfo>
-                        </PoolInfo>
-                        <ClaimButton onClick={claim}>CLAIM</ClaimButton>
-                    </Claim>
-                </>
-            ) : (
-                <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />
-            )}
-        </PoolConainer>
-    );
+    if (isPending) {
+        return (
+            <PendingPool
+                pool={selectedPool}
+                initialInfo={initialInfo}
+                globalInfo={globalInfo}
+                currentBlock={currentBlock}
+                localInfo={localInfo}
+                lpTokenInfo={lpTokenInfo}
+                id={id}
+            />
+        );
+    }
+
+    return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
 };

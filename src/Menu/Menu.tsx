@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import logo from '../imgs/logo.png';
 import { getCoinRate } from '../providers/binanceProvider';
 import { MenuItem, MenuContainer, MenuItems, ExchangeRates, ExchangeRate, MainMenu, Logo } from './styled';
-import { ConnectWalletButton } from '../wallet/ConnectWalletButton';
+import { ConnectWallet } from '../wallet/ConnectWallet';
 
 export const Menu = () => {
     const [toBTCRate, setToBTCRate] = useState<number | unknown>(0);
@@ -35,7 +35,7 @@ export const Menu = () => {
                     <MenuItem to="/fomo">fomo3d</MenuItem>
                     <MenuItem to="/meta-dao">metadao</MenuItem>
                 </MenuItems>
-                <ConnectWalletButton />
+                <ConnectWallet />
             </MainMenu>
         </MenuContainer>
     );

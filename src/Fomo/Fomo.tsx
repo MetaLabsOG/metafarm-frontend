@@ -1,12 +1,14 @@
 import { useState, useContext, useEffect, useCallback, useRef } from 'react';
+import { useQuery } from 'react-query';
 import { LevelInfo } from './types';
 import '../css/fomo.css';
-import * as fomo from '@metalabsog/metafomo/build/index.main.mjs';
+import { backend as fomo } from '@metalabsog/metafomo';
 import { RulesModal } from './RulesModal';
-import { AppContext, FOMO_APP_ID, Context, IS_MOBILE } from '../AppContext';
+import { AppContext, reach, Context, IS_MOBILE } from '../AppContext';
 import { Timer } from './Timer';
 import { Status } from '../Status';
 import { batchOptIn } from '../batchOptIn.mjs';
+import { getPools } from '../providers/apiProvider';
 import { getAssetInfo } from '../providers/algoExploerProvider';
 import { logEvent } from '../logEvent';
 import { AlgoIcon } from '../imgs/algo';
@@ -33,7 +35,7 @@ import {
     FomoRulesTitle,
     AvailableBalance,
 } from './styled';
-import { NFTCard, NFTCardInfo, Nft } from '../common/styled';
+import { NFTCard, NFTCardInfo, Nft, InfoHeader } from '../common/styled';
 import { setLevelAndValue } from './utils';
 import { BigNumber } from 'ethers';
 
@@ -58,7 +60,9 @@ function useInterval(callback: () => void, delay: number) {
 }
 
 export const Fomo = () => {
-    const { reach, account } = useContext(AppContext) as Context;
+    const { data } = useQuery(['pools', 'fomo'], () => getPools('fomo'));
+    const id = data && data.length ? data[0].id : undefined;
+    const { account } = useContext(AppContext) as Context;
     const [ctc, setCtc] = useState<null>(null);
     const [isAccountConnected, setIsAccountConnected] = useState<boolean>(false);
     const [isFomoSet, setIsFomoSet] = useState<boolean>(false);
@@ -140,7 +144,7 @@ export const Fomo = () => {
                 }
             }
         },
-        [account, reach]
+        [account]
     );
 
     const updateFomoInfo = useCallback(
@@ -173,7 +177,7 @@ export const Fomo = () => {
                     if (!nftPrize) {
                         const { nftPrize } = fomoInfo;
                         setNftPrize(reach.bigNumberToNumber(nftPrize));
-                        const nftLink = await getAssetInfo(reach.bigNumberToNumber(nftPrize));
+                        const nftLink = (await getAssetInfo(reach.bigNumberToNumber(nftPrize))).params.url;
                         logEvent(account.networkAccount.addr, { message: 'GET NFT LINK FAIL' }, 'errors');
                         setnftLink(nftLink);
                     }
@@ -200,7 +204,7 @@ export const Fomo = () => {
                     }
 
                     if (!token) {
-                        const [status, { discountLevel, timeReductionLevel }] = await ctc.views.Fomo.participantInfo(
+                        const [, { discountLevel, timeReductionLevel }] = await ctc.views.Fomo.participantInfo(
                             account?.getAddress()
                         );
                         logEvent(account.networkAccount.addr, { message: 'GET PARTISIPANT INFO FAIL' }, 'errors');
@@ -216,11 +220,8 @@ export const Fomo = () => {
 
                     const endTimeCurrent = reach.bigNumberToNumber(fomoInfo.endTimestamp);
 
-                    console.log(endTime, endTimeCurrent);
-
                     if (endTime !== endTimeCurrent) {
                         const now = await reach.getNetworkSecs();
-                        //@ts-ignore
                         const currentTime = reach.bigNumberToNumber(now);
 
                         setTimeLeft(endTimeCurrent - currentTime);
@@ -250,7 +251,6 @@ export const Fomo = () => {
             isFinish,
             discountPrices.length,
             timeReductionPrices.length,
-            reach,
             account,
             discountTimePercentAndPrice,
             timeReductionSecAndPrice,
@@ -265,25 +265,22 @@ export const Fomo = () => {
     );
 
     useInterval(() => {
-        if (!isLoading && !isFinish && currentTime !== 0) {
+        if (!isLoading && !isFinish && currentTime !== 0 && id) {
             updateFomoInfo(ctc);
         }
     }, 10000);
 
-    const showPurchase = useCallback(
-        ([winnerAddress, winnerPriceHex, newPriceHex]) => {
-            if (reach) {
-                const winnerPrice = reach.formatCurrency(winnerPriceHex, 2);
+    const showPurchase = useCallback(([winnerAddress, winnerPriceHex, newPriceHex]) => {
+        if (reach) {
+            const winnerPrice = reach.formatCurrency(winnerPriceHex, 2);
 
-                setShowPurschaseOutput({
-                    currentWinner: reach.formatAddress(winnerAddress),
-                    winnerPrice,
-                    currentPrice: newPriceHex,
-                });
-            }
-        },
-        [reach]
-    );
+            setShowPurschaseOutput({
+                currentWinner: reach.formatAddress(winnerAddress),
+                winnerPrice,
+                currentPrice: newPriceHex,
+            });
+        }
+    }, []);
 
     useEffect(() => {
         if (reach) {
@@ -294,19 +291,16 @@ export const Fomo = () => {
             setCurrentWinner(showPurchaseOutput.currentWinner);
             setWinnerPrice(showPurchaseOutput.winnerPrice);
         }
-    }, [ctc, currentPrice, reach, showPurchase, showPurchaseOutput]);
+    }, [ctc, currentPrice, showPurchase, showPurchaseOutput]);
 
-    const showOutcome = useCallback(
-        (address) => {
-            if (reach) {
-                const winnerAddress = reach.formatAddress(address);
-                console.log('WINNER!!!', winnerAddress);
-                setIsFinish(true);
-                setCurrentWinner(winnerAddress);
-            }
-        },
-        [reach]
-    );
+    const showOutcome = useCallback((address) => {
+        if (reach) {
+            const winnerAddress = reach.formatAddress(address);
+            console.log('WINNER!!!', winnerAddress);
+            setIsFinish(true);
+            setCurrentWinner(winnerAddress);
+        }
+    }, []);
 
     useEffect(() => {
         const timeReductionSecAndPrice = setLevelAndValue(
@@ -316,17 +310,16 @@ export const Fomo = () => {
             reach
         );
         setTimeReductionSecAndPrice(timeReductionSecAndPrice);
-    }, [reach, timeReductionLevel, timeReductionPrices, timeReductionSecs]);
+    }, [timeReductionLevel, timeReductionPrices, timeReductionSecs]);
 
     useEffect(() => {
         const discountTimePercentAndPrice = setLevelAndValue(discountPrices, discountPercents, discountLevel, reach);
         setDiscountTimePercentAndPrice(discountTimePercentAndPrice);
-    }, [discountLevel, discountPercents, discountPrices, reach]);
+    }, [discountLevel, discountPercents, discountPrices]);
 
     const connectToContract = useCallback(
         async (account) => {
-            const ctc = account.contract(fomo, FOMO_APP_ID);
-            console.log(account);
+            const ctc = account.contract(fomo, id);
             setCtc(ctc);
             setIsAccountConnected(true);
 
@@ -357,7 +350,7 @@ export const Fomo = () => {
                 showPurchase(what);
             });
         },
-        [reach, showOutcome, showPurchase]
+        [id, showOutcome, showPurchase]
     );
 
     // // REACH BUYER INTERFACE
@@ -499,7 +492,6 @@ export const Fomo = () => {
         isAcceptedFomo,
         isAcceptedNFT,
         nftPrize,
-        reach,
         timeLeft,
         timeReductionSecAndPrice.value,
         token,
@@ -516,12 +508,12 @@ export const Fomo = () => {
         }
     }, [account, connectToContract, ctc, isAccountConnected]);
 
+    if (id === undefined) {
+        <InfoHeader>GAME NOT FOUND</InfoHeader>;
+    }
+
     if (!account) {
-        return (
-            <div className="fomo">
-                <h1 style={{ fontSize: '20px', marginTop: '20px' }}>PLEASE, CONNECT THE WALLET.</h1>
-            </div>
-        );
+        return <InfoHeader>PLEASE, CONNECT THE WALLET.</InfoHeader>;
     }
 
     if (isFinish) {

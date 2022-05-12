@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: `https://api.cometa.farm/`,
+    baseURL: process.env.REACT_APP_COMETA_API_URL,
 });
 
 type cost = { usd: number; microalgo: number };
@@ -35,6 +35,18 @@ type asset = {
     price: cost;
 };
 
+export type PoolInfo = {
+    name: string;
+    asset1_reserve: number;
+    asset2_reserve: number;
+    total_lp_tokens: number;
+};
+
+export type SwapCost = {
+    res_tokens: number;
+    price_per_token: number;
+};
+
 export function getAssets(address: string): Promise<asset[]> {
     return (
         instance
@@ -66,4 +78,14 @@ export async function getPools(type: string) {
         .get(`/contracts?type=${type}`)
         .then(({ data }) => data)
         .catch((err) => console.log('ERR', err));
+}
+
+export async function getPoolInfo(asset1: number, asset2: number): Promise<PoolInfo> {
+    return instance.get(`/pool?asset_1_id=${asset1}&asset_2_id=${asset2}`).then(({ data }) => data);
+}
+
+export async function getSwapCost(asset1: number, asset2: number, amount: number): Promise<SwapCost> {
+    return instance
+        .get(`/asset_swap_cost?address=asdf?asset1_id=${asset1}&asset2_id=${asset2}&asset1_amount=${amount}`)
+        .then(({ data }) => data);
 }

@@ -1,3 +1,6 @@
+import { createGlobalStyle } from 'styled-components';
+
+const GlobalStyle = createGlobalStyle`
 @font-face {
     font-family: 'Mandinor';
     src: url('../fonts/Mandinor-Italian-FY-Regular.woff');
@@ -18,37 +21,14 @@
     src: url('../fonts/krona-one-v9-latin-regular.woff2');
     src: url('../fonts/KronaOne-Regular.ttf');
 }
+  
+  body {
+    background-color: #000;
+    width: 100%;
+    height: 100%;
+    color: #5cfc3c;
+    font-family: 'Korona One';
+  }
+`;
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-.mobile {
-    display: none;
-}
-
-@media (max-width: 1160px) {
-    .container {
-        max-width: 100%;
-        width: 100%;
-    }
-}
-
-@media (max-width: 640px) {
-    .desktop {
-        display: none;
-    }
-
-    .mobile {
-        width: 100%;
-        display: flex !important;
-        justify-content: center !important;
-    }
-
-    .container {
-        min-width: 272px;
-        width: 100%;
-    }
-}
+export default GlobalStyle;

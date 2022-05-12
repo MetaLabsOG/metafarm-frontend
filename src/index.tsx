@@ -3,35 +3,34 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { loadStdlib } from '@reach-sh/stdlib';
-import { ConnectWalletModal } from './wallet/ConnectWalletModal';
+import GlobalStyle from './common/globalStyles';
 
 import { Menu } from './Menu';
 import { Fomo } from './Fomo';
 import { Farm } from './Farm';
 import { Swap } from './Swap';
 
-import { ALGONODE, AppContext } from './AppContext';
+import { AppContext } from './AppContext';
 import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
+import { Container, ContentContainer } from './common/styled';
 import './css/index.css';
-
-const reach = loadStdlib(ALGONODE);
 
 const queryClient = new QueryClient();
 
+console.log('ENV', process.env);
+
 const App = () => {
-    const [isWalletModalOpen, setIsWalletModalOpen] = React.useState<boolean>(false);
     const [account, setAccount] = React.useState(undefined);
 
     return (
         <QueryClientProvider client={queryClient}>
-            <AppContext.Provider value={{ reach, isWalletModalOpen, setIsWalletModalOpen, account, setAccount }}>
+            <GlobalStyle />
+            <AppContext.Provider value={{ account, setAccount }}>
                 <ThemeProvider theme={theme}>
-                    <div className="container">
+                    <Container>
                         <Menu />
-                        <ConnectWalletModal />
-                        <div className="content-container">
+                        <ContentContainer>
                             <Routes>
                                 <Route path="/" element={<Fomo />} />
                                 <Route path="/fomo" element={<Fomo />} />
@@ -39,8 +38,8 @@ const App = () => {
                                 <Route path="/swap" element={<Swap />} />
                                 <Route path="/meta-dao" element={<MetaDAO />} />
                             </Routes>
-                        </div>
-                    </div>
+                        </ContentContainer>
+                    </Container>
                 </ThemeProvider>
             </AppContext.Provider>
         </QueryClientProvider>

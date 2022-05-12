@@ -33,3 +33,28 @@ export const Nft = styled.div<{ url: string }>`
     border-radius: 16px 16px 0 0;
     margin: 0 auto;
 `;
+
+export const Container = styled.div`
+    margin: 0 auto;
+    max-width: 1160px;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px;
+`;
+
+export const ContentContainer = styled.div`
+    margin-top: 125px;
+    display: flex;
+    justify-content: center;
+    z-index: 10;
+`;
+
+export const InfoHeader = styled.h2`
+    width: 100%;
+    height: 100%;
+    margin-top: 10%;
+    display: flex;
+    justify-content: center;
+`;

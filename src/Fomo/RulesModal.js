@@ -1,4 +1,5 @@
 import React from 'react'
+// TODO: change this pack to react-hook-use-modal
 import Modal from 'react-awesome-modal';
 import { RulesItems, RulesStrong,RulesItem, Subitems, RulesItemOrdinalNumber, RulesItemText }    from './styled'
 

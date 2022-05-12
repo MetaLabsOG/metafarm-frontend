@@ -1,34 +1,36 @@
+// TODO: Remove this provider, use algosdk indexer instead.
 import axios from 'axios';
 import { ALGONET, TESTNET } from '../AppContext';
 
+export type LPTokenInfo = {
+    name: string;
+    price: number;
+    decimals: number;
+}
+
 // @ts-ignore
-const preffix = ALGONET === TESTNET ? 'testnet.' : '';
+const prefix = ALGONET === TESTNET ? 'testnet.' : '';
 
 const instance = axios.create({
-    baseURL: `https://indexer.${preffix}algoexplorerapi.io/v2/`,
+    baseURL: `https://indexer.${prefix}algoexplorerapi.io/v2/`,
 });
 
-export async function getAssetInfo(assetId: number): Promise<string> {
+export async function getAssetInfo(assetId: number): Promise<any> {
     return instance
         .get(`assets/${assetId}`)
-        .then(({ data }) => {
-            if (!data.asset) {
-                return '';
-            }
-            return data.asset.params.url;
-        })
+        .then(({ data }) => data.asset)
         .catch((err) => {
             console.log('ERR', err);
             return '';
         });
 }
 
-export async function getWalletInfo(wallet: string): Promise<number> {
+export async function getWalletInfo(wallet: string): Promise<any> {
     return (
         instance
             .get(`accounts/${wallet}`)
             //@ts-ignore
-            .then(({ amount }) => amount)
+            .then(({ data }) => data.account)
             .catch((err) => {
                 console.log('ERR', err);
                 return 0;
