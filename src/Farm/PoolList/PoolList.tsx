@@ -10,43 +10,44 @@ import { backend as farm } from '@metalabsog/farm/';
 
 import { PoolListHeader } from './styled';
 import { PoolT } from './types';
+import { InfoHeader } from '../../common/styled';
 
 const columNames = ['POOL', 'TVL', 'APR', 'ENDS IN', 'MY STAKE', 'REWARD'];
 
 export const PoolList = () => {
     const { account } = useContext(AppContext) as Context;
-    const poolsQuery = useQuery(['pools', 'fomo'], () => getPools('farm'));
+    const { data, isError, isSuccess } = useQuery(['pools', 'farm'], () => getPools('farm'));
 
     const connectToContract = useCallback(
         async (account) => {
-            if (poolsQuery.data) {
-                const connectedContracts = poolsQuery.data.reduce((acc: Map<string, any>, pool: PoolT) => {
+            if (data) {
+                const connectedContracts = data.reduce((acc: [], pool: PoolT) => {
                     //@ts-ignore
                     const ctc = account.contract(farm, pool.id);
-                    return acc.set(pool.id.toString(), ctc);
-                }, new Map<string, any>());
-
-                addPools(connectedContracts);
+                    return [...acc, [pool.id.toString(), ctc]];
+                }, []);
+                //@ts-ignore
+                addPools({ pools: connectedContracts });
             }
         },
-        [poolsQuery]
+        [data]
     );
 
     useEffect(() => {
-        console.log('CONNECTING');
-        if (account) {
+        if (account && isSuccess) {
             connectToContract(account);
         }
-    }, [account, connectToContract]);
+    }, [account, connectToContract, isSuccess]);
 
     return (
         <div>
             <PoolListHeader>
-                {columNames.map((name) => (
-                    <div>{name}</div>
+                {columNames.map((name, i) => (
+                    <div key={`${name}${i}`}>{name}</div>
                 ))}
             </PoolListHeader>
-            {poolsQuery.data && poolsQuery.data.reverse().map((pool: PoolT) => <Pool id={pool.id} />)}
+            {isError && <InfoHeader>Oops Something went wrong :( </InfoHeader>}
+            {isSuccess && data.length > 0 && data.reverse().map((pool: PoolT) => <Pool key={pool.id} id={pool.id} />)}
         </div>
     );
 };

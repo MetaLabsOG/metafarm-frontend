@@ -1,6 +1,6 @@
 import { useContext, useEffect, useCallback, useState } from 'react';
-import { useStore } from 'effector-react';
-import { $pools } from '../store';
+import { useStoreMap } from 'effector-react';
+import { $pools, selector } from '../store';
 import { EndedPool } from './EndedPool';
 import { PendingPool } from './PendingPool';
 
@@ -40,12 +40,10 @@ export const getView = async (ctc, name, ...args) => {
     }
 };
 
-//TODO BLOCK TIME FUNC
-//CURRENT BLOCK
-//TOKEN PRICE
 export const Pool = ({ id }: { id: number }) => {
     const { account } = useContext(AppContext) as Context;
-    const pools = useStore($pools);
+    //@ts-ignore
+    const pools = useStoreMap({ store: $pools, keys: [id], fn: selector });
     const [localInfo, setLocalInfo] = useState<localInfo | undefined>(undefined);
     const [globalInfo, setGlobalInfo] = useState<globalInfo | undefined>(undefined);
     const [initialInfo, setInitalInfo] = useState<initialInfo | undefined>(undefined);
@@ -61,51 +59,49 @@ export const Pool = ({ id }: { id: number }) => {
     const getInfo = useCallback(async () => {
         if (selectedPool) {
             const [, globalInfo] = await getView(selectedPool, 'global');
-            const [ininitalInfoStatus, initalInfo] = await getView(selectedPool, 'initial');
+            const [ininitalInfoStatus, initalInfoInFunct] = await getView(selectedPool, 'initial');
             const [, localInfo] = await getView(selectedPool, 'local', account.networkAccount.addr);
 
             const currentBlock = await reach.getNetworkTime();
 
-            if (initialInfo) {
-                const lpTokenInfo = await getLPTokenInfo(reach.bigNumberToNumber(initialInfo.stakeToken));
+            if (initalInfoInFunct) {
+                const lpTokenInfo = await getLPTokenInfo(reach.bigNumberToNumber(initalInfoInFunct.stakeToken));
                 console.log('LP INFO', lpTokenInfo);
                 setLpTokenInfo(lpTokenInfo);
             }
 
             const currentBlockNumber = reach.bigNumberToNumber(currentBlock);
 
-            const beginBlock = ininitalInfoStatus !== 'None' ? reach.bigNumberToNumber(initalInfo.beginBlock) : 0;
-            const endBlock = ininitalInfoStatus !== 'None' ? reach.bigNumberToNumber(initalInfo.endBlock) : 0;
+            const beginBlock =
+                ininitalInfoStatus !== 'None' ? reach.bigNumberToNumber(initalInfoInFunct.beginBlock) : 0;
+            const endBlock = ininitalInfoStatus !== 'None' ? reach.bigNumberToNumber(initalInfoInFunct.endBlock) : 0;
 
-            if (lpTokenInfo) {
-                if (currentBlockNumber < beginBlock) {
-                    setIsPending(true);
-                }
-
-                if (currentBlockNumber > endBlock) {
-                    setIsEnded(true);
-                }
-
-                if (currentBlockNumber >= beginBlock && currentBlockNumber < endBlock) {
-                    setIsCurrent(true);
-                }
-
-                setCurrentBlock(reach?.bigNumberToNumber(currentBlock));
-                setGlobalInfo(globalInfo);
-                setInitalInfo(initalInfo);
-                setLocalInfo(localInfo);
+            if (currentBlockNumber < beginBlock) {
+                setIsPending(true);
             }
+
+            if (currentBlockNumber > endBlock) {
+                setIsEnded(true);
+            }
+
+            if (currentBlockNumber >= beginBlock && currentBlockNumber < endBlock) {
+                setIsCurrent(true);
+            }
+
+            setCurrentBlock(reach?.bigNumberToNumber(currentBlock));
+            setGlobalInfo(globalInfo);
+            setInitalInfo(initalInfoInFunct);
+            setLocalInfo(localInfo);
         }
     }, [account, selectedPool]);
 
     useEffect(() => {
-        if (pools.size) {
+        if (pools.size > 0) {
             getInfo();
-            console.log('USE_EFF');
         }
-    }, [pools]);
+    }, [getInfo, pools]);
 
-    if (isEnded) {
+    if (isEnded && globalInfo && localInfo && lpTokenInfo) {
         return (
             <EndedPool
                 pool={selectedPool}
@@ -118,7 +114,7 @@ export const Pool = ({ id }: { id: number }) => {
         );
     }
 
-    if (isCurrent) {
+    if (isCurrent && globalInfo && localInfo && lpTokenInfo) {
         return (
             <CurrentPool
                 currentBlock={currentBlock}
@@ -132,7 +128,7 @@ export const Pool = ({ id }: { id: number }) => {
         );
     }
 
-    if (isPending) {
+    if (isPending && globalInfo && localInfo && lpTokenInfo) {
         return (
             <PendingPool
                 pool={selectedPool}
