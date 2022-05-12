@@ -34,6 +34,7 @@ export const PendingPool = ({
     id: number;
     currentBlock: number;
 }) => {
+    console.log(globalInfo);
     const { account } = useContext(AppContext) as Context;
     const [withDrawAmount, setWithDrawAmount] = useState('');
     const [balanceToken, setBalanceToken] = useState(0);
