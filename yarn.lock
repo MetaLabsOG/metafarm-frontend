@@ -6500,6 +6500,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"commander@npm:^4.0.0":
+  version: 4.1.1
+  resolution: "commander@npm:4.1.1"
+  checksum: 3be44d4e8e108ce5056885db1ee90cf34afe5b1c965829c23b3a47890d27980e101889fe7355accd6ec22cad862abc9f609da6de0c4c061e19d04d098611baf4
+  languageName: node
+  linkType: hard
+
 "commander@npm:^7.2.0":
   version: 7.2.0
   resolution: "commander@npm:7.2.0"
@@ -6881,7 +6888,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-spawn@npm:^7.0.2, cross-spawn@npm:^7.0.3":
+"cross-spawn@npm:^7.0.0, cross-spawn@npm:^7.0.2, cross-spawn@npm:^7.0.3":
   version: 7.0.3
   resolution: "cross-spawn@npm:7.0.3"
   dependencies:
@@ -7857,6 +7864,18 @@ __metadata:
   version: 2.2.0
   resolution: "entities@npm:2.2.0"
   checksum: eec79bcb8fe0e6e8c5fcd83fe87115535a4a616220db35ddec38aac360f0f19669da3150a87f2bd9fba9829cea0857c806ea216177adc3d099b143db9e89d46f
+  languageName: node
+  linkType: hard
+
+"env-cmd@npm:^10.1.0":
+  version: 10.1.0
+  resolution: "env-cmd@npm:10.1.0"
+  dependencies:
+    commander: "npm:^4.0.0"
+    cross-spawn: "npm:^7.0.0"
+  bin:
+    env-cmd: bin/env-cmd.js
+  checksum: ace736a04a3e7e9881ffe18315f5190a968a58e4a202452c2369c7c7e9a4e670e800c1c4eeeb4dc685da57a2add7258d4823c2b9e45d61db47f3ce0fdab69b91
   languageName: node
   linkType: hard
 
@@ -11865,6 +11884,7 @@ __metadata:
     dotenv-expand: "npm:^5.1.0"
     effector: "npm:^22.3.0"
     effector-react: "npm:^22.0.6"
+    env-cmd: "npm:^10.1.0"
     eslint: "npm:^8.3.0"
     eslint-config-prettier: "npm:^8.5.0"
     eslint-config-react-app: "npm:^7.0.1"
