@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ALGONET, TESTNET } from '../AppContext';
 
+// @ts-ignore
 const preffix = ALGONET === TESTNET ? 'testnet.' : '';
 
 const instance = axios.create({

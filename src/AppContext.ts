@@ -27,7 +27,7 @@ export const METAWALLET = 'METAWEJ6MAPBIZBKZBX2RTGVEG4SFTB5BRJRKL3UYVXA6TT5YVWUA
 export const TESTNET = 'TestNet';
 export const MAINNET = 'MainNet';
 
-export const ALGONET = TESTNET;
+export const ALGONET = MAINNET;
 
 export const IS_MOBILE = window.innerWidth <= 768;
 console.log('Is mobile:', IS_MOBILE);

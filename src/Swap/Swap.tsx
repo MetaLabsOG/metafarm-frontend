@@ -13,10 +13,9 @@ import {Account} from "@reach-sh/stdlib/ALGO";
 
 const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 // @ts-ignore
-const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
-// const API_PATH = 'http://0.0.0.0:5000';
+// const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
+const API_PATH = 'https://api.cometa.farm/';
 
-// TODO(dyakovleva): use mainnet here!
 
 async function getBestSwap(asset1_id: string | undefined, asset2_id: string | undefined, asset1_amount: string, setIsLoading: Dispatch<SetStateAction<boolean>>,
                            setBestSwap: Dispatch<SetStateAction<BestSwap>>, setShopSwap: Dispatch<SetStateAction<boolean>>) {
@@ -28,14 +27,19 @@ async function getBestSwap(asset1_id: string | undefined, asset2_id: string | un
     setIsLoading(true);
     console.log(asset1_id, asset2_id, asset1_amount);
 
-    const query = API_PATH + '/best_swap?asset1_id=' + asset1_id + '&asset2_id=' + asset2_id + '&asset1_amount=' + asset1_amount;
-    const response = await fetch(query);
-    const best_swap = await response.json();
-    console.log(best_swap);
+    try {
+        const query = API_PATH + '/best_swap?asset1_id=' + asset1_id + '&asset2_id=' + asset2_id + '&asset1_amount=' + asset1_amount;
+        const response = await fetch(query);
+        const best_swap = await response.json();
+        console.log(best_swap);
 
-    setBestSwap(best_swap);
-    setIsLoading(false);
-    setShopSwap(true);
+        setBestSwap(best_swap);
+        setIsLoading(false);
+        setShopSwap(true);
+    } catch (e) {
+        alert('Fail to get best swap :(');
+        setIsLoading(false);
+    }
 }
 
 
@@ -54,9 +58,8 @@ async function runRouting(algodClient: algosdk.Algodv2, address: string, asset1_
 
     let unsigned_transactions: string[] = [];
     for (let key in transactions) {
-        console.log('key', key);
         const current_unsigned = transactions[key].txns.filter((txn, idx) => transactions[key].signed_txns[idx].length === 0);
-        console.log(current_unsigned);
+        // console.log(current_unsigned);
         unsigned_transactions = unsigned_transactions.concat(current_unsigned);
     }
     console.log(unsigned_transactions.length, unsigned_transactions);
@@ -68,7 +71,6 @@ async function runRouting(algodClient: algosdk.Algodv2, address: string, asset1_
 
     let idx = 0;
     for (let key in transactions) {
-        console.log('key', key);
         const signed_transactions = transactions[key].signed_txns.map(txn => Buffer.from(txn, 'base64'));
         for (let sidx = 0; sidx < signed_transactions.length; sidx += 1) {
             if (signed_transactions[sidx].length === 0) {
@@ -257,7 +259,8 @@ export function Swap() {
     }
 
     return <div style={{display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center"}}>
-        <h1 style={{margin: "15px", fontSize: "27px"}}>BEST SWAP EVER</h1>
+        <h1 style={{marginTop: "15px", fontSize: "27px"}}>BEST SWAP EVER</h1>
+        <h3 className="swap_descr">we find the optimal path to swap your token</h3>
         <h3 className="swap_text">FROM</h3>
         <SelectSearch className="select-search"
                       options={options}
