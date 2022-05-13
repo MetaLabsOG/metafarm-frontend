@@ -251,9 +251,14 @@ function BestTokenPrice({token1Amount, bestSwap, token1, token2}:
             <h3 className="token_price_value" style={{color: "white", padding: "10px"}}>{formatNumber(bestSwap.direct_swap)} {token2.unit_name}</h3>
         </div>}
         <div style={{display: "flex", justifyContent: 'space-between', marginBottom: "15px", whiteSpace: "nowrap"}}>
-            <h3 className="token_price_text">Best swap:<br/>{bestSwap.best_path.map((t: { unit_name: any; }) => t.unit_name).join('-')}</h3>
-            <h3 className="token_price_value" style={{backgroundColor: "#00ff00", color: "black", padding: "10px", fontSize: '15px'}}>
-                {formatNumber(bestSwap.best_swap)} {token2.unit_name}</h3>
+            <h3 className="token_price_text">Best swap:
+                <br/>{bestSwap.best_path.map((t: { unit_name: any; }) => t.unit_name).join('-')}
+            </h3>
+            <div>
+                <h3 className="token_price_value" style={{backgroundColor: "#00ff00", color: "black", padding: "10px", fontSize: '15px'}}>
+                    {formatNumber(bestSwap.best_swap)} {token2.unit_name}</h3>
+                {best_algo && <h3 style={{ color: "#8b8b8b", fontSize: "10px", textAlign: "center", marginTop: '2px'}}>including fee: 1%</h3>}
+            </div>
         </div>
         {best_algo && <div style={{display: "flex", justifyContent: 'space-between', marginBottom: "15px", whiteSpace: "nowrap"}}>
             <h3 className="token_price_text"> </h3>
