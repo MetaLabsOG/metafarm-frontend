@@ -1,6 +1,6 @@
 import algosdk from "algosdk";
 import {Dispatch, SetStateAction, useContext, useEffect, useState} from "react";
-import {ALGONET, AppContext, Context, MAINNET, reach} from '../AppContext';
+import {AppContext, Context, reach} from '../AppContext';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
@@ -8,8 +8,8 @@ import {Token, Option, BestSwap, Transaction} from "./types";
 
 import SelectSearch, {fuzzySearch} from "react-select-search";
 import React from "react";
-import {Stdlib_User} from "@reach-sh/stdlib/dist/types/interfaces";
 import {Account} from "@reach-sh/stdlib/ALGO";
+import {logEvent} from "../logEvent";
 
 const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 // @ts-ignore
@@ -17,7 +17,8 @@ const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 const API_PATH = 'https://api.cometa.farm/';
 
 
-async function getBestSwap(asset1_id: string | undefined, asset2_id: string | undefined, asset1_amount: string, setIsLoading: Dispatch<SetStateAction<boolean>>,
+async function getBestSwap(account: Account | undefined, asset1_id: string | undefined, asset2_id: string | undefined,
+                           asset1_amount: string, setIsLoading: Dispatch<SetStateAction<boolean>>,
                            setBestSwap: Dispatch<SetStateAction<BestSwap>>, setShopSwap: Dispatch<SetStateAction<boolean>>) {
     if (!asset1_id || !asset2_id) {
         alert('Please, choose tokens.');
@@ -33,11 +34,26 @@ async function getBestSwap(asset1_id: string | undefined, asset2_id: string | un
         const best_swap = await response.json();
         console.log(best_swap);
 
+        logEvent(account ? account.networkAccount.addr : '', {
+            message: '[FIND PRICE] ' + asset1_id + ' to ' + asset2_id,
+            amount: asset1_amount,
+            best_swap: best_swap.best_swap,
+            direct_swap: best_swap.direct_swap,
+            best_path: best_swap.best_path.map((t: { unit_name: any; }) => t.unit_name).join('-'),
+            usdc_diff: best_swap.usdc_diff
+        }, 'swap');
+
         setBestSwap(best_swap);
         setIsLoading(false);
         setShopSwap(true);
     } catch (e) {
-        alert('Fail to get best swap :(');
+        // @ts-ignore
+        const error_message = e.message;
+        alert('Fail to find the best swap :(');
+        logEvent(account ? account.networkAccount.addr : '', {
+            message: '[ERROR FIND PRICE] Swap ' + asset1_id + ' to ' + asset2_id + ', amount: ' + asset1_amount,
+            error: error_message
+        }, 'swap');
         setIsLoading(false);
     }
 }
@@ -108,16 +124,31 @@ async function swapTokens(account: Account | undefined,
         const trx_grp = Buffer.from(res.txn.txn.grp).toString('base64');
         console.log('OK', trx_grp, res);
         alert('OK: https://algoexplorer.io/tx/group/' + encodeURIComponent(trx_grp));
+
+        logEvent(account.networkAccount.addr, {
+            message: '[SWAP OK] ' + token1Id + ' to ' + token2Id,
+            amount: token1Amount,
+            best_swap: bestSwap.best_swap,
+            direct_swap: bestSwap.direct_swap,
+            best_path: bestSwap.best_path.map((t: { unit_name: any; }) => t.unit_name).join('-'),
+            usdc_diff: bestSwap.usdc_diff,
+            txns: 'https://algoexplorer.io/tx/group/' + encodeURIComponent(trx_grp)
+        }, 'swap');
     } catch (e) {
         // @ts-ignore
-        if (e.message.includes('underflow')) {
+        const error_message = e.message;
+        if (error_message.includes('underflow')) {
             alert('Not enough tokens');
-        } else { // @ts-ignore
-            if (e.message.includes('Transaction not confirmed')) {
-                alert('Transaction not confirmed');
-            }
+        } else if (error_message.includes('Transaction not confirmed')) {
+            alert('Transaction not confirmed');
+        } else{
+            console.log(e);
+            alert('Swap error :(');
         }
-        console.log(e);
+        logEvent(account.networkAccount.addr, {
+            message: '[ERROR SWAP] ' + token1Id + ' to ' + token2Id + ', amount: ' + token1Amount,
+            error: error_message
+        }, 'swap');
     }
     setIsLoading(false);
 }
@@ -202,6 +233,9 @@ function renderValue(valueProps, snapshot) {
 }
 
 function formatNumber(x: number) {
+    if (x < 0.01) {
+        return Math.round(x * 1000) / 1000;
+    }
     return (x > 100) ? Math.round(x) : Math.round(x * 100) / 100;
 }
 
@@ -289,7 +323,7 @@ export function Swap() {
 
         <button
             className={!isLoading ? 'price_button' : 'button_loading'}
-            onClick={!isLoading ? () => getBestSwap(token1?.value, token2?.value, token1Amount, setIsLoading, setBestSwap, setShowSwap) : undefined}
+            onClick={!isLoading ? () => getBestSwap(account, token1?.value, token2?.value, token1Amount, setIsLoading, setBestSwap, setShowSwap) : undefined}
         >
             FIND BEST PRICE
             {isLoading &&
@@ -315,7 +349,7 @@ export function Swap() {
                         <img
                                 style={{ maxWidth: '100%', maxHeight: '100%' }}
                                 alt="loader"
-                                src={require('../imgs/loader.gif').default}
+                                src={require('../imgs/loader.gif')}
                         />
                         </span>
                     }
