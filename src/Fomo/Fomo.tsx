@@ -119,7 +119,7 @@ export const Fomo = () => {
 
     const isBoostAviable = (boostPrice: number) => Number(fomoTokensOnAccount) >= boostPrice;
 
-    const getBalance = useCallback(
+    const updateBalance = useCallback(
         async (token) => {
             if (reach && account) {
                 try {
@@ -221,7 +221,7 @@ export const Fomo = () => {
                     const currentTotal =
                         Number.parseFloat(reach.formatCurrency(fomoInfo.currentTotal, 3)) - paidToFunder;
 
-                    getBalance(reach.bigNumberToNumber(fomoInfo.token));
+                    updateBalance(reach.bigNumberToNumber(fomoInfo.token));
 
                     const endTimeCurrent = reach.bigNumberToNumber(fomoInfo.endTimestamp);
 
@@ -263,7 +263,7 @@ export const Fomo = () => {
             token,
             isAcceptedFomo,
             isAcceptedNFT,
-            getBalance,
+            updateBalance,
             endTime,
             currentTime,
         ]
