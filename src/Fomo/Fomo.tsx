@@ -178,7 +178,9 @@ export const Fomo = () => {
                         const { nftPrize } = fomoInfo;
                         setNftPrize(reach.bigNumberToNumber(nftPrize));
                         const nftLink = (await getAssetInfo(reach.bigNumberToNumber(nftPrize))).params.url;
-                        logEvent(account.networkAccount.addr, { message: 'GET NFT LINK FAIL' }, 'errors');
+                        if (nftLink === '') {
+                            logEvent(account.networkAccount.addr, { message: 'GET NFT LINK FAIL' }, 'errors');
+                        }
                         setnftLink(nftLink);
                     }
                     if (!token) {
