@@ -473,13 +473,16 @@ export const Fomo = () => {
                 );
             })
             .catch((e: Error) => {
-                console.log(e.message);
                 setIsLoading(false);
-                updateFomoInfo(ctc);
+                console.log('[ERROR]', e);
+                if (account) {
+                    logEvent(account.networkAccount.addr, { message: e }, 'errors');
+                }
+
                 if (e.message.includes('logic eval error')) {
                     alert('Sorry, someone beat you');
                 }
-                if (e.message.includes('below min')) {
+                else if (e.message.includes('below min')) {
                     alert('Not enough Algo');
                 }
             });
