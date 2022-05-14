@@ -342,9 +342,6 @@ export const Fomo = () => {
             }).catch((e: any) => {
                 console.log('[ERROR]', e);
                 logEvent(account.networkAccount.addr, { message: e }, 'errors');
-                if (e.message.includes('no application found')) {
-                    setIsFinish(true);
-                }
             });
 
             await events.showPurchase.monitor(({ when, what }: { when: BigNumber; what: BigNumber[] }) => {
