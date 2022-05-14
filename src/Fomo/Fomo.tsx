@@ -205,12 +205,16 @@ export const Fomo = () => {
                     }
 
                     if (!token) {
-                        const [, { discountLevel, timeReductionLevel }] = await ctc.views.Fomo.participantInfo(
+                        const [status, participantInfo] = await ctc.views.Fomo.participantInfo(
                             account?.getAddress()
                         );
-                        logEvent(account.networkAccount.addr, { message: 'GET PARTISIPANT INFO FAIL' }, 'errors');
-                        setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
-                        setDiscountLevel(reach.bigNumberToNumber(discountLevel));
+                        if (status === 'None') {
+                            logEvent(account.networkAccount.addr, { message: 'GET PARTICIPANT INFO FAIL' }, 'errors');
+                        } else {
+                            const { discountLevel, timeReductionLevel } = participantInfo;
+                            setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
+                            setDiscountLevel(reach.bigNumberToNumber(discountLevel));
+                        }
                     }
 
                     const paidToFunder = Number.parseFloat(reach.formatCurrency(fomoInfo.paidToFunder, 4));
