@@ -90,7 +90,7 @@ export const Fomo = () => {
 
     const [discountPrices, setDiscountPrices] = useState<BigNumber[]>([]);
     const [discountPercents, setDiscountPercents] = useState<BigNumber[]>([]);
-    const [discountTimePercentAndPrice, setDiscountTimePercentAndPrice] = useState<LevelInfo>({
+    const [discountPercentAndPrice, setDiscountPercentAndPrice] = useState<LevelInfo>({
         price: 0,
         value: 0,
         nextLvlValue: 3,
@@ -165,7 +165,7 @@ export const Fomo = () => {
             if (!discountPrices.length && !timeReductionPrices.length) {
                 setDiscountPrices(fomoInfo.discountPrices);
                 setDiscountPercents(fomoInfo.discountPercents);
-                setDiscountTimePercentAndPrice(discountTimePercentAndPrice);
+                setDiscountPercentAndPrice(discountPercentAndPrice);
 
                 setTimeReductionPrices(fomoInfo.timeReductionPrices);
                 setTimeReductionSecs(fomoInfo.timeReductionSecs);
@@ -253,7 +253,7 @@ export const Fomo = () => {
             discountPrices.length,
             timeReductionPrices.length,
             account,
-            discountTimePercentAndPrice,
+            discountPercentAndPrice,
             timeReductionSecAndPrice,
             nftPrize,
             token,
@@ -314,8 +314,8 @@ export const Fomo = () => {
     }, [timeReductionLevel, timeReductionPrices, timeReductionSecs]);
 
     useEffect(() => {
-        const discountTimePercentAndPrice = setLevelAndValue(discountPrices, discountPercents, discountLevel, reach);
-        setDiscountTimePercentAndPrice(discountTimePercentAndPrice);
+        const discountPercentAndPrice = setLevelAndValue(discountPrices, discountPercents, discountLevel, reach);
+        setDiscountPercentAndPrice(discountPercentAndPrice);
     }, [discountLevel, discountPercents, discountPrices]);
 
     const connectToContract = useCallback(
@@ -356,7 +356,7 @@ export const Fomo = () => {
 
     // // REACH BUYER INTERFACE
     const buyDiscount = async () => {
-        if (!isBoostAviable(discountTimePercentAndPrice.price)) {
+        if (!isBoostAviable(discountPercentAndPrice.price)) {
             return;
         }
 
@@ -373,8 +373,8 @@ export const Fomo = () => {
                         account?.networkAccount.addr,
                         {
                             action: 'boost discount',
-                            status: `BOOST ${discountTimePercentAndPrice.price} FOMO`,
-                            boostSaleValue: discountTimePercentAndPrice.value,
+                            status: `BOOST ${discountPercentAndPrice.price} FOMO`,
+                            boostSaleValue: discountPercentAndPrice.value,
                             bid: currentPrice,
                             prize: Number(currentTotal).toFixed(2),
                             accBalance: balance,
@@ -418,7 +418,7 @@ export const Fomo = () => {
                             action: 'boost time reduction',
                             status: `BOOST ${timeReductionSecAndPrice.price} FOMO`,
                             boostTimeValue: timeReductionSecAndPrice.value,
-                            boostSaleValue: discountTimePercentAndPrice.value,
+                            boostSaleValue: discountPercentAndPrice.value,
                             bid: currentPrice,
                             prize: Number(currentTotal).toFixed(2),
                             accBalance: balance,
@@ -466,7 +466,7 @@ export const Fomo = () => {
                         totalFomoBalance: tokenOwnedByUsers,
                         timeLeft: timeLeft,
                         boostTimeValue: timeReductionSecAndPrice.value,
-                        boostSaleValue: discountTimePercentAndPrice.value,
+                        boostSaleValue: discountPercentAndPrice.value,
                     },
                     'fomo'
                 );
@@ -488,7 +488,7 @@ export const Fomo = () => {
         ctc,
         currentPrice,
         currentTotal,
-        discountTimePercentAndPrice.value,
+        discountPercentAndPrice.value,
         fomoTokensOnAccount,
         isAcceptedFomo,
         isAcceptedNFT,
@@ -612,7 +612,7 @@ export const Fomo = () => {
                     </Balance>
                     <Update>
                         <Level>
-                            <LabelLevel>bid discount: {discountTimePercentAndPrice.value}% </LabelLevel>
+                            <LabelLevel>bid discount: {discountPercentAndPrice.value}% </LabelLevel>
                             <LevelValue>level {discountLevel}</LevelValue>
                         </Level>
                         <BoostButtonConteiner onClick={buyDiscount}>
@@ -620,13 +620,13 @@ export const Fomo = () => {
                                 <>
                                     <BoostButton
                                         isLoading={isLoadingBoostDiscount}
-                                        disabled={!isBoostAviable(discountTimePercentAndPrice.price)}
+                                        disabled={!isBoostAviable(discountPercentAndPrice.price)}
                                     >
                                         {isLoadingBoostDiscount ? '' : 'boost!'}
                                     </BoostButton>
                                     <BoostInfo>
-                                        boost to {discountTimePercentAndPrice.nextLvlValue}% (-
-                                        {discountTimePercentAndPrice.price} FOMO)
+                                        boost to {discountPercentAndPrice.nextLvlValue}% (-
+                                        {discountPercentAndPrice.price} FOMO)
                                     </BoostInfo>
                                 </>
                             ) : (
