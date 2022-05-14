@@ -39,7 +39,7 @@ import { NFTCard, NFTCardInfo, Nft, InfoHeader } from '../common/styled';
 import { setLevelAndValue } from './utils';
 import { BigNumber } from 'ethers';
 
-const USER_BEATEN_MESSAGE = "Sorry, someone beat you"
+const USER_BEATEN_MESSAGE = 'Sorry, someone beat you';
 
 function useInterval(callback: () => void, delay: number) {
     const savedCallback = useRef();
@@ -205,22 +205,8 @@ export const Fomo = () => {
                     }
                 }
 
-                if (!token) {
-                    const [status, participantInfo] = await ctc.views.Fomo.participantInfo(
-                        account?.getAddress()
-                    );
-                    if (status === 'None') {
-                        logEvent(account.networkAccount.addr, { message: 'GET PARTICIPANT INFO FAIL' }, 'errors');
-                    } else {
-                        const { discountLevel, timeReductionLevel } = participantInfo;
-                        setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
-                        setDiscountLevel(reach.bigNumberToNumber(discountLevel));
-                    }
-                }
-
                 const paidToFunder = Number.parseFloat(reach.formatCurrency(fomoInfo.paidToFunder, 4));
-                const currentTotal =
-                    Number.parseFloat(reach.formatCurrency(fomoInfo.currentTotal, 3)) - paidToFunder;
+                const currentTotal = Number.parseFloat(reach.formatCurrency(fomoInfo.currentTotal, 3)) - paidToFunder;
 
                 updateBalance(reach.bigNumberToNumber(fomoInfo.token));
 
@@ -284,6 +270,20 @@ export const Fomo = () => {
             });
         }
     }, []);
+
+    useEffect(() => {
+        async function updateParticipantInfo(ctc: any) {
+            const [status, participantInfo] = await ctc.views.Fomo.participantInfo(account?.getAddress());
+            if (status === 'None') {
+                logEvent(account.networkAccount.addr, { message: 'GET PARTICIPANT INFO FAIL' }, 'errors');
+            } else {
+                const { discountLevel, timeReductionLevel } = participantInfo;
+                setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
+                setDiscountLevel(reach.bigNumberToNumber(discountLevel));
+            }
+        }
+        updateParticipantInfo(ctc);
+    }, [account, ctc]);
 
     useEffect(() => {
         if (reach) {
@@ -481,8 +481,7 @@ export const Fomo = () => {
 
                 if (e.message.includes('logic eval error')) {
                     alert('Sorry, someone beat you');
-                }
-                else if (e.message.includes('below min')) {
+                } else if (e.message.includes('below min')) {
                     alert('Not enough Algo');
                 }
             });
