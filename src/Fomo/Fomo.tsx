@@ -198,10 +198,9 @@ export const Fomo = () => {
                     if (!isAcceptedNFT) {
                         try {
                             const isAcceptedNFT = await account.tokenAccepted(fomoInfo.nftPrize);
-                            console.log('isAcceptedNFT', isAcceptedNFT);
                             setIsAccceptedNFT(isAcceptedNFT);
                         } catch (error) {
-                            console.log('CheckAcceptedNft Fail', error);
+                            logEvent(account.networkAccount.addr, { message: 'GET ACCEPTED NFT FAIL' }, 'errors');
                         }
                     }
 
