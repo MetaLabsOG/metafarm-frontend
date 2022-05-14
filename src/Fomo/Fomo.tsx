@@ -39,6 +39,8 @@ import { NFTCard, NFTCardInfo, Nft, InfoHeader } from '../common/styled';
 import { setLevelAndValue } from './utils';
 import { BigNumber } from 'ethers';
 
+const USER_BEATEN_MESSAGE = "Sorry, someone beat you"
+
 function useInterval(callback: () => void, delay: number) {
     const savedCallback = useRef();
 
@@ -391,7 +393,7 @@ export const Fomo = () => {
                     logEvent(account.networkAccount.addr, { message: e }, 'errors');
                 }
                 if (e.message.includes('logic eval error')) {
-                    alert('Sorry, someone beat you');
+                    alert(USER_BEATEN_MESSAGE);
                 }
             });
     };
@@ -431,11 +433,13 @@ export const Fomo = () => {
                 setIsLoadingTimeReduction(false);
             })
             .catch((e: Error) => {
-                console.log(e);
                 setIsLoadingTimeReduction(false);
-
+                console.log('[ERROR]', e);
+                if (account) {
+                    logEvent(account.networkAccount.addr, { message: e }, 'errors');
+                }
                 if (e.message.includes('logic eval error')) {
-                    alert('Sorry, someone beat you');
+                    alert(USER_BEATEN_MESSAGE);
                 }
             });
     };
