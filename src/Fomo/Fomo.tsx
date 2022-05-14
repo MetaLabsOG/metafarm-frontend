@@ -155,101 +155,97 @@ export const Fomo = () => {
 
             console.log('Getting info');
 
-            try {
-                const [fomoInfoStatus, fomoInfo] = await ctc.views.Fomo.info();
+            const [fomoInfoStatus, fomoInfo] = await ctc.views.Fomo.info();
 
-                if (fomoInfoStatus === 'None') {
-                    console.log('fomoInfoStatus None');
+            if (fomoInfoStatus === 'None') {
+                console.log('fomoInfoStatus None');
+                return;
+            }
+
+            if (!discountPrices.length && !timeReductionPrices.length) {
+                setDiscountPrices(fomoInfo.discountPrices);
+                setDiscountPercents(fomoInfo.discountPercents);
+                setDiscountTimePercentAndPrice(discountTimePercentAndPrice);
+
+                setTimeReductionPrices(fomoInfo.timeReductionPrices);
+                setTimeReductionSecs(fomoInfo.timeReductionSecs);
+                setTimeReductionSecAndPrice(timeReductionSecAndPrice);
+            }
+
+            if (reach && account) {
+                if (!nftPrize) {
+                    const { nftPrize } = fomoInfo;
+                    setNftPrize(reach.bigNumberToNumber(nftPrize));
+                    const nftLink = await getAssetInfo(reach.bigNumberToNumber(nftPrize));
+                    if (nftLink === '') {
+                        logEvent(account.networkAccount.addr, { message: 'GET NFT LINK FAIL' }, 'errors');
+                    }
+                    setnftLink(nftLink);
+                }
+                if (!token) {
+                    setToken(reach.bigNumberToNumber(fomoInfo.token));
+                }
+
+                if (!isAcceptedFomo) {
+                    try {
+                        const isAcceptedFomo = await account.tokenAccepted(fomoInfo.token);
+                        setIsAcceptedFomo(isAcceptedFomo);
+                    } catch (error) {
+                        logEvent(account.networkAccount.addr, { message: 'GET ACCEPTED TOKEN FAIL' }, 'errors');
+                    }
+                }
+                if (!isAcceptedNFT) {
+                    try {
+                        const isAcceptedNFT = await account.tokenAccepted(fomoInfo.nftPrize);
+                        setIsAccceptedNFT(isAcceptedNFT);
+                    } catch (error) {
+                        logEvent(account.networkAccount.addr, { message: 'GET ACCEPTED NFT FAIL' }, 'errors');
+                    }
+                }
+
+                if (!token) {
+                    const [status, participantInfo] = await ctc.views.Fomo.participantInfo(
+                        account?.getAddress()
+                    );
+                    if (status === 'None') {
+                        logEvent(account.networkAccount.addr, { message: 'GET PARTICIPANT INFO FAIL' }, 'errors');
+                    } else {
+                        const { discountLevel, timeReductionLevel } = participantInfo;
+                        setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
+                        setDiscountLevel(reach.bigNumberToNumber(discountLevel));
+                    }
+                }
+
+                const paidToFunder = Number.parseFloat(reach.formatCurrency(fomoInfo.paidToFunder, 4));
+                const currentTotal =
+                    Number.parseFloat(reach.formatCurrency(fomoInfo.currentTotal, 3)) - paidToFunder;
+
+                updateBalance(reach.bigNumberToNumber(fomoInfo.token));
+
+                const endTimeCurrent = reach.bigNumberToNumber(fomoInfo.endTimestamp);
+
+                if (endTime !== endTimeCurrent) {
+                    const now = await reach.getNetworkSecs();
+                    const currentTime = reach.bigNumberToNumber(now);
+
+                    setTimeLeft(endTimeCurrent - currentTime);
+                    console.log('BUY_TICKET', 'END_TIME', endTime, 'CT', currentTime);
+                }
+
+                // TODO we should not do it but just wait for showOutcome from smart contract
+                // but for some reason it wasn't working so this is a hack.
+                if (currentTime > endTime) {
+                    console.log('fomo is finished');
+                    setIsFinish(true);
                     return;
                 }
 
-                if (!discountPrices.length && !timeReductionPrices.length) {
-                    setDiscountPrices(fomoInfo.discountPrices);
-                    setDiscountPercents(fomoInfo.discountPercents);
-                    setDiscountTimePercentAndPrice(discountTimePercentAndPrice);
-
-                    setTimeReductionPrices(fomoInfo.timeReductionPrices);
-                    setTimeReductionSecs(fomoInfo.timeReductionSecs);
-                    setTimeReductionSecAndPrice(timeReductionSecAndPrice);
-                }
-
-                if (reach && account) {
-                    if (!nftPrize) {
-                        const { nftPrize } = fomoInfo;
-                        setNftPrize(reach.bigNumberToNumber(nftPrize));
-                        const nftLink = (await getAssetInfo(reach.bigNumberToNumber(nftPrize))).params.url;
-                        if (nftLink === '') {
-                            logEvent(account.networkAccount.addr, { message: 'GET NFT LINK FAIL' }, 'errors');
-                        }
-                        setnftLink(nftLink);
-                    }
-                    if (!token) {
-                        setToken(reach.bigNumberToNumber(fomoInfo.token));
-                    }
-
-                    if (!isAcceptedFomo) {
-                        try {
-                            const isAcceptedFomo = await account.tokenAccepted(fomoInfo.token);
-                            setIsAcceptedFomo(isAcceptedFomo);
-                        } catch (error) {
-                            logEvent(account.networkAccount.addr, { message: 'GET ACCEPTED TOKEN FAIL' }, 'errors');
-                        }
-                    }
-                    if (!isAcceptedNFT) {
-                        try {
-                            const isAcceptedNFT = await account.tokenAccepted(fomoInfo.nftPrize);
-                            setIsAccceptedNFT(isAcceptedNFT);
-                        } catch (error) {
-                            logEvent(account.networkAccount.addr, { message: 'GET ACCEPTED NFT FAIL' }, 'errors');
-                        }
-                    }
-
-                    if (!token) {
-                        const [status, participantInfo] = await ctc.views.Fomo.participantInfo(
-                            account?.getAddress()
-                        );
-                        if (status === 'None') {
-                            logEvent(account.networkAccount.addr, { message: 'GET PARTICIPANT INFO FAIL' }, 'errors');
-                        } else {
-                            const { discountLevel, timeReductionLevel } = participantInfo;
-                            setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
-                            setDiscountLevel(reach.bigNumberToNumber(discountLevel));
-                        }
-                    }
-
-                    const paidToFunder = Number.parseFloat(reach.formatCurrency(fomoInfo.paidToFunder, 4));
-                    const currentTotal =
-                        Number.parseFloat(reach.formatCurrency(fomoInfo.currentTotal, 3)) - paidToFunder;
-
-                    updateBalance(reach.bigNumberToNumber(fomoInfo.token));
-
-                    const endTimeCurrent = reach.bigNumberToNumber(fomoInfo.endTimestamp);
-
-                    if (endTime !== endTimeCurrent) {
-                        const now = await reach.getNetworkSecs();
-                        const currentTime = reach.bigNumberToNumber(now);
-
-                        setTimeLeft(endTimeCurrent - currentTime);
-                        console.log('BUY_TICKET', 'END_TIME', endTime, 'CT', currentTime);
-                    }
-
-                    if (currentTime > endTimeCurrent) {
-                        console.log('fomo is finished');
-                        setIsFinish(true);
-                        return;
-                    }
-
-                    setEndTime(reach.bigNumberToNumber(fomoInfo.endTimestamp));
-                    setCurrentTotal(currentTotal);
-                    setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
-                    setFomoDuration(reach.bigNumberToNumber(fomoInfo.deadline));
-                    setIsFomoSet(true);
-                    setIsLoading(false);
-                }
-            } catch (error) {
-                if (account) {
-                    logEvent(account.networkAccount.addr, { message: 'GET NETWORK INFO FAIL' }, 'errors');
-                }
+                setEndTime(reach.bigNumberToNumber(fomoInfo.endTimestamp));
+                setCurrentTotal(currentTotal);
+                setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
+                setFomoDuration(reach.bigNumberToNumber(fomoInfo.deadline));
+                setIsFomoSet(true);
+                setIsLoading(false);
             }
         },
         [
