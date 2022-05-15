@@ -36,7 +36,7 @@ import {
     AvailableBalance,
 } from './styled';
 import { NFTCard, NFTCardInfo, Nft, InfoHeader } from '../common/styled';
-import { setLevelAndValue } from './utils';
+import { transformLevelAndValue } from './utils';
 import { BigNumber } from 'ethers';
 
 const USER_BEATEN_MESSAGE = 'Sorry, someone beat you';
@@ -277,7 +277,7 @@ export const Fomo = () => {
     }, []);
 
     useEffect(() => {
-        const timeReductionSecAndPrice = setLevelAndValue(
+        const timeReductionSecAndPrice = transformLevelAndValue(
             timeReductionPrices,
             timeReductionSecs,
             timeReductionLevel,
@@ -287,7 +287,7 @@ export const Fomo = () => {
     }, [timeReductionLevel, timeReductionPrices, timeReductionSecs]);
 
     useEffect(() => {
-        const discountPercentAndPrice = setLevelAndValue(discountPrices, discountPercents, discountLevel, reach);
+        const discountPercentAndPrice = transformLevelAndValue(discountPrices, discountPercents, discountLevel, reach);
         setDiscountPercentAndPrice(discountPercentAndPrice);
     }, [discountLevel, discountPercents, discountPrices]);
 
