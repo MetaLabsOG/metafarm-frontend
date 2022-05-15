@@ -70,12 +70,12 @@ export const Fomo = () => {
     const [discountLevel, setDiscountLevel] = useState<number>(0);
     const [timeReductionLevel, setTimeReductionLevel] = useState<number>(0);
 
-    const [discountPrices, setDiscountPrices] = useState<BigNumber[]>([]);
-    const [discountPercents, setDiscountPercents] = useState<BigNumber[]>([]);
+    const [discountPrices, setDiscountPrices] = useState<number[]>([]);
+    const [discountPercents, setDiscountPercents] = useState<number[]>([]);
     const [isLoadingBoostDiscount, setIsLoadingBoostDiscount] = useState<boolean>(false);
 
-    const [timeReductionPrices, setTimeReductionPrices] = useState<BigNumber[]>([]);
-    const [timeReductionSecs, setTimeReductionSecs] = useState<BigNumber[]>([]);
+    const [timeReductionPrices, setTimeReductionPrices] = useState<number[]>([]);
+    const [timeReductionSecs, setTimeReductionSecs] = useState<number[]>([]);
     const [isLoadingBoostTimeReduction, setIsLoadingTimeReduction] = useState<boolean>(false);
 
     const [fomoTokensOnAccount, setFomoTokensOnAccount] = useState<string>('0');
@@ -90,6 +90,10 @@ export const Fomo = () => {
     }>({ currentWinner: '', winnerPrice: '0', currentPrice: '0' });
 
     const isBoostAviable = (boostPrice: number) => Number(fomoTokensOnAccount) >= boostPrice;
+
+    const getNextDiscountPrice = () => (discountLevel === discountPrices.length ? 0 : discountPrices[discountLevel]);
+    const getNextTimeReductionPrice = () =>
+        timeReductionLevel === timeReductionPrices.length ? 0 : timeReductionPrices[timeReductionLevel];
 
     const updateBalance = useCallback(
         async (token) => {
@@ -137,12 +141,14 @@ export const Fomo = () => {
                 return;
             }
 
-            if (!discountPrices.length && !timeReductionPrices.length) {
-                setDiscountPrices(fomoInfo.discountPrices);
-                setDiscountPercents(fomoInfo.discountPercents);
+            const bnArrayToNumberArray = (arr: BigNumber[]) => arr.map((x) => x.toNumber());
 
-                setTimeReductionPrices(fomoInfo.timeReductionPrices);
-                setTimeReductionSecs(fomoInfo.timeReductionSecs);
+            if (!discountPrices.length && !timeReductionPrices.length) {
+                setDiscountPrices(bnArrayToNumberArray(fomoInfo.discountPrices));
+                setDiscountPercents(bnArrayToNumberArray(fomoInfo.discountPercents));
+
+                setTimeReductionPrices(bnArrayToNumberArray(fomoInfo.timeReductionPrices));
+                setTimeReductionSecs(bnArrayToNumberArray(fomoInfo.timeReductionSecs));
             }
 
             // TODO BUG: when we start from app/fomo page and connect wallet, account is undefined despite
@@ -262,35 +268,6 @@ export const Fomo = () => {
         setCurrentWinner(winnerAddress);
     }, []);
 
-
-    const getTimeReductionSecsAndPrice = () => {
-        if (!timeReductionPrices.length) {
-            return {
-                price: 0,
-                value: 0,
-                nextLvlValue: 10,
-            };
-        }
-        return transformLevelAndValue(
-            timeReductionPrices,
-            timeReductionSecs,
-            timeReductionLevel,
-            reach
-        );
-    }
-
-    // TODO it shall probably be removed because it's too weird
-    const getDiscountPercentAndPrice = () => {
-        if (!discountPrices.length) {
-            return {
-                price: 0,
-                value: 0,
-                nextLvlValue: 3,
-            };
-        }
-        return transformLevelAndValue(discountPrices, discountPercents, discountLevel, reach);
-    };
-
     const connectToContract = useCallback(
         async (account) => {
             console.log('connect to contract');
@@ -333,11 +310,11 @@ export const Fomo = () => {
             };
             connect();
         }
-    }, [account, ctc, isAccountConnected]);
+    }, [account, ctc, isAccountConnected, connectToContract]);
 
     // // REACH BUYER INTERFACE
     const buyDiscount = async () => {
-        if (!isBoostAviable(getDiscountPercentAndPrice().price)) {
+        if (!isBoostAviable(discountPrices[discountLevel])) {
             return;
         }
 
@@ -345,15 +322,16 @@ export const Fomo = () => {
 
         //@ts-ignore
         ctc.apis.Api.buyDiscount()
-            .then(({ discountLevel }: { discountLevel: BigNumber }) => {
-                setDiscountLevel(reach.bigNumberToNumber(discountLevel));
+            .then(({ _discountLevel }: { _discountLevel: BigNumber }) => {
+                setDiscountLevel(reach.bigNumberToNumber(_discountLevel));
                 if (account) {
                     logEvent(
                         account?.networkAccount.addr,
                         {
                             action: 'boost discount',
-                            status: `BOOST ${getDiscountPercentAndPrice().price} FOMO`,
-                            boostSaleValue: getDiscountPercentAndPrice().value,
+                            status: `BOOST ${discountPrices[discountLevel]} FOMO`,
+                            timeReductionSecs: timeReductionSecs[timeReductionLevel],
+                            discountPercent: discountPercents[discountLevel],
                             bid: currentPrice,
                             prize: Number(currentTotal).toFixed(2),
                             accBalance: balance,
@@ -379,23 +357,23 @@ export const Fomo = () => {
     };
 
     const buyTimeReduction = async () => {
-        if (!isBoostAviable(getTimeReductionSecsAndPrice().price)) {
+        if (!isBoostAviable(discountPrices[discountLevel])) {
             return;
         }
         setIsLoadingTimeReduction(true);
 
         //@ts-ignore
         ctc.apis.Api.buyTimeReduction()
-            .then(({ timeReductionLevel }: { timeReductionLevel: BigNumber }) => {
-                setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
+            .then(({ _timeReductionLevel }: { _timeReductionLevel: BigNumber }) => {
+                setTimeReductionLevel(reach.bigNumberToNumber(_timeReductionLevel));
                 if (account) {
                     logEvent(
                         account?.networkAccount.addr,
                         {
                             action: 'boost time reduction',
-                            status: `BOOST ${getTimeReductionSecsAndPrice().price} FOMO`,
-                            boostTimeValue: getTimeReductionSecsAndPrice().value,
-                            boostSaleValue: getDiscountPercentAndPrice().value,
+                            status: `BOOST ${timeReductionPrices[timeReductionLevel]} FOMO`,
+                            timeReductionSecs: timeReductionSecs[timeReductionLevel],
+                            discountPercent: discountPercents[discountLevel],
                             bid: currentPrice,
                             prize: Number(currentTotal).toFixed(2),
                             accBalance: balance,
@@ -444,8 +422,8 @@ export const Fomo = () => {
                         fomoBalance: fomoTokensOnAccount,
                         totalFomoBalance: tokenOwnedByUsers,
                         timeLeft: timeLeft,
-                        boostTimeValue: getTimeReductionSecsAndPrice().value,
-                        boostSaleValue: getDiscountPercentAndPrice().value,
+                        timeReductionSecs: timeReductionSecs[timeReductionLevel],
+                        discountPercent: discountPercents[discountLevel],
                     },
                     'fomo'
                 );
@@ -469,7 +447,6 @@ export const Fomo = () => {
         ctc,
         currentPrice,
         currentTotal,
-        getDiscountPercentAndPrice().value,
         fomoTokensOnAccount,
         isAcceptedFomo,
         isAcceptedNFT,
@@ -477,6 +454,10 @@ export const Fomo = () => {
         timeLeft,
         token,
         tokenOwnedByUsers,
+        discountLevel,
+        discountPercents,
+        timeReductionLevel,
+        timeReductionSecs,
         updateFomoInfo,
     ]);
 
@@ -583,7 +564,7 @@ export const Fomo = () => {
                     </Balance>
                     <Update>
                         <Level>
-                            <LabelLevel>bid discount: {getDiscountPercentAndPrice().value}% </LabelLevel>
+                            <LabelLevel>buy discount: {discountPercents[discountLevel]}% </LabelLevel>
                             <LevelValue>level {discountLevel}</LevelValue>
                         </Level>
                         <BoostButtonConteiner onClick={buyDiscount}>
@@ -591,13 +572,13 @@ export const Fomo = () => {
                                 <>
                                     <BoostButton
                                         isLoading={isLoadingBoostDiscount}
-                                        disabled={!isBoostAviable(getDiscountPercentAndPrice().price)}
+                                        disabled={!isBoostAviable(discountPrices[discountLevel])}
                                     >
                                         {isLoadingBoostDiscount ? '' : 'boost!'}
                                     </BoostButton>
                                     <BoostInfo>
-                                        boost to {getDiscountPercentAndPrice().nextLvlValue}% (-
-                                        {getDiscountPercentAndPrice().price} FOMO)
+                                        boost to {getNextDiscountPrice()}% (-
+                                        {discountPrices[discountLevel]} FOMO)
                                     </BoostInfo>
                                 </>
                             ) : (
@@ -608,7 +589,7 @@ export const Fomo = () => {
 
                     <Update>
                         <Level>
-                            <LabelLevel>reduce time: -{getTimeReductionSecsAndPrice().value}sec</LabelLevel>
+                            <LabelLevel>reduce time: -{timeReductionSecs[timeReductionLevel]}sec</LabelLevel>
                             <LevelValue>level {timeReductionLevel}</LevelValue>
                         </Level>
 
@@ -617,13 +598,13 @@ export const Fomo = () => {
                                 <>
                                     <BoostButton
                                         isLoading={isLoadingBoostTimeReduction}
-                                        disabled={!isBoostAviable(getTimeReductionSecsAndPrice().price)}
+                                        disabled={!isBoostAviable(timeReductionPrices[timeReductionLevel])}
                                     >
                                         {isLoadingBoostTimeReduction ? '' : 'boost!'}
                                     </BoostButton>
                                     <BoostInfo>
-                                        boost to -{getTimeReductionSecsAndPrice().nextLvlValue} sec (-
-                                        {getTimeReductionSecsAndPrice().price} FOMO)
+                                        boost to -{getNextTimeReductionPrice()} sec (-
+                                        {timeReductionPrices[timeReductionLevel]} FOMO)
                                     </BoostInfo>
                                 </>
                             ) : (
