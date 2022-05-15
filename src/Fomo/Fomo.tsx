@@ -72,20 +72,10 @@ export const Fomo = () => {
 
     const [discountPrices, setDiscountPrices] = useState<BigNumber[]>([]);
     const [discountPercents, setDiscountPercents] = useState<BigNumber[]>([]);
-    const [discountPercentAndPrice, setDiscountPercentAndPrice] = useState<LevelInfo>({
-        price: 0,
-        value: 0,
-        nextLvlValue: 3,
-    });
     const [isLoadingBoostDiscount, setIsLoadingBoostDiscount] = useState<boolean>(false);
 
     const [timeReductionPrices, setTimeReductionPrices] = useState<BigNumber[]>([]);
     const [timeReductionSecs, setTimeReductionSecs] = useState<BigNumber[]>([]);
-    const [timeReductionSecAndPrice, setTimeReductionSecAndPrice] = useState<LevelInfo>({
-        price: 0,
-        value: 0,
-        nextLvlValue: 10,
-    });
     const [isLoadingBoostTimeReduction, setIsLoadingTimeReduction] = useState<boolean>(false);
 
     const [fomoTokensOnAccount, setFomoTokensOnAccount] = useState<string>('0');
@@ -150,11 +140,9 @@ export const Fomo = () => {
             if (!discountPrices.length && !timeReductionPrices.length) {
                 setDiscountPrices(fomoInfo.discountPrices);
                 setDiscountPercents(fomoInfo.discountPercents);
-                setDiscountPercentAndPrice(discountPercentAndPrice);
 
                 setTimeReductionPrices(fomoInfo.timeReductionPrices);
                 setTimeReductionSecs(fomoInfo.timeReductionSecs);
-                setTimeReductionSecAndPrice(timeReductionSecAndPrice);
             }
 
             // TODO BUG: when we start from app/fomo page and connect wallet, account is undefined despite
@@ -238,8 +226,6 @@ export const Fomo = () => {
             discountPrices.length,
             timeReductionPrices.length,
             account,
-            discountPercentAndPrice,
-            timeReductionSecAndPrice,
             nftPrize,
             token,
             isAcceptedFomo,
@@ -276,20 +262,34 @@ export const Fomo = () => {
         setCurrentWinner(winnerAddress);
     }, []);
 
-    useEffect(() => {
-        const timeReductionSecAndPrice = transformLevelAndValue(
+
+    const getTimeReductionSecsAndPrice = () => {
+        if (!timeReductionPrices.length) {
+            return {
+                price: 0,
+                value: 0,
+                nextLvlValue: 10,
+            };
+        }
+        return transformLevelAndValue(
             timeReductionPrices,
             timeReductionSecs,
             timeReductionLevel,
             reach
         );
-        setTimeReductionSecAndPrice(timeReductionSecAndPrice);
-    }, [timeReductionLevel, timeReductionPrices, timeReductionSecs]);
+    }
 
-    useEffect(() => {
-        const discountPercentAndPrice = transformLevelAndValue(discountPrices, discountPercents, discountLevel, reach);
-        setDiscountPercentAndPrice(discountPercentAndPrice);
-    }, [discountLevel, discountPercents, discountPrices]);
+    // TODO it shall probably be removed because it's too weird
+    const getDiscountPercentAndPrice = () => {
+        if (!discountPrices.length) {
+            return {
+                price: 0,
+                value: 0,
+                nextLvlValue: 3,
+            };
+        }
+        return transformLevelAndValue(discountPrices, discountPercents, discountLevel, reach);
+    };
 
     const connectToContract = useCallback(
         async (account) => {
@@ -337,7 +337,7 @@ export const Fomo = () => {
 
     // // REACH BUYER INTERFACE
     const buyDiscount = async () => {
-        if (!isBoostAviable(discountPercentAndPrice.price)) {
+        if (!isBoostAviable(getDiscountPercentAndPrice().price)) {
             return;
         }
 
@@ -352,8 +352,8 @@ export const Fomo = () => {
                         account?.networkAccount.addr,
                         {
                             action: 'boost discount',
-                            status: `BOOST ${discountPercentAndPrice.price} FOMO`,
-                            boostSaleValue: discountPercentAndPrice.value,
+                            status: `BOOST ${getDiscountPercentAndPrice().price} FOMO`,
+                            boostSaleValue: getDiscountPercentAndPrice().value,
                             bid: currentPrice,
                             prize: Number(currentTotal).toFixed(2),
                             accBalance: balance,
@@ -379,7 +379,7 @@ export const Fomo = () => {
     };
 
     const buyTimeReduction = async () => {
-        if (!isBoostAviable(timeReductionSecAndPrice.price)) {
+        if (!isBoostAviable(getTimeReductionSecsAndPrice().price)) {
             return;
         }
         setIsLoadingTimeReduction(true);
@@ -393,9 +393,9 @@ export const Fomo = () => {
                         account?.networkAccount.addr,
                         {
                             action: 'boost time reduction',
-                            status: `BOOST ${timeReductionSecAndPrice.price} FOMO`,
-                            boostTimeValue: timeReductionSecAndPrice.value,
-                            boostSaleValue: discountPercentAndPrice.value,
+                            status: `BOOST ${getTimeReductionSecsAndPrice().price} FOMO`,
+                            boostTimeValue: getTimeReductionSecsAndPrice().value,
+                            boostSaleValue: getDiscountPercentAndPrice().value,
                             bid: currentPrice,
                             prize: Number(currentTotal).toFixed(2),
                             accBalance: balance,
@@ -444,8 +444,8 @@ export const Fomo = () => {
                         fomoBalance: fomoTokensOnAccount,
                         totalFomoBalance: tokenOwnedByUsers,
                         timeLeft: timeLeft,
-                        boostTimeValue: timeReductionSecAndPrice.value,
-                        boostSaleValue: discountPercentAndPrice.value,
+                        boostTimeValue: getTimeReductionSecsAndPrice().value,
+                        boostSaleValue: getDiscountPercentAndPrice().value,
                     },
                     'fomo'
                 );
@@ -469,13 +469,12 @@ export const Fomo = () => {
         ctc,
         currentPrice,
         currentTotal,
-        discountPercentAndPrice.value,
+        getDiscountPercentAndPrice().value,
         fomoTokensOnAccount,
         isAcceptedFomo,
         isAcceptedNFT,
         nftPrize,
         timeLeft,
-        timeReductionSecAndPrice.value,
         token,
         tokenOwnedByUsers,
         updateFomoInfo,
@@ -584,7 +583,7 @@ export const Fomo = () => {
                     </Balance>
                     <Update>
                         <Level>
-                            <LabelLevel>bid discount: {discountPercentAndPrice.value}% </LabelLevel>
+                            <LabelLevel>bid discount: {getDiscountPercentAndPrice().value}% </LabelLevel>
                             <LevelValue>level {discountLevel}</LevelValue>
                         </Level>
                         <BoostButtonConteiner onClick={buyDiscount}>
@@ -592,13 +591,13 @@ export const Fomo = () => {
                                 <>
                                     <BoostButton
                                         isLoading={isLoadingBoostDiscount}
-                                        disabled={!isBoostAviable(discountPercentAndPrice.price)}
+                                        disabled={!isBoostAviable(getDiscountPercentAndPrice().price)}
                                     >
                                         {isLoadingBoostDiscount ? '' : 'boost!'}
                                     </BoostButton>
                                     <BoostInfo>
-                                        boost to {discountPercentAndPrice.nextLvlValue}% (-
-                                        {discountPercentAndPrice.price} FOMO)
+                                        boost to {getDiscountPercentAndPrice().nextLvlValue}% (-
+                                        {getDiscountPercentAndPrice().price} FOMO)
                                     </BoostInfo>
                                 </>
                             ) : (
@@ -609,7 +608,7 @@ export const Fomo = () => {
 
                     <Update>
                         <Level>
-                            <LabelLevel>reduce time: -{timeReductionSecAndPrice.value}sec</LabelLevel>
+                            <LabelLevel>reduce time: -{getTimeReductionSecsAndPrice().value}sec</LabelLevel>
                             <LevelValue>level {timeReductionLevel}</LevelValue>
                         </Level>
 
@@ -618,13 +617,13 @@ export const Fomo = () => {
                                 <>
                                     <BoostButton
                                         isLoading={isLoadingBoostTimeReduction}
-                                        disabled={!isBoostAviable(timeReductionSecAndPrice.price)}
+                                        disabled={!isBoostAviable(getTimeReductionSecsAndPrice().price)}
                                     >
                                         {isLoadingBoostTimeReduction ? '' : 'boost!'}
                                     </BoostButton>
                                     <BoostInfo>
-                                        boost to -{timeReductionSecAndPrice.nextLvlValue} sec (-
-                                        {timeReductionSecAndPrice.price} FOMO)
+                                        boost to -{getTimeReductionSecsAndPrice().nextLvlValue} sec (-
+                                        {getTimeReductionSecsAndPrice().price} FOMO)
                                     </BoostInfo>
                                 </>
                             ) : (
