@@ -43,9 +43,9 @@ export const Fomo = () => {
     //const { data } = useQuery(['pools', 'fomo'], () => getPools('fomo'));
     const id = 89413294; //data && data.length ? data[0].id : undefined;
     const { account } = useContext(AppContext) as Context;
-    const [ctc, setCtc] = useState<null>(null);
+    const [ctc, setCtc] = useState<any>(null);
     const [isAccountConnected, setIsAccountConnected] = useState<boolean>(false);
-    const [isFomoSet, setIsFomoSet] = useState<boolean>(false);
+    const [isFomoSet, setIsFomoReady] = useState<boolean>(false);
     const [isFinish, setIsFinish] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -92,7 +92,7 @@ export const Fomo = () => {
         timeReductionLevel === timeReductionPrices.length ? 0 : timeReductionPrices[timeReductionLevel];
 
     const updateBalance = useCallback(
-        async (token) => {
+        async () => {
             if (account) {
                 try {
                     const balance = await reach.balanceOf(account);
@@ -116,7 +116,7 @@ export const Fomo = () => {
                 }
             }
         },
-        [account]
+        [account, token]
     );
 
     const updateFomoInfo = useCallback(
@@ -128,95 +128,44 @@ export const Fomo = () => {
 
             console.log('Getting info');
 
-            const [fomoInfoStatus, fomoInfo] = await ctc.views.Fomo.info();
+            const [infoStatus, info] = await ctc.views.Fomo.info();
 
-            console.log(fomoInfo);
+            console.log(info);
 
-            if (fomoInfoStatus === 'None') {
-                console.log('fomoInfoStatus None');
+            if (infoStatus === 'None') {
+                logEvent(account.networkAccount.addr, { message: 'GET INFO FAIL' }, 'errors');
                 return;
             }
 
-            const bnArrayToNumberArray = (arr: BigNumber[]) => arr.map((x) => x.toNumber());
+            updateBalance();
 
-            if (!discountPrices.length && !timeReductionPrices.length) {
-                setDiscountPrices(bnArrayToNumberArray(fomoInfo.discountPrices));
-                setDiscountPercents(bnArrayToNumberArray(fomoInfo.discountPercents));
+            const endTimeCurrent = reach.bigNumberToNumber(info.endTimestamp);
 
-                setTimeReductionPrices(bnArrayToNumberArray(fomoInfo.timeReductionPrices));
-                setTimeReductionSecs(bnArrayToNumberArray(fomoInfo.timeReductionSecs));
+            if (endTime !== endTimeCurrent) {
+                const now = await reach.getNetworkSecs();
+                const currentTime = reach.bigNumberToNumber(now);
+
+                setTimeLeft(endTimeCurrent - currentTime);
+                console.log('BUY_TICKET', 'END_TIME', endTime, 'CT', currentTime);
             }
 
-            // TODO BUG: when we start from app/fomo page and connect wallet, account is undefined despite
-            // it was set in wallet connections code
-            console.log('account', account);
-            if (account) {
-                if (!nftPrize) {
-                    const { nftPrize } = fomoInfo;
-                    setNftPrize(reach.bigNumberToNumber(nftPrize));
-                    const nftLink = (await getAssetInfo(reach.bigNumberToNumber(nftPrize))).params.url;
-                    if (nftLink === '') {
-                        logEvent(account.networkAccount.addr, { message: 'GET NFT LINK FAIL' }, 'errors');
-                    }
-                    setnftLink(nftLink);
-                }
-                if (!token) {
-                    setToken(reach.bigNumberToNumber(fomoInfo.token));
-                }
-
-                if (!token) {
-                    const [status, participantInfo] = await ctc.views.Fomo.participantInfo(account?.getAddress());
-                    if (status === 'None') {
-                        logEvent(account.networkAccount.addr, { message: 'GET PARTICIPANT INFO FAIL' }, 'errors');
-                    } else {
-                        const { discountLevel, timeReductionLevel } = participantInfo;
-                        setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
-                        setDiscountLevel(reach.bigNumberToNumber(discountLevel));
-                    }
-                }
-
-                const paidToFunder = Number.parseFloat(reach.formatCurrency(fomoInfo.paidToFunder, 4));
-                const currentTotal = Number.parseFloat(reach.formatCurrency(fomoInfo.currentTotal, 3)) - paidToFunder;
-
-                updateBalance(reach.bigNumberToNumber(fomoInfo.token));
-
-                const endTimeCurrent = reach.bigNumberToNumber(fomoInfo.endTimestamp);
-
-                if (endTime !== endTimeCurrent) {
-                    const now = await reach.getNetworkSecs();
-                    const currentTime = reach.bigNumberToNumber(now);
-
-                    setTimeLeft(endTimeCurrent - currentTime);
-                    console.log('BUY_TICKET', 'END_TIME', endTime, 'CT', currentTime);
-                }
-
-                // TODO we should not do it but just wait for showOutcome from smart contract
-                // but for some reason it wasn't working so this is a hack.
-                if (currentTime > endTimeCurrent) {
-                    console.log('fomo is finished');
-                    setIsFinish(true);
-                    return;
-                }
-
-                setEndTime(reach.bigNumberToNumber(fomoInfo.endTimestamp));
-                setCurrentTotal(currentTotal);
-                setTokenOwnedByUsers(reach.bigNumberToNumber(fomoInfo.tokenOwnedByUsers));
-                setFomoDuration(reach.bigNumberToNumber(fomoInfo.deadline));
-                setIsFomoSet(true);
-                setIsLoading(false);
+            // TODO we should not do it but just wait for showOutcome from smart contract
+            // but for some reason it wasn't working so this is a hack.
+            if (currentTime > endTimeCurrent) {
+                console.log('fomo is finished');
+                setIsFinish(true);
+                return;
             }
+
+            setEndTime(reach.bigNumberToNumber(info.endTimestamp));
+            const paidToFunder = Number.parseFloat(reach.formatCurrency(info.paidToFunder, 4));
+            const currentTotal = Number.parseFloat(reach.formatCurrency(info.currentTotal, 3)) - paidToFunder;
+            setCurrentTotal(currentTotal);
+            setTokenOwnedByUsers(info.tokenOwnedByUsers.toNumber());
+            setFomoDuration(info.deadline.toNumber());
+            setIsLoading(false);
         },
-        [
-            isFinish,
-            discountPrices.length,
-            timeReductionPrices.length,
-            account,
-            nftPrize,
-            token,
-            updateBalance,
-            endTime,
-            currentTime,
-        ]
+        [isFinish, account, updateBalance, endTime, currentTime]
     );
 
     const showPurchase = useCallback(([winnerAddress, winnerPriceHex, newPriceHex]) => {
@@ -246,25 +195,18 @@ export const Fomo = () => {
     }, []);
 
     useEffect(() => {
-        if (account && !isAccountConnected && !ctc) {
-            const connect = async () => {
+        // TODO BUG: when we start from app/fomo page and connect wallet, account is undefined despite
+        // it was set in wallet connections code
+        if (account && !isAccountConnected) {
+            const connect = () => {
                 console.log('connect to contract');
                 // TODO should not be this exact promise
                 const ctc = account.contract(fomo, Promise.resolve(id));
                 setCtc(ctc);
                 setIsAccountConnected(true);
 
-                const events = ctc.events;
-
-                try {
-                    const now = await reach.getNetworkSecs();
-                    const currentTime = reach.bigNumberToNumber(now);
-                    setCurrentTime(currentTime);
-                } catch (error) {
-                    logEvent(account.networkAccount.addr, { message: 'GET NETWORK SEC FAIL' }, 'errors');
-                }
-
                 fomo.Buyer(ctc, {
+                    // TODO remove
                     showOutcome,
                     deployed: () => {},
                 }).catch((e: any) => {
@@ -272,16 +214,80 @@ export const Fomo = () => {
                     logEvent(account.networkAccount.addr, { message: e }, 'errors');
                 });
 
-                events.showPurchase.monitor(({ when, what }: { when: BigNumber; what: BigNumber[] }) => {
-                    showPurchase(what);
-                });
-
-                console.log('update fomo info call');
-                updateFomoInfo(ctc);
+                return ctc
             };
-            connect();
+
+            const initCurrentTime = async () => {
+                const now = await reach.getNetworkSecs();
+                const currentTime = now.toNumber();
+                setCurrentTime(currentTime);
+            }
+
+            const initPrices = (info: any) => {
+                const bnArrayToNumberArray = (arr: BigNumber[]) => arr.map((x) => x.toNumber());
+
+                setDiscountPrices(bnArrayToNumberArray(info.discountPrices));
+                setDiscountPercents(bnArrayToNumberArray(info.discountPercents));
+
+                setTimeReductionPrices(bnArrayToNumberArray(info.timeReductionPrices));
+                setTimeReductionSecs(bnArrayToNumberArray(info.timeReductionSecs));
+            };
+
+            const setInitialTimeReductionLevel = async () => {
+                const [status, participantInfo] = await ctc.views.Fomo.participantInfo(account?.getAddress());
+                if (status === 'None') {
+                    logEvent(account.networkAccount.addr, { message: 'GET PARTICIPANT INFO FAIL' }, 'errors');
+                    return;
+                }
+                const { discountLevel, timeReductionLevel } = participantInfo;
+                setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
+                setDiscountLevel(reach.bigNumberToNumber(discountLevel));
+            };
+
+            const initNftPrize = async (info: any) => {
+                const { nftPrize } = info;
+                setNftPrize(nftPrize.toNumber());
+                const nftLink = (await getAssetInfo(reach.bigNumberToNumber(nftPrize))).params.url;
+                if (nftLink === '') {
+                    logEvent(account.networkAccount.addr, { message: 'GET NFT LINK FAIL' }, 'errors');
+                }
+                setnftLink(nftLink);
+            };
+
+            const ctc = connect();
+
+            console.log(ctc)
+
+            ctc.views.Fomo.info().then((res: any) => {
+                const [status, info] = res;
+                // TODO sometimes it happens and I have no idea why
+                if (status === 'None') {
+                    console.log("was not able to get info")
+                    logEvent(account.networkAccount.addr, { message: 'GET INFO FAIL' }, 'errors');
+                }
+                initPrices(info);
+                initNftPrize(info);
+                setToken(info.token.toNumber());
+            });
+
+            setInitialTimeReductionLevel();
+            initCurrentTime();
+
+            setIsFomoReady(true);
         }
-    }, [account, ctc, isAccountConnected, id, showOutcome, updateFomoInfo, showPurchase]);
+        // TODO ctc shouldn't be here actually but async is kinda painful...
+    }, [account, ctc, isAccountConnected, id, showOutcome, updateFomoInfo]);
+
+    // set up monitors
+    useEffect(() => {
+        if (ctc !== null) {
+            const events = ctc.events;
+            events.showPurchase.monitor(({ when, what }: { when: BigNumber; what: BigNumber[] }) => {
+                showPurchase(what);
+            });
+        }
+        // TODO destroy
+    }, [ctc, showPurchase]);
 
     // // REACH BUYER INTERFACE
     const buyDiscount = async () => {
