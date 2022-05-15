@@ -103,7 +103,7 @@ export const Fomo = () => {
 
     const updateBalance = useCallback(
         async (token) => {
-            if (reach && account) {
+            if (account) {
                 try {
                     const balance = await reach.balanceOf(account);
                     const reservedAmount = await reach.minimumBalanceOf(account);
@@ -160,7 +160,7 @@ export const Fomo = () => {
             // TODO BUG: when we start from app/fomo page and connect wallet, account is undefined despite
             // it was set in wallet connections code
             console.log('account', account);
-            if (reach && account) {
+            if (account) {
                 if (!nftPrize) {
                     const { nftPrize } = fomoInfo;
                     setNftPrize(reach.bigNumberToNumber(nftPrize));
@@ -251,35 +251,29 @@ export const Fomo = () => {
     );
 
     const showPurchase = useCallback(([winnerAddress, winnerPriceHex, newPriceHex]) => {
-        if (reach) {
-            const winnerPrice = reach.formatCurrency(winnerPriceHex, 2);
+        const winnerPrice = reach.formatCurrency(winnerPriceHex, 2);
 
-            setShowPurschaseOutput({
-                currentWinner: reach.formatAddress(winnerAddress),
-                winnerPrice,
-                currentPrice: newPriceHex,
-            });
-        }
+        setShowPurschaseOutput({
+            currentWinner: reach.formatAddress(winnerAddress),
+            winnerPrice,
+            currentPrice: newPriceHex,
+        });
     }, []);
 
     useEffect(() => {
-        if (reach) {
-            console.log('WINNER', showPurchaseOutput.currentWinner, 'PRICE', showPurchaseOutput.winnerPrice);
+        console.log('WINNER', showPurchaseOutput.currentWinner, 'PRICE', showPurchaseOutput.winnerPrice);
 
-            //@ts-ignore
-            setCurrentPrice(reach.formatCurrency(showPurchaseOutput.currentPrice, 2));
-            setCurrentWinner(showPurchaseOutput.currentWinner);
-            setWinnerPrice(showPurchaseOutput.winnerPrice);
-        }
+        //@ts-ignore
+        setCurrentPrice(reach.formatCurrency(showPurchaseOutput.currentPrice, 2));
+        setCurrentWinner(showPurchaseOutput.currentWinner);
+        setWinnerPrice(showPurchaseOutput.winnerPrice);
     }, [ctc, currentPrice, showPurchase, showPurchaseOutput]);
 
     const showOutcome = useCallback((address) => {
-        if (reach) {
-            const winnerAddress = reach.formatAddress(address);
-            console.log('WINNER!!!', winnerAddress);
-            setIsFinish(true);
-            setCurrentWinner(winnerAddress);
-        }
+        const winnerAddress = reach.formatAddress(address);
+        console.log('WINNER!!!', winnerAddress);
+        setIsFinish(true);
+        setCurrentWinner(winnerAddress);
     }, []);
 
     useEffect(() => {
@@ -307,11 +301,9 @@ export const Fomo = () => {
             const events = ctc.events;
 
             try {
-                if (reach) {
-                    const now = await reach.getNetworkSecs();
-                    const currentTime = reach.bigNumberToNumber(now);
-                    setCurrentTime(currentTime);
-                }
+                const now = await reach.getNetworkSecs();
+                const currentTime = reach.bigNumberToNumber(now);
+                setCurrentTime(currentTime);
             } catch (error) {
                 logEvent(account.networkAccount.addr, { message: 'GET NETWORK SEC FAIL' }, 'errors');
             }
@@ -354,9 +346,7 @@ export const Fomo = () => {
         //@ts-ignore
         ctc.apis.Api.buyDiscount()
             .then(({ discountLevel }: { discountLevel: BigNumber }) => {
-                if (reach) {
-                    setDiscountLevel(reach.bigNumberToNumber(discountLevel));
-                }
+                setDiscountLevel(reach.bigNumberToNumber(discountLevel));
                 if (account) {
                     logEvent(
                         account?.networkAccount.addr,
@@ -397,9 +387,7 @@ export const Fomo = () => {
         //@ts-ignore
         ctc.apis.Api.buyTimeReduction()
             .then(({ timeReductionLevel }: { timeReductionLevel: BigNumber }) => {
-                if (reach) {
-                    setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
-                }
+                setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
                 if (account) {
                     logEvent(
                         account?.networkAccount.addr,
