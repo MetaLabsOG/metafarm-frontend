@@ -1,6 +1,5 @@
 import { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from 'react-query';
-import { LevelInfo } from './types';
 import '../css/fomo.css';
 import { backend as fomo } from '@metalabsog/metafomo';
 import { RulesModal } from './RulesModal';
