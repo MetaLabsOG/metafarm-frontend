@@ -245,49 +245,43 @@ export const Fomo = () => {
         setCurrentWinner(winnerAddress);
     }, []);
 
-    const connectToContract = useCallback(
-        async (account) => {
-            console.log('connect to contract');
-            const ctc = account.contract(fomo, id);
-            setCtc(ctc);
-            setIsAccountConnected(true);
-
-            const events = ctc.events;
-
-            try {
-                const now = await reach.getNetworkSecs();
-                const currentTime = reach.bigNumberToNumber(now);
-                setCurrentTime(currentTime);
-            } catch (error) {
-                logEvent(account.networkAccount.addr, { message: 'GET NETWORK SEC FAIL' }, 'errors');
-            }
-
-            fomo.Buyer(ctc, {
-                showOutcome,
-                deployed: () => {},
-            }).catch((e: any) => {
-                console.log('[ERROR]', e);
-                logEvent(account.networkAccount.addr, { message: e }, 'errors');
-            });
-
-            events.showPurchase.monitor(({ when, what }: { when: BigNumber; what: BigNumber[] }) => {
-                showPurchase(what);
-            });
-
-            console.log('update fomo info call');
-            updateFomoInfo(ctc);
-        },
-        [showOutcome, showPurchase, updateFomoInfo]
-    );
-
     useEffect(() => {
         if (account && !isAccountConnected && !ctc) {
             const connect = async () => {
-                await connectToContract(account);
+                console.log('connect to contract');
+                // TODO should not be this exact promise
+                const ctc = account.contract(fomo, Promise.resolve(id));
+                setCtc(ctc);
+                setIsAccountConnected(true);
+
+                const events = ctc.events;
+
+                try {
+                    const now = await reach.getNetworkSecs();
+                    const currentTime = reach.bigNumberToNumber(now);
+                    setCurrentTime(currentTime);
+                } catch (error) {
+                    logEvent(account.networkAccount.addr, { message: 'GET NETWORK SEC FAIL' }, 'errors');
+                }
+
+                fomo.Buyer(ctc, {
+                    showOutcome,
+                    deployed: () => {},
+                }).catch((e: any) => {
+                    console.log('[ERROR]', e);
+                    logEvent(account.networkAccount.addr, { message: e }, 'errors');
+                });
+
+                events.showPurchase.monitor(({ when, what }: { when: BigNumber; what: BigNumber[] }) => {
+                    showPurchase(what);
+                });
+
+                console.log('update fomo info call');
+                updateFomoInfo(ctc);
             };
             connect();
         }
-    }, [account, ctc, isAccountConnected, connectToContract]);
+    }, [account, ctc, isAccountConnected, id, showOutcome, updateFomoInfo, showPurchase]);
 
     // // REACH BUYER INTERFACE
     const buyDiscount = async () => {
