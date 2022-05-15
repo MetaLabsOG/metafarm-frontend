@@ -236,7 +236,7 @@ export const Fomo = () => {
 
                 // TODO we should not do it but just wait for showOutcome from smart contract
                 // but for some reason it wasn't working so this is a hack.
-                if (currentTime > endTime) {
+                if (currentTime > endTimeCurrent) {
                     console.log('fomo is finished');
                     setIsFinish(true);
                     return;
