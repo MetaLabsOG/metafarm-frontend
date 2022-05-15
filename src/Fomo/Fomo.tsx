@@ -39,31 +39,11 @@ import { NFTCard, NFTCardInfo, Nft, InfoHeader } from '../common/styled';
 import { setLevelAndValue } from './utils';
 import { BigNumber } from 'ethers';
 
-const USER_BEATEN_MESSAGE = "Sorry, someone beat you"
-
-function useInterval(callback: () => void, delay: number) {
-    const savedCallback = useRef();
-
-    useEffect(() => {
-        //@ts-ignore
-        savedCallback.current = callback;
-    }, [callback]);
-
-    useEffect(() => {
-        function tick() {
-            //@ts-ignore
-            savedCallback.current();
-        }
-        if (delay !== null) {
-            let id = setInterval(tick, delay);
-            return () => clearInterval(id);
-        }
-    }, [delay]);
-}
+const USER_BEATEN_MESSAGE = 'Sorry, someone beat you';
 
 export const Fomo = () => {
-    const { data } = useQuery(['pools', 'fomo'], () => getPools('fomo'));
-    const id = data && data.length ? data[0].id : undefined;
+    //const { data } = useQuery(['pools', 'fomo'], () => getPools('fomo'));
+    const id = 89413294; //data && data.length ? data[0].id : undefined;
     const { account } = useContext(AppContext) as Context;
     const [ctc, setCtc] = useState<null>(null);
     const [isAccountConnected, setIsAccountConnected] = useState<boolean>(false);
@@ -151,6 +131,7 @@ export const Fomo = () => {
 
     const updateFomoInfo = useCallback(
         async (ctc) => {
+            console.log('update fomo info');
             if (!ctc || isFinish) {
                 return;
             }
@@ -158,6 +139,8 @@ export const Fomo = () => {
             console.log('Getting info');
 
             const [fomoInfoStatus, fomoInfo] = await ctc.views.Fomo.info();
+
+            console.log(fomoInfo);
 
             if (fomoInfoStatus === 'None') {
                 console.log('fomoInfoStatus None');
@@ -174,6 +157,9 @@ export const Fomo = () => {
                 setTimeReductionSecAndPrice(timeReductionSecAndPrice);
             }
 
+            // TODO BUG: when we start from app/fomo page and connect wallet, account is undefined despite
+            // it was set in wallet connections code
+            console.log('account', account);
             if (reach && account) {
                 if (!nftPrize) {
                     const { nftPrize } = fomoInfo;
@@ -206,9 +192,7 @@ export const Fomo = () => {
                 }
 
                 if (!token) {
-                    const [status, participantInfo] = await ctc.views.Fomo.participantInfo(
-                        account?.getAddress()
-                    );
+                    const [status, participantInfo] = await ctc.views.Fomo.participantInfo(account?.getAddress());
                     if (status === 'None') {
                         logEvent(account.networkAccount.addr, { message: 'GET PARTICIPANT INFO FAIL' }, 'errors');
                     } else {
@@ -219,8 +203,7 @@ export const Fomo = () => {
                 }
 
                 const paidToFunder = Number.parseFloat(reach.formatCurrency(fomoInfo.paidToFunder, 4));
-                const currentTotal =
-                    Number.parseFloat(reach.formatCurrency(fomoInfo.currentTotal, 3)) - paidToFunder;
+                const currentTotal = Number.parseFloat(reach.formatCurrency(fomoInfo.currentTotal, 3)) - paidToFunder;
 
                 updateBalance(reach.bigNumberToNumber(fomoInfo.token));
 
@@ -266,12 +249,6 @@ export const Fomo = () => {
             currentTime,
         ]
     );
-
-    useInterval(() => {
-        if (!isLoading && !isFinish && currentTime !== 0 && id) {
-            updateFomoInfo(ctc);
-        }
-    }, 10000);
 
     const showPurchase = useCallback(([winnerAddress, winnerPriceHex, newPriceHex]) => {
         if (reach) {
@@ -322,6 +299,7 @@ export const Fomo = () => {
 
     const connectToContract = useCallback(
         async (account) => {
+            console.log('connect to contract');
             const ctc = account.contract(fomo, id);
             setCtc(ctc);
             setIsAccountConnected(true);
@@ -346,12 +324,24 @@ export const Fomo = () => {
                 logEvent(account.networkAccount.addr, { message: e }, 'errors');
             });
 
-            await events.showPurchase.monitor(({ when, what }: { when: BigNumber; what: BigNumber[] }) => {
+            events.showPurchase.monitor(({ when, what }: { when: BigNumber; what: BigNumber[] }) => {
                 showPurchase(what);
             });
+
+            console.log('update fomo info call');
+            updateFomoInfo(ctc);
         },
         [id, showOutcome, showPurchase]
     );
+
+    useEffect(() => {
+        if (account && !isAccountConnected && !ctc) {
+            const connect = async () => {
+                await connectToContract(account);
+            };
+            connect();
+        }
+    }, [account, connectToContract, ctc, isAccountConnected]);
 
     // // REACH BUYER INTERFACE
     const buyDiscount = async () => {
@@ -481,8 +471,7 @@ export const Fomo = () => {
 
                 if (e.message.includes('logic eval error')) {
                     alert('Sorry, someone beat you');
-                }
-                else if (e.message.includes('below min')) {
+                } else if (e.message.includes('below min')) {
                     alert('Not enough Algo');
                 }
             });
@@ -503,15 +492,6 @@ export const Fomo = () => {
         tokenOwnedByUsers,
         updateFomoInfo,
     ]);
-
-    useEffect(() => {
-        if (account && !isAccountConnected && !ctc) {
-            const connect = async () => {
-                await connectToContract(account);
-            };
-            connect();
-        }
-    }, [account, connectToContract, ctc, isAccountConnected]);
 
     if (id === undefined) {
         <InfoHeader>GAME NOT FOUND</InfoHeader>;
