@@ -91,33 +91,30 @@ export const Fomo = () => {
     const getNextTimeReductionPrice = () =>
         timeReductionLevel === timeReductionPrices.length ? 0 : timeReductionPrices[timeReductionLevel];
 
-    const updateBalance = useCallback(
-        async () => {
-            if (account) {
-                try {
-                    const balance = await reach.balanceOf(account);
-                    const reservedAmount = await reach.minimumBalanceOf(account);
-                    const availableBalance = reach.sub(balance, reservedAmount);
-                    const availableBalanceFormatted = reach.formatCurrency(availableBalance, 0);
-                    setBalance(reach.formatCurrency(balance, 0));
-                    setAviableBalance(availableBalanceFormatted);
-                } catch (error) {
-                    logEvent(account.networkAccount.addr, { message: 'GET BALANCE FAIL' }, 'errors');
-                }
+    const updateBalance = useCallback(async () => {
+        if (account) {
+            try {
+                const balance = await reach.balanceOf(account);
+                const reservedAmount = await reach.minimumBalanceOf(account);
+                const availableBalance = reach.sub(balance, reservedAmount);
+                const availableBalanceFormatted = reach.formatCurrency(availableBalance, 0);
+                setBalance(reach.formatCurrency(balance, 0));
+                setAviableBalance(availableBalanceFormatted);
+            } catch (error) {
+                logEvent(account.networkAccount.addr, { message: 'GET BALANCE FAIL' }, 'errors');
+            }
 
-                if (token) {
-                    try {
-                        const balanceFomo = await reach.balanceOf(account, token);
-                        const fomoTokensBalance = reach.bigNumberToNumber(balanceFomo);
-                        setFomoTokensOnAccount(fomoTokensBalance.toString());
-                    } catch (error) {
-                        logEvent(account.networkAccount.addr, { message: 'GET FOMO BALANCE FAIL' }, 'errors');
-                    }
+            if (token) {
+                try {
+                    const balanceFomo = await reach.balanceOf(account, token);
+                    const fomoTokensBalance = reach.bigNumberToNumber(balanceFomo);
+                    setFomoTokensOnAccount(fomoTokensBalance.toString());
+                } catch (error) {
+                    logEvent(account.networkAccount.addr, { message: 'GET FOMO BALANCE FAIL' }, 'errors');
                 }
             }
-        },
-        [account, token]
-    );
+        }
+    }, [account, token]);
 
     const updateFomoInfo = useCallback(
         async (ctc) => {
@@ -214,14 +211,14 @@ export const Fomo = () => {
                     logEvent(account.networkAccount.addr, { message: e }, 'errors');
                 });
 
-                return ctc
+                return ctc;
             };
 
             const initCurrentTime = async () => {
                 const now = await reach.getNetworkSecs();
                 const currentTime = now.toNumber();
                 setCurrentTime(currentTime);
-            }
+            };
 
             const initPrices = (info: any) => {
                 const bnArrayToNumberArray = (arr: BigNumber[]) => arr.map((x) => x.toNumber());
@@ -256,13 +253,13 @@ export const Fomo = () => {
 
             const ctc = connect();
 
-            console.log(ctc)
+            console.log(ctc);
 
             ctc.views.Fomo.info().then((res: any) => {
                 const [status, info] = res;
                 // TODO sometimes it happens and I have no idea why
                 if (status === 'None') {
-                    console.log("was not able to get info")
+                    console.log('was not able to get info');
                     logEvent(account.networkAccount.addr, { message: 'GET INFO FAIL' }, 'errors');
                 }
                 initPrices(info);
@@ -289,7 +286,7 @@ export const Fomo = () => {
         // TODO destroy
     }, [ctc, showPurchase]);
 
-    // // REACH BUYER INTERFACE
+
     const buyDiscount = async () => {
         if (!isBoostAviable(discountPrices[discountLevel])) {
             return;
@@ -299,16 +296,16 @@ export const Fomo = () => {
 
         //@ts-ignore
         ctc.apis.Api.buyDiscount()
-            .then(({ _discountLevel }: { _discountLevel: BigNumber }) => {
-                setDiscountLevel(reach.bigNumberToNumber(_discountLevel));
+            .then(({ discountLevel }: { discountLevel: BigNumber }) => {
+                setDiscountLevel(reach.bigNumberToNumber(discountLevel));
                 if (account) {
                     logEvent(
                         account?.networkAccount.addr,
                         {
                             action: 'boost discount',
-                            status: `BOOST ${discountPrices[discountLevel]} FOMO`,
+                            status: `BOOST ${discountPrices[discountLevel.toNumber()]} FOMO`,
                             timeReductionSecs: timeReductionSecs[timeReductionLevel],
-                            discountPercent: discountPercents[discountLevel],
+                            discountPercent: discountPercents[discountLevel.toNumber()],
                             bid: currentPrice,
                             prize: Number(currentTotal).toFixed(2),
                             accBalance: balance,
@@ -341,15 +338,15 @@ export const Fomo = () => {
 
         //@ts-ignore
         ctc.apis.Api.buyTimeReduction()
-            .then(({ _timeReductionLevel }: { _timeReductionLevel: BigNumber }) => {
-                setTimeReductionLevel(reach.bigNumberToNumber(_timeReductionLevel));
+            .then(({ timeReductionLevel }: { timeReductionLevel: BigNumber }) => {
+                setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
                 if (account) {
                     logEvent(
                         account?.networkAccount.addr,
                         {
                             action: 'boost time reduction',
-                            status: `BOOST ${timeReductionPrices[timeReductionLevel]} FOMO`,
-                            timeReductionSecs: timeReductionSecs[timeReductionLevel],
+                            status: `BOOST ${timeReductionPrices[timeReductionLevel.toNumber()]} FOMO`,
+                            timeReductionSecs: timeReductionSecs[timeReductionLevel.toNumber()],
                             discountPercent: discountPercents[discountLevel],
                             bid: currentPrice,
                             prize: Number(currentTotal).toFixed(2),
