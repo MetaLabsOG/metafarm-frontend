@@ -323,7 +323,7 @@ export const Fomo = () => {
             console.log('update fomo info call');
             updateFomoInfo(ctc);
         },
-        [id, showOutcome, showPurchase]
+        [id]
     );
 
     useEffect(() => {
@@ -333,7 +333,7 @@ export const Fomo = () => {
             };
             connect();
         }
-    }, [account, connectToContract, ctc, isAccountConnected]);
+    }, [account, ctc, isAccountConnected]);
 
     // // REACH BUYER INTERFACE
     const buyDiscount = async () => {
