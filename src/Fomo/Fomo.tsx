@@ -36,7 +36,6 @@ import {
     AvailableBalance,
 } from './styled';
 import { NFTCard, NFTCardInfo, Nft, InfoHeader } from '../common/styled';
-import { transformLevelAndValue } from './utils';
 import { BigNumber } from 'ethers';
 
 const USER_BEATEN_MESSAGE = 'Sorry, someone beat you';
@@ -81,8 +80,6 @@ export const Fomo = () => {
     const [fomoTokensOnAccount, setFomoTokensOnAccount] = useState<string>('0');
     const [tokenOwnedByUsers, setTokenOwnedByUsers] = useState<number | null>(null);
 
-    const [isAcceptedNFT, setIsAccceptedNFT] = useState<boolean>(false);
-    const [isAcceptedFomo, setIsAcceptedFomo] = useState<boolean>(false);
     const [showPurchaseOutput, setShowPurschaseOutput] = useState<{
         currentWinner: string;
         winnerPrice: string;
@@ -168,23 +165,6 @@ export const Fomo = () => {
                     setToken(reach.bigNumberToNumber(fomoInfo.token));
                 }
 
-                if (!isAcceptedFomo) {
-                    try {
-                        const isAcceptedFomo = await account.tokenAccepted(fomoInfo.token);
-                        setIsAcceptedFomo(isAcceptedFomo);
-                    } catch (error) {
-                        logEvent(account.networkAccount.addr, { message: 'GET ACCEPTED TOKEN FAIL' }, 'errors');
-                    }
-                }
-                if (!isAcceptedNFT) {
-                    try {
-                        const isAcceptedNFT = await account.tokenAccepted(fomoInfo.nftPrize);
-                        setIsAccceptedNFT(isAcceptedNFT);
-                    } catch (error) {
-                        logEvent(account.networkAccount.addr, { message: 'GET ACCEPTED NFT FAIL' }, 'errors');
-                    }
-                }
-
                 if (!token) {
                     const [status, participantInfo] = await ctc.views.Fomo.participantInfo(account?.getAddress());
                     if (status === 'None') {
@@ -234,8 +214,6 @@ export const Fomo = () => {
             account,
             nftPrize,
             token,
-            isAcceptedFomo,
-            isAcceptedNFT,
             updateBalance,
             endTime,
             currentTime,
@@ -300,7 +278,7 @@ export const Fomo = () => {
             console.log('update fomo info call');
             updateFomoInfo(ctc);
         },
-        [id]
+        [showOutcome, showPurchase, updateFomoInfo]
     );
 
     useEffect(() => {
@@ -403,6 +381,9 @@ export const Fomo = () => {
     const buyTicket = useCallback(async () => {
         setIsLoading(true);
 
+        const isAcceptedFomo = await account.tokenAccepted(token);
+        const isAcceptedNFT = await account.tokenAccepted(nftPrize);
+
         if (account && (!isAcceptedFomo || !isAcceptedNFT)) {
             await batchOptIn(reach, account.networkAccount.addr, [nftPrize, token], false);
         }
@@ -448,8 +429,6 @@ export const Fomo = () => {
         currentPrice,
         currentTotal,
         fomoTokensOnAccount,
-        isAcceptedFomo,
-        isAcceptedNFT,
         nftPrize,
         timeLeft,
         token,
