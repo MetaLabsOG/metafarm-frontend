@@ -25,6 +25,11 @@ async function getBestSwap(account: Account | undefined, asset1_id: string | und
         return;
     }
 
+    if (!asset1_amount) {
+        alert('Please, enter the token amount.');
+        return;
+    }
+
     setIsLoading(true);
     console.log(asset1_id, asset2_id, asset1_amount);
 
@@ -242,7 +247,9 @@ function formatNumber(x: number) {
 
 function BestTokenPrice({token1Amount, bestSwap, token1, token2}:
                             {token1Amount: string; bestSwap: BestSwap; token1: Option, token2: Option}) {
-    const pricePerToken = bestSwap.best_swap / Number.parseFloat(token1Amount);
+
+    const amount = Number.parseFloat(token1Amount);
+    const pricePerToken = amount ? bestSwap.best_swap / amount : 0;
     const best_algo = bestSwap.best_swap > bestSwap.direct_swap;
 
     return <div className='token_price'>
@@ -278,7 +285,7 @@ export function Swap() {
 
     const [token1, setToken1] = useState<Option>({value: '', name: '', unit_name: '', logo: '', amount: 0});
     const [token2, setToken2] = useState<Option>({value: '', name: '', unit_name: '', logo: '', amount: 0});
-    const [token1Amount, setToken1Amount] = useState<string>('');
+    const [token1Amount, setToken1Amount] = useState<string>('10');
     const [bestSwap, setBestSwap] = useState<BestSwap>({best_swap: 0, direct_swap: 0, best_path: [], usdc_diff: 0});
 
     const [options, setOptions] = useState<Option[]>([]);
@@ -310,7 +317,7 @@ export function Swap() {
                           setShowSwap(false);
                       }}
                       placeholder="Choose token" />
-        <input className="token_input" placeholder={'10'} onChange={(e) => setToken1Amount(e.target.value)} value={token1Amount} />
+        <input className="token_input" placeholder={'Choose amount (e.g. 10)'} onChange={(e) => setToken1Amount(e.target.value)} value={token1Amount} />
         <h3 className="swap_text">TO</h3>
         <SelectSearch className="select-search"
                       options={options}
