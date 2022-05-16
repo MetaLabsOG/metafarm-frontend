@@ -12,8 +12,11 @@ import {
     Input,
     ClaimButton,
     HighlightedInfo,
+    BasicInfo,
+    PoolInfoValue,
 } from './styled';
 import { Status } from '../../../Status';
+import { calculateAmountToken, convertAmount, convertAmountToUSD, numberRound } from './utils';
 
 export const EndedPool = ({
     pool,
@@ -34,9 +37,9 @@ export const EndedPool = ({
 
     const getTokenInfo = useCallback(async () => {
         if (localInfo.staked) {
-            setWithDrawAmount(reach.bigNumberToNumber(localInfo.staked));
+            setWithDrawAmount(calculateAmountToken(lpTokenInfo, localInfo.staked));
         }
-    }, [localInfo]);
+    }, [localInfo.staked, lpTokenInfo]);
 
     useEffect(() => {
         getTokenInfo();
@@ -44,7 +47,7 @@ export const EndedPool = ({
 
     const withDraw = async () => {
         try {
-            await pool.a.unstake(withDrawAmount);
+            await pool.a.unstake(convertAmount(withDrawAmount.toString(), lpTokenInfo));
         } catch (error) {
             console.log(error);
         }
@@ -53,7 +56,9 @@ export const EndedPool = ({
 
     const claim = async () => {
         try {
-            await pool.a.claim();
+            if (reach?.bigNumberToNumber(localInfo.reward) > 0) {
+                await pool.a.claim();
+            }
         } catch (error) {
             console.log(error);
         }
@@ -63,47 +68,52 @@ export const EndedPool = ({
         <PoolConainer>
             {initialInfo && localInfo && globalInfo && lpTokenInfo ? (
                 <>
-                    <TokenInfo style={{ height: '30%' }}>
+                    <TokenInfo>
                         <div>
-                            <div>{lpTokenInfo.name}</div>
+                            <BasicInfo>{lpTokenInfo?.name}</BasicInfo>
                             <div>EARN META</div>
                         </div>
                     </TokenInfo>
                     <Stake>
                         <PoolInfo>
-                            <div>{`$ ${reach?.bigNumberToNumber(globalInfo?.totalStaked)}`}</div>
-                            <div>10%</div>
+                            <PoolInfoValue width={60}>{`$${convertAmountToUSD(
+                                lpTokenInfo,
+                                globalInfo?.totalStaked
+                            )}`}</PoolInfoValue>
+                            <PoolInfoValue>0</PoolInfoValue>
                         </PoolInfo>
-                        <Action></Action>
                     </Stake>
-                    <WithDraw style={{ height: '82%' }}>
-                        <PoolInfo style={{ width: '80%' }}>
-                            <div>ENDED</div>
-                            <HighlightedInfo>{`$ ${reach?.bigNumberToNumber(localInfo.staked)}`}</HighlightedInfo>
-                        </PoolInfo>
 
+                    <WithDraw style={{ height: '82%' }}>
+                        <PoolInfo>
+                            <PoolInfoValue width={80}>ENDED</PoolInfoValue>
+                            <PoolInfoValue width={20}>
+                                <HighlightedInfo>{`$${numberRound(withDrawAmount)}`}</HighlightedInfo>
+                            </PoolInfoValue>
+                        </PoolInfo>
                         <Action customColor>
                             <Input
                                 value={withDrawAmount}
                                 placeholder="0"
-                                isActive
+                                isActive={reach?.bigNumberToNumber(localInfo.reward) > 0}
                                 disabled
                                 //@ts-ignore
                                 onChange={(e: SyntheticEvent) => setWithDrawAmount(e.currentTarget.value)}
                             />
 
-                            <Button isActive onClick={withDraw}>
+                            <Button isActive={reach?.bigNumberToNumber(localInfo.reward) > 0} onClick={withDraw}>
                                 WITHDRAW
                             </Button>
                         </Action>
                     </WithDraw>
                     <Claim>
                         <PoolInfo>
-                            <HighlightedInfo style={{ marginLeft: '40px' }}>{`$ ${
-                                reach?.bigNumberToNumber(localInfo.reward) / 10000
-                            }`}</HighlightedInfo>
+                            <HighlightedInfo style={{ marginLeft: '50px' }}>
+                                <div>{`${numberRound(calculateAmountToken(lpTokenInfo, localInfo.reward))} META`}</div>
+                                <div>{`($${numberRound(convertAmountToUSD(lpTokenInfo, localInfo.reward))})`}</div>
+                            </HighlightedInfo>
                         </PoolInfo>
-                        <ClaimButton isActive onClick={claim}>
+                        <ClaimButton isActive={reach?.bigNumberToNumber(localInfo.reward) > 0} onClick={claim}>
                             CLAIM
                         </ClaimButton>
                     </Claim>

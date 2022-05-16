@@ -66,7 +66,6 @@ export const Pool = ({ id }: { id: number }) => {
 
             if (initalInfoInFunct) {
                 const lpTokenInfo = await getLPTokenInfo(reach.bigNumberToNumber(initalInfoInFunct.stakeToken));
-                console.log('LP INFO', lpTokenInfo);
                 setLpTokenInfo(lpTokenInfo);
             }
 

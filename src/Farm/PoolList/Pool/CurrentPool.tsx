@@ -15,8 +15,10 @@ import {
     GetLpTokenButton,
     Link,
     Balance,
+    BasicInfo,
+    PoolInfoValue,
 } from './styled';
-import { isValidAmount } from './utils';
+import { isValidAmount, convertAmount, calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
 import { Status } from '../../../Status';
 import { AppContext, Context, reach } from '../../../AppContext';
 
@@ -41,51 +43,79 @@ export const CurrentPool = ({
     const [withDrawAmount, setWithDrawAmount] = useState('');
     const [balanceToken, setBalanceToken] = useState(0);
     const [stakeAmount, setStakeAmount] = useState('');
+    const [isValidStakeAmount, setIsValidStakeAmount] = useState(true);
+    const [isValidWithDrawAmount, setIsValidWithDrawAmount] = useState(true);
+    const [isAcceptedToken, setIsAcceptedToken] = useState(false);
     const [time, setTime] = useState('');
     const [stakedToken, setStakedToken] = useState(0);
 
     const getTokenInfo = useCallback(async () => {
         if (initialInfo) {
+            const isAcceptedToken = await account.tokenAccepted(id);
+            setIsAcceptedToken(isAcceptedToken);
             const { stakeToken, endBlock } = initialInfo;
             const diff = Math.floor(((endBlock - currentBlock) * 4.35) / 86400);
             setTime(`${diff} DAYS`);
             const stakeTokenId = reach.bigNumberToNumber(stakeToken);
             const balanceToken = await reach.balanceOf(account, stakeTokenId);
-            setBalanceToken((lpTokenInfo.price * reach.bigNumberToNumber(balanceToken)) / 10 ** lpTokenInfo.decimals);
+            setBalanceToken(calculateAmountToken(lpTokenInfo, balanceToken));
         }
         if (localInfo) {
-            setStakedToken(reach.bigNumberToNumber(localInfo.staked));
+            console.log(localInfo.staked);
+
+            setStakedToken(calculateAmountToken(lpTokenInfo, localInfo.staked));
         }
-    }, [initialInfo, localInfo, currentBlock, account, lpTokenInfo]);
+    }, [initialInfo, localInfo, account, id, currentBlock, lpTokenInfo]);
 
     useEffect(() => {
         getTokenInfo();
     }, [getTokenInfo]);
 
+    const onChangeStake = (e: SyntheticEvent) => {
+        //@ts-ignore
+        setIsValidStakeAmount(isValidAmount(Number(e.currentTarget.value), balanceToken));
+
+        //@ts-ignore
+        setStakeAmount(e.currentTarget.value);
+    };
+
+    const onChangeWithDraw = (e: SyntheticEvent) => {
+        //@ts-ignore
+        setIsValidWithDrawAmount(isValidAmount(Number(e.currentTarget.value), stakedToken));
+        //@ts-ignore
+        setWithDrawAmount(e.currentTarget.value);
+    };
+
     const withDraw = async () => {
-        try {
-            await pool.a.unstake(withDrawAmount);
-        } catch (error) {
-            console.log(error);
+        if (isValidWithDrawAmount) {
+            try {
+                await pool.a.unstake(convertAmount(withDrawAmount, lpTokenInfo));
+            } catch (error) {
+                console.log(error);
+            }
+            setWithDrawAmount('');
         }
-        setWithDrawAmount('');
     };
 
     const claim = async () => {
         try {
-            await pool.a.claim();
+            if (reach?.bigNumberToNumber(localInfo.reward) > 0) {
+                await pool.a.claim();
+            }
         } catch (error) {
             console.log(error);
         }
     };
 
     const stake = async () => {
-        try {
-            await pool.a.stake(stakeAmount);
-        } catch (error) {
-            console.log(error);
+        if (isValidStakeAmount) {
+            try {
+                await pool.a.stake(convertAmount(stakeAmount, lpTokenInfo));
+            } catch (error) {
+                console.log(error);
+            }
+            setStakeAmount('');
         }
-        setStakeAmount('');
     };
 
     return (
@@ -94,7 +124,7 @@ export const CurrentPool = ({
                 <>
                     <TokenInfo>
                         <div>
-                            <div>{lpTokenInfo.name}</div>
+                            <BasicInfo>{lpTokenInfo.name}</BasicInfo>
                             <div>EARN META</div>
                         </div>
                         <Link
@@ -107,50 +137,64 @@ export const CurrentPool = ({
                     </TokenInfo>
                     <Stake>
                         <PoolInfo>
-                            <div>{`$ ${reach?.bigNumberToNumber(globalInfo?.totalStaked)}`}</div>
-                            <div>10%</div>
+                            <PoolInfoValue width={60}>{`$${numberRound(
+                                convertAmountToUSD(lpTokenInfo, globalInfo?.totalStaked)
+                            )}`}</PoolInfoValue>
+                            <PoolInfoValue>10%</PoolInfoValue>
                         </PoolInfo>
                         <ActionWrapper>
-                            <Action>
+                            <Action isActive={isValidStakeAmount && balanceToken > 0}>
                                 <Input
                                     value={stakeAmount}
                                     placeholder="0"
-                                    isActive={balanceToken > 0}
-                                    //@ts-ignore
-                                    onChange={(e: SyntheticEvent) => setStakeAmount(e.currentTarget.value)}
+                                    isActive={isValidStakeAmount}
+                                    onChange={onChangeStake}
                                 />
-                                <Button isActive={balanceToken > 0} onClick={stake}>
+                                <Button isActive={isValidStakeAmount} onClick={stake}>
                                     STAKE
                                 </Button>
                             </Action>
-                            <Balance>{`Balance: ${Math.floor(balanceToken)} LP`}</Balance>
+                            <Balance isValid={isValidStakeAmount}>{`Balance: ${numberRound(balanceToken)} LP ${
+                                isValidStakeAmount ? `` : '(Not enough)'
+                            }`}</Balance>
                         </ActionWrapper>
                     </Stake>
                     <WithDraw>
-                        <PoolInfo style={{ width: '80%' }}>
-                            <div>{time}</div>
-                            <HighlightedInfo>{`$ ${reach?.bigNumberToNumber(localInfo.staked)}`}</HighlightedInfo>
+                        <PoolInfo>
+                            <PoolInfoValue width={80}>{time}</PoolInfoValue>
+                            <PoolInfoValue width={20}>
+                                <HighlightedInfo>{`$${convertAmountToUSD(lpTokenInfo, localInfo.staked).toFixed(
+                                    2
+                                )}`}</HighlightedInfo>
+                            </PoolInfoValue>
                         </PoolInfo>
                         <ActionWrapper>
-                            <Action customColor>
+                            <Action customColor isActive={isValidWithDrawAmount && stakedToken > 0}>
                                 <Input
                                     value={withDrawAmount}
+                                    isActive={isValidWithDrawAmount}
                                     placeholder="0"
-                                    //@ts-ignore
-                                    onChange={(e: SyntheticEvent) => setWithDrawAmount(e.currentTarget.value)}
+                                    onChange={onChangeWithDraw}
                                 />
-                                <Button onClick={withDraw}>WITHDRAW</Button>
+                                <Button isActive={isValidWithDrawAmount} onClick={withDraw}>
+                                    WITHDRAW
+                                </Button>
                             </Action>
-                            <Balance>{`Staked: ${stakedToken} LP`}</Balance>
+                            <Balance isValid={isValidWithDrawAmount}>{`Staked: ${numberRound(stakedToken)} LP ${
+                                isValidWithDrawAmount ? `` : '(Not enough)'
+                            } `}</Balance>
                         </ActionWrapper>
                     </WithDraw>
                     <Claim>
                         <PoolInfo>
-                            <HighlightedInfo style={{ marginLeft: '40px' }}>{`$ ${
-                                reach?.bigNumberToNumber(localInfo.reward) / 10000
-                            }`}</HighlightedInfo>
+                            <HighlightedInfo style={{ marginLeft: '40px' }}>
+                                <div>{`${numberRound(calculateAmountToken(lpTokenInfo, localInfo.reward))} META`}</div>
+                                <div>{`($${numberRound(convertAmountToUSD(lpTokenInfo, localInfo.reward))})`}</div>
+                            </HighlightedInfo>
                         </PoolInfo>
-                        <ClaimButton onClick={claim}>CLAIM</ClaimButton>
+                        <ClaimButton isActive={reach?.bigNumberToNumber(localInfo.reward) > 0} onClick={claim}>
+                            CLAIM
+                        </ClaimButton>
                     </Claim>
                 </>
             ) : (

@@ -3,26 +3,38 @@ import styled from 'styled-components';
 export const PoolConainer = styled.div`
     display: flex;
     justify-content: space-between;
-    height: 150px;
+    height: 170px;
     border-bottom: 1px solid;
     margin-top: 10px;
     color: ${(props) => props.theme.gray};
     width: 100%;
     font-size: 14px;
     padding-top: 10px;
-    padding-bottom: 10px;
+    padding-bottom: 20px;
 `;
 
 export const PoolInfo = styled.div`
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     color: ${(props) => props.theme.white};
     height: 75%;
-    width: 65%;
+`;
+
+export const PoolInfoValue = styled.div<{ width?: number }>`
+    margin-left: 6%;
+    width: ${({ width }) => (width ? `${width}%` : '50%')};
+`;
+
+export const PoolActions = styled.div`
+    display: flex;
 `;
 
 export const HighlightedInfo = styled.div`
     color: ${(props) => props.theme.green};
+`;
+
+export const BasicInfo = styled.div`
+    color: ${(props) => props.theme.white};
 `;
 
 export const Stake = styled.div`
@@ -31,6 +43,7 @@ export const Stake = styled.div`
     width: 30%;
     height: 100%;
     justify-content: space-around;
+    margin-right: 20px;
 `;
 
 export const WithDraw = styled.div`
@@ -39,6 +52,7 @@ export const WithDraw = styled.div`
     width: 30%;
     height: 100%;
     justify-content: space-around;
+    margin-right: 20px;
 `;
 
 export const ActionWrapper = styled.div`
@@ -46,16 +60,25 @@ export const ActionWrapper = styled.div`
     flex-direction: column;
 `;
 
-export const Balance = styled.div`
+export const Balance = styled.div<{ isValid: boolean }>`
     margin-top: 12px;
-    font-size: 14px;
+    font-size: 13px;
+    color: ${({ isValid, theme }) => (isValid ? theme.gray : theme.red)};
 `;
 
-export const Action = styled.div<{ customColor?: boolean }>`
+export const Action = styled.div<{ customColor?: boolean; isActive?: boolean }>`
     display: flex;
     height: 40px;
     width: 100%;
-    color: ${(props) => (props.customColor ? props.theme.blue : props.theme.green)};
+    color: ${({ isActive, theme, customColor }) => {
+        if (customColor && isActive) {
+            return theme.blue;
+        }
+        if (!customColor && isActive) {
+            return theme.green;
+        }
+        return theme.gray;
+    }}};
 `;
 
 export const Button = styled.button<{ customColor?: boolean; isActive?: boolean }>`
@@ -68,7 +91,7 @@ export const Button = styled.button<{ customColor?: boolean; isActive?: boolean 
     cursor: pointer;
     font-family: 'Korona One';
     ${Action}:hover & {
-        color: inherit;
+        color: 'inherit';
     }
 `;
 
@@ -82,7 +105,7 @@ export const Input = styled.input<{ customColor?: boolean; isActive?: boolean }>
     padding-left: 10px;
     font-family: 'Korona One';
     ${Action}:hover & {
-        color: inherit;
+        color: 'inherit';
     }
     :focus {
         outline: none;
@@ -112,7 +135,7 @@ export const ClaimButton = styled.div<{ isActive?: boolean }>`
     justify-content: center;
     cursor: pointer;
     :hover {
-        color: ${(props) => props.theme.yellow};
+        color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};
     }
 `;
 
