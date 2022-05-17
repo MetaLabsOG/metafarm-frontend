@@ -17,7 +17,7 @@ export const PoolInfo = styled.div`
     display: flex;
     justify-content: space-around;
     color: ${(props) => props.theme.white};
-    height: 75%;
+    height: 78%;
 `;
 
 export const PoolInfoValue = styled.div<{ width?: number }>`

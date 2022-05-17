@@ -25,6 +25,7 @@ export const EndedPool = ({
     globalInfo,
     lpTokenInfo,
     id,
+    getInfo,
 }: {
     pool: any;
     localInfo: any;
@@ -32,6 +33,7 @@ export const EndedPool = ({
     initialInfo: any;
     lpTokenInfo: any;
     id: number;
+    getInfo: () => void;
 }) => {
     const [withDrawAmount, setWithDrawAmount] = useState(0);
 
@@ -48,6 +50,7 @@ export const EndedPool = ({
     const withDraw = async () => {
         try {
             await pool.a.unstake(convertAmount(withDrawAmount.toString(), lpTokenInfo));
+            getInfo();
         } catch (error) {
             console.log(error);
         }
@@ -57,6 +60,7 @@ export const EndedPool = ({
     const claim = async () => {
         try {
             if (reach?.bigNumberToNumber(localInfo.reward) > 0) {
+                getInfo();
                 await pool.a.claim();
             }
         } catch (error) {

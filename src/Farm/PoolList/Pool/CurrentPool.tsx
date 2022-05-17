@@ -30,6 +30,7 @@ export const CurrentPool = ({
     lpTokenInfo,
     currentBlock,
     id,
+    getInfo,
 }: {
     pool: any;
     localInfo: any;
@@ -38,6 +39,7 @@ export const CurrentPool = ({
     lpTokenInfo: any;
     id: number;
     currentBlock: number;
+    getInfo: () => void;
 }) => {
     const { account } = useContext(AppContext) as Context;
     const [withDrawAmount, setWithDrawAmount] = useState('');
@@ -90,6 +92,7 @@ export const CurrentPool = ({
         if (isValidWithDrawAmount) {
             try {
                 await pool.a.unstake(convertAmount(withDrawAmount, lpTokenInfo));
+                getInfo();
             } catch (error) {
                 console.log(error);
             }
@@ -101,6 +104,7 @@ export const CurrentPool = ({
         try {
             if (reach?.bigNumberToNumber(localInfo.reward) > 0) {
                 await pool.a.claim();
+                getInfo();
             }
         } catch (error) {
             console.log(error);
@@ -110,6 +114,7 @@ export const CurrentPool = ({
     const stake = async () => {
         if (isValidStakeAmount) {
             try {
+                getInfo();
                 await pool.a.stake(convertAmount(stakeAmount, lpTokenInfo));
             } catch (error) {
                 console.log(error);

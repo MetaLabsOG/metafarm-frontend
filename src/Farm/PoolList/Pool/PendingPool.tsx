@@ -28,6 +28,7 @@ export const PendingPool = ({
     lpTokenInfo,
     id,
     currentBlock,
+    getInfo,
 }: {
     pool: any;
     localInfo: any;
@@ -36,6 +37,7 @@ export const PendingPool = ({
     lpTokenInfo: any;
     id: number;
     currentBlock: number;
+    getInfo: () => void;
 }) => {
     const { account } = useContext(AppContext) as Context;
     const [withDrawAmount, setWithDrawAmount] = useState('');
@@ -82,6 +84,7 @@ export const PendingPool = ({
         if (isValidWithDrawAmount) {
             try {
                 await pool.a.unstake(convertAmount(withDrawAmount, lpTokenInfo));
+                getInfo();
             } catch (error) {
                 console.log(error);
             }
@@ -93,6 +96,7 @@ export const PendingPool = ({
         if (isValidStakeAmount) {
             try {
                 await pool.a.stake(convertAmount(stakeAmount, lpTokenInfo));
+                getInfo();
             } catch (error) {
                 console.log(error);
             }
