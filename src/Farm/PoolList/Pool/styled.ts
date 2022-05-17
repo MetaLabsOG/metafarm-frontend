@@ -158,7 +158,7 @@ export const TokenInfo = styled.div`
     width: 17%;
     color: ${(props) => props.theme.green};
     justify-content: space-between;
-    height: 77%;
+    height: 80%;
     margin-left: 10px;
 `;
 
