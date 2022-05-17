@@ -70,6 +70,7 @@ export const Action = styled.div<{ customColor?: boolean; isActive?: boolean }>`
     display: flex;
     height: 40px;
     width: 100%;
+    position: relative;
     color: ${({ isActive, theme, customColor }) => {
         if (customColor && isActive) {
             return theme.blue;
@@ -101,7 +102,7 @@ export const Input = styled.input<{ customColor?: boolean; isActive?: boolean }>
     color: ${({ theme, isActive }) => (isActive ? 'inherit' : theme.gray)};
     border-radius: 4px 0 0 4px;
     border-right: none;
-    width: 50%;
+    width: 60%;
     padding-left: 10px;
     font-family: 'Korona One';
     ${Action}:hover & {
@@ -110,6 +111,18 @@ export const Input = styled.input<{ customColor?: boolean; isActive?: boolean }>
     :focus {
         outline: none;
     }
+`;
+
+export const MaxButton = styled.div`
+    position: absolute;
+    left: 43%;
+    top: 12%;
+    border: 1px solid;
+    padding: 6px;
+    border-radius: 10px;
+    color: inherit;
+    font-size: 11px;
+    cursor: pointer;
 `;
 
 export const Claim = styled.div`

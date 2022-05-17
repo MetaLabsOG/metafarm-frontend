@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState, SyntheticEvent, useCallback } from 'react';
+import { useContext, useEffect, useState, useCallback } from 'react';
 import {
     PoolConainer,
     TokenInfo,
@@ -17,6 +17,7 @@ import {
     Balance,
     BasicInfo,
     PoolInfoValue,
+    MaxButton,
 } from './styled';
 import { isValidAmount, convertAmount, calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
 import { Status } from '../../../Status';
@@ -42,9 +43,9 @@ export const CurrentPool = ({
     getInfo: () => void;
 }) => {
     const { account } = useContext(AppContext) as Context;
-    const [withDrawAmount, setWithDrawAmount] = useState('');
+    const [withDrawAmount, setWithDrawAmount] = useState(0);
     const [balanceToken, setBalanceToken] = useState(0);
-    const [stakeAmount, setStakeAmount] = useState('');
+    const [stakeAmount, setStakeAmount] = useState(0);
     const [isValidStakeAmount, setIsValidStakeAmount] = useState(true);
     const [isValidWithDrawAmount, setIsValidWithDrawAmount] = useState(true);
     const [isAcceptedToken, setIsAcceptedToken] = useState(false);
@@ -63,8 +64,6 @@ export const CurrentPool = ({
             setBalanceToken(calculateAmountToken(lpTokenInfo, balanceToken));
         }
         if (localInfo) {
-            console.log(localInfo.staked);
-
             setStakedToken(calculateAmountToken(lpTokenInfo, localInfo.staked));
         }
     }, [initialInfo, localInfo, account, id, currentBlock, lpTokenInfo]);
@@ -73,19 +72,22 @@ export const CurrentPool = ({
         getTokenInfo();
     }, [getTokenInfo]);
 
-    const onChangeStake = (e: SyntheticEvent) => {
-        //@ts-ignore
+    const onChangeStake = (e: React.ChangeEvent<HTMLInputElement>) => {
         setIsValidStakeAmount(isValidAmount(Number(e.currentTarget.value), balanceToken));
-
-        //@ts-ignore
-        setStakeAmount(e.currentTarget.value);
+        setStakeAmount(Number(e.currentTarget.value));
     };
 
-    const onChangeWithDraw = (e: SyntheticEvent) => {
-        //@ts-ignore
+    const maxedStakeAmount = () => {
+        setStakeAmount(balanceToken);
+    };
+
+    const maxedWithDrawAmount = () => {
+        setWithDrawAmount(stakedToken);
+    };
+
+    const onChangeWithDraw = (e: React.ChangeEvent<HTMLInputElement>) => {
         setIsValidWithDrawAmount(isValidAmount(Number(e.currentTarget.value), stakedToken));
-        //@ts-ignore
-        setWithDrawAmount(e.currentTarget.value);
+        setWithDrawAmount(Number(e.currentTarget.value));
     };
 
     const withDraw = async () => {
@@ -96,7 +98,7 @@ export const CurrentPool = ({
             } catch (error) {
                 console.log(error);
             }
-            setWithDrawAmount('');
+            setWithDrawAmount(0);
         }
     };
 
@@ -119,7 +121,7 @@ export const CurrentPool = ({
             } catch (error) {
                 console.log(error);
             }
-            setStakeAmount('');
+            setStakeAmount(0);
         }
     };
 
@@ -155,6 +157,7 @@ export const CurrentPool = ({
                                     isActive={isValidStakeAmount}
                                     onChange={onChangeStake}
                                 />
+                                <MaxButton onClick={maxedStakeAmount}>MAX</MaxButton>
                                 <Button isActive={isValidStakeAmount} onClick={stake}>
                                     STAKE
                                 </Button>
@@ -181,6 +184,7 @@ export const CurrentPool = ({
                                     placeholder="0"
                                     onChange={onChangeWithDraw}
                                 />
+                                <MaxButton onClick={maxedWithDrawAmount}>MAX</MaxButton>
                                 <Button isActive={isValidWithDrawAmount} onClick={withDraw}>
                                     WITHDRAW
                                 </Button>

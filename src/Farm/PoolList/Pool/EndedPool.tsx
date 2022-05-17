@@ -1,4 +1,4 @@
-import { useEffect, useState, SyntheticEvent, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { reach } from '../../../AppContext';
 import {
     PoolConainer,
@@ -49,7 +49,7 @@ export const EndedPool = ({
 
     const withDraw = async () => {
         try {
-            await pool.a.unstake(convertAmount(withDrawAmount.toString(), lpTokenInfo));
+            await pool.a.unstake(convertAmount(withDrawAmount, lpTokenInfo));
             getInfo();
         } catch (error) {
             console.log(error);
@@ -101,10 +101,10 @@ export const EndedPool = ({
                                 placeholder="0"
                                 isActive={reach?.bigNumberToNumber(localInfo.reward) > 0}
                                 disabled
-                                //@ts-ignore
-                                onChange={(e: SyntheticEvent) => setWithDrawAmount(e.currentTarget.value)}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                    setWithDrawAmount(Number(e.currentTarget.value))
+                                }
                             />
-
                             <Button isActive={reach?.bigNumberToNumber(localInfo.reward) > 0} onClick={withDraw}>
                                 WITHDRAW
                             </Button>

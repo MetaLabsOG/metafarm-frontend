@@ -3,8 +3,8 @@ import { BigNumber } from 'ethers';
 
 export const isValidAmount = (amount: number, balance: number) => (amount > balance || amount <= 0 ? false : true);
 
-export const convertAmount = (amount: string, lpToken: any) => {
-    console.log(reach.parseCurrency(Number(amount)), lpToken.decimals);
+export const convertAmount = (amount: number, lpToken: any) => {
+    console.log(reach.parseCurrency(amount), lpToken.decimals);
     return Number(amount) * 10 ** lpToken.decimals;
 };
 
