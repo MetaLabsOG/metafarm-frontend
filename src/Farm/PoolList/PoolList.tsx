@@ -16,7 +16,8 @@ import { backend as farmBackend } from '@metalabsog/farm/';
 import { PoolListHeader } from './styled';
 import { Contract, PoolT } from './types';
 import { InfoHeader } from '../../common/styled';
-import { useList } from 'effector-react';
+import { useEvent, useList } from 'effector-react';
+import { setAccount } from './store/store';
 
 const columNames = ['POOL', 'TVL', 'APR', 'ENDS IN', 'MY STAKE', 'REWARD'];
 
@@ -28,6 +29,8 @@ export const PoolList = () => {
 =======
     const { data, isError, isSuccess } = useQuery(['pools', 'farm'], () => getPools('farm'));
 >>>>>>> 4235793 (refactor(farm): :recycle: simpler storage in effector)
+
+    const handleAccount = useEvent(setAccount);
 
     const connectToContract = useCallback(
         async (account) => {
@@ -47,10 +50,13 @@ export const PoolList = () => {
     ))
 
     useEffect(() => {
+        // TODO: it shouldn't be here. Also, we shall remove account in AppContext?
+        handleAccount(account);
+
         if (account && isSuccess) {
             connectToContract(account);
         }
-    }, [account, connectToContract, isSuccess]);
+    }, [account, connectToContract, isSuccess, handleAccount]);
 
     return (
         <div>
