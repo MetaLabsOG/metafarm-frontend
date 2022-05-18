@@ -1,17 +1,10 @@
 import { createEvent, createStore } from 'effector';
-
-type VFromStore = Array<[string, any]>;
-type ProjectionValue = Map<string, number>;
-
-//@ts-ignore
-export const selector = ($store): ProjectionValue => {
-    return new Map($store.pools);
-};
+import { Contract } from '../types';
 
 export const addPools = createEvent();
 const clearPools = createEvent();
 
-export const $pools = createStore<{ pools: VFromStore }>({ pools: [] })
+export const $pools = createStore<Array<Contract>>([])
     .on(addPools, (state, pools) => pools)
     .reset(clearPools);
 

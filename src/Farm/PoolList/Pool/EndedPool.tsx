@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from 'react';
-import { reach } from '../../../AppContext';
 import {
     PoolConainer,
     TokenInfo,
@@ -17,6 +16,7 @@ import {
 } from './styled';
 import { Status } from '../../../Status';
 import { calculateAmountToken, convertAmount, convertAmountToUSD, numberRound } from './utils';
+import { GlobalInfo, InitialInfo, LocalInfo } from '../types';
 
 export const EndedPool = ({
     pool,
@@ -24,15 +24,13 @@ export const EndedPool = ({
     localInfo,
     globalInfo,
     lpTokenInfo,
-    id,
     getInfo,
 }: {
     pool: any;
-    localInfo: any;
-    globalInfo: any;
-    initialInfo: any;
+    localInfo: LocalInfo;
+    globalInfo: GlobalInfo;
+    initialInfo: InitialInfo;
     lpTokenInfo: any;
-    id: number;
     getInfo: () => void;
 }) => {
     const [withDrawAmount, setWithDrawAmount] = useState(0);
@@ -59,7 +57,7 @@ export const EndedPool = ({
 
     const claim = async () => {
         try {
-            if (reach?.bigNumberToNumber(localInfo.reward) > 0) {
+            if (localInfo.reward > 0) {
                 getInfo();
                 await pool.a.claim();
             }
@@ -99,13 +97,13 @@ export const EndedPool = ({
                             <Input
                                 value={withDrawAmount}
                                 placeholder="0"
-                                isActive={reach?.bigNumberToNumber(localInfo.reward) > 0}
+                                isActive={localInfo.reward > 0}
                                 disabled
                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                     setWithDrawAmount(Number(e.currentTarget.value))
                                 }
                             />
-                            <Button isActive={reach?.bigNumberToNumber(localInfo.reward) > 0} onClick={withDraw}>
+                            <Button isActive={localInfo.reward > 0} onClick={withDraw}>
                                 WITHDRAW
                             </Button>
                         </Action>
@@ -117,7 +115,7 @@ export const EndedPool = ({
                                 <div>{`($${numberRound(convertAmountToUSD(lpTokenInfo, localInfo.reward))})`}</div>
                             </HighlightedInfo>
                         </PoolInfo>
-                        <ClaimButton isActive={reach?.bigNumberToNumber(localInfo.reward) > 0} onClick={claim}>
+                        <ClaimButton isActive={localInfo.reward > 0} onClick={claim}>
                             CLAIM
                         </ClaimButton>
                     </Claim>

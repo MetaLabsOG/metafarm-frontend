@@ -22,6 +22,7 @@ import {
 import { isValidAmount, convertAmount, calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
 import { Status } from '../../../Status';
 import { AppContext, Context, reach } from '../../../AppContext';
+import { GlobalInfo, InitialInfo, LocalInfo } from '../types';
 
 export const CurrentPool = ({
     pool,
@@ -30,15 +31,13 @@ export const CurrentPool = ({
     globalInfo,
     lpTokenInfo,
     currentBlock,
-    id,
     getInfo,
 }: {
     pool: any;
-    localInfo: any;
-    globalInfo: any;
-    initialInfo: any;
+    localInfo: LocalInfo;
+    globalInfo: GlobalInfo;
+    initialInfo: InitialInfo;
     lpTokenInfo: any;
-    id: number;
     currentBlock: number;
     getInfo: () => void;
 }) => {
@@ -54,19 +53,20 @@ export const CurrentPool = ({
 
     const getTokenInfo = useCallback(async () => {
         if (initialInfo) {
-            const isAcceptedToken = await account.tokenAccepted(id);
+            // TODO shall we opt-in?
+            const isAcceptedToken = await account.tokenAccepted(initialInfo.rewardToken);
             setIsAcceptedToken(isAcceptedToken);
             const { stakeToken, endBlock } = initialInfo;
             const diff = Math.floor(((endBlock - currentBlock) * 4.35) / 86400);
             setTime(`${diff} DAYS`);
             const stakeTokenId = reach.bigNumberToNumber(stakeToken);
-            const balanceToken = await reach.balanceOf(account, stakeTokenId);
+            const balanceToken = (await reach.balanceOf(account, stakeTokenId)).toNumber();
             setBalanceToken(calculateAmountToken(lpTokenInfo, balanceToken));
         }
         if (localInfo) {
             setStakedToken(calculateAmountToken(lpTokenInfo, localInfo.staked));
         }
-    }, [initialInfo, localInfo, account, id, currentBlock, lpTokenInfo]);
+    }, [initialInfo, localInfo, account, currentBlock, lpTokenInfo]);
 
     useEffect(() => {
         getTokenInfo();
@@ -104,7 +104,7 @@ export const CurrentPool = ({
 
     const claim = async () => {
         try {
-            if (reach?.bigNumberToNumber(localInfo.reward) > 0) {
+            if (localInfo.reward > 0) {
                 await pool.a.claim();
                 getInfo();
             }
@@ -201,7 +201,7 @@ export const CurrentPool = ({
                                 <div>{`($${numberRound(convertAmountToUSD(lpTokenInfo, localInfo.reward))})`}</div>
                             </HighlightedInfo>
                         </PoolInfo>
-                        <ClaimButton isActive={reach?.bigNumberToNumber(localInfo.reward) > 0} onClick={claim}>
+                        <ClaimButton isActive={localInfo.reward > 0} onClick={claim}>
                             CLAIM
                         </ClaimButton>
                     </Claim>

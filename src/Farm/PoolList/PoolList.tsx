@@ -1,38 +1,50 @@
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import { useQuery } from 'react-query';
+<<<<<<< HEAD
 import { getContracts } from '../../providers/apiProvider';
 import { addPools } from './store';
+=======
+import { getPools } from '../../providers/apiProvider';
+import { $pools, addPools } from './store';
+>>>>>>> 4235793 (refactor(farm): :recycle: simpler storage in effector)
 import { Pool } from './Pool';
 import { AppContext, Context } from '../../AppContext';
 
 //@ts-ignore
-import { backend as farm } from '@metalabsog/farm/';
+import { backend as farmBackend } from '@metalabsog/farm/';
 
 import { PoolListHeader } from './styled';
-import { PoolT } from './types';
+import { Contract, PoolT } from './types';
 import { InfoHeader } from '../../common/styled';
+import { useList } from 'effector-react';
 
 const columNames = ['POOL', 'TVL', 'APR', 'ENDS IN', 'MY STAKE', 'REWARD'];
 
 export const PoolList = () => {
     const { account } = useContext(AppContext) as Context;
+<<<<<<< HEAD
     const { data, isError, isSuccess } = useQuery(['contracts', 'farm'], () => getContracts('farm'));
     const pools = useMemo(() => (data && data.length > 0 ? data : []), [data]);
+=======
+    const { data, isError, isSuccess } = useQuery(['pools', 'farm'], () => getPools('farm'));
+>>>>>>> 4235793 (refactor(farm): :recycle: simpler storage in effector)
 
     const connectToContract = useCallback(
         async (account) => {
             if (data) {
                 const connectedContracts = data.reduce((acc: [], pool: PoolT) => {
-                    //@ts-ignore
-                    const ctc = account.contract(farm, pool.id);
-                    return [...acc, [pool.id.toString(), ctc]];
+                    const ctc = account.contract(farmBackend, pool.id);
+                    return [...acc, ctc];
                 }, []);
-                //@ts-ignore
-                addPools({ pools: connectedContracts });
+                addPools(connectedContracts);
             }
         },
         [data]
     );
+
+    const poolComponents = useList($pools, (ctc: Contract, index: number) => (
+            <Pool key={index} index={index} poolCtc={ctc} />
+    ))
 
     useEffect(() => {
         if (account && isSuccess) {
@@ -48,7 +60,7 @@ export const PoolList = () => {
                 ))}
             </PoolListHeader>
             {isError && <InfoHeader>Oops Something went wrong :( </InfoHeader>}
-            {isSuccess && pools.map((pool: PoolT) => <Pool key={pool.id} id={pool.id} />)}
+            {poolComponents}
         </div>
     );
 };

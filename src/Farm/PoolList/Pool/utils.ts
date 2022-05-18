@@ -8,12 +8,12 @@ export const convertAmount = (amount: number, lpToken: any) => {
     return Number(amount) * 10 ** lpToken.decimals;
 };
 
-export const calculateAmountToken = (lpToken: any, balanceTokenOnAccount: BigNumber) => {
-    return reach.bigNumberToNumber(balanceTokenOnAccount) / 10 ** lpToken.decimals;
+export const calculateAmountToken = (lpToken: any, balanceTokenOnAccount: number) => {
+    return balanceTokenOnAccount / 10 ** lpToken.decimals;
 };
 
-export const convertAmountToUSD = (lpToken: any, amount: BigNumber) => {
-    return (lpToken.price * reach.bigNumberToNumber(amount)) / 10 ** lpToken.decimals;
+export const convertAmountToUSD = (lpToken: any, amount: number) => {
+    return (lpToken.price * amount) / 10 ** lpToken.decimals;
 };
 
 export const numberRound = (amount: number) => {

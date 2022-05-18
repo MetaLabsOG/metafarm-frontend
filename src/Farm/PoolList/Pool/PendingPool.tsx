@@ -20,6 +20,7 @@ import {
 } from './styled';
 import { AppContext, Context, reach } from '../../../AppContext';
 import { calculateAmountToken, convertAmount, convertAmountToUSD, isValidAmount, numberRound } from './utils';
+import { GlobalInfo, InitialInfo, LocalInfo } from '../types';
 
 export const PendingPool = ({
     pool,
@@ -27,16 +28,14 @@ export const PendingPool = ({
     localInfo,
     globalInfo,
     lpTokenInfo,
-    id,
     currentBlock,
     getInfo,
 }: {
     pool: any;
-    localInfo: any;
-    globalInfo: any;
-    initialInfo: any;
+    localInfo: LocalInfo;
+    globalInfo: GlobalInfo;
+    initialInfo: InitialInfo;
     lpTokenInfo: any;
-    id: number;
     currentBlock: number;
     getInfo: () => void;
 }) => {
@@ -54,7 +53,7 @@ export const PendingPool = ({
             const { stakeToken, beginBlock } = initialInfo;
             const diff = Math.round(((beginBlock - currentBlock) * 4.35) / 86400);
             setTime(`START IN ${diff} DAYS`);
-            const balanceToken = await reach.balanceOf(account, reach.bigNumberToNumber(stakeToken));
+            const balanceToken = (await reach.balanceOf(account, stakeToken)).toNumber();
             setBalanceToken(calculateAmountToken(lpTokenInfo, balanceToken));
         }
         if (localInfo.staked) {

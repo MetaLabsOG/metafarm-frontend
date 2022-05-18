@@ -1,6 +1,4 @@
 import { useContext, useEffect, useCallback, useState } from 'react';
-import { useStoreMap } from 'effector-react';
-import { $pools, selector } from '../store';
 import { EndedPool } from './EndedPool';
 import { PendingPool } from './PendingPool';
 
@@ -20,6 +18,7 @@ import {
 } from '../types';
 
 export async function getView(ctc: Contract, name: string, ...args: any[]): Promise<InfoFromCtc> {
+    console.log("getting views", await ctc.views)
     const [status, object] = await ctc.views[name](...args);
     switch (status) {
         case 'Some':
@@ -37,9 +36,8 @@ enum PoolState {
     Finished,
 }
 
-export const Pool = ({ id }: { id: number }) => {
+export const Pool = ({ index, poolCtc }: { index: number; poolCtc: Contract }) => {
     const { account } = useContext(AppContext) as Context;
-    const pools = useStoreMap({ store: $pools, keys: [id], fn: selector });
 
     const [initialInfo, setInitalInfo] = useState<InitialInfo | undefined>(undefined);
     const [globalInfo, setGlobalInfo] = useState<GlobalInfo | undefined>(undefined);
@@ -50,17 +48,13 @@ export const Pool = ({ id }: { id: number }) => {
 
     const [poolState, setPoolState] = useState<PoolState>();
 
-    const selectedPool = pools ? pools.get(id.toString()) : undefined;
-
     const getInfo = useCallback(async () => {
-        if (!selectedPool) {
-            return;
-        }
+        console.log("getting info", poolCtc, account)
         // TODO looks shitty, probably we can make it better somehow...
-        const initialInfo = new InitialInfo((await getView(selectedPool, 'initial')) as InitialInfoFromCtc);
-        const globalInfo = new GlobalInfo((await getView(selectedPool, 'global')) as GlobalInfoFromCtc);
+        const initialInfo = new InitialInfo((await getView(poolCtc, 'initial')) as InitialInfoFromCtc);
+        const globalInfo = new GlobalInfo((await getView(poolCtc, 'global')) as GlobalInfoFromCtc);
         const localInfo = new LocalInfo(
-            (await getView(selectedPool, 'local', account.networkAccount.addr)) as LocalInfoFromCtc
+            (await getView(poolCtc, 'local', account.networkAccount.addr)) as LocalInfoFromCtc
         );
 
         const currentBlock = (await reach.getNetworkTime()).toNumber();
@@ -83,13 +77,11 @@ export const Pool = ({ id }: { id: number }) => {
         setGlobalInfo(globalInfo);
         setInitalInfo(initialInfo);
         setLocalInfo(localInfo);
-    }, [account, selectedPool]);
+    }, [account, poolCtc]);
 
     useEffect(() => {
-        if (pools.size > 0) {
-            getInfo();
-        }
-    }, [getInfo, pools]);
+        getInfo();
+    }, [getInfo]);
 
     if (!initialInfo || !globalInfo || !localInfo || !lpTokenInfo) {
         return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
@@ -98,40 +90,37 @@ export const Pool = ({ id }: { id: number }) => {
             <CurrentPool
                 getInfo={getInfo}
                 currentBlock={currentBlock}
-                pool={selectedPool}
+                pool={poolCtc}
                 initialInfo={initialInfo}
                 globalInfo={globalInfo}
                 localInfo={localInfo}
                 lpTokenInfo={lpTokenInfo}
-                id={id}
             />
         );
     } else if (poolState === PoolState.Upcoming) {
         return (
             <PendingPool
                 getInfo={getInfo}
-                pool={selectedPool}
+                pool={poolCtc}
                 initialInfo={initialInfo}
                 globalInfo={globalInfo}
                 currentBlock={currentBlock}
                 localInfo={localInfo}
                 lpTokenInfo={lpTokenInfo}
-                id={id}
             />
         );
     } else if (poolState === PoolState.Finished) {
         return (
             <EndedPool
                 getInfo={getInfo}
-                pool={selectedPool}
+                pool={poolCtc}
                 initialInfo={initialInfo}
                 globalInfo={globalInfo}
                 localInfo={localInfo}
                 lpTokenInfo={lpTokenInfo}
-                id={id}
             />
         );
     }
 
-    return <Status status="Something is wrong, please contact us" showLoading={false} />
+    return <Status status="Something is wrong, please contact us" showLoading={false} />;
 };

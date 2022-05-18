@@ -1,1 +1,1 @@
-export { addPools, $pools, selector } from './store';
+export { addPools, $pools } from './store';
