@@ -8,19 +8,34 @@ import { AppContext, Context, reach } from '../../../AppContext';
 import { Status } from '../../../Status';
 import { CurrentPool } from './CurrentPool';
 import { getLPTokenInfo, LPTokenInfo } from '../../../providers/dexesProvider';
-import { Contract, GlobalInfo, GlobalInfoFromCtc, InfoFromCtc, InitialInfo, InitialInfoFromCtc, LocalInfo, LocalInfoFromCtc } from '../types';
+import {
+    Contract,
+    GlobalInfo,
+    GlobalInfoFromCtc,
+    InfoFromCtc,
+    InitialInfo,
+    InitialInfoFromCtc,
+    LocalInfo,
+    LocalInfoFromCtc,
+} from '../types';
 
 export async function getView(ctc: Contract, name: string, ...args: any[]): Promise<InfoFromCtc> {
     const [status, object] = await ctc.views[name](...args);
-    switch(status) {
+    switch (status) {
         case 'Some':
             return object;
         case 'None':
-            throw Error("Unable to get info from contract")
+            throw Error('Unable to get info from contract');
         default:
             throw Error('Unknown status');
     }
-};
+}
+
+enum PoolState {
+    Upcoming,
+    Running,
+    Finished,
+}
 
 export const Pool = ({ id }: { id: number }) => {
     const { account } = useContext(AppContext) as Context;
@@ -33,20 +48,20 @@ export const Pool = ({ id }: { id: number }) => {
     const [lpTokenInfo, setLpTokenInfo] = useState<LPTokenInfo | undefined>(undefined);
     const [currentBlock, setCurrentBlock] = useState<number>(0);
 
-    const [isEnded, setIsEnded] = useState(false);
-    const [isPending, setIsPending] = useState(false);
-    const [isCurrent, setIsCurrent] = useState(false);
+    const [poolState, setPoolState] = useState<PoolState>();
 
     const selectedPool = pools ? pools.get(id.toString()) : undefined;
 
     const getInfo = useCallback(async () => {
         if (!selectedPool) {
-            return
+            return;
         }
         // TODO looks shitty, probably we can make it better somehow...
-        const initialInfo = new InitialInfo(await getView(selectedPool, 'initial') as InitialInfoFromCtc);
-        const globalInfo = new GlobalInfo(await getView(selectedPool, 'global') as GlobalInfoFromCtc);
-        const localInfo = new LocalInfo(await getView(selectedPool, 'local', account.networkAccount.addr) as LocalInfoFromCtc);
+        const initialInfo = new InitialInfo((await getView(selectedPool, 'initial')) as InitialInfoFromCtc);
+        const globalInfo = new GlobalInfo((await getView(selectedPool, 'global')) as GlobalInfoFromCtc);
+        const localInfo = new LocalInfo(
+            (await getView(selectedPool, 'local', account.networkAccount.addr)) as LocalInfoFromCtc
+        );
 
         const currentBlock = (await reach.getNetworkTime()).toNumber();
 
@@ -57,15 +72,11 @@ export const Pool = ({ id }: { id: number }) => {
         const endBlock = initialInfo.endBlock;
 
         if (currentBlock < beginBlock) {
-            setIsPending(true);
-        }
-
-        if (currentBlock > endBlock) {
-            setIsEnded(true);
-        }
-
-        if (currentBlock>= beginBlock && currentBlock < endBlock) {
-            setIsCurrent(true);
+            setPoolState(PoolState.Upcoming);
+        } else if (currentBlock > endBlock) {
+            setPoolState(PoolState.Finished);
+        } else {
+            setPoolState(PoolState.Running);
         }
 
         setCurrentBlock(currentBlock);
@@ -80,7 +91,35 @@ export const Pool = ({ id }: { id: number }) => {
         }
     }, [getInfo, pools]);
 
-    if (isEnded && globalInfo && localInfo && lpTokenInfo) {
+    if (!initialInfo || !globalInfo || !localInfo || !lpTokenInfo) {
+        return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
+    } else if (poolState === PoolState.Running) {
+        return (
+            <CurrentPool
+                getInfo={getInfo}
+                currentBlock={currentBlock}
+                pool={selectedPool}
+                initialInfo={initialInfo}
+                globalInfo={globalInfo}
+                localInfo={localInfo}
+                lpTokenInfo={lpTokenInfo}
+                id={id}
+            />
+        );
+    } else if (poolState === PoolState.Upcoming) {
+        return (
+            <PendingPool
+                getInfo={getInfo}
+                pool={selectedPool}
+                initialInfo={initialInfo}
+                globalInfo={globalInfo}
+                currentBlock={currentBlock}
+                localInfo={localInfo}
+                lpTokenInfo={lpTokenInfo}
+                id={id}
+            />
+        );
+    } else if (poolState === PoolState.Finished) {
         return (
             <EndedPool
                 getInfo={getInfo}
@@ -94,35 +133,5 @@ export const Pool = ({ id }: { id: number }) => {
         );
     }
 
-    if (isCurrent && globalInfo && localInfo && lpTokenInfo) {
-        return (
-            <CurrentPool
-                getInfo={getInfo}
-                currentBlock={currentBlock}
-                pool={selectedPool}
-                initialInfo={initialInfo}
-                globalInfo={globalInfo}
-                localInfo={localInfo}
-                lpTokenInfo={lpTokenInfo}
-                id={id}
-            />
-        );
-    }
-
-    if (isPending && globalInfo && localInfo && lpTokenInfo) {
-        return (
-            <PendingPool
-                getInfo={getInfo}
-                pool={selectedPool}
-                initialInfo={initialInfo}
-                globalInfo={globalInfo}
-                currentBlock={currentBlock}
-                localInfo={localInfo}
-                lpTokenInfo={lpTokenInfo}
-                id={id}
-            />
-        );
-    }
-
-    return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
+    return <Status status="Something is wrong, please contact us" showLoading={false} />
 };
