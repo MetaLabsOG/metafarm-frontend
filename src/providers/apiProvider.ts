@@ -89,3 +89,9 @@ export async function getSwapCost(asset1: number, asset2: number, amount: number
         .get(`/asset_swap_cost?address=asdf?asset1_id=${asset1}&asset2_id=${asset2}&asset1_amount=${amount}`)
         .then(({ data }) => data);
 }
+
+export async function tokensaleWhitelist(contractId: number, address: string): Promise<boolean> {
+    return instance
+        .put(`/whitelist?contract_id=${contractId}&address=${address}`)
+        .then(({ data }) => data);
+}

@@ -1,6 +1,10 @@
+import { Algodv2, Indexer, IntDecoding, makeApplicationOptInTxn, waitForConfirmation } from 'algosdk';
 import { useState, useEffect, useCallback } from 'react';
+import { Buffer } from 'buffer';
 
-import { ReachStdlib, Account } from '../types';
+import { Account, ReachStdlib } from '../types';
+
+// TODO: functions should be put into some kind of... library?
 
 const maybeToNullable = (mb: [string, any]) => {
     if (mb[0] === 'Some') return mb[1];
@@ -24,6 +28,61 @@ const convertBns = (obj: any): any => {
     }
 };
 
+const getAlgod = async (reach: ReachStdlib): Promise<Algodv2> => {
+    return (await reach.getProvider()).algodClient;
+};
+
+async function withAlgodEncoding<N extends (Algodv2 | Indexer)>(
+    algod: N,
+    encoding: IntDecoding,
+    wrapped: (algod: N) => Promise<any>
+): Promise<any> {
+    const prevEncoding = algod.getIntEncoding();
+    algod.setIntEncoding(encoding);
+    const res = await wrapped(algod);
+    algod.setIntEncoding(prevEncoding);
+    return res;
+};
+
+const getAccountInfo = async (reach: ReachStdlib, account: Account): Promise<any> => {
+    const provider = await reach.getProvider();
+    try {
+        const algod = provider.algodClient;
+        return await withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
+            return algod.accountInformation(account.networkAccount.addr).do();
+        });
+    } catch (e: any) {
+        const indexer = provider.indexer;
+        return withAlgodEncoding(indexer, IntDecoding.DEFAULT, async (indexer) => {
+            const res = await indexer.lookupAccountByID(account.networkAccount.addr).do();
+            return res.account;
+        });
+    }
+};
+
+// almost copypasted from reach stdlib because it's not exposed...
+const getAppLocalState = async (reach: ReachStdlib, account: Account, contractId: number): Promise<any | undefined> => {
+    const ai = await getAccountInfo(reach, account);
+    const alss = ai['apps-local-state'] || [];
+    const als = alss.find((x: any) => x.id === contractId);
+    return als ? als['key-value'] : undefined;
+};
+
+const manualOptIn = async (reach: ReachStdlib, account: Account, contractId: number): Promise<boolean> => {
+    const provider = await reach.getProvider();
+    const algod = provider.algodClient;
+    const ps = await algod.getTransactionParams().do();
+
+    const txn = makeApplicationOptInTxn(account.networkAccount.addr, ps, contractId);
+    const txId = txn.txID();
+
+    await provider.signAndPostTxns([{ txn: Buffer.from(txn.toByte()).toString('base64') }]);
+
+    return withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
+        return waitForConfirmation(algod, txId, 3);
+    });
+};
+
 type ReachContractHookSettings = {
     launchEventMonitors: boolean;
 };
@@ -37,8 +96,7 @@ export const useReachContract = (
     }
 ) => {
     const [ctc, setCtc] = useState<any | undefined>(undefined);
-    const [viewsState, setViewsState] = useState<any>({ initial: null, global: null, local: null });
-    const [loaded, setLoaded] = useState<boolean>(false);
+    const [state, setState] = useState<any | undefined>(undefined);
 
     const getCtc = useCallback(() => {
         //@ts-ignore
@@ -48,7 +106,6 @@ export const useReachContract = (
     // TODO: `initial` view should actually be only fetched once
     const refreshState = useCallback(async (ctc, account) => {
         const viewNames: string[] = Object.keys(ctc.views);
-        console.log('REFRESHING CONTRACT STATE');
 
         let state: any = {};
         for (const vName of viewNames) {
@@ -58,15 +115,13 @@ export const useReachContract = (
                 .then(maybeToNullable)
                 .then(convertBns);
         }
-        setViewsState(state);
-        setLoaded(true);
+        setState(state);
     }, []);
 
     useEffect(() => setCtc(getCtc()), [getCtc]);
 
     useEffect(() => {
         if (ctc !== undefined) {
-            console.log('EFFECT RECALLED');
             refreshState(ctc, account);
             // TODO: we could transform Reach event stream to the Effector event stream - is that ever useful?
             // TODO: Reach uses __polling__ for monitoring events - which means many stupid requests.
@@ -81,5 +136,24 @@ export const useReachContract = (
         }
     }, [account, ctc, refreshState, settings.launchEventMonitors]);
 
-    return { ctc, loaded, ...viewsState };
+    return { ctc, state, reload: () => refreshState(ctc, account) };
+};
+
+export const useContractOptin = (reach: ReachStdlib, account: Account, contractId: number) => {
+    const [userOptedIn, setUserOptedIn] = useState<boolean>(false);
+
+    const isOptedIn = useCallback(async () => {
+        return (await getAppLocalState(reach, account, contractId)) !== undefined;
+    }, [reach, account, contractId]);
+
+    const optIn = useCallback(async () => {
+        await manualOptIn(reach, account, contractId);
+        setUserOptedIn(true);
+    }, [reach, account, contractId]);
+
+    useEffect(() => {
+        isOptedIn().then(setUserOptedIn);
+    }, [isOptedIn]);
+
+    return { userOptedIn, optIn };
 };
