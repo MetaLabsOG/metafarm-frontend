@@ -78,7 +78,7 @@
     "workbox-webpack-plugin": "^6.4.1"
   },
   "scripts": {
-    "start": "node scripts/start.js",
+    "start": "GENERATE_SOURCEMAP=false node scripts/start.js",
     "build": "node scripts/build.js",
     "prod": "env-cmd -f .env.prod yarn start",
     "dev": "env-cmd -f .env.dev yarn build",

@@ -66,7 +66,6 @@ export const Pool = ({ id }: { id: number }) => {
 
             if (initalInfoInFunct) {
                 const lpTokenInfo = await getLPTokenInfo(reach.bigNumberToNumber(initalInfoInFunct.stakeToken));
-                console.log('LP INFO', lpTokenInfo);
                 setLpTokenInfo(lpTokenInfo);
             }
 
@@ -104,6 +103,7 @@ export const Pool = ({ id }: { id: number }) => {
     if (isEnded && globalInfo && localInfo && lpTokenInfo) {
         return (
             <EndedPool
+                getInfo={getInfo}
                 pool={selectedPool}
                 initialInfo={initialInfo}
                 globalInfo={globalInfo}
@@ -117,6 +117,7 @@ export const Pool = ({ id }: { id: number }) => {
     if (isCurrent && globalInfo && localInfo && lpTokenInfo) {
         return (
             <CurrentPool
+                getInfo={getInfo}
                 currentBlock={currentBlock}
                 pool={selectedPool}
                 initialInfo={initialInfo}
@@ -131,6 +132,7 @@ export const Pool = ({ id }: { id: number }) => {
     if (isPending && globalInfo && localInfo && lpTokenInfo) {
         return (
             <PendingPool
+                getInfo={getInfo}
                 pool={selectedPool}
                 initialInfo={initialInfo}
                 globalInfo={globalInfo}

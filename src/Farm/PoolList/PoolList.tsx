@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { getPools } from '../../providers/apiProvider';
 import { addPools } from './store';
@@ -17,6 +17,7 @@ const columNames = ['POOL', 'TVL', 'APR', 'ENDS IN', 'MY STAKE', 'REWARD'];
 export const PoolList = () => {
     const { account } = useContext(AppContext) as Context;
     const { data, isError, isSuccess } = useQuery(['pools', 'farm'], () => getPools('farm'));
+    const pools = useMemo(() => (data && data.length > 0 ? data : []), [data]);
 
     const connectToContract = useCallback(
         async (account) => {
@@ -47,7 +48,7 @@ export const PoolList = () => {
                 ))}
             </PoolListHeader>
             {isError && <InfoHeader>Oops Something went wrong :( </InfoHeader>}
-            {isSuccess && data.length > 0 && data.reverse().map((pool: PoolT) => <Pool key={pool.id} id={pool.id} />)}
+            {isSuccess && pools.map((pool: PoolT) => <Pool key={pool.id} id={pool.id} />)}
         </div>
     );
 };
