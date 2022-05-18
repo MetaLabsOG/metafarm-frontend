@@ -3211,6 +3211,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@metalabsog/common@npm:^15.0.4":
+  version: 15.0.4
+  resolution: "@metalabsog/common@npm:15.0.4::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcommon%2F15.0.4%2Fc8c2d317f25e1fb5ed09d34443b8d9d578ea4b4b2e9aa2d553975a72d1bf88cc"
+  dependencies:
+    "@reach-sh/stdlib": "npm:0.1.10-rc.4"
+    ethers: "npm:^5.6.4"
+    loglevel: "npm:^1.8.0"
+  checksum: 0498e91887cf2f7e2e56ed1c874f47c996f12d9a1671d3baef83ac9b0ead9d53e761de81e3908f9a10498c1ecb1e93fbb66e68ee5d152d1e627a0aa7f7f1c4b9
+  languageName: node
+  linkType: hard
+
+"@metalabsog/crowdsale@npm:^15.1.0":
+  version: 15.1.0
+  resolution: "@metalabsog/crowdsale@npm:15.1.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcrowdsale%2F15.1.0%2Fbb15c734a10f9246e4a96791e55015724b794a30db295e54aa6f99df0f7c8e77"
+  dependencies:
+    "@metalabsog/common": "npm:^15.0.4"
+    "@reach-sh/stdlib": "npm:0.1.10-rc.4"
+    loglevel: "npm:^1.8.0"
+  checksum: 33ce09bbec1218800ca87e27b10671120b851449722829064eae8f8cdc5685b22cc0f8e55fad7d2b88332d42fc0021a56f1fc1416194085f4ba175225ef5c215
+  languageName: node
+  linkType: hard
+
 "@metalabsog/farm@npm:15.0.3":
   version: 15.0.3
   resolution: "@metalabsog/farm@npm:15.0.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F15.0.3%2F226ca12888ff49b21e6044213dfcacf1fac48cd8249df61df68c4f4b3daa5d86"
@@ -11850,6 +11872,7 @@ __metadata:
   resolution: "metafarm-frontend@workspace:."
   dependencies:
     "@babel/core": "npm:^7.16.0"
+    "@metalabsog/crowdsale": "npm:^15.1.0"
     "@metalabsog/farm": "npm:15.0.3"
     "@metalabsog/metafomo": "npm:15.0.3"
     "@pactfi/pactsdk": "npm:^0.2.2"

@@ -73,7 +73,7 @@ export async function getWalletNFT(wallet: string) {
     );
 }
 
-export async function getPools(type: string) {
+export async function getContracts(type: string) {
     return instance
         .get(`/contracts?type=${type}`)
         .then(({ data }) => data)

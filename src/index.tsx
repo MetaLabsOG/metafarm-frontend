@@ -15,6 +15,7 @@ import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
 import './css/index.css';
+import { Crowdsale } from './Crowdsale';
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => {
                                 <Route path="/farm" element={<Farm />} />
                                 <Route path="/swap" element={<Swap />} />
                                 <Route path="/meta-dao" element={<MetaDAO />} />
+                                <Route path="/tokensale" element={<Crowdsale />} />
                             </Routes>
                         </ContentContainer>
                     </Container>

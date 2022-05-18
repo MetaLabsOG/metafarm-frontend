@@ -8,7 +8,7 @@ import { AppContext, reach, Context, IS_MOBILE } from '../AppContext';
 import { Timer } from './Timer';
 import { Status } from '../Status';
 import { batchOptIn } from '../batchOptIn.mjs';
-import { getPools } from '../providers/apiProvider';
+import { getContracts } from '../providers/apiProvider';
 import { getAssetInfo } from '../providers/algoExploerProvider';
 import { logEvent } from '../logEvent';
 import { AlgoIcon } from '../imgs/algo';
@@ -62,7 +62,7 @@ function useInterval(callback: () => void, delay: number) {
 }
 
 export const Fomo = () => {
-    const { data } = useQuery(['pools', 'fomo'], () => getPools('fomo'));
+    const { data } = useQuery(['contracts', 'fomo'], () => getContracts('fomo'));
     const id = data && data.length ? data[0].id : undefined;
     const { account } = useContext(AppContext) as Context;
     const [ctc, setCtc] = useState<null>(null);

@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useQuery } from 'react-query';
-import { getPools } from '../../providers/apiProvider';
+import { getContracts } from '../../providers/apiProvider';
 import { addPools } from './store';
 import { Pool } from './Pool';
 import { AppContext, Context } from '../../AppContext';
@@ -16,7 +16,7 @@ const columNames = ['POOL', 'TVL', 'APR', 'ENDS IN', 'MY STAKE', 'REWARD'];
 
 export const PoolList = () => {
     const { account } = useContext(AppContext) as Context;
-    const { data, isError, isSuccess } = useQuery(['pools', 'farm'], () => getPools('farm'));
+    const { data, isError, isSuccess } = useQuery(['contracts', 'farm'], () => getContracts('farm'));
     const pools = useMemo(() => (data && data.length > 0 ? data : []), [data]);
 
     const connectToContract = useCallback(
