@@ -4,49 +4,32 @@ import { $pools, selector } from '../store';
 import { EndedPool } from './EndedPool';
 import { PendingPool } from './PendingPool';
 
-import { BigNumber } from 'ethers';
-
 import { AppContext, Context, reach } from '../../../AppContext';
 import { Status } from '../../../Status';
 import { CurrentPool } from './CurrentPool';
 import { getLPTokenInfo, LPTokenInfo } from '../../../providers/dexesProvider';
+import { Contract, GlobalInfo, GlobalInfoFromCtc, InfoFromCtc, InitialInfo, InitialInfoFromCtc, LocalInfo, LocalInfoFromCtc } from '../types';
 
-type localInfo = {
-    reward: BigNumber;
-    staked: BigNumber;
-};
-
-type globalInfo = {
-    totalStaked: BigNumber;
-};
-
-type initialInfo = {
-    stakeToken: BigNumber;
-    rewardToken: BigNumber;
-    endBlock: BigNumber;
-    beginBlock: BigNumber;
-    rewardPerBlock: BigNumber;
-};
-
-//@ts-ignore
-export const getView = async (ctc, name, ...args) => {
+export async function getView(ctc: Contract, name: string, ...args: any[]): Promise<InfoFromCtc> {
     const [status, object] = await ctc.views[name](...args);
-    if (status === 'Some') {
-        return [status, object];
-    } else if (status === 'None') {
-        return [status, {}];
-    } else {
-        throw Error('Unknown status');
+    switch(status) {
+        case 'Some':
+            return object;
+        case 'None':
+            throw Error("Unable to get info from contract")
+        default:
+            throw Error('Unknown status');
     }
 };
 
 export const Pool = ({ id }: { id: number }) => {
     const { account } = useContext(AppContext) as Context;
-    //@ts-ignore
     const pools = useStoreMap({ store: $pools, keys: [id], fn: selector });
-    const [localInfo, setLocalInfo] = useState<localInfo | undefined>(undefined);
-    const [globalInfo, setGlobalInfo] = useState<globalInfo | undefined>(undefined);
-    const [initialInfo, setInitalInfo] = useState<initialInfo | undefined>(undefined);
+
+    const [initialInfo, setInitalInfo] = useState<InitialInfo | undefined>(undefined);
+    const [globalInfo, setGlobalInfo] = useState<GlobalInfo | undefined>(undefined);
+    const [localInfo, setLocalInfo] = useState<LocalInfo | undefined>(undefined);
+
     const [lpTokenInfo, setLpTokenInfo] = useState<LPTokenInfo | undefined>(undefined);
     const [currentBlock, setCurrentBlock] = useState<number>(0);
 
@@ -57,41 +40,38 @@ export const Pool = ({ id }: { id: number }) => {
     const selectedPool = pools ? pools.get(id.toString()) : undefined;
 
     const getInfo = useCallback(async () => {
-        if (selectedPool) {
-            const [, globalInfo] = await getView(selectedPool, 'global');
-            const [ininitalInfoStatus, initalInfoInFunct] = await getView(selectedPool, 'initial');
-            const [, localInfo] = await getView(selectedPool, 'local', account.networkAccount.addr);
-
-            const currentBlock = await reach.getNetworkTime();
-
-            if (initalInfoInFunct) {
-                const lpTokenInfo = await getLPTokenInfo(reach.bigNumberToNumber(initalInfoInFunct.stakeToken));
-                setLpTokenInfo(lpTokenInfo);
-            }
-
-            const currentBlockNumber = reach.bigNumberToNumber(currentBlock);
-
-            const beginBlock =
-                ininitalInfoStatus !== 'None' ? reach.bigNumberToNumber(initalInfoInFunct.beginBlock) : 0;
-            const endBlock = ininitalInfoStatus !== 'None' ? reach.bigNumberToNumber(initalInfoInFunct.endBlock) : 0;
-
-            if (currentBlockNumber < beginBlock) {
-                setIsPending(true);
-            }
-
-            if (currentBlockNumber > endBlock) {
-                setIsEnded(true);
-            }
-
-            if (currentBlockNumber >= beginBlock && currentBlockNumber < endBlock) {
-                setIsCurrent(true);
-            }
-
-            setCurrentBlock(reach?.bigNumberToNumber(currentBlock));
-            setGlobalInfo(globalInfo);
-            setInitalInfo(initalInfoInFunct);
-            setLocalInfo(localInfo);
+        if (!selectedPool) {
+            return
         }
+        // TODO looks shitty, probably we can make it better somehow...
+        const initialInfo = new InitialInfo(await getView(selectedPool, 'initial') as InitialInfoFromCtc);
+        const globalInfo = new GlobalInfo(await getView(selectedPool, 'global') as GlobalInfoFromCtc);
+        const localInfo = new LocalInfo(await getView(selectedPool, 'local', account.networkAccount.addr) as LocalInfoFromCtc);
+
+        const currentBlock = (await reach.getNetworkTime()).toNumber();
+
+        const lpTokenInfo = await getLPTokenInfo(reach.bigNumberToNumber(initialInfo.stakeToken));
+        setLpTokenInfo(lpTokenInfo);
+
+        const beginBlock = initialInfo.beginBlock;
+        const endBlock = initialInfo.endBlock;
+
+        if (currentBlock < beginBlock) {
+            setIsPending(true);
+        }
+
+        if (currentBlock > endBlock) {
+            setIsEnded(true);
+        }
+
+        if (currentBlock>= beginBlock && currentBlock < endBlock) {
+            setIsCurrent(true);
+        }
+
+        setCurrentBlock(currentBlock);
+        setGlobalInfo(globalInfo);
+        setInitalInfo(initialInfo);
+        setLocalInfo(localInfo);
     }, [account, selectedPool]);
 
     useEffect(() => {

@@ -9,9 +9,10 @@ export type PoolT = {
 };
 
 // TODO make it actually typed
-type Token = any;
+export type Token = any;
+export type Contract = any;
 
-type InitialInfoFromCtc = {
+export type InitialInfoFromCtc = {
     stakeToken: BigNumber;
     rewardToken: BigNumber;
     endBlock: BigNumber;
@@ -19,16 +20,18 @@ type InitialInfoFromCtc = {
     rewardPerBlock: BigNumber;
 };
 
-type GlobalInfoFromCtc = {
+export type GlobalInfoFromCtc = {
     totalStaked: BigNumber;
     lastUpdateBlock: BigNumber;
     rewardPerTokenStored: BigNumber;
 };
 
-type LocalInfoFromCtc = {
+export type LocalInfoFromCtc = {
     reward: BigNumber;
     staked: BigNumber;
 };
+
+export type InfoFromCtc = InitialInfoFromCtc | GlobalInfoFromCtc | LocalInfoFromCtc
 
 export class InitialInfo {
     stakeToken: Token;
