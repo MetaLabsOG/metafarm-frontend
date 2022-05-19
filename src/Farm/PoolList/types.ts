@@ -34,13 +34,15 @@ export type LocalInfoFromCtc = {
 export type InfoFromCtc = InitialInfoFromCtc | GlobalInfoFromCtc | LocalInfoFromCtc
 
 export class InitialInfo {
+    id: number;
     stakeToken: Token;
     rewardToken: Token;
     beginBlock: number;
     endBlock: number;
     rewardPerBlock: number;
 
-    constructor(data: InitialInfoFromCtc) {
+    constructor(id: number, data: InitialInfoFromCtc) {
+        this.id = id;
         this.stakeToken = data.stakeToken;
         this.rewardToken = data.rewardToken;
         this.beginBlock = data.beginBlock.toNumber();

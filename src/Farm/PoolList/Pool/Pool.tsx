@@ -16,9 +16,11 @@ import {
     LocalInfo,
     LocalInfoFromCtc,
 } from '../types';
+import { useEvent, useStore } from 'effector-react';
+import { $initialStates, updatePool } from '../store/store';
 
 export async function getView(ctc: Contract, name: string, ...args: any[]): Promise<InfoFromCtc> {
-    console.log("getting views", await ctc.views)
+    console.log('getting views', await ctc.views);
     const [status, object] = await ctc.views[name](...args);
     switch (status) {
         case 'Some':
@@ -48,10 +50,28 @@ export const Pool = ({ index, poolCtc }: { index: number; poolCtc: Contract }) =
 
     const [poolState, setPoolState] = useState<PoolState>();
 
+    const handleUpdatePool = useEvent(updatePool);
+    const initialStates = useStore($initialStates);
+
+    useEffect(() => {
+        console.log("handle update pool", index)
+        handleUpdatePool(index);
+    }, [handleUpdatePool, index]);
+
     const getInfo = useCallback(async () => {
-        console.log("getting info", poolCtc, account)
+        const initialInfo = initialStates.find(state => state.id === index)
+
+        if (!initialInfo) {
+            console.log("initial info was not found for id", index)
+            return
+        }
+
+        console.log('getting info', poolCtc, account);
         // TODO looks shitty, probably we can make it better somehow...
-        const initialInfo = new InitialInfo((await getView(poolCtc, 'initial')) as InitialInfoFromCtc);
+        /*const initialInfo = new InitialInfo(
+            id,
+            (await getView(poolCtc, 'initial')) as InitialInfoFromCtc
+        );*/
         const globalInfo = new GlobalInfo((await getView(poolCtc, 'global')) as GlobalInfoFromCtc);
         const localInfo = new LocalInfo(
             (await getView(poolCtc, 'local', account.networkAccount.addr)) as LocalInfoFromCtc
@@ -77,7 +97,7 @@ export const Pool = ({ index, poolCtc }: { index: number; poolCtc: Contract }) =
         setGlobalInfo(globalInfo);
         setInitalInfo(initialInfo);
         setLocalInfo(localInfo);
-    }, [account, poolCtc]);
+    }, [account, initialStates, poolCtc]);
 
     useEffect(() => {
         getInfo();
