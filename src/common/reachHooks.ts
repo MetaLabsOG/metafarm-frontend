@@ -1,4 +1,13 @@
-import { Algodv2, Indexer, IntDecoding, makeApplicationOptInTxn, waitForConfirmation } from 'algosdk';
+import {
+    Algodv2,
+    assignGroupID,
+    Indexer,
+    IntDecoding,
+    Transaction,
+    makeApplicationOptInTxn,
+    makeAssetTransferTxnWithSuggestedParamsFromObject,
+    waitForConfirmation,
+} from 'algosdk';
 import { useState, useEffect, useCallback } from 'react';
 import { Buffer } from 'buffer';
 
@@ -28,11 +37,7 @@ const convertBns = (obj: any): any => {
     }
 };
 
-const getAlgod = async (reach: ReachStdlib): Promise<Algodv2> => {
-    return (await reach.getProvider()).algodClient;
-};
-
-async function withAlgodEncoding<N extends (Algodv2 | Indexer)>(
+async function withAlgodEncoding<N extends Algodv2 | Indexer>(
     algod: N,
     encoding: IntDecoding,
     wrapped: (algod: N) => Promise<any>
@@ -42,7 +47,7 @@ async function withAlgodEncoding<N extends (Algodv2 | Indexer)>(
     const res = await wrapped(algod);
     algod.setIntEncoding(prevEncoding);
     return res;
-};
+}
 
 const getAccountInfo = async (reach: ReachStdlib, account: Account): Promise<any> => {
     const provider = await reach.getProvider();
@@ -60,23 +65,47 @@ const getAccountInfo = async (reach: ReachStdlib, account: Account): Promise<any
     }
 };
 
-// almost copypasted from reach stdlib because it's not exposed...
-const getAppLocalState = async (reach: ReachStdlib, account: Account, contractId: number): Promise<any | undefined> => {
-    const ai = await getAccountInfo(reach, account);
+const getLocalState = (ai: any, contractId: number): any | undefined => {
     const alss = ai['apps-local-state'] || [];
     const als = alss.find((x: any) => x.id === contractId);
     return als ? als['key-value'] : undefined;
 };
 
-const manualOptIn = async (reach: ReachStdlib, account: Account, contractId: number): Promise<boolean> => {
+const toReachTxn = (txn: Transaction): any => {
+    return { txn: Buffer.from(txn.toByte()).toString('base64') };
+};
+
+const manualBatchOptIn = async (
+    reach: ReachStdlib,
+    account: Account,
+    contractId: number,
+    tokens: number[] = []
+): Promise<boolean> => {
     const provider = await reach.getProvider();
     const algod = provider.algodClient;
     const ps = await algod.getTransactionParams().do();
 
-    const txn = makeApplicationOptInTxn(account.networkAccount.addr, ps, contractId);
-    const txId = txn.txID();
+    const appTxn = makeApplicationOptInTxn(account.networkAccount.addr, ps, contractId);
+    const txId = appTxn.txID();
 
-    await provider.signAndPostTxns([{ txn: Buffer.from(txn.toByte()).toString('base64') }]);
+    // app optin and token opt in cannot be done in the same transaction group apparently...
+    await provider.signAndPostTxns([toReachTxn(appTxn)]);
+
+    if (tokens.length > 0) {
+        const txns = tokens.map((t) =>
+            makeAssetTransferTxnWithSuggestedParamsFromObject({
+                from: account.networkAccount.addr,
+                to: account.networkAccount.addr,
+                amount: 0,
+                assetIndex: t,
+                suggestedParams: ps,
+            })
+        );
+        if (txns.length > 1) {
+            assignGroupID(txns);
+        }
+        await provider.signAndPostTxns(txns.map(toReachTxn));
+    }
 
     return withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
         return waitForConfirmation(algod, txId, 3);
@@ -139,17 +168,23 @@ export const useReachContract = (
     return { ctc, state, reload: () => refreshState(ctc, account) };
 };
 
-export const useContractOptin = (reach: ReachStdlib, account: Account, contractId: number) => {
+export const useContractOptin = (reach: ReachStdlib, account: Account, contractId: number, tokens: number[] = []) => {
     const [userOptedIn, setUserOptedIn] = useState<boolean>(false);
 
     const isOptedIn = useCallback(async () => {
-        return (await getAppLocalState(reach, account, contractId)) !== undefined;
-    }, [reach, account, contractId]);
+        const ai = await getAccountInfo(reach, account);
+        const appOptedIn = getLocalState(ai, contractId) !== undefined;
+        const accAssets = ai.assets || [];
+        const tokensOptedIn = tokens.map((t: number) => {
+            return accAssets.find((asset: any) => t === asset['asset-id']) !== undefined;
+        });
+        return appOptedIn && tokensOptedIn.every((v) => v);
+    }, [reach, account, contractId, tokens]);
 
     const optIn = useCallback(async () => {
-        await manualOptIn(reach, account, contractId);
+        await manualBatchOptIn(reach, account, contractId, tokens);
         setUserOptedIn(true);
-    }, [reach, account, contractId]);
+    }, [reach, account, contractId, tokens]);
 
     useEffect(() => {
         isOptedIn().then(setUserOptedIn);
