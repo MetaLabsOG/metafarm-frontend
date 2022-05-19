@@ -31,18 +31,18 @@ export type LocalInfoFromCtc = {
     staked: BigNumber;
 };
 
-export type InfoFromCtc = InitialInfoFromCtc | GlobalInfoFromCtc | LocalInfoFromCtc
+export type InfoFromCtc = InitialInfoFromCtc | GlobalInfoFromCtc | LocalInfoFromCtc;
 
 export class InitialInfo {
-    id: number;
+    index: number;
     stakeToken: Token;
     rewardToken: Token;
     beginBlock: number;
     endBlock: number;
     rewardPerBlock: number;
 
-    constructor(id: number, data: InitialInfoFromCtc) {
-        this.id = id;
+    constructor(index: number, data: InitialInfoFromCtc) {
+        this.index = index;
         this.stakeToken = data.stakeToken;
         this.rewardToken = data.rewardToken;
         this.beginBlock = data.beginBlock.toNumber();
@@ -52,18 +52,22 @@ export class InitialInfo {
 }
 
 export class GlobalInfo {
+    index: number;
     totalStaked: number;
 
-    constructor(data: GlobalInfoFromCtc) {
+    constructor(index: number, data: GlobalInfoFromCtc) {
+        this.index = index;
         this.totalStaked = data.totalStaked.toNumber();
     }
 }
 
 export class LocalInfo {
+    index: number;
     reward: number;
     staked: number;
 
-    constructor(data: LocalInfoFromCtc) {
+    constructor(index: number, data: LocalInfoFromCtc) {
+        this.index = index
         this.reward = data.reward.toNumber();
         this.staked = data.staked.toNumber();
     }
