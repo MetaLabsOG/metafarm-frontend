@@ -49,13 +49,13 @@ const CrowdsaleInner = ({ account, contractId }: CrowdsaleProps): ReactElement =
         console.log("PURCHASE", res);
         reload();
     }, [ctc, reload])
-    
-    if (!userOptedIn) {
-        return <Button onClick={optInAndWhitelist}>Participate in the crowdsale!</Button>;
-    }
 
     if (!state || !state.initial || !state.global || !state.local) {
         return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
+    }
+    
+    if (!userOptedIn) {
+        return <Button onClick={optInAndWhitelist}>Participate in the crowdsale!</Button>;
     }
 
     const { totalAmount, rate, individualCap } = state.initial;
@@ -71,7 +71,7 @@ const CrowdsaleInner = ({ account, contractId }: CrowdsaleProps): ReactElement =
                 microMETA/microALGO rate: {rate[0]}/{rate[1]}
             </h3>
             <h3 style={{marginBottom: '50px'}}>
-                Already sold: {sold} microMETA
+                Already sold: {sold} microMETA of {totalAmount}
             </h3>
 
             <h4>SET AMOUNT TO BUY ({individualCap - alreadyBought} more microMETA allowed)</h4>
@@ -97,6 +97,8 @@ export const Crowdsale = (): ReactElement => {
         return <InfoHeader>PLEASE, CONNECT THE WALLET.</InfoHeader>;
     } else if (isError || !data || data.length === 0) {
         return <InfoHeader>SALE NOT STARTED, COMING SOON!</InfoHeader>;
+    } else if (!data[0].metadata.whitelist.includes(account.networkAccount.addr)) {
+        return <InfoHeader>SORRY, YOU ARE NOT IN THE WHITELIST</InfoHeader>
     } else {
         return <CrowdsaleInner account={account} contractId={data[0].id} />;
     }
