@@ -2,26 +2,36 @@ import styled from 'styled-components';
 
 export const PoolConainer = styled.div`
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    height: 170px;
-    border-bottom: 1px solid;
-    margin-top: 10px;
+    height: auto;
+    margin-bottom: 16px;
     color: ${(props) => props.theme.gray};
-    width: 100%;
+    background-color: ${(props) => props.theme.darkGray};
+    width: 95%;
     font-size: 14px;
     padding-top: 10px;
+    border-radius: 10px;
     padding-bottom: 20px;
 `;
 
-export const PoolInfo = styled.div`
+export const PoolInfoContainer = styled.div`
     display: flex;
     justify-content: space-around;
     color: ${(props) => props.theme.white};
     height: 78%;
+    width: 100%;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    line-height: 22px;
+    font-size: 17px;
 `;
 
 export const PoolInfoValue = styled.div<{ width?: number }>`
-    margin-left: 6%;
+    display: flex;
+    justify-content: flex-start;
+    margin-left: 10px;
     width: ${({ width }) => (width ? `${width}%` : '50%')};
 `;
 
@@ -156,7 +166,6 @@ export const TokenInfo = styled.div`
     display: flex;
     flex-direction: column;
     width: 17%;
-    color: ${(props) => props.theme.green};
     justify-content: space-between;
     height: 80%;
     margin-left: 10px;

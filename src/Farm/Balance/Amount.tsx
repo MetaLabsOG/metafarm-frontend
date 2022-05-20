@@ -2,7 +2,7 @@ import { AmountContainer, AmountTitle, AmountValue } from './styled';
 
 type AmountPropsType = {
     title: string;
-    value: string;
+    value: number;
 };
 
 export const Amount = ({ title, value }: AmountPropsType) => (

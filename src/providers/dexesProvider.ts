@@ -15,11 +15,14 @@ export type PoolInfo = {
     totalLiquidity: number;
 };
 
-export type LPTokenInfo = {
+export type TokenInfoT = {
+    id: number;
     name: string;
     price: number;
     decimals: number;
 };
+
+export type LPTokenInfo = TokenInfoT;
 
 export type SwapQuote = {
     totalPrice: number;
@@ -193,5 +196,5 @@ export async function getLPTokenInfo(
     }
 
     const price = (poolInfo.asset1Reserve * fstAssetPrice) / poolInfo.totalLiquidity;
-    return { name, price, decimals };
+    return { id: assetId, name, price, decimals };
 }

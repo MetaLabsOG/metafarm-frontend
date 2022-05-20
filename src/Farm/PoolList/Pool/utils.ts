@@ -1,19 +1,17 @@
-import { reach } from '../../../AppContext';
-import { BigNumber } from 'ethers';
+import { TokenInfoT } from '../../../providers/dexesProvider';
 
-export const isValidAmount = (amount: number, balance: number) => (amount > balance || amount <= 0 ? false : true);
+export const isValidAmount = (amount: number, balance: number) => balance >= amount && amount > 0;
 
-export const convertAmount = (amount: number, lpToken: any) => {
-    console.log(reach.parseCurrency(amount), lpToken.decimals);
-    return Number(amount) * 10 ** lpToken.decimals;
+export const convertAmount = (amount: number, lpToken: TokenInfoT) => {
+    return amount * 10 ** lpToken.decimals;
 };
 
-export const calculateAmountToken = (lpToken: any, balanceTokenOnAccount: BigNumber) => {
-    return reach.bigNumberToNumber(balanceTokenOnAccount) / 10 ** lpToken.decimals;
+export const calculateAmountToken = (lpToken: TokenInfoT, balanceTokenOnAccount: number) => {
+    return balanceTokenOnAccount / 10 ** lpToken.decimals;
 };
 
-export const convertAmountToUSD = (lpToken: any, amount: BigNumber) => {
-    return (lpToken.price * reach.bigNumberToNumber(amount)) / 10 ** lpToken.decimals;
+export const convertAmountToUSD = (lpToken: TokenInfoT, amount: number) => {
+    return (lpToken.price * amount) / 10 ** lpToken.decimals;
 };
 
 export const numberRound = (amount: number) => {
