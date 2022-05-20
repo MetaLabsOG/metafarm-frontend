@@ -67,7 +67,7 @@ export class LocalInfo {
     staked: number;
 
     constructor(index: number, data: LocalInfoFromCtc) {
-        this.index = index
+        this.index = index;
         this.reward = data.reward.toNumber();
         this.staked = data.staked.toNumber();
     }

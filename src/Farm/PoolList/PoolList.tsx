@@ -10,16 +10,24 @@ import { $pools, addPools } from './store';
 import { Pool } from './Pool';
 import { AppContext, Context } from '../../AppContext';
 
+// TODO should add types in lib
 //@ts-ignore
 import { backend as farmBackend } from '@metalabsog/farm/';
 
-import { PoolListHeader } from './styled';
+import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
 import { Contract, PoolT } from './types';
 import { InfoHeader } from '../../common/styled';
 import { useEvent, useList } from 'effector-react';
 import { setAccount } from './store/store';
 
-const columNames = ['POOL', 'TVL', 'APR', 'ENDS IN', 'MY STAKE', 'REWARD'];
+const headerColumn = [
+    { name: 'POOL', width: 20 },
+    { name: 'TVL', width: 16.5 },
+    { name: 'APR', width: 16.5 },
+    { name: 'MY STAKE', width: 16.5 },
+    { name: 'REWARD', width: 16.5 },
+    { name: 'ENDS IN', width: 16.5 },
+];
 
 export const PoolList = () => {
     const { account } = useContext(AppContext) as Context;
@@ -46,8 +54,8 @@ export const PoolList = () => {
     );
 
     const poolComponents = useList($pools, (ctc: Contract, index: number) => (
-            <Pool key={index} index={index} poolCtc={ctc} />
-    ))
+        <Pool key={index} index={index} poolCtc={ctc} />
+    ));
 
     useEffect(() => {
         // TODO: it shouldn't be here. Also, we shall remove account in AppContext?
@@ -59,14 +67,16 @@ export const PoolList = () => {
     }, [account, connectToContract, isSuccess, handleAccount]);
 
     return (
-        <div>
+        <PoolListContainer>
             <PoolListHeader>
-                {columNames.map((name, i) => (
-                    <div key={`${name}${i}`}>{name}</div>
+                {headerColumn.map((column, i) => (
+                    <PoolListHeaderElement width={column.width} key={`${column.name}${i}`}>
+                        {column.name}
+                    </PoolListHeaderElement>
                 ))}
             </PoolListHeader>
             {isError && <InfoHeader>Oops Something went wrong :( </InfoHeader>}
             {poolComponents}
-        </div>
+        </PoolListContainer>
     );
 };

@@ -9,6 +9,11 @@ const GlobalStyle = createGlobalStyle`
 }
 
 @font-face {
+  font-family: 'Montserrat';
+  src: url('../fonts/Montserrat-VariableFont_wght.ttf');
+}
+
+@font-face {
     font-family: 'Inter';
     src: url('../fonts/Inter-Regular.woff');
     src: url('../fonts/Inter-Regular.woff2');

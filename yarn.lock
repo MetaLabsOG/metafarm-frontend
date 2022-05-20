@@ -4191,6 +4191,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/ramda@npm:^0.28.12":
+  version: 0.28.12
+  resolution: "@types/ramda@npm:0.28.12"
+  dependencies:
+    ts-toolbelt: "npm:^6.15.1"
+  checksum: da4bb3937fc8091da7d1e66a33e46db27f4b173e331c31392c9e72b6f50303e0bde09d24180d6b946dd2f93b4edb0fc47b27139547f894c91cb32828f77524ea
+  languageName: node
+  linkType: hard
+
 "@types/range-parser@npm:*":
   version: 1.2.4
   resolution: "@types/range-parser@npm:1.2.4"
@@ -11883,6 +11892,7 @@ __metadata:
     "@types/axios": "npm:^0.14.0"
     "@types/jest": "npm:^27.4.1"
     "@types/node": "npm:^17.0.21"
+    "@types/ramda": "npm:^0.28.12"
     "@types/react": "npm:^17.0.40"
     "@types/react-dom": "npm:^17.0.13"
     "@types/react-input-mask": "npm:^3.0.1"
@@ -16714,6 +16724,13 @@ __metadata:
   version: 1.0.1
   resolution: "tryer@npm:1.0.1"
   checksum: 96f8850e23b97b7cad733b5ab1ebc47704768a63483ab612ecdf9b717f8d2aa70d8369caffcd0581ced41c7649467d78839a00da1865e010cb607a8510fef212
+  languageName: node
+  linkType: hard
+
+"ts-toolbelt@npm:^6.15.1":
+  version: 6.15.5
+  resolution: "ts-toolbelt@npm:6.15.5"
+  checksum: b119a7ade664c9c2e66149246826412adef17ffca50b4a7dac7c8b4044f796552a18599c2da4b19401c431a5c3519c07fd8cf789226c1cda3196f4eed2fa1e56
   languageName: node
   linkType: hard
 

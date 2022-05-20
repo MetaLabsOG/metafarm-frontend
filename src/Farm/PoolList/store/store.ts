@@ -1,7 +1,7 @@
 import { combine, createEffect, createEvent, createStore, forward, sample } from 'effector';
 import { Account } from '../../../types';
 import { getView } from '../Pool/Pool';
-import * as R from 'ramda';
+import { sum, range } from 'ramda';
 import {
     Contract,
     GlobalInfo,
@@ -106,8 +106,8 @@ export const $poolAggregates = combine($initialStates, $globalStates, $localStat
     const ls = states[2];
     const tis = states[3];
 
-    const tvl = R.sum(
-        R.range(0, is.length).map((index) => {
+    const tvl = sum(
+        range(0, is.length).map((index: number) => {
             const totalStaked = gs.find((g) => g.index === index)?.totalStaked;
             const stakeToken = is.find((i) => i.index === index)?.stakeToken;
             const tokenInfo = tis.find((ti) => ti.id === stakeToken);
@@ -120,8 +120,8 @@ export const $poolAggregates = combine($initialStates, $globalStates, $localStat
         })
     );
 
-    const totalUserStake = R.sum(
-        R.range(0, is.length).map((index) => {
+    const totalUserStake = sum(
+        range(0, is.length).map((index: number) => {
             const userStake = ls.find((l) => l.index === index)?.staked;
             const stakeToken = is.find((i) => i.index === index)?.stakeToken;
             const tokenInfo = tis.find((ti) => ti.id === stakeToken);
@@ -134,8 +134,8 @@ export const $poolAggregates = combine($initialStates, $globalStates, $localStat
         })
     );
 
-    const totalPendingReward = R.sum(
-        R.range(0, is.length).map((index) => {
+    const totalPendingReward = sum(
+        range(0, is.length).map((index: number) => {
             const userReward = ls.find((l) => l.index === index)?.reward;
             const stakeToken = is.find((i) => i.index === index)?.stakeToken;
             const tokenInfo = tis.find((ti) => ti.id === stakeToken);

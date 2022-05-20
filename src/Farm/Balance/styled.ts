@@ -20,6 +20,17 @@ export const BalanceList = styled.div`
     width: 100%;
     display: flex;
     justify-content: space-evenly;
+    background-color: ${(props) => props.theme.darkGray};
+    height: 91px;
+    align-items: center;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 22px;
+    text-align: center;
+    border-radius: 10px;
+    font-size: 18px;
 
     &:first-child {
     }

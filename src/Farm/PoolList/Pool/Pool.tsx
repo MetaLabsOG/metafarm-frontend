@@ -1,13 +1,14 @@
 import { useContext, useEffect, useCallback, useState } from 'react';
-import { EndedPool } from './EndedPool';
-import { PendingPool } from './PendingPool';
-
 import { AppContext, Context, reach } from '../../../AppContext';
 import { Status } from '../../../Status';
-import { CurrentPool } from './CurrentPool';
 import { Contract, InfoFromCtc } from '../types';
 import { useEvent, useStore } from 'effector-react';
+import { PoolState } from './types';
 import { $globalStates, $initialStates, $localStates, $tokenInfo, updateLocalInfo, updatePool } from '../store/store';
+
+import { PoolInfo } from './PoolInfo';
+import { PoolActions } from './PoolActions';
+import { PoolConainer } from './styled';
 
 export async function getView(ctc: Contract, name: string, ...args: any[]): Promise<InfoFromCtc> {
     console.log('getting views', await ctc.views);
@@ -22,14 +23,9 @@ export async function getView(ctc: Contract, name: string, ...args: any[]): Prom
     }
 }
 
-enum PoolState {
-    Upcoming,
-    Running,
-    Finished,
-}
-
 export const Pool = ({ index, poolCtc }: { index: number; poolCtc: Contract }) => {
     const { account } = useContext(AppContext) as Context;
+    const [isOpen, setIsOpen] = useState(false);
 
     const [currentBlock, setCurrentBlock] = useState<number>(0);
 
@@ -54,9 +50,7 @@ export const Pool = ({ index, poolCtc }: { index: number; poolCtc: Contract }) =
         if (!initialInfo) {
             return;
         }
-
         const currentBlock = (await reach.getNetworkTime()).toNumber();
-
         if (currentBlock < initialInfo.beginBlock) {
             setPoolState(PoolState.Upcoming);
         } else if (currentBlock > initialInfo.endBlock) {
@@ -74,40 +68,24 @@ export const Pool = ({ index, poolCtc }: { index: number; poolCtc: Contract }) =
 
     if (!initialInfo || !globalInfo || !localInfo || !lpTokenInfo) {
         return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
-    } else if (poolState === PoolState.Running) {
+    } else if (
+        poolState === PoolState.Running ||
+        poolState === PoolState.Upcoming ||
+        poolState === PoolState.Finished
+    ) {
         return (
-            <CurrentPool
-                getInfo={getInfo}
-                currentBlock={currentBlock}
-                pool={poolCtc}
-                initialInfo={initialInfo}
-                globalInfo={globalInfo}
-                localInfo={localInfo}
-                lpTokenInfo={lpTokenInfo}
-            />
-        );
-    } else if (poolState === PoolState.Upcoming) {
-        return (
-            <PendingPool
-                getInfo={getInfo}
-                pool={poolCtc}
-                initialInfo={initialInfo}
-                globalInfo={globalInfo}
-                currentBlock={currentBlock}
-                localInfo={localInfo}
-                lpTokenInfo={lpTokenInfo}
-            />
-        );
-    } else if (poolState === PoolState.Finished) {
-        return (
-            <EndedPool
-                getInfo={getInfo}
-                pool={poolCtc}
-                initialInfo={initialInfo}
-                globalInfo={globalInfo}
-                localInfo={localInfo}
-                lpTokenInfo={lpTokenInfo}
-            />
+            <PoolConainer onClick={() => setIsOpen(!isOpen)}>
+                <PoolInfo
+                    initialInfo={initialInfo}
+                    localInfo={localInfo}
+                    globalInfo={globalInfo}
+                    id={index}
+                    poolState={poolState}
+                    lpTokenInfo={lpTokenInfo}
+                    currentBlock={currentBlock}
+                />
+                {isOpen && <PoolActions />}
+            </PoolConainer>
         );
     }
 
