@@ -5,10 +5,9 @@ import { PendingPool } from './PendingPool';
 import { AppContext, Context, reach } from '../../../AppContext';
 import { Status } from '../../../Status';
 import { CurrentPool } from './CurrentPool';
-import { getLPTokenInfo, LPTokenInfo } from '../../../providers/dexesProvider';
 import { Contract, InfoFromCtc } from '../types';
 import { useEvent, useStore } from 'effector-react';
-import { $globalStates, $initialStates, $localStates, updateLocalInfo, updatePool } from '../store/store';
+import { $globalStates, $initialStates, $localStates, $tokenInfo, updateLocalInfo, updatePool } from '../store/store';
 
 export async function getView(ctc: Contract, name: string, ...args: any[]): Promise<InfoFromCtc> {
     console.log('getting views', await ctc.views);
@@ -32,7 +31,6 @@ enum PoolState {
 export const Pool = ({ index, poolCtc }: { index: number; poolCtc: Contract }) => {
     const { account } = useContext(AppContext) as Context;
 
-    const [lpTokenInfo, setLpTokenInfo] = useState<LPTokenInfo | undefined>(undefined);
     const [currentBlock, setCurrentBlock] = useState<number>(0);
 
     const [poolState, setPoolState] = useState<PoolState>();
@@ -42,6 +40,7 @@ export const Pool = ({ index, poolCtc }: { index: number; poolCtc: Contract }) =
     const initialInfo = useStore($initialStates.map((state) => state.find((info) => info.index === index)));
     const globalInfo = useStore($globalStates.map((state) => state.find((info) => info.index === index)));
     const localInfo = useStore($localStates.map((state) => state.find((info) => info.index === index)));
+    const lpTokenInfo = useStore($tokenInfo.map((state) => state.find((info) => info.id === initialInfo?.stakeToken)));
 
     useEffect(() => {
         handleUpdatePool(index);
@@ -58,15 +57,9 @@ export const Pool = ({ index, poolCtc }: { index: number; poolCtc: Contract }) =
 
         const currentBlock = (await reach.getNetworkTime()).toNumber();
 
-        const lpTokenInfo = await getLPTokenInfo(initialInfo.stakeToken);
-        setLpTokenInfo(lpTokenInfo);
-
-        const beginBlock = initialInfo.beginBlock;
-        const endBlock = initialInfo.endBlock;
-
-        if (currentBlock < beginBlock) {
+        if (currentBlock < initialInfo.beginBlock) {
             setPoolState(PoolState.Upcoming);
-        } else if (currentBlock > endBlock) {
+        } else if (currentBlock > initialInfo.endBlock) {
             setPoolState(PoolState.Finished);
         } else {
             setPoolState(PoolState.Running);

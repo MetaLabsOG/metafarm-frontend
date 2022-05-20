@@ -8,8 +8,8 @@ export type PoolT = {
     description: string;
 };
 
+export type TokenId = number;
 // TODO make it actually typed
-export type Token = any;
 export type Contract = any;
 
 export type InitialInfoFromCtc = {
@@ -35,16 +35,16 @@ export type InfoFromCtc = InitialInfoFromCtc | GlobalInfoFromCtc | LocalInfoFrom
 
 export class InitialInfo {
     index: number;
-    stakeToken: Token;
-    rewardToken: Token;
+    stakeToken: TokenId;
+    rewardToken: TokenId;
     beginBlock: number;
     endBlock: number;
     rewardPerBlock: number;
 
     constructor(index: number, data: InitialInfoFromCtc) {
         this.index = index;
-        this.stakeToken = data.stakeToken;
-        this.rewardToken = data.rewardToken;
+        this.stakeToken = data.stakeToken.toNumber();
+        this.rewardToken = data.rewardToken.toNumber();
         this.beginBlock = data.beginBlock.toNumber();
         this.endBlock = data.endBlock.toNumber();
         this.rewardPerBlock = data.rewardPerBlock.toNumber();

@@ -23,6 +23,8 @@ import { isValidAmount, convertAmount, calculateAmountToken, convertAmountToUSD,
 import { Status } from '../../../Status';
 import { AppContext, Context, reach } from '../../../AppContext';
 import { GlobalInfo, InitialInfo, LocalInfo } from '../types';
+import { LPTokenInfo } from '../../../providers/dexesProvider';
+
 
 export const CurrentPool = ({
     pool,
@@ -37,7 +39,7 @@ export const CurrentPool = ({
     localInfo: LocalInfo;
     globalInfo: GlobalInfo;
     initialInfo: InitialInfo;
-    lpTokenInfo: any;
+    lpTokenInfo: LPTokenInfo;
     currentBlock: number;
     getInfo: () => void;
 }) => {
@@ -53,14 +55,14 @@ export const CurrentPool = ({
 
     const getTokenInfo = useCallback(async () => {
         if (initialInfo) {
+            const { stakeToken, endBlock } = initialInfo;
             // TODO shall we opt-in?
             const isAcceptedToken = await account.tokenAccepted(initialInfo.rewardToken);
-            setIsAcceptedToken(isAcceptedToken);
-            const { stakeToken, endBlock } = initialInfo;
             const diff = Math.floor(((endBlock - currentBlock) * 4.35) / 86400);
+            const balanceToken = (await reach.balanceOf(account, stakeToken)).toNumber();
+
+            setIsAcceptedToken(isAcceptedToken);
             setTime(`${diff} DAYS`);
-            const stakeTokenId = reach.bigNumberToNumber(stakeToken);
-            const balanceToken = (await reach.balanceOf(account, stakeTokenId)).toNumber();
             setBalanceToken(calculateAmountToken(lpTokenInfo, balanceToken));
         }
         if (localInfo) {
