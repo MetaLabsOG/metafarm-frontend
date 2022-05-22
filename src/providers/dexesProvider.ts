@@ -4,10 +4,17 @@ import { getCoinRate } from './binanceProvider';
 
 import { ALGONET, TESTNET } from '../AppContext';
 import pactsdk from '@pactfi/pactsdk';
+import { AppId } from '../common/store';
 
 export const algod = new algosdk.Algodv2(process.env.ALGO_TOKEN!, process.env.ALGO_SERVER, process.env.ALGO_PORT);
 
+export type DexProvider =
+    | 'T2' // Tinyman v1.1
+    | 'PT' // Pact
+    | 'MOCK'; // Mock dex (random tokens are staked)
+
 export type PoolInfo = {
+    poolId: AppId;
     asset1: number;
     asset2: number;
     asset1Reserve: number;
@@ -22,7 +29,10 @@ export type TokenInfoT = {
     decimals: number;
 };
 
-export type LPTokenInfo = TokenInfoT;
+export type LPTokenInfo = TokenInfoT & {
+    poolId: AppId;
+    poolDex: DexProvider;
+};
 
 export type SwapQuote = {
     totalPrice: number;
@@ -40,6 +50,7 @@ export interface Dex {
 export class MockDex implements Dex {
     async getPoolInfo(poolAddress: string): Promise<PoolInfo> {
         return {
+            poolId: 0,
             asset1: 0,
             asset2: 10000,
             asset1Reserve: 100000000,
@@ -84,6 +95,7 @@ export class PactDex implements Dex {
         const pools = await this.pact.fetchPoolsByAssets(poolAssets[0], poolAssets[1]);
         const selectedPool = pools.filter((pool: any) => pool.liquidityAsset.index === lpTokenId)[0];
         return {
+            poolId: selectedPool.appId,
             asset1: selectedPool.primaryAsset.index,
             asset2: selectedPool.secondaryAsset.index,
             asset1Reserve: selectedPool.state.totalPrimary,
@@ -118,8 +130,9 @@ export class TinymanDex implements Dex {
     async getPoolInfo(poolAddress: string): Promise<PoolInfo> {
         const accountInfo = await algod.accountInformation(poolAddress).do();
 
-        let appState: any;
-        appState = accountInfo['apps-local-state'][0]['key-value'].reduce((acc: any, { key, value }: any) => {
+        const appInfo = accountInfo['apps-local-state'][0];
+        const poolId = appInfo['id'];
+        const appState = appInfo['key-value'].reduce((acc: any, { key, value }: any) => {
             const newKey = Buffer.from(key, 'base64').toString();
             const newVal = value.type === 2 ? value.uint : value.bytes;
             return { [newKey]: newVal, ...acc };
@@ -132,6 +145,7 @@ export class TinymanDex implements Dex {
         }
 
         return {
+            poolId,
             asset1: a1,
             asset2: a2,
             asset1Reserve: s1,
@@ -149,11 +163,6 @@ export class TinymanDex implements Dex {
         };
     }
 }
-
-export type DexProvider =
-    | 'T2' // Tinyman v1.1
-    | 'PT' // Pact
-    | 'MOCK'; // Mock dex (random tokens are staked)
 
 export function makeDex(provider: DexProvider): Dex {
     return provider === 'PT' ? new PactDex(algod) : provider === 'T2' ? new TinymanDex(algod) : new MockDex();
@@ -197,5 +206,5 @@ export async function getLPTokenInfo(
     }
 
     const price = (poolInfo.asset1Reserve * fstAssetPrice) / poolInfo.totalLiquidity;
-    return { id: assetId, name, price, decimals };
+    return { id: assetId, name, price, decimals, poolId: poolInfo.poolId, poolDex: provider };
 }

@@ -6,7 +6,7 @@ import { useStore } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
-import { PoolContainer } from './styled';
+import { PoolContainer, PoolInfoContainer } from './styled';
 import { $lpTokenInfos } from '../../store';
 
 export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
@@ -25,20 +25,31 @@ export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
 
     const initial = contract.state.initial;
     const poolState =
-        currentBlock < initial.beginBlock ? PoolState.Upcoming :
-        currentBlock > initial.endBlock ? PoolState.Finished :
-        PoolState.Running; 
+        currentBlock < initial.beginBlock
+            ? PoolState.Upcoming
+            : currentBlock > initial.endBlock
+            ? PoolState.Finished
+            : PoolState.Running;
 
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
         return (
-            <PoolContainer onClick={() => setIsOpen(!isOpen)}>
-                <PoolInfo
-                    contractState={contract.state}
-                    poolState={poolState}
-                    lpTokenInfo={lpTokenInfo}
-                    currentBlock={currentBlock}
-                />
-                {isOpen && <PoolActions />}
+            <PoolContainer>
+                <PoolInfoContainer onClick={() => setIsOpen(!isOpen)}>
+                    <PoolInfo
+                        contractState={contract.state}
+                        poolState={poolState}
+                        lpTokenInfo={lpTokenInfo}
+                        currentBlock={currentBlock}
+                    />
+                </PoolInfoContainer>
+                {isOpen && (
+                    <PoolActions
+                        poolState={poolState}
+                        ctc={contract.ctc}
+                        contractState={contract.state}
+                        lpTokenInfo={lpTokenInfo}
+                    />
+                )}
             </PoolContainer>
         );
     }

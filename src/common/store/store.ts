@@ -1,18 +1,10 @@
 import { Map } from 'immutable';
-import {
-    combine,
-    createEffect,
-    createEvent,
-    createStore,
-    sample,
-    Store,
-    Event,
-    restore,
-} from 'effector';
+import { combine, createEffect, createEvent, createStore, sample, Store, Event, restore, Effect } from 'effector';
 import { Contract, ContractType, ContractInfo, ContractState, AppId, TokenId, Amount } from './types';
 import { Account } from '../../types';
-import { convertBns, maybeToNullable } from '../lib';
+import { convertBns, maybeToNullable, sleep } from '../lib';
 import { reach } from '../../AppContext';
+import { zip } from 'ramda';
 
 // Account store
 export const setAccount = createEvent<Account>();
@@ -31,8 +23,51 @@ export const { $store: $networkTime, update: queryTimeUpdate } = createTimeDefer
 
 // Account balances store
 type TokenIdOrAlgo = TokenId | null;
-export const $balances = createStore(Map<TokenIdOrAlgo, Amount | null>());
 
+const fetchBalancesFx = createEffect(
+    expBackoff(async ({ account, tokens }: { account: Account; tokens: TokenIdOrAlgo[] }) => {
+        const bs = await reach.balancesOf(account, tokens);
+        return bs.map((b) => b.toNumber());
+    })
+);
+
+fetchBalancesFx.watch(({ tokens }) => console.log('BALANCES UPDATE START', tokens));
+
+export const registerToken = createEvent<TokenIdOrAlgo>();
+
+export const $balances = createStore(Map<TokenIdOrAlgo, Amount | null>())
+    .on(registerToken, (balances, token) => {
+        if (balances.has(token)) return balances;
+        return balances.set(token, null);
+    })
+    .on(fetchBalancesFx.done, (balances, { params: { tokens }, result }) =>
+        zip(tokens, result)
+            .reduce((bs, [token, balance]) => bs.set(token, balance), balances.asMutable())
+            .asImmutable()
+    );
+
+$balances.watch((bs) => console.log('BALANCES', bs.toJS()));
+
+export const triggerBalancesUpdate = createEvent<void>();
+
+// ts-ignore here because TS cannot guard against null by using `filter`
+sample({
+    //@ts-ignore
+    clock: triggerBalancesUpdate,
+    source: combine([fetchBalancesFx.pending, $account, $balances.map((bs) => bs.keySeq().toArray())]),
+    filter: ([pending, account, _]) => account !== null && !pending,
+    fn: ([_, account, tokens]) => ({ account, tokens }),
+    target: fetchBalancesFx,
+});
+
+/**
+ * Asynchronously gets the value of the store
+ */
+function fetchStore<T>(store: Store<T>): Promise<T> {
+    return new Promise<T>((resolve) => {
+        sample({ source: store }).watch((v) => resolve(v));
+    });
+}
 
 /**
  * Creates a store and an update event for it which updates at most
@@ -60,6 +95,97 @@ function createTimeDeferredStore<V, T>(
         target: updateFx,
     });
     return { $store, update };
+}
+
+/**
+ * Create an effect which does not start again if it is already in the pending state.
+ * @param callback Async effect function
+ */
+function createNonConcurrentEffect<V, T>(callback: (a: V) => Promise<T>): Effect<V, T> {
+    const innerEff = createEffect(callback);
+    return createEffect(
+        (a: V) =>
+            new Promise<T>((resolve, reject) => {
+                fetchStore(innerEff.pending).then((pending) => {
+                    if (!pending) {
+                        innerEff(a);
+                    }
+                    innerEff.doneData.watch(resolve);
+                    innerEff.failData.watch(reject);
+                });
+            })
+    );
+}
+
+type ExpBackoffParams = {
+    firstDelay: number;
+    multiplier: number;
+    maxTries: number;
+};
+
+/**
+ * Retry the async callback with exponential backoff on promise rejection.
+ * TODO: later it would be better to reimplement retries as proper Effector events, if we want
+ * to show info about retries somehow.
+ */
+function expBackoff<V, T>(
+    eff: (v: V) => Promise<T>,
+    { firstDelay, multiplier, maxTries }: ExpBackoffParams = { firstDelay: 500, multiplier: 2, maxTries: 3 }
+): (v: V) => Promise<T> {
+    return async (v) => {
+        let numTries = 0;
+        let delay = firstDelay;
+
+        while (true) {
+            try {
+                return await eff(v);
+            } catch (e) {
+                numTries++;
+                if (numTries > maxTries) {
+                    console.log('END BACKOFF AND THROW', e);
+                    throw e;
+                }
+                console.log(`EXP BACKOFF RETRY (${numTries} ${delay})`, v);
+                await sleep(delay);
+                delay *= multiplier;
+            }
+        }
+    };
+}
+
+/**
+ * Wrap the methods of ctc with bignum parsing and callback on api calls.
+ */
+function makeWrappedCtc(
+    account: Account | null,
+    backend: any,
+    contractId: AppId,
+    onWrite: (id: AppId) => Promise<void>
+): any {
+    // TODO: make read-only ctc when account is null
+    //@ts-ignore
+    const ctc = account!.contract(backend, contractId);
+    const views = ctc.views;
+    ctc.views = {};
+    for (const k in views) {
+        ctc.views[k] = (...args: any[]) =>
+            views[k](...args)
+                .then(maybeToNullable)
+                .then(convertBns);
+    }
+    ctc.v = ctc.views;
+
+    const apis = ctc.apis;
+    ctc.apis = {};
+    for (const k in apis) {
+        ctc.apis[k] = (...args: any[]) =>
+            apis[k](...args).then(async (res: any) => {
+                await onWrite(contractId);
+                return res;
+            });
+    }
+    ctc.a = ctc.apis;
+    return ctc;
 }
 
 // Contracts store
@@ -102,27 +228,32 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: an
     const initializeContract = createEvent<AppId>();
     const triggerStateUpdate = createEvent<AppId>();
 
-    const ctcInitialized = sample({
-        clock: initializeContract,
-        source: $account,
-        //@ts-ignore
-        fn: (account, contractId) => [contractId, account!.contract(backend, contractId)],
-    });
-
-    $contractCtcs.on(ctcInitialized, (ctcs, [id, ctc]) => ctcs.set(id, ctc));
-
     // Keep it simple stupid without separation between views (for now)
     // Also don't throw but set state to nulls if `None` arrives - it is probably actually more logical?
     const updateContractStateFx = createEffect(
-        async ({ ctc, account, contractId }: { contractId: AppId; ctc: any; account: Account | null }) => {
-            console.log('fetching views for contract', contractId);
+        expBackoff(async ({ ctc, account, contractId }: { contractId: AppId; ctc: any; account: Account | null }) => {
             return {
-                initial: await ctc.views.initial().then(maybeToNullable).then(convertBns),
-                global: await ctc.views.global().then(maybeToNullable).then(convertBns),
-                local: await ctc.views.local(account!.networkAccount.addr).then(maybeToNullable).then(convertBns),
+                initial: await ctc.views.initial(),
+                global: await ctc.views.global(),
+                local: await ctc.views.local(account!.networkAccount.addr),
             };
-        }
+        })
     );
+
+    const ctcInitialized = sample({
+        clock: initializeContract,
+        source: $account,
+        fn: (account, contractId) => [
+            contractId,
+            makeWrappedCtc(account, backend, contractId, async (id) => {
+                triggerStateUpdate(id);
+                triggerBalancesUpdate();
+                return;
+            }),
+        ],
+    });
+
+    $contractCtcs.on(ctcInitialized, (ctcs, [id, ctc]) => ctcs.set(id, ctc));
 
     sample({
         clock: ctcInitialized,
@@ -156,7 +287,6 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: an
 
     $contractIds.watch((ids) => {
         for (const id of ids) {
-            console.log('initializing contract', id);
             initializeContract(id);
         }
     });

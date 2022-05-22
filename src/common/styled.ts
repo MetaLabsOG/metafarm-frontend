@@ -57,4 +57,5 @@ export const InfoHeader = styled.h2`
     margin-top: 10%;
     display: flex;
     justify-content: center;
+    font-family: "Korona One";
 `;

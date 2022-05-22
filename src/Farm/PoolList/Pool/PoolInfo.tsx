@@ -1,11 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
-import { $account, ContractState } from '../../../common/store';
-import { isValidAmount, convertAmount, calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
-import { Status } from '../../../Status';
-import { reach } from '../../../AppContext';
+import { ContractState, triggerBalancesUpdate } from '../../../common/store';
+import { calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
 import { PoolState } from './types';
 import { BasicInfo, GetLpTokenButton, Link, PoolInfoContainer, PoolInfoValue, TokenInfo } from './styled';
-import { useStore } from 'effector-react';
 
 const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
 
@@ -20,6 +17,8 @@ export const PoolInfo = ({
     lpTokenInfo: any;
     currentBlock: number;
 }) => {
+    // TODO: that is a bit silly but it works without too much overhead
+    useEffect(triggerBalancesUpdate, []);
     const { endBlock, beginBlock } = contractState.initial;
     // TODO: This PoolState is absolutely unnecessary, we can just compare currentBlock with beginBlock here
     const timing =
@@ -38,7 +37,7 @@ export const PoolInfo = ({
         );
 
     return (
-        <PoolInfoContainer>
+        <>
             <PoolInfoValue width={60}>
                 <div>
                     <BasicInfo>{lpTokenInfo.name}</BasicInfo>
@@ -57,7 +56,7 @@ export const PoolInfo = ({
                 <div>{`$${numberRound(convertAmountToUSD(lpTokenInfo, contractState.local.reward))}`}</div>
                 <div>{`${numberRound(calculateAmountToken(lpTokenInfo, contractState.local.reward))} META`}</div>
             </PoolInfoValue>
-            <PoolInfoValue style={{color: 'gray'}}>{timing}</PoolInfoValue>
-        </PoolInfoContainer>
+            <PoolInfoValue style={{ color: 'gray' }}>{timing}</PoolInfoValue>
+        </>
     );
 };

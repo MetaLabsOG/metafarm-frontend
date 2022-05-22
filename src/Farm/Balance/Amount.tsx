@@ -1,3 +1,4 @@
+import { formatDecimalsMeaningful } from '../../common/lib';
 import { AmountContainer, AmountTitle, AmountValue } from './styled';
 
 type AmountPropsType = {
@@ -8,6 +9,6 @@ type AmountPropsType = {
 export const Amount = ({ title, value }: AmountPropsType) => (
     <AmountContainer>
         <AmountTitle>{title}</AmountTitle>
-        <AmountValue>{`$${value}`}</AmountValue>
+        <AmountValue>{`$${formatDecimalsMeaningful(value)}`}</AmountValue>
     </AmountContainer>
 );

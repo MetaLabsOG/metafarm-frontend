@@ -2,7 +2,7 @@
 import { backend as farmBackend } from '@metalabsog/farm';
 import { Map } from 'immutable';
 import { createEffect, createStore, sample, combine } from 'effector';
-import { AppId, buildContractsStore, ContractState, Amount } from '../common/store';
+import { AppId, buildContractsStore, ContractState, Amount, registerToken } from '../common/store';
 import { getLPTokenInfo, LPTokenInfo, DexProvider } from '../providers/dexesProvider';
 import { convertAmountToUSD } from './PoolList/Pool/utils';
 
@@ -33,6 +33,11 @@ sample({
     fn: (tokenInfos, { id, state }) => ({ assetId: state.initial.stakeToken, provider: undefined }),
     target: getLPTokenInfoFx,
 });
+
+$contractStates.watch((states) => states.valueSeq().forEach(s => {
+    registerToken(s.initial.stakeToken);
+    registerToken(s.initial.rewardToken);
+}));
 
 // Price aggregation
 const sumMoney = (
