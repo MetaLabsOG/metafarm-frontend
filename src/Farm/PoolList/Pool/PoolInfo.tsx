@@ -7,6 +7,8 @@ import { PoolState } from './types';
 import { BasicInfo, GetLpTokenButton, Link, PoolInfoContainer, PoolInfoValue, TokenInfo } from './styled';
 import { useStore } from 'effector-react';
 
+const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
+
 export const PoolInfo = ({
     contractState,
     poolState,
@@ -18,25 +20,22 @@ export const PoolInfo = ({
     lpTokenInfo: any;
     currentBlock: number;
 }) => {
-    const account = useStore($account);
-    const [time, setTime] = useState('');
-    const [stakedToken, setStakedToken] = useState(0);
-    const [balanceToken, setBalanceToken] = useState(0);
-
-    const getTokenInfo = useCallback(async () => {
-        // TODO shall we opt-in?
-        const { stakeToken, endBlock } = contractState.initial;
-        const diff = Math.floor(((endBlock - currentBlock) * 4.35) / 86400);
-        setTime(`${diff} DAYS`);
-        const stakeTokenId = stakeToken;
-        const balanceToken = (await reach.balanceOf(account, stakeTokenId)).toNumber();
-        setBalanceToken(calculateAmountToken(lpTokenInfo, balanceToken));
-        setStakedToken(calculateAmountToken(lpTokenInfo, contractState.local.staked));
-    }, [contractState, account, currentBlock, lpTokenInfo]);
-
-    useEffect(() => {
-        getTokenInfo();
-    }, [getTokenInfo]);
+    const { endBlock, beginBlock } = contractState.initial;
+    // TODO: This PoolState is absolutely unnecessary, we can just compare currentBlock with beginBlock here
+    const timing =
+        poolState === PoolState.Upcoming ? (
+            <>
+                <div>starts</div>
+                <div>in {daysDiff(currentBlock, beginBlock)} days</div>
+            </>
+        ) : poolState === PoolState.Running ? (
+            <>
+                <div>ends</div>
+                <div>in {daysDiff(currentBlock, endBlock)} days</div>
+            </>
+        ) : (
+            'ended'
+        );
 
     return (
         <PoolInfoContainer>
@@ -46,15 +45,19 @@ export const PoolInfo = ({
                     <div>EARN META</div>
                 </div>
             </PoolInfoValue>
-            <PoolInfoValue>{`$${numberRound(convertAmountToUSD(lpTokenInfo, contractState.global.totalStaked))}`}</PoolInfoValue>
+            <PoolInfoValue>{`$${numberRound(
+                convertAmountToUSD(lpTokenInfo, contractState.global.totalStaked)
+            )}`}</PoolInfoValue>
             <PoolInfoValue>10%</PoolInfoValue>
-            <PoolInfoValue>{`$${convertAmountToUSD(lpTokenInfo, contractState.local.staked).toFixed(2)}`}</PoolInfoValue>
+            <PoolInfoValue>{`$${convertAmountToUSD(lpTokenInfo, contractState.local.staked).toFixed(
+                2
+            )}`}</PoolInfoValue>
 
-            <PoolInfoValue style={{ marginLeft: '40px' }}>
+            <PoolInfoValue>
+                <div>{`$${numberRound(convertAmountToUSD(lpTokenInfo, contractState.local.reward))}`}</div>
                 <div>{`${numberRound(calculateAmountToken(lpTokenInfo, contractState.local.reward))} META`}</div>
-                <div>{`($${numberRound(convertAmountToUSD(lpTokenInfo, contractState.local.reward))})`}</div>
             </PoolInfoValue>
-            <PoolInfoValue>{time}</PoolInfoValue>
+            <PoolInfoValue style={{color: 'gray'}}>{timing}</PoolInfoValue>
         </PoolInfoContainer>
     );
 };

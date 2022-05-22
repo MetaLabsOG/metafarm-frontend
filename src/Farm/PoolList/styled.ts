@@ -5,13 +5,10 @@ export const PoolListHeader = styled.div`
     color: ${(props) => props.theme.gray};
     font-size: 16px;
     height: 71px;
-    width: 97%;
+    width: 95%;
     align-items: center;
     justify-content: flex-start;
 
-    padding-left: 20px;
-    padding-right: 20px;
-    border-radius: 4px;
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: 600;
@@ -24,6 +21,7 @@ export const PoolListHeader = styled.div`
 
 export const PoolListHeaderElement = styled.div<{ width?: number }>`
     width: ${({ width }) => (width ? `${width}%` : '16.5%')};
+    margin-left: 10px;
 `;
 
 export const PoolListContainer = styled.div`

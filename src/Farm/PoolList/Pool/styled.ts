@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const PoolConainer = styled.div`
+export const PoolContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -30,7 +30,8 @@ export const PoolInfoContainer = styled.div`
 
 export const PoolInfoValue = styled.div<{ width?: number }>`
     display: flex;
-    justify-content: flex-start;
+    flex-direction: column;
+    justify-content: center;
     margin-left: 10px;
     width: ${({ width }) => (width ? `${width}%` : '50%')};
 `;

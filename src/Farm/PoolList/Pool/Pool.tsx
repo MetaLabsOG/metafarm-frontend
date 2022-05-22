@@ -6,7 +6,7 @@ import { useStore } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
-import { PoolConainer } from './styled';
+import { PoolContainer } from './styled';
 import { $lpTokenInfos } from '../../store';
 
 export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
@@ -31,7 +31,7 @@ export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
 
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
         return (
-            <PoolConainer onClick={() => setIsOpen(!isOpen)}>
+            <PoolContainer onClick={() => setIsOpen(!isOpen)}>
                 <PoolInfo
                     contractState={contract.state}
                     poolState={poolState}
@@ -39,7 +39,7 @@ export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
                     currentBlock={currentBlock}
                 />
                 {isOpen && <PoolActions />}
-            </PoolConainer>
+            </PoolContainer>
         );
     }
 
