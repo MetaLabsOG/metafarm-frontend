@@ -1,16 +1,8 @@
-import React from 'react';
-import { Account, ReachStdlib } from './types';
+import { ReachStdlib } from './types';
 
 import { loadStdlib } from '@reach-sh/stdlib';
 
-export type Context = {
-    account: Account;
-    setAccount: (account: Account) => void;
-};
-
 export type NetworkName = 'TestNet' | 'MainNet';
-
-export const AppContext = React.createContext<Context | {}>({});
 
 export const reach: ReachStdlib = loadStdlib(process.env as any);
 

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const PoolConainer = styled.div`
+export const PoolContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -30,13 +30,15 @@ export const PoolInfoContainer = styled.div`
 
 export const PoolInfoValue = styled.div<{ width?: number }>`
     display: flex;
-    justify-content: flex-start;
+    flex-direction: column;
+    justify-content: center;
     margin-left: 10px;
     width: ${({ width }) => (width ? `${width}%` : '50%')};
 `;
 
-export const PoolActions = styled.div`
+export const PoolActionsWrapper = styled.div`
     display: flex;
+    margin-top: 20px;
 `;
 
 export const HighlightedInfo = styled.div`
@@ -96,11 +98,12 @@ export const Button = styled.button<{ customColor?: boolean; isActive?: boolean 
     border: 1px solid;
     background-color: inherit;
     color: ${({ theme, isActive }) => (isActive ? 'inherit' : theme.gray)};
-    width: 140px;
+    width: 120px;
     min-height: 40px;
     border-radius: 0 4px 4px 0px;
     cursor: pointer;
     font-family: 'Korona One';
+    font-size: 14px;
     ${Action}:hover & {
         color: 'inherit';
     }
@@ -157,6 +160,7 @@ export const ClaimButton = styled.div<{ isActive?: boolean }>`
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    font-family: 'Korona One';
     :hover {
         color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};
     }
@@ -178,18 +182,19 @@ export const Link = styled.a`
 
 export const GetLpTokenButton = styled.div<{ isActive?: boolean }>`
     border-radius: 4px;
-    width: 160px;
+    width: 140px;
     height: 40px;
     background-color: 'inherit';
     color: ${({ theme, isActive }) => (isActive ? theme.green : theme.gray)};
     border: 1px solid;
     display: flex;
-    font-size: 14px;
+    font-size: 13px;
     align-items: center;
     justify-content: center;
     padding-left: 5px;
     padding-right: 5px;
     cursor: pointer;
+    font-family: 'Korona One';
     :hover {
         background-color: ${({ theme, isActive }) => theme.green};
         color: black;

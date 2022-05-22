@@ -16,7 +16,6 @@ export const Button = styled.button<{ customColor?: boolean; isActive?: boolean 
     width: 400px;
     min-height: 40px;
     cursor: pointer;
-    font-family: 'Korona One';
     ${Action}:hover & {
         color: inherit;
     }

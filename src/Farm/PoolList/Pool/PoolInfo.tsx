@@ -1,69 +1,62 @@
-import { useContext, useEffect, useState, useCallback } from 'react';
-import { GlobalInfo, InitialInfo, LocalInfo } from '../types';
-import { isValidAmount, convertAmount, calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
-import { Status } from '../../../Status';
-import { AppContext, Context, reach } from '../../../AppContext';
+import { useEffect, useState, useCallback } from 'react';
+import { ContractState, triggerBalancesUpdate } from '../../../common/store';
+import { calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
 import { PoolState } from './types';
 import { BasicInfo, GetLpTokenButton, Link, PoolInfoContainer, PoolInfoValue, TokenInfo } from './styled';
 
+const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
+
 export const PoolInfo = ({
-    id,
+    contractState,
     poolState,
-    initialInfo,
-    localInfo,
     lpTokenInfo,
     currentBlock,
-    globalInfo,
 }: {
-    id: number;
+    contractState: ContractState<'farm'>;
     poolState: PoolState;
-    initialInfo: InitialInfo;
-    localInfo: LocalInfo;
     lpTokenInfo: any;
     currentBlock: number;
-    globalInfo: GlobalInfo;
 }) => {
-    const { account } = useContext(AppContext) as Context;
-    const [time, setTime] = useState('');
-    const [stakedToken, setStakedToken] = useState(0);
-    const [balanceToken, setBalanceToken] = useState(0);
-
-    const getTokenInfo = useCallback(async () => {
-        if (initialInfo) {
-            // TODO shall we opt-in?
-            const { stakeToken, endBlock } = initialInfo;
-            const diff = Math.floor(((endBlock - currentBlock) * 4.35) / 86400);
-            setTime(`${diff} DAYS`);
-            const stakeTokenId = stakeToken;
-            const balanceToken = (await reach.balanceOf(account, stakeTokenId)).toNumber();
-            setBalanceToken(calculateAmountToken(lpTokenInfo, balanceToken));
-        }
-        if (localInfo) {
-            setStakedToken(calculateAmountToken(lpTokenInfo, localInfo.staked));
-        }
-    }, [initialInfo, localInfo, account, currentBlock, lpTokenInfo]);
-
-    useEffect(() => {
-        getTokenInfo();
-    }, [getTokenInfo]);
+    // TODO: that is a bit silly but it works without too much overhead
+    useEffect(triggerBalancesUpdate, []);
+    const { endBlock, beginBlock } = contractState.initial;
+    // TODO: This PoolState is absolutely unnecessary, we can just compare currentBlock with beginBlock here
+    const timing =
+        poolState === PoolState.Upcoming ? (
+            <>
+                <div>starts</div>
+                <div>in {daysDiff(currentBlock, beginBlock)} days</div>
+            </>
+        ) : poolState === PoolState.Running ? (
+            <>
+                <div>ends</div>
+                <div>in {daysDiff(currentBlock, endBlock)} days</div>
+            </>
+        ) : (
+            'ended'
+        );
 
     return (
-        <PoolInfoContainer>
+        <>
             <PoolInfoValue width={60}>
                 <div>
                     <BasicInfo>{lpTokenInfo.name}</BasicInfo>
                     <div>EARN META</div>
                 </div>
             </PoolInfoValue>
-            <PoolInfoValue>{`$${numberRound(convertAmountToUSD(lpTokenInfo, globalInfo?.totalStaked))}`}</PoolInfoValue>
+            <PoolInfoValue>{`$${numberRound(
+                convertAmountToUSD(lpTokenInfo, contractState.global.totalStaked)
+            )}`}</PoolInfoValue>
             <PoolInfoValue>10%</PoolInfoValue>
-            <PoolInfoValue>{`$${convertAmountToUSD(lpTokenInfo, localInfo.staked).toFixed(2)}`}</PoolInfoValue>
+            <PoolInfoValue>{`$${convertAmountToUSD(lpTokenInfo, contractState.local.staked).toFixed(
+                2
+            )}`}</PoolInfoValue>
 
-            <PoolInfoValue style={{ marginLeft: '40px' }}>
-                <div>{`${numberRound(calculateAmountToken(lpTokenInfo, localInfo.reward))} META`}</div>
-                <div>{`($${numberRound(convertAmountToUSD(lpTokenInfo, localInfo.reward))})`}</div>
+            <PoolInfoValue>
+                <div>{`$${numberRound(convertAmountToUSD(lpTokenInfo, contractState.local.reward))}`}</div>
+                <div>{`${numberRound(calculateAmountToken(lpTokenInfo, contractState.local.reward))} META`}</div>
             </PoolInfoValue>
-            <PoolInfoValue>{time}</PoolInfoValue>
-        </PoolInfoContainer>
+            <PoolInfoValue style={{ color: 'gray' }}>{timing}</PoolInfoValue>
+        </>
     );
 };

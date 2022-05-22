@@ -1,12 +1,12 @@
-import { useContext } from 'react';
 import { Balance } from './Balance';
 import { PoolList } from './PoolList';
 import { FarmContainer } from './styled';
 import { InfoHeader } from '../common/styled';
-import { AppContext, Context } from '../AppContext';
+import { useStore } from 'effector-react';
+import { $account } from '../common/store';
 
 export const Farm = () => {
-    const { account } = useContext(AppContext) as Context;
+    const account = useStore($account);
     return (
         <FarmContainer>
             {account ? (

@@ -1,3 +1,4 @@
+import { formatDecimalsMeaningful } from '../../../common/lib';
 import { TokenInfoT } from '../../../providers/dexesProvider';
 
 export const isValidAmount = (amount: number, balance: number) => balance >= amount && amount > 0;
@@ -15,5 +16,5 @@ export const convertAmountToUSD = (lpToken: TokenInfoT, amount: number) => {
 };
 
 export const numberRound = (amount: number) => {
-    return amount > 0 ? amount.toFixed(6) : amount;
+    return formatDecimalsMeaningful(amount);
 };
