@@ -23,7 +23,6 @@ const headerColumn = [
 ];
 
 export const PoolList = () => {
-    const account = useStore($account);
     const { data, isError, isSuccess } = useQuery(['contracts', 'farm'], () => getContracts('farm'));
 
     useEffect(() => {

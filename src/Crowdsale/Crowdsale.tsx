@@ -1,5 +1,5 @@
-import { ReactElement, useCallback, useState } from 'react';
-import { useStore } from 'effector-react';
+import { ReactElement, useCallback, useEffect, useState } from 'react';
+import { useStore, useStoreMap } from 'effector-react';
 import { useQuery } from 'react-query';
 //@ts-ignore TODO: type definitions for contract packages?... damn seems bad...
 import { backend, reach } from '@metalabsog/crowdsale';
@@ -9,35 +9,38 @@ import { getContracts, tokensaleWhitelist } from '../providers/apiProvider';
 import { useContractOptin, useReachContract } from '../common/reachHooks';
 import { InfoHeader } from '../common/styled';
 import { META_TOKEN_ID } from '../AppContext';
-import { $account } from '../common/store';
+import { $account, buildContractsStore, Contract } from '../common/store';
 import { Account } from '../types';
 import { Button } from './styled';
 
+const { $contracts, triggerStateUpdate, setContractInfos } = buildContractsStore('crowdsale', backend);
+
 type CrowdsaleProps = {
     account: Account;
-    contractId: number;
+    contract: Contract<'crowdsale'>;
 };
 
 type OptinState = 'before' | 'transactions' | 'whitelisting' | 'done';
 
-const CrowdsaleInner = ({ account, contractId }: CrowdsaleProps): ReactElement => {
-    const { ctc, state, reload } = useReachContract(backend, account, contractId);
-    const { userOptedIn, optIn } = useContractOptin(reach, account, contractId, [META_TOKEN_ID]);
+const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => {
+    const { userOptedIn, optIn } = useContractOptin(reach, account, contract.id, [META_TOKEN_ID]);
     const [optInState, setOptInState] = useState<OptinState>('before');
     const [tokenAmount, setTokenAmount] = useState<number>(0);
+
+    const { ctc, state } = contract;
 
     const optInAndWhitelist = useCallback(async () => {
         setOptInState('transactions');
         await optIn();
         setOptInState('whitelisting');
-        const whitelistRes = await tokensaleWhitelist(contractId, account.networkAccount.addr);
+        const whitelistRes = await tokensaleWhitelist(contract.id, account.networkAccount.addr);
         console.log(whitelistRes);
         setOptInState('done');
-    }, [optIn, contractId, account.networkAccount.addr]);
+    }, [optIn, contract.id, account.networkAccount.addr]);
 
     const algoPrice = useCallback(
         (amount: number) => {
-            const { rate } = state.initial;
+            const { rate } = state!.initial;
             return Math.floor((amount * rate[1]) / rate[0]);
         },
         [state]
@@ -45,8 +48,8 @@ const CrowdsaleInner = ({ account, contractId }: CrowdsaleProps): ReactElement =
 
     const setTokenAmountValidated = useCallback(
         (amount: number) => {
-            const { individualCap, rate } = state.initial;
-            const { alreadyBought } = state.local;
+            const { individualCap, rate } = state!.initial;
+            const { alreadyBought } = state!.local;
 
             // TODO: this leads to very annoying behaviour of form when using microtokens, but should be better with usual ones
             amount = Math.min(amount, individualCap - alreadyBought);
@@ -60,12 +63,11 @@ const CrowdsaleInner = ({ account, contractId }: CrowdsaleProps): ReactElement =
         async (tokenAmount) => {
             const res = await ctc.a.purchase(tokenAmount);
             console.log('PURCHASE', res);
-            reload();
         },
-        [ctc, reload]
+        [ctc]
     );
 
-    if (!state || !state.initial || !state.global || !state.local) {
+    if (!state) {
         return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
     }
 
@@ -82,7 +84,7 @@ const CrowdsaleInner = ({ account, contractId }: CrowdsaleProps): ReactElement =
     }
 
     if (optInState === 'whitelisting') {
-        return <Status status="PREPARING THE TOKENSALE FOR YOU" showLoading={true} />
+        return <Status status="PREPARING THE TOKENSALE FOR YOU" showLoading={true} />;
     }
 
     const { totalAmount, rate, individualCap } = state.initial;
@@ -118,19 +120,26 @@ const CrowdsaleInner = ({ account, contractId }: CrowdsaleProps): ReactElement =
 
 export const Crowdsale = (): ReactElement => {
     const account = useStore($account);
-    const { data, isError } = useQuery(['contracts', 'crowdsale'], () => getContracts('crowdsale'));
+    const { data, isError, isSuccess } = useQuery(['contracts', 'crowdsale'], () => getContracts('crowdsale'));
+
+    useEffect(() => {
+        if (isSuccess) {
+            const contracts = data.sort((a: any, b: any) => b.deployed_timestamp - a.deployed_timestamp).slice(0, 1);
+            setContractInfos(contracts);
+        }
+    }, [data, isError, isSuccess]);
+
+    const contract = useStoreMap($contracts, (ls: Contract<'crowdsale'>[]) => ls[0]);
 
     if (!account) {
         return <InfoHeader>PLEASE, CONNECT THE WALLET.</InfoHeader>;
-    } else if (isError || !data || data.length === 0) {
+    } else if (contract === undefined) {
         return <InfoHeader>SALE NOT STARTED, COMING SOON!</InfoHeader>;
     }
 
-    const contract = data.sort((a: any, b: any) => b.deployed_timestamp - a.deployed_timestamp)[0];
-
-    if (!contract.metadata.whitelist.includes(account.networkAccount.addr)) {
+    if (!contract.info.metadata.whitelist.includes(account.networkAccount.addr)) {
         return <InfoHeader>SORRY, YOU ARE NOT IN THE WHITELIST</InfoHeader>;
     } else {
-        return <CrowdsaleInner account={account} contractId={contract.id} />;
+        return <CrowdsaleInner account={account} contract={contract} />;
     }
 };
