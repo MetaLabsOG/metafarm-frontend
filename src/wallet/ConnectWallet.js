@@ -1,17 +1,19 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
+import { useStore } from 'effector-react';
 
-import { ALGONET, AppContext, reach } from '../AppContext';
+import { ALGONET, reach } from '../AppContext';
 import { useModal } from 'react-hooks-use-modal';
 import { ALGO_MyAlgoConnect as MyAlgoConnect, ALGO_WalletConnect as WalletConnect } from '@reach-sh/stdlib';
 
 import '../css/wallet.css';
 import { logEvent } from '../logEvent';
+import { $account, setAccount } from '../common/store';
 
 const { detect } = require('detect-browser');
 const browser = detect();
 
 export function ConnectWallet() {
-    const { account, setAccount } = useContext(AppContext);
+    const account = useStore($account);
     const [walletType, setWalletType] = useState('');
     const [finishedOpening, setFinishedOpening] = useState(false);
     const [Modal, open, close, isOpen] = useModal('root', { preventScroll: true });

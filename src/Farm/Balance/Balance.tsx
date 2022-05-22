@@ -1,5 +1,5 @@
 import { useStore } from 'effector-react';
-import { $poolAggregates } from '../PoolList/store/store';
+import { $poolAggregates } from '../store';
 import { Amount } from './Amount';
 import { BalanceList } from './styled';
 

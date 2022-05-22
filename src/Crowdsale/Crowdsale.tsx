@@ -1,14 +1,15 @@
-import { ReactElement, useContext, useCallback, useState } from 'react';
+import { ReactElement, useCallback, useState } from 'react';
+import { useStore } from 'effector-react';
 import { useQuery } from 'react-query';
 //@ts-ignore TODO: type definitions for contract packages?... damn seems bad...
 import { backend, reach } from '@metalabsog/crowdsale';
 
 import { Status } from '../Status';
-import { algod } from '../providers/dexesProvider';
 import { getContracts, tokensaleWhitelist } from '../providers/apiProvider';
 import { useContractOptin, useReachContract } from '../common/reachHooks';
 import { InfoHeader } from '../common/styled';
-import { AppContext, Context, META_TOKEN_ID } from '../AppContext';
+import { META_TOKEN_ID } from '../AppContext';
+import { $account } from '../common/store';
 import { Account } from '../types';
 import { Button } from './styled';
 
@@ -116,8 +117,8 @@ const CrowdsaleInner = ({ account, contractId }: CrowdsaleProps): ReactElement =
 };
 
 export const Crowdsale = (): ReactElement => {
-    const { account } = useContext(AppContext) as Context;
-    const { data, isError } = useQuery(['contracts', 'farm'], () => getContracts('crowdsale'));
+    const account = useStore($account);
+    const { data, isError } = useQuery(['contracts', 'crowdsale'], () => getContracts('crowdsale'));
 
     if (!account) {
         return <InfoHeader>PLEASE, CONNECT THE WALLET.</InfoHeader>;

@@ -140,6 +140,7 @@ export class TinymanDex implements Dex {
         };
     }
 
+    // TODO: can we not do backend calling here?
     async getSwapCost(fromAsset: number, toAsset: number, amount: number): Promise<SwapQuote> {
         const { res_tokens, price_per_token } = await backendGetSwapCost(fromAsset, toAsset, amount);
         return {

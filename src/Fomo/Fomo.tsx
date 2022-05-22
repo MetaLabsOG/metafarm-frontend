@@ -1,10 +1,10 @@
-import { useState, useContext, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from 'react-query';
 import { LevelInfo } from './types';
 import '../css/fomo.css';
 import { backend as fomo } from '@metalabsog/metafomo';
 import { RulesModal } from './RulesModal';
-import { AppContext, reach, Context, IS_MOBILE } from '../AppContext';
+import { reach, IS_MOBILE } from '../AppContext';
 import { Timer } from './Timer';
 import { Status } from '../Status';
 import { batchOptIn } from '../batchOptIn.mjs';
@@ -38,6 +38,8 @@ import {
 import { NFTCard, NFTCardInfo, Nft, InfoHeader } from '../common/styled';
 import { setLevelAndValue } from './utils';
 import { BigNumber } from 'ethers';
+import { useStore } from 'effector-react';
+import { $account } from '../common/store';
 
 const USER_BEATEN_MESSAGE = "Sorry, someone beat you"
 
@@ -64,7 +66,7 @@ function useInterval(callback: () => void, delay: number) {
 export const Fomo = () => {
     const { data } = useQuery(['contracts', 'fomo'], () => getContracts('fomo'));
     const id = data && data.length ? data[0].id : undefined;
-    const { account } = useContext(AppContext) as Context;
+    const account = useStore($account);
     const [ctc, setCtc] = useState<null>(null);
     const [isAccountConnected, setIsAccountConnected] = useState<boolean>(false);
     const [isFomoSet, setIsFomoSet] = useState<boolean>(false);

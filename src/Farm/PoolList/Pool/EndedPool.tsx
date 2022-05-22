@@ -15,7 +15,6 @@ import {
 } from './styled';
 import { Status } from '../../../Status';
 import { calculateAmountToken, convertAmount, convertAmountToUSD, numberRound } from './utils';
-import { GlobalInfo, InitialInfo, LocalInfo } from '../types';
 
 // export const EndedPool = ({
 //     pool,

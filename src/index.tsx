@@ -10,7 +10,6 @@ import { Fomo } from './Fomo';
 import { Farm } from './Farm';
 import { Swap } from './Swap';
 
-import { AppContext } from './AppContext';
 import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
@@ -22,28 +21,24 @@ const queryClient = new QueryClient();
 console.log('ENV', process.env);
 
 const App = () => {
-    const [account, setAccount] = React.useState(undefined);
-
     return (
         <QueryClientProvider client={queryClient}>
             <GlobalStyle />
-            <AppContext.Provider value={{ account, setAccount }}>
-                <ThemeProvider theme={theme}>
-                    <Container>
-                        <Menu />
-                        <ContentContainer>
-                            <Routes>
-                                <Route path="/" element={<Fomo />} />
-                                <Route path="/fomo" element={<Fomo />} />
-                                <Route path="/farm" element={<Farm />} />
-                                <Route path="/swap" element={<Swap />} />
-                                <Route path="/meta-dao" element={<MetaDAO />} />
-                                <Route path="/tokensale" element={<Crowdsale />} />
-                            </Routes>
-                        </ContentContainer>
-                    </Container>
-                </ThemeProvider>
-            </AppContext.Provider>
+            <ThemeProvider theme={theme}>
+                <Container>
+                    <Menu />
+                    <ContentContainer>
+                        <Routes>
+                            <Route path="/" element={<Fomo />} />
+                            <Route path="/fomo" element={<Fomo />} />
+                            <Route path="/farm" element={<Farm />} />
+                            <Route path="/swap" element={<Swap />} />
+                            <Route path="/meta-dao" element={<MetaDAO />} />
+                            <Route path="/tokensale" element={<Crowdsale />} />
+                        </Routes>
+                    </ContentContainer>
+                </Container>
+            </ThemeProvider>
         </QueryClientProvider>
     );
 };
