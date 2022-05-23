@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { getContracts } from '../../providers/apiProvider';
 import { $pools, setPoolInfos } from '../store';
@@ -8,13 +8,12 @@ import { Pool } from './Pool';
 //@ts-ignore
 
 import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
-import { PoolT } from './types';
 import { InfoHeader } from '../../common/styled';
-import { useStore, useList } from 'effector-react';
-import { $account, Contract } from '../../common/store';
+import { useList } from 'effector-react';
+import { Contract } from '../../common/store';
 
 const headerColumn = [
-    { name: 'POOL', width: 20 },
+    { name: 'POOL', width: 30 },
     { name: 'TVL', width: 16.5 },
     { name: 'APR', width: 16.5 },
     { name: 'MY STAKE', width: 16.5 },

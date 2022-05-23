@@ -46,13 +46,15 @@ export const HighlightedInfo = styled.div`
 `;
 
 export const BasicInfo = styled.div`
+    display: flex;
+    align-items: center;
     color: ${(props) => props.theme.white};
 `;
 
 export const Stake = styled.div`
     display: flex;
     flex-direction: column;
-    width: 30%;
+    width: 24%;
     height: 100%;
     justify-content: space-around;
     margin-right: 20px;
@@ -61,7 +63,7 @@ export const Stake = styled.div`
 export const WithDraw = styled.div`
     display: flex;
     flex-direction: column;
-    width: 30%;
+    width: 25%;
     height: 100%;
     justify-content: space-around;
     margin-right: 20px;
@@ -103,7 +105,7 @@ export const Button = styled.button<{ customColor?: boolean; isActive?: boolean 
     border-radius: 0 4px 4px 0px;
     cursor: pointer;
     font-family: 'Korona One';
-    font-size: 14px;
+    font-size: 12px;
     ${Action}:hover & {
         color: 'inherit';
     }
@@ -128,14 +130,17 @@ export const Input = styled.input<{ customColor?: boolean; isActive?: boolean }>
 
 export const MaxButton = styled.div`
     position: absolute;
-    left: 43%;
+    left: 37%;
     top: 12%;
-    border: 1px solid;
     padding: 6px;
-    border-radius: 10px;
     color: inherit;
     font-size: 11px;
     cursor: pointer;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 15px;
 `;
 
 export const Claim = styled.div`
@@ -143,7 +148,7 @@ export const Claim = styled.div`
     flex-direction: column;
     justify-content: space-around;
     align-items: flex-end;
-    width: 20%;
+    width: 12%;
     height: 80%;
     margin-right: 10px;
 `;
@@ -155,6 +160,7 @@ export const ClaimButton = styled.div<{ isActive?: boolean }>`
     background-color: inherit;
     color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};
     border: 1px solid;
+    font-size: 12px;
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -199,4 +205,22 @@ export const GetLpTokenButton = styled.div<{ isActive?: boolean }>`
         background-color: ${({ theme, isActive }) => theme.green};
         color: black;
     }
+`;
+
+export const LPTokensIcon = styled.div<{ first?: boolean }>`
+    position: absolute;
+    left: ${({ first }) => (first ? '5px' : '30px')};
+    height: 40px;
+    width: 40px;
+    border: 1px solid;
+    border-radius: 40px;
+    color: ${({ theme, first }) => (first ? theme.green : theme.white)};
+    background-color: black;
+`;
+
+export const LpTokensIconsWrapper = styled.div`
+    display: flex;
+    position: relative;
+    height: 40px;
+    width: 85px;
 `;

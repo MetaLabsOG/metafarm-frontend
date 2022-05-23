@@ -1,5 +1,4 @@
-import { useEffect, useCallback, useState } from 'react';
-import { reach } from '../../../AppContext';
+import { useEffect, useState } from 'react';
 import { Status } from '../../../Status';
 import { $networkTime, Contract, queryTimeUpdate } from '../../../common/store';
 import { useStore } from 'effector-react';

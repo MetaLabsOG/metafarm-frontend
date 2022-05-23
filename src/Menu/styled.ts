@@ -27,7 +27,7 @@ export const MenuItems = styled.div`
     align-items: center;
     margin-top: 8px;
     justify-content: space-between;
-    width: 40%;
+    width: 60%;
     @media (max-width: 640px) {
         > * {
             &:first-child {
@@ -42,10 +42,9 @@ export const Logo = styled.img``;
 
 export const MainMenu = styled.div`
     display: flex;
-    margin-left: 40px;
-    margin-right: 40px;
-    border-top: 1px solid #5cfc3c;
-    width: 95%;
+    padding-left: 40px;
+    padding-right: 40px;
+    width: 100%;
     height: 51px;
     background: black;
     align-items: center;
@@ -63,6 +62,7 @@ export const MenuContainer = styled.div`
     justify-content: space-between;
     flex-direction: column;
     z-index: 20;
+    background-color: black;
 
     @media (max-width: 640px) {
         justify-content: space-around;
@@ -77,6 +77,10 @@ export const ExchangeRates = styled.div`
     background: #000000;
     color: #027a00;
     font-size: 14px;
+    margin-left: 40px;
+    margin-right: 40px;
+    border-bottom: 1px solid #5cfc3c;
+
     @media (max-width: 640px) {
         display: none;
     }

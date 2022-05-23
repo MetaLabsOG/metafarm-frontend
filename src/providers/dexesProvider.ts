@@ -31,6 +31,8 @@ export type TokenInfoT = {
 
 export type LPTokenInfo = TokenInfoT & {
     poolId: AppId;
+    asset1: number;
+    asset2: number;
     poolDex: DexProvider;
 };
 
@@ -193,6 +195,11 @@ export async function getLPTokenInfo(
     const { name, creator, decimals } = asset.params;
     const poolInfo = await dex.getPoolInfo(creator);
 
+    // TODO: remove this when pools name it will be not test names
+    const formatLPTokenName = (name: string) => {
+        return name.replace('/', ' • ').replace('liquidity', '');
+    };
+
     // TODO: all of this should NOT be repeated for every fucking token
     const algoRate = await getCoinRate('ALGOUSDT');
     const algoPrice = Number(algoRate.price);
@@ -206,5 +213,14 @@ export async function getLPTokenInfo(
     }
 
     const price = (poolInfo.asset1Reserve * fstAssetPrice) / poolInfo.totalLiquidity;
-    return { id: assetId, name, price, decimals, poolId: poolInfo.poolId, poolDex: provider };
+    return {
+        id: assetId,
+        name: formatLPTokenName(name),
+        price,
+        decimals,
+        poolId: poolInfo.poolId,
+        poolDex: provider,
+        asset1: poolInfo.asset1,
+        asset2: poolInfo.asset2,
+    };
 }
