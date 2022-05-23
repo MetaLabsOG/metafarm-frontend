@@ -142,7 +142,7 @@ export const PoolActions = ({
             </WithDraw>
             <Claim>
                 {canClaim && (
-                    <ClaimButton isActive={contractState.local.reward > 0} onClick={() => ctc.claim()}>
+                    <ClaimButton isActive={contractState.local.reward > 0} onClick={() => ctc.apis.claim()}>
                         CLAIM
                     </ClaimButton>
                 )}
