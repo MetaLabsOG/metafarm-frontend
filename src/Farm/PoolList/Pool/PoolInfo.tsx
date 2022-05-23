@@ -22,7 +22,15 @@ export const PoolInfo = ({
     const { endBlock, beginBlock } = contractState.initial;
     // TODO: This PoolState is absolutely unnecessary, we can just compare currentBlock with beginBlock here
 
-    const APR = poolState !== PoolState.Upcoming ? 0 : 10;
+    // TODO: get actual price of META
+    const blocksInAYear = (60 * 60 * 24 * 365) / 4.5;
+    const APR =
+        poolState !== PoolState.Upcoming
+            ? 0
+            : contractState.global.totalStaked === 0 || lpTokenInfo.price === 0
+            ? 0
+            : (contractState.initial.rewardPerBlock * blocksInAYear * lpTokenInfo.price) /
+              (contractState.global.totalStaked * lpTokenInfo.price) * 100;
 
     const timing =
         poolState === PoolState.Upcoming ? (
@@ -55,7 +63,7 @@ export const PoolInfo = ({
             <PoolInfoValue>{`$${numberRound(
                 convertAmountToUSD(lpTokenInfo, contractState.global.totalStaked)
             )}`}</PoolInfoValue>
-            <PoolInfoValue>{APR} %</PoolInfoValue>
+            <PoolInfoValue>{numberRound(APR)} %</PoolInfoValue>
             <PoolInfoValue>{`$${convertAmountToUSD(lpTokenInfo, contractState.local.staked).toFixed(
                 2
             )}`}</PoolInfoValue>
