@@ -60,6 +60,10 @@ sample({
     target: fetchBalancesFx,
 });
 
+
+// Token infos
+
+
 /**
  * Asynchronously gets the value of the store
  */
