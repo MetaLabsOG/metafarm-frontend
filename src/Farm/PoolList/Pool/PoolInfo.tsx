@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect } from 'react';
 import { ContractState, triggerBalancesUpdate } from '../../../common/store';
 import { calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
 import { PoolState } from './types';
-import { BasicInfo, GetLpTokenButton, Link, PoolInfoContainer, PoolInfoValue, TokenInfo } from './styled';
+import { BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue } from './styled';
 
 const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
 
@@ -21,6 +21,9 @@ export const PoolInfo = ({
     useEffect(triggerBalancesUpdate, []);
     const { endBlock, beginBlock } = contractState.initial;
     // TODO: This PoolState is absolutely unnecessary, we can just compare currentBlock with beginBlock here
+
+    const APR = poolState !== PoolState.Upcoming ? 0 : 10;
+
     const timing =
         poolState === PoolState.Upcoming ? (
             <>
@@ -38,16 +41,21 @@ export const PoolInfo = ({
 
     return (
         <>
-            <PoolInfoValue width={60}>
-                <div>
-                    <BasicInfo>{lpTokenInfo.name}</BasicInfo>
-                    <div>EARN META</div>
-                </div>
+            <PoolInfoValue width={89}>
+                <BasicInfo>
+                    <LpTokensIconsWrapper>
+                        <LPTokensIcon first></LPTokensIcon>
+                        <LPTokensIcon></LPTokensIcon>
+                    </LpTokensIconsWrapper>
+                    <div>
+                        {lpTokenInfo.name} LP <div>EARN META</div>
+                    </div>
+                </BasicInfo>
             </PoolInfoValue>
             <PoolInfoValue>{`$${numberRound(
                 convertAmountToUSD(lpTokenInfo, contractState.global.totalStaked)
             )}`}</PoolInfoValue>
-            <PoolInfoValue>10%</PoolInfoValue>
+            <PoolInfoValue>{APR} %</PoolInfoValue>
             <PoolInfoValue>{`$${convertAmountToUSD(lpTokenInfo, contractState.local.staked).toFixed(
                 2
             )}`}</PoolInfoValue>
