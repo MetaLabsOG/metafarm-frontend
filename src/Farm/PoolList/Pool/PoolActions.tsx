@@ -16,7 +16,7 @@ import {
     MaxButton,
     Link,
 } from './styled';
-import { calculateAmountToken, isValidAmount, numberRound } from './utils';
+import { calculateAmountToken, isValidAmount, numberRound, getLPTokenPoolLink } from './utils';
 import { PoolState } from './types';
 import { useStoreMap } from 'effector-react';
 
@@ -97,7 +97,7 @@ export const PoolActions = ({
         <PoolActionsWrapper>
             <TokenInfo>
                 {canStake && (
-                    <Link href="https://app.tinyman.org/#/pool/create-pair?asset_1=0" target="_blank" rel="noreferrer">
+                    <Link href={getLPTokenPoolLink(lpTokenInfo)} target="_blank" rel="noreferrer">
                         <GetLpTokenButton>Get LP Tokens</GetLpTokenButton>
                     </Link>
                 )}

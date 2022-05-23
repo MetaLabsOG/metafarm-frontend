@@ -31,6 +31,8 @@ export type TokenInfoT = {
 
 export type LPTokenInfo = TokenInfoT & {
     poolId: AppId;
+    asset1: number;
+    asset2: number;
     poolDex: DexProvider;
 };
 
@@ -211,5 +213,14 @@ export async function getLPTokenInfo(
     }
 
     const price = (poolInfo.asset1Reserve * fstAssetPrice) / poolInfo.totalLiquidity;
-    return { id: assetId, name: formatLPTokenName(name), price, decimals, poolId: poolInfo.poolId, poolDex: provider };
+    return {
+        id: assetId,
+        name: formatLPTokenName(name),
+        price,
+        decimals,
+        poolId: poolInfo.poolId,
+        poolDex: provider,
+        asset1: poolInfo.asset1,
+        asset2: poolInfo.asset2,
+    };
 }
