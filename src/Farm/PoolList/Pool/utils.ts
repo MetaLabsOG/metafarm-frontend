@@ -16,5 +16,5 @@ export const convertAmountToUSD = (lpToken: TokenInfoT, amount: number) => {
 };
 
 export const numberRound = (amount: number) => {
-    return formatDecimalsMeaningful(amount);
+    return amount > 0 ? formatDecimalsMeaningful(amount) : 0;
 };
