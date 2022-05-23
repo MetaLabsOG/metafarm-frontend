@@ -62,6 +62,7 @@ export const MenuContainer = styled.div`
     justify-content: space-between;
     flex-direction: column;
     z-index: 20;
+    background-color: black;
 
     @media (max-width: 640px) {
         justify-content: space-around;
