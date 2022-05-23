@@ -42,7 +42,9 @@ export type SwapQuote = {
 };
 
 export interface Dex {
-    getPoolInfo: (poolAddress: string) => Promise<PoolInfo>;
+    getPoolInfo: (poolId: AppId) => Promise<PoolInfo>;
+    getPoolInfoByAddress: (poolAddress: string) => Promise<PoolInfo>;
+    getPoolInfoByAssets: (asset1: number, asset2: number) => Promise<PoolInfo>;
     getSwapCost: (fromAsset: number, toAsset: number, amount: number) => Promise<SwapQuote>;
 }
 
@@ -50,7 +52,7 @@ export interface Dex {
  * Mock API for dexes (yields data with arbitrary numbers)
  */
 export class MockDex implements Dex {
-    async getPoolInfo(poolAddress: string): Promise<PoolInfo> {
+    async getPoolInfo(_: AppId): Promise<PoolInfo> {
         return {
             poolId: 0,
             asset1: 0,
@@ -59,6 +61,14 @@ export class MockDex implements Dex {
             asset2Reserve: 200000000,
             totalLiquidity: 100000000,
         };
+    }
+
+    getPoolInfoByAddress(_: string): Promise<PoolInfo> {
+        return this.getPoolInfo(0);
+    }
+
+    getPoolInfoByAssets(_1: number, _2: number): Promise<PoolInfo> {
+        return this.getPoolInfo(0);
     }
 
     async getSwapCost(fromAsset: number, toAsset: number, amount: number): Promise<SwapQuote> {
@@ -85,8 +95,23 @@ export class PactDex implements Dex {
         );
     }
 
+    poolToPoolInfo(pool: pactsdk.Pool): PoolInfo {
+        return {
+            poolId: pool.appId,
+            asset1: pool.primaryAsset.index,
+            asset2: pool.secondaryAsset.index,
+            asset1Reserve: pool.state.totalPrimary,
+            asset2Reserve: pool.state.totalSecondary,
+            totalLiquidity: pool.state.totalLiquidity,
+        };
+    }
+
+    async getPoolInfo(poolId: AppId): Promise<PoolInfo> {
+        return this.poolToPoolInfo(await this.pact.fetchPoolById(poolId));
+    }
+
     // TODO: No easier way to figure out the Pact pool from its address
-    async getPoolInfo(poolAddress: string): Promise<PoolInfo> {
+    async getPoolInfoByAddress(poolAddress: string): Promise<PoolInfo> {
         const accountInfo = await algod.accountInformation(poolAddress).do();
         const lpTokenId = accountInfo['created-assets'][0].index;
         let poolAssets = accountInfo.assets.map((a: any) => a['asset-id']).filter((id: number) => id !== lpTokenId);
@@ -94,16 +119,18 @@ export class PactDex implements Dex {
         if (poolAssets.length < 2) {
             poolAssets = [0, ...poolAssets];
         }
+
+        // repeated code, yes, but we need to filter by lpTokenId here because Pact can have several pools on a pair
         const pools = await this.pact.fetchPoolsByAssets(poolAssets[0], poolAssets[1]);
         const selectedPool = pools.filter((pool: any) => pool.liquidityAsset.index === lpTokenId)[0];
-        return {
-            poolId: selectedPool.appId,
-            asset1: selectedPool.primaryAsset.index,
-            asset2: selectedPool.secondaryAsset.index,
-            asset1Reserve: selectedPool.state.totalPrimary,
-            asset2Reserve: selectedPool.state.totalSecondary,
-            totalLiquidity: selectedPool.state.totalLiquidity,
-        };
+        return this.poolToPoolInfo(selectedPool);
+    }
+
+    async getPoolInfoByAssets(a1: number, a2: number): Promise<PoolInfo> {
+        const pools = await this.pact.fetchPoolsByAssets(a1, a2);
+        // let's select the most liquid pool instead of just selecting first
+        const selectedPool = pools.sort((a, b) => b.state.totalLiquidity - a.state.totalLiquidity)[0];
+        return this.poolToPoolInfo(selectedPool);
     }
 
     async getSwapCost(fromAsset: number, toAsset: number, amount: number): Promise<SwapQuote> {
@@ -129,8 +156,20 @@ export class TinymanDex implements Dex {
         this.algod = algod;
     }
 
-    async getPoolInfo(poolAddress: string): Promise<PoolInfo> {
-        const accountInfo = await algod.accountInformation(poolAddress).do();
+    getPoolLogicSigArray(a1: number, a2: number, validatorAppId: AppId | undefined = undefined): Uint8Array {
+        // TODO: implement as in Python SDK
+        throw new Error("Not implemented");
+    }
+
+    async getPoolInfo(poolId: AppId): Promise<PoolInfo> {
+        // funnily enough, getting the pool info by creator address is one step less,
+        // because Tinyman pool is a LogicSig and everything is in the creator's local state.
+        const { creator } = await this.algod.getApplicationByID(poolId).do();
+        return this.getPoolInfoByAddress(creator);
+    }
+
+    async getPoolInfoByAddress(poolAddress: string): Promise<PoolInfo> {
+        const accountInfo = await this.algod.accountInformation(poolAddress).do();
 
         const appInfo = accountInfo['apps-local-state'][0];
         const poolId = appInfo['id'];
@@ -154,6 +193,12 @@ export class TinymanDex implements Dex {
             asset2Reserve: s2,
             totalLiquidity: ilt,
         };
+    }
+
+    async getPoolInfoByAssets(a1: number, a2: number): Promise<PoolInfo> {
+        const logicSigArray = this.getPoolLogicSigArray(a1, a2);
+        const logicSig = algosdk.logicSigFromByte(logicSigArray);
+        return this.getPoolInfoByAddress(logicSig.address());          
     }
 
     // TODO: can we not do backend calling here?
@@ -193,7 +238,7 @@ export async function getLPTokenInfo(
 
     const dex = makeDex(provider);
     const { name, creator, decimals } = asset.params;
-    const poolInfo = await dex.getPoolInfo(creator);
+    const poolInfo = await dex.getPoolInfoByAddress(creator);
 
     // TODO: remove this when pools name it will be not test names
     const formatLPTokenName = (name: string) => {
