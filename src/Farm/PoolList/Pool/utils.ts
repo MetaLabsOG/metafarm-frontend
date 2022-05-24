@@ -7,8 +7,8 @@ const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
 
 export const isValidAmount = (amount: number, balance: number) => balance >= amount && amount > 0;
 
-export const convertAmount = (amount: number, lpToken: TokenInfoT) => {
-    return amount * 10 ** lpToken.decimals;
+export const convertAmount = (amount: string, lpToken: TokenInfoT) => {
+    return Math.floor(parseFloat(amount) * 10 ** lpToken.decimals)
 };
 
 export const calculateAmountToken = (lpToken: TokenInfoT, balanceTokenOnAccount: number) => {
