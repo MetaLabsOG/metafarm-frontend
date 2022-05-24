@@ -5,7 +5,7 @@ import { $sortedPools, setPoolInfos } from '../store';
 import { Pool } from './Pool';
 import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
 import { InfoHeader } from '../../common/styled';
-import { useList, useStore } from 'effector-react';
+import { useList } from 'effector-react';
 import { Contract } from '../../common/store';
 
 const headerColumn = [
@@ -20,14 +20,16 @@ const headerColumn = [
 export const PoolList = () => {
     const { data, isError, isSuccess } = useQuery(['contracts', 'farm'], () => getContracts('farm'));
 
+
     useEffect(() => {
         if (isSuccess) {
             setPoolInfos(data);
         }
     }, [data, isError, isSuccess]);
 
-    const poolComponents = useList($sortedPools, (ctc: Contract<'farm'>, index: number) => (
-        <Pool key={index} index={index} contract={ctc} />
+ 
+    const poolComponents = useList($sortedPools, (ctc: Contract<'farm'>) => (
+        <Pool key={ctc.id} id={ctc.id} contract={ctc} />
     ))
 
     return (

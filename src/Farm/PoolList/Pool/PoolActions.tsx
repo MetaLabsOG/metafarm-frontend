@@ -15,8 +15,8 @@ import {
     ClaimButton,
     MaxButton,
     Link,
-    Animation,
 } from './styled';
+import { toast } from 'react-toastify';
 import { calculateAmountToken, isValidAmount, numberRound, getLPTokenPoolLink, convertAmount } from './utils';
 import { PoolState } from './types';
 import { useStore, useStoreMap } from 'effector-react';
@@ -26,10 +26,10 @@ export const PoolActions = ({
     poolState,
     contractState,
     lpTokenInfo,
-    index
+    id
 }: {
     poolState: PoolState;
-    index: number;
+    id: number;
     contractState: ContractState<'farm'>;
     lpTokenInfo: LPTokenInfo;
 }) => {
@@ -40,10 +40,20 @@ export const PoolActions = ({
     const [isValidStake, setIsValidStake] = useState<boolean>(true);
 
     const pendingStake = useStore(stakeFx.pending)
-    stakeFx.done.watch(() =>  setToStake(''))
+   
+    stakeFx.done.watch(() => {
+        console.log(pendingStake)
+        toast.success('Stake succees!')
+        setToStake('')
+    }
+    )
     const pendingClaim = useStore(claimFx.pending)
     const pendingWithdraw = useStore(withdrawFx.pending)
-    withdrawFx.done.watch(() => setToWithdraw(''))
+    withdrawFx.done.watch(() => {
+        toast.success('Withdraw succees!')
+        setToWithdraw('')
+    }
+    )
   
     const stakedTokens = numberRound(calculateAmountToken(lpTokenInfo, contractState.local.staked));
     const lpBalanceForView = lpBalance === null ? '-' : numberRound(calculateAmountToken(lpTokenInfo, lpBalance));
@@ -81,26 +91,26 @@ export const PoolActions = ({
         (amount: string) => {
             const convertedAmount = convertAmount(amount, lpTokenInfo)
             if (lpBalance && convertedAmount < lpBalance && isValidStake) {
-                fetchApiCallFx({index, effectName: 'stake',  amount: convertedAmount, })
+                fetchApiCallFx({id, effectName: 'stake',  amount: convertedAmount, })
             }
             
         },
-        [index, isValidStake, lpBalance, lpTokenInfo]
+        [id, isValidStake, lpBalance, lpTokenInfo]
     );
 
     const withdraw = useCallback(
         (amount: string) => {
             if (canWithdraw && isValidWithdraw) {
-                fetchApiCallFx({index, effectName: 'unstake', amount: convertAmount(amount, lpTokenInfo)})
+                fetchApiCallFx({id, effectName: 'unstake', amount: convertAmount(amount, lpTokenInfo)})
             }
         },
-        [canWithdraw, isValidWithdraw, index, lpTokenInfo]
+        [canWithdraw, isValidWithdraw, id, lpTokenInfo]
     );
 
     const claim = useCallback(
         () => {
-            fetchApiCallFx({ index, effectName: 'claim' })
-        },[index])
+            fetchApiCallFx({ id, effectName: 'claim' })
+        },[id])
 
     return (
         <PoolActionsWrapper>
@@ -114,7 +124,7 @@ export const PoolActions = ({
             <Stake>
                 {canStake && (
                     <>
-                        <Action isActive={lpBalanceIsNotZero && isValidStake}>
+                        <Action isActive={lpBalanceIsNotZero && isValidStake && !pendingStake}>
                             <Input
                                 isActive={lpBalanceIsNotZero}
                                 placeholder="0"
@@ -122,14 +132,10 @@ export const PoolActions = ({
                                 value={toStake}
                                 onChange={onChangeStake}
                             />
-                            <Button isActive={canStake} disabled={!canStake} onClick={() => stake(toStake)}>
-                                STAKE
+                            <Button isLoading={pendingStake} isActive={canStake} disabled={!canStake} onClick={() => stake(toStake)}>
+                                    {pendingStake ? '' : 'STAKE' }
                             </Button>
                             <MaxButton hoverColor='green' onClick={setMaxStake}>MAX</MaxButton>
-                            {pendingStake &&
-                                <Animation>
-                                <span></span>
-                            </Animation>}
                         </Action>
                         <Balance isValid={isValidStake}>
                             Balance: {lpBalanceForView} LP {isValidStake ? '' : '(Not enough)'}
@@ -138,7 +144,7 @@ export const PoolActions = ({
                 )}
             </Stake>
             <WithDraw>
-                <Action isActive={canWithdraw && isValidWithdraw} customColor={true}>
+                <Action isActive={canWithdraw && isValidWithdraw && !pendingWithdraw} customColor={true}>
                     <Input
                         isActive={canWithdraw}
                         placeholder="0"
@@ -146,16 +152,10 @@ export const PoolActions = ({
                         value={toWithdraw}
                         onChange={onChangeWithDraw}
                     />
-                    <Button isActive={canWithdraw} disabled={!canWithdraw} onClick={() => withdraw(toWithdraw)}>
-                        WITHDRAW
+                    <Button isLoading={pendingWithdraw} isActive={canWithdraw} disabled={!canWithdraw} onClick={() => withdraw(toWithdraw)}>
+                            {pendingWithdraw ? '' : 'WITHDRAW' } 
                     </Button>
                     <MaxButton hoverColor='blue' onClick={setMaxWithdraw}>MAX</MaxButton>
-                    {pendingWithdraw &&
-                            <Animation>
-                            <span></span>
-                        </Animation>
-                    }
-                    
                 </Action>
                 <Balance isValid={isValidWithdraw}>
                     Staked: {stakedTokens} LP {isValidWithdraw ? '' : '(Not enough)'}
@@ -163,8 +163,8 @@ export const PoolActions = ({
             </WithDraw>
             <Claim>
                 {canClaim && (
-                    <ClaimButton isActive={contractState.local.reward > 0} onClick={claim}>
-                        CLAIM
+                    <ClaimButton isLoading={pendingClaim} isActive={contractState.local.reward > 0 && !pendingClaim} onClick={claim}>
+                        {pendingClaim ? '' : 'CLAIM' }
                     </ClaimButton>
                 )}
             </Claim>

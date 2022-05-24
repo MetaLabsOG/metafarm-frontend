@@ -19,8 +19,6 @@ export const setPoolInfos = setContractInfos;
 export const triggerPoolUpdate = triggerStateUpdate;
 
 
-
-
 //TODO NEED REFACTOR (quick solution)
 //@ts-ignore
 const sortPoolsOnStatus = createEffect(({ networkTime, pools }) => {
@@ -106,20 +104,21 @@ export const $poolAggregates = combine($contractStates, $lpTokenInfos, (states, 
 });
 
 
-export const fetchApiCallFx = createEffect(async (params: {index: number, effectName: string, amount?: number}) => {
+export const fetchApiCallFx = createEffect(async (params: {id: number, effectName: string, amount?: number}) => {
     return params
 })
 
-//@ts-ignore
-export const apiCallFx = createEffect(async ({ apiFn, amount, effectName }) => {
-    console.log(apiCallFx)
+type ParamsApiCallFx = {
+    apiFn: (amount?: number) => Promise<void>, amount: number, effectName: string
+}
+
+
+export const apiCallFx = createEffect(async ({ apiFn, amount, effectName }: ParamsApiCallFx) => {
     if (effectName === 'claim') {
         await apiFn()
     } else {
-        await apiFn(amount)
-    }
-
-    
+       await apiFn(amount)
+    } 
 })
 
 
@@ -145,8 +144,9 @@ split({
         source: $pools,
         clock: fetchApiCallFx,
         fn: (pools, params) => {
-            const { index, amount, effectName } = params
-            const apiFn = pools[index].ctc.apis[effectName]
+            const { id, amount, effectName } = params
+            const pool = pools.find((pool) => pool.id === id)
+            const apiFn = pool ? pool.ctc.apis[effectName] : undefined
             return ({amount, effectName, apiFn })
         },
 

@@ -112,11 +112,6 @@ export const Animation = styled.div`
         }
 }
     }
-
-      
-
-        
-    
 `
 
 export const Action = styled.div<{ customColor?: boolean; isActive?: boolean }>`
@@ -135,7 +130,7 @@ export const Action = styled.div<{ customColor?: boolean; isActive?: boolean }>`
     }}};
 `;
 
-export const Button = styled.button<{ customColor?: boolean; isActive?: boolean }>`
+export const Button = styled.button<{ customColor?: boolean; isActive?: boolean, isLoading: boolean }>`
     border: 1px solid;
     background-color: inherit;
     color: ${({ theme, isActive }) => (isActive ? 'inherit' : theme.gray)};
@@ -147,6 +142,17 @@ export const Button = styled.button<{ customColor?: boolean; isActive?: boolean 
     font-size: 12px;
     ${Action}:hover & {
         color: 'inherit';
+    }
+    ::before {
+        position: absolute;
+        top: 5px;
+        left: 70%;
+        content: ' ';
+        background-image: ${({ isLoading }) => (isLoading ? `url(${require('../../../imgs/packman.gif')})` : null)};
+        background-position: center center;
+        background-size: cover;
+        width: 40px;
+        height: 70%;
     }
 `;
 
@@ -196,11 +202,12 @@ export const Claim = styled.div`
     margin-right: 10px;
 `;
 
-export const ClaimButton = styled.div<{ isActive?: boolean }>`
+export const ClaimButton = styled.div<{ isActive?: boolean, isLoading: boolean }>`
     width: 95px;
     height: 34px;
     min-height: 40px;
     background-color: inherit;
+    position: relative;
     color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};
     border: 1px solid;
     font-size: 12px;
@@ -212,6 +219,17 @@ export const ClaimButton = styled.div<{ isActive?: boolean }>`
     font-family: 'Korona One';
     :hover {
         color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};
+    }
+    ::before {
+        position: absolute;
+        top:  5px;
+        left: 35%;
+        content: ' ';
+        background-image: ${({ isLoading }) => (isLoading ? `url(${require('../../../imgs/packman.gif')})` : null)};
+        background-position: center center;
+        background-size: cover;
+        width: 40px;
+        height: 70%;
     }
 `;
 
