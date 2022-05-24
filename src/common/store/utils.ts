@@ -99,7 +99,7 @@ export type ExpBackoffParams = {
  */
 export function expBackoff<V, T>(
     eff: (v: V) => Promise<T>,
-    { firstDelay, multiplier, maxTries }: ExpBackoffParams = { firstDelay: 500, multiplier: 2, maxTries: 3 }
+    { firstDelay, multiplier, maxTries }: ExpBackoffParams = { firstDelay: 500, multiplier: 1.5, maxTries: 5 }
 ): (v: V) => Promise<T> {
     return async (v) => {
         let numTries = 0;

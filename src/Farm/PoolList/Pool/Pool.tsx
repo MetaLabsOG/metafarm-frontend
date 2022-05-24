@@ -1,21 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Status } from '../../../Status';
-import { $networkTime, $pricedAssets, Contract, queryTimeUpdate } from '../../../common/store';
+import { $networkTime, queryTimeUpdate, Contract } from '../../../common/store';
 import { useStore, useStoreMap } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolInfoContainer } from './styled';
-import { $lpTokenInfos } from '../../store';
+import { $farmLPTokens, $farmRewardTokens } from '../../store';
 
 export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
     const currentBlock = useStore($networkTime);
-    const lpTokenInfo = useStoreMap($lpTokenInfos, (tokens) =>
-        contract.state ? tokens.get(contract.state.initial.stakeToken, null) : null
-    );
-    const rewardTokenInfo = useStoreMap($pricedAssets, (tokens) => 
-        contract.state ? tokens.get(contract.state.initial.rewardToken, null) : null 
-    );
+    const lpTokenInfo = useStoreMap($farmLPTokens, (tokens) => tokens.get(contract.id, null));
+    const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null));
 
     const [isOpen, setIsOpen] = useState(false);
 

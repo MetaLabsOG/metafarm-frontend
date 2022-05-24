@@ -1,6 +1,6 @@
-import { createStore, createEffect, forward, combine, Store } from 'effector';
+import { createStore, createEffect, createEvent, forward, combine, sample, Store } from 'effector';
 
-import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo } from './assets';
+import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
 import { getSwapCostSomewhere } from '../../providers/dexesProvider';
 import { Map } from 'immutable';
 import { Asset, AssetId, Priced } from './types';
@@ -15,17 +15,31 @@ export const $assetAlgoPrices = createStore(Map<AssetId, number>()).on(
     (prices, { params, result }) => prices.set(params.id, result)
 );
 
+// bool flags needed to not fetch swap prices of LP tokens for example
+export const requireAssetPrice = createEvent<AssetId>();
+export const $assetIsPriced = createStore(Map<AssetId, boolean>())
+    .on(requireAssetPrice, (as, id) => as.set(id, true));
+
+export const registerPricedAsset = createEvent<AssetId>();
+forward({
+    from: registerPricedAsset,
+    to: [registerAsset, requireAssetPrice]
+});
+
+// automatically fetch necessary assets prices when info about them is getting loaded first time
+sample({
+    clock: assetLoaded,
+    source: $assetIsPriced,
+    filter: (pricedFlags, asset) => pricedFlags.get(asset.id, false),
+    fn: (_, asset) => asset,
+    target: fetchAssetPrice,
+});
+
 $assetAlgoPrices.watch(v => console.log('ASSET PRICES', v));
 assetLoaded.watch(v => console.log('ASSET LOADED', v));
 fetchAssetPrice.watch(v => console.log('FETCHING ASSET PRICE', v));
 
 fetchAssetPrice.fail.watch(v => console.log('ASSET PRICE FETCHING FAILED', v));
-
-// automatically fetch assets prices when info about them is getting loaded first time
-forward({
-    from: assetLoaded,
-    to: fetchAssetPrice,
-});
 
 export const $pricedAssets: Store<Map<AssetId, Priced<Asset>>> = combine(
     $pricedAlgo,

@@ -133,7 +133,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: an
     });
 
     $contractStates.on(contractStateUpdated, (states, { id, state }) => states.set(id, state));
-    $contractStates.watch((s) => console.log('STATES', s));
+    $contractStates.watch((s) => console.log('STATES', s.toJS()));
 
     const $contractIds = $contractInfos.map((infos) => infos.map((i) => i.id));
 

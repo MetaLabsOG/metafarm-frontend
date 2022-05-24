@@ -28,7 +28,7 @@ export const PoolInfo = ({
     // TODO: This PoolState is absolutely unnecessary, we can just compare currentBlock with beginBlock herekjkk
     const blocksInAYear = (60 * 60 * 24 * 365) / 4.5;
     const APR =
-        poolState !== PoolState.Upcoming
+        poolState === PoolState.Finished
             ? 0
             : contractState.global.totalStaked === 0 || lpTokenInfo.price === 0
             ? 0
@@ -73,7 +73,7 @@ export const PoolInfo = ({
             )}`}</PoolInfoValue>
 
             <PoolInfoValue>
-                <div>{`$${numberRound(convertAmountToUSD(lpTokenInfo, contractState.local.reward))}`}</div>
+                <div>{`$${numberRound(convertAmountToUSD(rewardTokenInfo, contractState.local.reward))}`}</div>
                 <div>{`${numberRound(calculateAmountToken(rewardTokenInfo, contractState.local.reward))} ${
                     rewardTokenInfo.unitName
                 }`}</div>

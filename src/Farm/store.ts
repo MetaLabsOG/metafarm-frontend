@@ -12,10 +12,12 @@ import {
     Amount,
     Priced,
     registerAsset,
+    registerPricedAsset,
     $algoUsdPrice,
     fetchAsset,
     ALGO_ASSET,
     fetchAlgoPrice,
+    $pricedAssets,
 } from '../common/store';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
 import { convertAmountToUSD } from './PoolList/Pool/utils';
@@ -72,6 +74,8 @@ export const $pools = $contracts;
 export const setPoolInfos = setContractInfos;
 export const triggerPoolUpdate = triggerStateUpdate;
 
+$pools.watch((v) => console.log('FARM POOLS', v));
+
 // LP token info store
 type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
 
@@ -90,6 +94,7 @@ export const getLPTokenInfoFx = createEffect(
 );
 
 $lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
+$lpTokenInfos.watch((v) => console.log('LP TOKEN INFOS', v.toJS()));
 
 sample({
     clock: contractStateUpdated,
@@ -102,22 +107,32 @@ sample({
 $contractStates.watch((states) =>
     states.valueSeq().forEach((s) => {
         registerAsset(s.initial.stakeToken);
-        registerAsset(s.initial.rewardToken);
+        registerPricedAsset(s.initial.rewardToken);
     })
+);
+
+// These substores avoid a bug when token infos are not updated in components
+export const $farmLPTokens = combine($lpTokenInfos, $contractStates, (lpTokens, states) =>
+    states.map((state, _) => lpTokens.get(state.initial.stakeToken, null))
+);
+
+export const $farmRewardTokens = combine($pricedAssets, $contractStates, (tokens, states) =>
+    states.map((state, _) => tokens.get(state.initial.rewardToken, null))
 );
 
 // Price aggregation
 const sumMoney = (
     states: Map<AppId, ContractState<'farm'>>,
-    tokens: LPTokenStore,
-    getAmount: (s: ContractState<'farm'>) => Amount
+    tokens: Map<AssetId, Priced<Asset>>,
+    getAmount: (s: ContractState<'farm'>) => Amount,
+    getToken: (s: ContractState<'farm'>) => AssetId
 ): number =>
     states.valueSeq().reduce((sum, state) => {
-        const stakeToken = state.initial.stakeToken;
+        const token = getToken(state);
         const amount = getAmount(state);
-        const tokenInfo = tokens.get(stakeToken, null);
+        const tokenInfo = tokens.get(token, null);
 
-        if (!amount || !stakeToken || !tokenInfo) {
+        if (!amount || !token || !tokenInfo) {
             return sum;
         }
 
@@ -130,9 +145,29 @@ export interface PoolAggregates {
     totalPendingReward: number;
 }
 
-export const $poolAggregates: Store<PoolAggregates> = combine($contractStates, $lpTokenInfos, (states, tokens) => {
-    const tvl = sumMoney(states, tokens, (s) => s.global.totalStaked);
-    const totalUserStake = sumMoney(states, tokens, (s) => s.local.staked);
-    const totalPendingReward = sumMoney(states, tokens, (s) => s.local.reward);
-    return { tvl, totalUserStake, totalPendingReward };
-});
+export const $poolAggregates: Store<PoolAggregates> = combine(
+    $contractStates,
+    $lpTokenInfos,
+    $pricedAssets,
+    (states, lpTokens, tokens) => {
+        const tvl = sumMoney(
+            states,
+            lpTokens,
+            (s) => s.global.totalStaked,
+            (s) => s.initial.stakeToken
+        );
+        const totalUserStake = sumMoney(
+            states,
+            lpTokens,
+            (s) => s.local.staked,
+            (s) => s.initial.stakeToken
+        );
+        const totalPendingReward = sumMoney(
+            states,
+            tokens,
+            (s) => s.local.reward,
+            (s) => s.initial.rewardToken
+        );
+        return { tvl, totalUserStake, totalPendingReward };
+    }
+);
