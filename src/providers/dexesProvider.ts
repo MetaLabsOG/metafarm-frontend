@@ -1,16 +1,13 @@
 import algosdk from 'algosdk';
-import { Buffer } from 'buffer';
-import { getSwapCost as backendGetSwapCost } from './apiProvider';
-import { getCoinRate } from './binanceProvider';
-
-import { ALGONET, MAINNET, TESTNET } from '../AppContext';
 import pactsdk from '@pactfi/pactsdk';
-import { AppId } from '../common/store';
+import { max, min } from 'ramda';
+import { Buffer } from 'buffer';
+
+import { ALGONET, MAINNET, TESTNET, algod } from '../AppContext';
+import { AppId, Asset, AssetId } from '../common/store/types';
+import { assetId } from '../common/store/utils';
 
 import TINYMAN_ASC from './tinyman_asc.json';
-import { max, min } from 'ramda';
-
-export const algod = new algosdk.Algodv2(process.env.ALGO_TOKEN!, process.env.ALGO_SERVER, process.env.ALGO_PORT);
 
 export type DexProvider =
     | 'T2' // Tinyman v1.1
@@ -19,6 +16,7 @@ export type DexProvider =
 
 export type PoolInfo = {
     poolId: AppId;
+    poolDex: DexProvider;
     asset1: number;
     asset2: number;
     asset1Reserve: number;
@@ -26,19 +24,7 @@ export type PoolInfo = {
     totalLiquidity: number;
 };
 
-export type TokenInfoT = {
-    id: number;
-    name: string;
-    price: number;
-    decimals: number;
-};
-
-export type LPTokenInfo = TokenInfoT & {
-    poolId: AppId;
-    asset1: number;
-    asset2: number;
-    poolDex: DexProvider;
-};
+export type LPTokenInfo = Asset & PoolInfo;
 
 export type SwapQuote = {
     totalPrice: number;
@@ -48,8 +34,8 @@ export type SwapQuote = {
 export interface Dex {
     getPoolInfo: (poolId: AppId) => Promise<PoolInfo>;
     getPoolInfoByAddress: (poolAddress: string) => Promise<PoolInfo>;
-    getPoolInfoByAssets: (asset1: number, asset2: number) => Promise<PoolInfo>;
-    getSwapCost: (fromAsset: number, toAsset: number, amount: number) => Promise<SwapQuote>;
+    getPoolInfoByAssets: (asset1: AssetId | Asset, asset2: AssetId | Asset) => Promise<PoolInfo>;
+    getSwapCost: (fromAsset: AssetId | Asset, toAsset: AssetId | Asset, amount: number) => Promise<SwapQuote>;
 }
 
 /**
@@ -59,6 +45,7 @@ export class MockDex implements Dex {
     async getPoolInfo(_: AppId): Promise<PoolInfo> {
         return {
             poolId: 0,
+            poolDex: 'MOCK',
             asset1: 0,
             asset2: 10000,
             asset1Reserve: 100000000,
@@ -71,11 +58,11 @@ export class MockDex implements Dex {
         return this.getPoolInfo(0);
     }
 
-    getPoolInfoByAssets(_1: number, _2: number): Promise<PoolInfo> {
+    getPoolInfoByAssets(_1: number | Asset, _2: number | Asset): Promise<PoolInfo> {
         return this.getPoolInfo(0);
     }
 
-    async getSwapCost(fromAsset: number, toAsset: number, amount: number): Promise<SwapQuote> {
+    async getSwapCost(_2: AssetId | Asset, _1: AssetId | Asset, amount: number): Promise<SwapQuote> {
         const perToken = 0.01;
         return {
             totalPrice: perToken * amount,
@@ -102,12 +89,35 @@ export class PactDex implements Dex {
     poolToPoolInfo(pool: pactsdk.Pool): PoolInfo {
         return {
             poolId: pool.appId,
+            poolDex: 'PT',
             asset1: pool.primaryAsset.index,
             asset2: pool.secondaryAsset.index,
             asset1Reserve: pool.state.totalPrimary,
             asset2Reserve: pool.state.totalSecondary,
             totalLiquidity: pool.state.totalLiquidity,
         };
+    }
+
+    makePactAsset(asset: AssetId | Asset): pactsdk.Asset {
+        const id = assetId(asset);
+        const pAsset = new pactsdk.Asset(this.algod, id);
+        if (typeof asset === 'number') {
+            return pAsset; // leave it to pact sdk to fetch everything else if needed
+        }
+        pAsset.name = asset.name;
+        pAsset.unitName = asset.unitName;
+        pAsset.decimals = asset.decimals;
+        pAsset.ratio = 10 ** pAsset.decimals;
+        pactsdk.Asset.assetsCache[assetId(asset)] = pAsset; // never fetch it again
+        return pAsset;
+    }
+
+    async getMostLiquidPool(a1: AssetId | Asset, a2: AssetId | Asset): Promise<pactsdk.Pool> {
+        const pools = await this.pact.fetchPoolsByAssets(assetId(a1), assetId(a2));
+        if (pools.length === 0) {
+            throw new Error(`No Pact pool for assets [${assetId(a1)}, ${assetId(a2)}] found`);
+        }
+        return pools.sort((a, b) => b.state.totalLiquidity - a.state.totalLiquidity)[0];
     }
 
     async getPoolInfo(poolId: AppId): Promise<PoolInfo> {
@@ -130,17 +140,14 @@ export class PactDex implements Dex {
         return this.poolToPoolInfo(selectedPool);
     }
 
-    async getPoolInfoByAssets(a1: number, a2: number): Promise<PoolInfo> {
-        const pools = await this.pact.fetchPoolsByAssets(a1, a2);
-        // let's select the most liquid pool instead of just selecting first
-        const selectedPool = pools.sort((a, b) => b.state.totalLiquidity - a.state.totalLiquidity)[0];
-        return this.poolToPoolInfo(selectedPool);
+    async getPoolInfoByAssets(a1: AssetId | Asset, a2: AssetId | Asset): Promise<PoolInfo> {
+        return this.getMostLiquidPool(a1, a2).then(this.poolToPoolInfo);
     }
 
-    async getSwapCost(fromAsset: number, toAsset: number, amount: number): Promise<SwapQuote> {
-        const pool = (await this.pact.fetchPoolsByAssets(fromAsset, toAsset))[0];
+    async getSwapCost(fromAsset: AssetId | Asset, toAsset: AssetId | Asset, amount: number): Promise<SwapQuote> {
+        const pool = await this.getMostLiquidPool(fromAsset, toAsset);
         const swap = pool.prepareSwap({
-            asset: new pactsdk.Asset(this.algod, toAsset),
+            asset: this.makePactAsset(toAsset),
             amount: amount,
             slippagePct: 2,
         });
@@ -262,6 +269,10 @@ export class TinymanDex implements Dex {
         const accountInfo = await this.algod.accountInformation(poolAddress).do();
 
         const appInfo = accountInfo['apps-local-state'][0];
+        if (!appInfo) {
+            throw new Error(`No Tinyman pool for address ${poolAddress} is found`);
+        }
+
         const poolId = appInfo['id'];
         const appState = appInfo['key-value'].reduce((acc: any, { key, value }: any) => {
             const newKey = Buffer.from(key, 'base64').toString();
@@ -277,6 +288,7 @@ export class TinymanDex implements Dex {
 
         return {
             poolId,
+            poolDex: 'T2',
             asset1: a1,
             asset2: a2,
             asset1Reserve: s1,
@@ -285,18 +297,27 @@ export class TinymanDex implements Dex {
         };
     }
 
-    async getPoolInfoByAssets(a1: number, a2: number): Promise<PoolInfo> {
-        const logicSig = this.getPoolLogicSig(a1, a2);
+    async getPoolInfoByAssets(a1: number | Asset, a2: number | Asset): Promise<PoolInfo> {
+        const logicSig = this.getPoolLogicSig(assetId(a1), assetId(a2));
         return this.getPoolInfoByAddress(logicSig.address());
     }
 
-    // TODO: can we not do backend calling here?
-    // TODO: yes we can but later
-    async getSwapCost(fromAsset: number, toAsset: number, amount: number): Promise<SwapQuote> {
-        const { res_tokens, price_per_token } = await backendGetSwapCost(fromAsset, toAsset, amount);
+    async getSwapCost(assetIn: number | Asset, assetOut: number | Asset, amountIn: number): Promise<SwapQuote> {
+        const pool = await this.getPoolInfoByAssets(assetIn, assetOut);
+        const [inputSupply, outputSupply] =
+            assetIn === pool.asset1
+                ? [pool.asset1Reserve, pool.asset2Reserve]
+                : [pool.asset2Reserve, pool.asset1Reserve];
+
+        const k = pool.asset1Reserve * pool.asset2Reserve;
+
+        // We assume that amount is in microalgos
+        const amountAfterFees = (amountIn * 997) / 1000;
+        const amountOut = outputSupply - k / (inputSupply - amountAfterFees);
+
         return {
-            totalPrice: res_tokens,
-            perToken: price_per_token,
+            totalPrice: amountOut,
+            perToken: amountOut / amountIn,
         };
     }
 }
@@ -305,57 +326,22 @@ export function makeDex(provider: DexProvider): Dex {
     return provider === 'PT' ? new PactDex(algod) : provider === 'T2' ? new TinymanDex(algod) : new MockDex();
 }
 
-// TODO: this function is a huge costyl
-export function detectAssetProvider({ name }: { name: string }): DexProvider {
-    name = name.toLowerCase();
-    if (name.indexOf('tinyman') !== -1) {
-        return 'T2';
-    } else if (name.indexOf('liquidity') !== -1) {
-        return 'PT';
-    } else {
-        return 'MOCK';
+// In which order to call dexes for the swap price for each token.
+// if no pair on Tinyman, try Pact; otherwise provide dummy prices on testnet or throw on mainnet.
+const DEX_TRY_ORDER: DexProvider[] = ALGONET === TESTNET ? ['T2', 'PT', 'MOCK'] : ['T2', 'PT'];
+
+export async function getSwapCostSomewhere(
+    assetIn: AssetId | Asset,
+    assetOut: AssetId | Asset,
+    amountIn: number
+): Promise<SwapQuote> {
+    let err = null;
+    for (const provider of DEX_TRY_ORDER) {
+        try {
+            return await makeDex(provider).getSwapCost(assetIn, assetOut, amountIn);
+        } catch (e) {
+            err = e;
+        }
     }
-}
-
-export async function getLPTokenInfo(
-    assetId: number,
-    provider: DexProvider | undefined = undefined
-): Promise<LPTokenInfo> {
-    const asset = await algod.getAssetByID(assetId).do();
-    if (provider === undefined) {
-        provider = detectAssetProvider(asset.params);
-    }
-
-    const dex = makeDex(provider);
-    const { name, creator, decimals } = asset.params;
-    const poolInfo = await dex.getPoolInfoByAddress(creator);
-
-    // TODO: remove this when pools name it will be not test names
-    const formatLPTokenName = (name: string) => {
-        return name.replace('/', ' • ').replace('liquidity', '');
-    };
-
-    // TODO: all of this should NOT be repeated for every fucking token
-    const algoRate = await getCoinRate('ALGOUSDT');
-    const algoPrice = Number(algoRate.price);
-
-    let fstAssetPrice;
-    if (poolInfo.asset1 === 0) {
-        fstAssetPrice = algoPrice;
-    } else {
-        const priceInAlgo = (await dex.getSwapCost(poolInfo.asset1, 0, 1)).perToken;
-        fstAssetPrice = algoPrice * priceInAlgo;
-    }
-
-    const price = (poolInfo.asset1Reserve * fstAssetPrice) / poolInfo.totalLiquidity;
-    return {
-        id: assetId,
-        name: formatLPTokenName(name),
-        price,
-        decimals,
-        poolId: poolInfo.poolId,
-        poolDex: provider,
-        asset1: poolInfo.asset1,
-        asset2: poolInfo.asset2,
-    };
+    throw err;
 }
