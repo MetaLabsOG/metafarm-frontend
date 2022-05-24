@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { ContractState, triggerBalancesUpdate } from '../../../common/store';
-import { calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
+import { calculateAmountToken, convertAmountToUSD } from './utils';
 import { PoolState } from './types';
 import { BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue } from './styled';
+import { formatDecimalsMeaningful } from '../../../common/lib';
 
 const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
 
@@ -60,17 +61,17 @@ export const PoolInfo = ({
                     </div>
                 </BasicInfo>
             </PoolInfoValue>
-            <PoolInfoValue>{`$${numberRound(
+            <PoolInfoValue>{`$${formatDecimalsMeaningful(
                 convertAmountToUSD(lpTokenInfo, contractState.global.totalStaked)
             )}`}</PoolInfoValue>
-            <PoolInfoValue>{numberRound(APR)}%</PoolInfoValue>
+            <PoolInfoValue>{formatDecimalsMeaningful(APR)}%</PoolInfoValue>
             <PoolInfoValue>{`$${convertAmountToUSD(lpTokenInfo, contractState.local.staked).toFixed(
                 2
             )}`}</PoolInfoValue>
 
             <PoolInfoValue>
-                <div>{`$${numberRound(convertAmountToUSD(lpTokenInfo, contractState.local.reward))}`}</div>
-                <div>{`${numberRound(calculateAmountToken(lpTokenInfo, contractState.local.reward))} META`}</div>
+                <div>{`$${formatDecimalsMeaningful(convertAmountToUSD(lpTokenInfo, contractState.local.reward))}`}</div>
+                <div>{`${formatDecimalsMeaningful(calculateAmountToken(lpTokenInfo, contractState.local.reward))} META`}</div>
             </PoolInfoValue>
             <PoolInfoValue style={{ color: 'gray', fontSize: '16px' }}>{timing}</PoolInfoValue>
         </>

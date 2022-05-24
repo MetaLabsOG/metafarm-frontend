@@ -1,4 +1,3 @@
-import { formatDecimalsMeaningful } from '../../../common/lib';
 import { LPTokenInfo, TokenInfoT } from '../../../providers/dexesProvider';
 import { ALGONET, TESTNET } from '../../../AppContext';
 
@@ -17,10 +16,6 @@ export const calculateAmountToken = (lpToken: TokenInfoT, balanceTokenOnAccount:
 
 export const convertAmountToUSD = (lpToken: TokenInfoT, amount: number) => {
     return (lpToken.price * amount) / 10 ** lpToken.decimals;
-};
-
-export const numberRound = (amount: number) => {
-    return amount > 0 ? formatDecimalsMeaningful(amount) : 0;
 };
 
 export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenInfo): string => {

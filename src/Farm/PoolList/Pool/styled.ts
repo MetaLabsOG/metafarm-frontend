@@ -137,7 +137,7 @@ export const Button = styled.button<{ customColor?: boolean; isActive?: boolean,
     width: 120px;
     min-height: 40px;
     border-radius: 0 4px 4px 0px;
-    cursor: pointer;
+    cursor: ${({ isLoading }) => isLoading ? 'default' : 'pointer'};
     font-family: 'Korona One';
     font-size: 12px;
     ${Action}:hover & {
@@ -215,7 +215,7 @@ export const ClaimButton = styled.div<{ isActive?: boolean, isLoading: boolean }
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    cursor: ${({ isLoading }) => isLoading ? 'default' : 'pointer'};
     font-family: 'Korona One';
     :hover {
         color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};

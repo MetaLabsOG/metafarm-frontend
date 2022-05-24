@@ -20,8 +20,7 @@ export const triggerPoolUpdate = triggerStateUpdate;
 
 
 //TODO NEED REFACTOR (quick solution)
-//@ts-ignore
-const sortPoolsOnStatus = createEffect(({ networkTime, pools }) => {
+const sortPoolsOnStatus = createEffect(({ networkTime, pools }: {networkTime: number, pools: Contract<'farm'>[]}) => {
      const groupedByStatus = groupBy(function(pool: any){
          if (pool.state) {
              const initial = pool.state.initial;

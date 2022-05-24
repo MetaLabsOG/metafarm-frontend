@@ -17,10 +17,11 @@ import {
     Link,
 } from './styled';
 import { toast } from 'react-toastify';
-import { calculateAmountToken, isValidAmount, numberRound, getLPTokenPoolLink, convertAmount } from './utils';
+import { calculateAmountToken, isValidAmount, getLPTokenPoolLink, convertAmount } from './utils';
 import { PoolState } from './types';
 import { useStore, useStoreMap } from 'effector-react';
 import { claimFx, fetchApiCallFx, stakeFx, withdrawFx } from '../../store';
+import { formatDecimalsMeaningful } from '../../../common/lib';
 
 export const PoolActions = ({
     poolState,
@@ -55,8 +56,8 @@ export const PoolActions = ({
     }
     )
   
-    const stakedTokens = numberRound(calculateAmountToken(lpTokenInfo, contractState.local.staked));
-    const lpBalanceForView = lpBalance === null ? '-' : numberRound(calculateAmountToken(lpTokenInfo, lpBalance));
+    const stakedTokens = formatDecimalsMeaningful(calculateAmountToken(lpTokenInfo, contractState.local.staked));
+    const lpBalanceForView = lpBalance === null ? '-' : formatDecimalsMeaningful(calculateAmountToken(lpTokenInfo, lpBalance));
     const canStake = poolState !== PoolState.Finished;
     const lpBalanceIsNotZero = lpBalance !== null && lpBalance > 0;
     const stakedTokenIsNotZero = Number(stakedTokens) > 0;
