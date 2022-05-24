@@ -1,11 +1,9 @@
 import { Map } from 'immutable';
-import { Account } from 'algosdk';
 import { createEffect, createEvent, createStore, sample, combine, merge, split, forward, Store, restore } from 'effector';
-import { zip } from 'ramda';
-import { algod, reach } from '../../AppContext';
-import { $account, $accountInfo } from './account';
+import { algod } from '../../AppContext';
+import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
-import { expBackoff, waitForEvent, assetId } from './utils';
+import { waitForEvent, assetId } from './utils';
 import { getBinanceCoinPrice } from '../../providers/binanceProvider';
 import { makeClock } from './time';
 
@@ -24,7 +22,7 @@ function getBalancesFromAccountInfo(accountInfo: any): Record<AssetId, Amount> {
     return accAssets.reduce((balances: Record<AssetId, Amount>, asset: any) => {
         balances[asset['asset-id']] = asset['amount'];
         return balances;
-    }, {});
+    }, {0: accountInfo.amount});
 }
 
 export const $balances = $accountInfo.map(getBalancesFromAccountInfo);
