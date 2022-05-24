@@ -11,6 +11,22 @@ const formatLPTokenName = (name: string) => {
     return name.replace('/', ' • ').replace('liquidity', '');
 };
 
+const calculateAPR = (
+    poolState: PoolState,
+    contractState: ContractState<'farm'>,
+    lpTokenInfo: Priced<Asset>,
+    rewardTokenInfo: Priced<Asset>
+): number => {
+    const blocksInAYear = (60 * 60 * 24 * 365) / 4.5;
+    return poolState === PoolState.Finished
+        ? 0
+        : contractState.global.totalStaked === 0 || lpTokenInfo.price === 0
+        ? 0
+        : ((contractState.initial.rewardPerBlock * blocksInAYear * rewardTokenInfo.price) /
+              (contractState.global.totalStaked * lpTokenInfo.price)) *
+          100;
+};
+
 export const PoolInfo = ({
     contractState,
     poolState,
@@ -25,16 +41,7 @@ export const PoolInfo = ({
     currentBlock: number;
 }) => {
     const { endBlock, beginBlock } = contractState.initial;
-    // TODO: This PoolState is absolutely unnecessary, we can just compare currentBlock with beginBlock herekjkk
-    const blocksInAYear = (60 * 60 * 24 * 365) / 4.5;
-    const APR =
-        poolState === PoolState.Finished
-            ? 0
-            : contractState.global.totalStaked === 0 || lpTokenInfo.price === 0
-            ? 0
-            : ((contractState.initial.rewardPerBlock * blocksInAYear * rewardTokenInfo.price) /
-                  (contractState.global.totalStaked * lpTokenInfo.price)) *
-              100;
+    const APR = calculateAPR(poolState, contractState, lpTokenInfo, rewardTokenInfo);
 
     const timing =
         poolState === PoolState.Upcoming ? (
