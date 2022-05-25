@@ -15,10 +15,12 @@ import {
     ClaimButton,
     MaxButton,
     Link,
+    Packman
 } from './styled';
+import packman from '../../../imgs/pacman.gif';
 import { calculateAmountToken, isValidAmount, numberRound, getLPTokenPoolLink } from './utils';
 import { PoolState } from './types';
-import { useStoreMap } from 'effector-react';
+import { useStore, useStoreMap } from 'effector-react';
 
 export const PoolActions = ({
     poolState,
@@ -33,7 +35,10 @@ export const PoolActions = ({
     lpTokenInfo: LPTokenInfo;
     rewardTokenInfo: Priced<Asset>;
 }) => {
-    // const pending = useStore(updateContractStateFx.pending);
+    const pendingStake = useStore(ctc.apis.stake.pending);
+    const pendingClaim = useStore(ctc.apis.claim.pending);
+    const pendingWithDraw = useStore(ctc.apis.unstake.pending)
+
     const lpBalance = useStoreMap($balances, (bs) => bs[lpTokenInfo.id]  || 0);
     const [toStake, setToStake] = useState<string>('');
     const [toWithdraw, setToWithdraw] = useState<string>('');
@@ -107,7 +112,7 @@ export const PoolActions = ({
             <Stake>
                 {canStake && (
                     <>
-                        <Action isActive={lpBalanceIsNotZero && isValidStake}>
+                        <Action isActive={lpBalanceIsNotZero && isValidStake && !pendingStake} >
                             <Input
                                 isActive={lpBalanceIsNotZero}
                                 disabled={!lpBalanceIsNotZero}
@@ -115,7 +120,7 @@ export const PoolActions = ({
                                 onChange={onChangeStake}
                             />
                             <Button isActive={canStake} disabled={!canStake} onClick={() => stake(toStake)}>
-                                STAKE
+                                {pendingStake ? <Packman src={packman}/> : 'STAKE'}
                             </Button>
                             <MaxButton onClick={setMaxStake}>MAX</MaxButton>
                         </Action>
@@ -126,7 +131,7 @@ export const PoolActions = ({
                 )}
             </Stake>
             <WithDraw>
-                <Action isActive={canWithdraw && isValidWithdraw} customColor={true}>
+                <Action isActive={canWithdraw && isValidWithdraw && !pendingWithDraw} customColor={true}>
                     <Input
                         isActive={canWithdraw}
                         disabled={!canWithdraw}
@@ -134,7 +139,7 @@ export const PoolActions = ({
                         onChange={onChangeWithDraw}
                     />
                     <Button isActive={canWithdraw} disabled={!canWithdraw} onClick={() => withdraw(toWithdraw)}>
-                        WITHDRAW
+                        {pendingWithDraw ? <Packman src={packman}/> : 'WITHDRAW'} 
                     </Button>
                     <MaxButton onClick={setMaxWithdraw}>MAX</MaxButton>
                 </Action>
@@ -144,8 +149,8 @@ export const PoolActions = ({
             </WithDraw>
             <Claim>
                 {canClaim && (
-                    <ClaimButton isActive={contractState.local.reward > 0} onClick={() => ctc.apis.claim()}>
-                        CLAIM
+                    <ClaimButton isActive={contractState.local.reward > 0 && !pendingClaim} onClick={() => ctc.apis.claim()}>
+                        { pendingClaim ? <Packman src={packman}/> : 'CLAIM' }
                     </ClaimButton>
                 )}
             </Claim>

@@ -31,11 +31,11 @@ function makeWrappedCtc(
     const apis = ctc.apis;
     ctc.apis = {};
     for (const k in apis) {
-        ctc.apis[k] = (...args: any[]) =>
+        ctc.apis[k] = createEffect((...args: any[]) =>
             apis[k](...args).then(async (res: any) => {
                 await onWrite(contractId);
                 return res;
-            });
+            }));
     }
     ctc.a = ctc.apis;
     return ctc;

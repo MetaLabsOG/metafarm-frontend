@@ -128,6 +128,10 @@ export const Input = styled.input<{ customColor?: boolean; isActive?: boolean }>
     }
 `;
 
+export const Packman = styled.img`
+    height: 35px;
+`
+
 export const MaxButton = styled.div`
     position: absolute;
     left: 37%;
