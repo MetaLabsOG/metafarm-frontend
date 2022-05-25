@@ -6,15 +6,27 @@ export const assetId = (a: AssetId | Asset): number => (typeof a === 'number' ? 
 
 /**
  * Asynchronously gets the value of the store
+ * NB: we cannot use just `store.watch` here because:
+ * 1. we will need to unsub so that the store watchers do not leak
+ * 2. we cannot do that with `store.watch` because the first watcher call gets
+ *    fired synchronously (apparently lol) so that 
+ *    `const unsub = store.watch((v) => {unsub(); resolve(v)})` does not work
+ *    since `unsub` gets fired before it is defined.
+ * So better just use a throwaway event which gets GCed later anyway.
  */
 export function fetchStore<T>(store: Store<T>): Promise<T> {
     return new Promise<T>((resolve) => {
-        sample({ source: store }).watch((v) => resolve(v));
+        sample({ source: store }).watch((v) => {
+            resolve(v)
+        });
     });
 }
 
 /**
  * Wait until an event with particular params happens
+ * Here, the problem with undefined `unsub` is not really present
+ * because the event watcher never calls first time synchronously
+ * unlike store watcher.
  */
 export async function waitForEvent<T, P, E>(
     event: Event<T>,
@@ -23,14 +35,19 @@ export async function waitForEvent<T, P, E>(
     failFilter?: (p: P) => boolean
 ): Promise<T> {
     return new Promise<T>((resolve, reject) => {
-        event.watch((v) => {
+        let unsubFail = () => { return; };
+        const unsub = event.watch((v) => {
             if (filter === undefined || filter(v)) {
+                unsub();
+                unsubFail();
                 resolve(v);
             }
         });
         if (failEvent !== undefined) {
-            failEvent.watch((e) => {
+            unsubFail = failEvent.watch((e) => {
                 if (failFilter === undefined || failFilter(e.params)) {
+                    unsub();
+                    unsubFail();
                     reject(e.error);
                 }
             })
