@@ -58,7 +58,7 @@ export class MockDex implements Dex {
         return this.getPoolInfo(0);
     }
 
-    getPoolInfoByAssets(_1: number | Asset, _2: number | Asset): Promise<PoolInfo> {
+    getPoolInfoByAssets(_1: AssetId | Asset, _2: AssetId | Asset): Promise<PoolInfo> {
         return this.getPoolInfo(0);
     }
 
@@ -249,7 +249,7 @@ export class TinymanDex implements Dex {
         this.validatorAppId = TinymanDex.VALIDATOR_APP_ID[ALGONET];
     }
 
-    getPoolLogicSig(a1: number, a2: number, validatorAppId: number = this.validatorAppId): algosdk.LogicSigAccount {
+    getPoolLogicSig(a1: AssetId, a2: AssetId, validatorAppId: AppId = this.validatorAppId): algosdk.LogicSigAccount {
         const program = Tinyman.getProgram(TINYMAN_ASC.contracts.pool_logicsig.logic, {
             validator_app_id: validatorAppId,
             asset_id_1: max(a1, a2),
@@ -297,12 +297,12 @@ export class TinymanDex implements Dex {
         };
     }
 
-    async getPoolInfoByAssets(a1: number | Asset, a2: number | Asset): Promise<PoolInfo> {
+    async getPoolInfoByAssets(a1: AssetId | Asset, a2: AssetId | Asset): Promise<PoolInfo> {
         const logicSig = this.getPoolLogicSig(assetId(a1), assetId(a2));
         return this.getPoolInfoByAddress(logicSig.address());
     }
 
-    async getSwapCost(assetIn: number | Asset, assetOut: number | Asset, amountIn: number): Promise<SwapQuote> {
+    async getSwapCost(assetIn: AssetId | Asset, assetOut: AssetId | Asset, amountIn: number): Promise<SwapQuote> {
         const pool = await this.getPoolInfoByAssets(assetIn, assetOut);
         const [inputSupply, outputSupply] =
             assetIn === pool.asset1
