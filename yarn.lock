@@ -6402,13 +6402,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clsx@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "clsx@npm:1.1.1"
-  checksum: 9c8bbaaae0feb0987be8345023f392569c47efd679a058bb3b89cb49c150a9a2ac936ea2751661669eab426bae440fbbd145c73929b0485cc285e25757792152
-  languageName: node
-  linkType: hard
-
 "cmd-shim@npm:^4.1.0":
   version: 4.1.0
   resolution: "cmd-shim@npm:4.1.0"
@@ -8151,18 +8144,6 @@ __metadata:
     debug: "npm:^3.2.7"
     find-up: "npm:^2.1.0"
   checksum: 1d6910166aed85c836fb13a7e682c6b8fca26d9d1c75f7f6f64b643dcd5bddb3bffed324ec38acb44379a1f2091a2effc535b626e56e2d2391750a7c019c1e34
-  languageName: node
-  linkType: hard
-
-"eslint-plugin-effector@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "eslint-plugin-effector@npm:0.6.0"
-  dependencies:
-    prettier: "npm:^2.3.2"
-  peerDependencies:
-    effector: "*"
-    eslint: 7 || 8
-  checksum: 3ca0bca2bee3cfbd5931976d297df9bd237f2a7631c79c7f95357a97c736c93141a73c116434afbc78b37119a3c517c3ced785961fd9ea6e29202bdc41b52322
   languageName: node
   linkType: hard
 
@@ -11947,7 +11928,6 @@ __metadata:
     eslint: "npm:^8.3.0"
     eslint-config-prettier: "npm:^8.5.0"
     eslint-config-react-app: "npm:^7.0.1"
-    eslint-plugin-effector: "npm:^0.6.0"
     eslint-webpack-plugin: "npm:^3.1.1"
     file-loader: "npm:^6.2.0"
     fs-extra: "npm:^10.0.0"
@@ -11981,7 +11961,6 @@ __metadata:
     react-refresh: "npm:^0.11.0"
     react-router-dom: "npm:^6.2.1"
     react-select-search: "npm:^3.0.9"
-    react-toastify: "npm:^9.0.1"
     resolve: "npm:^1.20.0"
     resolve-url-loader: "npm:^4.0.0"
     sass-loader: "npm:^12.3.0"
@@ -14252,15 +14231,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.3.2":
-  version: 2.6.2
-  resolution: "prettier@npm:2.6.2"
-  bin:
-    prettier: bin-prettier.js
-  checksum: ca32544e761860cb04d4fdc84e5772972ef727b0ed802f543bf6a47b1794599048e082e4085a5a3688d2caa2f7ce6331f21c6c2cd7f3d97cddaf2625a4ed3458
-  languageName: node
-  linkType: hard
-
 "pretty-bytes@npm:^5.3.0, pretty-bytes@npm:^5.4.1":
   version: 5.6.0
   resolution: "pretty-bytes@npm:5.6.0"
@@ -14734,18 +14704,6 @@ __metadata:
     fuse.js:
       optional: true
   checksum: 8319582a7b5ebf680939b5d885a03f464c7ba9924cac5fb8b0b5a40011bb924268748d8e2605fcb3b32719710717c5b2e9bc8eaaead2bba9581694d7fb0bf633
-  languageName: node
-  linkType: hard
-
-"react-toastify@npm:^9.0.1":
-  version: 9.0.1
-  resolution: "react-toastify@npm:9.0.1"
-  dependencies:
-    clsx: "npm:^1.1.1"
-  peerDependencies:
-    react: ">=16"
-    react-dom: ">=16"
-  checksum: 4c087e2d74b01719798cab364bbe5c8c2b9ea3764d2e7f707479d0b7d2420844c716b68f5a88152e44669d5899aa37cb10f59e6f151d2ea098b4d8fb47a000c9
   languageName: node
   linkType: hard
 

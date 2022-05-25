@@ -8,7 +8,7 @@ import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolInfoContainer } from './styled';
 import { $lpTokenInfos } from '../../store';
 
-export const Pool = ({ contract, id }: { contract: Contract<'farm'>, id: number }) => {
+export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
     const currentBlock = useStore($networkTime);
     const lpTokenInfo = useStore(
         $lpTokenInfos.map((tokens) => (contract.state ? tokens.get(contract.state.initial.stakeToken, null) : null))
@@ -43,8 +43,8 @@ export const Pool = ({ contract, id }: { contract: Contract<'farm'>, id: number 
                 </PoolInfoContainer>
                 {isOpen && (
                     <PoolActions
-                        id={id}
                         poolState={poolState}
+                        ctc={contract.ctc}
                         contractState={contract.state}
                         lpTokenInfo={lpTokenInfo}
                     />

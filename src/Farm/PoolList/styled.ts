@@ -19,9 +19,8 @@ export const PoolListHeader = styled.div`
     }
 `;
 
-export const PoolListHeaderElement = styled.div<{ width?: number, paddingLeft?: number }>`
+export const PoolListHeaderElement = styled.div<{ width?: number }>`
     width: ${({ width }) => (width ? `${width}%` : '16.5%')};
-    padding-left: ${({paddingLeft}) => paddingLeft ? `${paddingLeft}px` : 0 };
     margin-left: 10px;
 `;
 

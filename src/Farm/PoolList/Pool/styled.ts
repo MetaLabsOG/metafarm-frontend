@@ -10,8 +10,7 @@ export const PoolContainer = styled.div`
     background-color: ${(props) => props.theme.darkGray};
     width: 95%;
     font-size: 14px;
-    padding-top: 16px;
-    
+    padding-top: 10px;
     border-radius: 10px;
     padding-bottom: 20px;
 `;
@@ -20,14 +19,13 @@ export const PoolInfoContainer = styled.div`
     display: flex;
     justify-content: space-around;
     color: ${(props) => props.theme.white};
-    height: 76px;
+    height: 78%;
     width: 100%;
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: 500;
     line-height: 22px;
     font-size: 17px;
-    margin-left: 20px;
 `;
 
 export const PoolInfoValue = styled.div<{ width?: number }>`
@@ -40,14 +38,16 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
 
 export const PoolActionsWrapper = styled.div`
     display: flex;
-    margin-top: 28px;
-    margin-left: 20px;
+    margin-top: 20px;
+`;
+
+export const HighlightedInfo = styled.div`
+    color: ${(props) => props.theme.green};
 `;
 
 export const BasicInfo = styled.div`
     display: flex;
     align-items: center;
-    font-size: 16px;
     color: ${(props) => props.theme.white};
 `;
 
@@ -72,7 +72,6 @@ export const WithDraw = styled.div`
 export const ActionWrapper = styled.div`
     display: flex;
     flex-direction: column;
-
 `;
 
 export const Balance = styled.div<{ isValid: boolean }>`
@@ -80,39 +79,6 @@ export const Balance = styled.div<{ isValid: boolean }>`
     font-size: 13px;
     color: ${({ isValid, theme }) => (isValid ? theme.gray : theme.red)};
 `;
-
-export const Animation = styled.div`
-    position: absolute;
-    left: 1px;
-    width: 100%;
-    background: inherit;
-    height: 40px;
-
-    span {
-        position: absolute;
-        display: block;
-
-        &:first-child {
-            top: 0;
-            left: 0;
-            width: 40%;
-            height: 39px;
-            border-radius: 4px;
-            background: linear-gradient(90deg, transparent, #55D6FF);
-            animation: animate1 2s linear infinite;
-            filter: hue-rotate(270deg);
-        }
-
-        @keyframes animate1{
-        0%{
-        left: -5%;
-        }
-        50%,100%{
-        left: 60%;
-        }
-}
-    }
-`
 
 export const Action = styled.div<{ customColor?: boolean; isActive?: boolean }>`
     display: flex;
@@ -130,29 +96,18 @@ export const Action = styled.div<{ customColor?: boolean; isActive?: boolean }>`
     }}};
 `;
 
-export const Button = styled.button<{ customColor?: boolean; isActive?: boolean, isLoading: boolean }>`
+export const Button = styled.button<{ customColor?: boolean; isActive?: boolean }>`
     border: 1px solid;
     background-color: inherit;
     color: ${({ theme, isActive }) => (isActive ? 'inherit' : theme.gray)};
     width: 120px;
     min-height: 40px;
     border-radius: 0 4px 4px 0px;
-    cursor: ${({ isLoading }) => isLoading ? 'default' : 'pointer'};
+    cursor: pointer;
     font-family: 'Korona One';
     font-size: 12px;
     ${Action}:hover & {
         color: 'inherit';
-    }
-    ::before {
-        position: absolute;
-        top: 5px;
-        left: 70%;
-        content: ' ';
-        background-image: ${({ isLoading }) => (isLoading ? `url(${require('../../../imgs/packman.gif')})` : null)};
-        background-position: center center;
-        background-size: cover;
-        width: 40px;
-        height: 70%;
     }
 `;
 
@@ -173,23 +128,19 @@ export const Input = styled.input<{ customColor?: boolean; isActive?: boolean }>
     }
 `;
 
-export const MaxButton = styled.div<{hoverColor: string}>`
+export const MaxButton = styled.div`
     position: absolute;
     left: 37%;
-    top: 8px;
+    top: 12%;
     padding: 6px;
     color: inherit;
     font-size: 11px;
-    color: ${({ theme }) => theme.gray};
     cursor: pointer;
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: 600;
     font-size: 12px;
     line-height: 15px;
-    :hover {
-        color: ${({ theme, hoverColor }) => theme[hoverColor]};
-    }
 `;
 
 export const Claim = styled.div`
@@ -197,17 +148,16 @@ export const Claim = styled.div`
     flex-direction: column;
     justify-content: space-around;
     align-items: flex-end;
-    width: 10%;
+    width: 12%;
     height: 80%;
     margin-right: 10px;
 `;
 
-export const ClaimButton = styled.div<{ isActive?: boolean, isLoading: boolean }>`
-    width: 95px;
-    height: 34px;
+export const ClaimButton = styled.div<{ isActive?: boolean }>`
+    width: 127px;
+    height: 40px;
     min-height: 40px;
     background-color: inherit;
-    position: relative;
     color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};
     border: 1px solid;
     font-size: 12px;
@@ -215,28 +165,17 @@ export const ClaimButton = styled.div<{ isActive?: boolean, isLoading: boolean }
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: ${({ isLoading }) => isLoading ? 'default' : 'pointer'};
+    cursor: pointer;
     font-family: 'Korona One';
     :hover {
         color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};
-    }
-    ::before {
-        position: absolute;
-        top:  5px;
-        left: 35%;
-        content: ' ';
-        background-image: ${({ isLoading }) => (isLoading ? `url(${require('../../../imgs/packman.gif')})` : null)};
-        background-position: center center;
-        background-size: cover;
-        width: 40px;
-        height: 70%;
     }
 `;
 
 export const TokenInfo = styled.div`
     display: flex;
     flex-direction: column;
-    width: 18%;
+    width: 17%;
     justify-content: space-between;
     height: 80%;
     margin-left: 10px;

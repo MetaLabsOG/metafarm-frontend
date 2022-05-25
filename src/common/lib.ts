@@ -18,14 +18,14 @@ export const sleep = (ms: number): Promise<void> => {
 
 export const formatDecimalsMeaningful = (value: number, precision: number = 2): string => {
     if (value === 0) {
-        return "0";
+        return "0.00";
     }
 
     const wholeLog = Math.floor(-Math.log10(Math.abs(value)));
     const zeros = wholeLog <= 0 ? 0 : wholeLog;
     const formatter = new Intl.NumberFormat('en-US', {
         minimumFractionDigits: Math.max(zeros, precision),
-        maximumFractionDigits: 5,
+        maximumFractionDigits: zeros + precision,
     });
 
     return formatter.format(value);
