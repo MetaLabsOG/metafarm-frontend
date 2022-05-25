@@ -1,24 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Status } from '../../../Status';
-import { $networkTime, Contract, queryTimeUpdate } from '../../../common/store';
-import { useStore } from 'effector-react';
+import { $networkTime, queryTimeUpdate, Contract } from '../../../common/store';
+import { useStore, useStoreMap } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolInfoContainer } from './styled';
-import { $lpTokenInfos } from '../../store';
+import { $farmLPTokens, $farmRewardTokens } from '../../store';
 
 export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
     const currentBlock = useStore($networkTime);
-    const lpTokenInfo = useStore(
-        $lpTokenInfos.map((tokens) => (contract.state ? tokens.get(contract.state.initial.stakeToken, null) : null))
-    );
+    const lpTokenInfo = useStoreMap($farmLPTokens, (tokens) => tokens.get(contract.id, null));
+    const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null));
 
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(queryTimeUpdate, [contract]);
 
-    if (currentBlock === 0 || !contract.ctc || !contract.state || !lpTokenInfo) {
+    if (currentBlock === 0 || !contract.ctc || !contract.state || !lpTokenInfo || !rewardTokenInfo) {
         return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
     }
 
@@ -38,6 +37,7 @@ export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
                         contractState={contract.state}
                         poolState={poolState}
                         lpTokenInfo={lpTokenInfo}
+                        rewardTokenInfo={rewardTokenInfo}
                         currentBlock={currentBlock}
                     />
                 </PoolInfoContainer>
@@ -47,6 +47,7 @@ export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
                         ctc={contract.ctc}
                         contractState={contract.state}
                         lpTokenInfo={lpTokenInfo}
+                        rewardTokenInfo={rewardTokenInfo}
                     />
                 )}
             </PoolContainer>

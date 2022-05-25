@@ -1,11 +1,21 @@
-import { BigNumber } from 'ethers';
-
-export type TokenId = number;
+export type AssetId = number;
 export type AppId = number;
 
 // better do this now if we have problems with conversion from bignums later
 export type Time = number;
 export type Amount = number;
+
+
+// Assets
+export type Asset = {
+    id: AssetId;
+    name: string;
+    unitName: string;
+    creator: string;
+    decimals: number;
+};
+
+export type Priced<T> = T & { price: number, priceInAlgo: number };
 
 // TODO: there should be a better way to add new contract types
 // We should explore the possibility of providing types from the _contract packages_.
@@ -61,8 +71,8 @@ type LocalInfo = {
 // Farm types
 
 type FarmInitialInfo = {
-    stakeToken: TokenId;
-    rewardToken: TokenId;
+    stakeToken: AssetId;
+    rewardToken: AssetId;
     endBlock: Time;
     beginBlock: Time;
     rewardPerBlock: Amount;
@@ -82,7 +92,7 @@ export type FarmLocalInfo = {
 // Crowdsale types
 
 type CrowdsaleInitialInfo = {
-    soldToken: TokenId;
+    soldToken: AssetId;
     totalAmount: Amount;
     rate: [Amount, Amount];
     individualCap: Amount;
