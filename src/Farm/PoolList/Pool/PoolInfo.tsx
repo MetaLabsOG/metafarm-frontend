@@ -1,8 +1,9 @@
-import { Asset, ContractState, Priced } from '../../../common/store';
+import { $meanRoundDuration, Asset, ContractState, Priced } from '../../../common/store';
 import { calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
 import { PoolState } from './types';
 import { BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue } from './styled';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { useStore } from 'effector-react';
 
 const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
 
@@ -12,12 +13,13 @@ const formatLPTokenName = (name: string) => {
 };
 
 const calculateAPR = (
+    meanRoundDuration: number,
     poolState: PoolState,
     contractState: ContractState<'farm'>,
     lpTokenInfo: Priced<Asset>,
     rewardTokenInfo: Priced<Asset>
 ): number => {
-    const blocksInAYear = (60 * 60 * 24 * 365) / 4.5;
+    const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
     return poolState === PoolState.Finished
         ? 0
         : contractState.global.totalStaked === 0 || lpTokenInfo.price === 0
@@ -40,8 +42,9 @@ export const PoolInfo = ({
     rewardTokenInfo: Priced<Asset>;
     currentBlock: number;
 }) => {
+    const meanRoundDuration = useStore($meanRoundDuration);
     const { endBlock, beginBlock } = contractState.initial;
-    const APR = calculateAPR(poolState, contractState, lpTokenInfo, rewardTokenInfo);
+    const APR = calculateAPR(meanRoundDuration, poolState, contractState, lpTokenInfo, rewardTokenInfo);
 
     const timing =
         poolState === PoolState.Upcoming ? (
