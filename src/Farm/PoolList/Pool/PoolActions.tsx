@@ -124,6 +124,7 @@ export const PoolActions = ({
                                 value={toStake}
                                 onChange={onChangeStake}
                             />
+
                             <Button isActive={canStake && !pendingStake} disabled={!canStake} onClick={() => stake(toStake)}>
                                 {pendingStake ? <Packman src={packman}/> : 'STAKE'}
                             </Button>
@@ -143,6 +144,7 @@ export const PoolActions = ({
                         value={toWithdraw}
                         onChange={onChangeWithDraw}
                     />
+
                     <Button isActive={canWithdraw && !pendingWithDraw} disabled={!canWithdraw} onClick={() => withdraw(toWithdraw)}>
                         {pendingWithDraw ? <Packman src={packman}/> : 'WITHDRAW'} 
                     </Button>
