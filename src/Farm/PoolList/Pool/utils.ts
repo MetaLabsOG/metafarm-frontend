@@ -1,5 +1,6 @@
 import { formatDecimalsMeaningful } from '../../../common/lib';
-import { LPTokenInfo, TokenInfoT } from '../../../providers/dexesProvider';
+import { Asset, Priced } from '../../../common/store/types';
+import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { ALGONET, TESTNET } from '../../../AppContext';
 
 const TINYMAN_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.tinyman.org`;
@@ -7,15 +8,15 @@ const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
 
 export const isValidAmount = (amount: number, balance: number) => balance >= amount && amount > 0;
 
-export const convertAmount = (amount: number, lpToken: TokenInfoT) => {
+export const convertAmount = (amount: number, lpToken: Asset) => {
     return amount * 10 ** lpToken.decimals;
 };
 
-export const calculateAmountToken = (lpToken: TokenInfoT, balanceTokenOnAccount: number) => {
+export const calculateAmountToken = (lpToken: Asset, balanceTokenOnAccount: number) => {
     return balanceTokenOnAccount / 10 ** lpToken.decimals;
 };
 
-export const convertAmountToUSD = (lpToken: TokenInfoT, amount: number) => {
+export const convertAmountToUSD = (lpToken: Priced<Asset>, amount: number) => {
     return (lpToken.price * amount) / 10 ** lpToken.decimals;
 };
 

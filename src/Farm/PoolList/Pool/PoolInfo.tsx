@@ -1,36 +1,50 @@
-import { useEffect } from 'react';
-import { ContractState, triggerBalancesUpdate } from '../../../common/store';
+import { $meanRoundDuration, Asset, ContractState, Priced } from '../../../common/store';
 import { calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
 import { PoolState } from './types';
 import { BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue } from './styled';
+import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { useStore } from 'effector-react';
 
 const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
+
+// TODO: remove this when pools name it will be not test names
+const formatLPTokenName = (name: string) => {
+    return name.replace('/', ' • ').replace('liquidity', '');
+};
+
+const calculateAPR = (
+    meanRoundDuration: number,
+    poolState: PoolState,
+    contractState: ContractState<'farm'>,
+    lpTokenInfo: Priced<Asset>,
+    rewardTokenInfo: Priced<Asset>
+): number => {
+    const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
+    return poolState === PoolState.Finished
+        ? 0
+        : contractState.global.totalStaked === 0 || lpTokenInfo.price === 0
+        ? 0
+        : ((contractState.initial.rewardPerBlock * blocksInAYear * rewardTokenInfo.price) /
+              (contractState.global.totalStaked * lpTokenInfo.price)) *
+          100;
+};
 
 export const PoolInfo = ({
     contractState,
     poolState,
     lpTokenInfo,
+    rewardTokenInfo,
     currentBlock,
 }: {
     contractState: ContractState<'farm'>;
     poolState: PoolState;
-    lpTokenInfo: any;
+    lpTokenInfo: Priced<LPTokenInfo>;
+    rewardTokenInfo: Priced<Asset>;
     currentBlock: number;
 }) => {
-    // TODO: that is a bit silly but it works without too much overhead
-    useEffect(triggerBalancesUpdate, []);
+    const meanRoundDuration = useStore($meanRoundDuration);
     const { endBlock, beginBlock } = contractState.initial;
-    // TODO: This PoolState is absolutely unnecessary, we can just compare currentBlock with beginBlock here
-
-    // TODO: get actual price of META
-    const blocksInAYear = (60 * 60 * 24 * 365) / 4.5;
-    const APR =
-        poolState !== PoolState.Upcoming
-            ? 0
-            : contractState.global.totalStaked === 0 || lpTokenInfo.price === 0
-            ? 0
-            : (contractState.initial.rewardPerBlock * blocksInAYear * lpTokenInfo.price) /
-              (contractState.global.totalStaked * lpTokenInfo.price) * 100;
+    const APR = calculateAPR(meanRoundDuration, poolState, contractState, lpTokenInfo, rewardTokenInfo);
 
     const timing =
         poolState === PoolState.Upcoming ? (
@@ -56,7 +70,7 @@ export const PoolInfo = ({
                         <LPTokensIcon></LPTokensIcon>
                     </LpTokensIconsWrapper>
                     <div>
-                        {lpTokenInfo.name} LP <div>EARN META</div>
+                        {formatLPTokenName(lpTokenInfo.name)} LP <div>EARN {rewardTokenInfo.unitName}</div>
                     </div>
                 </BasicInfo>
             </PoolInfoValue>
@@ -69,8 +83,10 @@ export const PoolInfo = ({
             )}`}</PoolInfoValue>
 
             <PoolInfoValue>
-                <div>{`$${numberRound(convertAmountToUSD(lpTokenInfo, contractState.local.reward))}`}</div>
-                <div>{`${numberRound(calculateAmountToken(lpTokenInfo, contractState.local.reward))} META`}</div>
+                <div>{`$${numberRound(convertAmountToUSD(rewardTokenInfo, contractState.local.reward))}`}</div>
+                <div>{`${numberRound(calculateAmountToken(rewardTokenInfo, contractState.local.reward))} ${
+                    rewardTokenInfo.unitName
+                }`}</div>
             </PoolInfoValue>
             <PoolInfoValue style={{ color: 'gray' }}>{timing}</PoolInfoValue>
         </>

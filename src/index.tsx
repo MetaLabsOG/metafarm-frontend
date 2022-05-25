@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
@@ -15,10 +14,15 @@ import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
 import './css/index.css';
 import { Crowdsale } from './Crowdsale';
+import { fetchAlgoPrice, fetchBtcPrice } from './common/store';
 
 const queryClient = new QueryClient();
 
 console.log('ENV', process.env);
+
+// throw events on initialization
+fetchAlgoPrice();
+fetchBtcPrice();
 
 const App = () => {
     return (

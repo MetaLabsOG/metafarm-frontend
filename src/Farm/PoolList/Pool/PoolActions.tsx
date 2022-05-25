@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { $balances, ContractState } from '../../../common/store';
+import { $balances, ContractState, Priced, Asset } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import {
     Action,
@@ -25,14 +25,16 @@ export const PoolActions = ({
     ctc,
     contractState,
     lpTokenInfo,
+    rewardTokenInfo,
 }: {
     poolState: PoolState;
     ctc: any;
     contractState: ContractState<'farm'>;
     lpTokenInfo: LPTokenInfo;
+    rewardTokenInfo: Priced<Asset>;
 }) => {
     // const pending = useStore(updateContractStateFx.pending);
-    const lpBalance = useStoreMap($balances, (bs) => bs.get(lpTokenInfo.id, null));
+    const lpBalance = useStoreMap($balances, (bs) => bs[lpTokenInfo.id]  || 0);
     const [toStake, setToStake] = useState<string>('');
     const [toWithdraw, setToWithdraw] = useState<string>('');
     const [isValidWithdraw, setIsValidWithdraw] = useState<boolean>(true);
