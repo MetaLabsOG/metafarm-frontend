@@ -88,21 +88,21 @@ export const PoolActions = ({
     const stake = useCallback(
         (amount: string) => {
             const convertedAmount = Math.floor(parseFloat(amount) * 10 ** lpTokenInfo.decimals);
-            if (lpBalance && convertedAmount < lpBalance && isValidStake) {
-                ctc.apis.stake(convertedAmount);
+            if (!pendingStake && lpBalance && convertedAmount < lpBalance && isValidStake) {
+                ctc.apis.stake([convertedAmount]);
             }
         },
 
-        [ctc.apis, isValidStake, lpBalance, lpTokenInfo.decimals]
+        [pendingStake, ctc.apis, isValidStake, lpBalance, lpTokenInfo.decimals]
     );
 
     const withdraw = useCallback(
         (amount: string) => {
-            if (canWithdraw && isValidWithdraw) {
-                ctc.apis.unstake(Math.floor(parseFloat(amount) * 10 ** lpTokenInfo.decimals));
+            if (!pendingWithDraw && canWithdraw && isValidWithdraw) {
+                ctc.apis.unstake([Math.floor(parseFloat(amount) * 10 ** lpTokenInfo.decimals)]);
             }
         },
-        [canWithdraw, isValidWithdraw, ctc.apis, lpTokenInfo.decimals]
+        [pendingWithDraw, canWithdraw, isValidWithdraw, ctc.apis, lpTokenInfo.decimals]
     );
 
     return (
@@ -154,7 +154,7 @@ export const PoolActions = ({
             </WithDraw>
             <Claim>
                 {canClaim && (
-                    <ClaimButton isActive={contractState.local.reward > 0 && !pendingClaim} onClick={() => ctc.apis.claim()}>
+                    <ClaimButton isActive={contractState.local.reward > 0 && !pendingClaim} onClick={() => !pendingClaim && ctc.apis.claim()}>
                         {pendingClaim ? <Packman src={packman}/> : 'CLAIM'}
                     </ClaimButton>
                 )}

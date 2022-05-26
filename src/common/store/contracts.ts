@@ -31,11 +31,18 @@ function makeWrappedCtc(
     const apis = ctc.apis;
     ctc.apis = {};
     for (const k in apis) {
-        ctc.apis[k] = createEffect((...args: any[]) =>
-            apis[k](...args).then(async (res: any) => {
+        ctc.apis[k] = createEffect(async (args?: any[]) => {
+            args = args ?? [];
+            try {
+                const res = await apis[k](...args);
                 await onWrite(contractId);
                 return res;
-            }));
+            } catch (err) {
+                // so that errors inside effect are visible in console
+                console.error(`API CALL ${k} FAILED`, err);
+                throw err;
+            }
+        });
     }
     ctc.a = ctc.apis;
     return ctc;
