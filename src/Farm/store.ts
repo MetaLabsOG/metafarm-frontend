@@ -18,6 +18,8 @@ import {
     ALGO_ASSET,
     fetchAlgoPrice,
     $pricedAssets,
+    $networkTime,
+    Contract,
 } from '../common/store';
 import { groupBy, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
@@ -75,10 +77,10 @@ export const $pools = $contracts;
 export const setPoolInfos = setContractInfos;
 export const triggerPoolUpdate = triggerStateUpdate;
 
+$pools.watch((v) => console.log('FARM POOLS', v));
 
 //TODO NEED REFACTOR (quick solution)
-//@ts-ignore
-const sortPoolsOnStatus = createEffect(({ networkTime, pools }) => {
+const sortPoolsOnStatus = ({ networkTime, pools }: {networkTime: number, pools: Contract<"farm">[]}) => {
     const groupedByStatus = groupBy(function(pool: any){
         if (pool.state) {
             const initial = pool.state.initial;
@@ -92,19 +94,12 @@ const sortPoolsOnStatus = createEffect(({ networkTime, pools }) => {
     })
    const sortByTime = values(groupedByStatus(pools)).flat();
    return sortByTime
-})
+}
 
-sample({
-   clock: $pools,
-   source: $networkTime,
-   fn: (networkTime: number, pools: any) => ({networkTime, pools}),
-   target: sortPoolsOnStatus
-})
+export const $sortedPools = combine($networkTime, $pools, (networkTime, pools) => sortPoolsOnStatus({ networkTime, pools }))
 
 
-export const $sortedPools = createStore<Contract<"farm">[] | []>([]).on(sortPoolsOnStatus.doneData, (_, data) => data)
-
-$pools.watch((v) => console.log('FARM POOLS', v));
+$sortedPools.watch((v) => console.log(v))
 
 // LP token info store
 type LPTokenStore = Map<number, Priced<LPTokenInfo>>;

@@ -30,6 +30,7 @@ export const PoolListContainer = styled.div`
     flex-direction: column;
     align-items: center;
     background-color: #272727;
-    width: 100%;
+    width: 80%;
+    min-width: 1114px;
     border-radius: 10px;
 `;

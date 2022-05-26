@@ -5,6 +5,8 @@ import { AssetId, Asset } from './types';
 export const assetId = (a: AssetId | Asset): number => (typeof a === 'number' ? a : a.id);
 
 /**
+/**
+/**
  * Asynchronously gets the value of the store
  * NB: we cannot use just `store.watch` here because:
  * 1. we will need to unsub so that the store watchers do not leak
