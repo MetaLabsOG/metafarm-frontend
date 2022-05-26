@@ -33,7 +33,7 @@ export const NFTList = () => {
                             <Nft url={nft.image_url} />
                             <NFTCardInfo>
                                 <NftName>{nft.name}</NftName>
-                                <NftPrice>${nft.floor_price.usd}</NftPrice>
+                                <NftPrice>${Math.round(nft.floor_price.usd)}</NftPrice>
                                 {nft.week_price_change && (
                                     <NftWeekPriceChange>
                                         {nft.week_price_change > 0 ? <ArrowUp /> : <ArrowUp rotate />}
