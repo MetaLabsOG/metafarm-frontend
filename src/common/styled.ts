@@ -36,7 +36,6 @@ export const Nft = styled.div<{ url: string }>`
 
 export const Container = styled.div`
     margin: 0 auto;
-    max-width: 1160px;
     width: 100%;
     min-height: 100vh;
     display: flex;

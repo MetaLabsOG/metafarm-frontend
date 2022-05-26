@@ -17,7 +17,8 @@ export const AmountValue = styled.div`
 `;
 
 export const BalanceList = styled.div`
-    width: 100%;
+    width: 80%;
+    min-width: 1114px;
     display: flex;
     justify-content: space-evenly;
     background-color: ${(props) => props.theme.darkGray};

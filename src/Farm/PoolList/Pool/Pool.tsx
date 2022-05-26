@@ -34,6 +34,7 @@ export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
             <PoolContainer>
                 <PoolInfoContainer onClick={() => setIsOpen(!isOpen)}>
                     <PoolInfo
+                        isOpen={isOpen}
                         contractState={contract.state}
                         poolState={poolState}
                         lpTokenInfo={lpTokenInfo}

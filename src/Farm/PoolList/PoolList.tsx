@@ -1,12 +1,8 @@
 import { useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { getContracts } from '../../providers/apiProvider';
-import { $pools, setPoolInfos } from '../store';
+import { $sortedPools, setPoolInfos } from '../store';
 import { Pool } from './Pool';
-
-// TODO should add types in lib
-//@ts-ignore
-
 import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
 import { InfoHeader } from '../../common/styled';
 import { useList } from 'effector-react';
@@ -30,7 +26,7 @@ export const PoolList = () => {
         }
     }, [data, isError, isSuccess]);
 
-    const poolComponents = useList($pools, (ctc: Contract<'farm'>, index: number) => (
+    const poolComponents = useList($sortedPools, (ctc: Contract<'farm'>, index: number) => (
         <Pool key={index} contract={ctc} />
     ));
 

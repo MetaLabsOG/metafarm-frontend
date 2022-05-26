@@ -1,10 +1,10 @@
 import { $meanRoundDuration, Asset, ContractState, Priced } from '../../../common/store';
-import { calculateAmountToken, convertAmountToUSD } from './utils';
+import { calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
 import { PoolState } from './types';
-import { BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue } from './styled';
+import { ArrowIconsWrapper, BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue } from './styled';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { useStore } from 'effector-react';
-import { formatDecimalsMeaningful } from '../../../common/lib';
+import { Arrow } from '../../../imgs/arrow'
 
 const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
 
@@ -36,12 +36,14 @@ export const PoolInfo = ({
     lpTokenInfo,
     rewardTokenInfo,
     currentBlock,
+    isOpen
 }: {
     contractState: ContractState<'farm'>;
     poolState: PoolState;
     lpTokenInfo: Priced<LPTokenInfo>;
     rewardTokenInfo: Priced<Asset>;
     currentBlock: number;
+    isOpen:boolean
 }) => {
     const meanRoundDuration = useStore($meanRoundDuration);
     const { endBlock, beginBlock } = contractState.initial;
@@ -64,7 +66,7 @@ export const PoolInfo = ({
 
     return (
         <>
-            <PoolInfoValue width={30}>
+            <PoolInfoValue width={23}>
                 <BasicInfo>
                     <LpTokensIconsWrapper>
                         <LPTokensIcon first></LPTokensIcon>
@@ -75,19 +77,23 @@ export const PoolInfo = ({
                     </div>
                 </BasicInfo>
             </PoolInfoValue>
-            <PoolInfoValue>{`$${formatDecimalsMeaningful(
+            <PoolInfoValue>{`$${numberRound(
                 convertAmountToUSD(lpTokenInfo, contractState.global.totalStaked)
             )}`}</PoolInfoValue>
-            <PoolInfoValue>{formatDecimalsMeaningful(APR)}%</PoolInfoValue>
-            <PoolInfoValue>{`$${formatDecimalsMeaningful(convertAmountToUSD(lpTokenInfo, contractState.local.staked))}`}
+            <PoolInfoValue>{numberRound(APR)}%</PoolInfoValue>
+            <PoolInfoValue>{`$${numberRound(convertAmountToUSD(lpTokenInfo, contractState.local.staked))}`}
             </PoolInfoValue>
             <PoolInfoValue>
-                <div>{`$${formatDecimalsMeaningful(convertAmountToUSD(rewardTokenInfo, contractState.local.reward))}`}</div>
-                <div>{`${formatDecimalsMeaningful(calculateAmountToken(rewardTokenInfo, contractState.local.reward))} ${
+                <div>{`$${numberRound(convertAmountToUSD(rewardTokenInfo, contractState.local.reward))}`}</div>
+                <div>{`${numberRound(calculateAmountToken(rewardTokenInfo, contractState.local.reward))} ${
                     rewardTokenInfo.unitName
                 }`}</div>
             </PoolInfoValue>
-            <PoolInfoValue style={{ color: 'gray' }}>{timing}</PoolInfoValue>
+            <PoolInfoValue style={{ color: 'gray' }}>{timing} </PoolInfoValue>
+            <ArrowIconsWrapper>
+                <Arrow rotate={isOpen}/>
+            </ArrowIconsWrapper>
+          
         </>
     );
 };

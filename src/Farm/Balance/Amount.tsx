@@ -1,4 +1,4 @@
-import { formatDecimalsMeaningful } from '../../common/lib';
+import { numberRound } from '../PoolList/Pool/utils';
 import { AmountContainer, AmountTitle, AmountValue } from './styled';
 
 type AmountPropsType = {
@@ -9,6 +9,6 @@ type AmountPropsType = {
 export const Amount = ({ title, value }: AmountPropsType) => (
     <AmountContainer>
         <AmountTitle>{title}</AmountTitle>
-        <AmountValue>{`$${formatDecimalsMeaningful(value)}`}</AmountValue>
+        <AmountValue>{`$${numberRound(value)}`}</AmountValue>
     </AmountContainer>
 );

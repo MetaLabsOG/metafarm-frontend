@@ -24,8 +24,8 @@ export const formatDecimalsMeaningful = (value: number, precision: number = 2): 
     const wholeLog = Math.floor(-Math.log10(Math.abs(value)));
     const zeros = wholeLog <= 0 ? 0 : wholeLog;
     const formatter = new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 5,
-        maximumFractionDigits: 6,
+        minimumFractionDigits: Math.max(zeros, precision),
+        maximumFractionDigits: zeros + precision,
     });
 
     return formatter.format(value);

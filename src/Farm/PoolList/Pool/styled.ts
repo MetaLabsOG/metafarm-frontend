@@ -15,6 +15,7 @@ export const PoolContainer = styled.div`
 `;
 
 export const PoolInfoContainer = styled.div`
+    position: relative;
     display: flex;
     justify-content: space-around;
     color: ${(props) => props.theme.white};
@@ -32,16 +33,22 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
     flex-direction: column;
     justify-content: center;
     margin-left: 20px;
-    width: ${({ width }) => (width ? `${width}%` : '16.5%')};
+    width: ${({ width }) => (width ? `${width}%` : '12.5%')};
 `;
 
 export const PoolActionsWrapper = styled.div`
     display: flex;
+    width: 100%;
     margin-top: 20px;
 `;
 
 
 export const BasicInfo = styled.div`
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 20px;
     display: flex;
     align-items: center;
     color: ${(props) => props.theme.white};
@@ -59,7 +66,7 @@ export const Stake = styled.div`
 export const WithDraw = styled.div`
     display: flex;
     flex-direction: column;
-    width: 25%;
+    width: 24%;
     height: 100%;
     justify-content: space-around;
 `;
@@ -147,13 +154,13 @@ export const Claim = styled.div`
     flex-direction: column;
     justify-content: space-around;
     align-items: flex-end;
-    width: 12%;
+    width: 13%;
     height: 80%;
     margin-right: 10px;
 `;
 
 export const ClaimButton = styled.div<{ isActive?: boolean }>`
-    width: 95px;
+    width: 137px;
     height: 34px;
     background-color: inherit;
     color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};
@@ -173,7 +180,7 @@ export const ClaimButton = styled.div<{ isActive?: boolean }>`
 export const TokenInfo = styled.div`
     display: flex;
     flex-direction: column;
-    width: 23.3%;
+    width: 22%;
     justify-content: space-between;
     height: 80%;
 `;
@@ -222,3 +229,10 @@ export const LpTokensIconsWrapper = styled.div`
     height: 40px;
     width: 85px;
 `;
+
+
+export const ArrowIconsWrapper = styled.div`
+    position: absolute;
+    right: 20px;
+    top: 10px
+`
