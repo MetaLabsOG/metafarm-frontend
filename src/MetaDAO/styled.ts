@@ -189,10 +189,10 @@ export const Info = styled.div`
 export const LegendValues = styled.div`
     position: absolute;
     left: 123%;
-    top: 28%;
+    top: 20%;
     @media (max-width: 640px) {
         left: 100%;
-        top: 50%;
+        top: 40%;
     }
 `;
 
