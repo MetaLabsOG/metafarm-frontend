@@ -43,7 +43,7 @@ export const AssetsChart = (assets: any) => {
             <LegendValues>
                 {dataSet.map(({ amount, price }) => (
                     <Info key={`${amount}${price}`}>
-                        <div>{Math.floor(amount)}</div>
+                        <div>{amount}</div>
                         <div>({Math.floor(amount * price.usd)}$)</div>
                     </Info>
                 ))}
