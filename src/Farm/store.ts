@@ -18,6 +18,8 @@ import {
     ALGO_ASSET,
     fetchAlgoPrice,
     $pricedAssets,
+    $networkTime,
+    Contract,
 } from '../common/store';
 import { groupBy, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
