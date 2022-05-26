@@ -10,9 +10,8 @@ export const PoolContainer = styled.div`
     background-color: ${(props) => props.theme.darkGray};
     width: 95%;
     font-size: 14px;
-    padding-top: 10px;
-    border-radius: 10px;
-    padding-bottom: 20px;
+    padding: 20px 0 20px 0;
+    border-radius: 10px; 
 `;
 
 export const PoolInfoContainer = styled.div`
@@ -32,8 +31,8 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-left: 10px;
-    width: ${({ width }) => (width ? `${width}%` : '50%')};
+    margin-left: 20px;
+    width: ${({ width }) => (width ? `${width}%` : '16.5%')};
 `;
 
 export const PoolActionsWrapper = styled.div`
@@ -41,9 +40,6 @@ export const PoolActionsWrapper = styled.div`
     margin-top: 20px;
 `;
 
-export const HighlightedInfo = styled.div`
-    color: ${(props) => props.theme.green};
-`;
 
 export const BasicInfo = styled.div`
     display: flex;
@@ -66,7 +62,6 @@ export const WithDraw = styled.div`
     width: 25%;
     height: 100%;
     justify-content: space-around;
-    margin-right: 20px;
 `;
 
 export const ActionWrapper = styled.div`
@@ -82,8 +77,8 @@ export const Balance = styled.div<{ isValid: boolean }>`
 
 export const Action = styled.div<{ customColor?: boolean; isActive?: boolean }>`
     display: flex;
-    height: 40px;
-    width: 100%;
+    height: 34px;
+    width: 230px;
     position: relative;
     color: ${({ isActive, theme, customColor }) => {
         if (customColor && isActive) {
@@ -101,9 +96,9 @@ export const Button = styled.button<{ customColor?: boolean; isActive?: boolean 
     background-color: inherit;
     color: ${({ theme, isActive }) => (isActive ? 'inherit' : theme.gray)};
     width: 120px;
-    min-height: 40px;
+    min-height: 33px;
     border-radius: 0 4px 4px 0px;
-    cursor: pointer;
+    cursor: ${({isActive}) => isActive ? 'pointer' : 'default'};
     font-family: 'Korona One';
     font-size: 12px;
     ${Action}:hover & {
@@ -129,13 +124,13 @@ export const Input = styled.input<{ customColor?: boolean; isActive?: boolean }>
 `;
 
 export const Packman = styled.img`
-    height: 35px;
+    height: 28px;
 `
 
 export const MaxButton = styled.div`
     position: absolute;
-    left: 37%;
-    top: 12%;
+    left: 35%;
+    top: 4px;
     padding: 6px;
     color: inherit;
     font-size: 11px;
@@ -158,9 +153,8 @@ export const Claim = styled.div`
 `;
 
 export const ClaimButton = styled.div<{ isActive?: boolean }>`
-    width: 127px;
-    height: 40px;
-    min-height: 40px;
+    width: 95px;
+    height: 34px;
     background-color: inherit;
     color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};
     border: 1px solid;
@@ -179,10 +173,9 @@ export const ClaimButton = styled.div<{ isActive?: boolean }>`
 export const TokenInfo = styled.div`
     display: flex;
     flex-direction: column;
-    width: 17%;
+    width: 23.3%;
     justify-content: space-between;
     height: 80%;
-    margin-left: 10px;
 `;
 
 export const Link = styled.a`
@@ -192,17 +185,18 @@ export const Link = styled.a`
 
 export const GetLpTokenButton = styled.div<{ isActive?: boolean }>`
     border-radius: 4px;
-    width: 140px;
-    height: 40px;
+    width: 137px;
+    height: 34px;
     background-color: 'inherit';
     color: ${({ theme, isActive }) => (isActive ? theme.green : theme.gray)};
     border: 1px solid;
     display: flex;
-    font-size: 13px;
+    font-size: 12px;
     align-items: center;
     justify-content: center;
     padding-left: 5px;
     padding-right: 5px;
+    margin-left: 20px;
     cursor: pointer;
     font-family: 'Korona One';
     :hover {
@@ -213,7 +207,7 @@ export const GetLpTokenButton = styled.div<{ isActive?: boolean }>`
 
 export const LPTokensIcon = styled.div<{ first?: boolean }>`
     position: absolute;
-    left: ${({ first }) => (first ? '5px' : '30px')};
+    left: ${({ first }) => (first ? '0' : '30px')};
     height: 40px;
     width: 40px;
     border: 1px solid;

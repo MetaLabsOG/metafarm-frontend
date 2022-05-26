@@ -19,6 +19,7 @@ import {
     fetchAlgoPrice,
     $pricedAssets,
 } from '../common/store';
+import { groupBy, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
 import { convertAmountToUSD } from './PoolList/Pool/utils';
 
@@ -73,6 +74,35 @@ const { $contracts, $contractStates, setContractInfos, triggerStateUpdate, contr
 export const $pools = $contracts;
 export const setPoolInfos = setContractInfos;
 export const triggerPoolUpdate = triggerStateUpdate;
+
+
+//TODO NEED REFACTOR (quick solution)
+//@ts-ignore
+const sortPoolsOnStatus = createEffect(({ networkTime, pools }) => {
+    const groupedByStatus = groupBy(function(pool: any){
+        if (pool.state) {
+            const initial = pool.state.initial;
+            return networkTime < initial.beginBlock
+                ? '2'
+                : networkTime > initial.endBlock
+                    ? '3'
+                    : '1'
+        }
+            return 'null'
+    })
+   const sortByTime = values(groupedByStatus(pools)).flat();
+   return sortByTime
+})
+
+sample({
+   clock: $pools,
+   source: $networkTime,
+   fn: (networkTime: number, pools: any) => ({networkTime, pools}),
+   target: sortPoolsOnStatus
+})
+
+
+export const $sortedPools = createStore<Contract<"farm">[] | []>([]).on(sortPoolsOnStatus.doneData, (_, data) => data)
 
 $pools.watch((v) => console.log('FARM POOLS', v));
 

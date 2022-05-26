@@ -21,7 +21,7 @@ export const PoolListHeader = styled.div`
 
 export const PoolListHeaderElement = styled.div<{ width?: number }>`
     width: ${({ width }) => (width ? `${width}%` : '16.5%')};
-    margin-left: 10px;
+    margin-left: 20px;
 `;
 
 export const PoolListContainer = styled.div`
