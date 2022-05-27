@@ -47,7 +47,6 @@ export const ContentContainer = styled.div`
     margin-top: 125px;
     display: flex;
     justify-content: center;
-    z-index: 10;
 `;
 
 export const InfoHeader = styled.h2`

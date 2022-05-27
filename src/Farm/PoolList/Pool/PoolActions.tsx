@@ -1,4 +1,7 @@
 import { useState, useCallback } from 'react';
+import { useStore, useStoreMap } from 'effector-react';
+import { toast } from 'react-toastify';
+import { equals } from 'ramda';
 import { $balances, ContractState, Priced, Asset } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import {
@@ -20,8 +23,7 @@ import {
 import packman from '../../../imgs/pacman.gif';
 import { calculateAmountToken, isValidAmount, getLPTokenPoolLink } from './utils';
 import { PoolState } from './types';
-import { useStore, useStoreMap } from 'effector-react';
-import { equals } from 'ramda';
+
 
 export const PoolActions = ({
     poolState,
@@ -40,12 +42,15 @@ export const PoolActions = ({
     const pendingClaim = useStore(ctc.apis.claim.pending);
     const pendingWithDraw = useStore(ctc.apis.unstake.pending)
 
+    
     ctc.apis.stake.done.watch(() => {
+        toast.success("Staked!");
         setToStake('')
         setIsVievMaxForStake(true)
     })
 
     ctc.apis.unstake.done.watch(() => {
+        toast.success("Withdraw!")
         setToWithdraw('')
         setIsVievMaxForWithdraw(true)
     })
