@@ -152,6 +152,7 @@ const sumMoney = (
     getAmount: (s: ContractState<'farm'>) => Amount,
     getToken: (s: ContractState<'farm'>) => AssetId
 ): number =>
+    //@ts-ignore
     states.valueSeq().reduce((sum, state) => {
         const token = getToken(state);
         const amount = getAmount(state);
