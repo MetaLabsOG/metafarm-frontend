@@ -30,3 +30,9 @@ export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenI
         return '#'; // dunno what else to do with dummy LPs
     }
 }
+
+
+// TODO: remove this when pools name it will be not test names
+export const formatLPTokenName = (name: string) => {
+    return name.replace('/', ' • ').replace('liquidity', '');
+};

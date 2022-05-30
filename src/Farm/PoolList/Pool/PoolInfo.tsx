@@ -1,17 +1,14 @@
+
+import { useStore } from 'effector-react';
 import { $meanRoundDuration, Asset, ContractState, Priced } from '../../../common/store';
-import { calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
+import { calculateAmountToken, convertAmountToUSD, formatLPTokenName, numberRound } from './utils';
 import { PoolState } from './types';
 import { ArrowIconsWrapper, BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue } from './styled';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { useStore } from 'effector-react';
 import { Arrow } from '../../../imgs/arrow'
 
 const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
 
-// TODO: remove this when pools name it will be not test names
-const formatLPTokenName = (name: string) => {
-    return name.replace('/', ' • ').replace('liquidity', '');
-};
 
 const calculateAPR = (
     meanRoundDuration: number,
