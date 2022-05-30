@@ -8,6 +8,7 @@ import { AppId, Asset, AssetId } from '../common/store/types';
 import { assetId } from '../common/store/utils';
 
 import TINYMAN_ASC from './tinyman_asc.json';
+import { fetchAsset } from '../common/store';
 
 export type DexProvider =
     | 'T2' // Tinyman v1.1
@@ -27,15 +28,16 @@ export type PoolInfo = {
 export type LPTokenInfo = Asset & PoolInfo;
 
 export type SwapQuote = {
-    totalPrice: number;
-    perToken: number;
+    amountIn: number;   // In MICROTOKENS
+    amountOut: number;  // In MICROTOKENS
+    price: number;      // but price is calculated in FULL TOKENS (considering the DECIMALS of assets), following the Pact interface
 };
 
 export interface Dex {
     getPoolInfo: (poolId: AppId) => Promise<PoolInfo>;
     getPoolInfoByAddress: (poolAddress: string) => Promise<PoolInfo>;
     getPoolInfoByAssets: (asset1: AssetId | Asset, asset2: AssetId | Asset) => Promise<PoolInfo>;
-    getSwapCost: (fromAsset: AssetId | Asset, toAsset: AssetId | Asset, amount: number) => Promise<SwapQuote>;
+    getSwapQuote: (fromAsset: AssetId | Asset, toAsset: AssetId | Asset, amount: number) => Promise<SwapQuote>;
 }
 
 /**
@@ -62,16 +64,17 @@ export class MockDex implements Dex {
         return this.getPoolInfo(0);
     }
 
-    async getSwapCost(_2: AssetId | Asset, _1: AssetId | Asset, amount: number): Promise<SwapQuote> {
-        const perToken = 0.01;
+    async getSwapQuote(_1: AssetId | Asset, _2: AssetId | Asset, amount: number): Promise<SwapQuote> {
+        const price = 0.01;
         return {
-            totalPrice: perToken * amount,
-            perToken,
+            amountIn: amount,
+            amountOut: amount * price,
+            price,
         };
     }
 }
 
-/**
+/*
  * Subset of Pact API implementation
  */
 export class PactDex implements Dex {
@@ -108,7 +111,7 @@ export class PactDex implements Dex {
         pAsset.unitName = asset.unitName;
         pAsset.decimals = asset.decimals;
         pAsset.ratio = 10 ** pAsset.decimals;
-        pactsdk.Asset.assetsCache[assetId(asset)] = pAsset; // never fetch it again
+        pactsdk.Asset.assetsCache[id] = pAsset; // never fetch it again
         return pAsset;
     }
 
@@ -136,7 +139,7 @@ export class PactDex implements Dex {
 
         // repeated code, yes, but we need to filter by lpTokenId here because Pact can have several pools on a pair
         const pools = await this.pact.fetchPoolsByAssets(poolAssets[0], poolAssets[1]);
-        const selectedPool = pools.filter((pool: any) => pool.liquidityAsset.index === lpTokenId)[0];
+        const selectedPool = pools.filter((pool: pactsdk.Pool) => pool.liquidityAsset.index === lpTokenId)[0];
         return this.poolToPoolInfo(selectedPool);
     }
 
@@ -144,16 +147,32 @@ export class PactDex implements Dex {
         return this.getMostLiquidPool(a1, a2).then(this.poolToPoolInfo);
     }
 
-    async getSwapCost(fromAsset: AssetId | Asset, toAsset: AssetId | Asset, amount: number): Promise<SwapQuote> {
+    async getSwapQuote(fromAsset: AssetId | Asset, toAsset: AssetId | Asset, amountIn: number): Promise<SwapQuote> {
+        // Fetch both assets if they are not already fetched and cached
+        if (typeof fromAsset === 'number') {
+            fromAsset = await fetchAsset(fromAsset);
+            this.makePactAsset(fromAsset); // this simply ensures that Pact asset cache also gets updated
+        }
+
+        if (typeof toAsset === 'number') {
+            toAsset = await fetchAsset(toAsset);
+        }
+
         const pool = await this.getMostLiquidPool(fromAsset, toAsset);
-        const swap = pool.prepareSwap({
+        const { effect } = pool.prepareSwap({
             asset: this.makePactAsset(toAsset),
-            amount: amount,
+            amount: amountIn,
             slippagePct: 2,
         });
-        const totalPrice = swap.effect.price;
-        const perToken = totalPrice / amount;
-        return { totalPrice, perToken };
+        // FIXME: Pactsdk calculates only __fixed output__ swaps, whereas we use __fixed input__ quotes.
+        // So we reverse its result here. This yields roughly correct price and in/out amounts a fixed input swap,
+        // but not precisely - can be used to estimate the token price, probably cannot be used for preparing swap
+        // transactions.
+        return {
+            amountIn: effect.amountOut,
+            amountOut: effect.amountIn,
+            price: 1 / effect.price,
+        };
     }
 }
 
@@ -175,6 +194,123 @@ export namespace Tinyman {
         variables: VariableDef[];
         source: string;
     };
+
+    type SwapType = 'fi' | 'fo';
+
+    type SwapTxArgs = {
+        validatorAppId: AppId;
+        a1: AssetId;
+        a2: AssetId;
+        lpTokenId: AssetId;
+        assetInId: AssetId;
+        assetInAmount: number;
+        assetOutAmount: number;
+        swapType: SwapType;
+        sender: string;
+        suggestedParams: algosdk.SuggestedParams;
+    };
+
+    type SignedTxn = {
+        blob: Uint8Array;
+        txID: string;
+    };
+
+    type MaybeSignedTx = {
+        txn: algosdk.TransactionLike;
+        signedTxn: SignedTxn | null;
+    };
+
+    function toUint8Array(s: string): Uint8Array {
+        return new Uint8Array(Buffer.from(s, 'utf-8'));
+    }
+
+    export function getPoolLogicSig(a1: AssetId, a2: AssetId, validatorAppId: AppId): algosdk.LogicSigAccount {
+        const program = getProgram(TINYMAN_ASC.contracts.pool_logicsig.logic, {
+            validator_app_id: validatorAppId,
+            asset_id_1: max(a1, a2),
+            asset_id_2: min(a1, a2),
+        });
+        return new algosdk.LogicSigAccount(program);
+    }
+
+    export function prepareSwapTransactions({
+        validatorAppId,
+        a1,
+        a2,
+        lpTokenId,
+        assetInId,
+        assetInAmount,
+        assetOutAmount,
+        swapType,
+        sender,
+        suggestedParams,
+    }: SwapTxArgs): MaybeSignedTx[] {
+        const poolLogicSig = getPoolLogicSig(a1, a2, validatorAppId);
+        const poolAddress = poolLogicSig.address();
+        const assetOutId = assetInId === a1 ? a2 : a1;
+        const feeNote = toUint8Array('fee');
+        const validatorArgs = ['swap', swapType].map(toUint8Array);
+        const foreignAssets = a2 === 0 ? [a1, lpTokenId] : [a1, a2, lpTokenId];
+
+        const txns = [
+            algosdk.makePaymentTxnWithSuggestedParams(sender, poolAddress, 2000, undefined, feeNote, suggestedParams),
+            algosdk.makeApplicationNoOpTxn(
+                poolAddress,
+                suggestedParams,
+                validatorAppId,
+                validatorArgs,
+                [sender],
+                undefined,
+                foreignAssets
+            ),
+            assetInId === 0
+                ? algosdk.makePaymentTxnWithSuggestedParams(
+                      sender,
+                      poolAddress,
+                      assetInAmount,
+                      undefined,
+                      undefined,
+                      suggestedParams
+                  )
+                : algosdk.makeAssetTransferTxnWithSuggestedParams(
+                      sender,
+                      poolAddress,
+                      undefined,
+                      undefined,
+                      assetInAmount,
+                      undefined,
+                      assetInId,
+                      suggestedParams
+                  ),
+            assetOutId === 0
+                ? algosdk.makePaymentTxnWithSuggestedParams(
+                      poolAddress,
+                      sender,
+                      assetOutAmount,
+                      undefined,
+                      undefined,
+                      suggestedParams
+                  )
+                : algosdk.makeAssetTransferTxnWithSuggestedParams(
+                      poolAddress,
+                      sender,
+                      undefined,
+                      undefined,
+                      assetOutAmount,
+                      undefined,
+                      assetOutId,
+                      suggestedParams
+                  ),
+        ];
+
+        return txns.map((txn) => {
+            const signedTxn =
+                algosdk.encodeAddress(txn.from.publicKey) === poolAddress
+                    ? algosdk.signLogicSigTransaction(txn, poolLogicSig)
+                    : null;
+            return { txn, signedTxn };
+        });
+    }
 
     /**
      * Variable encoding used by Tinyman contracts
@@ -249,15 +385,6 @@ export class TinymanDex implements Dex {
         this.validatorAppId = TinymanDex.VALIDATOR_APP_ID[ALGONET];
     }
 
-    getPoolLogicSig(a1: AssetId, a2: AssetId, validatorAppId: AppId = this.validatorAppId): algosdk.LogicSigAccount {
-        const program = Tinyman.getProgram(TINYMAN_ASC.contracts.pool_logicsig.logic, {
-            validator_app_id: validatorAppId,
-            asset_id_1: max(a1, a2),
-            asset_id_2: min(a1, a2),
-        });
-        return new algosdk.LogicSigAccount(program);
-    }
-
     async getPoolInfo(poolId: AppId): Promise<PoolInfo> {
         // funnily enough, getting the pool info by creator address is one step less,
         // because Tinyman pool is a LogicSig and everything is in the creator's local state.
@@ -298,14 +425,22 @@ export class TinymanDex implements Dex {
     }
 
     async getPoolInfoByAssets(a1: AssetId | Asset, a2: AssetId | Asset): Promise<PoolInfo> {
-        const logicSig = this.getPoolLogicSig(assetId(a1), assetId(a2));
+        const logicSig = Tinyman.getPoolLogicSig(assetId(a1), assetId(a2), this.validatorAppId);
         return this.getPoolInfoByAddress(logicSig.address());
     }
 
-    async getSwapCost(assetIn: AssetId | Asset, assetOut: AssetId | Asset, amountIn: number): Promise<SwapQuote> {
+    async getSwapQuote(assetIn: AssetId | Asset, assetOut: AssetId | Asset, amountIn: number): Promise<SwapQuote> {
+        if (typeof assetIn === 'number') {
+            assetIn = await fetchAsset(assetIn);
+        }
+
+        if (typeof assetOut === 'number') {
+            assetOut = await fetchAsset(assetOut);
+        }
+
         const pool = await this.getPoolInfoByAssets(assetIn, assetOut);
         const [inputSupply, outputSupply] =
-            assetIn === pool.asset1
+            assetIn.id === pool.asset1
                 ? [pool.asset1Reserve, pool.asset2Reserve]
                 : [pool.asset2Reserve, pool.asset1Reserve];
 
@@ -315,9 +450,12 @@ export class TinymanDex implements Dex {
         const amountAfterFees = (amountIn * 997) / 1000;
         const amountOut = outputSupply - k / (inputSupply - amountAfterFees);
 
+        const decRatio = 10 ** (assetIn.decimals - assetOut.decimals);
+
         return {
-            totalPrice: amountOut,
-            perToken: amountOut / amountIn,
+            amountIn,
+            amountOut, 
+            price: amountOut / amountIn * decRatio,
         };
     }
 }
@@ -338,7 +476,7 @@ export async function getSwapCostSomewhere(
     let err = null;
     for (const provider of DEX_TRY_ORDER) {
         try {
-            return await makeDex(provider).getSwapCost(assetIn, assetOut, amountIn);
+            return await makeDex(provider).getSwapQuote(assetIn, assetOut, amountIn);
         } catch (e) {
             err = e;
         }
