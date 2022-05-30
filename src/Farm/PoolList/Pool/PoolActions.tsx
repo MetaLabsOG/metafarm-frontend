@@ -123,6 +123,7 @@ export const PoolActions = ({
             const convertedAmount = Math.floor(parseFloat(amount) * 10 ** lpTokenInfo.decimals);
             if (!pendingStake && lpBalance && convertedAmount <= lpBalance && isValidStake) {
                 ctc.apis.stake([convertedAmount]);
+                setToStake('')
             }
         },
 
@@ -133,6 +134,7 @@ export const PoolActions = ({
         (amount: string) => {
             if (!pendingWithdraw && canWithdraw && isValidWithdraw) {
                 ctc.apis.unstake([Math.floor(parseFloat(amount) * 10 ** lpTokenInfo.decimals)]);
+                setToWithdraw('')
             }
         },
         [pendingWithdraw, canWithdraw, isValidWithdraw, ctc.apis, lpTokenInfo.decimals]
