@@ -1,10 +1,10 @@
 import algosdk from 'algosdk';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { reach } from '../AppContext';
+import { ALGONET, MAINNET, reach } from '../AppContext';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
-import { Token, Option, BestSwap, Transaction } from './types';
+import { Token, TokenSelectOption, BestSwap, Transaction } from './types';
 import { $account } from '../common/store';
 
 import SelectSearch, { fuzzySearch } from 'react-select-search';
@@ -13,10 +13,14 @@ import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent } from '../logEvent';
 import { useStore } from 'effector-react';
 
-const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
-// @ts-ignore
-// const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
-const API_PATH = 'https://api.cometa.farm/';
+export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
+export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
+// export const API_PATH = 'http://0.0.0.0:5000/';
+
+export enum QueryType {
+    swap,
+    zap,
+}
 
 async function getBestSwap(
     account: Account | null,
@@ -36,16 +40,7 @@ async function getBestSwap(
     console.log(asset1_id, asset2_id, asset1_amount);
 
     try {
-        const query =
-            API_PATH +
-            '/best_swap?asset1_id=' +
-            asset1_id +
-            '&asset2_id=' +
-            asset2_id +
-            '&asset1_amount=' +
-            asset1_amount;
-        const response = await fetch(query);
-        const best_swap = await response.json();
+        const best_swap = await getData(QueryType.swap, asset1_id, asset2_id, asset1_amount);
         console.log(best_swap);
 
         logEvent(
@@ -67,6 +62,7 @@ async function getBestSwap(
     } catch (e) {
         // @ts-ignore
         const error_message = e.message;
+        console.log(error_message);
         alert('Fail to find the best swap :(');
         logEvent(
             account ? account.networkAccount.addr : '',
@@ -80,31 +76,54 @@ async function getBestSwap(
     }
 }
 
-async function getSwapTransactions(address: string, asset1_id: string, asset2_id: string, asset1_amount: string) {
+export async function getData(
+    type: QueryType,
+    asset1_id: string,
+    asset2_id: string,
+    asset1_amount: string,
+    additional_params = ''
+) {
     const query =
         API_PATH +
-        '/routing_transactions?address=' +
+        QueryType[type] +
+        '_data?asset1_id=' +
+        asset1_id +
+        '&asset2_id=' +
+        asset2_id +
+        '&asset1_amount=' +
+        asset1_amount +
+        additional_params;
+    const response = await fetch(query);
+    return await response.json();
+}
+
+export async function getTransactions(
+    type: QueryType,
+    address: string,
+    asset1_id: string,
+    asset2_id: string,
+    asset1_amount: string,
+    additional_params = ''
+) {
+    const query =
+        API_PATH +
+        QueryType[type] +
+        '_transactions?address=' +
         address +
         '&asset1_id=' +
         asset1_id +
         '&asset2_id=' +
         asset2_id +
         '&asset1_amount=' +
-        asset1_amount;
+        asset1_amount +
+        additional_params;
     const response = await fetch(query);
     return await response.json();
 }
 
-async function runRouting(
-    algodClient: algosdk.Algodv2,
-    address: string,
-    asset1_id: string,
-    asset2_id: string,
-    asset1_amount: string
-) {
-    const swap_transactions: Transaction = await getSwapTransactions(address, asset1_id, asset2_id, asset1_amount);
-    console.log(swap_transactions);
-    const transactions = swap_transactions.transactions;
+export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, input_transactions: Transaction) {
+    console.log(input_transactions);
+    const transactions = input_transactions.transactions;
 
     let unsigned_transactions: string[] = [];
     for (let key in transactions) {
@@ -133,19 +152,25 @@ async function runRouting(
 
         console.log('Sending', signed_transactions);
         await algodClient.sendRawTransaction(signed_transactions).do();
+        const tx_id = transactions[key].tx_id;
+        if (tx_id) {
+            console.log('Waiting txID', tx_id);
+            await algosdk.waitForConfirmation(algodClient, tx_id, 5);
+        }
     }
 
-    console.log('Waiting txID', swap_transactions.tx_id);
-    return algosdk.waitForConfirmation(algodClient, swap_transactions.tx_id, 10);
+    console.log('Waiting txID', input_transactions.tx_id);
+    return algosdk.waitForConfirmation(algodClient, input_transactions.tx_id, 5);
 }
 
-async function swapTokens(
+export async function runTransactions(
+    type: QueryType,
     account: Account | null,
-    bestSwap: BestSwap,
     token1Id: string,
     token2Id: string,
     token1Amount: string,
-    setIsLoading: Dispatch<SetStateAction<boolean>>
+    setIsLoading: Dispatch<SetStateAction<boolean>>,
+    additional_params = ''
 ) {
     if (!account) {
         alert('Please, connect the wallet');
@@ -160,7 +185,16 @@ async function swapTokens(
         const address = account.networkAccount.addr;
         console.log(address);
 
-        const res = await runRouting(algodClient, address, token1Id, token2Id, token1Amount);
+        const transactions: Transaction = await getTransactions(
+            type,
+            address,
+            token1Id,
+            token2Id,
+            token1Amount,
+            additional_params
+        );
+        console.log(transactions);
+        const res = await signAndSubmitTransactions(algodClient, transactions);
         const trx_grp = Buffer.from(res.txn.txn.grp).toString('base64');
         console.log('OK', trx_grp, res);
         alert('OK: https://algoexplorer.io/tx/group/' + encodeURIComponent(trx_grp));
@@ -168,15 +202,11 @@ async function swapTokens(
         logEvent(
             account.networkAccount.addr,
             {
-                message: '[SWAP OK] ' + token1Id + ' to ' + token2Id,
+                message: '[' + type + ' OK] ' + token1Id + ' to ' + token2Id,
                 amount: token1Amount,
-                best_swap: bestSwap.best_swap,
-                direct_swap: bestSwap.direct_swap,
-                best_path: bestSwap.best_path.map((t: { unit_name: any }) => t.unit_name).join('-'),
-                usdc_diff: bestSwap.usdc_diff,
                 txns: 'https://algoexplorer.io/tx/group/' + encodeURIComponent(trx_grp),
             },
-            'swap'
+            QueryType[type]
         );
     } catch (e) {
         // @ts-ignore
@@ -187,24 +217,24 @@ async function swapTokens(
             alert('Transaction not confirmed');
         } else {
             console.log(e);
-            alert('Swap error :(');
+            alert(type + ' error :(');
         }
         logEvent(
             account.networkAccount.addr,
             {
-                message: '[ERROR SWAP] ' + token1Id + ' to ' + token2Id + ', amount: ' + token1Amount,
+                message: '[ERROR ' + type + '] ' + token1Id + ' to ' + token2Id + ', amount: ' + token1Amount,
                 error: error_message,
             },
-            'swap'
+            QueryType[type]
         );
     }
     setIsLoading(false);
 }
 
-async function getOptions(account: Account | null): Promise<Option[]> {
+export async function getOptions(account: Account | null): Promise<TokenSelectOption[]> {
     const asset_response = await fetch(ASSETS_PATH);
     const assets_res: Token[] = await asset_response.json();
-    const assets: Option[] = Object.values(assets_res).map((token) => ({
+    const assets: TokenSelectOption[] = Object.values(assets_res).map((token) => ({
         value: `${token.id}`,
         name: token.name,
         unit_name: token.unit_name,
@@ -216,7 +246,7 @@ async function getOptions(account: Account | null): Promise<Option[]> {
         return assets;
     }
 
-    const query = API_PATH + '/wallet_assets2/' + account.networkAccount.addr;
+    const query = API_PATH + 'wallet_assets2/' + account.networkAccount.addr;
     const wallet_response = await fetch(query);
     const wallet_assets = await wallet_response.json();
     console.log(wallet_assets);
@@ -228,40 +258,45 @@ async function getOptions(account: Account | null): Promise<Option[]> {
 }
 
 // @ts-ignore
-function renderToken(props, option) {
-    const imgStyle = {
-        borderRadius: '50%',
-        verticalAlign: 'middle',
-        margin: 10,
-    };
+function TokenDescr({ option }) {
+    return (
+        <React.Fragment>
+            <img alt="" className="token_icon" width="32" height="32" src={option.logo} />
+            <div>
+                <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.name}</div>
+                <div style={{ fontSize: '12px', textAlign: 'left' }}>{option.unit_name}</div>
+            </div>
+            {option.amount > 0 && (
+                <div
+                    style={{
+                        marginLeft: 'auto',
+                        marginRight: '50px',
+                        fontFamily: 'Montserrat',
+                        fontSize: '14px',
+                        color: '#8b8b8b',
+                    }}
+                >
+                    bal: {formatNumber(option.amount)}
+                </div>
+            )}
+        </React.Fragment>
+    );
+}
 
+// @ts-ignore
+export function renderToken(props, option) {
     return (
         <button {...props} className="search_option" type="button">
-            <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-                <img alt="" style={imgStyle} width="32" height="32" src={option.logo} />
-                <div>
-                    <div style={{ fontSize: '14px', textAlign: 'left' }}>{option.name}</div>
-                    <div style={{ fontSize: '10px', textAlign: 'left' }}>{option.unit_name}</div>
-                </div>
-                {option.amount > 0 && (
-                    <div style={{ marginLeft: 'auto', marginRight: '10px', fontSize: '14px', color: '#8b8b8b' }}>
-                        bal: {formatNumber(option.amount)}
-                    </div>
-                )}
+            <div style={{ display: 'flex', alignItems: 'center', fontFamily: 'Montserrat', whiteSpace: 'nowrap' }}>
+                <TokenDescr option={option} />
             </div>
         </button>
     );
 }
 
 // @ts-ignore
-function renderValue(valueProps, snapshot) {
+export function renderValue(valueProps, snapshot) {
     const { option } = snapshot;
-
-    const imgStyle = {
-        borderRadius: '50%',
-        verticalAlign: 'middle',
-        margin: 10,
-    };
 
     return (
         <div style={{ position: 'relative' }}>
@@ -276,21 +311,12 @@ function renderValue(valueProps, snapshot) {
                         bottom: 0,
                         display: 'flex',
                         marginTop: '10px',
-                        fontFamily: 'Krona One',
+                        fontFamily: 'Montserrat',
                         color: 'white',
                         alignItems: 'center',
                     }}
                 >
-                    <img alt="" style={imgStyle} width="32" height="32" src={option.logo} />
-                    <div>
-                        <div style={{ fontSize: '14px', textAlign: 'left' }}>{option.name}</div>
-                        <div style={{ fontSize: '10px', textAlign: 'left' }}>{option.unit_name}</div>
-                    </div>
-                    {option.amount > 0 && (
-                        <div style={{ marginLeft: 'auto', marginRight: '40px', fontSize: '14px', color: '#8b8b8b' }}>
-                            bal: {formatNumber(option.amount)}
-                        </div>
-                    )}
+                    <TokenDescr option={option} />
                 </div>
             )}
             <input
@@ -303,7 +329,7 @@ function renderValue(valueProps, snapshot) {
     );
 }
 
-function formatNumber(x: number) {
+export function formatNumber(x: number) {
     if (x < 0.01) {
         return Math.round(x * 1000) / 1000;
     }
@@ -318,8 +344,8 @@ function BestTokenPrice({
 }: {
     token1Amount: string;
     bestSwap: BestSwap;
-    token1: Option;
-    token2: Option;
+    token1: TokenSelectOption;
+    token2: TokenSelectOption;
 }) {
     const pricePerToken = bestSwap.best_swap / Number.parseFloat(token1Amount);
     const best_algo = bestSwap.best_swap > bestSwap.direct_swap;
@@ -331,32 +357,32 @@ function BestTokenPrice({
                     style={{
                         display: 'flex',
                         justifyContent: 'space-between',
-                        marginBottom: '15px',
+                        marginBottom: '10px',
                         whiteSpace: 'nowrap',
                     }}
                 >
-                    <h3 className="token_price_text">
+                    <div className="token_price_text">
                         Direct swap:
                         <br />
                         {token1.unit_name}-{token2.unit_name}
-                    </h3>
+                    </div>
                     <h3 className="token_price_value" style={{ color: 'white', padding: '10px' }}>
                         {formatNumber(bestSwap.direct_swap)} {token2.unit_name}
                     </h3>
                 </div>
             )}
             <div
-                style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', whiteSpace: 'nowrap' }}
+                style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', whiteSpace: 'nowrap' }}
             >
-                <h3 className="token_price_text">
+                <div className="token_price_text">
                     Best swap:
                     <br />
                     {bestSwap.best_path.map((t: { unit_name: any }) => t.unit_name).join('-')}
-                </h3>
+                </div>
                 {/*<div>*/}
                 <h3
                     className="token_price_value"
-                    style={{ backgroundColor: '#00ff00', color: 'black', padding: '10px', fontSize: '15px' }}
+                    style={{ backgroundColor: '#00ff00', color: 'black', padding: '7px', fontSize: '18px' }}
                 >
                     {formatNumber(bestSwap.best_swap)} {token2.unit_name}
                 </h3>
@@ -372,18 +398,18 @@ function BestTokenPrice({
                         whiteSpace: 'nowrap',
                     }}
                 >
-                    <h3 className="token_price_text"> </h3>
-                    <h3 className="token_price_value">
+                    <div className="token_price_text"> </div>
+                    <div className="token_price_delta">
                         +{formatNumber(bestSwap.best_swap - bestSwap.direct_swap)} {token2.unit_name}(
                         {formatNumber(bestSwap.usdc_diff)}$)
-                    </h3>
+                    </div>
                 </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap' }}>
-                <h3 className="token_price_text">Price</h3>
-                <h3 className="token_price_text">
+                <div className="token_price_text">Price</div>
+                <div className="token_price_text">
                     {formatNumber(pricePerToken)} {token2.unit_name} per {token1.unit_name}
-                </h3>
+                </div>
             </div>
         </div>
     );
@@ -392,12 +418,24 @@ function BestTokenPrice({
 export function Swap() {
     const account = useStore($account);
 
-    const [token1, setToken1] = useState<Option>({ value: '', name: '', unit_name: '', logo: '', amount: 0 });
-    const [token2, setToken2] = useState<Option>({ value: '', name: '', unit_name: '', logo: '', amount: 0 });
+    const [token1, setToken1] = useState<TokenSelectOption>({
+        value: '',
+        name: '',
+        unit_name: '',
+        logo: '',
+        amount: 0,
+    });
+    const [token2, setToken2] = useState<TokenSelectOption>({
+        value: '',
+        name: '',
+        unit_name: '',
+        logo: '',
+        amount: 0,
+    });
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [bestSwap, setBestSwap] = useState<BestSwap>({ best_swap: 0, direct_swap: 0, best_path: [], usdc_diff: 0 });
 
-    const [options, setOptions] = useState<Option[]>([]);
+    const [options, setOptions] = useState<TokenSelectOption[]>([]);
 
     const [showSwap, setShowSwap] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -410,8 +448,8 @@ export function Swap() {
     }, [account]);
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <h1 style={{ marginTop: '10px', fontSize: '27px' }}>BEST SWAP EVER</h1>
+        <div className="swap_container">
+            <h1 className="swap_header">OPTIMAL SWAP</h1>
             <h3 className="swap_descr">we find the optimal path to swap your token</h3>
             <h3 className="swap_text">FROM</h3>
             <SelectSearch
@@ -488,9 +526,9 @@ export function Swap() {
                         onClick={
                             !isLoading2
                                 ? () =>
-                                      swapTokens(
+                                      runTransactions(
+                                          QueryType.swap,
                                           account,
-                                          bestSwap,
                                           token1?.value,
                                           token2.value,
                                           token1Amount,

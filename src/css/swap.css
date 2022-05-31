@@ -1,55 +1,82 @@
+.swap_container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #272727;
+    border-radius: 10px;
+    padding: 30px;
+}
+
+.swap_header {
+    font-size: 27px;
+    color: #D3D3D3;
+}
+
+.swap_descr {
+    color: #8b8b8b;
+    margin-top: 5px;
+    font-family: 'Montserrat';
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
 .swap_text {
-    color: white;
     font-family: 'Korona One';
     font-size: 16px;
     text-align: center;
     margin-top: 10px;
+    color: #7A7A7A;
 }
 
 .search_value {
     margin-top: 10px;
-    padding: 5px;
+    padding: 10px;
     height: 50px;
     width: 350px;
     color: white;
-    background-color: #000000;
+    background-color: #272727;
 
     border: 1px solid rgba(125, 125, 125, 0.66);
     border-radius: 8px;
 
-    font-family: 'Korona One';
-    font-size: 20px;
+    font-family: 'Montserrat';
+    font-size: 18px;
 }
 
 .search_option {
     height: 50px;
     width: 350px;
     color: white;
-    background-color: #000;
+    background-color: #272727;
     border: 0;
-
-    font-family: 'Korona One';
     font-size: 14px;
 }
 
 .token_input {
-    height: 35px;
+    height: 50px;
     width: 350px;
-    margin-top: 5px;
+    margin-top: 15px;
     padding: 10px;
     color: #ffffff;
-    background-color: #000;
+    background-color: #272727;
 
     border: 1px solid rgba(125, 125, 125, 0.66);
     border-radius: 8px;
 
-    font-family: 'Korona One';
-    font-size: 14px;
+    font-family: 'Montserrat';
+    font-size: 18px;
+}
+
+.token_icon {
+    border-radius: 50%;
+    vertical-align: middle;
+    margin: 10px;
 }
 
 .swap_button {
     height: 50px;
-    /*margin: 10px;*/
     width: 350px;
     border-radius: 8px;
     border: 1px solid #5cfc3c;
@@ -90,26 +117,17 @@
     pointer-events: none;
 }
 
-.swap_text {
-    color: white;
-    font-family: 'Korona One';
-    font-size: 16px;
-    text-align: center;
-    margin-top: 10px;
-}
-
 .price_button {
     height: 50px;
-    /*margin: 10px;*/
     width: 350px;
     border-radius: 8px;
-    margin-top: 20px;
+    margin-top: 15px;
     font-size: 15px;
     font-family: 'Korona One';
     cursor: pointer;
 
-    border: 1px solid white;
-    color: white;
+    border: 0px;
+    color: #B9B9B9;
     background-color: #000;
 }
 
@@ -122,8 +140,8 @@
 .token_price {
     /*height: 80px;*/
     width: 350px;
-    padding: 15px;
-    margin-top: 20px;
+    padding: 20px;
+    margin-top: 15px;
 
     background: rgb(35, 35, 35);
     border-radius: 8px;
@@ -131,20 +149,36 @@
 }
 
 .token_price_text {
-    color: #a7a7a7;
-    font-family: 'Korona One';
-    font-size: 13px;
+    color: #9C9C9C;
+    font-family: 'Montserrat', serif;
+    font-weight: normal;
+    font-size: 14px;
 }
 
 .token_price_value {
     color: #5cfc3c;
-    font-family: 'Korona One', sans-serif;
-    font-size: 13px;
+    font-family: 'Montserrat';
+    font-weight: 400;
+    font-size: 16px;
+}
+
+.token_price_zap_value {
+    color: white;
+    font-family: 'Montserrat';
+    font-weight: 400;
+    font-size: 18px;
+}
+
+.token_price_delta {
+    color: #5cfc3c;
+    font-family: 'Montserrat';
+    font-weight: 400;
+    font-size: 14px;
 }
 
 .dex_name {
     color: rgb(71, 71, 71);
-    font-family: 'Korona One', sans-serif;
+    font-family: 'Montserrat';
     font-size: 12px;
     margin-top: 5px;
 }
@@ -179,31 +213,14 @@
     justify-content: center;
 }
 
-.best_swap_text {
-    color: #8b8b8b;
-    font-family: 'Korona One';
-    font-size: 13px;
-}
-
 .best_swap_res {
     color: white;
-    font-family: 'Korona One';
     font-size: 15px;
 }
 
 .swap_path {
     color: #8b8b8b;
     margin-top: 5px;
-    font-family: 'Korona One';
     font-size: 11px;
     text-align: center;
-}
-
-.swap_descr {
-    color: #8b8b8b;
-    margin-top: 5px;
-    font-family: 'Korona One';
-    font-size: 11px;
-    text-align: center;
-    margin-bottom: 10px;
 }
