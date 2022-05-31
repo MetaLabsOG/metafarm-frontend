@@ -22,7 +22,7 @@ import {
 import packman from '../../../imgs/pacman.gif';
 import { calculateAmountToken, isValidAmount, getLPTokenPoolLink, formatLPTokenName, numberRound } from './utils';
 import { PoolState } from './types';
-import { useToasts } from './hooks';
+import { ToastTypes, useToasts } from './hooks';
 
 
 export const PoolActions = ({
@@ -45,7 +45,7 @@ export const PoolActions = ({
     const [toStake, setToStake] = useState<string>('');
     const [isViewMaxForStake, setIsVievMaxForStake] = useState<boolean>(true);
     const [toWithdraw, setToWithdraw] = useState<string>('');
-    const [isViewMaxForWithdraw, setIsVievMaxForWithdraw] = useState<boolean>(true);
+    const [isViewMaxForWithdraw, setIsViewMaxForWithdraw] = useState<boolean>(true);
     const [isValidWithdraw, setIsValidWithdraw] = useState<boolean>(true);
     const [isValidStake, setIsValidStake] = useState<boolean>(true);
 
@@ -54,7 +54,7 @@ export const PoolActions = ({
 
     const canStake = poolState !== PoolState.Finished
    
-    const lpBalanceIsNotZero = lpBalance !== null && lpBalanceForView > 0 && !pendingStake
+    const lpBalanceIsNotZero = lpBalance !== null && Number(lpBalanceForView) > 0 
     const isActiveStake = lpBalanceIsNotZero && !pendingStake
     const stakedTokenIsNotZero = Number(stakedTokens) > 0;
     const canWithdraw = stakedTokenIsNotZero && !pendingWithdraw
@@ -68,7 +68,7 @@ export const PoolActions = ({
             api: ctc.apis.stake,
             text: `${formatLPTokenName(lpTokenInfo.name)} ${toStake} LP stake`,
             pendingStatus: pendingStake,
-            action: 'stake'
+            action: ToastTypes.stake
         })
 
    
@@ -77,17 +77,15 @@ export const PoolActions = ({
         api: ctc.apis.unstake,
         text: `${formatLPTokenName(lpTokenInfo.name)} ${toWithdraw} LP withdraw`,
         pendingStatus: pendingWithdraw,
-        action: 'withdraw'
+        action: ToastTypes.withdraw
     })
      
      useToasts({
         api: ctc.apis.claim,
-        text: `${formatLPTokenName(lpTokenInfo.name)} ${numberRound(calculateAmountToken(rewardTokenInfo, contractState.local.reward))}claim`,
+        text: `${formatLPTokenName(lpTokenInfo.name)} ${numberRound(calculateAmountToken(rewardTokenInfo, contractState.local.reward))} claim`,
         pendingStatus: pendingClaim,
-        action: 'claim'
+        action: ToastTypes.claim
     })
-
-    console.log(ctc);
 
     const setMaxStake = () => {
         if (lpBalanceIsNotZero) {
@@ -99,15 +97,15 @@ export const PoolActions = ({
 
     const setMaxWithdraw = () => {
         if (canWithdraw && isValidWithdraw) {
-            setIsVievMaxForWithdraw(false)
+            setIsViewMaxForWithdraw(false)
             setIsValidWithdraw(true)
             setToWithdraw(stakedTokens.toString());
         }
     };
 
-    const onChangeWithDraw = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onChangeWithdraw = (e: React.ChangeEvent<HTMLInputElement>) => {
         setIsValidWithdraw(isValidAmount(Number(e.currentTarget.value), Number(stakedTokens)));
-        setIsVievMaxForWithdraw(!equals(Number(e.currentTarget.value), stakedTokens));
+        setIsViewMaxForWithdraw(!equals(Number(e.currentTarget.value), stakedTokens));
         setToWithdraw(e.currentTarget.value);
     };
 
@@ -159,7 +157,7 @@ export const PoolActions = ({
                                 value={toStake}
                                 onChange={onChangeStake}
                             />
-                            <Button isActive={canStake && !pendingStake} disabled={!lpBalanceIsNotZero} onClick={() => stake(toStake)}>
+                            <Button isActive={canStake && !pendingStake} disabled={!isActiveStake} onClick={() => stake(toStake)}>
                                 {pendingStake ? <Packman src={packman}/> : 'STAKE'}
                             </Button>
                             {isViewMaxForStake && <MaxButton onClick={setMaxStake}>MAX</MaxButton>}
@@ -177,7 +175,7 @@ export const PoolActions = ({
                         isActive={canWithdraw}
                         disabled={!canWithdraw}
                         value={toWithdraw}
-                        onChange={onChangeWithDraw}
+                        onChange={onChangeWithdraw}
                     />
                     <Button isActive={canWithdraw && !pendingWithdraw} disabled={!canWithdraw} onClick={() => withdraw(toWithdraw)}>
                         {pendingWithdraw ? <Packman src={packman}/> : 'WITHDRAW'} 

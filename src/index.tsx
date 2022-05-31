@@ -11,10 +11,9 @@ import { Swap } from './Swap';
 
 import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
-import { Container, ContentContainer } from './common/styled';
+import { Container, ContentContainer, StyledContainer } from './common/styled';
 import { Crowdsale } from './Crowdsale';
 import { fetchAlgoPrice, fetchBtcPrice } from './common/store';
-import { ToastContainer } from 'react-toastify';
 
 import './css/index.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -31,7 +30,7 @@ const App = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <GlobalStyle />
-            <ToastContainer limit={3}></ToastContainer>
+            <StyledContainer limit={3}/>
             <ThemeProvider theme={theme}>
                 <Container>
                     <Menu />

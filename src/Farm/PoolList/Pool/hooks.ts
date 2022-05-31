@@ -3,22 +3,28 @@ import { Id, toast } from "react-toastify"
 import { isNil } from 'ramda'
 
 
-type useToastProps = {
-    api: any,
+export enum ToastTypes {
+    stake,
+    claim,
+    withdraw
+}
+
+type useToastProps<ApiType> = {
+    api: ApiType,
     text: string,
     pendingStatus: boolean | unknown,
-    action:  'claim' | 'withdraw' | 'stake'
+    action:  ToastTypes
 
 }
 
-type toastIds = {
-    stake: Id | null
-    claim: Id | null,
-    withdraw: Id | null
+type ToastIds = {
+    [ToastTypes.stake]: Id | null
+    [ToastTypes.withdraw]: Id | null,
+    [ToastTypes.claim]: Id | null
 }
 
-export const useToasts = ({ api, text, pendingStatus, action }: useToastProps) => {
-    const [toastIds, setToastIds] = useState<toastIds>({ stake: null , claim: null, withdraw: null })
+export const useToasts = ({ api, text, pendingStatus, action }: useToastProps<any>) => {
+    const [toastIds, setToastIds] = useState<ToastIds>({ [ToastTypes.stake]: null , [ToastTypes.claim]: null, [ToastTypes.withdraw]: null })
   
 
     useEffect(() => {
@@ -50,6 +56,7 @@ export const useToasts = ({ api, text, pendingStatus, action }: useToastProps) =
                         isLoading: false,
                         autoClose: 5000
                     });
+                    setToastIds({ ...toastIds, [action]: null })
                 }
             })
         }
