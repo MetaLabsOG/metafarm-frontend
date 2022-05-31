@@ -1,27 +1,24 @@
 import { formatDecimalsMeaningful } from '../../../common/lib';
 import { Asset, Priced } from '../../../common/store/types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { ALGONET, TESTNET } from '../../../AppContext';
+import { ALGONET, reach, TESTNET } from '../../../AppContext';
 
 const TINYMAN_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.tinyman.org`;
 const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
 
 export const isValidAmount = (amount: number, balance: number) => balance >= amount && amount > 0;
 
-export const convertAmount = (amount: number, lpToken: Asset) => {
-    return amount * 10 ** lpToken.decimals;
-};
 
 export const calculateAmountToken = (lpToken: Asset, balanceTokenOnAccount: number) => {
-    return balanceTokenOnAccount / 10 ** lpToken.decimals;
+     return Number(reach.formatWithDecimals(balanceTokenOnAccount, lpToken.decimals))
 };
 
 export const convertAmountToUSD = (lpToken: Priced<Asset>, amount: number) => {
-    return (lpToken.price * amount) / 10 ** lpToken.decimals;
+    return  (lpToken.price * amount) / 10 ** lpToken.decimals;
 };
 
 export const numberRound = (amount: number) => {
-    return amount > 0 ? formatDecimalsMeaningful(amount) : 0;
+    return  Number(amount) > 0 ? formatDecimalsMeaningful(Number(amount)) : 0;
 };
 
 export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenInfo): string => {
@@ -33,3 +30,9 @@ export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenI
         return '#'; // dunno what else to do with dummy LPs
     }
 }
+
+
+// TODO: remove this when pools name it will be not test names
+export const formatLPTokenName = (name: string) => {
+    return name.replace('/', ' • ').replace('liquidity', '');
+};

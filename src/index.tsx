@@ -12,10 +12,12 @@ import { Zap } from './Zap';
 
 import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
-import { Container, ContentContainer } from './common/styled';
-import './css/index.css';
+import { Container, ContentContainer, StyledContainer } from './common/styled';
 import { Crowdsale } from './Crowdsale';
 import { fetchAlgoPrice, fetchBtcPrice } from './common/store';
+
+import './css/index.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,7 @@ const App = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <GlobalStyle />
+            <StyledContainer limit={3}/>
             <ThemeProvider theme={theme}>
                 <Container>
                     <Menu />

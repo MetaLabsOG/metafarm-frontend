@@ -32,14 +32,15 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-left: 20px;
+    margin-left: 17px;
     width: ${({ width }) => (width ? `${width}%` : '12.5%')};
 `;
 
 export const PoolActionsWrapper = styled.div`
     display: flex;
-    width: 100%;
-    margin-top: 20px;
+    justify-content: space-between;
+    width: 84%;
+    margin-top: 38px;
 `;
 
 
@@ -57,16 +58,15 @@ export const BasicInfo = styled.div`
 export const Stake = styled.div`
     display: flex;
     flex-direction: column;
-    width: 24%;
+    width: 240px;
     height: 100%;
     justify-content: space-around;
-    margin-right: 20px;
 `;
 
 export const WithDraw = styled.div`
     display: flex;
     flex-direction: column;
-    width: 24%;
+    width: 240px;
     height: 100%;
     justify-content: space-around;
 `;
@@ -85,7 +85,7 @@ export const Balance = styled.div<{ isValid: boolean }>`
 export const Action = styled.div<{ customColor?: boolean; isActive?: boolean }>`
     display: flex;
     height: 34px;
-    width: 230px;
+    width: 100%;
     position: relative;
     color: ${({ isActive, theme, customColor }) => {
         if (customColor && isActive) {
@@ -120,6 +120,7 @@ export const Input = styled.input<{ customColor?: boolean; isActive?: boolean }>
     border-radius: 4px 0 0 4px;
     border-right: none;
     width: 60%;
+    font-size: 11px;
     padding-left: 10px;
     font-family: 'Korona One';
     ${Action}:hover & {
@@ -139,7 +140,7 @@ export const MaxButton = styled.div`
     left: 35%;
     top: 4px;
     padding: 6px;
-    color: inherit;
+    color: ${({theme}) => theme.gray};;
     font-size: 11px;
     cursor: pointer;
     font-family: 'Montserrat';
@@ -147,6 +148,9 @@ export const MaxButton = styled.div`
     font-weight: 600;
     font-size: 12px;
     line-height: 15px;
+    :hover {
+        color: inherit;
+    }
 `;
 
 export const Claim = styled.div`
@@ -154,13 +158,12 @@ export const Claim = styled.div`
     flex-direction: column;
     justify-content: space-around;
     align-items: flex-end;
-    width: 13%;
+    width: 137px;
     height: 80%;
-    margin-right: 10px;
 `;
 
 export const ClaimButton = styled.div<{ isActive?: boolean }>`
-    width: 137px;
+    width: 100%;
     height: 34px;
     background-color: inherit;
     color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};
@@ -180,7 +183,7 @@ export const ClaimButton = styled.div<{ isActive?: boolean }>`
 export const TokenInfo = styled.div`
     display: flex;
     flex-direction: column;
-    width: 22%;
+    width: 18%;
     justify-content: space-between;
     height: 80%;
 `;

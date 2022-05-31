@@ -1,3 +1,4 @@
+import { ToastContainer } from 'react-toastify';
 import styled from 'styled-components';
 
 export const NFTCard = styled.div`
@@ -47,7 +48,6 @@ export const ContentContainer = styled.div`
     margin-top: 125px;
     display: flex;
     justify-content: center;
-    z-index: 10;
 `;
 
 export const InfoHeader = styled.h2`
@@ -58,3 +58,16 @@ export const InfoHeader = styled.h2`
     justify-content: center;
     font-family: "Korona One";
 `;
+
+
+export const StyledContainer = styled(ToastContainer)`
+   
+    &&&.Toastify__toast-container {}
+    .Toastify__toast-body {
+        font-size: 14px;
+        font-family: "Korona One";
+    }
+    .Toastify__toast-theme--dark {
+        background: #1F1F1F;
+     }
+`
