@@ -1,1 +1,1 @@
-export { Zap } from './Zap'
+export { Zap } from './Zap';

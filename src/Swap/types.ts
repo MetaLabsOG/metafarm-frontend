@@ -1,12 +1,12 @@
 declare global {
     interface Window {
         algorand: {
-            signTxns: (param: {txn: string}[]) => Promise<string[]>
-        }
+            signTxns: (param: { txn: string }[]) => Promise<string[]>;
+        };
     }
 }
 
-export interface Option {
+export interface TokenSelectOption {
     value: string;
     name: string;
     unit_name: string;
@@ -20,14 +20,14 @@ export interface Token {
     unit_name: string;
     logo: {
         png: string;
-    }
+    };
 }
 
 export interface BestSwap {
     best_swap: number;
     direct_swap: number;
     best_path: {
-        unit_name: string
+        unit_name: string;
     }[];
     usdc_diff: number;
 }

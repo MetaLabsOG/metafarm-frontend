@@ -1,10 +1,10 @@
 import algosdk from 'algosdk';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { reach } from '../AppContext';
+import { ALGONET, MAINNET, reach } from '../AppContext';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
-import { Token, Option, BestSwap, Transaction } from './types';
+import { Token, TokenSelectOption, BestSwap, Transaction } from './types';
 import { $account } from '../common/store';
 
 import SelectSearch, { fuzzySearch } from 'react-select-search';
@@ -14,9 +14,13 @@ import { logEvent } from '../logEvent';
 import { useStore } from 'effector-react';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
-// @ts-ignore
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
 // export const API_PATH = 'http://0.0.0.0:5000/';
+
+export enum QueryType {
+    swap,
+    zap,
+}
 
 async function getBestSwap(
     account: Account | null,
@@ -36,7 +40,7 @@ async function getBestSwap(
     console.log(asset1_id, asset2_id, asset1_amount);
 
     try {
-        const best_swap = await getData('swap', asset1_id, asset2_id, asset1_amount);
+        const best_swap = await getData(QueryType.swap, asset1_id, asset2_id, asset1_amount);
         console.log(best_swap);
 
         logEvent(
@@ -72,11 +76,16 @@ async function getBestSwap(
     }
 }
 
-export async function getData(type: string, asset1_id: string, asset2_id: string, asset1_amount: string,
-                              additional_params="") {
+export async function getData(
+    type: QueryType,
+    asset1_id: string,
+    asset2_id: string,
+    asset1_amount: string,
+    additional_params = ''
+) {
     const query =
         API_PATH +
-        type +
+        QueryType[type] +
         '_data?asset1_id=' +
         asset1_id +
         '&asset2_id=' +
@@ -88,12 +97,17 @@ export async function getData(type: string, asset1_id: string, asset2_id: string
     return await response.json();
 }
 
-
-export async function getTransactions(type:string, address: string, asset1_id: string, asset2_id: string, asset1_amount: string,
-                                      additional_params="") {
+export async function getTransactions(
+    type: QueryType,
+    address: string,
+    asset1_id: string,
+    asset2_id: string,
+    asset1_amount: string,
+    additional_params = ''
+) {
     const query =
         API_PATH +
-        type +
+        QueryType[type] +
         '_transactions?address=' +
         address +
         '&asset1_id=' +
@@ -107,10 +121,7 @@ export async function getTransactions(type:string, address: string, asset1_id: s
     return await response.json();
 }
 
-export async function signAndSubmitTransactions(
-    algodClient: algosdk.Algodv2,
-    input_transactions: Transaction
-) {
+export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, input_transactions: Transaction) {
     console.log(input_transactions);
     const transactions = input_transactions.transactions;
 
@@ -153,13 +164,13 @@ export async function signAndSubmitTransactions(
 }
 
 export async function runTransactions(
-    type: string,
+    type: QueryType,
     account: Account | null,
     token1Id: string,
     token2Id: string,
     token1Amount: string,
     setIsLoading: Dispatch<SetStateAction<boolean>>,
-    additional_params=""
+    additional_params = ''
 ) {
     if (!account) {
         alert('Please, connect the wallet');
@@ -175,7 +186,13 @@ export async function runTransactions(
         console.log(address);
 
         const transactions: Transaction = await getTransactions(
-            type, address, token1Id, token2Id, token1Amount, additional_params);
+            type,
+            address,
+            token1Id,
+            token2Id,
+            token1Amount,
+            additional_params
+        );
         console.log(transactions);
         const res = await signAndSubmitTransactions(algodClient, transactions);
         const trx_grp = Buffer.from(res.txn.txn.grp).toString('base64');
@@ -185,11 +202,11 @@ export async function runTransactions(
         logEvent(
             account.networkAccount.addr,
             {
-                message: '[' + type +  ' OK] ' + token1Id + ' to ' + token2Id,
+                message: '[' + type + ' OK] ' + token1Id + ' to ' + token2Id,
                 amount: token1Amount,
                 txns: 'https://algoexplorer.io/tx/group/' + encodeURIComponent(trx_grp),
             },
-            type
+            QueryType[type]
         );
     } catch (e) {
         // @ts-ignore
@@ -208,16 +225,16 @@ export async function runTransactions(
                 message: '[ERROR ' + type + '] ' + token1Id + ' to ' + token2Id + ', amount: ' + token1Amount,
                 error: error_message,
             },
-            type
+            QueryType[type]
         );
     }
     setIsLoading(false);
 }
 
-export async function getOptions(account: Account | null): Promise<Option[]> {
+export async function getOptions(account: Account | null): Promise<TokenSelectOption[]> {
     const asset_response = await fetch(ASSETS_PATH);
     const assets_res: Token[] = await asset_response.json();
-    const assets: Option[] = Object.values(assets_res).map((token) => ({
+    const assets: TokenSelectOption[] = Object.values(assets_res).map((token) => ({
         value: `${token.id}`,
         name: token.name,
         unit_name: token.unit_name,
@@ -241,61 +258,75 @@ export async function getOptions(account: Account | null): Promise<Option[]> {
 }
 
 // @ts-ignore
-function TokenDescr({option}) {
-    return <React.Fragment>
-        <img alt="" className="token_icon" width="32" height="32" src={option.logo} />
-        <div>
-            <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.name}</div>
-            <div style={{ fontSize: '12px', textAlign: 'left' }}>{option.unit_name}</div>
-        </div>
-        {option.amount > 0 && (
-            <div style={{ marginLeft: 'auto', marginRight: '50px', fontFamily: 'Montserrat', fontSize: '14px', color: '#8b8b8b' }}>
-                bal: {formatNumber(option.amount)}
+function TokenDescr({ option }) {
+    return (
+        <React.Fragment>
+            <img alt="" className="token_icon" width="32" height="32" src={option.logo} />
+            <div>
+                <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.name}</div>
+                <div style={{ fontSize: '12px', textAlign: 'left' }}>{option.unit_name}</div>
             </div>
-        )}
-    </React.Fragment>
+            {option.amount > 0 && (
+                <div
+                    style={{
+                        marginLeft: 'auto',
+                        marginRight: '50px',
+                        fontFamily: 'Montserrat',
+                        fontSize: '14px',
+                        color: '#8b8b8b',
+                    }}
+                >
+                    bal: {formatNumber(option.amount)}
+                </div>
+            )}
+        </React.Fragment>
+    );
 }
 
 // @ts-ignore
 export function renderToken(props, option) {
-    return <button {...props} className="search_option" type="button">
+    return (
+        <button {...props} className="search_option" type="button">
             <div style={{ display: 'flex', alignItems: 'center', fontFamily: 'Montserrat', whiteSpace: 'nowrap' }}>
-                <TokenDescr option={option}/>
+                <TokenDescr option={option} />
             </div>
         </button>
+    );
 }
 
 // @ts-ignore
 export function renderValue(valueProps, snapshot) {
     const { option } = snapshot;
 
-    return <div style={{ position: 'relative' }}>
-        {option && !snapshot.focus && (
-            <div
-                style={{
-                    pointerEvents: 'none',
-                    position: 'absolute',
-                    left: 0,
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    marginTop: '10px',
-                    fontFamily: 'Montserrat',
-                    color: 'white',
-                    alignItems: 'center',
-                }}
-            >
-                <TokenDescr option={option}/>
-            </div>
-        )}
-        <input
-            {...valueProps}
-            placeholder={snapshot.focus || !snapshot.displayValue ? 'Choose token' : ''}
-            className="search_value"
-            value={snapshot.search}
-        />
-    </div>
+    return (
+        <div style={{ position: 'relative' }}>
+            {option && !snapshot.focus && (
+                <div
+                    style={{
+                        pointerEvents: 'none',
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        marginTop: '10px',
+                        fontFamily: 'Montserrat',
+                        color: 'white',
+                        alignItems: 'center',
+                    }}
+                >
+                    <TokenDescr option={option} />
+                </div>
+            )}
+            <input
+                {...valueProps}
+                placeholder={snapshot.focus || !snapshot.displayValue ? 'Choose token' : ''}
+                className="search_value"
+                value={snapshot.search}
+            />
+        </div>
+    );
 }
 
 export function formatNumber(x: number) {
@@ -313,8 +344,8 @@ function BestTokenPrice({
 }: {
     token1Amount: string;
     bestSwap: BestSwap;
-    token1: Option;
-    token2: Option;
+    token1: TokenSelectOption;
+    token2: TokenSelectOption;
 }) {
     const pricePerToken = bestSwap.best_swap / Number.parseFloat(token1Amount);
     const best_algo = bestSwap.best_swap > bestSwap.direct_swap;
@@ -387,12 +418,24 @@ function BestTokenPrice({
 export function Swap() {
     const account = useStore($account);
 
-    const [token1, setToken1] = useState<Option>({ value: '', name: '', unit_name: '', logo: '', amount: 0 });
-    const [token2, setToken2] = useState<Option>({ value: '', name: '', unit_name: '', logo: '', amount: 0 });
+    const [token1, setToken1] = useState<TokenSelectOption>({
+        value: '',
+        name: '',
+        unit_name: '',
+        logo: '',
+        amount: 0,
+    });
+    const [token2, setToken2] = useState<TokenSelectOption>({
+        value: '',
+        name: '',
+        unit_name: '',
+        logo: '',
+        amount: 0,
+    });
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [bestSwap, setBestSwap] = useState<BestSwap>({ best_swap: 0, direct_swap: 0, best_path: [], usdc_diff: 0 });
 
-    const [options, setOptions] = useState<Option[]>([]);
+    const [options, setOptions] = useState<TokenSelectOption[]>([]);
 
     const [showSwap, setShowSwap] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -483,8 +526,8 @@ export function Swap() {
                         onClick={
                             !isLoading2
                                 ? () =>
-                                    runTransactions(
-                                        'swap',
+                                      runTransactions(
+                                          QueryType.swap,
                                           account,
                                           token1?.value,
                                           token2.value,

@@ -1,25 +1,18 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
-import { Option } from '../Swap/types';
+import { TokenSelectOption } from '../Swap/types';
 import { ZapData } from './types';
 import { $account } from '../common/store';
 
 import SelectSearch, { fuzzySearch } from 'react-select-search';
-import React from 'react';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent } from '../logEvent';
 import { useStore } from 'effector-react';
-import {
-    formatNumber, getData,
-    getOptions,
-    renderToken,
-    renderValue, runTransactions
-} from '../Swap/Swap';
+import { formatNumber, getData, getOptions, QueryType, renderToken, renderValue, runTransactions } from '../Swap/Swap';
 
-
-async function getZap(
+async function loadZapData(
     account: Account | null,
     asset1_id: string | undefined,
     asset2_id: string | undefined,
@@ -37,7 +30,7 @@ async function getZap(
     console.log(asset1_id, asset2_id, asset1_amount);
 
     try {
-        const zap_data: ZapData = await getData('zap', asset1_id, asset2_id, asset1_amount, '&swap_half=true');
+        const zap_data: ZapData = await getData(QueryType.zap, asset1_id, asset2_id, asset1_amount, '&swap_half=true');
 
         logEvent(
             account ? account.networkAccount.addr : '',
@@ -75,21 +68,22 @@ function ZapResult({
     token2,
 }: {
     zap_data: ZapData;
-    token1: Option;
-    token2: Option;
+    token1: TokenSelectOption;
+    token2: TokenSelectOption;
 }) {
     return (
         <div className="token_price">
             <div style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap' }}>
-                <h3 className="token_price_text">{token1.unit_name}-{token2.unit_name} LP</h3>
-                <h3 className="token_price_zap_value">
-                    {formatNumber(zap_data.lp_amount)}
+                <h3 className="token_price_text">
+                    {token1.unit_name}-{token2.unit_name} LP
                 </h3>
+                <h3 className="token_price_zap_value">{formatNumber(zap_data.lp_amount)}</h3>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap', marginTop: '10px' }}>
                 <h3 className="token_price_text"></h3>
                 <h3 className="token_price_text">
-                    {zap_data.asset1_amount} {token1.unit_name} + {formatNumber(zap_data.asset2_amount)} {token2.unit_name}
+                    {zap_data.asset1_amount} {token1.unit_name} + {formatNumber(zap_data.asset2_amount)}{' '}
+                    {token2.unit_name}
                 </h3>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap', marginTop: '10px' }}>
@@ -103,15 +97,32 @@ function ZapResult({
 export function Zap() {
     const account = useStore($account);
 
-    const [token1, setToken1] = useState<Option>({ value: '', name: '', unit_name: '', logo: '', amount: 0 });
-    const [token2, setToken2] = useState<Option>({ value: '', name: '', unit_name: '', logo: '', amount: 0 });
+    const [token1, setToken1] = useState<TokenSelectOption>({
+        value: '',
+        name: '',
+        unit_name: '',
+        logo: '',
+        amount: 0,
+    });
+    const [token2, setToken2] = useState<TokenSelectOption>({
+        value: '',
+        name: '',
+        unit_name: '',
+        logo: '',
+        amount: 0,
+    });
     const [token1Amount, setToken1Amount] = useState<string>('');
-    const [zapData, setZapData] = useState<ZapData>({ asset1_amount: 0, asset2_amount: 0, lp_amount: 0, pool_lp_id: 0 });
+    const [zapData, setZapData] = useState<ZapData>({
+        asset1_amount: 0,
+        asset2_amount: 0,
+        lp_amount: 0,
+        pool_lp_id: 0,
+    });
 
-    const [options, setOptions] = useState<Option[]>([]);
+    const [options, setOptions] = useState<TokenSelectOption[]>([]);
 
     const [showResult, setShowResult] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoading1, setIsLoading1] = useState<boolean>(false);
     const [isLoading2, setIsLoading2] = useState<boolean>(false);
 
     useEffect(() => {
@@ -123,7 +134,7 @@ export function Zap() {
     return (
         <div className="swap_container">
             <h1 className="swap_header">ZAP</h1>
-            <h3 className="swap_descr">Add liquidity and get LP in one click</h3>
+            <h3 className="swap_descr">Add liquidity and get LP tokens in one click</h3>
             <h3 className="swap_text">FIRST TOKEN</h3>
             <SelectSearch
                 className="select-search"
@@ -132,7 +143,7 @@ export function Zap() {
                 renderOption={renderToken}
                 renderValue={renderValue}
                 search={true}
-                value={token1?.value}
+                value={token1.value}
                 onChange={(_, option) => {
                     // @ts-ignore
                     setToken1(option);
@@ -154,7 +165,7 @@ export function Zap() {
                 renderOption={renderToken}
                 renderValue={renderValue}
                 search={true}
-                value={token2?.value}
+                value={token2.value}
                 onChange={(_, options) => {
                     // @ts-ignore
                     setToken2(options);
@@ -164,16 +175,16 @@ export function Zap() {
             />
 
             <button
-                className={!isLoading ? 'price_button' : 'button_loading'}
+                className={!isLoading1 ? 'price_button' : 'button_loading'}
                 onClick={
-                    !isLoading
+                    !isLoading1
                         ? () =>
-                              getZap(
+                              loadZapData(
                                   account,
-                                  token1?.value,
-                                  token2?.value,
+                                  token1.value,
+                                  token2.value,
                                   token1Amount,
-                                  setIsLoading,
+                                  setIsLoading1,
                                   setZapData,
                                   setShowResult
                               )
@@ -181,7 +192,7 @@ export function Zap() {
                 }
             >
                 FIND LIQUIDITY POOL
-                {isLoading && (
+                {isLoading1 && (
                     <span className="loading">
                         <img
                             style={{ maxWidth: '100%', maxHeight: '100%' }}
@@ -199,14 +210,14 @@ export function Zap() {
                         onClick={
                             !isLoading2
                                 ? () =>
-                                    runTransactions(
-                                        'zap',
+                                      runTransactions(
+                                          QueryType.zap,
                                           account,
-                                          token1?.value,
+                                          token1.value,
                                           token2.value,
                                           token1Amount,
                                           setIsLoading2,
-                                        '&swap_half=true'
+                                          '&swap_half=true'
                                       )
                                 : undefined
                         }
