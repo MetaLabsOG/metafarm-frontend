@@ -8,6 +8,7 @@ import { Menu } from './Menu';
 import { Fomo } from './Fomo';
 import { Farm } from './Farm';
 import { Swap } from './Swap';
+import { Zap } from './Zap';
 
 import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
@@ -37,6 +38,7 @@ const App = () => {
                             <Route path="/fomo" element={<Fomo />} />
                             <Route path="/farm" element={<Farm />} />
                             <Route path="/swap" element={<Swap />} />
+                            <Route path="/zap" element={<Zap />} />
                             <Route path="/meta-dao" element={<MetaDAO />} />
                             <Route path="/tokensale" element={<Crowdsale />} />
                         </Routes>

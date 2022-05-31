@@ -22,6 +22,7 @@ export const Menu = () => {
                         <Logo src={logo} alt="logo" height="40px" />
                     </MenuItem>
                     <MenuItem to="/swap">swap</MenuItem>
+                    <MenuItem to="/zap">zap</MenuItem>
                     <MenuItem to="/farm">farm</MenuItem>
                     <MenuItem to="/fomo">fomo3d</MenuItem>
                     <MenuItem to="/meta-dao">metadao</MenuItem>

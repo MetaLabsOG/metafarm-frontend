@@ -36,6 +36,7 @@ export interface Transaction {
     transactions: {
         txns: string[];
         signed_txns: string[];
+        tx_id?: string;
     }[];
     tx_id: string;
 }
