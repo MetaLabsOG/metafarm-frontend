@@ -60,7 +60,7 @@ export async function getLPTokenInfo(
         fstAssetPrice = algoPrice;
     } else {
         const firstAsset = await fetchAsset(poolInfo.asset1);
-        const priceInAlgo = (await dex.getSwapCost(firstAsset, ALGO_ASSET, 1)).totalPrice;
+        const priceInAlgo = (await dex.getSwapQuote(firstAsset, ALGO_ASSET, 10 ** firstAsset.decimals)).price;
         fstAssetPrice = algoPrice * priceInAlgo;
     }
 
@@ -149,6 +149,7 @@ const sumMoney = (
     getAmount: (s: ContractState<'farm'>) => Amount,
     getToken: (s: ContractState<'farm'>) => AssetId
 ): number =>
+    //@ts-ignore
     states.valueSeq().reduce((sum, state) => {
         const token = getToken(state);
         const amount = getAmount(state);

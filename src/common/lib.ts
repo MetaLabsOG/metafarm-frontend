@@ -9,8 +9,8 @@ import {
     waitForConfirmation,
 } from 'algosdk';
 import { Buffer } from 'buffer';
-
 import { Account, ReachStdlib } from '../types';
+
 
 export const sleep = (ms: number): Promise<void> => {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -20,7 +20,6 @@ export const formatDecimalsMeaningful = (value: number, precision: number = 2): 
     if (value === 0) {
         return "0";
     }
-
     const wholeLog = Math.floor(-Math.log10(Math.abs(value)));
     const zeros = wholeLog <= 0 ? 0 : wholeLog;
     const formatter = new Intl.NumberFormat('en-US', {

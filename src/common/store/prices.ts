@@ -6,8 +6,8 @@ import { Map } from 'immutable';
 import { Asset, AssetId, Priced } from './types';
 
 export const fetchAssetPrice = createEffect(async (asset: Asset): Promise<number> => {
-    const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, 1);
-    return swapQuote.perToken;
+    const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, 10**asset.decimals);
+    return swapQuote.price;
 });
 
 export const $assetAlgoPrices = createStore(Map<AssetId, number>()).on(

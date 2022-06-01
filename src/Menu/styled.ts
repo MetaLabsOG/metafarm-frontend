@@ -61,7 +61,7 @@ export const MenuContainer = styled.div`
     display: flex;
     justify-content: space-between;
     flex-direction: column;
-    z-index: 20;
+    z-index: 10;
     background-color: black;
 
     @media (max-width: 640px) {

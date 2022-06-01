@@ -1,9 +1,9 @@
-import { $assets, $meanRoundDuration, Asset, ContractState, Priced } from '../../../common/store';
+import { useStore } from 'effector-react';
+import { $meanRoundDuration, Asset, ContractState, Priced } from '../../../common/store';
 import { calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
 import { PoolState } from './types';
 import { ArrowIconsWrapper, BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue } from './styled';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { useStore } from 'effector-react';
 import { Arrow } from '../../../imgs/arrow';
 import React from 'react';
 import { ALGONET, MAINNET } from '../../../AppContext';
@@ -23,11 +23,6 @@ const getAssetLogoUrl = (input_asset_id: number) => {
 };
 
 const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
-
-// TODO: remove this when pools name it will be not test names
-const formatLPTokenName = (name: string) => {
-    return name.replace('/', ' • ').replace('liquidity', '');
-};
 
 const calculateAPR = (
     meanRoundDuration: number,
@@ -84,7 +79,7 @@ export const PoolInfo = ({
 
     const asset1_id = type === 'farm' ? lpTokenInfo.asset1 : lpTokenInfo.id;
     const asset2_id = type === 'farm' ? lpTokenInfo.asset2 : lpTokenInfo.id;
-    const pool_name = type === 'farm' ? formatLPTokenName(lpTokenInfo.name) + ' LP' : 'STAKE ' + lpTokenInfo.unitName;
+    const pool_name = type === 'farm' ? lpTokenInfo.name + ' LP' : 'STAKE ' + lpTokenInfo.unitName;
     // TODO: separate 0 from undefined in lpTokenInfo.asset
     const asset1_logo = getAssetLogoUrl(asset1_id);
     const asset2_logo = getAssetLogoUrl(asset2_id);

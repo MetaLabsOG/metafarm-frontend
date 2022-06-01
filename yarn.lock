@@ -6414,6 +6414,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"clsx@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "clsx@npm:1.1.1"
+  checksum: 9c8bbaaae0feb0987be8345023f392569c47efd679a058bb3b89cb49c150a9a2ac936ea2751661669eab426bae440fbbd145c73929b0485cc285e25757792152
+  languageName: node
+  linkType: hard
+
 "cmd-shim@npm:^4.1.0":
   version: 4.1.0
   resolution: "cmd-shim@npm:4.1.0"
@@ -11974,6 +11981,7 @@ __metadata:
     react-refresh: "npm:^0.11.0"
     react-router-dom: "npm:^6.2.1"
     react-select-search: "npm:^3.0.9"
+    react-toastify: "npm:^9.0.1"
     resolve: "npm:^1.20.0"
     resolve-url-loader: "npm:^4.0.0"
     sass-loader: "npm:^12.3.0"
@@ -14717,6 +14725,18 @@ __metadata:
     fuse.js:
       optional: true
   checksum: 8319582a7b5ebf680939b5d885a03f464c7ba9924cac5fb8b0b5a40011bb924268748d8e2605fcb3b32719710717c5b2e9bc8eaaead2bba9581694d7fb0bf633
+  languageName: node
+  linkType: hard
+
+"react-toastify@npm:^9.0.1":
+  version: 9.0.1
+  resolution: "react-toastify@npm:9.0.1"
+  dependencies:
+    clsx: "npm:^1.1.1"
+  peerDependencies:
+    react: ">=16"
+    react-dom: ">=16"
+  checksum: 4c087e2d74b01719798cab364bbe5c8c2b9ea3764d2e7f707479d0b7d2420844c716b68f5a88152e44669d5899aa37cb10f59e6f151d2ea098b4d8fb47a000c9
   languageName: node
   linkType: hard
 
