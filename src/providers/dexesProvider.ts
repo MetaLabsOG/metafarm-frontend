@@ -115,15 +115,28 @@ export class PactDex implements Dex {
         return pAsset;
     }
 
+    async fixPactPoolDefaults(pool: pactsdk.Pool, a1: AssetId | Asset, a2: AssetId | Asset): Promise<pactsdk.Pool> {
+        // weird shit with incompleteness of Pact's pool state info 
+        if (pool.primaryAsset.index === 0 && pool.secondaryAsset.index === 0) {
+            const primary = typeof a1 === 'number' ? await fetchAsset(a1) : a1; 
+            const secondary = typeof a2 === 'number' ? await fetchAsset(a2) : a2;
+            pool.primaryAsset = this.makePactAsset(primary);
+            pool.secondaryAsset = this.makePactAsset(secondary);
+        }
+        return pool;
+    }
+
     async getMostLiquidPool(a1: AssetId | Asset, a2: AssetId | Asset): Promise<pactsdk.Pool> {
         const pools = await this.pact.fetchPoolsByAssets(assetId(a1), assetId(a2));
         if (pools.length === 0) {
             throw new Error(`No Pact pool for assets [${assetId(a1)}, ${assetId(a2)}] found`);
         }
-        return pools.sort((a, b) => b.state.totalLiquidity - a.state.totalLiquidity)[0];
+        const pool = pools.sort((a, b) => b.state.totalLiquidity - a.state.totalLiquidity)[0];
+        return this.fixPactPoolDefaults(pool, a1, a2);
     }
 
     async getPoolInfo(poolId: AppId): Promise<PoolInfo> {
+        // TODO: how to fix stupid 0/0 pact pool defaults here?
         return this.poolToPoolInfo(await this.pact.fetchPoolById(poolId));
     }
 
@@ -140,7 +153,7 @@ export class PactDex implements Dex {
         // repeated code, yes, but we need to filter by lpTokenId here because Pact can have several pools on a pair
         const pools = await this.pact.fetchPoolsByAssets(poolAssets[0], poolAssets[1]);
         const selectedPool = pools.filter((pool: pactsdk.Pool) => pool.liquidityAsset.index === lpTokenId)[0];
-        return this.poolToPoolInfo(selectedPool);
+        return this.fixPactPoolDefaults(selectedPool, poolAssets[0], poolAssets[1]).then(this.poolToPoolInfo);
     }
 
     async getPoolInfoByAssets(a1: AssetId | Asset, a2: AssetId | Asset): Promise<PoolInfo> {
@@ -233,6 +246,7 @@ export namespace Tinyman {
         return new algosdk.LogicSigAccount(program);
     }
 
+    // TODO: not tested
     export function prepareSwapTransactions({
         validatorAppId,
         a1,
