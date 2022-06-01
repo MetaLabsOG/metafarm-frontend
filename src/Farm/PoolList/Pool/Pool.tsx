@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Status } from '../../../Status';
-import { $networkTime, queryTimeUpdate, Contract } from '../../../common/store';
+import { $networkTime, queryTimeUpdate, Contract, AllDefined, ContractState } from '../../../common/store';
 import { useStore, useStoreMap } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
@@ -17,7 +17,8 @@ export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
 
     useEffect(queryTimeUpdate, [contract]);
 
-    if (currentBlock === 0 || !contract.ctc || !contract.state || !lpTokenInfo || !rewardTokenInfo) {
+    if (currentBlock === 0 || !contract.state || !lpTokenInfo || !rewardTokenInfo) {
+        console.log('WHY LOADING?', currentBlock, contract.state, lpTokenInfo, rewardTokenInfo)
         return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
     }
 
@@ -42,11 +43,11 @@ export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
                         currentBlock={currentBlock}
                     />
                 </PoolInfoContainer>
-                {isOpen && (
+                {contract.ctc !== null && contract.state.local && isOpen && (
                     <PoolActions
                         poolState={poolState}
                         ctc={contract.ctc}
-                        contractState={contract.state}
+                        contractState={contract.state as AllDefined<ContractState<'farm'>>}
                         lpTokenInfo={lpTokenInfo}
                         rewardTokenInfo={rewardTokenInfo}
                     />

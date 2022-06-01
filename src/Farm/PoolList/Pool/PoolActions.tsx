@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useStore, useStoreMap } from 'effector-react';
 import { equals } from 'ramda';
-import { $balances, ContractState, Priced, Asset } from '../../../common/store';
+import { $balances, ContractState, Priced, Asset, AllDefined } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import {
     Action,
@@ -35,7 +35,7 @@ export const PoolActions = ({
 }: {
     poolState: PoolState;
     ctc: any;
-    contractState: ContractState<'farm'>;
+    contractState: AllDefined<ContractState<'farm'>>;
     lpTokenInfo: LPTokenInfo;
     rewardTokenInfo: Priced<Asset>;
 }) => {

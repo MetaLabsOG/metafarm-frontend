@@ -49,7 +49,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => 
     const setTokenAmountValidated = useCallback(
         (amount: number) => {
             const { individualCap, rate } = state!.initial;
-            const { alreadyBought } = state!.local;
+            const alreadyBought = state!.local?.alreadyBought ?? 0;
 
             // TODO: this leads to very annoying behaviour of form when using microtokens, but should be better with usual ones
             amount = Math.min(amount, individualCap - alreadyBought);
@@ -89,7 +89,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => 
 
     const { totalAmount, rate, individualCap } = state.initial;
     const { sold } = state.global;
-    const { alreadyBought } = state.local;
+    const alreadyBought = state.local?.alreadyBought ?? 0;
 
     // TODO: i dont care about user-friendly price rates and amounts (with correct decimals) for now
     return (

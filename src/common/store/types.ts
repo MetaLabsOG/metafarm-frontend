@@ -5,7 +5,6 @@ export type AppId = number;
 export type Time = number;
 export type Amount = number;
 
-
 // Assets
 export type Asset = {
     id: AssetId;
@@ -15,20 +14,22 @@ export type Asset = {
     decimals: number;
 };
 
-export type Priced<T> = T & { price: number, priceInAlgo: number };
+export type Priced<T> = T & { price: number; priceInAlgo: number };
+
+export type AllDefined<T> = {
+    [Property in keyof T]-?: T[Property];
+};
 
 // TODO: there should be a better way to add new contract types
 // We should explore the possibility of providing types from the _contract packages_.
-export type ContractType
-    = 'farm'
-    | 'crowdsale'
-    // | 'fomo'
+export type ContractType = 'farm' | 'crowdsale';
+// | 'fomo'
 
 export type ContractState<T extends ContractType> = {
     initial: InitialInfo[T];
     global: GlobalInfo[T];
-    local: LocalInfo[T];
-}
+    local?: LocalInfo[T];
+};
 
 export type Contract<T extends ContractType> = {
     id: AppId;
@@ -37,19 +38,23 @@ export type Contract<T extends ContractType> = {
     state: ContractState<T> | null;
 };
 
+export type WithStateCache<T extends ContractType, V> = {
+    cache?: ContractState<T>;
+} & V;
+
 export type ContractInfo<T extends ContractType> = {
     type: T;
-    id: AppId;    
+    id: AppId;
     version: string;
     deployed_timestamp: number;
     description: string | null;
-    metadata: ContractMetadata[T]
+    metadata: WithStateCache<T, ContractMetadata[T]>;
 };
 
 export type ContractMetadata = {
-    farm: null;
-    crowdsale: { whitelist: Array<string>; };
-    fomo: null;
+    farm: {};
+    crowdsale: { whitelist: Array<string> };
+    fomo: {};
 };
 
 type InitialInfo = {
@@ -66,7 +71,6 @@ type LocalInfo = {
     farm: FarmLocalInfo;
     crowdsale: CrowdsaleLocalInfo;
 };
-
 
 // Farm types
 
@@ -98,11 +102,11 @@ type CrowdsaleInitialInfo = {
     individualCap: Amount;
 };
 
-type CrowdsaleGlobalInfo = { 
+type CrowdsaleGlobalInfo = {
     sold: Amount;
     revoked: boolean;
 };
 
 type CrowdsaleLocalInfo = {
     alreadyBought: Amount;
-}
+};

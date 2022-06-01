@@ -54,6 +54,7 @@ export type ContractsStoreVars<T extends ContractType> = {
     $contractInfos: Store<ContractInfo<T>[]>;
     $contractCtcs: Store<Map<AppId, any>>;
     $contractStates: Store<Map<AppId, ContractState<T>>>;
+    $contractStatesWithCache: Store<Map<AppId, ContractState<T>>>;
     setContractInfos: Event<ContractInfo<T>[]>;
     triggerStateUpdate: Event<AppId>;
     contractStateUpdated: Event<{ id: AppId; state: ContractState<T> }>;
@@ -69,7 +70,21 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: an
     const $contractInfos = createStore<ContractInfo<T>[]>([]);
     const $contractStates = createStore(Map<AppId, ContractState<T>>());
     const $contractCtcs = createStore(Map<AppId, any>());
-    const $contracts = combine($contractInfos, $contractCtcs, $contractStates, (infos, ctcs, states) => {
+
+    const $contractStateCaches = $contractInfos.map((infos) =>
+        infos
+            .reduce(
+                (states, info) => (info.metadata.cache ? states.set(info.id, info.metadata.cache) : states),
+                Map<AppId, ContractState<T>>().asMutable()
+            )
+            .asImmutable()
+    );
+
+    const $contractStatesWithCache = combine($contractStateCaches, $contractStates, (caches, states) =>
+        caches.merge(states)
+    );
+
+    const $contracts = combine($contractInfos, $contractCtcs, $contractStatesWithCache, (infos, ctcs, states) => {
         return infos.reduce((contracts, info) => {
             const id = info.id;
             const contract = {
@@ -91,18 +106,29 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: an
     // Keep it simple stupid without separation between views (for now)
     // Also don't throw but set state to nulls if `None` arrives - it is probably actually more logical?
     const updateContractStateFx = createEffect(
-        expBackoff(async ({ ctc, account, contractId }: { contractId: AppId; ctc: any; account: Account | null }) => {
-            return {
-                initial: await ctc.views.initial(),
-                global: await ctc.views.global(),
-                local: await ctc.views.local(account!.networkAccount.addr),
-            };
-        })
+        expBackoff(
+            async ({
+                ctc,
+                account,
+                contractId,
+            }: {
+                contractId: AppId;
+                ctc: any;
+                account: Account | null;
+            }): Promise<ContractState<T>> => {
+                return {
+                    initial: await ctc.views.initial(),
+                    global: await ctc.views.global(),
+                    local: await ctc.views.local(account!.networkAccount.addr),
+                };
+            }
+        )
     );
 
     const ctcInitialized = sample({
         clock: initializeContract,
         source: $account,
+        filter: (account, _) => account !== null,
         fn: (account, contractId) => [
             contractId,
             makeWrappedCtc(account, backend, contractId, async (id) => {
@@ -144,7 +170,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: an
 
     const $contractIds = $contractInfos.map((infos) => infos.map((i) => i.id));
 
-    $contractIds.watch((ids) => {
+    combine({ account: $account, ids: $contractIds }).watch(({ ids }) => {
         for (const id of ids) {
             initializeContract(id);
         }
@@ -155,6 +181,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: an
         $contractInfos,
         $contractCtcs,
         $contractStates,
+        $contractStatesWithCache,
         setContractInfos,
         triggerStateUpdate,
         contractStateUpdated,
