@@ -1,6 +1,17 @@
 import { Map } from 'immutable';
-import { createEffect, createEvent, createStore, sample, combine, merge, split, forward, Store, restore } from 'effector';
-import { algod } from '../../AppContext';
+import {
+    createEffect,
+    createEvent,
+    createStore,
+    sample,
+    combine,
+    merge,
+    split,
+    forward,
+    Store,
+    restore,
+} from 'effector';
+import { algod, ALGONET, MAINNET } from '../../AppContext';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
 import { waitForEvent, assetId } from './utils';
@@ -19,15 +30,18 @@ function getBalancesFromAccountInfo(accountInfo: any): Record<AssetId, Amount> {
     }
 
     const accAssets = accountInfo.assets || [];
-    return accAssets.reduce((balances: Record<AssetId, Amount>, asset: any) => {
-        balances[asset['asset-id']] = asset['amount'];
-        return balances;
-    }, {0: accountInfo.amount});
+    return accAssets.reduce(
+        (balances: Record<AssetId, Amount>, asset: any) => {
+            balances[asset['asset-id']] = asset['amount'];
+            return balances;
+        },
+        { 0: accountInfo.amount }
+    );
 }
 
 export const $balances = $accountInfo.map(getBalancesFromAccountInfo);
 
-$balances.watch(bs => console.log('BALANCES', bs));
+$balances.watch((bs) => console.log('BALANCES', bs));
 
 // =================================================================
 // Asset info store with one-time fetching from algod
@@ -43,6 +57,7 @@ export const ALGO_ASSET: Asset = {
 const fetchAssetFx = createEffect(async (id: AssetId): Promise<Asset> => {
     const { params } = await algod.getAssetByID(id).do();
     const { name, creator, decimals } = params;
+
     return {
         id,
         name,
@@ -57,7 +72,7 @@ export const $assets = createStore(Map<AssetId, Asset>().set(0, ALGO_ASSET)).on(
     assets.set(a.id, a)
 );
 
-$assets.watch(assets => console.log('ASSETS', assets.toJS()));
+$assets.watch((assets) => console.log('ASSETS', assets.toJS()));
 
 const queryAsset = createEvent<AssetId>();
 const assetFoundInStore = createEvent<Asset>();
@@ -65,7 +80,7 @@ const storeFetchAttempt = sample({ clock: queryAsset, source: $assets, fn: (asse
 
 split({
     source: storeFetchAttempt,
-    match: (a: Asset | AssetId) => typeof a === 'number' ? 'fetch' : 'return',
+    match: (a: Asset | AssetId) => (typeof a === 'number' ? 'fetch' : 'return'),
     cases: {
         fetch: fetchAssetFx,
         return: assetFoundInStore,
@@ -89,12 +104,7 @@ forward({
 export const fetchAsset = async (id: AssetId): Promise<Asset> => {
     const filter = (a: AssetId | Asset) => assetId(a) === id;
     queryAsset(id);
-    return waitForEvent(
-        assetResolved,
-        fetchAssetFx.fail,
-        filter,
-        filter
-    );
+    return waitForEvent(assetResolved, fetchAssetFx.fail, filter, filter);
 };
 
 // =================================================================

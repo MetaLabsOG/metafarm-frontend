@@ -15,7 +15,7 @@ import {
     ClaimButton,
     MaxButton,
     Link,
-    Packman
+    Packman,
 } from './styled';
 import packman from '../../../imgs/pacman.gif';
 import { calculateAmountToken, isValidAmount, numberRound, getLPTokenPoolLink } from './utils';
@@ -23,12 +23,14 @@ import { PoolState } from './types';
 import { useStore, useStoreMap } from 'effector-react';
 
 export const PoolActions = ({
+    type,
     poolState,
     ctc,
     contractState,
     lpTokenInfo,
     rewardTokenInfo,
 }: {
+    type: string;
     poolState: PoolState;
     ctc: any;
     contractState: ContractState<'farm'>;
@@ -37,13 +39,17 @@ export const PoolActions = ({
 }) => {
     const pendingStake = useStore(ctc.apis.stake.pending);
     const pendingClaim = useStore(ctc.apis.claim.pending);
-    const pendingWithDraw = useStore(ctc.apis.unstake.pending)
+    const pendingWithDraw = useStore(ctc.apis.unstake.pending);
 
-    ctc.apis.stake.done.watch(() => { setToStake('')})
+    ctc.apis.stake.done.watch(() => {
+        setToStake('');
+    });
 
-    ctc.apis.unstake.done.watch(() => { setToWithdraw('')})
+    ctc.apis.unstake.done.watch(() => {
+        setToWithdraw('');
+    });
 
-    const lpBalance = useStoreMap($balances, (bs) => bs[lpTokenInfo.id]  || 0);
+    const lpBalance = useStoreMap($balances, (bs) => bs[lpTokenInfo.id] || 0);
     const [toStake, setToStake] = useState<string>('');
     const [toWithdraw, setToWithdraw] = useState<string>('');
     const [isValidWithdraw, setIsValidWithdraw] = useState<boolean>(true);
@@ -52,15 +58,14 @@ export const PoolActions = ({
     const stakedTokens = numberRound(calculateAmountToken(lpTokenInfo, contractState.local.staked));
     const lpBalanceForView = lpBalance === null ? '-' : numberRound(calculateAmountToken(lpTokenInfo, lpBalance));
 
-    const canStake = poolState !== PoolState.Finished
-    const lpBalanceIsNotZero = lpBalance !== null && lpBalance > 0 && !pendingStake
+    const canStake = poolState !== PoolState.Finished;
+    const lpBalanceIsNotZero = lpBalance !== null && lpBalance > 0 && !pendingStake;
     const stakedTokenIsNotZero = Number(stakedTokens) > 0;
-    const canWithdraw = stakedTokenIsNotZero && !pendingWithDraw
+    const canWithdraw = stakedTokenIsNotZero && !pendingWithDraw;
 
     const canClaim = poolState > PoolState.Upcoming;
 
     console.log(ctc);
-
 
     const setMaxStake = () => {
         if (lpBalanceIsNotZero) {
@@ -108,7 +113,7 @@ export const PoolActions = ({
     return (
         <PoolActionsWrapper>
             <TokenInfo>
-                {canStake && (
+                {type === 'farm' && canStake && (
                     <Link href={getLPTokenPoolLink(lpTokenInfo)} target="_blank" rel="noreferrer">
                         <GetLpTokenButton>Get LP Tokens</GetLpTokenButton>
                     </Link>
@@ -117,15 +122,19 @@ export const PoolActions = ({
             <Stake>
                 {canStake && (
                     <>
-                        <Action isActive={lpBalanceIsNotZero && isValidStake && !pendingStake} >
+                        <Action isActive={lpBalanceIsNotZero && isValidStake && !pendingStake}>
                             <Input
                                 isActive={lpBalanceIsNotZero}
                                 disabled={!lpBalanceIsNotZero}
                                 value={toStake}
                                 onChange={onChangeStake}
                             />
-                            <Button isActive={canStake && !pendingStake} disabled={!canStake} onClick={() => stake(toStake)}>
-                                {pendingStake ? <Packman src={packman}/> : 'STAKE'}
+                            <Button
+                                isActive={canStake && !pendingStake}
+                                disabled={!canStake}
+                                onClick={() => stake(toStake)}
+                            >
+                                {pendingStake ? <Packman src={packman} /> : 'STAKE'}
                             </Button>
                             <MaxButton onClick={setMaxStake}>MAX</MaxButton>
                         </Action>
@@ -143,8 +152,12 @@ export const PoolActions = ({
                         value={toWithdraw}
                         onChange={onChangeWithDraw}
                     />
-                    <Button isActive={canWithdraw && !pendingWithDraw} disabled={!canWithdraw} onClick={() => withdraw(toWithdraw)}>
-                        {pendingWithDraw ? <Packman src={packman}/> : 'WITHDRAW'} 
+                    <Button
+                        isActive={canWithdraw && !pendingWithDraw}
+                        disabled={!canWithdraw}
+                        onClick={() => withdraw(toWithdraw)}
+                    >
+                        {pendingWithDraw ? <Packman src={packman} /> : 'WITHDRAW'}
                     </Button>
                     <MaxButton onClick={setMaxWithdraw}>MAX</MaxButton>
                 </Action>
@@ -154,8 +167,11 @@ export const PoolActions = ({
             </WithDraw>
             <Claim>
                 {canClaim && (
-                    <ClaimButton isActive={contractState.local.reward > 0 && !pendingClaim} onClick={() => !pendingClaim && ctc.apis.claim()}>
-                        {pendingClaim ? <Packman src={packman}/> : 'CLAIM'}
+                    <ClaimButton
+                        isActive={contractState.local.reward > 0 && !pendingClaim}
+                        onClick={() => !pendingClaim && ctc.apis.claim()}
+                    >
+                        {pendingClaim ? <Packman src={packman} /> : 'CLAIM'}
                     </ClaimButton>
                 )}
             </Claim>

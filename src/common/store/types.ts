@@ -5,7 +5,6 @@ export type AppId = number;
 export type Time = number;
 export type Amount = number;
 
-
 // Assets
 export type Asset = {
     id: AssetId;
@@ -15,20 +14,18 @@ export type Asset = {
     decimals: number;
 };
 
-export type Priced<T> = T & { price: number, priceInAlgo: number };
+export type Priced<T> = T & { price: number; priceInAlgo: number };
 
 // TODO: there should be a better way to add new contract types
 // We should explore the possibility of providing types from the _contract packages_.
-export type ContractType
-    = 'farm'
-    | 'crowdsale'
-    // | 'fomo'
+export type ContractType = 'farm' | 'crowdsale';
+// | 'fomo'
 
 export type ContractState<T extends ContractType> = {
     initial: InitialInfo[T];
     global: GlobalInfo[T];
     local: LocalInfo[T];
-}
+};
 
 export type Contract<T extends ContractType> = {
     id: AppId;
@@ -39,16 +36,16 @@ export type Contract<T extends ContractType> = {
 
 export type ContractInfo<T extends ContractType> = {
     type: T;
-    id: AppId;    
+    id: AppId;
     version: string;
     deployed_timestamp: number;
     description: string | null;
-    metadata: ContractMetadata[T]
+    metadata: ContractMetadata[T];
 };
 
 export type ContractMetadata = {
     farm: null;
-    crowdsale: { whitelist: Array<string>; };
+    crowdsale: { whitelist: Array<string> };
     fomo: null;
 };
 
@@ -66,7 +63,6 @@ type LocalInfo = {
     farm: FarmLocalInfo;
     crowdsale: CrowdsaleLocalInfo;
 };
-
 
 // Farm types
 
@@ -98,11 +94,11 @@ type CrowdsaleInitialInfo = {
     individualCap: Amount;
 };
 
-type CrowdsaleGlobalInfo = { 
+type CrowdsaleGlobalInfo = {
     sold: Amount;
     revoked: boolean;
 };
 
 type CrowdsaleLocalInfo = {
     alreadyBought: Amount;
-}
+};

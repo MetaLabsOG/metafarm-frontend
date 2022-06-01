@@ -16,6 +16,7 @@ import { Container, ContentContainer } from './common/styled';
 import './css/index.css';
 import { Crowdsale } from './Crowdsale';
 import { fetchAlgoPrice, fetchBtcPrice } from './common/store';
+import { Stake } from './Stake/Stake';
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => {
                             <Route path="/" element={<Fomo />} />
                             <Route path="/fomo" element={<Fomo />} />
                             <Route path="/farm" element={<Farm />} />
+                            <Route path="/stake" element={<Stake />} />
                             <Route path="/swap" element={<Swap />} />
                             <Route path="/zap" element={<Zap />} />
                             <Route path="/meta-dao" element={<MetaDAO />} />

@@ -1,12 +1,14 @@
 import { useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { getContracts } from '../../providers/apiProvider';
-import { $sortedPools, setPoolInfos } from '../store';
 import { Pool } from './Pool';
 import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
 import { InfoHeader } from '../../common/styled';
 import { useList } from 'effector-react';
-import { Contract } from '../../common/store';
+import { Asset, Contract, ContractInfo, Priced } from '../../common/store';
+import { Store } from 'effector';
+import { LPTokenInfo } from '../../providers/dexesProvider';
+import Immutable from 'immutable';
 
 const headerColumn = [
     { name: 'POOL', width: 30 },
@@ -17,8 +19,20 @@ const headerColumn = [
     { name: 'ENDS IN', width: 16.5 },
 ];
 
-export const PoolList = () => {
-    const { data, isError, isSuccess } = useQuery(['contracts', 'farm'], () => getContracts('farm'));
+export const PoolList = ({
+    type,
+    pools,
+    setPoolInfos,
+    LPTokens,
+    RewardTokens,
+}: {
+    type: string;
+    pools: Store<Contract<'farm'>[]>; // @ts-ignore
+    setPoolInfos: Event<ContractInfo<'farm'>[]>;
+    LPTokens: Store<Immutable.Map<number, Priced<LPTokenInfo> | null>>;
+    RewardTokens: Store<Immutable.Map<number, Priced<Asset> | null>>;
+}) => {
+    const { data, isError, isSuccess } = useQuery(['contracts', type], () => getContracts(type));
 
     useEffect(() => {
         if (isSuccess) {
@@ -26,8 +40,8 @@ export const PoolList = () => {
         }
     }, [data, isError, isSuccess]);
 
-    const poolComponents = useList($sortedPools, (ctc: Contract<'farm'>, index: number) => (
-        <Pool key={index} contract={ctc} />
+    const poolComponents = useList(pools, (ctc: Contract<'farm'>, index: number) => (
+        <Pool type={type} key={index} contract={ctc} LPTokens={LPTokens} RewardTokens={RewardTokens} />
     ));
 
     return (

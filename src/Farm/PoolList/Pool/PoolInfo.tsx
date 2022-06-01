@@ -1,10 +1,26 @@
-import { $meanRoundDuration, Asset, ContractState, Priced } from '../../../common/store';
+import { $assets, $meanRoundDuration, Asset, ContractState, Priced } from '../../../common/store';
 import { calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
 import { PoolState } from './types';
 import { ArrowIconsWrapper, BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue } from './styled';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { useStore } from 'effector-react';
-import { Arrow } from '../../../imgs/arrow'
+import { Arrow } from '../../../imgs/arrow';
+import React from 'react';
+import { ALGONET, MAINNET } from '../../../AppContext';
+
+const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
+    0: 0, // ALGO
+    85951079: 712012773, // META
+    19386116: 386192725, // goBTC
+    37074699: 31566704, // USDC
+    70283957: 463554836, // ALGF
+};
+
+const getAssetLogoUrl = (input_asset_id: number) => {
+    const asset_id = ALGONET === MAINNET ? input_asset_id : TESTNET_TO_MAINNET_ASA_ID[input_asset_id] ?? 0;
+
+    return 'https://asa-list.tinyman.org/assets/' + asset_id + '/icon.png';
+};
 
 const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
 
@@ -31,19 +47,21 @@ const calculateAPR = (
 };
 
 export const PoolInfo = ({
+    type,
     contractState,
     poolState,
     lpTokenInfo,
     rewardTokenInfo,
     currentBlock,
-    isOpen
+    isOpen,
 }: {
+    type: string;
     contractState: ContractState<'farm'>;
     poolState: PoolState;
     lpTokenInfo: Priced<LPTokenInfo>;
     rewardTokenInfo: Priced<Asset>;
     currentBlock: number;
-    isOpen:boolean
+    isOpen: boolean;
 }) => {
     const meanRoundDuration = useStore($meanRoundDuration);
     const { endBlock, beginBlock } = contractState.initial;
@@ -64,16 +82,27 @@ export const PoolInfo = ({
             'ended'
         );
 
+    const asset1_id = type === 'farm' ? lpTokenInfo.asset1 : lpTokenInfo.id;
+    const asset2_id = type === 'farm' ? lpTokenInfo.asset2 : lpTokenInfo.id;
+    const pool_name = type === 'farm' ? formatLPTokenName(lpTokenInfo.name) + ' LP' : 'STAKE ' + lpTokenInfo.unitName;
+    // TODO: separate 0 from undefined in lpTokenInfo.asset
+    const asset1_logo = getAssetLogoUrl(asset1_id);
+    const asset2_logo = getAssetLogoUrl(asset2_id);
+
     return (
         <>
             <PoolInfoValue width={23}>
                 <BasicInfo>
                     <LpTokensIconsWrapper>
-                        <LPTokensIcon first></LPTokensIcon>
-                        <LPTokensIcon></LPTokensIcon>
+                        <LPTokensIcon first>
+                            {asset1_logo && <img alt="" width="100%" height="100%" src={asset1_logo} />}
+                        </LPTokensIcon>
+                        <LPTokensIcon>
+                            {asset2_logo && <img alt="" width="100%" height="100%" src={asset2_logo} />}
+                        </LPTokensIcon>
                     </LpTokensIconsWrapper>
                     <div>
-                        {formatLPTokenName(lpTokenInfo.name)} LP <div>EARN {rewardTokenInfo.unitName}</div>
+                        {pool_name} <div>EARN {rewardTokenInfo.unitName}</div>
                     </div>
                 </BasicInfo>
             </PoolInfoValue>
@@ -81,7 +110,8 @@ export const PoolInfo = ({
                 convertAmountToUSD(lpTokenInfo, contractState.global.totalStaked)
             )}`}</PoolInfoValue>
             <PoolInfoValue>{numberRound(APR)}%</PoolInfoValue>
-            <PoolInfoValue>{`$${numberRound(convertAmountToUSD(lpTokenInfo, contractState.local.staked))}`}
+            <PoolInfoValue>
+                {`$${numberRound(convertAmountToUSD(lpTokenInfo, contractState.local.staked))}`}
             </PoolInfoValue>
             <PoolInfoValue>
                 <div>{`$${numberRound(convertAmountToUSD(rewardTokenInfo, contractState.local.reward))}`}</div>
@@ -91,9 +121,8 @@ export const PoolInfo = ({
             </PoolInfoValue>
             <PoolInfoValue style={{ color: 'gray' }}>{timing} </PoolInfoValue>
             <ArrowIconsWrapper>
-                <Arrow rotate={isOpen}/>
+                <Arrow rotate={isOpen} />
             </ArrowIconsWrapper>
-          
         </>
     );
 };

@@ -5,6 +5,7 @@
   "dependencies": {
     "@babel/core": "^7.16.0",
     "@metalabsog/crowdsale": "^15.1.0",
+    "@metalabsog/distribution": "^15.0.3",
     "@metalabsog/farm": "15.0.3",
     "@metalabsog/metafomo": "15.0.3",
     "@pactfi/pactsdk": "^0.2.2",

@@ -86,12 +86,12 @@ export class PactDex implements Dex {
         );
     }
 
-    poolToPoolInfo(pool: pactsdk.Pool): PoolInfo {
+    poolToPoolInfo(pool: pactsdk.Pool, assets: number[]): PoolInfo {
         return {
             poolId: pool.appId,
             poolDex: 'PT',
-            asset1: pool.primaryAsset.index,
-            asset2: pool.secondaryAsset.index,
+            asset1: assets[0],
+            asset2: assets[1],
             asset1Reserve: pool.state.totalPrimary,
             asset2Reserve: pool.state.totalSecondary,
             totalLiquidity: pool.state.totalLiquidity,
@@ -121,7 +121,7 @@ export class PactDex implements Dex {
     }
 
     async getPoolInfo(poolId: AppId): Promise<PoolInfo> {
-        return this.poolToPoolInfo(await this.pact.fetchPoolById(poolId));
+        return this.poolToPoolInfo(await this.pact.fetchPoolById(poolId), [0, 0]);
     }
 
     // TODO: No easier way to figure out the Pact pool from its address
@@ -137,11 +137,12 @@ export class PactDex implements Dex {
         // repeated code, yes, but we need to filter by lpTokenId here because Pact can have several pools on a pair
         const pools = await this.pact.fetchPoolsByAssets(poolAssets[0], poolAssets[1]);
         const selectedPool = pools.filter((pool: any) => pool.liquidityAsset.index === lpTokenId)[0];
-        return this.poolToPoolInfo(selectedPool);
+
+        return this.poolToPoolInfo(selectedPool, poolAssets);
     }
 
     async getPoolInfoByAssets(a1: AssetId | Asset, a2: AssetId | Asset): Promise<PoolInfo> {
-        return this.getMostLiquidPool(a1, a2).then(this.poolToPoolInfo);
+        return this.getMostLiquidPool(a1, a2).then((pool) => this.poolToPoolInfo(pool, [assetId(a1), assetId(a2)]));
     }
 
     async getSwapCost(fromAsset: AssetId | Asset, toAsset: AssetId | Asset, amount: number): Promise<SwapQuote> {

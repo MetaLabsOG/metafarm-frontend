@@ -1,17 +1,29 @@
 import { useEffect, useState } from 'react';
 import { Status } from '../../../Status';
-import { $networkTime, queryTimeUpdate, Contract } from '../../../common/store';
+import { $networkTime, queryTimeUpdate, Contract, Priced, Asset } from '../../../common/store';
 import { useStore, useStoreMap } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolInfoContainer } from './styled';
-import { $farmLPTokens, $farmRewardTokens } from '../../store';
+import { Store } from 'effector';
+import { LPTokenInfo } from '../../../providers/dexesProvider';
+import Immutable from 'immutable';
 
-export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
+export const Pool = ({
+    type,
+    contract,
+    LPTokens,
+    RewardTokens,
+}: {
+    type: string;
+    contract: Contract<'farm'>;
+    LPTokens: Store<Immutable.Map<number, Priced<LPTokenInfo> | null>>;
+    RewardTokens: Store<Immutable.Map<number, Priced<Asset> | null>>;
+}) => {
     const currentBlock = useStore($networkTime);
-    const lpTokenInfo = useStoreMap($farmLPTokens, (tokens) => tokens.get(contract.id, null));
-    const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null));
+    const lpTokenInfo = useStoreMap(LPTokens, (tokens) => tokens.get(contract.id, null));
+    const rewardTokenInfo = useStoreMap(RewardTokens, (tokens) => tokens.get(contract.id, null));
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -34,6 +46,7 @@ export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
             <PoolContainer>
                 <PoolInfoContainer onClick={() => setIsOpen(!isOpen)}>
                     <PoolInfo
+                        type={type}
                         isOpen={isOpen}
                         contractState={contract.state}
                         poolState={poolState}
@@ -44,6 +57,7 @@ export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
                 </PoolInfoContainer>
                 {isOpen && (
                     <PoolActions
+                        type={type}
                         poolState={poolState}
                         ctc={contract.ctc}
                         contractState={contract.state}
