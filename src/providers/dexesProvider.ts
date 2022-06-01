@@ -157,7 +157,7 @@ export class PactDex implements Dex {
     }
 
     async getPoolInfoByAssets(a1: AssetId | Asset, a2: AssetId | Asset): Promise<PoolInfo> {
-        return this.getMostLiquidPool(a1, a2).then((pool) => this.poolToPoolInfo(pool));
+        return this.getMostLiquidPool(a1, a2).then(this.poolToPoolInfo);
     }
 
     async getSwapQuote(fromAsset: AssetId | Asset, toAsset: AssetId | Asset, amountIn: number): Promise<SwapQuote> {
