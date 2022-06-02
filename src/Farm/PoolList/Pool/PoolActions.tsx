@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useStore, useStoreMap } from 'effector-react';
 import { equals } from 'ramda';
-import { $balances, ContractState, Priced, Asset } from '../../../common/store';
+import { $balances, ContractState, Priced, Asset, FarmType } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import {
     Action,
@@ -35,7 +35,7 @@ export const PoolActions = ({
     type: string;
     poolState: PoolState;
     ctc: any;
-    contractState: ContractState<'farm'>;
+    contractState: ContractState<FarmType>;
     lpTokenInfo: LPTokenInfo;
     rewardTokenInfo: Priced<Asset>;
 }) => {
@@ -62,6 +62,8 @@ export const PoolActions = ({
 
     const canClaim = poolState > PoolState.Upcoming;
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim;
+
+    const amountSuffix = type === 'farm' ? 'LP' : lpTokenInfo.unitName;
 
     useToasts({
         api: ctc.apis.stake,
@@ -161,7 +163,7 @@ export const PoolActions = ({
                             {isViewMaxForStake && <MaxButton onClick={setMaxStake}>MAX</MaxButton>}
                         </Action>
                         <Balance isValid={isValidStake}>
-                            Balance: {lpBalanceForView} LP {isValidStake ? '' : '(Not enough)'}
+                            Balance: {lpBalanceForView} {amountSuffix} {isValidStake ? '' : '(Not enough)'}
                         </Balance>
                     </>
                 )}
@@ -185,7 +187,7 @@ export const PoolActions = ({
                     {isViewMaxForWithdraw && <MaxButton onClick={setMaxWithdraw}>MAX</MaxButton>}
                 </Action>
                 <Balance isValid={isValidWithdraw}>
-                    Staked: {stakedTokens} LP {isValidWithdraw ? '' : '(Not enough)'}
+                    Staked: {stakedTokens} {amountSuffix} {isValidWithdraw ? '' : '(Not enough)'}
                 </Balance>
             </WithDraw>
             <Claim>

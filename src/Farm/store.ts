@@ -20,6 +20,7 @@ import {
     $pricedAssets,
     $networkTime,
     Contract,
+    FarmType,
 } from '../common/store';
 import { groupBy, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
@@ -80,7 +81,7 @@ export const triggerPoolUpdate = triggerStateUpdate;
 $pools.watch((v) => console.log('FARM POOLS', v));
 
 //TODO NEED REFACTOR (quick solution)
-export const sortPoolsOnStatus = ({ networkTime, pools }: { networkTime: number; pools: Contract<'farm'>[] }) => {
+export const sortPoolsOnStatus = ({ networkTime, pools }: { networkTime: number; pools: Contract<FarmType>[] }) => {
     const groupedByStatus = groupBy(function (pool: any) {
         if (pool.state) {
             const initial = pool.state.initial;
@@ -88,8 +89,7 @@ export const sortPoolsOnStatus = ({ networkTime, pools }: { networkTime: number;
         }
         return 'null';
     });
-    const sortByTime = values(groupedByStatus(pools)).flat();
-    return sortByTime;
+    return values(groupedByStatus(pools)).flat();
 };
 
 export const $sortedPools = combine($networkTime, $pools, (networkTime, pools) =>

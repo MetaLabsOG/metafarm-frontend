@@ -1,29 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Status } from '../../../Status';
-import { $networkTime, queryTimeUpdate, Contract, Priced, Asset } from '../../../common/store';
+import { $networkTime, queryTimeUpdate, Contract, FarmType } from '../../../common/store';
 import { useStore, useStoreMap } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolInfoContainer } from './styled';
-import { Store } from 'effector';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
-import Immutable from 'immutable';
+import { $farmLPTokens, $farmRewardTokens } from '../../store';
 
-export const Pool = ({
-    type,
-    contract,
-    LPTokens,
-    RewardTokens,
-}: {
-    type: string;
-    contract: Contract<'farm'>;
-    LPTokens: Store<Immutable.Map<number, Priced<LPTokenInfo> | null>>;
-    RewardTokens: Store<Immutable.Map<number, Priced<Asset> | null>>;
-}) => {
+export const Pool = ({ type, contract }: { type: string; contract: Contract<FarmType> }) => {
     const currentBlock = useStore($networkTime);
-    const lpTokenInfo = useStoreMap(LPTokens, (tokens) => tokens.get(contract.id, null));
-    const rewardTokenInfo = useStoreMap(RewardTokens, (tokens) => tokens.get(contract.id, null));
+    const lpTokenInfo = useStoreMap($farmLPTokens, (tokens) => tokens.get(contract.id, null));
+    const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null));
 
     const [isOpen, setIsOpen] = useState(false);
 

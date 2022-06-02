@@ -3,7 +3,7 @@ import { FarmContainer } from '../Farm/styled';
 import { InfoHeader } from '../common/styled';
 import { useStore } from 'effector-react';
 import { $account } from '../common/store';
-import { $sortedStakingPools, setStakingPoolInfos, $stakeLPTokens, $stakeRewardTokens } from './store';
+import { $sortedStakingPools, setStakingPoolInfos } from './store';
 
 export const Stake = () => {
     const account = useStore($account);
@@ -12,13 +12,7 @@ export const Stake = () => {
             {account ? (
                 <>
                     <h1>Staking Pools</h1>
-                    <PoolList
-                        type="distribution"
-                        pools={$sortedStakingPools}
-                        setPoolInfos={setStakingPoolInfos}
-                        LPTokens={$stakeLPTokens}
-                        RewardTokens={$stakeRewardTokens}
-                    />
+                    <PoolList type="distribution" pools={$sortedStakingPools} setPoolInfos={setStakingPoolInfos} />
                 </>
             ) : (
                 <InfoHeader>PLEASE, CONNECT THE WALLET.</InfoHeader>

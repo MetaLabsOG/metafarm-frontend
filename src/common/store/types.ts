@@ -18,8 +18,10 @@ export type Priced<T> = T & { price: number; priceInAlgo: number };
 
 // TODO: there should be a better way to add new contract types
 // We should explore the possibility of providing types from the _contract packages_.
-export type ContractType = 'farm' | 'crowdsale';
+export type ContractType = 'farm' | 'crowdsale' | 'distribution';
 // | 'fomo'
+
+export type FarmType = 'farm' | 'distribution';
 
 export type ContractState<T extends ContractType> = {
     initial: InitialInfo[T];
@@ -45,22 +47,26 @@ export type ContractInfo<T extends ContractType> = {
 
 export type ContractMetadata = {
     farm: null;
+    distribution: null;
     crowdsale: { whitelist: Array<string> };
     fomo: null;
 };
 
 type InitialInfo = {
     farm: FarmInitialInfo;
+    distribution: DistributionInitialInfo;
     crowdsale: CrowdsaleInitialInfo;
 };
 
 type GlobalInfo = {
     farm: FarmGlobalInfo;
+    distribution: FarmGlobalInfo;
     crowdsale: CrowdsaleGlobalInfo;
 };
 
 type LocalInfo = {
     farm: FarmLocalInfo;
+    distribution: FarmLocalInfo;
     crowdsale: CrowdsaleLocalInfo;
 };
 
@@ -69,6 +75,13 @@ type LocalInfo = {
 type FarmInitialInfo = {
     stakeToken: AssetId;
     rewardToken: AssetId;
+    endBlock: Time;
+    beginBlock: Time;
+    rewardPerBlock: Amount;
+};
+
+type DistributionInitialInfo = {
+    token: AssetId;
     endBlock: Time;
     beginBlock: Time;
     rewardPerBlock: Amount;

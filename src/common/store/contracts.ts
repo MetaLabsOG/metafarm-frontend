@@ -92,17 +92,8 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: an
     // Also don't throw but set state to nulls if `None` arrives - it is probably actually more logical?
     const updateContractStateFx = createEffect(
         expBackoff(async ({ ctc, account, contractId }: { contractId: AppId; ctc: any; account: Account | null }) => {
-            const initial_state = await ctc.views.initial();
-            const initial_state_upd: any = {
-                beginBlock: initial_state.beginBlock,
-                endBlock: initial_state.endBlock,
-                rewardPerBlock: initial_state.rewardPerBlock,
-                stakeToken: initial_state.stakeToken ?? initial_state.token,
-                rewardToken: initial_state.rewardToken ?? initial_state.token,
-            };
-
             return {
-                initial: initial_state_upd,
+                initial: await ctc.views.initial(),
                 global: await ctc.views.global(),
                 local: await ctc.views.local(account!.networkAccount.addr),
             };

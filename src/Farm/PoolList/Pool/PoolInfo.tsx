@@ -1,5 +1,5 @@
 import { useStore } from 'effector-react';
-import { $meanRoundDuration, Asset, ContractState, Priced } from '../../../common/store';
+import { $meanRoundDuration, Asset, ContractState, FarmType, Priced } from '../../../common/store';
 import { calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
 import { PoolState } from './types';
 import { ArrowIconsWrapper, BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue } from './styled';
@@ -27,7 +27,7 @@ const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(b
 const calculateAPR = (
     meanRoundDuration: number,
     poolState: PoolState,
-    contractState: ContractState<'farm'>,
+    contractState: ContractState<FarmType>,
     lpTokenInfo: Priced<Asset>,
     rewardTokenInfo: Priced<Asset>
 ): number => {
@@ -51,7 +51,7 @@ export const PoolInfo = ({
     isOpen,
 }: {
     type: string;
-    contractState: ContractState<'farm'>;
+    contractState: ContractState<FarmType>;
     poolState: PoolState;
     lpTokenInfo: Priced<LPTokenInfo>;
     rewardTokenInfo: Priced<Asset>;
