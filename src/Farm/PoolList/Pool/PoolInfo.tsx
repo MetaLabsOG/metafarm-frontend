@@ -28,21 +28,21 @@ const calculateAPR = (
     meanRoundDuration: number,
     poolState: PoolState,
     contractState: ContractState<FarmType>,
-    lpTokenInfo: Priced<Asset>,
+    lpTokenInfo: Priced<Asset> | null,
     rewardTokenInfo: Priced<Asset>
 ): number => {
     const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
+    const lpPrice = lpTokenInfo ? lpTokenInfo.price : rewardTokenInfo.price;
     return poolState === PoolState.Finished
         ? 0
-        : contractState.global.totalStaked === 0 || lpTokenInfo.price === 0
+        : contractState.global.totalStaked === 0 || lpPrice === 0
         ? 0
         : ((contractState.initial.rewardPerBlock * blocksInAYear * rewardTokenInfo.price) /
-              (contractState.global.totalStaked * lpTokenInfo.price)) *
+              (contractState.global.totalStaked * lpPrice)) *
           100;
 };
 
 export const PoolInfo = ({
-    type,
     contractState,
     poolState,
     lpTokenInfo,
@@ -50,10 +50,9 @@ export const PoolInfo = ({
     currentBlock,
     isOpen,
 }: {
-    type: string;
     contractState: ContractState<FarmType>;
     poolState: PoolState;
-    lpTokenInfo: Priced<LPTokenInfo>;
+    lpTokenInfo: Priced<LPTokenInfo> | null;
     rewardTokenInfo: Priced<Asset>;
     currentBlock: number;
     isOpen: boolean;
@@ -77,9 +76,9 @@ export const PoolInfo = ({
             'ended'
         );
 
-    const asset1_id = type === 'farm' ? lpTokenInfo.asset1 : lpTokenInfo.id;
-    const asset2_id = type === 'farm' ? lpTokenInfo.asset2 : lpTokenInfo.id;
-    const pool_name = type === 'farm' ? lpTokenInfo.name + ' LP' : 'STAKE ' + lpTokenInfo.unitName;
+    const asset1_id = lpTokenInfo ? lpTokenInfo.asset1 : rewardTokenInfo.id;
+    const asset2_id = lpTokenInfo ? lpTokenInfo.asset2 : rewardTokenInfo.id;
+    const pool_name = lpTokenInfo ? lpTokenInfo.name + ' LP' : 'STAKE ' + rewardTokenInfo.unitName;
     // TODO: separate 0 from undefined in lpTokenInfo.asset
     const asset1_logo = getAssetLogoUrl(asset1_id);
     const asset2_logo = getAssetLogoUrl(asset2_id);
@@ -102,11 +101,11 @@ export const PoolInfo = ({
                 </BasicInfo>
             </PoolInfoValue>
             <PoolInfoValue>{`$${numberRound(
-                convertAmountToUSD(lpTokenInfo, contractState.global.totalStaked)
+                convertAmountToUSD(lpTokenInfo ?? rewardTokenInfo, contractState.global.totalStaked)
             )}`}</PoolInfoValue>
             <PoolInfoValue>{numberRound(APR)}%</PoolInfoValue>
             <PoolInfoValue>
-                {`$${numberRound(convertAmountToUSD(lpTokenInfo, contractState.local.staked))}`}
+                {`$${numberRound(convertAmountToUSD(lpTokenInfo ?? rewardTokenInfo, contractState.local.staked))}`}
             </PoolInfoValue>
             <PoolInfoValue>
                 <div>{`$${numberRound(convertAmountToUSD(rewardTokenInfo, contractState.local.reward))}`}</div>

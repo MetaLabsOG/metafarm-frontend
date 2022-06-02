@@ -7,17 +7,21 @@ import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolInfoContainer } from './styled';
 import { $farmLPTokens, $farmRewardTokens } from '../../store';
+import { $stakingTokens } from '../../../Stake/store';
 
 export const Pool = ({ type, contract }: { type: string; contract: Contract<FarmType> }) => {
     const currentBlock = useStore($networkTime);
     const lpTokenInfo = useStoreMap($farmLPTokens, (tokens) => tokens.get(contract.id, null));
-    const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null));
+    const stakingTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
+    const rewardTokenInfo =
+        useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null)) ?? stakingTokenInfo;
 
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(queryTimeUpdate, [contract]);
 
-    if (currentBlock === 0 || !contract.ctc || !contract.state || !lpTokenInfo || !rewardTokenInfo) {
+    const is_info_loaded = rewardTokenInfo && ((type === 'farm' && lpTokenInfo) || type === 'distribution');
+    if (currentBlock === 0 || !contract.ctc || !contract.state || !is_info_loaded) {
         return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
     }
 
@@ -34,7 +38,6 @@ export const Pool = ({ type, contract }: { type: string; contract: Contract<Farm
             <PoolContainer>
                 <PoolInfoContainer onClick={() => setIsOpen(!isOpen)}>
                     <PoolInfo
-                        type={type}
                         isOpen={isOpen}
                         contractState={contract.state}
                         poolState={poolState}
@@ -45,7 +48,6 @@ export const Pool = ({ type, contract }: { type: string; contract: Contract<Farm
                 </PoolInfoContainer>
                 {isOpen && (
                     <PoolActions
-                        type={type}
                         poolState={poolState}
                         ctc={contract.ctc}
                         contractState={contract.state}

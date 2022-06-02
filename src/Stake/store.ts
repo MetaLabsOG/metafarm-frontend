@@ -1,17 +1,13 @@
 // @ts-ignore
 import { backend as distributionBackend } from '@metalabsog/distribution';
 import { combine } from 'effector';
-import { buildContractsStore, registerAsset, registerPricedAsset, $networkTime } from '../common/store';
+import { buildContractsStore, registerAsset, registerPricedAsset, $networkTime, $pricedAssets } from '../common/store';
 import { sortPoolsOnStatus } from '../Farm/store';
 
-const { $contracts, $contractStates, setContractInfos, triggerStateUpdate, contractStateUpdated } = buildContractsStore(
-    'distribution',
-    distributionBackend
-);
+const { $contracts, $contractStates, setContractInfos } = buildContractsStore('distribution', distributionBackend);
 
 export const $stakingPools = $contracts;
 export const setStakingPoolInfos = setContractInfos;
-export const triggerPoolUpdate = triggerStateUpdate;
 
 $stakingPools.watch((v) => console.log('STAKE POOLS', v));
 
@@ -26,4 +22,8 @@ $contractStates.watch((states) =>
         registerAsset(s.initial.token);
         registerPricedAsset(s.initial.token);
     })
+);
+
+export const $stakingTokens = combine($pricedAssets, $contractStates, (tokens, states) =>
+    states.map((state, _) => tokens.get(state.initial.token, null))
 );
