@@ -453,6 +453,7 @@ export class TinymanDex implements Dex {
         }
 
         const pool = await this.getPoolInfoByAssets(assetIn, assetOut);
+
         const [inputSupply, outputSupply] =
             assetIn.id === pool.asset1
                 ? [pool.asset1Reserve, pool.asset2Reserve]
@@ -462,7 +463,7 @@ export class TinymanDex implements Dex {
 
         // We assume that amount is in microalgos
         const amountAfterFees = (amountIn * 997) / 1000;
-        const amountOut = outputSupply - k / (inputSupply - amountAfterFees);
+        const amountOut = outputSupply - k / (inputSupply + amountAfterFees);
 
         const decRatio = 10 ** (assetIn.decimals - assetOut.decimals);
 
