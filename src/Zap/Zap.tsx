@@ -144,13 +144,13 @@ export function Zap() {
 
     const getZapTimeout = useRef<any>();
 
-    function getZapThrottled(token1: TokenSelectOption, token2: TokenSelectOption, amount: string, delay: number) {
-        if (!token1.value || !token2.value) {
+    function getZapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
+        if (!token1_id || !token2_id) {
             return;
         }
         clearTimeout(getZapTimeout.current);
         getZapTimeout.current = setTimeout(() => {
-            loadZapData(account, token1.value, token2.value, amount, setIsLoading1, setZapData, setShowResult);
+            loadZapData(account, token1_id, token2_id, amount, setIsLoading1, setZapData, setShowResult);
         }, delay);
     }
 
@@ -158,22 +158,21 @@ export function Zap() {
         // @ts-ignore
         setToken1(option);
         setShowResult(false);
-        // @ts-ignore
-        getZapThrottled(option, token2, token1Amount, 50);
+        getZapThrottled(option.value, token2.value, token1Amount, 50);
     };
 
     const select2OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
         // @ts-ignore
         setToken2(option);
         setShowResult(false);
-        // @ts-ignore
-        getZapThrottled(token1, option, token1Amount, 50);
+
+        getZapThrottled(token1.value, option.value, token1Amount, 50);
     };
 
     const inputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
         setShowResult(false);
         setToken1Amount(e.target.value);
-        getZapThrottled(token1, token2, e.target.value, 1000);
+        getZapThrottled(token1.value, token2.value, e.target.value, 1000);
     };
 
     const LoadZapButtonOnClick = () => {

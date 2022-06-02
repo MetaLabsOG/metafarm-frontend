@@ -17,7 +17,7 @@ import {
     ClaimButton,
     MaxButton,
     Link,
-    Packman,
+    Pacman,
 } from './styled';
 import packman from '../../../imgs/pacman.gif';
 import { calculateAmountToken, isValidAmount, getLPTokenPoolLink, formatLPTokenName, numberRound } from './utils';
@@ -158,7 +158,7 @@ export const PoolActions = ({
                                 disabled={!isActiveStake}
                                 onClick={() => stake(toStake)}
                             >
-                                {pendingStake ? <Packman src={packman} /> : 'STAKE'}
+                                {pendingStake ? <Pacman src={packman} /> : 'STAKE'}
                             </Button>
                             {isViewMaxForStake && <MaxButton onClick={setMaxStake}>MAX</MaxButton>}
                         </Action>
@@ -182,7 +182,7 @@ export const PoolActions = ({
                         disabled={!canWithdraw}
                         onClick={() => withdraw(toWithdraw)}
                     >
-                        {pendingWithdraw ? <Packman src={packman} /> : 'WITHDRAW'}
+                        {pendingWithdraw ? <Pacman src={packman} /> : 'WITHDRAW'}
                     </Button>
                     {isViewMaxForWithdraw && <MaxButton onClick={setMaxWithdraw}>MAX</MaxButton>}
                 </Action>
@@ -193,7 +193,7 @@ export const PoolActions = ({
             <Claim>
                 {canClaim && (
                     <ClaimButton isActive={isActiveClaim} onClick={() => isActiveClaim && ctc.apis.claim()}>
-                        {pendingClaim ? <Packman src={packman} /> : 'CLAIM'}
+                        {pendingClaim ? <Pacman src={packman} /> : 'CLAIM'}
                     </ClaimButton>
                 )}
             </Claim>

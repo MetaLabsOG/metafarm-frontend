@@ -11,7 +11,7 @@ export const PoolContainer = styled.div`
     width: 95%;
     font-size: 14px;
     padding: 20px 0 20px 0;
-    border-radius: 10px; 
+    border-radius: 10px;
 `;
 
 export const PoolInfoContainer = styled.div`
@@ -42,7 +42,6 @@ export const PoolActionsWrapper = styled.div`
     width: 84%;
     margin-top: 38px;
 `;
-
 
 export const BasicInfo = styled.div`
     font-family: 'Montserrat';
@@ -105,7 +104,7 @@ export const Button = styled.button<{ customColor?: boolean; isActive?: boolean 
     width: 120px;
     min-height: 33px;
     border-radius: 0 4px 4px 0px;
-    cursor: ${({isActive}) => isActive ? 'pointer' : 'default'};
+    cursor: ${({ isActive }) => (isActive ? 'pointer' : 'default')};
     font-family: 'Korona One';
     font-size: 12px;
     ${Action}:hover & {
@@ -131,16 +130,16 @@ export const Input = styled.input<{ customColor?: boolean; isActive?: boolean }>
     }
 `;
 
-export const Packman = styled.img`
+export const Pacman = styled.img`
     height: 28px;
-`
+`;
 
 export const MaxButton = styled.div`
     position: absolute;
     left: 35%;
     top: 4px;
     padding: 6px;
-    color: ${({theme}) => theme.gray};;
+    color: ${({ theme }) => theme.gray};
     font-size: 11px;
     cursor: pointer;
     font-family: 'Montserrat';
@@ -233,9 +232,8 @@ export const LpTokensIconsWrapper = styled.div`
     width: 85px;
 `;
 
-
 export const ArrowIconsWrapper = styled.div`
     position: absolute;
     right: 20px;
-    top: 10px
-`
+    top: 10px;
+`;

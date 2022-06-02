@@ -577,13 +577,13 @@ export function Swap() {
 
     const getSwapTimeout = useRef<any>();
 
-    function getBestSwapThrottled(token1: TokenSelectOption, token2: TokenSelectOption, amount: string, delay: number) {
-        if (!token1.value || !token2.value) {
+    function getBestSwapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
+        if (!token1_id || !token2_id) {
             return;
         }
         clearTimeout(getSwapTimeout.current);
         getSwapTimeout.current = setTimeout(() => {
-            getBestSwap(account, token1.value, token2.value, amount, setIsLoading, setBestSwap, setShowResult);
+            getBestSwap(account, token1_id, token2_id, amount, setIsLoading, setBestSwap, setShowResult);
         }, delay);
     }
 
@@ -591,22 +591,20 @@ export function Swap() {
         // @ts-ignore
         setToken1(option);
         setShowResult(false);
-        // @ts-ignore
-        getBestSwapThrottled(option, token2, token1Amount, 50);
+        getBestSwapThrottled(option.value, token2.value, token1Amount, 50);
     };
 
     const select2OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
         // @ts-ignore
         setToken2(option);
         setShowResult(false);
-        // @ts-ignore
-        getBestSwapThrottled(token1, option, token1Amount, 50);
+        getBestSwapThrottled(token1.value, option.value, token1Amount, 50);
     };
 
     const inputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
         setShowResult(false);
         setToken1Amount(e.target.value);
-        getBestSwapThrottled(token1, token2, e.target.value, 1000);
+        getBestSwapThrottled(token1.value, token2.value, e.target.value, 1000);
     };
 
     const FindPriceButtonOnClick = () => {
