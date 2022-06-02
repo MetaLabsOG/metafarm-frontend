@@ -1,7 +1,7 @@
 //@ts-ignore
 import { backend as farmBackend } from '@metalabsog/farm';
 import { Map } from 'immutable';
-import { createEffect, createStore, sample, combine, Store } from 'effector';
+import { createEffect, createStore, createEvent, sample, combine, Store } from 'effector';
 import {
     AppId,
     Asset,
@@ -11,6 +11,7 @@ import {
     ContractState,
     Amount,
     Priced,
+    assetLoaded,
     registerAsset,
     registerPricedAsset,
     $algoUsdPrice,
@@ -38,13 +39,10 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
 }
 
 export async function getLPTokenInfo(
-    asset: AssetId | Asset,
+    asset: Asset,
     algoPrice: number | null,
     provider?: DexProvider
 ): Promise<Priced<LPTokenInfo>> {
-    if (typeof asset === 'number') {
-        asset = await fetchAsset(asset);
-    }
     if (provider === undefined) {
         provider = detectAssetProvider(asset);
     }
@@ -68,10 +66,8 @@ export async function getLPTokenInfo(
     return { ...asset, ...poolInfo, price, priceInAlgo: price / algoPrice };
 }
 
-const { $contracts, $contractStates, setContractInfos, triggerStateUpdate, contractStateUpdated } = buildContractsStore(
-    'farm',
-    farmBackend
-);
+const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpdate } =
+    buildContractsStore('farm', farmBackend);
 
 export const $pools = $contracts;
 export const setPoolInfos = setContractInfos;
@@ -80,26 +76,23 @@ export const triggerPoolUpdate = triggerStateUpdate;
 $pools.watch((v) => console.log('FARM POOLS', v));
 
 //TODO NEED REFACTOR (quick solution)
-const sortPoolsOnStatus = ({ networkTime, pools }: {networkTime: number, pools: Contract<"farm">[]}) => {
-    const groupedByStatus = groupBy(function(pool: any){
+const sortPoolsOnStatus = ({ networkTime, pools }: { networkTime: number; pools: Contract<'farm'>[] }) => {
+    const groupedByStatus = groupBy(function (pool: any) {
         if (pool.state) {
             const initial = pool.state.initial;
-            return networkTime < initial.beginBlock
-                ? '2'
-                : networkTime > initial.endBlock
-                    ? '3'
-                    : '1'
+            return networkTime < initial.beginBlock ? '2' : networkTime > initial.endBlock ? '3' : '1';
         }
-            return 'null'
-    })
-   const sortByTime = values(groupedByStatus(pools)).flat();
-   return sortByTime
-}
+        return 'null';
+    });
+    const sortByTime = values(groupedByStatus(pools)).flat();
+    return sortByTime;
+};
 
-export const $sortedPools = combine($networkTime, $pools, (networkTime, pools) => sortPoolsOnStatus({ networkTime, pools }))
+export const $sortedPools = combine($networkTime, $pools, (networkTime, pools) =>
+    sortPoolsOnStatus({ networkTime, pools })
+);
 
-
-$sortedPools.watch((v) => console.log(v))
+$sortedPools.watch((v) => console.log(v));
 
 // LP token info store
 type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
@@ -107,41 +100,40 @@ type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
 export const $lpTokenInfos = createStore<LPTokenStore>(Map());
 
 export const getLPTokenInfoFx = createEffect(
-    ({
-        asset,
-        provider,
-        algoPrice,
-    }: {
-        asset: AssetId | Asset;
-        provider: DexProvider | undefined;
-        algoPrice: number | null;
-    }) => getLPTokenInfo(asset, algoPrice, provider)
+    ({ asset, provider, algoPrice }: { asset: Asset; provider: DexProvider | undefined; algoPrice: number | null }) =>
+        getLPTokenInfo(asset, algoPrice, provider)
 );
 
 $lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
 $lpTokenInfos.watch((v) => console.log('LP TOKEN INFOS', v.toJS()));
 
+// Fetching LP token infos similarly to how asset prices are fetched
+const markTokenAsLP = createEvent<AssetId>();
+const $isLPToken = createStore(Map<AssetId, boolean>()).on(markTokenAsLP, (state, token) => state.set(token, true));
+
+// automatically fetch LP token infos when general info about them gets fetched the first time
 sample({
-    clock: contractStateUpdated,
-    source: combine({ tokenInfos: $lpTokenInfos, algoPrice: $algoUsdPrice }),
-    filter: ({ tokenInfos }, { state }) => !(state.initial.stakeToken in tokenInfos),
-    fn: ({ algoPrice }, { state }) => ({ asset: state.initial.stakeToken, algoPrice, provider: undefined }),
+    clock: assetLoaded,
+    source: combine({ isLP: $isLPToken, algoPrice: $algoUsdPrice }),
+    filter: ({ isLP }, asset) => isLP.get(asset.id, false),
+    fn: ({ algoPrice }, asset) => ({ asset, algoPrice, provider: undefined }),
     target: getLPTokenInfoFx,
 });
 
-$contractStates.watch((states) =>
+$contractStatesWithCache.watch((states) =>
     states.valueSeq().forEach((s) => {
+        markTokenAsLP(s.initial.stakeToken);
         registerAsset(s.initial.stakeToken);
         registerPricedAsset(s.initial.rewardToken);
     })
 );
 
 // These substores avoid a bug when token infos are not updated in components
-export const $farmLPTokens = combine($lpTokenInfos, $contractStates, (lpTokens, states) =>
+export const $farmLPTokens = combine($lpTokenInfos, $contractStatesWithCache, (lpTokens, states) =>
     states.map((state, _) => lpTokens.get(state.initial.stakeToken, null))
 );
 
-export const $farmRewardTokens = combine($pricedAssets, $contractStates, (tokens, states) =>
+export const $farmRewardTokens = combine($pricedAssets, $contractStatesWithCache, (tokens, states) =>
     states.map((state, _) => tokens.get(state.initial.rewardToken, null))
 );
 
@@ -149,7 +141,7 @@ export const $farmRewardTokens = combine($pricedAssets, $contractStates, (tokens
 const sumMoney = (
     states: Map<AppId, ContractState<'farm'>>,
     tokens: Map<AssetId, Priced<Asset>>,
-    getAmount: (s: ContractState<'farm'>) => Amount,
+    getAmount: (s: ContractState<'farm'>) => Amount | undefined,
     getToken: (s: ContractState<'farm'>) => AssetId
 ): number =>
     //@ts-ignore
@@ -172,7 +164,7 @@ export interface PoolAggregates {
 }
 
 export const $poolAggregates: Store<PoolAggregates> = combine(
-    $contractStates,
+    $contractStatesWithCache,
     $lpTokenInfos,
     $pricedAssets,
     (states, lpTokens, tokens) => {
@@ -185,13 +177,13 @@ export const $poolAggregates: Store<PoolAggregates> = combine(
         const totalUserStake = sumMoney(
             states,
             lpTokens,
-            (s) => s.local.staked,
+            (s) => s.local?.staked,
             (s) => s.initial.stakeToken
         );
         const totalPendingReward = sumMoney(
             states,
             tokens,
-            (s) => s.local.reward,
+            (s) => s.local?.reward,
             (s) => s.initial.rewardToken
         );
         return { tvl, totalUserStake, totalPendingReward };
