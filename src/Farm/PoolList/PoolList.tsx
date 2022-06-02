@@ -22,7 +22,7 @@ export const PoolList = ({
     pools,
     setPoolInfos,
 }: {
-    type: string;
+    type: FarmType;
     pools: Store<Contract<FarmType>[]>; // @ts-ignore
     setPoolInfos: Event<ContractInfo<FarmType>[]>;
 }) => {

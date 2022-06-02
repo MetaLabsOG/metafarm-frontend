@@ -16,9 +16,9 @@ import {
     Claim,
     ClaimButton,
     MaxButton,
-    Link,
     Pacman,
 } from './styled';
+
 import packman from '../../../imgs/pacman.gif';
 import { calculateAmountToken, isValidAmount, getLPTokenPoolLink, formatLPTokenName, numberRound } from './utils';
 import { PoolState } from './types';
@@ -159,7 +159,6 @@ export const PoolActions = ({
                                 isActive={canStake && !pendingStake}
                                 disabled={!isActiveStake}
                                 onClick={() => stake(toStake)}
-
                             >
                                 {pendingStake ? <Pacman src={packman} /> : 'STAKE'}
                             </Button>
@@ -184,7 +183,6 @@ export const PoolActions = ({
                         isActive={canWithdraw && !pendingWithdraw}
                         disabled={!canWithdraw}
                         onClick={() => withdraw(toWithdraw)}
-
                     >
                         {pendingWithdraw ? <Pacman src={packman} /> : 'WITHDRAW'}
                     </Button>
@@ -201,9 +199,11 @@ export const PoolActions = ({
                     </ClaimButton>
                 )}
             </Claim>
-            <Modal>
-                <ZapModal asset1_id={lpTokenInfo.asset1} asset2_id={lpTokenInfo.asset2} />
-            </Modal>
+            {lpTokenInfo && (
+                <Modal>
+                    <ZapModal asset1_id={lpTokenInfo.asset1} asset2_id={lpTokenInfo.asset2} />
+                </Modal>
+            )}
         </PoolActionsWrapper>
     );
 };

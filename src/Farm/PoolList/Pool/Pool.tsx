@@ -9,7 +9,7 @@ import { PoolContainer, PoolInfoContainer } from './styled';
 import { $farmLPTokens, $farmRewardTokens } from '../../store';
 import { $stakingTokens } from '../../../Stake/store';
 
-export const Pool = ({ type, contract }: { type: string; contract: Contract<FarmType> }) => {
+export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) => {
     const currentBlock = useStore($networkTime);
     const lpTokenInfo = useStoreMap($farmLPTokens, (tokens) => tokens.get(contract.id, null));
     const stakingTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
@@ -21,8 +21,8 @@ export const Pool = ({ type, contract }: { type: string; contract: Contract<Farm
     useEffect(queryTimeUpdate, [contract]);
 
     const is_info_loaded = rewardTokenInfo && ((type === 'farm' && lpTokenInfo) || type === 'distribution');
-    if (currentBlock === 0 || !contract.ctc || !contract.state || !is_info_loaded) {
-        console.log('WHY LOADING?', currentBlock, contract.state, lpTokenInfo, rewardTokenInfo)
+    if (currentBlock === 0 || !contract.state || !is_info_loaded) {
+        console.log('WHY LOADING?', type, currentBlock, contract.state, lpTokenInfo, rewardTokenInfo, stakingTokenInfo);
         return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
     }
 

@@ -32,13 +32,13 @@ const App = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <GlobalStyle />
-            <StyledContainer limit={3}/>
+            <StyledContainer limit={3} />
             <ThemeProvider theme={theme}>
                 <Container>
                     <Menu />
                     <ContentContainer>
                         <Routes>
-                            <Route path="/" element={<Fomo />} />
+                            <Route path="/" element={<Farm />} />
                             <Route path="/fomo" element={<Fomo />} />
                             <Route path="/farm" element={<Farm />} />
                             <Route path="/stake" element={<Stake />} />

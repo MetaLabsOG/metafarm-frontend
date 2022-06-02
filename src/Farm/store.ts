@@ -67,8 +67,10 @@ export async function getLPTokenInfo(
     return { ...asset, ...poolInfo, price, priceInAlgo: price / algoPrice };
 }
 
-const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpdate } =
-    buildContractsStore('farm', farmBackend);
+const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpdate } = buildContractsStore(
+    'farm',
+    farmBackend
+);
 
 export const $pools = $contracts;
 export const setPoolInfos = setContractInfos;
@@ -77,7 +79,7 @@ export const triggerPoolUpdate = triggerStateUpdate;
 $pools.watch((v) => console.log('FARM POOLS', v));
 
 //TODO NEED REFACTOR (quick solution)
-const sortPoolsOnStatus = ({ networkTime, pools }: { networkTime: number; pools: Contract<FarmType>[] }) => {
+export const sortPoolsOnStatus = ({ networkTime, pools }: { networkTime: number; pools: Contract<FarmType>[] }) => {
     const groupedByStatus = groupBy(function (pool: any) {
         if (pool.state) {
             const initial = pool.state.initial;
