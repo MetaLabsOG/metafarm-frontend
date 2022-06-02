@@ -1,13 +1,13 @@
 import algosdk from 'algosdk';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { ALGONET, MAINNET, reach } from '../AppContext';
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import { ALGONET, MAINNET, reach, TESTNET } from '../AppContext';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
 import { Token, TokenSelectOption, BestSwap, Transaction } from './types';
 import { $account } from '../common/store';
 
-import SelectSearch, { fuzzySearch } from 'react-select-search';
+import SelectSearch, { fuzzySearch, SelectedOption, SelectedOptionValue } from 'react-select-search';
 import React from 'react';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent } from '../logEvent';
@@ -17,10 +17,34 @@ export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
 // export const API_PATH = 'http://0.0.0.0:5000/';
 
+const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
+    0: 0, // ALGO
+    712012773: 85951079, // META
+    386192725: 19386116, // goBTC
+    31566704: 10458941, // USDC
+    463554836: 70283957, // ALGF
+};
+
+export const TOKEN_INITIAL_STATE = {
+    value: '',
+    name: '',
+    unit_name: '',
+    logo: '',
+    amount: 0,
+};
+
 export enum QueryType {
     swap,
     zap,
 }
+
+export const getNetworkAssetId = (asset_id: number) => {
+    if (ALGONET === MAINNET) {
+        return asset_id;
+    }
+
+    return MAINNET_TO_TESTNET_ASA_ID[asset_id] ?? -1;
+};
 
 async function getBestSwap(
     account: Account | null,
@@ -234,13 +258,15 @@ export async function runTransactions(
 export async function getOptions(account: Account | null): Promise<TokenSelectOption[]> {
     const asset_response = await fetch(ASSETS_PATH);
     const assets_res: Token[] = await asset_response.json();
-    const assets: TokenSelectOption[] = Object.values(assets_res).map((token) => ({
-        value: `${token.id}`,
-        name: token.name,
-        unit_name: token.unit_name,
-        logo: token.logo.png,
-        amount: 0,
-    }));
+    const assets: TokenSelectOption[] = Object.values(assets_res)
+        .map((token) => ({
+            value: ALGONET === MAINNET ? `${token.id}` : `${MAINNET_TO_TESTNET_ASA_ID[token.id] ?? ''}`,
+            name: token.name,
+            unit_name: token.unit_name,
+            logo: token.logo.png,
+            amount: 0,
+        }))
+        .filter((token) => token.value);
 
     if (!account) {
         return assets;
@@ -258,7 +284,17 @@ export async function getOptions(account: Account | null): Promise<TokenSelectOp
 }
 
 // @ts-ignore
-function TokenDescr({ option }) {
+function TokenDescrShort({ option }) {
+    return (
+        <React.Fragment>
+            <img alt="" className="token_icon" width="32" height="32" src={option.logo} />
+            <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.unit_name}</div>
+        </React.Fragment>
+    );
+}
+
+// @ts-ignore
+function TokenDescrLong({ option }) {
     return (
         <React.Fragment>
             <img alt="" className="token_icon" width="32" height="32" src={option.logo} />
@@ -288,9 +324,30 @@ export function renderToken(props, option) {
     return (
         <button {...props} className="search_option" type="button">
             <div style={{ display: 'flex', alignItems: 'center', fontFamily: 'Montserrat', whiteSpace: 'nowrap' }}>
-                <TokenDescr option={option} />
+                <TokenDescrLong option={option} />
             </div>
         </button>
+    );
+}
+
+// @ts-ignore
+export function renderValueShort(valueProps, snapshot) {
+    const { option } = snapshot;
+
+    return (
+        <div style={{ position: 'relative' }}>
+            {option && !snapshot.focus && (
+                <div className="token_descr">
+                    <TokenDescrShort option={option} />
+                </div>
+            )}
+            <input
+                {...valueProps}
+                placeholder={snapshot.focus || !snapshot.displayValue ? 'Choose token' : ''}
+                className="search_value"
+                value={snapshot.search}
+            />
+        </div>
     );
 }
 
@@ -301,28 +358,14 @@ export function renderValue(valueProps, snapshot) {
     return (
         <div style={{ position: 'relative' }}>
             {option && !snapshot.focus && (
-                <div
-                    style={{
-                        pointerEvents: 'none',
-                        position: 'absolute',
-                        left: 0,
-                        top: 0,
-                        right: 0,
-                        bottom: 0,
-                        display: 'flex',
-                        marginTop: '10px',
-                        fontFamily: 'Montserrat',
-                        color: 'white',
-                        alignItems: 'center',
-                    }}
-                >
-                    <TokenDescr option={option} />
+                <div className="token_descr">
+                    <TokenDescrLong option={option} />
                 </div>
             )}
             <input
                 {...valueProps}
                 placeholder={snapshot.focus || !snapshot.displayValue ? 'Choose token' : ''}
-                className="search_value"
+                className="search_value search_value_basic"
                 value={snapshot.search}
             />
         </div>
@@ -337,11 +380,13 @@ export function formatNumber(x: number) {
 }
 
 function BestTokenPrice({
+    isLoading,
     token1Amount,
     bestSwap,
     token1,
     token2,
 }: {
+    isLoading: boolean;
     token1Amount: string;
     bestSwap: BestSwap;
     token1: TokenSelectOption;
@@ -349,6 +394,14 @@ function BestTokenPrice({
 }) {
     const pricePerToken = bestSwap.best_swap / Number.parseFloat(token1Amount);
     const best_algo = bestSwap.best_swap > bestSwap.direct_swap;
+
+    if (isLoading) {
+        return (
+            <div className="token_price" style={{ display: 'flex', justifyContent: 'center' }}>
+                <img style={{ width: '50px' }} alt="loader" src={require('../imgs/loader.gif')} />
+            </div>
+        );
+    }
 
     return (
         <div className="token_price">
@@ -379,15 +432,12 @@ function BestTokenPrice({
                     <br />
                     {bestSwap.best_path.map((t: { unit_name: any }) => t.unit_name).join('-')}
                 </div>
-                {/*<div>*/}
                 <h3
                     className="token_price_value"
                     style={{ backgroundColor: '#00ff00', color: 'black', padding: '7px', fontSize: '18px' }}
                 >
                     {formatNumber(bestSwap.best_swap)} {token2.unit_name}
                 </h3>
-                {/*{best_algo && <h3 style={{ color: "#8b8b8b", fontSize: "10px", textAlign: "center", marginTop: '2px'}}>including fee: 1%</h3>}*/}
-                {/*</div>*/}
             </div>
             {best_algo && (
                 <div
@@ -415,139 +465,197 @@ function BestTokenPrice({
     );
 }
 
+export function TokenSelectWithAmount({
+    options,
+    token,
+    tokenAmount,
+    selectOnChange,
+    inputOnChange,
+}: {
+    options: any;
+    token: TokenSelectOption;
+    tokenAmount: string;
+    selectOnChange: any;
+    inputOnChange: any;
+}) {
+    return (
+        <div
+            style={{
+                display: 'flex',
+                whiteSpace: 'nowrap',
+                width: '350px',
+            }}
+        >
+            <SelectSearch
+                className="select-search"
+                options={options}
+                filterOptions={fuzzySearch}
+                renderOption={renderToken}
+                renderValue={renderValueShort}
+                search={true}
+                value={token.value}
+                onChange={selectOnChange}
+                placeholder=""
+            />
+            <div style={{ width: '100%' }}>
+                <input className="token_input" placeholder={'10'} onChange={inputOnChange} value={tokenAmount} />
+                {token.amount > 0 && <div className="token_balance">Balance: {formatNumber(token.amount)}</div>}
+            </div>
+        </div>
+    );
+}
+
+export function TokenSelect({
+    options,
+    token,
+    selectOnChange,
+}: {
+    options: any;
+    token: TokenSelectOption;
+    selectOnChange: any;
+}) {
+    return (
+        <SelectSearch
+            className="select-search select-search-basic"
+            options={options}
+            filterOptions={fuzzySearch}
+            renderOption={renderToken}
+            renderValue={renderValue}
+            search={true}
+            value={token.value}
+            onChange={selectOnChange}
+            placeholder="Choose token"
+        />
+    );
+}
+
+export function ButtonWithPackman({
+    button_text,
+    button_style,
+    isLoading,
+    onClick,
+}: {
+    button_text: string;
+    button_style: string;
+    isLoading: boolean;
+    onClick: any;
+}) {
+    return (
+        <button className={!isLoading ? button_style : 'button_loading'} onClick={!isLoading ? onClick : undefined}>
+            {button_text}
+            {isLoading && (
+                <span className="loading">
+                    <img
+                        style={{ maxWidth: '100%', maxHeight: '100%' }}
+                        alt="loader"
+                        src={require('../imgs/loader.gif')}
+                    />
+                </span>
+            )}
+        </button>
+    );
+}
+
 export function Swap() {
     const account = useStore($account);
 
-    const [token1, setToken1] = useState<TokenSelectOption>({
-        value: '',
-        name: '',
-        unit_name: '',
-        logo: '',
-        amount: 0,
-    });
-    const [token2, setToken2] = useState<TokenSelectOption>({
-        value: '',
-        name: '',
-        unit_name: '',
-        logo: '',
-        amount: 0,
-    });
+    const [token1, setToken1] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
+    const [token2, setToken2] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [bestSwap, setBestSwap] = useState<BestSwap>({ best_swap: 0, direct_swap: 0, best_path: [], usdc_diff: 0 });
-
     const [options, setOptions] = useState<TokenSelectOption[]>([]);
-
-    const [showSwap, setShowSwap] = useState<boolean>(false);
+    const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isLoading2, setIsLoading2] = useState<boolean>(false);
 
     useEffect(() => {
         getOptions(account).then((res) => {
             setOptions(res);
+            setToken1(res[0]);
         });
     }, [account]);
+
+    const getSwapTimeout = useRef<any>();
+
+    function getBestSwapThrottled(token1: TokenSelectOption, token2: TokenSelectOption, amount: string, delay: number) {
+        if (!token1.value || !token2.value) {
+            return;
+        }
+        clearTimeout(getSwapTimeout.current);
+        getSwapTimeout.current = setTimeout(() => {
+            getBestSwap(account, token1.value, token2.value, amount, setIsLoading, setBestSwap, setShowResult);
+        }, delay);
+    }
+
+    const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
+        // @ts-ignore
+        setToken1(option);
+        setShowResult(false);
+        // @ts-ignore
+        getBestSwapThrottled(option, token2, token1Amount, 50);
+    };
+
+    const select2OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
+        // @ts-ignore
+        setToken2(option);
+        setShowResult(false);
+        // @ts-ignore
+        getBestSwapThrottled(token1, option, token1Amount, 50);
+    };
+
+    const inputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setShowResult(false);
+        setToken1Amount(e.target.value);
+        getBestSwapThrottled(token1, token2, e.target.value, 1000);
+    };
+
+    const FindPriceButtonOnClick = () => {
+        getBestSwap(account, token1?.value, token2?.value, token1Amount, setIsLoading, setBestSwap, setShowResult);
+    };
+
+    const SwapButtonOnClick = () => {
+        runTransactions(QueryType.swap, account, token1?.value, token2.value, token1Amount, setIsLoading2);
+    };
 
     return (
         <div className="swap_container">
             <h1 className="swap_header">OPTIMAL SWAP</h1>
             <h3 className="swap_descr">we find the optimal path to swap your token</h3>
             <h3 className="swap_text">FROM</h3>
-            <SelectSearch
-                className="select-search"
+            <TokenSelectWithAmount
                 options={options}
-                filterOptions={fuzzySearch}
-                renderOption={renderToken}
-                renderValue={renderValue}
-                search={true}
-                value={token1?.value}
-                onChange={(_, option) => {
-                    // @ts-ignore
-                    setToken1(option);
-                    setShowSwap(false);
-                }}
-                placeholder="Choose token"
-            />
-            <input
-                className="token_input"
-                placeholder={'10'}
-                onChange={(e) => setToken1Amount(e.target.value)}
-                value={token1Amount}
+                token={token1}
+                tokenAmount={token1Amount}
+                selectOnChange={select1OnChange}
+                inputOnChange={inputOnChange}
             />
             <h3 className="swap_text">TO</h3>
-            <SelectSearch
-                className="select-search"
-                options={options}
-                filterOptions={fuzzySearch}
-                renderOption={renderToken}
-                renderValue={renderValue}
-                search={true}
-                value={token2?.value}
-                onChange={(_, options) => {
-                    // @ts-ignore
-                    setToken2(options);
-                    setShowSwap(false);
-                }}
-                placeholder="Choose token"
-            />
-
-            <button
-                className={!isLoading ? 'price_button' : 'button_loading'}
-                onClick={
-                    !isLoading
-                        ? () =>
-                              getBestSwap(
-                                  account,
-                                  token1?.value,
-                                  token2?.value,
-                                  token1Amount,
-                                  setIsLoading,
-                                  setBestSwap,
-                                  setShowSwap
-                              )
-                        : undefined
-                }
-            >
-                FIND BEST PRICE
-                {isLoading && (
-                    <span className="loading">
-                        <img
-                            style={{ maxWidth: '100%', maxHeight: '100%' }}
-                            alt="loader"
-                            src={require('../imgs/loader.gif')}
-                        />
-                    </span>
-                )}
-            </button>
-            {showSwap && (
+            <TokenSelect options={options} token={token2} selectOnChange={select2OnChange} />
+            {!isLoading && !showResult && (
+                <ButtonWithPackman
+                    button_text="FIND BEST PRICE"
+                    button_style="price_button"
+                    isLoading={isLoading}
+                    onClick={FindPriceButtonOnClick}
+                />
+            )}
+            {(isLoading || showResult) && (
+                <BestTokenPrice
+                    isLoading={isLoading}
+                    token1Amount={token1Amount}
+                    bestSwap={bestSwap}
+                    token1={token1}
+                    token2={token2}
+                />
+            )}
+            {showResult && (
                 <React.Fragment>
-                    <BestTokenPrice token1Amount={token1Amount} bestSwap={bestSwap} token1={token1} token2={token2} />
-                    <button
-                        className={!isLoading2 ? 'swap_button' : 'button_loading'}
-                        onClick={
-                            !isLoading2
-                                ? () =>
-                                      runTransactions(
-                                          QueryType.swap,
-                                          account,
-                                          token1?.value,
-                                          token2.value,
-                                          token1Amount,
-                                          setIsLoading2
-                                      )
-                                : undefined
-                        }
-                    >
-                        SWAP
-                        {isLoading2 && (
-                            <span className="loading">
-                                <img
-                                    style={{ maxWidth: '100%', maxHeight: '100%' }}
-                                    alt="loader"
-                                    src={require('../imgs/loader.gif')}
-                                />
-                            </span>
-                        )}
-                    </button>
+                    <ButtonWithPackman
+                        button_text="SWAP"
+                        button_style="swap_button"
+                        isLoading={isLoading2}
+                        onClick={SwapButtonOnClick}
+                    />
                     <h3 className="dex_name">via tinyman</h3>
                 </React.Fragment>
             )}
