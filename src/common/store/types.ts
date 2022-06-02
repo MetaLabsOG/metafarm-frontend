@@ -16,6 +16,10 @@ export type Asset = {
 
 export type Priced<T> = T & { price: number; priceInAlgo: number };
 
+/**
+ * Makes all optional fields in the record type (ones ending with `?`) non-optional.
+ * E.g. `AllDetined<ContractState<T>>` __must__ have the `local` field.
+ */
 export type AllDefined<T> = {
     [Property in keyof T]-?: T[Property];
 };
