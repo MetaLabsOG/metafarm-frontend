@@ -26,6 +26,7 @@ export const Menu = () => {
                     <MenuItem to="/farm">farm</MenuItem>
                     <MenuItem to="/stake">stake</MenuItem>
                     <MenuItem to="/fomo">fomo3d</MenuItem>
+                    {/*<MenuItem to="/fomo">fomo3d</MenuItem>*/}
                     <MenuItem to="/meta-dao">metadao</MenuItem>
                     <MenuItem to="/tokensale">tokensale</MenuItem>
                 </MenuItems>

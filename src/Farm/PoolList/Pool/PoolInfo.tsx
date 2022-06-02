@@ -1,12 +1,13 @@
 import { useStore } from 'effector-react';
-import { $meanRoundDuration, Asset, ContractState, FarmType, Priced } from '../../../common/store';
-import { calculateAmountToken, convertAmountToUSD, numberRound } from './utils';
+import { $account, $meanRoundDuration, Asset, ContractState, FarmType, Priced } from '../../../common/store';
+import { calculateAmountToken, convertAmountToUSD, formatLPTokenName, numberRound } from './utils';
 import { PoolState } from './types';
-import { ArrowIconsWrapper, BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue } from './styled';
+import { ArrowIconsWrapper, BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue, Pacman } from './styled';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { Arrow } from '../../../imgs/arrow';
 import React from 'react';
 import { ALGONET, MAINNET } from '../../../AppContext';
+import packman from '../../../imgs/pacman.gif';
 
 const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
     0: 0, // ALGO
@@ -57,6 +58,7 @@ export const PoolInfo = ({
     currentBlock: number;
     isOpen: boolean;
 }) => {
+    const account = useStore($account);
     const meanRoundDuration = useStore($meanRoundDuration);
     const { endBlock, beginBlock } = contractState.initial;
     const APR = calculateAPR(meanRoundDuration, poolState, contractState, lpTokenInfo, rewardTokenInfo);
@@ -105,18 +107,27 @@ export const PoolInfo = ({
             )}`}</PoolInfoValue>
             <PoolInfoValue>{numberRound(APR)}%</PoolInfoValue>
             <PoolInfoValue>
-                {`$${numberRound(convertAmountToUSD(lpTokenInfo ?? rewardTokenInfo, contractState.local.staked))}`}
+                {contractState.local
+                    ?`$${numberRound(convertAmountToUSD(lpTokenInfo ?? rewardTokenInfo, contractState.local.staked))}`
+                    : '—'}
             </PoolInfoValue>
             <PoolInfoValue>
-                <div>{`$${numberRound(convertAmountToUSD(rewardTokenInfo, contractState.local.reward))}`}</div>
-                <div>{`${numberRound(calculateAmountToken(rewardTokenInfo, contractState.local.reward))} ${
-                    rewardTokenInfo.unitName
-                }`}</div>
+                {contractState.local ? (
+                    <>
+                        <div>{`$${numberRound(convertAmountToUSD(rewardTokenInfo, contractState.local.reward))}`}</div>
+                        <div>{`${numberRound(calculateAmountToken(rewardTokenInfo, contractState.local.reward))} ${
+                            rewardTokenInfo.unitName
+                        }`}</div>{' '}
+                    </>
+                ) : (
+                    '—'
+                )}
             </PoolInfoValue>
             <PoolInfoValue style={{ color: 'gray' }}>{timing} </PoolInfoValue>
-            <ArrowIconsWrapper>
-                <Arrow rotate={isOpen} />
-            </ArrowIconsWrapper>
+            <ArrowIconsWrapper>{
+                contractState.local ?<Arrow rotate={isOpen} />:
+                account !== null ? <Pacman src={packman} />: ''
+            }</ArrowIconsWrapper>
         </>
     );
 };

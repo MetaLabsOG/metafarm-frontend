@@ -130,7 +130,7 @@ export const Input = styled.input<{ customColor?: boolean; isActive?: boolean }>
     }
 `;
 
-export const Packman = styled.img`
+export const Pacman = styled.img`
     height: 28px;
 `;
 
@@ -139,7 +139,7 @@ export const MaxButton = styled.div`
     left: 35%;
     top: 4px;
     padding: 6px;
-    color: ${({theme}) => theme.gray};;
+    color: ${({ theme }) => theme.gray};
     font-size: 11px;
     cursor: pointer;
     font-family: 'Montserrat';

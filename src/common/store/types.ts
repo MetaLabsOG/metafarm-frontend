@@ -16,6 +16,14 @@ export type Asset = {
 
 export type Priced<T> = T & { price: number; priceInAlgo: number };
 
+/**
+ * Makes all optional fields in the record type (ones ending with `?`) non-optional.
+ * E.g. `AllDetined<ContractState<T>>` __must__ have the `local` field.
+ */
+export type AllDefined<T> = {
+    [Property in keyof T]-?: T[Property];
+};
+
 // TODO: there should be a better way to add new contract types
 // We should explore the possibility of providing types from the _contract packages_.
 export type ContractType = 'farm' | 'crowdsale' | 'distribution';
@@ -26,7 +34,7 @@ export type FarmType = 'farm' | 'distribution';
 export type ContractState<T extends ContractType> = {
     initial: InitialInfo[T];
     global: GlobalInfo[T];
-    local: LocalInfo[T];
+    local?: LocalInfo[T];
 };
 
 export type Contract<T extends ContractType> = {
@@ -36,20 +44,24 @@ export type Contract<T extends ContractType> = {
     state: ContractState<T> | null;
 };
 
+export type WithStateCache<T extends ContractType, V> = {
+    cache?: ContractState<T>;
+} & V;
+
 export type ContractInfo<T extends ContractType> = {
     type: T;
     id: AppId;
     version: string;
     deployed_timestamp: number;
     description: string | null;
-    metadata: ContractMetadata[T];
+    metadata: WithStateCache<T, ContractMetadata[T]>;
 };
 
 export type ContractMetadata = {
-    farm: null;
+    farm: {};
     distribution: null;
     crowdsale: { whitelist: Array<string> };
-    fomo: null;
+    fomo: {};
 };
 
 type InitialInfo = {

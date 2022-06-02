@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useStore, useStoreMap } from 'effector-react';
 import { equals } from 'ramda';
-import { $balances, ContractState, Priced, Asset, FarmType } from '../../../common/store';
+import { $balances, ContractState, Priced, Asset, AllDefined, FarmType } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import {
     Action,
@@ -17,12 +17,14 @@ import {
     ClaimButton,
     MaxButton,
     Link,
-    Packman,
+    Pacman,
 } from './styled';
 import packman from '../../../imgs/pacman.gif';
 import { calculateAmountToken, isValidAmount, getLPTokenPoolLink, formatLPTokenName, numberRound } from './utils';
 import { PoolState } from './types';
 import { ToastTypes, useToasts } from './hooks';
+import { ZapModal } from '../../../Zap/ZapModal';
+import { useModal } from 'react-hooks-use-modal';
 
 export const PoolActions = ({
     poolState,
@@ -33,7 +35,7 @@ export const PoolActions = ({
 }: {
     poolState: PoolState;
     ctc: any;
-    contractState: ContractState<FarmType>;
+    contractState: AllDefined<ContractState<FarmType>>;
     lpTokenInfo: LPTokenInfo | null;
     rewardTokenInfo: Priced<Asset>;
 }) => {
@@ -62,6 +64,7 @@ export const PoolActions = ({
     const canClaim = poolState > PoolState.Upcoming;
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim;
 
+    const [Modal, open, close, isOpen] = useModal('root', { preventScroll: true });
     const amountSuffix = lpTokenInfo ? 'LP' : rewardTokenInfo.unitName;
 
     useToasts({
@@ -142,9 +145,9 @@ export const PoolActions = ({
         <PoolActionsWrapper>
             <TokenInfo>
                 {lpTokenInfo && canStake && (
-                    <Link href={getLPTokenPoolLink(lpTokenInfo)} target="_blank" rel="noreferrer">
-                        <GetLpTokenButton>Get LP Tokens</GetLpTokenButton>
-                    </Link>
+                    // <Link href={getLPTokenPoolLink(lpTokenInfo)} target="_blank" rel="noreferrer">
+                    <GetLpTokenButton onClick={open}>Get LP Tokens</GetLpTokenButton>
+                    // </Link>
                 )}
             </TokenInfo>
             <Stake>
@@ -156,8 +159,9 @@ export const PoolActions = ({
                                 isActive={canStake && !pendingStake}
                                 disabled={!isActiveStake}
                                 onClick={() => stake(toStake)}
+
                             >
-                                {pendingStake ? <Packman src={packman} /> : 'STAKE'}
+                                {pendingStake ? <Pacman src={packman} /> : 'STAKE'}
                             </Button>
                             {isViewMaxForStake && <MaxButton onClick={setMaxStake}>MAX</MaxButton>}
                         </Action>
@@ -180,8 +184,9 @@ export const PoolActions = ({
                         isActive={canWithdraw && !pendingWithdraw}
                         disabled={!canWithdraw}
                         onClick={() => withdraw(toWithdraw)}
+
                     >
-                        {pendingWithdraw ? <Packman src={packman} /> : 'WITHDRAW'}
+                        {pendingWithdraw ? <Pacman src={packman} /> : 'WITHDRAW'}
                     </Button>
                     {isViewMaxForWithdraw && <MaxButton onClick={setMaxWithdraw}>MAX</MaxButton>}
                 </Action>
@@ -192,10 +197,13 @@ export const PoolActions = ({
             <Claim>
                 {canClaim && (
                     <ClaimButton isActive={isActiveClaim} onClick={() => isActiveClaim && ctc.apis.claim()}>
-                        {pendingClaim ? <Packman src={packman} /> : 'CLAIM'}
+                        {pendingClaim ? <Pacman src={packman} /> : 'CLAIM'}
                     </ClaimButton>
                 )}
             </Claim>
+            <Modal>
+                <ZapModal asset1_id={lpTokenInfo.asset1} asset2_id={lpTokenInfo.asset2} />
+            </Modal>
         </PoolActionsWrapper>
     );
 };
