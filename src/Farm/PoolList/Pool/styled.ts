@@ -219,9 +219,9 @@ export const LPTokensIcon = styled.div<{ first?: boolean }>`
     left: ${({ first }) => (first ? '0' : '30px')};
     height: 40px;
     width: 40px;
-    border: 1px solid;
+    border: 0px solid;
     border-radius: 40px;
-    color: ${({ theme, first }) => (first ? theme.green : theme.white)};
+    // color: ${({ theme, first }) => (first ? theme.green : theme.white)};
     background-color: black;
 `;
 

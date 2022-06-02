@@ -28,9 +28,9 @@ export type PoolInfo = {
 export type LPTokenInfo = Asset & PoolInfo;
 
 export type SwapQuote = {
-    amountIn: number;   // In MICROTOKENS
-    amountOut: number;  // In MICROTOKENS
-    price: number;      // but price is calculated in FULL TOKENS (considering the DECIMALS of assets), following the Pact interface
+    amountIn: number; // In MICROTOKENS
+    amountOut: number; // In MICROTOKENS
+    price: number; // but price is calculated in FULL TOKENS (considering the DECIMALS of assets), following the Pact interface
 };
 
 export interface Dex {
@@ -116,9 +116,9 @@ export class PactDex implements Dex {
     }
 
     async fixPactPoolDefaults(pool: pactsdk.Pool, a1: AssetId | Asset, a2: AssetId | Asset): Promise<pactsdk.Pool> {
-        // weird shit with incompleteness of Pact's pool state info 
+        // weird shit with incompleteness of Pact's pool state info
         if (pool.primaryAsset.index === 0 && pool.secondaryAsset.index === 0) {
-            const primary = typeof a1 === 'number' ? await fetchAsset(a1) : a1; 
+            const primary = typeof a1 === 'number' ? await fetchAsset(a1) : a1;
             const secondary = typeof a2 === 'number' ? await fetchAsset(a2) : a2;
             pool.primaryAsset = this.makePactAsset(primary);
             pool.secondaryAsset = this.makePactAsset(secondary);
@@ -468,8 +468,8 @@ export class TinymanDex implements Dex {
 
         return {
             amountIn,
-            amountOut, 
-            price: amountOut / amountIn * decRatio,
+            amountOut,
+            price: (amountOut / amountIn) * decRatio,
         };
     }
 }

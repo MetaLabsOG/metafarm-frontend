@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useStore, useStoreMap } from 'effector-react';
 import { equals } from 'ramda';
-import { $balances, ContractState, Priced, Asset, AllDefined } from '../../../common/store';
+import { $balances, ContractState, Priced, Asset, AllDefined, FarmType } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import {
     Action,
@@ -16,9 +16,9 @@ import {
     Claim,
     ClaimButton,
     MaxButton,
-    Link,
     Pacman,
 } from './styled';
+
 import packman from '../../../imgs/pacman.gif';
 import { calculateAmountToken, isValidAmount, getLPTokenPoolLink, formatLPTokenName, numberRound } from './utils';
 import { PoolState } from './types';
@@ -35,14 +35,15 @@ export const PoolActions = ({
 }: {
     poolState: PoolState;
     ctc: any;
-    contractState: AllDefined<ContractState<'farm'>>;
-    lpTokenInfo: LPTokenInfo;
+    contractState: AllDefined<ContractState<FarmType>>;
+    lpTokenInfo: LPTokenInfo | null;
     rewardTokenInfo: Priced<Asset>;
 }) => {
     const pendingStake = useStore(ctc.apis.stake.pending);
     const pendingClaim = useStore(ctc.apis.claim.pending);
     const pendingWithdraw = useStore(ctc.apis.unstake.pending);
-    const lpBalance = useStoreMap($balances, (bs) => bs[lpTokenInfo.id] || 0);
+    const stakeToken = lpTokenInfo ? lpTokenInfo : rewardTokenInfo;
+    const lpBalance = useStoreMap($balances, (bs) => bs[stakeToken.id] || 0);
     const [toStake, setToStake] = useState<string>('');
     const [isViewMaxForStake, setIsVievMaxForStake] = useState<boolean>(true);
     const [toWithdraw, setToWithdraw] = useState<string>('');
@@ -50,8 +51,8 @@ export const PoolActions = ({
     const [isValidWithdraw, setIsValidWithdraw] = useState<boolean>(true);
     const [isValidStake, setIsValidStake] = useState<boolean>(true);
 
-    const stakedTokens = calculateAmountToken(lpTokenInfo, contractState.local.staked);
-    const lpBalanceForView = lpBalance === null ? '-' : calculateAmountToken(lpTokenInfo, lpBalance);
+    const stakedTokens = calculateAmountToken(stakeToken, contractState.local.staked);
+    const lpBalanceForView = lpBalance === null ? '-' : calculateAmountToken(stakeToken, lpBalance);
 
     const canStake = poolState !== PoolState.Finished;
 
@@ -64,24 +65,25 @@ export const PoolActions = ({
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim;
 
     const [Modal, open, close, isOpen] = useModal('root', { preventScroll: true });
+    const amountSuffix = lpTokenInfo ? 'LP' : rewardTokenInfo.unitName;
 
     useToasts({
         api: ctc.apis.stake,
-        text: `${formatLPTokenName(lpTokenInfo.name)} ${toStake} LP stake`,
+        text: `${formatLPTokenName(stakeToken.name)} ${toStake} LP stake`,
         pendingStatus: pendingStake,
         action: ToastTypes.stake,
     });
 
     useToasts({
         api: ctc.apis.unstake,
-        text: `${formatLPTokenName(lpTokenInfo.name)} ${toWithdraw} LP withdraw`,
+        text: `${formatLPTokenName(stakeToken.name)} ${toWithdraw} LP withdraw`,
         pendingStatus: pendingWithdraw,
         action: ToastTypes.withdraw,
     });
 
     useToasts({
         api: ctc.apis.claim,
-        text: `${formatLPTokenName(lpTokenInfo.name)} ${numberRound(
+        text: `${formatLPTokenName(stakeToken.name)} ${numberRound(
             calculateAmountToken(rewardTokenInfo, contractState.local.reward)
         )} claim`,
         pendingStatus: pendingClaim,
@@ -111,7 +113,7 @@ export const PoolActions = ({
     };
 
     const onChangeStake = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const convertedAmount = Math.floor(parseFloat(e.currentTarget.value) * 10 ** lpTokenInfo.decimals);
+        const convertedAmount = Math.floor(parseFloat(e.currentTarget.value) * 10 ** stakeToken.decimals);
         setIsValidStake(isValidAmount(convertedAmount, Number(lpBalance)));
         setIsVievMaxForStake(!equals(convertedAmount, lpBalance));
         setToStake(e.currentTarget.value);
@@ -119,30 +121,30 @@ export const PoolActions = ({
 
     const stake = useCallback(
         (amount: string) => {
-            const convertedAmount = Math.floor(parseFloat(amount) * 10 ** lpTokenInfo.decimals);
+            const convertedAmount = Math.floor(parseFloat(amount) * 10 ** stakeToken.decimals);
             if (!pendingStake && lpBalance && convertedAmount <= lpBalance && isValidStake) {
                 ctc.apis.stake([convertedAmount]);
                 setToStake('');
             }
         },
 
-        [pendingStake, ctc.apis, isValidStake, lpBalance, lpTokenInfo.decimals]
+        [pendingStake, ctc.apis, isValidStake, lpBalance, stakeToken.decimals]
     );
 
     const withdraw = useCallback(
         (amount: string) => {
             if (!pendingWithdraw && canWithdraw && isValidWithdraw) {
-                ctc.apis.unstake([Math.floor(parseFloat(amount) * 10 ** lpTokenInfo.decimals)]);
+                ctc.apis.unstake([Math.floor(parseFloat(amount) * 10 ** stakeToken.decimals)]);
                 setToWithdraw('');
             }
         },
-        [pendingWithdraw, canWithdraw, isValidWithdraw, ctc.apis, lpTokenInfo.decimals]
+        [pendingWithdraw, canWithdraw, isValidWithdraw, ctc.apis, stakeToken.decimals]
     );
 
     return (
         <PoolActionsWrapper>
             <TokenInfo>
-                {canStake && (
+                {lpTokenInfo && canStake && (
                     // <Link href={getLPTokenPoolLink(lpTokenInfo)} target="_blank" rel="noreferrer">
                     <GetLpTokenButton onClick={open}>Get LP Tokens</GetLpTokenButton>
                     // </Link>
@@ -163,7 +165,7 @@ export const PoolActions = ({
                             {isViewMaxForStake && <MaxButton onClick={setMaxStake}>MAX</MaxButton>}
                         </Action>
                         <Balance isValid={isValidStake}>
-                            Balance: {lpBalanceForView} LP {isValidStake ? '' : '(Not enough)'}
+                            Balance: {lpBalanceForView} {amountSuffix} {isValidStake ? '' : '(Not enough)'}
                         </Balance>
                     </>
                 )}
@@ -187,7 +189,7 @@ export const PoolActions = ({
                     {isViewMaxForWithdraw && <MaxButton onClick={setMaxWithdraw}>MAX</MaxButton>}
                 </Action>
                 <Balance isValid={isValidWithdraw}>
-                    Staked: {stakedTokens} LP {isValidWithdraw ? '' : '(Not enough)'}
+                    Staked: {stakedTokens} {amountSuffix} {isValidWithdraw ? '' : '(Not enough)'}
                 </Balance>
             </WithDraw>
             <Claim>
@@ -197,9 +199,11 @@ export const PoolActions = ({
                     </ClaimButton>
                 )}
             </Claim>
-            <Modal>
-                <ZapModal asset1_id={lpTokenInfo.asset1} asset2_id={lpTokenInfo.asset2} />
-            </Modal>
+            {lpTokenInfo && (
+                <Modal>
+                    <ZapModal asset1_id={lpTokenInfo.asset1} asset2_id={lpTokenInfo.asset2} />
+                </Modal>
+            )}
         </PoolActionsWrapper>
     );
 };

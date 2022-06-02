@@ -48,7 +48,7 @@ export const MetaDAO = () => {
                     <NFTList />
                 </>
             ) : (
-                <Fail>Fail, try again...</Fail>
+                <Fail>Loading...</Fail>
             )}
         </MetaDAOContainer>
     );

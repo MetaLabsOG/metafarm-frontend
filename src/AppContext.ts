@@ -15,6 +15,7 @@ export const TESTNET: NetworkName = 'TestNet';
 export const MAINNET: NetworkName = 'MainNet';
 
 export const ALGONET: NetworkName = (process.env.ALGO_NETWORK as NetworkName) || TESTNET;
+console.log(ALGONET);
 
 const META_TOKEN_IDS = {
     TestNet: 85951079,

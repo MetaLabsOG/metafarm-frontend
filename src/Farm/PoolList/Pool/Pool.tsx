@@ -1,24 +1,28 @@
 import { useEffect, useState } from 'react';
 import { Status } from '../../../Status';
-import { $networkTime, queryTimeUpdate, Contract, AllDefined, ContractState } from '../../../common/store';
+import { $networkTime, queryTimeUpdate, Contract, FarmType, AllDefined, ContractState } from '../../../common/store';
 import { useStore, useStoreMap } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolInfoContainer } from './styled';
 import { $farmLPTokens, $farmRewardTokens } from '../../store';
+import { $stakingTokens } from '../../../Stake/store';
 
-export const Pool = ({ contract }: { contract: Contract<'farm'> }) => {
+export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) => {
     const currentBlock = useStore($networkTime);
     const lpTokenInfo = useStoreMap($farmLPTokens, (tokens) => tokens.get(contract.id, null));
-    const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null));
+    const stakingTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
+    const rewardTokenInfo =
+        useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null)) ?? stakingTokenInfo;
 
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(queryTimeUpdate, [contract]);
 
-    if (currentBlock === 0 || !contract.state || !lpTokenInfo || !rewardTokenInfo) {
-        console.log('WHY LOADING?', currentBlock, contract.state, lpTokenInfo, rewardTokenInfo)
+    const is_info_loaded = rewardTokenInfo && ((type === 'farm' && lpTokenInfo) || type === 'distribution');
+    if (currentBlock === 0 || !contract.state || !is_info_loaded) {
+        console.log('WHY LOADING?', type, currentBlock, contract.state, lpTokenInfo, rewardTokenInfo, stakingTokenInfo);
         return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
     }
 

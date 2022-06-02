@@ -15,6 +15,7 @@ import { theme } from './theme';
 import { Container, ContentContainer, StyledContainer } from './common/styled';
 import { Crowdsale } from './Crowdsale';
 import { fetchAlgoPrice, fetchBtcPrice } from './common/store';
+import { Stake } from './Stake/Stake';
 
 import './css/index.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -31,15 +32,16 @@ const App = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <GlobalStyle />
-            <StyledContainer limit={3}/>
+            <StyledContainer limit={3} />
             <ThemeProvider theme={theme}>
                 <Container>
                     <Menu />
                     <ContentContainer>
                         <Routes>
-                            <Route path="/" element={<Fomo />} />
+                            <Route path="/" element={<Farm />} />
                             <Route path="/fomo" element={<Fomo />} />
                             <Route path="/farm" element={<Farm />} />
+                            <Route path="/stake" element={<Stake />} />
                             <Route path="/swap" element={<Swap />} />
                             <Route path="/zap" element={<Zap />} />
                             <Route path="/meta-dao" element={<MetaDAO />} />
