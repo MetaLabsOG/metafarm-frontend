@@ -1,19 +1,18 @@
 import { useStore } from 'effector-react';
 import { $account, $meanRoundDuration, Asset, ContractState, FarmType, Priced } from '../../../common/store';
-import { calculateAmountToken, convertAmountToUSD, formatLPTokenName, numberRound } from './utils';
+import { formatLPTokenName } from './utils';
 import { PoolState } from './types';
-import { ArrowIconsWrapper, BasicInfo, LPTokensIcon, LpTokensIconsWrapper, PoolInfoValue, Pacman } from './styled';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { Arrow } from '../../../imgs/arrow';
 import React from 'react';
 import { ALGONET, MAINNET } from '../../../AppContext';
-import packman from '../../../imgs/pacman.gif';
+import { PoolInfoDesktop } from './PoolInfoDesktop';
+import { PoolInfoMobile } from './PoolInfoMobile';
 
-const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
+export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
     0: 0, // ALGO
     85951079: 712012773, // META
     19386116: 386192725, // goBTC
-    37074699: 31566704, // USDC
+    10458941: 31566704, // USDC
     70283957: 463554836, // ALGF
 };
 
@@ -80,54 +79,37 @@ export const PoolInfo = ({
 
     const asset1_id = lpTokenInfo ? lpTokenInfo.asset1 : rewardTokenInfo.id;
     const asset2_id = lpTokenInfo ? lpTokenInfo.asset2 : rewardTokenInfo.id;
-    const pool_name = lpTokenInfo ? lpTokenInfo.name + ' LP' : 'STAKE ' + rewardTokenInfo.unitName;
+    const pool_name = lpTokenInfo ? formatLPTokenName(lpTokenInfo.name) + ' LP' : 'STAKE ' + rewardTokenInfo.unitName;
     // TODO: separate 0 from undefined in lpTokenInfo.asset
     const asset1_logo = getAssetLogoUrl(asset1_id);
     const asset2_logo = getAssetLogoUrl(asset2_id);
 
     return (
         <>
-            <PoolInfoValue width={23}>
-                <BasicInfo>
-                    <LpTokensIconsWrapper>
-                        <LPTokensIcon first>
-                            {asset1_logo && <img alt="" width="100%" height="100%" src={asset1_logo} />}
-                        </LPTokensIcon>
-                        <LPTokensIcon>
-                            {asset2_logo && <img alt="" width="100%" height="100%" src={asset2_logo} />}
-                        </LPTokensIcon>
-                    </LpTokensIconsWrapper>
-                    <div>
-                        {pool_name} <div>EARN {rewardTokenInfo.unitName}</div>
-                    </div>
-                </BasicInfo>
-            </PoolInfoValue>
-            <PoolInfoValue>{`$${numberRound(
-                convertAmountToUSD(lpTokenInfo ?? rewardTokenInfo, contractState.global.totalStaked)
-            )}`}</PoolInfoValue>
-            <PoolInfoValue>{numberRound(APR)}%</PoolInfoValue>
-            <PoolInfoValue>
-                {contractState.local
-                    ?`$${numberRound(convertAmountToUSD(lpTokenInfo ?? rewardTokenInfo, contractState.local.staked))}`
-                    : '—'}
-            </PoolInfoValue>
-            <PoolInfoValue>
-                {contractState.local ? (
-                    <>
-                        <div>{`$${numberRound(convertAmountToUSD(rewardTokenInfo, contractState.local.reward))}`}</div>
-                        <div>{`${numberRound(calculateAmountToken(rewardTokenInfo, contractState.local.reward))} ${
-                            rewardTokenInfo.unitName
-                        }`}</div>{' '}
-                    </>
-                ) : (
-                    '—'
-                )}
-            </PoolInfoValue>
-            <PoolInfoValue style={{ color: 'gray' }}>{timing} </PoolInfoValue>
-            <ArrowIconsWrapper>{
-                contractState.local ?<Arrow rotate={isOpen} />:
-                account !== null ? <Pacman src={packman} />: ''
-            }</ArrowIconsWrapper>
+            <PoolInfoDesktop
+                account={account}
+                contractState={contractState}
+                lpTokenInfo={lpTokenInfo}
+                rewardTokenInfo={rewardTokenInfo}
+                asset1_logo={asset1_logo}
+                asset2_logo={asset2_logo}
+                pool_name={pool_name}
+                APR={APR}
+                timing={timing}
+                isOpen={isOpen}
+            />
+            <PoolInfoMobile
+                account={account}
+                contractState={contractState}
+                lpTokenInfo={lpTokenInfo}
+                rewardTokenInfo={rewardTokenInfo}
+                asset1_logo={asset1_logo}
+                asset2_logo={asset2_logo}
+                pool_name={pool_name}
+                APR={APR}
+                timing={timing}
+                isOpen={isOpen}
+            />
         </>
     );
 };

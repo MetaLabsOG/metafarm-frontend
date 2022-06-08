@@ -11,7 +11,7 @@ export interface TokenSelectOption {
     name: string;
     unit_name: string;
     logo: string;
-    amount: number;
+    balance: number;
 }
 
 export interface Token {

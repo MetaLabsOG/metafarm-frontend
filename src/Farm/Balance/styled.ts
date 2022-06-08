@@ -36,6 +36,10 @@ export const BalanceList = styled.div`
     &:first-child {
     }
 
+    @media (max-width: 1100px) {
+        min-width: auto;
+    }
+
     @media (max-width: 640px) {
         display: none;
     }

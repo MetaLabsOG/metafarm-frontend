@@ -45,7 +45,7 @@ export const Container = styled.div`
 `;
 
 export const ContentContainer = styled.div`
-    margin-top: 125px;
+    margin-top: 50px;
     display: flex;
     justify-content: center;
 `;
@@ -56,18 +56,17 @@ export const InfoHeader = styled.h2`
     margin-top: 10%;
     display: flex;
     justify-content: center;
-    font-family: "Korona One";
+    font-family: 'Korona One';
 `;
 
-
 export const StyledContainer = styled(ToastContainer)`
-   
-    &&&.Toastify__toast-container {}
+    &&&.Toastify__toast-container {
+    }
     .Toastify__toast-body {
         font-size: 14px;
-        font-family: "Korona One";
+        font-family: 'Korona One';
     }
     .Toastify__toast-theme--dark {
-        background: #1F1F1F;
-     }
-`
+        background: #1f1f1f;
+    }
+`;

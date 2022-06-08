@@ -1,24 +1,36 @@
 import { formatDecimalsMeaningful } from '../../../common/lib';
 import { Asset, Priced } from '../../../common/store/types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { ALGONET, reach, TESTNET } from '../../../AppContext';
+import { ALGONET, MAINNET, reach, TESTNET } from '../../../AppContext';
+import { TESTNET_TO_MAINNET_ASA_ID } from './PoolInfo';
 
 const TINYMAN_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.tinyman.org`;
 const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
 
-export const isValidAmount = (amount: number, balance: number) => balance >= amount && amount > 0;
+export const isValidAmount = (amount: number, balance: number) => amount <= balance;
 
+export const calculateTokenAmount = (token: Asset, amount: number | null): number => {
+    if (amount === null) {
+        return 0;
+    }
 
-export const calculateAmountToken = (lpToken: Asset, balanceTokenOnAccount: number) => {
-     return Number(reach.formatWithDecimals(balanceTokenOnAccount, lpToken.decimals))
+    return Number(reach.formatWithDecimals(amount.toString(), token.decimals));
+};
+
+export const calculateTokenMicroAmount = (token: Asset, amount: number | null): number => {
+    if (amount === null) {
+        return 0;
+    }
+
+    return Math.floor(amount * 10 ** token.decimals);
 };
 
 export const convertAmountToUSD = (lpToken: Priced<Asset>, amount: number) => {
-    return  (lpToken.price * amount) / 10 ** lpToken.decimals;
+    return (lpToken.price * amount) / 10 ** lpToken.decimals;
 };
 
 export const numberRound = (amount: number) => {
-    return  Number(amount) > 0 ? formatDecimalsMeaningful(Number(amount)) : 0;
+    return Number(amount) > 0 ? formatDecimalsMeaningful(Number(amount)) : 0;
 };
 
 export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenInfo): string => {
@@ -29,10 +41,14 @@ export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenI
     } else {
         return '#'; // dunno what else to do with dummy LPs
     }
-}
+};
 
+export const getTinyChartTokenLink = (asset_id: number | undefined): string => {
+    const mainnet_asset_id = ALGONET === MAINNET || !asset_id ? asset_id : TESTNET_TO_MAINNET_ASA_ID[asset_id];
+    return mainnet_asset_id ? 'https://tinychart.org/asset/' + mainnet_asset_id : '';
+};
 
 // TODO: remove this when pools name it will be not test names
 export const formatLPTokenName = (name: string) => {
-    return name.replace('/', ' • ').replace('liquidity', '');
+    return name.replace('TinymanPool1.1 ', '');
 };

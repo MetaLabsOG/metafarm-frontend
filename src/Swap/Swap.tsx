@@ -5,7 +5,7 @@ import { ALGONET, MAINNET, reach, TESTNET } from '../AppContext';
 import 'react-select-search/style.css';
 import '../css/swap.css';
 import { Token, TokenSelectOption, BestSwap, Transaction } from './types';
-import { $account } from '../common/store';
+import { $account, $balances, Amount, AssetId } from '../common/store';
 
 import SelectSearch, { fuzzySearch, SelectedOption, SelectedOptionValue } from 'react-select-search';
 import React from 'react';
@@ -30,7 +30,7 @@ export const TOKEN_INITIAL_STATE = {
     name: '',
     unit_name: '',
     logo: '',
-    amount: 0,
+    balance: 0,
 };
 
 export enum QueryType {
@@ -255,7 +255,10 @@ export async function runTransactions(
     setIsLoading(false);
 }
 
-export async function getOptions(account: Account | null): Promise<TokenSelectOption[]> {
+export async function getOptions(
+    account: Account | null,
+    balances: Record<AssetId, Amount> | null = null
+): Promise<TokenSelectOption[]> {
     const asset_response = await fetch(ASSETS_PATH);
     const assets_res: Token[] = await asset_response.json();
     const assets: TokenSelectOption[] = Object.values(assets_res)
@@ -264,7 +267,7 @@ export async function getOptions(account: Account | null): Promise<TokenSelectOp
             name: token.name,
             unit_name: token.unit_name,
             logo: token.logo.png,
-            amount: 0,
+            balance: 0,
         }))
         .filter((token) => token.value);
 
@@ -277,8 +280,8 @@ export async function getOptions(account: Account | null): Promise<TokenSelectOp
     const wallet_assets = await wallet_response.json();
     console.log(wallet_assets);
 
-    assets.forEach((asset) => (asset.amount = wallet_assets[asset.value] ? wallet_assets[asset.value].amount : 0));
-    assets.sort((a, b) => (a.amount < b.amount ? 1 : -1));
+    assets.forEach((asset) => (asset.balance = wallet_assets[asset.value] ? wallet_assets[asset.value].amount : 0));
+    assets.sort((a, b) => (a.balance < b.balance ? 1 : -1));
 
     return assets;
 }
@@ -499,7 +502,7 @@ export function TokenSelectWithAmount({
             />
             <div style={{ width: '100%' }}>
                 <input className="token_input" placeholder={'10'} onChange={inputOnChange} value={tokenAmount} />
-                {token.amount > 0 && <div className="token_balance">Balance: {formatNumber(token.amount)}</div>}
+                {token.balance > 0 && <div className="token_balance">Balance: {formatNumber(token.balance)}</div>}
             </div>
         </div>
     );

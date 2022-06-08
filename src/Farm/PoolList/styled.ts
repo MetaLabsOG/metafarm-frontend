@@ -33,4 +33,10 @@ export const PoolListContainer = styled.div`
     width: 80%;
     min-width: 1114px;
     border-radius: 10px;
+
+    @media (max-width: 640px) {
+        background-color: black;
+        min-width: auto;
+        margin-top: 0;
+    }
 `;
