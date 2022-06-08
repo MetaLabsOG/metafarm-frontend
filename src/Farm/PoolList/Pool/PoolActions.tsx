@@ -50,21 +50,7 @@ export const PoolActions = ({
 
     return (
         <>
-            <PoolActionsDesktop
-                lpTokenInfo={lpTokenInfo}
-                stakedToken={stakedToken}
-                stakedTokenBalance={stakedTokenBalance}
-                balanceSuffix={balanceSuffix}
-                ctc={ctc}
-                contractState={contractState}
-                canStake={canStake}
-                canClaim={canClaim}
-                isActiveClaim={isActiveClaim}
-                pendingClaim={pendingClaim}
-                ModalOpen={open}
-            />
-            {/*kostyl, else it's render on desktop also and there is two notifications from useToast*/}
-            {window.innerHeight <= 1120 && (
+            {window.innerWidth <= 1120 ? (
                 <PoolActionsMobile
                     lpTokenInfo={lpTokenInfo}
                     stakedToken={stakedToken}
@@ -72,6 +58,20 @@ export const PoolActions = ({
                     ctc={ctc}
                     contractState={contractState}
                     balanceSuffix={balanceSuffix}
+                    canStake={canStake}
+                    canClaim={canClaim}
+                    isActiveClaim={isActiveClaim}
+                    pendingClaim={pendingClaim}
+                    ModalOpen={open}
+                />
+            ) : (
+                <PoolActionsDesktop
+                    lpTokenInfo={lpTokenInfo}
+                    stakedToken={stakedToken}
+                    stakedTokenBalance={stakedTokenBalance}
+                    balanceSuffix={balanceSuffix}
+                    ctc={ctc}
+                    contractState={contractState}
                     canStake={canStake}
                     canClaim={canClaim}
                     isActiveClaim={isActiveClaim}

@@ -86,30 +86,33 @@ export const PoolInfo = ({
 
     return (
         <>
-            <PoolInfoDesktop
-                account={account}
-                contractState={contractState}
-                lpTokenInfo={lpTokenInfo}
-                rewardTokenInfo={rewardTokenInfo}
-                asset1_logo={asset1_logo}
-                asset2_logo={asset2_logo}
-                pool_name={pool_name}
-                APR={APR}
-                timing={timing}
-                isOpen={isOpen}
-            />
-            <PoolInfoMobile
-                account={account}
-                contractState={contractState}
-                lpTokenInfo={lpTokenInfo}
-                rewardTokenInfo={rewardTokenInfo}
-                asset1_logo={asset1_logo}
-                asset2_logo={asset2_logo}
-                pool_name={pool_name}
-                APR={APR}
-                timing={timing}
-                isOpen={isOpen}
-            />
+            {window.innerWidth <= 1120 ? (
+                <PoolInfoMobile
+                    account={account}
+                    contractState={contractState}
+                    lpTokenInfo={lpTokenInfo}
+                    rewardTokenInfo={rewardTokenInfo}
+                    asset1_logo={asset1_logo}
+                    asset2_logo={asset2_logo}
+                    pool_name={pool_name}
+                    APR={APR}
+                    timing={timing}
+                    isOpen={isOpen}
+                />
+            ) : (
+                <PoolInfoDesktop
+                    account={account}
+                    contractState={contractState}
+                    lpTokenInfo={lpTokenInfo}
+                    rewardTokenInfo={rewardTokenInfo}
+                    asset1_logo={asset1_logo}
+                    asset2_logo={asset2_logo}
+                    pool_name={pool_name}
+                    APR={APR}
+                    timing={timing}
+                    isOpen={isOpen}
+                />
+            )}
         </>
     );
 };

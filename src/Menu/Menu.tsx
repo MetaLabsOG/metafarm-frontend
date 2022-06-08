@@ -41,7 +41,7 @@ const ExchangeRates = ({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; MET
     return (
         <>
             <Logo src={algo_logo} alt="logo" height="24px" />
-            <ExchangeRate>{formatPrice(ALGOPrice)}$</ExchangeRate>
+            <ExchangeRate>${formatPrice(ALGOPrice)}</ExchangeRate>
             <Logo src={meta_logo} alt="logo" height="24px" />
             <ExchangeRate>${formatPrice(METAPrice?.price ?? 0)}</ExchangeRate>
         </>
