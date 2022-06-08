@@ -32,6 +32,7 @@ export const BalanceList = styled.div`
     text-align: center;
     border-radius: 10px;
     font-size: 18px;
+    margin-bottom: 30px;
 
     &:first-child {
     }

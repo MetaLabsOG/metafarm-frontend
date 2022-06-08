@@ -25,7 +25,7 @@ export const PoolListHeaderElement = styled.div<{ width?: number }>`
 `;
 
 export const PoolListContainer = styled.div`
-    margin-top: 40px;
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;

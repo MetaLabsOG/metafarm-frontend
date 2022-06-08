@@ -63,6 +63,7 @@ export const PoolActions = ({
                 pendingClaim={pendingClaim}
                 ModalOpen={open}
             />
+            {/*kostyl, else it's render on desktop also and there is two notifications from useToast*/}
             {window.innerHeight <= 480 && (
                 <PoolActionsMobile
                     lpTokenInfo={lpTokenInfo}
