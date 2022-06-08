@@ -10,15 +10,16 @@ import {
 } from 'algosdk';
 import { Buffer } from 'buffer';
 import { Account, ReachStdlib } from '../types';
-
+import { Asset } from './store';
+import { reach } from '../AppContext';
 
 export const sleep = (ms: number): Promise<void> => {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 export const formatDecimalsMeaningful = (value: number, precision: number = 2): string => {
     if (value === 0) {
-        return "0";
+        return '0';
     }
     const wholeLog = Math.floor(-Math.log10(Math.abs(value)));
     const zeros = wholeLog <= 0 ? 0 : wholeLog;
@@ -127,3 +128,18 @@ export const manualBatchOptIn = async (
     });
 };
 
+export const calculateTokenAmount = (token: Asset, amount: number | null): number => {
+    if (amount === null) {
+        return 0;
+    }
+
+    return Number(reach.formatWithDecimals(amount.toString(), token.decimals));
+};
+
+export const calculateTokenMicroAmount = (token: Asset, amount: number | null): number => {
+    if (amount === null) {
+        return 0;
+    }
+
+    return Math.floor(amount * 10 ** token.decimals);
+};

@@ -12,9 +12,17 @@ export const PoolContainer = styled.div`
     font-size: 14px;
     padding: 20px 0 20px 0;
     border-radius: 10px;
+
+    @media (max-width: 1120px) {
+        width: 300px;
+        height: 320px;
+        margin-bottom: 30px;
+    }
 `;
 
-export const PoolInfoContainer = styled.div`
+export const PoolInfoContainer = styled.div``;
+
+export const PoolInfoDesktopContainer = styled.div`
     position: relative;
     display: flex;
     justify-content: space-around;
@@ -26,6 +34,26 @@ export const PoolInfoContainer = styled.div`
     font-weight: 500;
     line-height: 22px;
     font-size: 17px;
+
+    @media (max-width: 1120px) {
+        display: none;
+    }
+`;
+
+export const PoolInfoMobileContainer = styled.div`
+    color: ${(props) => props.theme.white};
+    height: 78%;
+    width: 100%;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    line-height: 22px;
+    font-size: 17px;
+    text-align: center;
+
+    @media (min-width: 1120px) {
+        display: none;
+    }
 `;
 
 export const PoolInfoValue = styled.div<{ width?: number }>`
@@ -34,13 +62,24 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
     justify-content: center;
     margin-left: 17px;
     width: ${({ width }) => (width ? `${width}%` : '12.5%')};
+
+    @media (max-width: 1120px) {
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 20px;
+    }
 `;
 
-export const PoolActionsWrapper = styled.div`
+export const PoolActionsDesktopContainer = styled.div`
     display: flex;
     justify-content: space-between;
-    width: 84%;
+    width: 85%;
     margin-top: 38px;
+
+    @media (max-width: 1120px) {
+        display: none;
+    }
 `;
 
 export const BasicInfo = styled.div`
@@ -54,102 +93,8 @@ export const BasicInfo = styled.div`
     color: ${(props) => props.theme.white};
 `;
 
-export const Stake = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 240px;
-    height: 100%;
-    justify-content: space-around;
-`;
-
-export const WithDraw = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 240px;
-    height: 100%;
-    justify-content: space-around;
-`;
-
-export const ActionWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-`;
-
-export const Balance = styled.div<{ isValid: boolean }>`
-    margin-top: 12px;
-    font-size: 13px;
-    color: ${({ isValid, theme }) => (isValid ? theme.gray : theme.red)};
-`;
-
-export const Action = styled.div<{ customColor?: boolean; isActive?: boolean }>`
-    display: flex;
-    height: 34px;
-    width: 100%;
-    position: relative;
-    color: ${({ isActive, theme, customColor }) => {
-        if (customColor && isActive) {
-            return theme.blue;
-        }
-        if (!customColor && isActive) {
-            return theme.green;
-        }
-        return theme.gray;
-    }}};
-`;
-
-export const Button = styled.button<{ customColor?: boolean; isActive?: boolean }>`
-    border: 1px solid;
-    background-color: inherit;
-    color: ${({ theme, isActive }) => (isActive ? 'inherit' : theme.gray)};
-    width: 120px;
-    min-height: 33px;
-    border-radius: 0 4px 4px 0px;
-    cursor: ${({ isActive }) => (isActive ? 'pointer' : 'default')};
-    font-family: 'Korona One';
-    font-size: 12px;
-    ${Action}:hover & {
-        color: 'inherit';
-    }
-`;
-
-export const Input = styled.input<{ customColor?: boolean; isActive?: boolean }>`
-    border: 1px solid;
-    background-color: inherit;
-    color: ${({ theme, isActive }) => (isActive ? 'inherit' : theme.gray)};
-    border-radius: 4px 0 0 4px;
-    border-right: none;
-    width: 60%;
-    font-size: 11px;
-    padding-left: 10px;
-    font-family: 'Korona One';
-    ${Action}:hover & {
-        color: 'inherit';
-    }
-    :focus {
-        outline: none;
-    }
-`;
-
 export const Pacman = styled.img`
     height: 28px;
-`;
-
-export const MaxButton = styled.div`
-    position: absolute;
-    left: 35%;
-    top: 4px;
-    padding: 6px;
-    color: ${({ theme }) => theme.gray};
-    font-size: 11px;
-    cursor: pointer;
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 15px;
-    :hover {
-        color: inherit;
-    }
 `;
 
 export const Claim = styled.div`
@@ -159,6 +104,12 @@ export const Claim = styled.div`
     align-items: flex-end;
     width: 137px;
     height: 80%;
+
+    @media (max-width: 1120px) {
+        justify-content: center;
+        height: auto;
+        margin: 20px;
+    }
 `;
 
 export const ClaimButton = styled.div<{ isActive?: boolean }>`
@@ -185,6 +136,11 @@ export const TokenInfo = styled.div`
     width: 18%;
     justify-content: space-between;
     height: 80%;
+
+    @media (max-width: 1120px) {
+        height: auto;
+        padding: 0 0 30px 20px;
+    }
 `;
 
 export const Link = styled.a`
@@ -212,6 +168,10 @@ export const GetLpTokenButton = styled.div<{ isActive?: boolean }>`
         background-color: ${({ theme, isActive }) => theme.green};
         color: black;
     }
+
+    @media (max-width: 1120px) {
+        margin-left: 0;
+    }
 `;
 
 export const LPTokensIcon = styled.div<{ first?: boolean }>`
@@ -230,10 +190,53 @@ export const LpTokensIconsWrapper = styled.div`
     position: relative;
     height: 40px;
     width: 85px;
+
+    @media (max-width: 1120px) {
+        margin: 10px auto 10px auto;
+    }
 `;
 
 export const ArrowIconsWrapper = styled.div`
     position: absolute;
     right: 20px;
     top: 10px;
+`;
+
+export const PoolNameMobile = styled.div`
+    font-size: 14px;
+    color: #909090;
+`;
+
+export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
+    width: 200px;
+    height: 44px;
+    margin: auto;
+    background: linear-gradient(270deg, #06a903 1.29%, #00ff29 100%);
+    font-family: 'Korona One';
+    font-size: 16px;
+    text-transform: uppercase;
+    color: black;
+    border: 1px solid #03a100;
+    border-radius: 4px;
+    cursor: pointer;
+
+    :disabled {
+        background: grey;
+        border: 0;
+    }
+
+    :not(:disabled):hover {
+        color: green;
+        background: black;
+    }
+`;
+
+export const PoolActionsMobileContainer = styled.div`
+    justify-content: left;
+    width: 95%;
+    margin-top: 0;
+
+    @media (min-width: 1120px) {
+        display: none;
+    }
 `;

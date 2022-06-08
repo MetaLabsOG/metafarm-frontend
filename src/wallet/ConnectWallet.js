@@ -20,7 +20,7 @@ export function ConnectWallet() {
 
     useEffect(() => {
         setFinishedOpening(isOpen);
-    }, [isOpen]) 
+    }, [isOpen]);
 
     const connectWallet = () => {
         close();
@@ -60,13 +60,19 @@ export function ConnectWallet() {
 
     return (
         <>
-            <div style={{ justifyContent: 'center', display: 'flex' }}>
+            <div className="wallet_container">
                 {!account ? (
                     <button className="connect_wallet" onClick={open}>
                         connect wallet
                     </button>
                 ) : (
-                    <h1 className="account_info">{account.networkAccount.addr}</h1>
+                    <a
+                        target="_blank"
+                        href={'https://algoexplorer.io/address/' + account.networkAccount.addr}
+                        rel="noreferrer"
+                    >
+                        <h1 className="account_info">{account.networkAccount.addr}</h1>
+                    </a>
                 )}
             </div>
             <Modal>
@@ -81,7 +87,8 @@ export function ConnectWallet() {
                         borderRadius: 5,
                         transform: `translate3d(0px, ${finishedOpening ? 0 : 100}px, 0px)`,
                         opacity: finishedOpening ? 100 : 0,
-                        transition: 'transform 500ms cubic-bezier(0, 0, 0.25, 1) 0s, opacity 500ms cubic-bezier(0, 0, 0.25, 1) 0s',
+                        transition:
+                            'transform 500ms cubic-bezier(0, 0, 0.25, 1) 0s, opacity 500ms cubic-bezier(0, 0, 0.25, 1) 0s',
                     }}
                 >
                     <h3 className="wallet_header">Choose wallet</h3>

@@ -37,7 +37,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
         return (
             <PoolContainer>
-                <PoolInfoContainer onClick={() => setIsOpen(!isOpen)}>
+                <PoolInfoContainer onClick={() => setIsOpen(!isOpen && contract.ctc)}>
                     <PoolInfo
                         isOpen={isOpen}
                         contractState={contract.state}
