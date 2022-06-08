@@ -14,7 +14,7 @@ export const PoolListHeader = styled.div`
     font-weight: 600;
     font-size: 15.4416px;
     line-height: 19px;
-    @media (max-width: 640px) {
+    @media (max-width: 1120px) {
         display: none;
     }
 `;
@@ -34,7 +34,7 @@ export const PoolListContainer = styled.div`
     min-width: 1114px;
     border-radius: 10px;
 
-    @media (max-width: 640px) {
+    @media (max-width: 1120px) {
         background-color: black;
         min-width: auto;
         margin-top: 0;

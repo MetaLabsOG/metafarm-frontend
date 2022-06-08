@@ -13,7 +13,7 @@ export const PoolContainer = styled.div`
     padding: 20px 0 20px 0;
     border-radius: 10px;
 
-    @media (max-width: 640px) {
+    @media (max-width: 1120px) {
         width: 300px;
         height: 320px;
         margin-bottom: 30px;
@@ -35,7 +35,7 @@ export const PoolInfoDesktopContainer = styled.div`
     line-height: 22px;
     font-size: 17px;
 
-    @media (max-width: 640px) {
+    @media (max-width: 1120px) {
         display: none;
     }
 `;
@@ -51,7 +51,7 @@ export const PoolInfoMobileContainer = styled.div`
     font-size: 17px;
     text-align: center;
 
-    @media (min-width: 640px) {
+    @media (min-width: 1120px) {
         display: none;
     }
 `;
@@ -63,7 +63,7 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
     margin-left: 17px;
     width: ${({ width }) => (width ? `${width}%` : '12.5%')};
 
-    @media (max-width: 640px) {
+    @media (max-width: 1120px) {
         margin-left: 0;
         width: 100%;
         text-align: center;
@@ -77,7 +77,7 @@ export const PoolActionsDesktopContainer = styled.div`
     width: 85%;
     margin-top: 38px;
 
-    @media (max-width: 640px) {
+    @media (max-width: 1120px) {
         display: none;
     }
 `;
@@ -191,7 +191,7 @@ export const LpTokensIconsWrapper = styled.div`
     height: 40px;
     width: 85px;
 
-    @media (max-width: 640px) {
+    @media (max-width: 1120px) {
         margin: 10px auto 10px auto;
     }
 `;
@@ -236,7 +236,7 @@ export const PoolActionsMobileContainer = styled.div`
     width: 95%;
     margin-top: 0;
 
-    @media (min-width: 640px) {
+    @media (min-width: 1120px) {
         display: none;
     }
 `;
