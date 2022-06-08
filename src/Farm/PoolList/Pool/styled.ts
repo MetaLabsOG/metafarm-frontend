@@ -105,7 +105,7 @@ export const Claim = styled.div`
     width: 137px;
     height: 80%;
 
-    @media (max-width: 640px) {
+    @media (max-width: 1120px) {
         justify-content: center;
         height: auto;
         margin: 20px;
@@ -137,7 +137,7 @@ export const TokenInfo = styled.div`
     justify-content: space-between;
     height: 80%;
 
-    @media (max-width: 640px) {
+    @media (max-width: 1120px) {
         height: auto;
         padding: 0 0 30px 20px;
     }
@@ -169,7 +169,7 @@ export const GetLpTokenButton = styled.div<{ isActive?: boolean }>`
         color: black;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 1120px) {
         margin-left: 0;
     }
 `;

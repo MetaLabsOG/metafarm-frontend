@@ -7,10 +7,9 @@ export const TokenInputWithButtonContainer = styled.div`
     height: 100%;
     justify-content: space-around;
 
-    @media (max-width: 640px) {
+    @media (max-width: 1120px) {
         justify-content: center;
         height: auto;
-        width: 280px;
         width: auto;
         margin: 0 20px 20px 20px;
     }

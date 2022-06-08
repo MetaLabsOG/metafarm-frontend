@@ -64,7 +64,7 @@ export const PoolActions = ({
                 ModalOpen={open}
             />
             {/*kostyl, else it's render on desktop also and there is two notifications from useToast*/}
-            {window.innerHeight <= 480 && (
+            {window.innerHeight <= 1120 && (
                 <PoolActionsMobile
                     lpTokenInfo={lpTokenInfo}
                     stakedToken={stakedToken}
