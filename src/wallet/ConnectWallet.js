@@ -8,7 +8,6 @@ import { ALGO_MyAlgoConnect as MyAlgoConnect, ALGO_WalletConnect as WalletConnec
 import '../css/wallet.css';
 import { logEvent } from '../logEvent';
 import { $account, setAccount } from '../common/store';
-import { getTinyChartTokenLink } from '../Farm/PoolList/Pool/utils';
 
 const { detect } = require('detect-browser');
 const browser = detect();

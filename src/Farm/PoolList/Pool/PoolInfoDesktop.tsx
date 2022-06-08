@@ -9,10 +9,11 @@ import {
     Pacman,
 } from './styled';
 import { Arrow } from '../../../imgs/arrow';
-import { calculateTokenAmount, convertAmountToUSD, getTinyChartTokenLink, numberRound } from './utils';
+import { convertAmountToUSD, getTinyChartTokenLink, numberRound } from './utils';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import packman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
+import { calculateTokenAmount } from '../../../common/lib';
 
 export const PoolInfoDesktop = ({
     account,

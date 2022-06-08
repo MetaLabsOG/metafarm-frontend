@@ -7,7 +7,7 @@ import {
     PoolNameMobile,
     StakeButtonMobile,
 } from './styled';
-import { calculateTokenAmount, convertAmountToUSD, getTinyChartTokenLink, numberRound } from './utils';
+import { convertAmountToUSD, getTinyChartTokenLink, numberRound } from './utils';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { Account } from '../../../types';
 
@@ -34,7 +34,7 @@ export const PoolInfoMobile = ({
     timing: JSX.Element | 'ended';
     isOpen: boolean;
 }) => {
-    if (isOpen) {
+    if (contractState.local && isOpen) {
         return <></>;
     }
 
@@ -63,7 +63,7 @@ export const PoolInfoMobile = ({
                 )}`}
             </PoolInfoValue>
             <PoolInfoValue style={{ fontSize: '20px', color: '#B5B5B5' }}>APR {numberRound(APR)}%</PoolInfoValue>
-            <StakeButtonMobile>STAKE</StakeButtonMobile>
+            {<StakeButtonMobile disabled={!contractState.local}>STAKE</StakeButtonMobile>}
             <PoolInfoValue style={{ color: 'gray' }}>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '3px', fontSize: '10px' }}>{timing}</div>
             </PoolInfoValue>

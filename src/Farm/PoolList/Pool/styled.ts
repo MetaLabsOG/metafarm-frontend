@@ -207,7 +207,7 @@ export const PoolNameMobile = styled.div`
     color: #909090;
 `;
 
-export const StakeButtonMobile = styled.button`
+export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
     width: 200px;
     height: 44px;
     margin: auto;
@@ -220,7 +220,12 @@ export const StakeButtonMobile = styled.button`
     border-radius: 4px;
     cursor: pointer;
 
-    :hover {
+    :disabled {
+        background: grey;
+        border: 0;
+    }
+
+    :not(:disabled):hover {
         color: green;
         background: black;
     }

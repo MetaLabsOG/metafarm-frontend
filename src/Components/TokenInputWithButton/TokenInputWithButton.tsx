@@ -5,16 +5,16 @@ import pacman from '../../imgs/pacman.gif';
 import { LPTokenInfo } from '../../providers/dexesProvider';
 import { useStore } from 'effector-react';
 import { Asset, Priced } from '../../common/store';
-import { calculateTokenAmount, calculateTokenMicroAmount, isValidAmount } from '../../Farm/PoolList/Pool/utils';
-import { Store } from 'effector';
+import { calculateTokenAmount, calculateTokenMicroAmount } from '../../common/lib';
+import { Effect } from 'effector';
+import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/hooks';
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;
     tokenMicroBalance: number;
     balanceSuffix: string;
     buttonName: string;
-    onClickAction: (amount: number) => void;
-    pendingStore: Store<boolean>;
+    actionEffect: Effect<number[], any>;
     blueButtonColor?: boolean;
 }
 
@@ -23,15 +23,21 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     tokenMicroBalance,
     balanceSuffix,
     buttonName,
-    onClickAction,
-    pendingStore,
+    actionEffect,
     blueButtonColor = false,
 }) => {
-    const isPending = useStore(pendingStore);
+    const isPending = useStore(actionEffect.pending);
     const isActive = Number(tokenMicroBalance) > 0 && !isPending;
 
     const [inputAmount, setInputAmount] = useState<string>('');
     const [isValidInput, setIsValidInput] = useState<boolean>(true);
+
+    useToasts({
+        api: actionEffect,
+        text: `${inputAmount} ${balanceSuffix} ${buttonName}`,
+        pendingStatus: isPending,
+        action: ToastTypes.stake,
+    });
 
     const setInputMaxAmount = () => {
         setIsValidInput(true);
@@ -41,14 +47,14 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.currentTarget.value ? parseFloat(e.currentTarget.value) : 0;
         const microAmount = calculateTokenMicroAmount(token, inputValue);
-        setIsValidInput(isValidAmount(microAmount, tokenMicroBalance));
+        setIsValidInput(microAmount <= tokenMicroBalance);
         setInputAmount(e.currentTarget.value);
     };
 
     const onClick = (amount: string) => {
         const microAmount = calculateTokenMicroAmount(token, parseFloat(inputAmount));
-        if (!isPending && isValidInput) {
-            onClickAction(microAmount);
+        if (!isPending && isValidInput && microAmount > 0) {
+            actionEffect([microAmount]);
             setInputAmount('');
         }
     };

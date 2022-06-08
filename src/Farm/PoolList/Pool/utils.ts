@@ -7,24 +7,6 @@ import { TESTNET_TO_MAINNET_ASA_ID } from './PoolInfo';
 const TINYMAN_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.tinyman.org`;
 const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
 
-export const isValidAmount = (amount: number, balance: number) => amount <= balance;
-
-export const calculateTokenAmount = (token: Asset, amount: number | null): number => {
-    if (amount === null) {
-        return 0;
-    }
-
-    return Number(reach.formatWithDecimals(amount.toString(), token.decimals));
-};
-
-export const calculateTokenMicroAmount = (token: Asset, amount: number | null): number => {
-    if (amount === null) {
-        return 0;
-    }
-
-    return Math.floor(amount * 10 ** token.decimals);
-};
-
 export const convertAmountToUSD = (lpToken: Priced<Asset>, amount: number) => {
     return (lpToken.price * amount) / 10 ** lpToken.decimals;
 };

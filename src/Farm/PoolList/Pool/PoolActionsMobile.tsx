@@ -15,7 +15,6 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     contractState,
     canStake,
 
-    claim,
     canClaim,
     isActiveClaim,
     pendingClaim,
@@ -33,8 +32,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                     tokenMicroBalance={stakedTokenBalance}
                     balanceSuffix={balanceSuffix}
                     buttonName="STAKE"
-                    onClickAction={(amount: number) => ctc.apis.stake([amount])}
-                    pendingStore={ctc.apis.stake.pending}
+                    actionEffect={ctc.apis.stake}
                 />
             )}
             <TokenInputWithButton
@@ -42,13 +40,13 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 tokenMicroBalance={contractState.local.staked}
                 balanceSuffix={balanceSuffix}
                 buttonName="WITHDRAW"
-                onClickAction={(amount: number) => ctc.apis.unstake([amount])}
-                pendingStore={ctc.apis.unstake.pending}
+                actionEffect={ctc.apis.unstake}
                 blueButtonColor={true}
             />
+            {/* TODO: create button component and refactor claim*/}
             <Claim>
                 {canClaim && (
-                    <ClaimButton isActive={isActiveClaim} onClick={claim}>
+                    <ClaimButton isActive={isActiveClaim} onClick={() => ctc.apis.claim()}>
                         {pendingClaim ? <Pacman src={packman} /> : 'CLAIM'}
                     </ClaimButton>
                 )}

@@ -1,7 +1,7 @@
 // @ts-ignore
 import { backend as distributionBackend } from '@metalabsog/distribution';
 import { combine } from 'effector';
-import { buildContractsStore, registerPricedAsset, $networkTime, $pricedAssets, registerAsset } from '../common/store';
+import { buildContractsStore, registerPricedAsset, $networkTime, $pricedAssets } from '../common/store';
 import { sortPoolsOnStatus } from '../Farm/store';
 
 const { $contracts, $contractStatesWithCache, setContractInfos } = buildContractsStore(

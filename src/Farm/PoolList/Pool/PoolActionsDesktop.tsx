@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { GetLpTokenButton, PoolActionsDesktopContainer, TokenInfo, Claim, ClaimButton, Pacman } from './styled';
 
-import packman from '../../../imgs/pacman.gif';
+import pacman from '../../../imgs/pacman.gif';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { AllDefined, Asset, ContractState, FarmType, Priced } from '../../../common/store';
 
@@ -16,7 +16,6 @@ export interface PoolActionsDesktopProps {
     contractState: AllDefined<ContractState<FarmType>>;
     canStake: boolean;
 
-    claim: () => void;
     canClaim: boolean;
     isActiveClaim: boolean;
     pendingClaim: unknown;
@@ -34,7 +33,6 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     contractState,
     canStake,
 
-    claim,
     canClaim,
     isActiveClaim,
     pendingClaim,
@@ -52,8 +50,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     tokenMicroBalance={stakedTokenBalance}
                     balanceSuffix={balanceSuffix}
                     buttonName="STAKE"
-                    onClickAction={(amount: number) => ctc.apis.stake([amount])}
-                    pendingStore={ctc.apis.stake.pending}
+                    actionEffect={ctc.apis.stake}
                 />
             )}
             <TokenInputWithButton
@@ -61,14 +58,14 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 tokenMicroBalance={contractState.local.staked}
                 balanceSuffix={balanceSuffix}
                 buttonName="WITHDRAW"
-                onClickAction={(amount: number) => ctc.apis.unstake([amount])}
-                pendingStore={ctc.apis.unstake.pending}
+                actionEffect={ctc.apis.unstake}
                 blueButtonColor={true}
             />
+            {/*TODO: create button component and refactor claim*/}
             <Claim>
                 {canClaim && (
-                    <ClaimButton isActive={isActiveClaim} onClick={claim}>
-                        {pendingClaim ? <Pacman src={packman} /> : 'CLAIM'}
+                    <ClaimButton isActive={isActiveClaim} onClick={() => ctc.apis.claim()}>
+                        {pendingClaim ? <Pacman src={pacman} /> : 'CLAIM'}
                     </ClaimButton>
                 )}
             </Claim>
