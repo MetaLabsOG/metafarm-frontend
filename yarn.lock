@@ -6343,6 +6343,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"classnames@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "classnames@npm:2.3.1"
+  checksum: 282e29eeb023740bfd9d00e44d6baf2b2f023f0d0a460cd327869062eaa512cea66a1fd97d730b4f934fb94b9425c1702963be62029fa0ec1383c5e34c89f404
+  languageName: node
+  linkType: hard
+
 "clean-css@npm:^5.2.2":
   version: 5.3.0
   resolution: "clean-css@npm:5.3.0"
@@ -11944,6 +11951,7 @@ __metadata:
     camelcase: "npm:^6.2.1"
     case-sensitive-paths-webpack-plugin: "npm:^2.4.0"
     chart.js: "npm:^3.7.1"
+    classnames: "npm:^2.3.1"
     css-loader: "npm:^6.5.1"
     css-minimizer-webpack-plugin: "npm:^3.2.0"
     dayjs: "npm:^1.11.0"

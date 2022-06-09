@@ -26,6 +26,8 @@
 
 .swap_button.loading:hover {
     border: 1px solid #5cfc3c;
+    background-color: transparent;
+    cursor: default;
 }
 
 .loading {
@@ -64,6 +66,7 @@
 
 .price_button.loading:hover {
     border: 1px solid #5cfc3c;
+    background-color: #000;
 }
 
 .price_button:hover {
@@ -74,7 +77,7 @@
 
 /*export const ClaimButton = styled.div<{ isActive?: boolean }>`*/
 .claim_button {
-    width: 80%;
+    width: 115px;
     height: 34px;
     background-color: inherit;
     color: #FBF33B;
@@ -86,7 +89,6 @@
     justify-content: center;
     cursor: pointer;
     font-family: 'Korona One';
-
 }
 
 .claim_button:hover {

@@ -2,17 +2,20 @@ import React, { useState } from 'react';
 import pacman from '../../imgs/loader.gif';
 import pacman_grey from '../../imgs/pacman.gif';
 import './styled.css';
+import classNames from 'classnames';
 
 export function PacmanButton({
     buttonText,
     buttonStyle,
     onClickAction,
     isInactive,
+    style,
 }: {
     buttonText: string;
     buttonStyle: string;
     onClickAction: any;
     isInactive?: boolean;
+    style?: React.CSSProperties;
 }) {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -23,12 +26,15 @@ export function PacmanButton({
             .catch(() => setIsLoading(false));
     };
 
-    var buttonClassName = buttonStyle;
-    buttonClassName += isLoading ? ' loading' : '';
-    buttonClassName += isInactive ? ' inactive' : '';
-
     return (
-        <button className={buttonClassName} onClick={!isLoading && !isInactive ? onClick : undefined}>
+        <button
+            style={style}
+            className={classNames(buttonStyle, {
+                loading: isLoading,
+                inactive: isInactive,
+            })}
+            onClick={!isLoading && !isInactive ? onClick : undefined}
+        >
             {!isLoading ? buttonText : ''}
             {isLoading && (
                 <span className="loading">

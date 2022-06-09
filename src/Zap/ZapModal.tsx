@@ -7,6 +7,7 @@ import { getOptions, QueryType, runTransactions, TOKEN_INITIAL_STATE, TokenSelec
 import { ZapData } from './types';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
+import { sleep } from '../common/lib';
 
 export function ZapModal({
     asset1_id,

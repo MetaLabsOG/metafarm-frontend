@@ -91,7 +91,7 @@ type FarmInitialInfo = {
     beginBlock: Time;
     rewardPerBlock: Amount;
 
-    // lockLengthBlocks: number; // > 0 if lock
+    // TODO lockLengthBlocks: number; // > 0 if lock
 };
 
 type DistributionInitialInfo = {
@@ -104,7 +104,7 @@ type DistributionInitialInfo = {
 export type FarmGlobalInfo = {
     totalStaked: Amount;
     lastUpdateBlock: Time;
-    // TODO rewardPerTokenStored: Amount;
+    rewardPerTokenStored: Amount;
 };
 
 export type FarmLocalInfo = {

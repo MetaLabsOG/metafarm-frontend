@@ -73,8 +73,7 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
 
 export const PoolActionsDesktopContainer = styled.div`
     display: flex;
-    justify-content: space-between;
-    width: 95%;
+    gap: 40px;
     margin-top: 38px;
 
     @media (max-width: 1120px) {
@@ -97,27 +96,8 @@ export const Pacman = styled.img`
     height: 28px;
 `;
 
-export const Claim = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: flex-end;
-    width: 137px;
-    height: 80%;
-
-    @media (max-width: 1120px) {
-        justify-content: center;
-        height: auto;
-        margin: 20px;
-    }
-`;
-
 export const TokenInfo = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 18%;
-    justify-content: space-between;
-    height: 80%;
+    width: 160px;
 
     @media (max-width: 1120px) {
         height: auto;
@@ -221,4 +201,21 @@ export const PoolActionsMobileContainer = styled.div`
     @media (min-width: 1120px) {
         display: none;
     }
+`;
+
+export const RewardsContainer = styled.div`
+    display: flex;
+    margin-left: 20px;
+    gap: 15px;
+`;
+
+export const ButtonBackMobile = styled.button`
+    background-color: transparent;
+    font-family: 'Krona One';
+    font-size: 14px;
+    margin-left: 220px;
+    margin-bottom: 10px;
+    color: darkgrey;
+    border: 0;
+    cursor: pointer;
 `;

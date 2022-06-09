@@ -16,6 +16,7 @@ export interface InputWithButtonProps {
     buttonName: string;
     actionEffect: Effect<number[], any>;
     blueButtonColor?: boolean;
+    style?: React.CSSProperties;
 }
 
 export const TokenInputWithButton: FC<InputWithButtonProps> = ({
@@ -25,6 +26,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     buttonName,
     actionEffect,
     blueButtonColor = false,
+    style,
 }) => {
     const isPending = useStore(actionEffect.pending);
 
@@ -62,7 +64,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     return (
-        <TokenInputWithButtonContainer>
+        <TokenInputWithButtonContainer style={style}>
             <Action blueColor={blueButtonColor} isActive={isActive && isValidInput}>
                 <Input placeholder="0" isActive={isActive} value={inputAmount} onChange={onChange} />
                 <Button isActive={!isLoading} disabled={!isActive} onClick={() => onClick(inputAmount)}>

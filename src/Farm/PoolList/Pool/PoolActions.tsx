@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { useStore, useStoreMap } from 'effector-react';
 import { $balances, ContractState, Priced, Asset, AllDefined, FarmType, $account } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
@@ -18,12 +18,14 @@ export const PoolActions = ({
     contractState,
     lpTokenInfo,
     rewardTokenInfo,
+    setIsOpen,
 }: {
     poolState: PoolState;
     ctc: any;
     contractState: AllDefined<ContractState<FarmType>>;
     lpTokenInfo: LPTokenInfo | null;
     rewardTokenInfo: Priced<Asset>;
+    setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
@@ -53,6 +55,7 @@ export const PoolActions = ({
                     lpTokenInfo={lpTokenInfo}
                     stakedToken={stakedToken}
                     stakedTokenBalance={stakedTokenBalance}
+                    rewardTokenInfo={rewardTokenInfo}
                     ctc={ctc}
                     contractState={contractState}
                     balanceSuffix={balanceSuffix}
@@ -60,7 +63,7 @@ export const PoolActions = ({
                     canClaim={canClaim}
                     isActiveClaim={isActiveClaim}
                     ModalOpen={openModal}
-                    rewardTokenInfo={rewardTokenInfo}
+                    setIsOpen={setIsOpen}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -68,13 +71,14 @@ export const PoolActions = ({
                     stakedToken={stakedToken}
                     stakedTokenBalance={stakedTokenBalance}
                     balanceSuffix={balanceSuffix}
+                    rewardTokenInfo={rewardTokenInfo}
                     ctc={ctc}
                     contractState={contractState}
                     canStake={canStake}
                     canClaim={canClaim}
                     isActiveClaim={isActiveClaim}
                     ModalOpen={openModal}
-                    rewardTokenInfo={rewardTokenInfo}
+                    setIsOpen={setIsOpen}
                 />
             )}
             {lpTokenInfo && (

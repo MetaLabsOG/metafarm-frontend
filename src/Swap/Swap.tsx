@@ -13,6 +13,7 @@ import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent } from '../logEvent';
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
+import { sleep } from '../common/lib';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
@@ -181,8 +182,10 @@ export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, in
     }
 
     console.log('Waiting txID', input_transactions.tx_id);
+    // fast fix for waiting transaction confirmation.
+    await sleep(5000);
     return 'https://testnet.algoexplorer.io/tx/' + input_transactions.tx_id;
-
+    // TODO: weird bug, dk how to fix
     // const trx = await algosdk.waitForConfirmation(algodClient, input_transactions.tx_id, 5);
     // const trx_grp = Buffer.from(trx.txn.txn.grp).toString('base64');
     // return 'https://algoexplorer.io/tx/group/' + encodeURIComponent(trx_grp);

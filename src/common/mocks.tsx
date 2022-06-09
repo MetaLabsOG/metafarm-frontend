@@ -48,7 +48,7 @@ export const ctcMock: Contract<'farm'> = {
                 global: {
                     totalStaked: 123,
                     lastUpdateBlock: 53565,
-                    // rewardPerTokenStored: 34,
+                    rewardPerTokenStored: 34,
                 },
             },
         },
@@ -71,7 +71,7 @@ export const ctcMock: Contract<'farm'> = {
         global: {
             totalStaked: 123,
             lastUpdateBlock: 53565,
-            // rewardPerTokenStored: 34,
+            rewardPerTokenStored: 34,
         },
         local: {
             reward: 12,

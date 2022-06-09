@@ -21,7 +21,7 @@ import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
 import { useEffect, useState } from 'react';
 import { META_TOKEN_ID } from '../AppContext';
 
-const formatPrice = (price: number | null): string => (price === null ? '0' : price.toFixed(2));
+const formatPrice = (price: number | null): string => (price === null ? '0.00' : price.toFixed(2));
 
 const MenuItems = () => {
     return (
