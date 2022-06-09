@@ -1,6 +1,6 @@
 import { Map } from 'immutable';
 import { combine, createEffect, createEvent, createStore, sample, Store, Event } from 'effector';
-import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView } from './types';
+import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
 import { maybeToNullable } from '../lib';
 import { $account, refreshAccountInfo } from './account';
@@ -84,6 +84,15 @@ function makeWrappedCtc<T extends ContractType>(
     return ctc;
 }
 
+function parseBignumState<T extends ContractType>(type: T, bignumState: AllBignums<ContractState<T>>): ContractState<T> {
+    return Object.keys(bignumState).reduce((newState: ContractState<T>, k: string) => {
+        const key = k as keyof ContractState<T>;
+        //@ts-ignore
+        newState[key] = parseView(type, key)(bignumState[key]);
+        return newState;
+    }, {} as ContractState<T>);
+}
+
 // Contracts store
 export type ContractsStoreVars<T extends ContractType> = {
     $contracts: Store<Contract<T>[]>;
@@ -110,7 +119,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
     const $contractStateCaches = $contractInfos.map((infos) =>
         infos
             .reduce(
-                (states, info) => (info.metadata.cache ? states.set(info.id, info.metadata.cache) : states),
+                (states, info) => (info.metadata.cache ? states.set(info.id, parseBignumState(type, info.metadata.cache)) : states),
                 Map<AppId, ContractState<T>>().asMutable()
             )
             .asImmutable()

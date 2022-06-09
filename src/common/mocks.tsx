@@ -1,5 +1,6 @@
-import { Amount, Asset, Contract, Priced } from './store';
+import { Asset, Contract, Priced } from './store';
 import { LPTokenInfo } from '../providers/dexesProvider';
+import { BigNumber } from '@ethersproject/bignumber';
 
 export const rewardTokenInfoMock: Priced<Asset> = {
     id: 123,
@@ -39,16 +40,16 @@ export const ctcMock: Contract<'farm'> = {
         metadata: {
             cache: {
                 initial: {
-                    stakeToken: 123,
-                    rewardToken: 123,
-                    endBlock: 2345,
-                    beginBlock: 3,
-                    rewardPerBlock: BigInt(3456),
+                    stakeToken: BigNumber.from(123),
+                    rewardToken: BigNumber.from(123),
+                    endBlock: BigNumber.from(2345),
+                    beginBlock: BigNumber.from(3),
+                    rewardPerBlock: BigNumber.from(3456),
                 },
                 global: {
-                    totalStaked: BigInt(123),
-                    lastUpdateBlock: 53565,
-                    rewardPerTokenStored: BigInt(34),
+                    totalStaked: BigNumber.from(123),
+                    lastUpdateBlock: BigNumber.from(53565),
+                    rewardPerTokenStored: BigNumber.from(34),
                 },
             },
         },

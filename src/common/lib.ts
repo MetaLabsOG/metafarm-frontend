@@ -14,6 +14,34 @@ import { Account, ReachStdlib } from '../types';
 import { Amount, Asset } from './store';
 import { reach } from '../AppContext';
 
+// BigNumbers from JSON decoding
+export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
+export type JsonWithBignum =
+    | string
+    | number
+    | boolean
+    | null
+    | BigNumber
+    | JsonWithBignum[]
+    | { [key: string]: JsonWithBignum };
+
+export function resolveBignums(obj: Json): JsonWithBignum {
+    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean' || obj === null) {
+        return obj;
+    } else if (obj instanceof Array) {
+        return obj.map(resolveBignums);
+    }
+
+    if (obj.type === 'BigNumber' && obj.hex !== undefined) {
+        return BigNumber.from(obj.hex);
+    } else {
+        return Object.keys(obj).reduce((newObj, key) => {
+            newObj[key] = resolveBignums(obj[key]);
+            return newObj;
+        }, {} as { [key: string]: JsonWithBignum });
+    }
+}
+
 export const sleep = (ms: number): Promise<void> => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -54,7 +82,7 @@ export function convertBns(obj: any): any {
     } else {
         return obj;
     }
-};
+}
 
 export async function withAlgodEncoding<N extends Algodv2 | Indexer>(
     algod: N,

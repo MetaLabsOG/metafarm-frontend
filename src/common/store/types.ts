@@ -26,6 +26,17 @@ export type AllDefined<T> = {
     [Property in keyof T]-?: T[Property];
 };
 
+/**
+ * Makes both `number`s and `bigint`s inside the type be `BigNumber`s.
+ * So that we can get "raw" types (as produced by Reach) from our
+ * semantic types automatically.
+ */
+export type AllBignums<T> = T extends number | bigint
+    ? BigNumber
+    : T extends {} | unknown[]
+    ? { [K in keyof T]: AllBignums<T[K]> }
+    : T;
+
 // TODO: there should be a better way to add new contract types
 // We should explore the possibility of providing types from the _contract packages_.
 export type ContractType = 'farm' | 'crowdsale' | 'distribution';
@@ -47,7 +58,7 @@ export type Contract<T extends ContractType> = {
 };
 
 export type WithStateCache<T extends ContractType, V> = {
-    cache?: ContractState<T>;
+    cache?: AllBignums<ContractState<T>>;
 } & V;
 
 export type ContractInfo<T extends ContractType> = {
