@@ -171,7 +171,7 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
     });
 
     const parseDistributionInitialInfo = (obj: any): DistributionInitialInfo => ({
-        token: obj.rewardToken.toNumber(),
+        token: obj.token.toNumber(),
         endBlock: obj.endBlock.toNumber(),
         beginBlock: obj.beginBlock.toNumber(),
         rewardPerBlock: obj.rewardPerBlock.toBigInt(),
