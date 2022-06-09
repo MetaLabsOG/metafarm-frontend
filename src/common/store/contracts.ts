@@ -1,8 +1,8 @@
 import { Map } from 'immutable';
 import { combine, createEffect, createEvent, createStore, sample, Store, Event } from 'effector';
-import { Contract, ContractType, ContractInfo, ContractState, AppId } from './types';
+import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView } from './types';
 import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
-import { convertBns, maybeToNullable } from '../lib';
+import { maybeToNullable } from '../lib';
 import { $account, refreshAccountInfo } from './account';
 import { expBackoff } from './utils';
 
@@ -26,11 +26,11 @@ function isViewVal(v: ViewVal | ViewFunMap): v is ViewVal {
     return typeof v === 'function';
 }
 
-function mapViewMap<V extends ViewFunMap | ViewVal, T>(mp: LvlUp<V>, fn: (v: ViewVal) => T): ReplacedViewMap<V, T> {
+function mapViewMap<V extends ViewFunMap | ViewVal, T>(mp: LvlUp<V>, fn: (k: string, v: ViewVal) => T): ReplacedViewMap<V, T> {
     return Object.keys(mp).reduce((newMp: ReplacedViewMap<V, T>, k) => {
         const val = mp[k];
         if (isViewVal(val)) {
-            newMp[k] = fn(val);
+            newMp[k] = fn(k, val);
         } else {
             newMp[k] = mapViewMap<ViewVal, T>(val, fn);
         }
@@ -40,13 +40,15 @@ function mapViewMap<V extends ViewFunMap | ViewVal, T>(mp: LvlUp<V>, fn: (v: Vie
 
 /**
  * Wrap the methods of ctc with bignum parsing and callback on api calls.
+ * @param type
  * @param account
  * @param backend
  * @param contractId
  * @param onWrite
  * @returns Wrapped contract
  */
-function makeWrappedCtc(
+function makeWrappedCtc<T extends ContractType>(
+    type: T,
     account: Account | null,
     backend: Backend,
     contractId: AppId,
@@ -57,15 +59,15 @@ function makeWrappedCtc(
     const ctc = account!.contract(backend, contractId);
     ctc.views = mapViewMap(
         ctc.views,
-        (view) =>
+        (k, view) =>
             (...args: any[]) =>
                 view(...args)
                     .then(maybeToNullable)
-                    .then(convertBns)
+                    .then(parseView(type, k as keyof ContractState<T>))
     );
     ctc.v = ctc.views;
 
-    ctc.apis = mapViewMap(ctc.apis, (api) =>
+    ctc.apis = mapViewMap(ctc.apis, (_, api) =>
         createEffect(async (args?: any[]) => {
             args = args ?? [];
             try {
@@ -165,7 +167,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
         filter: (account, _) => account !== null,
         fn: (account, contractId): [AppId, ReachContract] => [
             contractId,
-            makeWrappedCtc(account, backend, contractId, async (id) => {
+            makeWrappedCtc(type, account, backend, contractId, async (id) => {
                 triggerStateUpdate(id);
                 refreshAccountInfo();
             }),
