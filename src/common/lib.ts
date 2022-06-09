@@ -8,9 +8,10 @@ import {
     makeAssetTransferTxnWithSuggestedParamsFromObject,
     waitForConfirmation,
 } from 'algosdk';
+import { BigNumber } from '@ethersproject/bignumber';
 import { Buffer } from 'buffer';
 import { Account, ReachStdlib } from '../types';
-import { Asset } from './store';
+import { Amount, Asset } from './store';
 import { reach } from '../AppContext';
 
 export const sleep = (ms: number): Promise<void> => {
@@ -36,11 +37,13 @@ export const maybeToNullable = (mb: [string, any]) => {
     return null;
 };
 
-export const isBigNumber = (n: any): boolean => Object.prototype.hasOwnProperty.call(n, '_isBigNumber');
+export const isBigNumber = (n: any): n is BigNumber => Object.prototype.hasOwnProperty.call(n, '_isBigNumber');
 
-export const convertBns = (obj: any): any => {
-    if (isBigNumber(obj)) {
-        return obj.toNumber();
+export function convertBns(obj: any): any {
+    if (obj === null) {
+        return null;
+    } else if (isBigNumber(obj)) {
+        return obj.toBigInt();
     } else if (obj instanceof Array) {
         return obj.map((e) => convertBns(e));
     } else if (obj instanceof Object) {
@@ -128,7 +131,7 @@ export const manualBatchOptIn = async (
     });
 };
 
-export const calculateTokenAmount = (token: Asset, amount: number | null): number => {
+export const calculateTokenAmount = (token: Asset, amount: Amount | null): number => {
     if (amount === null) {
         return 0;
     }
@@ -136,10 +139,10 @@ export const calculateTokenAmount = (token: Asset, amount: number | null): numbe
     return Number(reach.formatWithDecimals(amount.toString(), token.decimals));
 };
 
-export const calculateTokenMicroAmount = (token: Asset, amount: number | null): number => {
+export const calculateTokenMicroAmount = (token: Asset, amount: number | null): Amount => {
     if (amount === null) {
-        return 0;
+        return BigInt(0);
     }
 
-    return Math.floor(amount * 10 ** token.decimals);
+    return BigInt(Math.floor(amount * 10 ** token.decimals));
 };

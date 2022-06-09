@@ -4,13 +4,13 @@ import { GetLpTokenButton, PoolActionsDesktopContainer, TokenInfo, Claim, ClaimB
 
 import pacman from '../../../imgs/pacman.gif';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
-import { AllDefined, Asset, ContractState, FarmType, Priced } from '../../../common/store';
+import { AllDefined, Amount, Asset, ContractState, FarmType, Priced } from '../../../common/store';
 
 export interface PoolActionsDesktopProps {
     lpTokenInfo: LPTokenInfo | null;
 
     stakedToken: LPTokenInfo | Priced<Asset>;
-    stakedTokenBalance: number;
+    stakedTokenBalance: Amount;
     balanceSuffix: string;
     ctc: any;
     contractState: AllDefined<ContractState<FarmType>>;

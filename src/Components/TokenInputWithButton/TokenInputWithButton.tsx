@@ -11,7 +11,7 @@ import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/hooks';
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;
-    tokenMicroBalance: number;
+    tokenMicroBalance: bigint;
     balanceSuffix: string;
     buttonName: string;
     actionEffect: Effect<number[], any>;
@@ -54,7 +54,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     const onClick = (amount: string) => {
         const microAmount = calculateTokenMicroAmount(token, parseFloat(inputAmount));
         if (!isPending && isValidInput && microAmount > 0) {
-            actionEffect([microAmount]);
+            actionEffect([Number(microAmount)]);
             setInputAmount('');
         }
     };

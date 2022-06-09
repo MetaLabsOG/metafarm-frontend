@@ -1749,7 +1749,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ethersproject/bytes@npm:5.6.1, @ethersproject/bytes@npm:^5.6.0":
+"@ethersproject/bignumber@npm:^5.6.2":
+  version: 5.6.2
+  resolution: "@ethersproject/bignumber@npm:5.6.2"
+  dependencies:
+    "@ethersproject/bytes": "npm:^5.6.1"
+    "@ethersproject/logger": "npm:^5.6.0"
+    bn.js: "npm:^5.2.1"
+  checksum: 82a4e67f4ac8c5e57464d7e93267608ac1de37a8070e8406684465676054e663cab649150b358f2bab5f0430a47535a755c8b61ed77fd1a7930357b7f8e54aff
+  languageName: node
+  linkType: hard
+
+"@ethersproject/bytes@npm:5.6.1, @ethersproject/bytes@npm:^5.6.0, @ethersproject/bytes@npm:^5.6.1":
   version: 5.6.1
   resolution: "@ethersproject/bytes@npm:5.6.1"
   dependencies:
@@ -5796,6 +5807,13 @@ __metadata:
   version: 4.12.0
   resolution: "bn.js@npm:4.12.0"
   checksum: bfb4590775a29dad10c8d42da5ba7fca9d4f796f6d278cb27f53c6a6272df5e58a3ca58d879487c9584db9e7a8f73ac843117183bebea2d627c1f0db95848ec8
+  languageName: node
+  linkType: hard
+
+"bn.js@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "bn.js@npm:5.2.1"
+  checksum: 0c272b6eeda35a4d2a3bcf5f0cae54080eb876f5aa10789f67322ad891a27dc99f179b4362e1b5fc2e42c408fd8e0014afed4fdf30e4f346561302ea588fd095
   languageName: node
   linkType: hard
 
@@ -11915,6 +11933,7 @@ __metadata:
   resolution: "metafarm-frontend@workspace:."
   dependencies:
     "@babel/core": "npm:^7.16.0"
+    "@ethersproject/bignumber": "npm:^5.6.2"
     "@metalabsog/crowdsale": "npm:16.0.0"
     "@metalabsog/distribution": "npm:16.0.0"
     "@metalabsog/farm": "npm:16.0.0"

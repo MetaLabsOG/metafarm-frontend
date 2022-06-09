@@ -1,5 +1,5 @@
 import { formatDecimalsMeaningful } from '../../../common/lib';
-import { Asset, Priced } from '../../../common/store/types';
+import { Asset, Priced, Amount } from '../../../common/store/types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { ALGONET, MAINNET, reach, TESTNET } from '../../../AppContext';
 import { TESTNET_TO_MAINNET_ASA_ID } from './PoolInfo';
@@ -7,11 +7,11 @@ import { TESTNET_TO_MAINNET_ASA_ID } from './PoolInfo';
 const TINYMAN_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.tinyman.org`;
 const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
 
-export const convertAmountToUSD = (lpToken: Priced<Asset>, amount: number) => {
-    return (lpToken.price * amount) / 10 ** lpToken.decimals;
+export const convertAmountToUSD = (lpToken: Priced<Asset>, amount: Amount) => {
+    return (lpToken.price * Number(amount)) / 10 ** lpToken.decimals;
 };
 
-export const numberRound = (amount: number) => {
+export const numberRound = (amount: number | Amount) => {
     return Number(amount) > 0 ? formatDecimalsMeaningful(Number(amount)) : 0;
 };
 

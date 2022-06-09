@@ -33,13 +33,14 @@ const calculateAPR = (
 ): number => {
     const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
     const lpPrice = lpTokenInfo ? lpTokenInfo.price : rewardTokenInfo.price;
+    const totalStaked = Number(contractState.global.totalStaked);
+    const rewardPerBlock = Number(contractState.initial.rewardPerBlock);
+
     return poolState === PoolState.Finished
         ? 0
-        : contractState.global.totalStaked === 0 || lpPrice === 0
+        : totalStaked === 0 || lpPrice === 0
         ? 0
-        : ((contractState.initial.rewardPerBlock * blocksInAYear * rewardTokenInfo.price) /
-              (contractState.global.totalStaked * lpPrice)) *
-          100;
+        : ((rewardPerBlock * blocksInAYear * rewardTokenInfo.price) / (totalStaked * lpPrice)) * 100;
 };
 
 export const PoolInfo = ({
