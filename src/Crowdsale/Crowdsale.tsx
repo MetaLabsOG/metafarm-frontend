@@ -9,9 +9,10 @@ import { getContracts, tokensaleWhitelist } from '../providers/apiProvider';
 import { useContractOptin } from '../common/reachHooks';
 import { InfoHeader } from '../common/styled';
 import { META_TOKEN_ID } from '../AppContext';
-import { $account, buildContractsStore, Contract } from '../common/store';
+import { $account, Amount, buildContractsStore, Contract } from '../common/store';
 import { Account } from '../types';
 import { Button } from './styled';
+import { unsafeFromBigint } from '../common/lib';
 
 const { $contracts, setContractInfos } = buildContractsStore('crowdsale', backend);
 
@@ -25,7 +26,7 @@ type OptinState = 'before' | 'transactions' | 'whitelisting' | 'done';
 const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => {
     const { userOptedIn, optIn } = useContractOptin(reach, account, contract.id, [META_TOKEN_ID]);
     const [optInState, setOptInState] = useState<OptinState>('before');
-    const [tokenAmount, setTokenAmount] = useState<bigint>(BigInt(0));
+    const [tokenAmount, setTokenAmount] = useState<Amount>(BigInt(0));
 
     const { ctc, state } = contract;
 
@@ -39,7 +40,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => 
     }, [optIn, contract.id, account.networkAccount.addr]);
 
     const algoPrice = useCallback(
-        (amount: bigint) => {
+        (amount: Amount) => {
             const { rate } = state!.initial;
             return (amount * rate[1]) / rate[0];
         },
@@ -47,7 +48,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => 
     );
 
     const setTokenAmountValidated = useCallback(
-        (amount: bigint) => {
+        (amount: Amount) => {
             const { individualCap, rate } = state!.initial;
             const alreadyBought = state!.local?.alreadyBought ?? BigInt(0);
 
@@ -62,7 +63,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => 
 
     const buy = useCallback(
         async (tokenAmount) => {
-            const res = await ctc.a.purchase(tokenAmount);
+            const res = await ctc.a.purchase([tokenAmount]);
             console.log('PURCHASE', res);
         },
         [ctc]
@@ -110,7 +111,8 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => 
                 className="token_input"
                 placeholder={'10'}
                 onChange={(e) => setTokenAmountValidated(BigInt(parseInt(e.target.value)))}
-                value={Number(tokenAmount)}
+                // TODO: remove this conversion when adding proper display with decimals
+                value={unsafeFromBigint(tokenAmount)}
             />
 
             <h4 style={{ marginTop: '30px' }}>microALGOs to pay: {algoPrice(tokenAmount)}</h4>

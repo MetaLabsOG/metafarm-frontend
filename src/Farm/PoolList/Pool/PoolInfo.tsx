@@ -7,6 +7,7 @@ import React from 'react';
 import { ALGONET, MAINNET } from '../../../AppContext';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
 import { PoolInfoMobile } from './PoolInfoMobile';
+import { unsafeFromBigint } from '../../../common/lib';
 
 export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
     0: 0, // ALGO
@@ -33,8 +34,8 @@ const calculateAPR = (
 ): number => {
     const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
     const lpPrice = lpTokenInfo ? lpTokenInfo.price : rewardTokenInfo.price;
-    const totalStaked = Number(contractState.global.totalStaked);
-    const rewardPerBlock = Number(contractState.initial.rewardPerBlock);
+    const totalStaked = unsafeFromBigint(contractState.global.totalStaked);
+    const rewardPerBlock = unsafeFromBigint(contractState.initial.rewardPerBlock);
 
     return poolState === PoolState.Finished
         ? 0

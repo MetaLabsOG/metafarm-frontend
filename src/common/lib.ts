@@ -42,6 +42,15 @@ export function resolveBignums(obj: Json): JsonWithBignum {
     }
 }
 
+export const unsafeFromBigint = (n: bigint): number => {
+    if (n > Number.MAX_SAFE_INTEGER) {
+        console.warn(
+            `This BigInt is too large to be converted to a number: ${n}. Conversion was done with reduction in precision.`
+        );
+    }
+    return Number(n);
+};
+
 export const sleep = (ms: number): Promise<void> => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };

@@ -1,4 +1,4 @@
-import { formatDecimalsMeaningful } from '../../../common/lib';
+import { formatDecimalsMeaningful, unsafeFromBigint } from '../../../common/lib';
 import { Asset, Priced, Amount } from '../../../common/store/types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { ALGONET, MAINNET, reach, TESTNET } from '../../../AppContext';
@@ -8,11 +8,14 @@ const TINYMAN_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.tinyman.
 const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
 
 export const convertAmountToUSD = (lpToken: Priced<Asset>, amount: Amount) => {
-    return (lpToken.price * Number(amount)) / 10 ** lpToken.decimals;
+    return (lpToken.price * unsafeFromBigint(amount)) / 10 ** lpToken.decimals;
 };
 
 export const numberRound = (amount: number | Amount) => {
-    return Number(amount) > 0 ? formatDecimalsMeaningful(Number(amount)) : 0;
+    if (typeof amount !== 'number') {
+        amount = unsafeFromBigint(amount);
+    }
+    return amount > 0 ? formatDecimalsMeaningful(amount) : 0;
 };
 
 export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenInfo): string => {
