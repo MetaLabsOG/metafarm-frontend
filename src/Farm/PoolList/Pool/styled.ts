@@ -74,7 +74,7 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
 export const PoolActionsDesktopContainer = styled.div`
     display: flex;
     justify-content: space-between;
-    width: 85%;
+    width: 95%;
     margin-top: 38px;
 
     @media (max-width: 1120px) {
@@ -109,24 +109,6 @@ export const Claim = styled.div`
         justify-content: center;
         height: auto;
         margin: 20px;
-    }
-`;
-
-export const ClaimButton = styled.div<{ isActive?: boolean }>`
-    width: 100%;
-    height: 34px;
-    background-color: inherit;
-    color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};
-    border: 1px solid;
-    font-size: 12px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-family: 'Korona One';
-    :hover {
-        color: ${({ theme, isActive }) => (isActive ? theme.yellow : theme.gray)};
     }
 `;
 

@@ -1,44 +1,42 @@
 import React, { FC } from 'react';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { GetLpTokenButton, PoolActionsDesktopContainer, TokenInfo, Claim, ClaimButton, Pacman } from './styled';
+import { GetLpTokenButton, PoolActionsDesktopContainer, TokenInfo, Claim } from './styled';
 
-import pacman from '../../../imgs/pacman.gif';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
-import { AllDefined, Asset, ContractState, FarmType, Priced } from '../../../common/store';
+import { $account, AllDefined, Asset, ContractState, FarmType, Priced } from '../../../common/store';
+import { useStore } from 'effector-react';
+import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
+import { isCompoundEnabled, runCompound } from './compound';
 
 export interface PoolActionsDesktopProps {
     lpTokenInfo: LPTokenInfo | null;
-
     stakedToken: LPTokenInfo | Priced<Asset>;
     stakedTokenBalance: number;
     balanceSuffix: string;
     ctc: any;
     contractState: AllDefined<ContractState<FarmType>>;
     canStake: boolean;
-
     canClaim: boolean;
     isActiveClaim: boolean;
-    pendingClaim: unknown;
-
     ModalOpen: () => void;
+    rewardTokenInfo: Priced<Asset>;
 }
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     lpTokenInfo,
-
     stakedToken,
     stakedTokenBalance,
     balanceSuffix,
     ctc,
     contractState,
     canStake,
-
     canClaim,
     isActiveClaim,
-    pendingClaim,
-
     ModalOpen,
+    rewardTokenInfo,
 }) => {
+    const account = useStore($account);
+
     return (
         <PoolActionsDesktopContainer>
             <TokenInfo>
@@ -61,12 +59,26 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 actionEffect={ctc.apis.unstake}
                 blueButtonColor={true}
             />
-            {/*TODO: create button component and refactor claim*/}
             <Claim>
                 {canClaim && (
-                    <ClaimButton isActive={isActiveClaim} onClick={() => ctc.apis.claim()}>
-                        {pendingClaim ? <Pacman src={pacman} /> : 'CLAIM'}
-                    </ClaimButton>
+                    <PacmanButton
+                        buttonText="CLAIM"
+                        buttonStyle="claim_button"
+                        onClickAction={() => ctc.apis.claim()}
+                        isInactive={!isActiveClaim}
+                    />
+                )}
+            </Claim>
+            <Claim>
+                {lpTokenInfo && account && isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
+                    <PacmanButton
+                        buttonText="COMPOUND"
+                        buttonStyle="claim_button"
+                        onClickAction={() =>
+                            runCompound(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
+                        }
+                        isInactive={!isActiveClaim}
+                    />
                 )}
             </Claim>
         </PoolActionsDesktopContainer>

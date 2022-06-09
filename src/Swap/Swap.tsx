@@ -1,6 +1,6 @@
 import algosdk from 'algosdk';
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { ALGONET, MAINNET, reach, TESTNET } from '../AppContext';
+import { ALGONET, MAINNET, reach } from '../AppContext';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
@@ -12,6 +12,7 @@ import React from 'react';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent } from '../logEvent';
 import { useStore } from 'effector-react';
+import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
@@ -51,7 +52,6 @@ async function getBestSwap(
     asset1_id: string | undefined,
     asset2_id: string | undefined,
     asset1_amount: string,
-    setIsLoading: Dispatch<SetStateAction<boolean>>,
     setBestSwap: Dispatch<SetStateAction<BestSwap>>,
     setShopSwap: Dispatch<SetStateAction<boolean>>
 ) {
@@ -60,7 +60,6 @@ async function getBestSwap(
         return;
     }
 
-    setIsLoading(true);
     console.log(asset1_id, asset2_id, asset1_amount);
 
     try {
@@ -81,7 +80,6 @@ async function getBestSwap(
         );
 
         setBestSwap(best_swap);
-        setIsLoading(false);
         setShopSwap(true);
     } catch (e) {
         // @ts-ignore
@@ -96,7 +94,6 @@ async function getBestSwap(
             },
             'swap'
         );
-        setIsLoading(false);
     }
 }
 
@@ -146,7 +143,7 @@ export async function getTransactions(
 }
 
 export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, input_transactions: Transaction) {
-    console.log(input_transactions);
+    // console.log(input_transactions);
     const transactions = input_transactions.transactions;
 
     let unsigned_transactions: string[] = [];
@@ -157,12 +154,12 @@ export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, in
         // console.log(current_unsigned);
         unsigned_transactions = unsigned_transactions.concat(current_unsigned);
     }
-    console.log(unsigned_transactions.length, unsigned_transactions);
+    // console.log(unsigned_transactions.length, unsigned_transactions);
 
     const reachTxns = unsigned_transactions.map((txn) => ({ txn: txn }));
     const signed_user_data = await window.algorand.signTxns(reachTxns);
     const signed_user_trans = signed_user_data.map((txn) => Buffer.from(txn, 'base64'));
-    console.log(signed_user_trans);
+    // console.log(signed_user_trans);
 
     let idx = 0;
     for (let key in transactions) {
@@ -176,15 +173,19 @@ export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, in
 
         console.log('Sending', signed_transactions);
         await algodClient.sendRawTransaction(signed_transactions).do();
-        const tx_id = transactions[key].tx_id;
-        if (tx_id) {
-            console.log('Waiting txID', tx_id);
-            await algosdk.waitForConfirmation(algodClient, tx_id, 5);
-        }
+        // const tx_id = transactions[key].tx_id;
+        // if (tx_id) {
+        //     console.log('Waiting txID', tx_id);
+        //     await algosdk.waitForConfirmation(algodClient, tx_id, 5);
+        // }
     }
 
     console.log('Waiting txID', input_transactions.tx_id);
-    return algosdk.waitForConfirmation(algodClient, input_transactions.tx_id, 5);
+    return 'https://testnet.algoexplorer.io/tx/' + input_transactions.tx_id;
+
+    // const trx = await algosdk.waitForConfirmation(algodClient, input_transactions.tx_id, 5);
+    // const trx_grp = Buffer.from(trx.txn.txn.grp).toString('base64');
+    // return 'https://algoexplorer.io/tx/group/' + encodeURIComponent(trx_grp);
 }
 
 export async function runTransactions(
@@ -193,7 +194,6 @@ export async function runTransactions(
     token1Id: string,
     token2Id: string,
     token1Amount: string,
-    setIsLoading: Dispatch<SetStateAction<boolean>>,
     additional_params = ''
 ) {
     if (!account) {
@@ -201,7 +201,6 @@ export async function runTransactions(
         return;
     }
 
-    setIsLoading(true);
     try {
         const provider = await reach.getProvider();
         const algodClient = provider.algodClient;
@@ -217,21 +216,21 @@ export async function runTransactions(
             token1Amount,
             additional_params
         );
-        console.log(transactions);
-        const res = await signAndSubmitTransactions(algodClient, transactions);
-        const trx_grp = Buffer.from(res.txn.txn.grp).toString('base64');
-        console.log('OK', trx_grp, res);
-        alert('OK: https://algoexplorer.io/tx/group/' + encodeURIComponent(trx_grp));
+        // console.log(transactions);
+        const result_tx_id = await signAndSubmitTransactions(algodClient, transactions);
+        console.log('OK', result_tx_id);
 
         logEvent(
             account.networkAccount.addr,
             {
                 message: '[' + type + ' OK] ' + token1Id + ' to ' + token2Id,
                 amount: token1Amount,
-                txns: 'https://algoexplorer.io/tx/group/' + encodeURIComponent(trx_grp),
+                txns: result_tx_id,
             },
             QueryType[type]
         );
+
+        return result_tx_id;
     } catch (e) {
         // @ts-ignore
         const error_message = e.message;
@@ -241,7 +240,7 @@ export async function runTransactions(
             alert('Transaction not confirmed');
         } else {
             console.log(e);
-            alert(type + ' error :(');
+            alert(QueryType[type] + ' error :(');
         }
         logEvent(
             account.networkAccount.addr,
@@ -252,7 +251,6 @@ export async function runTransactions(
             QueryType[type]
         );
     }
-    setIsLoading(false);
 }
 
 export async function getOptions(
@@ -401,7 +399,11 @@ function BestTokenPrice({
     if (isLoading) {
         return (
             <div className="token_price" style={{ display: 'flex', justifyContent: 'center' }}>
-                <img style={{ width: '50px' }} alt="loader" src={require('../imgs/loader.gif')} />
+                <img
+                    style={{ width: '50px', height: '50px', margin: 'auto' }}
+                    alt="loader"
+                    src={require('../imgs/loader.gif')}
+                />
             </div>
         );
     }
@@ -532,33 +534,6 @@ export function TokenSelect({
     );
 }
 
-export function ButtonWithPackman({
-    button_text,
-    button_style,
-    isLoading,
-    onClick,
-}: {
-    button_text: string;
-    button_style: string;
-    isLoading: boolean;
-    onClick: any;
-}) {
-    return (
-        <button className={!isLoading ? button_style : 'button_loading'} onClick={!isLoading ? onClick : undefined}>
-            {button_text}
-            {isLoading && (
-                <span className="loading">
-                    <img
-                        style={{ maxWidth: '100%', maxHeight: '100%' }}
-                        alt="loader"
-                        src={require('../imgs/loader.gif')}
-                    />
-                </span>
-            )}
-        </button>
-    );
-}
-
 export function Swap() {
     const account = useStore($account);
 
@@ -569,7 +544,6 @@ export function Swap() {
     const [options, setOptions] = useState<TokenSelectOption[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isLoading2, setIsLoading2] = useState<boolean>(false);
 
     useEffect(() => {
         getOptions(account).then((res) => {
@@ -586,7 +560,10 @@ export function Swap() {
         }
         clearTimeout(getSwapTimeout.current);
         getSwapTimeout.current = setTimeout(() => {
-            getBestSwap(account, token1_id, token2_id, amount, setIsLoading, setBestSwap, setShowResult);
+            setIsLoading(true);
+            getBestSwap(account, token1_id, token2_id, amount, setBestSwap, setShowResult).then(() =>
+                setIsLoading(false)
+            );
         }, delay);
     }
 
@@ -610,12 +587,15 @@ export function Swap() {
         getBestSwapThrottled(token1.value, token2.value, e.target.value, 1000);
     };
 
-    const FindPriceButtonOnClick = () => {
-        getBestSwap(account, token1?.value, token2?.value, token1Amount, setIsLoading, setBestSwap, setShowResult);
+    const FindPriceButtonOnClick = async () => {
+        return getBestSwap(account, token1?.value, token2?.value, token1Amount, setBestSwap, setShowResult);
     };
 
-    const SwapButtonOnClick = () => {
-        runTransactions(QueryType.swap, account, token1?.value, token2.value, token1Amount, setIsLoading2);
+    const SwapButtonOnClick = async () => {
+        const result_tx_id = await runTransactions(QueryType.swap, account, token1?.value, token2.value, token1Amount);
+        if (result_tx_id) {
+            alert('OK ' + result_tx_id);
+        }
     };
 
     return (
@@ -633,11 +613,10 @@ export function Swap() {
             <h3 className="swap_text">TO</h3>
             <TokenSelect options={options} token={token2} selectOnChange={select2OnChange} />
             {!isLoading && !showResult && (
-                <ButtonWithPackman
-                    button_text="FIND BEST PRICE"
-                    button_style="price_button"
-                    isLoading={isLoading}
-                    onClick={FindPriceButtonOnClick}
+                <PacmanButton
+                    buttonText="FIND BEST PRICE"
+                    buttonStyle="price_button"
+                    onClickAction={FindPriceButtonOnClick}
                 />
             )}
             {(isLoading || showResult) && (
@@ -651,12 +630,7 @@ export function Swap() {
             )}
             {showResult && (
                 <React.Fragment>
-                    <ButtonWithPackman
-                        button_text="SWAP"
-                        button_style="swap_button"
-                        isLoading={isLoading2}
-                        onClick={SwapButtonOnClick}
-                    />
+                    <PacmanButton buttonText="SWAP" buttonStyle="swap_button" onClickAction={SwapButtonOnClick} />
                     <h3 className="dex_name">via tinyman</h3>
                 </React.Fragment>
             )}

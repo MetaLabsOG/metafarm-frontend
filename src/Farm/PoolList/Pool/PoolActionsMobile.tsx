@@ -1,9 +1,9 @@
 import React, { FC } from 'react';
-import { GetLpTokenButton, PoolActionsMobileContainer, TokenInfo, Claim, ClaimButton, Pacman } from './styled';
+import { GetLpTokenButton, PoolActionsMobileContainer, TokenInfo, Claim } from './styled';
 
-import packman from '../../../imgs/pacman.gif';
 import { PoolActionsDesktopProps } from './PoolActionsDesktop';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
+import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 
 export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     lpTokenInfo,
@@ -17,7 +17,6 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
 
     canClaim,
     isActiveClaim,
-    pendingClaim,
 
     ModalOpen,
 }) => {
@@ -43,12 +42,14 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 actionEffect={ctc.apis.unstake}
                 blueButtonColor={true}
             />
-            {/* TODO: create button component and refactor claim*/}
             <Claim>
                 {canClaim && (
-                    <ClaimButton isActive={isActiveClaim} onClick={() => ctc.apis.claim()}>
-                        {pendingClaim ? <Pacman src={packman} /> : 'CLAIM'}
-                    </ClaimButton>
+                    <PacmanButton
+                        buttonText="CLAIM"
+                        buttonStyle="claim_button"
+                        onClickAction={() => ctc.apis.claim()}
+                        isInactive={!isActiveClaim}
+                    />
                 )}
             </Claim>
         </PoolActionsMobileContainer>

@@ -27,10 +27,11 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     blueButtonColor = false,
 }) => {
     const isPending = useStore(actionEffect.pending);
-    const isActive = Number(tokenMicroBalance) > 0 && !isPending;
 
     const [inputAmount, setInputAmount] = useState<string>('');
     const [isValidInput, setIsValidInput] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const isActive = Number(tokenMicroBalance) > 0 && !isLoading;
 
     useToasts({
         api: actionEffect,
@@ -52,10 +53,11 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     const onClick = (amount: string) => {
+        setIsLoading(true);
         const microAmount = calculateTokenMicroAmount(token, parseFloat(inputAmount));
-        if (!isPending && isValidInput && microAmount > 0) {
-            actionEffect([microAmount]);
+        if (!isLoading && isValidInput && microAmount > 0) {
             setInputAmount('');
+            actionEffect([microAmount]).then(() => setIsLoading(false));
         }
     };
 
@@ -63,8 +65,8 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
         <TokenInputWithButtonContainer>
             <Action blueColor={blueButtonColor} isActive={isActive && isValidInput}>
                 <Input placeholder="0" isActive={isActive} value={inputAmount} onChange={onChange} />
-                <Button isActive={!isPending} disabled={!isActive} onClick={() => onClick(inputAmount)}>
-                    {isPending ? <Pacman src={pacman} /> : buttonName}
+                <Button isActive={!isLoading} disabled={!isActive} onClick={() => onClick(inputAmount)}>
+                    {isLoading ? <Pacman src={pacman} /> : buttonName}
                 </Button>
                 <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>
             </Action>

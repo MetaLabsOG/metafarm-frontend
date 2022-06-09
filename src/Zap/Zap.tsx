@@ -11,7 +11,6 @@ import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent } from '../logEvent';
 import { useStore } from 'effector-react';
 import {
-    ButtonWithPackman,
     formatNumber,
     getData,
     getOptions,
@@ -21,6 +20,7 @@ import {
     TokenSelect,
     TokenSelectWithAmount,
 } from '../Swap/Swap';
+import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 
 export async function loadZapData(
     account: Account | null,
@@ -132,8 +132,7 @@ export function Zap() {
 
     const [options, setOptions] = useState<TokenSelectOption[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
-    const [isLoading1, setIsLoading1] = useState<boolean>(false);
-    const [isLoading2, setIsLoading2] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
         getOptions(account).then((res) => {
@@ -150,7 +149,7 @@ export function Zap() {
         }
         clearTimeout(getZapTimeout.current);
         getZapTimeout.current = setTimeout(() => {
-            loadZapData(account, token1_id, token2_id, amount, setIsLoading1, setZapData, setShowResult);
+            loadZapData(account, token1_id, token2_id, amount, setIsLoading, setZapData, setShowResult);
         }, delay);
     }
 
@@ -175,20 +174,22 @@ export function Zap() {
         getZapThrottled(token1.value, token2.value, e.target.value, 1000);
     };
 
-    const LoadZapButtonOnClick = () => {
-        loadZapData(account, token1.value, token2.value, token1Amount, setIsLoading1, setZapData, setShowResult);
+    const LoadZapButtonOnClick = async () => {
+        return loadZapData(account, token1.value, token2.value, token1Amount, setIsLoading, setZapData, setShowResult);
     };
 
-    const ZapButtonOnClick = () => {
-        runTransactions(
+    const ZapButtonOnClick = async () => {
+        const result_tx_id = await runTransactions(
             QueryType.zap,
             account,
             token1.value,
             token2.value,
             token1Amount,
-            setIsLoading2,
             '&swap_half=true'
         );
+        if (result_tx_id) {
+            alert('OK ' + result_tx_id);
+        }
     };
 
     return (
@@ -205,25 +206,19 @@ export function Zap() {
             />
             <h3 className="swap_text">SECOND TOKEN</h3>
             <TokenSelect options={options} token={token2} selectOnChange={select2OnChange} />
-            {!isLoading1 && !showResult && (
-                <ButtonWithPackman
-                    button_text="FIND LIQUIDITY POOL"
-                    button_style="price_button"
-                    isLoading={isLoading1}
-                    onClick={LoadZapButtonOnClick}
+            {!isLoading && !showResult && (
+                <PacmanButton
+                    buttonText="FIND LIQUIDITY POOL"
+                    buttonStyle="price_button"
+                    onClickAction={LoadZapButtonOnClick}
                 />
             )}
-            {(isLoading1 || showResult) && (
-                <ZapResult isLoading={isLoading1} zap_data={zapData} token1={token1} token2={token2} />
+            {(isLoading || showResult) && (
+                <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
             )}
             {showResult && (
                 <React.Fragment>
-                    <ButtonWithPackman
-                        button_text="GET LP"
-                        button_style="swap_button"
-                        isLoading={isLoading2}
-                        onClick={ZapButtonOnClick}
-                    />
+                    <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
                     <h3 className="dex_name">on tinyman</h3>
                 </React.Fragment>
             )}

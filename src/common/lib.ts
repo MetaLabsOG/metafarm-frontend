@@ -40,7 +40,12 @@ export const isBigNumber = (n: any): boolean => Object.prototype.hasOwnProperty.
 
 export const convertBns = (obj: any): any => {
     if (isBigNumber(obj)) {
-        return obj.toNumber();
+        // TODO: it's fast fix
+        try {
+            return obj.toNumber();
+        } catch (e) {
+            return 0;
+        }
     } else if (obj instanceof Array) {
         return obj.map((e) => convertBns(e));
     } else if (obj instanceof Object) {

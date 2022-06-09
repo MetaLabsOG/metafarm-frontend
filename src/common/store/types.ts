@@ -90,6 +90,8 @@ type FarmInitialInfo = {
     endBlock: Time;
     beginBlock: Time;
     rewardPerBlock: Amount;
+
+    // lockLengthBlocks: number; // > 0 if lock
 };
 
 type DistributionInitialInfo = {
@@ -102,12 +104,14 @@ type DistributionInitialInfo = {
 export type FarmGlobalInfo = {
     totalStaked: Amount;
     lastUpdateBlock: Time;
-    rewardPerTokenStored: Amount;
+    // TODO rewardPerTokenStored: Amount;
 };
 
 export type FarmLocalInfo = {
     reward: Amount;
     staked: Amount;
+
+    // TODO lockTimestamp: Time; // lock BEGINS from this block
 };
 
 // Crowdsale types

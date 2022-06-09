@@ -25,7 +25,6 @@ export const PoolActions = ({
     lpTokenInfo: LPTokenInfo | null;
     rewardTokenInfo: Priced<Asset>;
 }) => {
-    // const account = useStore($account);
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
     const stakedToken = lpTokenInfo ? lpTokenInfo : rewardTokenInfo;
@@ -34,10 +33,9 @@ export const PoolActions = ({
 
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;
-
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim;
 
-    const [Modal, open] = useModal('root', { preventScroll: true });
+    const [Modal, openModal, closeModal] = useModal('root', { preventScroll: true });
 
     useToasts({
         api: ctc.apis.claim,
@@ -61,8 +59,8 @@ export const PoolActions = ({
                     canStake={canStake}
                     canClaim={canClaim}
                     isActiveClaim={isActiveClaim}
-                    pendingClaim={pendingClaim}
-                    ModalOpen={open}
+                    ModalOpen={openModal}
+                    rewardTokenInfo={rewardTokenInfo}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -75,13 +73,13 @@ export const PoolActions = ({
                     canStake={canStake}
                     canClaim={canClaim}
                     isActiveClaim={isActiveClaim}
-                    pendingClaim={pendingClaim}
-                    ModalOpen={open}
+                    ModalOpen={openModal}
+                    rewardTokenInfo={rewardTokenInfo}
                 />
             )}
             {lpTokenInfo && (
                 <Modal>
-                    <ZapModal asset1_id={lpTokenInfo.asset1} asset2_id={lpTokenInfo.asset2} />
+                    <ZapModal asset1_id={lpTokenInfo.asset1} asset2_id={lpTokenInfo.asset2} closeModal={closeModal} />
                 </Modal>
             )}
         </>
