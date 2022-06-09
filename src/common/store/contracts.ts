@@ -1,51 +1,96 @@
 import { Map } from 'immutable';
 import { combine, createEffect, createEvent, createStore, sample, Store, Event } from 'effector';
-import { Contract, ContractType, ContractInfo, ContractState, AppId } from './types';
-import { Account } from '../../types';
-import { convertBns, maybeToNullable } from '../lib';
+import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
+import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
+import { maybeToNullable } from '../lib';
 import { $account, refreshAccountInfo } from './account';
 import { expBackoff } from './utils';
 
+// I'm sorry for this mess.... It can be done better I do believe.
+// In the end, it was not particularly necessary (I thought I would need more specific Reach
+// types to enable type-based parsing decisions, I don't remember in detail really),
+// but I already started using more well-defined type for `Account` from Reach, and the
+// old version of code without this does not work anymore
+
+type ReplacedViewMap<V extends ViewFunMap | ViewVal, T> = V extends ViewFunMap
+    ? {
+          [key: string]: T | ReplacedViewMap<ViewVal, T>;
+      }
+    : {
+          [key: string]: T;
+      };
+
+type LvlUp<V extends ViewFunMap | ViewVal> = V extends ViewFunMap ? ViewMap : ViewFunMap;
+
+function isViewVal(v: ViewVal | ViewFunMap): v is ViewVal {
+    return typeof v === 'function';
+}
+
+function mapViewMap<V extends ViewFunMap | ViewVal, T>(mp: LvlUp<V>, fn: (k: string, v: ViewVal) => T): ReplacedViewMap<V, T> {
+    return Object.keys(mp).reduce((newMp: ReplacedViewMap<V, T>, k) => {
+        const val = mp[k];
+        if (isViewVal(val)) {
+            newMp[k] = fn(k, val);
+        } else {
+            newMp[k] = mapViewMap<ViewVal, T>(val, fn);
+        }
+        return newMp;
+    }, {});
+}
+
 /**
  * Wrap the methods of ctc with bignum parsing and callback on api calls.
+ * @param type
+ * @param account
+ * @param backend
+ * @param contractId
+ * @param onWrite
+ * @returns Wrapped contract
  */
-function makeWrappedCtc(
+function makeWrappedCtc<T extends ContractType>(
+    type: T,
     account: Account | null,
-    backend: any,
+    backend: Backend,
     contractId: AppId,
     onWrite: (id: AppId) => Promise<void>
-): any {
+): ReachContract {
     // TODO: make read-only ctc when account is null
     //@ts-ignore
     const ctc = account!.contract(backend, contractId);
-    const views = ctc.views;
-    ctc.views = {};
-    for (const k in views) {
-        ctc.views[k] = (...args: any[]) =>
-            views[k](...args)
-                .then(maybeToNullable)
-                .then(convertBns);
-    }
+    ctc.views = mapViewMap(
+        ctc.views,
+        (k, view) =>
+            (...args: any[]) =>
+                view(...args)
+                    .then(maybeToNullable)
+                    .then(parseView(type, k as keyof ContractState<T>))
+    );
     ctc.v = ctc.views;
 
-    const apis = ctc.apis;
-    ctc.apis = {};
-    for (const k in apis) {
-        ctc.apis[k] = createEffect(async (args?: any[]) => {
+    ctc.apis = mapViewMap(ctc.apis, (_, api) =>
+        createEffect(async (args?: any[]) => {
             args = args ?? [];
             try {
-                const res = await apis[k](...args);
+                const res = await api(...args);
                 await onWrite(contractId);
                 return res;
             } catch (err) {
                 // so that errors inside effect are visible in console
-                console.error(`API CALL ${k} FAILED`, err);
                 throw err;
             }
-        });
-    }
+        })
+    );
     ctc.a = ctc.apis;
     return ctc;
+}
+
+function parseBignumState<T extends ContractType>(type: T, bignumState: AllBignums<ContractState<T>>): ContractState<T> {
+    return Object.keys(bignumState).reduce((newState: ContractState<T>, k: string) => {
+        const key = k as keyof ContractState<T>;
+        //@ts-ignore
+        newState[key] = parseView(type, key)(bignumState[key]);
+        return newState;
+    }, {} as ContractState<T>);
 }
 
 // Contracts store
@@ -66,7 +111,7 @@ export type ContractsStoreVars<T extends ContractType> = {
  * @param backend Reach contract backend
  * @returns Relevant stores and events
  */
-export function buildContractsStore<T extends ContractType>(type: T, backend: any): ContractsStoreVars<T> {
+export function buildContractsStore<T extends ContractType>(type: T, backend: Backend): ContractsStoreVars<T> {
     const $contractInfos = createStore<ContractInfo<T>[]>([]);
     const $contractStates = createStore(Map<AppId, ContractState<T>>());
     const $contractCtcs = createStore(Map<AppId, any>());
@@ -74,7 +119,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: an
     const $contractStateCaches = $contractInfos.map((infos) =>
         infos
             .reduce(
-                (states, info) => (info.metadata.cache ? states.set(info.id, info.metadata.cache) : states),
+                (states, info) => (info.metadata.cache ? states.set(info.id, parseBignumState(type, info.metadata.cache)) : states),
                 Map<AppId, ContractState<T>>().asMutable()
             )
             .asImmutable()
@@ -129,9 +174,9 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: an
         clock: initializeContract,
         source: $account,
         filter: (account, _) => account !== null,
-        fn: (account, contractId) => [
+        fn: (account, contractId): [AppId, ReachContract] => [
             contractId,
-            makeWrappedCtc(account, backend, contractId, async (id) => {
+            makeWrappedCtc(type, account, backend, contractId, async (id) => {
                 triggerStateUpdate(id);
                 refreshAccountInfo();
             }),

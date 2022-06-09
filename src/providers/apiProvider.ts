@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { resolveBignums } from '../common/lib';
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -76,7 +77,7 @@ export async function getWalletNFT(wallet: string) {
 export async function getContracts(type: string) {
     return instance
         .get(`/contracts?type=${type}`)
-        .then(({ data }) => data)
+        .then(({ data }) => resolveBignums(data) as any)
         .catch((err) => console.log('ERR', err));
 }
 

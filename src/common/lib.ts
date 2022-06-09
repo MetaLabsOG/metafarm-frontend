@@ -8,10 +8,48 @@ import {
     makeAssetTransferTxnWithSuggestedParamsFromObject,
     waitForConfirmation,
 } from 'algosdk';
+import { BigNumber } from '@ethersproject/bignumber';
 import { Buffer } from 'buffer';
 import { Account, ReachStdlib } from '../types';
-import { Asset } from './store';
+import { Amount, Asset } from './store';
 import { reach } from '../AppContext';
+
+// BigNumbers from JSON decoding
+export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
+export type JsonWithBignum =
+    | string
+    | number
+    | boolean
+    | null
+    | BigNumber
+    | JsonWithBignum[]
+    | { [key: string]: JsonWithBignum };
+
+export function resolveBignums(obj: Json): JsonWithBignum {
+    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean' || obj === null) {
+        return obj;
+    } else if (obj instanceof Array) {
+        return obj.map(resolveBignums);
+    }
+
+    if (obj.type === 'BigNumber' && obj.hex !== undefined) {
+        return BigNumber.from(obj.hex);
+    } else {
+        return Object.keys(obj).reduce((newObj, key) => {
+            newObj[key] = resolveBignums(obj[key]);
+            return newObj;
+        }, {} as { [key: string]: JsonWithBignum });
+    }
+}
+
+export const unsafeFromBigint = (n: bigint): number => {
+    if (n > Number.MAX_SAFE_INTEGER) {
+        console.warn(
+            `This BigInt is too large to be converted to a number: ${n}. Conversion was done with reduction in precision.`
+        );
+    }
+    return Number(n);
+};
 
 export const sleep = (ms: number): Promise<void> => {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -36,11 +74,13 @@ export const maybeToNullable = (mb: [string, any]) => {
     return null;
 };
 
-export const isBigNumber = (n: any): boolean => Object.prototype.hasOwnProperty.call(n, '_isBigNumber');
+export const isBigNumber = (n: any): n is BigNumber => Object.prototype.hasOwnProperty.call(n, '_isBigNumber');
 
-export const convertBns = (obj: any): any => {
-    if (isBigNumber(obj)) {
-        return obj.toNumber();
+export function convertBns(obj: any): any {
+    if (obj === null) {
+        return null;
+    } else if (isBigNumber(obj)) {
+        return obj.toBigInt();
     } else if (obj instanceof Array) {
         return obj.map((e) => convertBns(e));
     } else if (obj instanceof Object) {
@@ -51,7 +91,7 @@ export const convertBns = (obj: any): any => {
     } else {
         return obj;
     }
-};
+}
 
 export async function withAlgodEncoding<N extends Algodv2 | Indexer>(
     algod: N,
@@ -128,7 +168,7 @@ export const manualBatchOptIn = async (
     });
 };
 
-export const calculateTokenAmount = (token: Asset, amount: number | null): number => {
+export const calculateTokenAmount = (token: Asset, amount: Amount | null): number => {
     if (amount === null) {
         return 0;
     }
@@ -136,10 +176,10 @@ export const calculateTokenAmount = (token: Asset, amount: number | null): numbe
     return Number(reach.formatWithDecimals(amount.toString(), token.decimals));
 };
 
-export const calculateTokenMicroAmount = (token: Asset, amount: number | null): number => {
+export const calculateTokenMicroAmount = (token: Asset, amount: number | null): Amount => {
     if (amount === null) {
-        return 0;
+        return BigInt(0);
     }
 
-    return Math.floor(amount * 10 ** token.decimals);
+    return BigInt(Math.floor(amount * 10 ** token.decimals));
 };

@@ -29,7 +29,7 @@ export const PoolActions = ({
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
     const stakedToken = lpTokenInfo ? lpTokenInfo : rewardTokenInfo;
-    const stakedTokenBalance = useStoreMap($balances, (bs) => bs[stakedToken.id] || 0);
+    const stakedTokenBalance = useStoreMap($balances, (bs) => bs[stakedToken.id] || BigInt(0));
     const balanceSuffix = lpTokenInfo ? 'LP' : rewardTokenInfo.unitName;
 
     const canStake = poolState !== PoolState.Finished;
