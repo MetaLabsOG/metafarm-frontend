@@ -5,9 +5,10 @@ import { useStore, useStoreMap } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
-import { PoolContainer, PoolInfoContainer } from './styled';
+import { PoolContainer, PoolInfoContainer, PoolLoadingAnimation } from './styled';
 import { $farmLPTokens, $farmRewardTokens } from '../../store';
 import { $stakingTokens } from '../../../Stake/store';
+import logo from '../../../imgs/logo.png';
 
 export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) => {
     const currentBlock = useStore($networkTime);
@@ -22,8 +23,12 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
 
     const is_info_loaded = rewardTokenInfo && ((type === 'farm' && lpTokenInfo) || type === 'distribution');
     if (currentBlock === 0 || !contract.state || !is_info_loaded) {
-        console.log('WHY LOADING?', type, currentBlock, contract.state, lpTokenInfo, rewardTokenInfo, stakingTokenInfo);
-        return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
+        // console.log('WHY LOADING?', type, currentBlock, contract.state, lpTokenInfo, rewardTokenInfo, stakingTokenInfo);
+        return (
+            <PoolContainer>
+                <PoolLoadingAnimation src={logo} style={{ opacity: '0.5' }} width="45px" height="45px" />
+            </PoolContainer>
+        );
     }
 
     const initial = contract.state.initial;
@@ -54,6 +59,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                         contractState={contract.state as AllDefined<ContractState<'farm'>>}
                         lpTokenInfo={lpTokenInfo}
                         rewardTokenInfo={rewardTokenInfo}
+                        setIsZapModalOpen={setIsOpen}
                     />
                 )}
             </PoolContainer>

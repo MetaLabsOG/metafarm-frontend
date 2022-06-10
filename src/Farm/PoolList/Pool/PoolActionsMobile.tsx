@@ -1,40 +1,42 @@
 import React, { FC } from 'react';
-import { GetLpTokenButton, PoolActionsMobileContainer, TokenInfo, Claim, ClaimButton, Pacman } from './styled';
+import { GetLpTokenButton, PoolActionsMobileContainer, TokenInfo, RewardsContainer, ButtonBackMobile } from './styled';
 
-import packman from '../../../imgs/pacman.gif';
 import { PoolActionsDesktopProps } from './PoolActionsDesktop';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
+import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
+import { isCompoundEnabled, runCompound } from './compound';
+import { useStore } from 'effector-react';
+import { $account } from '../../../common/store';
 
 export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     lpTokenInfo,
-
     stakedToken,
     stakedTokenBalance,
     balanceSuffix,
+    rewardTokenInfo,
     ctc,
     contractState,
     canStake,
-
     canClaim,
     isActiveClaim,
-    pendingClaim,
-
-    ModalOpen,
+    openZapModal,
+    setIsZapModalOpen,
 }) => {
+    const account = useStore($account);
     return (
         <PoolActionsMobileContainer>
+            <ButtonBackMobile onClick={() => setIsZapModalOpen(false)}>BACK</ButtonBackMobile>
             <TokenInfo>
-                {lpTokenInfo && canStake && <GetLpTokenButton onClick={ModalOpen}>Get LP Tokens</GetLpTokenButton>}
+                {lpTokenInfo && canStake && <GetLpTokenButton onClick={openZapModal}>Get LP Tokens</GetLpTokenButton>}
             </TokenInfo>
-            {canStake && (
-                <TokenInputWithButton
-                    token={stakedToken}
-                    tokenMicroBalance={stakedTokenBalance}
-                    balanceSuffix={balanceSuffix}
-                    buttonName="STAKE"
-                    actionEffect={ctc.apis.stake}
-                />
-            )}
+            <TokenInputWithButton
+                style={!canStake ? { visibility: 'hidden' } : {}}
+                token={stakedToken}
+                tokenMicroBalance={stakedTokenBalance}
+                balanceSuffix={balanceSuffix}
+                buttonName="STAKE"
+                actionEffect={ctc.apis.stake}
+            />
             <TokenInputWithButton
                 token={stakedToken}
                 tokenMicroBalance={contractState.local.staked}
@@ -43,14 +45,25 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 actionEffect={ctc.apis.unstake}
                 blueButtonColor={true}
             />
-            {/* TODO: create button component and refactor claim*/}
-            <Claim>
-                {canClaim && (
-                    <ClaimButton isActive={isActiveClaim} onClick={() => ctc.apis.claim()}>
-                        {pendingClaim ? <Pacman src={packman} /> : 'CLAIM'}
-                    </ClaimButton>
+            <RewardsContainer>
+                <PacmanButton
+                    style={!canClaim ? { visibility: 'hidden' } : {}}
+                    buttonText="CLAIM"
+                    buttonStyle="claim_button"
+                    onClickAction={() => ctc.apis.claim()}
+                    isInactive={!isActiveClaim}
+                />
+                {canClaim && lpTokenInfo && account && isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
+                    <PacmanButton
+                        buttonText="COMPOUND"
+                        buttonStyle="claim_button"
+                        onClickAction={() =>
+                            runCompound(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
+                        }
+                        isInactive={!isActiveClaim}
+                    />
                 )}
-            </Claim>
+            </RewardsContainer>
         </PoolActionsMobileContainer>
     );
 };

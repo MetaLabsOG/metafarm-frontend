@@ -76,7 +76,7 @@ export const $pools = $contracts;
 export const setPoolInfos = setContractInfos;
 export const triggerPoolUpdate = triggerStateUpdate;
 
-$pools.watch((v) => console.log('FARM POOLS', v));
+$pools.watch((v) => {}); //console.log('FARM POOLS', v));
 
 //TODO NEED REFACTOR (quick solution)
 export const sortPoolsOnStatus = ({ networkTime, pools }: { networkTime: number; pools: Contract<FarmType>[] }) => {
@@ -94,7 +94,7 @@ export const $sortedPools = combine($networkTime, $pools, (networkTime, pools) =
     sortPoolsOnStatus({ networkTime, pools })
 );
 
-$sortedPools.watch((v) => console.log(v));
+$sortedPools.watch((v) => {}); //console.log(v));
 
 // LP token info store
 type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
@@ -107,7 +107,7 @@ export const getLPTokenInfoFx = createEffect(
 );
 
 $lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
-$lpTokenInfos.watch((v) => console.log('LP TOKEN INFOS', v.toJS()));
+$lpTokenInfos.watch((v) => {}); //console.log('LP TOKEN INFOS', v.toJS()));
 
 // Fetching LP token infos similarly to how asset prices are fetched
 const markTokenAsLP = createEvent<AssetId>();

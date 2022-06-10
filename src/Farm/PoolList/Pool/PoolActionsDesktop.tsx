@@ -1,58 +1,56 @@
-import React, { FC } from 'react';
+import React, { Dispatch, FC, SetStateAction } from 'react';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { GetLpTokenButton, PoolActionsDesktopContainer, TokenInfo, Claim, ClaimButton, Pacman } from './styled';
+import { GetLpTokenButton, PoolActionsDesktopContainer, TokenInfo } from './styled';
 
-import pacman from '../../../imgs/pacman.gif';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
-import { AllDefined, Amount, Asset, ContractState, FarmType, Priced } from '../../../common/store';
+import { $account, AllDefined, Amount, Asset, ContractState, FarmType, Priced } from '../../../common/store';
+import { useStore } from 'effector-react';
+import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
+import { isCompoundEnabled, runCompound } from './compound';
 
 export interface PoolActionsDesktopProps {
     lpTokenInfo: LPTokenInfo | null;
-
     stakedToken: LPTokenInfo | Priced<Asset>;
     stakedTokenBalance: Amount;
     balanceSuffix: string;
+    rewardTokenInfo: Priced<Asset>;
     ctc: any;
     contractState: AllDefined<ContractState<FarmType>>;
     canStake: boolean;
-
     canClaim: boolean;
     isActiveClaim: boolean;
-    pendingClaim: unknown;
-
-    ModalOpen: () => void;
+    openZapModal: () => void;
+    setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     lpTokenInfo,
-
     stakedToken,
     stakedTokenBalance,
     balanceSuffix,
+    rewardTokenInfo,
     ctc,
     contractState,
     canStake,
-
     canClaim,
     isActiveClaim,
-    pendingClaim,
-
-    ModalOpen,
+    openZapModal,
 }) => {
+    const account = useStore($account);
+
     return (
         <PoolActionsDesktopContainer>
             <TokenInfo>
-                {lpTokenInfo && canStake && <GetLpTokenButton onClick={ModalOpen}>Get LP Tokens</GetLpTokenButton>}
+                {lpTokenInfo && canStake && <GetLpTokenButton onClick={openZapModal}>Get LP Tokens</GetLpTokenButton>}
             </TokenInfo>
-            {canStake && (
-                <TokenInputWithButton
-                    token={stakedToken}
-                    tokenMicroBalance={stakedTokenBalance}
-                    balanceSuffix={balanceSuffix}
-                    buttonName="STAKE"
-                    actionEffect={ctc.apis.stake}
-                />
-            )}
+            <TokenInputWithButton
+                style={!canStake ? { visibility: 'hidden' } : {}}
+                token={stakedToken}
+                tokenMicroBalance={stakedTokenBalance}
+                balanceSuffix={balanceSuffix}
+                buttonName="STAKE"
+                actionEffect={ctc.apis.stake}
+            />
             <TokenInputWithButton
                 token={stakedToken}
                 tokenMicroBalance={contractState.local.staked}
@@ -61,14 +59,23 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 actionEffect={ctc.apis.unstake}
                 blueButtonColor={true}
             />
-            {/*TODO: create button component and refactor claim*/}
-            <Claim>
-                {canClaim && (
-                    <ClaimButton isActive={isActiveClaim} onClick={() => ctc.apis.claim()}>
-                        {pendingClaim ? <Pacman src={pacman} /> : 'CLAIM'}
-                    </ClaimButton>
-                )}
-            </Claim>
+            <PacmanButton
+                style={!canClaim ? { visibility: 'hidden' } : {}}
+                buttonText="CLAIM"
+                buttonStyle="claim_button"
+                onClickAction={() => ctc.apis.claim()}
+                isInactive={!isActiveClaim}
+            />
+            {canClaim && lpTokenInfo && account && isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
+                <PacmanButton
+                    buttonText="COMPOUND"
+                    buttonStyle="claim_button"
+                    onClickAction={() =>
+                        runCompound(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
+                    }
+                    isInactive={!isActiveClaim}
+                />
+            )}
         </PoolActionsDesktopContainer>
     );
 };

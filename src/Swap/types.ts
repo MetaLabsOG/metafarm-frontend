@@ -12,6 +12,7 @@ export interface TokenSelectOption {
     unit_name: string;
     logo: string;
     balance: number;
+    decimals: number;
 }
 
 export interface Token {
@@ -21,6 +22,7 @@ export interface Token {
     logo: {
         png: string;
     };
+    decimals: number;
 }
 
 export interface BestSwap {

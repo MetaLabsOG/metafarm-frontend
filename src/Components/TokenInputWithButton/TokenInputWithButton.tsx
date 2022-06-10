@@ -1,7 +1,6 @@
 import React, { FC, useState } from 'react';
-import { Action, Button, Balance, Input, MaxButton, Pacman, TokenInputWithButtonContainer } from './styled';
+import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
-import pacman from '../../imgs/pacman.gif';
 import { LPTokenInfo } from '../../providers/dexesProvider';
 import { useStore } from 'effector-react';
 import { Asset, Priced } from '../../common/store';
@@ -9,6 +8,7 @@ import { calculateTokenAmount, calculateTokenMicroAmount } from '../../common/li
 import { Effect } from 'effector';
 import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/hooks';
 import { BigNumberish } from '@ethersproject/bignumber';
+import { PacmanButton } from '../PacmanButton/PacmanButton';
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;
@@ -17,7 +17,21 @@ export interface InputWithButtonProps {
     buttonName: string;
     actionEffect: Effect<BigNumberish[], any>;
     blueButtonColor?: boolean;
+    style?: React.CSSProperties;
 }
+
+const checkValidInput = (input: string, token: LPTokenInfo | Priced<Asset>, tokenMicroBalance: bigint) => {
+    if (!input) {
+        return true;
+    }
+
+    if (isNaN(Number(input))) {
+        return false;
+    }
+
+    const microAmount = calculateTokenMicroAmount(token, parseFloat(input));
+    return microAmount <= tokenMicroBalance;
+};
 
 export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     token,
@@ -26,12 +40,14 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     buttonName,
     actionEffect,
     blueButtonColor = false,
+    style,
 }) => {
     const isPending = useStore(actionEffect.pending);
-    const isActive = tokenMicroBalance > 0 && !isPending;
 
     const [inputAmount, setInputAmount] = useState<string>('');
     const [isValidInput, setIsValidInput] = useState<boolean>(true);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const isActive = tokenMicroBalance > 0 && !isLoading;
 
     useToasts({
         api: actionEffect,
@@ -46,27 +62,31 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const inputValue = e.currentTarget.value ? parseFloat(e.currentTarget.value) : 0;
-        const microAmount = calculateTokenMicroAmount(token, inputValue);
-        setIsValidInput(microAmount <= tokenMicroBalance);
+        setIsValidInput(checkValidInput(e.currentTarget.value, token, tokenMicroBalance));
         setInputAmount(e.currentTarget.value);
     };
 
-    const onClick = (amount: string) => {
+    const onClick = async (amount: string) => {
         const microAmount = calculateTokenMicroAmount(token, parseFloat(inputAmount));
-        if (!isPending && isValidInput && microAmount > 0) {
-            actionEffect([microAmount]);
+        if (!isLoading && isValidInput && microAmount > 0) {
+            setIsLoading(true);
             setInputAmount('');
+            await actionEffect([microAmount]);
+            setIsLoading(false);
         }
     };
 
     return (
-        <TokenInputWithButtonContainer>
+        <TokenInputWithButtonContainer style={style}>
             <Action blueColor={blueButtonColor} isActive={isActive && isValidInput}>
                 <Input placeholder="0" isActive={isActive} value={inputAmount} onChange={onChange} />
-                <Button isActive={!isPending} disabled={!isActive} onClick={() => onClick(inputAmount)}>
-                    {isPending ? <Pacman src={pacman} /> : buttonName}
-                </Button>
+                <PacmanButton
+                    style={blueButtonColor ? { color: '#55D6FF' } : {}}
+                    buttonText={buttonName}
+                    buttonStyle="token_input_button"
+                    onClickAction={() => onClick(inputAmount)}
+                    isInactive={!isValidInput || !isActive}
+                />
                 <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>
             </Action>
             <Balance isValid={isValidInput}>

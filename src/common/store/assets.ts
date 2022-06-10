@@ -41,7 +41,7 @@ function getBalancesFromAccountInfo(accountInfo: any): Record<AssetId, Amount> {
 
 export const $balances = $accountInfo.map(getBalancesFromAccountInfo);
 
-$balances.watch((bs) => console.log('BALANCES', bs));
+$balances.watch((bs) => {}); //console.log('BALANCES', bs));
 
 // =================================================================
 // Asset info store with one-time fetching from algod
@@ -72,7 +72,7 @@ export const $assets = createStore(Map<AssetId, Asset>().set(0, ALGO_ASSET)).on(
     assets.set(a.id, a)
 );
 
-$assets.watch((assets) => console.log('ASSETS', assets.toJS()));
+$assets.watch((assets) => {}); //console.log('ASSETS', assets.toJS()));
 
 const queryAsset = createEvent<AssetId>();
 const assetFoundInStore = createEvent<Asset>();

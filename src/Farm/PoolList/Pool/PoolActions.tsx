@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { useStore, useStoreMap } from 'effector-react';
 import { $balances, ContractState, Priced, Asset, AllDefined, FarmType, $account } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
@@ -18,14 +18,15 @@ export const PoolActions = ({
     contractState,
     lpTokenInfo,
     rewardTokenInfo,
+    setIsZapModalOpen,
 }: {
     poolState: PoolState;
     ctc: any;
     contractState: AllDefined<ContractState<FarmType>>;
     lpTokenInfo: LPTokenInfo | null;
     rewardTokenInfo: Priced<Asset>;
+    setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
-    // const account = useStore($account);
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
     const stakedToken = lpTokenInfo ? lpTokenInfo : rewardTokenInfo;
@@ -34,10 +35,9 @@ export const PoolActions = ({
 
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;
-
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim;
 
-    const [Modal, open] = useModal('root', { preventScroll: true });
+    const [Modal, openZapModal, closeZapModal] = useModal('root', { preventScroll: true });
 
     useToasts({
         api: ctc.apis.claim,
@@ -55,14 +55,15 @@ export const PoolActions = ({
                     lpTokenInfo={lpTokenInfo}
                     stakedToken={stakedToken}
                     stakedTokenBalance={stakedTokenBalance}
+                    rewardTokenInfo={rewardTokenInfo}
                     ctc={ctc}
                     contractState={contractState}
                     balanceSuffix={balanceSuffix}
                     canStake={canStake}
                     canClaim={canClaim}
                     isActiveClaim={isActiveClaim}
-                    pendingClaim={pendingClaim}
-                    ModalOpen={open}
+                    openZapModal={openZapModal}
+                    setIsZapModalOpen={setIsZapModalOpen}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -70,18 +71,23 @@ export const PoolActions = ({
                     stakedToken={stakedToken}
                     stakedTokenBalance={stakedTokenBalance}
                     balanceSuffix={balanceSuffix}
+                    rewardTokenInfo={rewardTokenInfo}
                     ctc={ctc}
                     contractState={contractState}
                     canStake={canStake}
                     canClaim={canClaim}
                     isActiveClaim={isActiveClaim}
-                    pendingClaim={pendingClaim}
-                    ModalOpen={open}
+                    openZapModal={openZapModal}
+                    setIsZapModalOpen={setIsZapModalOpen}
                 />
             )}
             {lpTokenInfo && (
                 <Modal>
-                    <ZapModal asset1_id={lpTokenInfo.asset1} asset2_id={lpTokenInfo.asset2} />
+                    <ZapModal
+                        asset1_id={lpTokenInfo.asset1}
+                        asset2_id={lpTokenInfo.asset2}
+                        closeModal={closeZapModal}
+                    />
                 </Modal>
             )}
         </>

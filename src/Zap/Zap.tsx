@@ -4,14 +4,13 @@ import 'react-select-search/style.css';
 import '../css/swap.css';
 import { TokenSelectOption } from '../Swap/types';
 import { ZapData } from './types';
-import { $account } from '../common/store';
+import { $account, $balances } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent } from '../logEvent';
 import { useStore } from 'effector-react';
 import {
-    ButtonWithPackman,
     formatNumber,
     getData,
     getOptions,
@@ -21,6 +20,7 @@ import {
     TokenSelect,
     TokenSelectWithAmount,
 } from '../Swap/Swap';
+import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 
 export async function loadZapData(
     account: Account | null,
@@ -40,7 +40,13 @@ export async function loadZapData(
     console.log(asset1_id, asset2_id, asset1_amount);
 
     try {
-        const zap_data: ZapData = await getData(QueryType.zap, asset1_id, asset2_id, asset1_amount, '&swap_half=true');
+        const zap_data: ZapData = await getData(
+            QueryType.zap,
+            asset1_id,
+            asset2_id,
+            asset1_amount,
+            '&swap_half=true&slippage=0.1'
+        );
 
         logEvent(
             account ? account.networkAccount.addr : '',
@@ -101,17 +107,17 @@ export function ZapResult({
                 <h3 className="token_price_text">
                     {token1.unit_name}-{token2.unit_name} LP
                 </h3>
-                <h3 className="token_price_zap_value">{formatNumber(zap_data.lp_amount)}</h3>
+                <h3 className="token_price_zap_value">{formatNumber(zap_data.lp_amount ?? 0)}</h3>
             </div>
             <div style={{ display: 'flex', justifyContent: 'right', marginTop: '10px' }}>
                 <h3 className="token_price_text">
-                    {zap_data.asset1_amount} {token1.unit_name} + {formatNumber(zap_data.asset2_amount)}{' '}
-                    {token2.unit_name}
+                    {formatNumber(zap_data.asset1_amount ?? 0)} {token1.unit_name} +{' '}
+                    {formatNumber(zap_data.asset2_amount ?? 0)} {token2.unit_name}
                 </h3>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap', marginTop: '10px' }}>
                 <h3 className="token_price_text">LP ASA ID</h3>
-                <h3 className="token_price_text">{formatNumber(zap_data.pool_lp_id)}</h3>
+                <h3 className="token_price_text">{formatNumber(zap_data.pool_lp_id ?? 0)}</h3>
             </div>
         </div>
     );
@@ -119,6 +125,7 @@ export function ZapResult({
 
 export function Zap() {
     const account = useStore($account);
+    const balances = useStore($balances);
 
     const [token1, setToken1] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
     const [token2, setToken2] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
@@ -132,15 +139,14 @@ export function Zap() {
 
     const [options, setOptions] = useState<TokenSelectOption[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
-    const [isLoading1, setIsLoading1] = useState<boolean>(false);
-    const [isLoading2, setIsLoading2] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        getOptions(account).then((res) => {
+        getOptions(balances).then((res) => {
             setOptions(res);
             setToken1(res[0]);
         });
-    }, [account]);
+    }, [balances]);
 
     const getZapTimeout = useRef<any>();
 
@@ -150,7 +156,7 @@ export function Zap() {
         }
         clearTimeout(getZapTimeout.current);
         getZapTimeout.current = setTimeout(() => {
-            loadZapData(account, token1_id, token2_id, amount, setIsLoading1, setZapData, setShowResult);
+            loadZapData(account, token1_id, token2_id, amount, setIsLoading, setZapData, setShowResult);
         }, delay);
     }
 
@@ -175,20 +181,22 @@ export function Zap() {
         getZapThrottled(token1.value, token2.value, e.target.value, 1000);
     };
 
-    const LoadZapButtonOnClick = () => {
-        loadZapData(account, token1.value, token2.value, token1Amount, setIsLoading1, setZapData, setShowResult);
+    const LoadZapButtonOnClick = async () => {
+        return loadZapData(account, token1.value, token2.value, token1Amount, setIsLoading, setZapData, setShowResult);
     };
 
-    const ZapButtonOnClick = () => {
-        runTransactions(
+    const ZapButtonOnClick = async () => {
+        const result_tx_id = await runTransactions(
             QueryType.zap,
             account,
             token1.value,
             token2.value,
             token1Amount,
-            setIsLoading2,
-            '&swap_half=true'
+            '&swap_half=true&slippage=0.1'
         );
+        if (result_tx_id) {
+            alert('OK ' + result_tx_id);
+        }
     };
 
     return (
@@ -205,25 +213,19 @@ export function Zap() {
             />
             <h3 className="swap_text">SECOND TOKEN</h3>
             <TokenSelect options={options} token={token2} selectOnChange={select2OnChange} />
-            {!isLoading1 && !showResult && (
-                <ButtonWithPackman
-                    button_text="FIND LIQUIDITY POOL"
-                    button_style="price_button"
-                    isLoading={isLoading1}
-                    onClick={LoadZapButtonOnClick}
+            {!isLoading && !showResult && (
+                <PacmanButton
+                    buttonText="FIND LIQUIDITY POOL"
+                    buttonStyle="price_button"
+                    onClickAction={LoadZapButtonOnClick}
                 />
             )}
-            {(isLoading1 || showResult) && (
-                <ZapResult isLoading={isLoading1} zap_data={zapData} token1={token1} token2={token2} />
+            {(isLoading || showResult) && (
+                <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
             )}
             {showResult && (
                 <React.Fragment>
-                    <ButtonWithPackman
-                        button_text="GET LP"
-                        button_style="swap_button"
-                        isLoading={isLoading2}
-                        onClick={ZapButtonOnClick}
-                    />
+                    <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
                     <h3 className="dex_name">on tinyman</h3>
                 </React.Fragment>
             )}

@@ -1,22 +1,25 @@
 import { loadZapData, ZapResult } from './Zap';
 import { useStore } from 'effector-react';
-import { $account } from '../common/store';
+import { $account, $balances, refreshAccountInfo } from '../common/store';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { TokenSelectOption } from '../Swap/types';
-import {
-    ButtonWithPackman,
-    getOptions,
-    QueryType,
-    runTransactions,
-    TOKEN_INITIAL_STATE,
-    TokenSelectWithAmount,
-} from '../Swap/Swap';
+import { getOptions, QueryType, runTransactions, TOKEN_INITIAL_STATE, TokenSelectWithAmount } from '../Swap/Swap';
 import { ZapData } from './types';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
+import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 
-export function ZapModal({ asset1_id, asset2_id }: { asset1_id: number; asset2_id: number }) {
+export function ZapModal({
+    asset1_id,
+    asset2_id,
+    closeModal,
+}: {
+    asset1_id: number;
+    asset2_id: number;
+    closeModal: () => void;
+}) {
     console.log('ZAP', asset1_id, asset2_id);
     const account = useStore($account);
+    const balances = useStore($balances);
 
     const [token1, setToken1] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
     const [token2, setToken2] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
@@ -30,12 +33,11 @@ export function ZapModal({ asset1_id, asset2_id }: { asset1_id: number; asset2_i
 
     const [options, setOptions] = useState<TokenSelectOption[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
-    const [isLoading1, setIsLoading1] = useState<boolean>(false);
-    const [isLoading2, setIsLoading2] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        setIsLoading1(true);
-        getOptions(account).then((res) => {
+        setIsLoading(true);
+        getOptions(balances).then((res) => {
             const filtered_res = res.filter(
                 (token) => token.value === asset1_id.toString() || token.value === asset2_id.toString()
             );
@@ -43,9 +45,9 @@ export function ZapModal({ asset1_id, asset2_id }: { asset1_id: number; asset2_i
             console.log(filtered_res);
             setToken1(filtered_res[0]);
             setToken2(filtered_res[1]);
-            setIsLoading1(false);
+            setIsLoading(false);
         });
-    }, [account]);
+    }, [balances]);
 
     const getZapTimeout = useRef<any>();
 
@@ -55,7 +57,7 @@ export function ZapModal({ asset1_id, asset2_id }: { asset1_id: number; asset2_i
         }
         clearTimeout(getZapTimeout.current);
         getZapTimeout.current = setTimeout(() => {
-            loadZapData(account, token1_id, token2_id, amount, setIsLoading1, setZapData, setShowResult);
+            loadZapData(account, token1_id, token2_id, amount, setIsLoading, setZapData, setShowResult);
         }, delay);
     }
 
@@ -75,16 +77,17 @@ export function ZapModal({ asset1_id, asset2_id }: { asset1_id: number; asset2_i
         getZapThrottled(token1.value, token2.value, e.target.value, 1000);
     };
 
-    const ZapButtonOnClick = () => {
-        runTransactions(
+    const ZapButtonOnClick = async () => {
+        await runTransactions(
             QueryType.zap,
             account,
             token1.value,
             token2.value,
             token1Amount,
-            setIsLoading2,
-            '&swap_half=true'
+            '&swap_half=true&slippage=0.1'
         );
+        refreshAccountInfo();
+        closeModal();
     };
 
     return (
@@ -103,14 +106,9 @@ export function ZapModal({ asset1_id, asset2_id }: { asset1_id: number; asset2_i
                 selectOnChange={select1OnChange}
                 inputOnChange={inputOnChange}
             />
-            <ZapResult isLoading={isLoading1} zap_data={zapData} token1={token1} token2={token2} />
+            <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
             <React.Fragment>
-                <ButtonWithPackman
-                    button_text="GET LP"
-                    button_style="swap_button"
-                    isLoading={isLoading2}
-                    onClick={ZapButtonOnClick}
-                />
+                <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
                 <h3 className="dex_name">on tinyman</h3>
             </React.Fragment>
         </div>

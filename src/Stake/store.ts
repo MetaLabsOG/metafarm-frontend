@@ -12,13 +12,13 @@ const { $contracts, $contractStatesWithCache, setContractInfos } = buildContract
 export const $stakingPools = $contracts;
 export const setStakingPoolInfos = setContractInfos;
 
-$stakingPools.watch((v) => console.log('STAKE POOLS', v));
+$stakingPools.watch((v) => {}); //console.log('STAKE POOLS', v));
 
 export const $sortedStakingPools = combine($networkTime, $stakingPools, (networkTime, pools) =>
     sortPoolsOnStatus({ networkTime, pools })
 );
 
-$sortedStakingPools.watch((v) => console.log(v));
+$sortedStakingPools.watch((v) => {}); //console.log(v));
 
 $contractStatesWithCache.watch((states) =>
     states.valueSeq().forEach((s) => {
