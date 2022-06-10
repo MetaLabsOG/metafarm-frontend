@@ -20,6 +20,19 @@ export interface InputWithButtonProps {
     style?: React.CSSProperties;
 }
 
+const checkValidInput = (input: string, token: LPTokenInfo | Priced<Asset>, tokenMicroBalance: bigint) => {
+    if (!input) {
+        return true;
+    }
+
+    if (isNaN(Number(input))) {
+        return false;
+    }
+
+    const microAmount = calculateTokenMicroAmount(token, parseFloat(input));
+    return microAmount <= tokenMicroBalance;
+};
+
 export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     token,
     tokenMicroBalance,
@@ -49,9 +62,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const inputValue = e.currentTarget.value ? parseFloat(e.currentTarget.value) : 0;
-        const microAmount = calculateTokenMicroAmount(token, inputValue);
-        setIsValidInput(microAmount <= tokenMicroBalance);
+        setIsValidInput(checkValidInput(e.currentTarget.value, token, tokenMicroBalance));
         setInputAmount(e.currentTarget.value);
     };
 
