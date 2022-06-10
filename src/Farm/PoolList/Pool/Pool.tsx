@@ -5,7 +5,7 @@ import { useStore, useStoreMap } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
-import { PoolContainer, PoolInfoContainer, PoolInfoMockAnimation } from './styled';
+import { PoolContainer, PoolInfoContainer, PoolLoadingAnimation } from './styled';
 import { $farmLPTokens, $farmRewardTokens } from '../../store';
 import { $stakingTokens } from '../../../Stake/store';
 import logo from '../../../imgs/logo.png';
@@ -26,9 +26,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
         // console.log('WHY LOADING?', type, currentBlock, contract.state, lpTokenInfo, rewardTokenInfo, stakingTokenInfo);
         return (
             <PoolContainer>
-                <PoolInfoMockAnimation>
-                    <img src={logo} style={{ opacity: '0.5' }} width="30px" height="30px" />
-                </PoolInfoMockAnimation>
+                <PoolLoadingAnimation src={logo} style={{ opacity: '0.5' }} width="45px" height="45px" />
             </PoolContainer>
         );
     }

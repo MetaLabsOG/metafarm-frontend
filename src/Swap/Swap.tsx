@@ -174,7 +174,15 @@ export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, in
         const tx_id = transactions[key].tx_id;
         if (tx_id) {
             console.log('Waiting txID', tx_id);
-            await algosdk.waitForConfirmation(algodClient, tx_id, 5);
+            try {
+                await algosdk.waitForConfirmation(algodClient, tx_id, 5);
+            } catch (e) {
+                // TODO: TypeError: Cannot mix BigInt and other types, use explicit conversions at Module.n (algosdk.min.js:14061:1)
+                // @ts-ignore
+                const error_message = e.message;
+                console.log('[ERROR waitForConfirmation] ' + error_message);
+                await sleep(8000);
+            }
         }
     }
 

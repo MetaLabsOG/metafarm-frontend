@@ -107,17 +107,17 @@ export function ZapResult({
                 <h3 className="token_price_text">
                     {token1.unit_name}-{token2.unit_name} LP
                 </h3>
-                <h3 className="token_price_zap_value">{formatNumber(zap_data.lp_amount)}</h3>
+                <h3 className="token_price_zap_value">{formatNumber(zap_data.lp_amount ?? 0)}</h3>
             </div>
             <div style={{ display: 'flex', justifyContent: 'right', marginTop: '10px' }}>
                 <h3 className="token_price_text">
-                    {zap_data.asset1_amount} {token1.unit_name} + {formatNumber(zap_data.asset2_amount)}{' '}
-                    {token2.unit_name}
+                    {formatNumber(zap_data.asset1_amount ?? 0)} {token1.unit_name} +{' '}
+                    {formatNumber(zap_data.asset2_amount ?? 0)} {token2.unit_name}
                 </h3>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap', marginTop: '10px' }}>
                 <h3 className="token_price_text">LP ASA ID</h3>
-                <h3 className="token_price_text">{formatNumber(zap_data.pool_lp_id)}</h3>
+                <h3 className="token_price_text">{formatNumber(zap_data.pool_lp_id ?? 0)}</h3>
             </div>
         </div>
     );
