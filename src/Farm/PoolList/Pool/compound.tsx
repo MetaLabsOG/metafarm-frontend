@@ -14,7 +14,7 @@ export const runCompound = async (
     ctc: any,
     lpTokenInfo: LPTokenInfo,
     rewardAsset: Priced<Asset>,
-    rewardMicroamount: number
+    rewardMicroamount: bigint
 ) => {
     const rewardAssetId = rewardAsset.id;
     const asset1Id = lpTokenInfo.asset1;

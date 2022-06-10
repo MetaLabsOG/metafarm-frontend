@@ -3,7 +3,7 @@ import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { GetLpTokenButton, PoolActionsDesktopContainer, TokenInfo } from './styled';
 
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
-import { $account, AllDefined, Asset, ContractState, FarmType, Priced } from '../../../common/store';
+import { $account, AllDefined, Amount, Asset, ContractState, FarmType, Priced } from '../../../common/store';
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
@@ -11,7 +11,7 @@ import { isCompoundEnabled, runCompound } from './compound';
 export interface PoolActionsDesktopProps {
     lpTokenInfo: LPTokenInfo | null;
     stakedToken: LPTokenInfo | Priced<Asset>;
-    stakedTokenBalance: number;
+    stakedTokenBalance: Amount;
     balanceSuffix: string;
     rewardTokenInfo: Priced<Asset>;
     ctc: any;

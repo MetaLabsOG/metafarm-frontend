@@ -8,13 +8,14 @@ import { Asset, Priced } from '../../common/store';
 import { calculateTokenAmount, calculateTokenMicroAmount } from '../../common/lib';
 import { Effect } from 'effector';
 import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/hooks';
+import { BigNumberish } from '@ethersproject/bignumber';
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;
-    tokenMicroBalance: number;
+    tokenMicroBalance: bigint;
     balanceSuffix: string;
     buttonName: string;
-    actionEffect: Effect<number[], any>;
+    actionEffect: Effect<BigNumberish[], any>;
     blueButtonColor?: boolean;
     style?: React.CSSProperties;
 }
@@ -33,7 +34,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     const [inputAmount, setInputAmount] = useState<string>('');
     const [isValidInput, setIsValidInput] = useState<boolean>(true);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const isActive = Number(tokenMicroBalance) > 0 && !isLoading;
+    const isActive = tokenMicroBalance > 0 && !isLoading;
 
     useToasts({
         api: actionEffect,
