@@ -177,7 +177,7 @@ export const calculateTokenAmount = (token: Asset, amount: Amount | null): numbe
 };
 
 export const calculateTokenMicroAmount = (token: Asset, amount: number | null): Amount => {
-    if (amount === null) {
+    if (amount === null || isNaN(amount)) {
         return BigInt(0);
     }
 

@@ -4,7 +4,7 @@ import 'react-select-search/style.css';
 import '../css/swap.css';
 import { TokenSelectOption } from '../Swap/types';
 import { ZapData } from './types';
-import { $account } from '../common/store';
+import { $account, $balances } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
@@ -40,7 +40,13 @@ export async function loadZapData(
     console.log(asset1_id, asset2_id, asset1_amount);
 
     try {
-        const zap_data: ZapData = await getData(QueryType.zap, asset1_id, asset2_id, asset1_amount, '&swap_half=true');
+        const zap_data: ZapData = await getData(
+            QueryType.zap,
+            asset1_id,
+            asset2_id,
+            asset1_amount,
+            '&swap_half=true&slippage=0.1'
+        );
 
         logEvent(
             account ? account.networkAccount.addr : '',
@@ -119,6 +125,7 @@ export function ZapResult({
 
 export function Zap() {
     const account = useStore($account);
+    const balances = useStore($balances);
 
     const [token1, setToken1] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
     const [token2, setToken2] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
@@ -135,11 +142,11 @@ export function Zap() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        getOptions(account).then((res) => {
+        getOptions(balances).then((res) => {
             setOptions(res);
             setToken1(res[0]);
         });
-    }, [account]);
+    }, [balances]);
 
     const getZapTimeout = useRef<any>();
 
@@ -185,7 +192,7 @@ export function Zap() {
             token1.value,
             token2.value,
             token1Amount,
-            '&swap_half=true'
+            '&swap_half=true&slippage=0.1'
         );
         if (result_tx_id) {
             alert('OK ' + result_tx_id);

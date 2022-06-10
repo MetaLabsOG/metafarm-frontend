@@ -1,13 +1,12 @@
 import { loadZapData, ZapResult } from './Zap';
 import { useStore } from 'effector-react';
-import { $account, refreshAccountInfo } from '../common/store';
+import { $account, $balances, refreshAccountInfo } from '../common/store';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { TokenSelectOption } from '../Swap/types';
 import { getOptions, QueryType, runTransactions, TOKEN_INITIAL_STATE, TokenSelectWithAmount } from '../Swap/Swap';
 import { ZapData } from './types';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { sleep } from '../common/lib';
 
 export function ZapModal({
     asset1_id,
@@ -20,6 +19,7 @@ export function ZapModal({
 }) {
     console.log('ZAP', asset1_id, asset2_id);
     const account = useStore($account);
+    const balances = useStore($balances);
 
     const [token1, setToken1] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
     const [token2, setToken2] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
@@ -37,7 +37,7 @@ export function ZapModal({
 
     useEffect(() => {
         setIsLoading(true);
-        getOptions(account).then((res) => {
+        getOptions(balances).then((res) => {
             const filtered_res = res.filter(
                 (token) => token.value === asset1_id.toString() || token.value === asset2_id.toString()
             );
@@ -47,7 +47,7 @@ export function ZapModal({
             setToken2(filtered_res[1]);
             setIsLoading(false);
         });
-    }, [account]);
+    }, [balances]);
 
     const getZapTimeout = useRef<any>();
 
@@ -78,7 +78,14 @@ export function ZapModal({
     };
 
     const ZapButtonOnClick = async () => {
-        await runTransactions(QueryType.zap, account, token1.value, token2.value, token1Amount, '&swap_half=true');
+        await runTransactions(
+            QueryType.zap,
+            account,
+            token1.value,
+            token2.value,
+            token1Amount,
+            '&swap_half=true&slippage=0.1'
+        );
         refreshAccountInfo();
         closeModal();
     };

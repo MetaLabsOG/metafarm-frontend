@@ -56,9 +56,9 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     const onClick = (amount: string) => {
-        setIsLoading(true);
         const microAmount = calculateTokenMicroAmount(token, parseFloat(inputAmount));
         if (!isLoading && isValidInput && microAmount > 0) {
+            setIsLoading(true);
             setInputAmount('');
             actionEffect([microAmount]).then(() => setIsLoading(false));
         }

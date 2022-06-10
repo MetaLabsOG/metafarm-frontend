@@ -26,7 +26,10 @@ function isViewVal(v: ViewVal | ViewFunMap): v is ViewVal {
     return typeof v === 'function';
 }
 
-function mapViewMap<V extends ViewFunMap | ViewVal, T>(mp: LvlUp<V>, fn: (k: string, v: ViewVal) => T): ReplacedViewMap<V, T> {
+function mapViewMap<V extends ViewFunMap | ViewVal, T>(
+    mp: LvlUp<V>,
+    fn: (k: string, v: ViewVal) => T
+): ReplacedViewMap<V, T> {
     return Object.keys(mp).reduce((newMp: ReplacedViewMap<V, T>, k) => {
         const val = mp[k];
         if (isViewVal(val)) {
@@ -84,7 +87,10 @@ function makeWrappedCtc<T extends ContractType>(
     return ctc;
 }
 
-function parseBignumState<T extends ContractType>(type: T, bignumState: AllBignums<ContractState<T>>): ContractState<T> {
+function parseBignumState<T extends ContractType>(
+    type: T,
+    bignumState: AllBignums<ContractState<T>>
+): ContractState<T> {
     return Object.keys(bignumState).reduce((newState: ContractState<T>, k: string) => {
         const key = k as keyof ContractState<T>;
         //@ts-ignore
@@ -119,7 +125,8 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
     const $contractStateCaches = $contractInfos.map((infos) =>
         infos
             .reduce(
-                (states, info) => (info.metadata.cache ? states.set(info.id, parseBignumState(type, info.metadata.cache)) : states),
+                (states, info) =>
+                    info.metadata.cache ? states.set(info.id, parseBignumState(type, info.metadata.cache)) : states,
                 Map<AppId, ContractState<T>>().asMutable()
             )
             .asImmutable()
@@ -211,7 +218,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
     });
 
     $contractStates.on(contractStateUpdated, (states, { id, state }) => states.set(id, state));
-    $contractStates.watch((s) => console.log('STATES', s.toJS()));
+    $contractStates.watch((s) => {}); //console.log('STATES', s.toJS()));
 
     const $contractIds = $contractInfos.map((infos) => infos.map((i) => i.id));
 

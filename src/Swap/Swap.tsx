@@ -1,6 +1,6 @@
 import algosdk from 'algosdk';
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { ALGONET, MAINNET, reach } from '../AppContext';
+import { ALGONET, MAINNET, META_TOKEN_ID, reach } from '../AppContext';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
@@ -11,7 +11,7 @@ import SelectSearch, { fuzzySearch, SelectedOption, SelectedOptionValue } from '
 import React from 'react';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent } from '../logEvent';
-import { useStore } from 'effector-react';
+import { useStore, useStoreMap } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { sleep } from '../common/lib';
 
@@ -33,6 +33,7 @@ export const TOKEN_INITIAL_STATE = {
     unit_name: '',
     logo: '',
     balance: 0,
+    decimals: 0,
 };
 
 export enum QueryType {
@@ -144,7 +145,6 @@ export async function getTransactions(
 }
 
 export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, input_transactions: Transaction) {
-    // console.log(input_transactions);
     const transactions = input_transactions.transactions;
 
     let unsigned_transactions: string[] = [];
@@ -152,15 +152,12 @@ export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, in
         const current_unsigned = transactions[key].txns.filter(
             (txn, idx) => transactions[key].signed_txns[idx].length === 0
         );
-        // console.log(current_unsigned);
         unsigned_transactions = unsigned_transactions.concat(current_unsigned);
     }
-    // console.log(unsigned_transactions.length, unsigned_transactions);
 
     const reachTxns = unsigned_transactions.map((txn) => ({ txn: txn }));
     const signed_user_data = await window.algorand.signTxns(reachTxns);
     const signed_user_trans = signed_user_data.map((txn) => Buffer.from(txn, 'base64'));
-    // console.log(signed_user_trans);
 
     let idx = 0;
     for (let key in transactions) {
@@ -174,18 +171,15 @@ export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, in
 
         console.log('Sending', signed_transactions);
         await algodClient.sendRawTransaction(signed_transactions).do();
-        // const tx_id = transactions[key].tx_id;
-        // if (tx_id) {
-        //     console.log('Waiting txID', tx_id);
-        //     await algosdk.waitForConfirmation(algodClient, tx_id, 5);
-        // }
+        const tx_id = transactions[key].tx_id;
+        if (tx_id) {
+            console.log('Waiting txID', tx_id);
+            await algosdk.waitForConfirmation(algodClient, tx_id, 5);
+        }
     }
 
-    console.log('Waiting txID', input_transactions.tx_id);
-    // fast fix for waiting transaction confirmation.
-    await sleep(5000);
     return 'https://testnet.algoexplorer.io/tx/' + input_transactions.tx_id;
-    // TODO: weird bug, dk how to fix
+
     // const trx = await algosdk.waitForConfirmation(algodClient, input_transactions.tx_id, 5);
     // const trx_grp = Buffer.from(trx.txn.txn.grp).toString('base64');
     // return 'https://algoexplorer.io/tx/group/' + encodeURIComponent(trx_grp);
@@ -256,10 +250,7 @@ export async function runTransactions(
     }
 }
 
-export async function getOptions(
-    account: Account | null,
-    balances: Record<AssetId, Amount> | null = null
-): Promise<TokenSelectOption[]> {
+export async function getOptions(balances: Record<AssetId, Amount> | null = null): Promise<TokenSelectOption[]> {
     const asset_response = await fetch(ASSETS_PATH);
     const assets_res: Token[] = await asset_response.json();
     const assets: TokenSelectOption[] = Object.values(assets_res)
@@ -269,19 +260,23 @@ export async function getOptions(
             unit_name: token.unit_name,
             logo: token.logo.png,
             balance: 0,
+            decimals: token.decimals,
         }))
         .filter((token) => token.value);
 
-    if (!account) {
+    if (!balances) {
         return assets;
     }
 
-    const query = API_PATH + 'wallet_assets2/' + account.networkAccount.addr;
-    const wallet_response = await fetch(query);
-    const wallet_assets = await wallet_response.json();
-    console.log(wallet_assets);
+    assets.forEach((asset) => {
+        const asset_balance = Number(balances[Number(asset.value)]) / 10 ** asset.decimals;
+        asset.balance = asset_balance ?? 0;
 
-    assets.forEach((asset) => (asset.balance = wallet_assets[asset.value] ? wallet_assets[asset.value].amount : 0));
+        // TODO: remove it
+        if (asset.value === META_TOKEN_ID.toString()) {
+            asset.balance /= 10 ** 2;
+        }
+    });
     assets.sort((a, b) => (a.balance < b.balance ? 1 : -1));
 
     return assets;
@@ -539,6 +534,7 @@ export function TokenSelect({
 
 export function Swap() {
     const account = useStore($account);
+    const balances = useStore($balances);
 
     const [token1, setToken1] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
     const [token2, setToken2] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
@@ -549,11 +545,11 @@ export function Swap() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        getOptions(account).then((res) => {
+        getOptions(balances).then((res) => {
             setOptions(res);
             setToken1(res[0]);
         });
-    }, [account]);
+    }, [balances]);
 
     const getSwapTimeout = useRef<any>();
 

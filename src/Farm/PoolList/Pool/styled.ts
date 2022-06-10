@@ -4,7 +4,7 @@ export const PoolContainer = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: auto;
+    height: 75px;
     margin-bottom: 16px;
     color: ${(props) => props.theme.gray};
     background-color: ${(props) => props.theme.darkGray};
@@ -218,4 +218,18 @@ export const ButtonBackMobile = styled.button`
     color: darkgrey;
     border: 0;
     cursor: pointer;
+`;
+
+export const PoolInfoMockAnimation = styled.div`
+    margin-left: 0;
+    position: absolute;
+    animation: run 3s infinite;
+    @keyframes run {
+        0% {
+            margin-left: 0;
+        }
+        100% {
+            margin-left: 800px;
+        }
+    }
 `;

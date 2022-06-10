@@ -38,7 +38,7 @@ export const runCompound = async (
         firstAsset.toString(),
         secondAsset.toString(),
         reward_amount.toString(),
-        '&swap_half=true'
+        '&swap_half=true&slippage=0.1'
     );
     const result_zap_tx_id = await runTransactions(
         QueryType.zap,
@@ -46,7 +46,7 @@ export const runCompound = async (
         firstAsset.toString(),
         secondAsset.toString(),
         reward_amount.toString(),
-        '&swap_half=true'
+        '&swap_half=true&slippage=0.1'
     );
     console.log('ZAP ' + result_zap_tx_id);
 

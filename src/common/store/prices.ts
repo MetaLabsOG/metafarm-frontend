@@ -37,9 +37,9 @@ sample({
     target: fetchAssetPrice,
 });
 
-$assetAlgoPrices.watch((v) => console.log('ASSET PRICES', v));
-assetLoaded.watch((v) => console.log('ASSET LOADED', v));
-fetchAssetPrice.watch((v) => console.log('FETCHING ASSET PRICE', v));
+$assetAlgoPrices.watch((v) => {}); //console.log('ASSET PRICES', v));
+assetLoaded.watch((v) => {}); //console.log('ASSET LOADED', v));
+fetchAssetPrice.watch((v) => {}); //console.log('FETCHING ASSET PRICE', v));
 
 fetchAssetPrice.fail.watch((v) => console.log('ASSET PRICE FETCHING FAILED', v));
 
@@ -66,4 +66,4 @@ export const $pricedAssets: Store<Map<AssetId, Priced<Asset>>> = combine(
     }
 );
 
-$pricedAssets.watch((v) => console.log('PRICED ASSETS', v.toJS()));
+$pricedAssets.watch((v) => {}); //console.log('PRICED ASSETS', v.toJS()));
