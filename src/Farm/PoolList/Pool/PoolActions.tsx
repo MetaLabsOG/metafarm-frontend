@@ -18,14 +18,14 @@ export const PoolActions = ({
     contractState,
     lpTokenInfo,
     rewardTokenInfo,
-    setIsOpen,
+    setIsZapModalOpen,
 }: {
     poolState: PoolState;
     ctc: any;
     contractState: AllDefined<ContractState<FarmType>>;
     lpTokenInfo: LPTokenInfo | null;
     rewardTokenInfo: Priced<Asset>;
-    setIsOpen: Dispatch<SetStateAction<boolean>>;
+    setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
@@ -37,7 +37,7 @@ export const PoolActions = ({
     const canClaim = poolState > PoolState.Upcoming;
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim;
 
-    const [Modal, openModal, closeModal] = useModal('root', { preventScroll: true });
+    const [Modal, openZapModal, closeZapModal] = useModal('root', { preventScroll: true });
 
     useToasts({
         api: ctc.apis.claim,
@@ -62,8 +62,8 @@ export const PoolActions = ({
                     canStake={canStake}
                     canClaim={canClaim}
                     isActiveClaim={isActiveClaim}
-                    ModalOpen={openModal}
-                    setIsOpen={setIsOpen}
+                    openZapModal={openZapModal}
+                    setIsZapModalOpen={setIsZapModalOpen}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -77,13 +77,17 @@ export const PoolActions = ({
                     canStake={canStake}
                     canClaim={canClaim}
                     isActiveClaim={isActiveClaim}
-                    ModalOpen={openModal}
-                    setIsOpen={setIsOpen}
+                    openZapModal={openZapModal}
+                    setIsZapModalOpen={setIsZapModalOpen}
                 />
             )}
             {lpTokenInfo && (
                 <Modal>
-                    <ZapModal asset1_id={lpTokenInfo.asset1} asset2_id={lpTokenInfo.asset2} closeModal={closeModal} />
+                    <ZapModal
+                        asset1_id={lpTokenInfo.asset1}
+                        asset2_id={lpTokenInfo.asset2}
+                        closeModal={closeZapModal}
+                    />
                 </Modal>
             )}
         </>

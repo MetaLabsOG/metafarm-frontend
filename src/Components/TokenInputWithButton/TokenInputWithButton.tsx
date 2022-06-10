@@ -1,7 +1,6 @@
 import React, { FC, useState } from 'react';
-import { Action, Button, Balance, Input, MaxButton, Pacman, TokenInputWithButtonContainer } from './styled';
+import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
-import pacman from '../../imgs/pacman.gif';
 import { LPTokenInfo } from '../../providers/dexesProvider';
 import { useStore } from 'effector-react';
 import { Asset, Priced } from '../../common/store';
@@ -9,6 +8,7 @@ import { calculateTokenAmount, calculateTokenMicroAmount } from '../../common/li
 import { Effect } from 'effector';
 import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/hooks';
 import { BigNumberish } from '@ethersproject/bignumber';
+import { PacmanButton } from '../PacmanButton/PacmanButton';
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;
@@ -66,12 +66,13 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
         setInputAmount(e.currentTarget.value);
     };
 
-    const onClick = (amount: string) => {
+    const onClick = async (amount: string) => {
         const microAmount = calculateTokenMicroAmount(token, parseFloat(inputAmount));
         if (!isLoading && isValidInput && microAmount > 0) {
             setIsLoading(true);
             setInputAmount('');
-            actionEffect([microAmount]).then(() => setIsLoading(false));
+            await actionEffect([microAmount]);
+            setIsLoading(false);
         }
     };
 
@@ -79,9 +80,13 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
         <TokenInputWithButtonContainer style={style}>
             <Action blueColor={blueButtonColor} isActive={isActive && isValidInput}>
                 <Input placeholder="0" isActive={isActive} value={inputAmount} onChange={onChange} />
-                <Button isActive={!isLoading} disabled={!isActive} onClick={() => onClick(inputAmount)}>
-                    {isLoading ? <Pacman src={pacman} /> : buttonName}
-                </Button>
+                <PacmanButton
+                    style={blueButtonColor ? { color: '#55D6FF' } : {}}
+                    buttonText={buttonName}
+                    buttonStyle="token_input_button"
+                    onClickAction={() => onClick(inputAmount)}
+                    isInactive={!isValidInput || !isActive}
+                />
                 <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>
             </Action>
             <Balance isValid={isValidInput}>

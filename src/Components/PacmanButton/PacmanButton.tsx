@@ -21,14 +21,12 @@ export function PacmanButton({
 
     const onClick = () => {
         setIsLoading(true);
-        onClickAction()
-            .then(() => setIsLoading(false))
-            .catch(() => setIsLoading(false));
+        onClickAction().finally(() => setIsLoading(false));
     };
 
     return (
         <button
-            style={style}
+            style={isInactive ? {} : style}
             className={classNames(buttonStyle, {
                 loading: isLoading,
                 inactive: isInactive,

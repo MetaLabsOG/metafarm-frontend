@@ -23,7 +23,7 @@ export const runCompound = async (
     console.log('COMPOUND', asset1Id, asset2Id, rewardAssetId, rewardMicroamount);
     const reward_amount = calculateTokenAmount(rewardAsset, rewardMicroamount);
     if (!isCompoundEnabled(lpTokenInfo, rewardAssetId)) {
-        alert('Different assets for comound');
+        alert('Different assets for compound');
         return;
     }
     const firstAsset = asset1Id === rewardAssetId ? asset1Id : asset2Id;

@@ -38,21 +38,6 @@ export const Action = styled.div<{ blueColor?: boolean; isActive?: boolean }>`
     }}};
 `;
 
-export const Button = styled.button<{ blueColor?: boolean; isActive?: boolean }>`
-    border: 1px solid;
-    background-color: inherit;
-    color: ${({ theme, isActive }) => (isActive ? 'inherit' : theme.gray)};
-    width: 120px;
-    min-height: 33px;
-    border-radius: 0 4px 4px 0;
-    cursor: ${({ isActive }) => (isActive ? 'pointer' : 'default')};
-    font-family: 'Korona One';
-    font-size: 12px;
-    ${Action}:hover & {
-        color: inherit;
-    }
-`;
-
 export const Input = styled.input<{ blueColor?: boolean; isActive?: boolean }>`
     border: 1px solid;
     background-color: inherit;
@@ -69,10 +54,6 @@ export const Input = styled.input<{ blueColor?: boolean; isActive?: boolean }>`
     :focus {
         outline: none;
     }
-`;
-
-export const Pacman = styled.img`
-    height: 28px;
 `;
 
 export const MaxButton = styled.div`

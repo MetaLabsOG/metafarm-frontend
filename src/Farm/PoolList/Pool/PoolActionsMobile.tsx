@@ -19,15 +19,15 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     canStake,
     canClaim,
     isActiveClaim,
-    ModalOpen,
-    setIsOpen,
+    openZapModal,
+    setIsZapModalOpen,
 }) => {
     const account = useStore($account);
     return (
         <PoolActionsMobileContainer>
-            <ButtonBackMobile onClick={() => setIsOpen(false)}>BACK</ButtonBackMobile>
+            <ButtonBackMobile onClick={() => setIsZapModalOpen(false)}>BACK</ButtonBackMobile>
             <TokenInfo>
-                {lpTokenInfo && canStake && <GetLpTokenButton onClick={ModalOpen}>Get LP Tokens</GetLpTokenButton>}
+                {lpTokenInfo && canStake && <GetLpTokenButton onClick={openZapModal}>Get LP Tokens</GetLpTokenButton>}
             </TokenInfo>
             <TokenInputWithButton
                 style={!canStake ? { visibility: 'hidden' } : {}}

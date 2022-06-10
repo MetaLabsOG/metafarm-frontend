@@ -19,8 +19,8 @@ export interface PoolActionsDesktopProps {
     canStake: boolean;
     canClaim: boolean;
     isActiveClaim: boolean;
-    ModalOpen: () => void;
-    setIsOpen: Dispatch<SetStateAction<boolean>>;
+    openZapModal: () => void;
+    setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
@@ -34,14 +34,14 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     canStake,
     canClaim,
     isActiveClaim,
-    ModalOpen,
+    openZapModal,
 }) => {
     const account = useStore($account);
 
     return (
         <PoolActionsDesktopContainer>
             <TokenInfo>
-                {lpTokenInfo && canStake && <GetLpTokenButton onClick={ModalOpen}>Get LP Tokens</GetLpTokenButton>}
+                {lpTokenInfo && canStake && <GetLpTokenButton onClick={openZapModal}>Get LP Tokens</GetLpTokenButton>}
             </TokenInfo>
             <TokenInputWithButton
                 style={!canStake ? { visibility: 'hidden' } : {}}

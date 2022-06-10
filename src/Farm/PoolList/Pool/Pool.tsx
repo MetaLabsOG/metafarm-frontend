@@ -59,7 +59,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                         contractState={contract.state as AllDefined<ContractState<'farm'>>}
                         lpTokenInfo={lpTokenInfo}
                         rewardTokenInfo={rewardTokenInfo}
-                        setIsOpen={setIsOpen}
+                        setIsZapModalOpen={setIsOpen}
                     />
                 )}
             </PoolContainer>

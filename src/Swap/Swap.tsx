@@ -1,4 +1,4 @@
-import algosdk from 'algosdk';
+import algosdk, { IntDecoding, waitForConfirmation } from 'algosdk';
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { ALGONET, MAINNET, META_TOKEN_ID, reach } from '../AppContext';
 
@@ -13,7 +13,7 @@ import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent } from '../logEvent';
 import { useStore, useStoreMap } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { sleep } from '../common/lib';
+import { sleep, withAlgodEncoding } from '../common/lib';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
@@ -174,15 +174,9 @@ export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, in
         const tx_id = transactions[key].tx_id;
         if (tx_id) {
             console.log('Waiting txID', tx_id);
-            try {
-                await algosdk.waitForConfirmation(algodClient, tx_id, 5);
-            } catch (e) {
-                // TODO: TypeError: Cannot mix BigInt and other types, use explicit conversions at Module.n (algosdk.min.js:14061:1)
-                // @ts-ignore
-                const error_message = e.message;
-                console.log('[ERROR waitForConfirmation] ' + error_message);
-                await sleep(8000);
-            }
+            await withAlgodEncoding(algodClient, IntDecoding.DEFAULT, (algod) => {
+                return waitForConfirmation(algod, tx_id, 5);
+            });
         }
     }
 
