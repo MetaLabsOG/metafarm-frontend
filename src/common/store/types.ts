@@ -50,6 +50,14 @@ export type ContractState<T extends ContractType> = {
     local?: LocalInfo[T];
 };
 
+/**
+ * Type guard which makes the contract state `AllDefined`, if the local state is there.
+ * @param state
+ */
+export function hasLocalState<T extends ContractType, S extends ContractState<T>>(state: S): state is AllDefined<S> {
+    return !!state.local;
+}
+
 export type Contract<T extends ContractType> = {
     id: AppId;
     info: ContractInfo<T>;
