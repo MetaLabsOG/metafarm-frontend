@@ -1,4 +1,3 @@
-import { Asset, ContractState, FarmType, Priced } from '../../../common/store';
 import {
     PoolInfoMobileContainer,
     LPTokensIcon,
@@ -8,10 +7,10 @@ import {
     StakeButtonMobile,
 } from './styled';
 import { convertAmountToUSD, getTinyChartTokenLink, numberRound } from './utils';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { Account } from '../../../types';
+import { FC } from 'react';
+import { PoolInfoDesktopProps } from './PoolInfoDesktop';
 
-export const PoolInfoMobile = ({
+export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,
     contractState,
     lpTokenInfo,
@@ -21,18 +20,8 @@ export const PoolInfoMobile = ({
     pool_name,
     APR,
     timing,
+    contractLockSuffix,
     isOpen,
-}: {
-    account: Account | null;
-    contractState: ContractState<FarmType>;
-    lpTokenInfo: Priced<LPTokenInfo> | null;
-    rewardTokenInfo: Priced<Asset>;
-    asset1_logo: string;
-    asset2_logo: string;
-    pool_name: string;
-    APR: number;
-    timing: JSX.Element | 'ended';
-    isOpen: boolean;
 }) => {
     if (contractState.local && isOpen) {
         return <></>;
@@ -54,7 +43,9 @@ export const PoolInfoMobile = ({
                         </LPTokensIcon>
                     </a>
                 </LpTokensIconsWrapper>
-                <PoolNameMobile>EARN {rewardTokenInfo.unitName}</PoolNameMobile>
+                <PoolNameMobile>
+                    EARN {rewardTokenInfo.unitName} {contractLockSuffix}
+                </PoolNameMobile>
             </PoolInfoValue>
             <PoolInfoValue style={{ fontSize: '20px', color: '#B5B5B5' }}>
                 TVL{' '}

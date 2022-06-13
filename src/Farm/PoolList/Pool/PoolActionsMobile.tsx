@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { GetLpTokenButton, PoolActionsMobileContainer, TokenInfo, RewardsContainer, ButtonBackMobile } from './styled';
 
-import { PoolActionsDesktopProps } from './PoolActionsDesktop';
+import { formatUnlockTime, PoolActionsDesktopProps } from './PoolActionsDesktop';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
@@ -21,6 +21,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     isActiveClaim,
     openZapModal,
     setIsZapModalOpen,
+    unlockTimer,
 }) => {
     const account = useStore($account);
     return (
@@ -46,13 +47,20 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 blueButtonColor={true}
             />
             <RewardsContainer>
-                <PacmanButton
-                    style={!canClaim ? { visibility: 'hidden' } : {}}
-                    buttonText="CLAIM"
-                    buttonStyle="claim_button"
-                    onClickAction={() => ctc.apis.claim()}
-                    isInactive={!isActiveClaim}
-                />
+                <div>
+                    <PacmanButton
+                        style={!canClaim ? { visibility: 'hidden' } : {}}
+                        buttonText="CLAIM"
+                        buttonStyle="claim_button"
+                        onClickAction={() => ctc.apis.claim()}
+                        isInactive={!isActiveClaim}
+                    />
+                    {unlockTimer > 0 && (
+                        <div style={{ marginTop: '5px', fontSize: '13px' }}>
+                            unlock in {formatUnlockTime(unlockTimer)}
+                        </div>
+                    )}
+                </div>
                 {canClaim && lpTokenInfo && account && isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
                     <PacmanButton
                         buttonText="COMPOUND"

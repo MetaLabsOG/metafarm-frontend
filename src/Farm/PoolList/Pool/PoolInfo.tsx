@@ -85,6 +85,7 @@ export const PoolInfo = ({
     // TODO: separate 0 from undefined in lpTokenInfo.asset
     const asset1_logo = getAssetLogoUrl(asset1_id);
     const asset2_logo = getAssetLogoUrl(asset2_id);
+    const contractLockSuffix = contractState.initial.lockLengthBlocks ? 'with lock' : '';
 
     return (
         <>
@@ -99,6 +100,7 @@ export const PoolInfo = ({
                     pool_name={pool_name}
                     APR={APR}
                     timing={timing}
+                    contractLockSuffix={contractLockSuffix}
                     isOpen={isOpen}
                 />
             ) : (
@@ -112,6 +114,7 @@ export const PoolInfo = ({
                     pool_name={pool_name}
                     APR={APR}
                     timing={timing}
+                    contractLockSuffix={contractLockSuffix}
                     isOpen={isOpen}
                 />
             )}

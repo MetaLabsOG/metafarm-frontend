@@ -11,6 +11,14 @@ import { PoolActionsDesktop } from './PoolActionsDesktop';
 import { PoolActionsMobile } from './PoolActionsMobile';
 import { ZapModal } from '../../../Zap/ZapModal';
 import { calculateTokenAmount } from '../../../common/lib';
+import { useTimer } from '../../../common/reachHooks';
+
+const calculateUnlockTimeinSecs = (currentBlock: number, lockTimestamp: number, lockLengthBlocks: number) => {
+    if (!lockLengthBlocks) {
+        return 0;
+    }
+    return Math.floor(Math.max(0, lockLengthBlocks - (currentBlock - lockTimestamp)) * 4.35); // in seconds
+};
 
 export const PoolActions = ({
     poolState,
@@ -19,6 +27,7 @@ export const PoolActions = ({
     lpTokenInfo,
     rewardTokenInfo,
     setIsZapModalOpen,
+    currentBlock,
 }: {
     poolState: PoolState;
     ctc: any;
@@ -26,6 +35,7 @@ export const PoolActions = ({
     lpTokenInfo: LPTokenInfo | null;
     rewardTokenInfo: Priced<Asset>;
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
+    currentBlock: number;
 }) => {
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
@@ -48,6 +58,14 @@ export const PoolActions = ({
         action: ToastTypes.claim,
     });
 
+    const unlockTime = calculateUnlockTimeinSecs(
+        currentBlock,
+        contractState.local.lockTimestamp,
+        Number(contractState.initial.lockLengthBlocks)
+    );
+
+    const [unlockTimer] = useTimer(unlockTime);
+
     return (
         <>
             {window.innerWidth <= 1120 ? (
@@ -64,6 +82,7 @@ export const PoolActions = ({
                     isActiveClaim={isActiveClaim}
                     openZapModal={openZapModal}
                     setIsZapModalOpen={setIsZapModalOpen}
+                    unlockTimer={unlockTimer}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -79,6 +98,7 @@ export const PoolActions = ({
                     isActiveClaim={isActiveClaim}
                     openZapModal={openZapModal}
                     setIsZapModalOpen={setIsZapModalOpen}
+                    unlockTimer={unlockTimer}
                 />
             )}
             {lpTokenInfo && (

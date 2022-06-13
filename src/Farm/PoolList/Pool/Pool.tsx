@@ -5,7 +5,7 @@ import { useStore, useStoreMap } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
-import { PoolContainer, PoolInfoContainer, PoolLoadingAnimation } from './styled';
+import { PoolContainer, PoolLoadingAnimation } from './styled';
 import { $farmLPTokens, $farmRewardTokens } from '../../store';
 import { $stakingTokens } from '../../../Stake/store';
 import logo from '../../../imgs/logo.png';
@@ -42,7 +42,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
         return (
             <PoolContainer>
-                <PoolInfoContainer onClick={() => setIsOpen(!isOpen && contract.ctc)}>
+                <div onClick={() => setIsOpen(!isOpen && contract.ctc)}>
                     <PoolInfo
                         isOpen={isOpen}
                         contractState={contract.state}
@@ -51,7 +51,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                         rewardTokenInfo={rewardTokenInfo}
                         currentBlock={currentBlock}
                     />
-                </PoolInfoContainer>
+                </div>
                 {contract.ctc !== null && contract.state.local && isOpen && (
                     <PoolActions
                         poolState={poolState}
@@ -60,6 +60,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                         lpTokenInfo={lpTokenInfo}
                         rewardTokenInfo={rewardTokenInfo}
                         setIsZapModalOpen={setIsOpen}
+                        currentBlock={currentBlock}
                     />
                 )}
             </PoolContainer>

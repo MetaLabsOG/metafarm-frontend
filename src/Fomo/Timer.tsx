@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ProgressBar from '@ramonak/react-progress-bar';
+import { useTimer } from '../common/reachHooks';
 
 type TimerProps = {
     totalSec: number;
@@ -7,23 +8,7 @@ type TimerProps = {
 };
 
 export function Timer({ totalSec, leftSec }: TimerProps) {
-    const [seconds, setSeconds] = useState(0);
-
-    useEffect(() => {
-        //@ts-ignore
-        let timeout;
-        if (seconds > 0) {
-            timeout = setTimeout(() => {
-                setSeconds((seconds) => Math.max(0, seconds - 1));
-            }, 1000);
-        }
-        //@ts-ignore
-        return () => clearTimeout(timeout);
-    }, [seconds]);
-
-    useEffect(() => {
-        setSeconds(leftSec);
-    }, [leftSec]);
+    const [seconds] = useTimer(leftSec);
 
     return (
         <div>

@@ -14,8 +14,23 @@ import { LPTokenInfo } from '../../../providers/dexesProvider';
 import packman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
 import { calculateTokenAmount } from '../../../common/lib';
+import { FC } from 'react';
 
-export const PoolInfoDesktop = ({
+export interface PoolInfoDesktopProps {
+    account: Account | null;
+    contractState: ContractState<FarmType>;
+    lpTokenInfo: Priced<LPTokenInfo> | null;
+    rewardTokenInfo: Priced<Asset>;
+    asset1_logo: string;
+    asset2_logo: string;
+    pool_name: string;
+    APR: number;
+    timing: JSX.Element | 'ended';
+    contractLockSuffix: string;
+    isOpen: boolean;
+}
+
+export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     account,
     contractState,
     lpTokenInfo,
@@ -26,17 +41,7 @@ export const PoolInfoDesktop = ({
     APR,
     timing,
     isOpen,
-}: {
-    account: Account | null;
-    contractState: ContractState<FarmType>;
-    lpTokenInfo: Priced<LPTokenInfo> | null;
-    rewardTokenInfo: Priced<Asset>;
-    asset1_logo: string;
-    asset2_logo: string;
-    pool_name: string;
-    APR: number;
-    timing: JSX.Element | 'ended';
-    isOpen: boolean;
+    contractLockSuffix,
 }) => {
     return (
         <PoolInfoDesktopContainer>
@@ -55,7 +60,9 @@ export const PoolInfoDesktop = ({
                         </a>
                     </LpTokensIconsWrapper>
                     <div>
-                        {pool_name} <div>EARN {rewardTokenInfo.unitName}</div>
+                        {pool_name}
+                        <div>EARN {rewardTokenInfo.unitName}</div>
+                        <div style={{ fontSize: '12px', color: '#838383' }}>{contractLockSuffix}</div>
                     </div>
                 </BasicInfo>
             </PoolInfoValue>

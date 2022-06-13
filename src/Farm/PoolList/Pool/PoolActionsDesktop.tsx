@@ -7,6 +7,8 @@ import { $account, AllDefined, Amount, Asset, ContractState, FarmType, Priced } 
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
+import { DAY } from '../../../common/lib';
+import { useTimer } from '../../../common/reachHooks';
 
 export interface PoolActionsDesktopProps {
     lpTokenInfo: LPTokenInfo | null;
@@ -21,7 +23,16 @@ export interface PoolActionsDesktopProps {
     isActiveClaim: boolean;
     openZapModal: () => void;
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
+    unlockTimer: number;
 }
+
+export const formatUnlockTime = (unlockTime: number) => {
+    if (unlockTime > DAY) {
+        return Math.floor(unlockTime / DAY) + ' days';
+    }
+
+    return new Date(unlockTime * 1000).toISOString().substring(11, 19);
+};
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     lpTokenInfo,
@@ -35,6 +46,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     canClaim,
     isActiveClaim,
     openZapModal,
+    unlockTimer,
 }) => {
     const account = useStore($account);
 
@@ -59,13 +71,18 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 actionEffect={ctc.apis.unstake}
                 blueButtonColor={true}
             />
-            <PacmanButton
-                style={!canClaim ? { visibility: 'hidden' } : {}}
-                buttonText="CLAIM"
-                buttonStyle="claim_button"
-                onClickAction={() => ctc.apis.claim()}
-                isInactive={!isActiveClaim}
-            />
+            <div>
+                <PacmanButton
+                    style={!canClaim ? { visibility: 'hidden' } : {}}
+                    buttonText="CLAIM"
+                    buttonStyle="claim_button"
+                    onClickAction={() => ctc.apis.claim()}
+                    isInactive={!isActiveClaim}
+                />
+                {unlockTimer > 0 && (
+                    <div style={{ marginTop: '5px', fontSize: '13px' }}>unlock in {formatUnlockTime(unlockTimer)}</div>
+                )}
+            </div>
             {canClaim && lpTokenInfo && account && isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
                 <PacmanButton
                     buttonText="COMPOUND"

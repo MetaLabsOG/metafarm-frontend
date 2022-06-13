@@ -45,6 +45,7 @@ export const ctcMock: Contract<'farm'> = {
                     endBlock: BigNumber.from(2345),
                     beginBlock: BigNumber.from(3),
                     rewardPerBlock: BigNumber.from(3456),
+                    lockLengthBlocks: BigNumber.from(10),
                 },
                 global: {
                     totalStaked: BigNumber.from(123),
@@ -68,6 +69,7 @@ export const ctcMock: Contract<'farm'> = {
             endBlock: 2345,
             beginBlock: 3,
             rewardPerBlock: BigInt(3456),
+            lockLengthBlocks: BigInt(10),
         },
         global: {
             totalStaked: BigInt(123),
@@ -77,6 +79,7 @@ export const ctcMock: Contract<'farm'> = {
         local: {
             reward: BigInt(12),
             staked: BigInt(345),
+            lockTimestamp: 53565,
         },
     },
 };

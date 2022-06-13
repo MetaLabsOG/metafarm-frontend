@@ -14,13 +14,11 @@ export const PoolContainer = styled.div`
     border-radius: 10px;
 
     @media (max-width: 1120px) {
-        width: 300px;
-        height: 320px;
+        width: 320px;
+        height: 420px;
         margin-bottom: 30px;
     }
 `;
-
-export const PoolInfoContainer = styled.div``;
 
 export const PoolInfoDesktopContainer = styled.div`
     position: relative;
