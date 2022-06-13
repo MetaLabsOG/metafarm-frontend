@@ -50,6 +50,7 @@ export const ctcMock: Contract<'farm'> = {
                     totalStaked: BigNumber.from(123),
                     lastUpdateBlock: BigNumber.from(53565),
                     rewardPerTokenStored: BigNumber.from(34),
+                    rewardsPaid: BigNumber.from(0),
                 },
             },
         },
@@ -73,6 +74,7 @@ export const ctcMock: Contract<'farm'> = {
             totalStaked: BigInt(123),
             lastUpdateBlock: 53565,
             rewardPerTokenStored: BigInt(34),
+            rewardsPaid: BigInt(0),
         },
         local: {
             reward: BigInt(12),
