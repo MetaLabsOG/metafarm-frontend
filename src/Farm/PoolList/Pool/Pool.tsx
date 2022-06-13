@@ -26,7 +26,7 @@ const BIG_NUM = BigInt('1000000000000000000');
 const recalculatedReward = (contractState: AllDefined<ContractState<FarmType>>, currentBlock: Time): Amount => {
     const { endBlock, rewardPerBlock } = contractState.initial;
     const { totalStaked, lastUpdateBlock, rewardPerTokenStored } = contractState.global;
-    const { staked, reward } = contractState.local;
+    const { staked, reward, rewardPerTokenPaid } = contractState.local;
 
     if (lastUpdateBlock >= currentBlock || totalStaked === BigInt(0) || staked === BigInt(0)) {
         return reward;
@@ -37,10 +37,7 @@ const recalculatedReward = (contractState: AllDefined<ContractState<FarmType>>, 
     const rewardPerTokenStoredNew =
         rewardPerTokenStored + (BigInt(rewardBlocksPassed) * rewardPerBlock * BIG_NUM) / totalStaked;
 
-    // TODO: Instead of simply `rewardPerTokenStored` there should be a user-specific `rewardsPerTokenStoredPay`.
-    // Poka tak, later we'll update the contract and add it to the local state, this way it should work OK
-    // if the user who is looking at the screen made the last stake/unstake action with the contract.
-    const rewardToPayNow = (staked * (rewardPerTokenStoredNew - rewardPerTokenStored)) / BIG_NUM;
+    const rewardToPayNow = (staked * (rewardPerTokenStoredNew - rewardPerTokenPaid)) / BIG_NUM;
 
     return reward + rewardToPayNow;
 };

@@ -77,6 +77,8 @@ export const ctcMock: Contract<'farm'> = {
         local: {
             reward: BigInt(12),
             staked: BigInt(345),
+            lockTimestamp: 0,
+            rewardPerTokenPaid: BigInt(0),
         },
     },
 };

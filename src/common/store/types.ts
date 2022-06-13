@@ -131,8 +131,8 @@ export type FarmGlobalInfo = {
 export type FarmLocalInfo = {
     reward: Amount;
     staked: Amount;
-
-    // TODO lockTimestamp: Time; // lock BEGINS from this block
+    lockTimestamp: Time;
+    rewardPerTokenPaid: Amount;
 };
 
 // Crowdsale types
@@ -180,6 +180,8 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
     const parseFarmLocalInfo = (obj: any): FarmLocalInfo => ({
         reward: obj.reward.toBigInt(),
         staked: obj.staked.toBigInt(),
+        lockTimestamp: obj.lockTimestamp.toNumber(),
+        rewardPerTokenPaid: obj.rewardPerTokenPaid.toBigInt(),
     });
 
     const parseDistributionInitialInfo = (obj: any): DistributionInitialInfo => ({
