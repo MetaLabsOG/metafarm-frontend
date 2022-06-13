@@ -3211,60 +3211,60 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metalabsog/common@npm:^16.0.0":
-  version: 16.0.0
-  resolution: "@metalabsog/common@npm:16.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcommon%2F16.0.0%2Fde612a782d7546633146a8b54777be01f096a905b125ef4933c2d438a18b97ba"
+"@metalabsog/common@npm:^17.0.0":
+  version: 17.0.0
+  resolution: "@metalabsog/common@npm:17.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcommon%2F17.0.0%2Fb93b2a0fa1f01cdf17f2ee119efff39c41ef632dbc78e73135c7e1221d534c02"
   dependencies:
-    "@reach-sh/stdlib": "npm:0.1.10-rc.7"
+    "@reach-sh/stdlib": "npm:0.1.11-rc.0"
     ethers: "npm:^5.6.4"
     loglevel: "npm:^1.8.0"
-  checksum: 31d182419333931d27ff7d723acb909b4a994e94ae3c9b8ebc2b7989e362ed72f15fb1ae2d8b61302ca54ea445081c66061b8668c9fb4a85901ee850d651fef1
+  checksum: 9a6286313e42546d8dcd6b82efd6b6eca4890efd914443c20a8fe843fb301a146a9bf690dbcf984cc8306fc9396b0f63e0a4faadceeca389dec3912bc8171f4a
   languageName: node
   linkType: hard
 
-"@metalabsog/crowdsale@npm:16.0.0":
-  version: 16.0.0
-  resolution: "@metalabsog/crowdsale@npm:16.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcrowdsale%2F16.0.0%2F0da35ce59495853607e2b9e0d3a29c5cdfbc771674f97f9dab12929c05347b7e"
+"@metalabsog/crowdsale@npm:17.0.0":
+  version: 17.0.0
+  resolution: "@metalabsog/crowdsale@npm:17.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcrowdsale%2F17.0.0%2F205693f4b469482a3328b45fc968278dc8be6de4da8ec10e0563eed4d9a5ed22"
   dependencies:
-    "@metalabsog/common": "npm:^16.0.0"
-    "@reach-sh/stdlib": "npm:0.1.10-rc.7"
+    "@metalabsog/common": "npm:^17.0.0"
+    "@reach-sh/stdlib": "npm:0.1.11-rc.0"
     loglevel: "npm:^1.8.0"
-  checksum: 35b8fcd50bdf69712fccf5d8c0ac97500169594560a49eb88dad867be004cbad564f41f6f90ee38e799a7fac20bf9d23f74a8019a65ee1244aae7ab434ac4e15
+  checksum: 9b823f67aefe8b283926977814e4e68baffcf0f896418a7edbbde694389aec64332fdfb3ad5d7061a119a77d1fde22ccfe976ea29cfe70085473b015fa75a81d
   languageName: node
   linkType: hard
 
-"@metalabsog/distribution@npm:16.0.0":
-  version: 16.0.0
-  resolution: "@metalabsog/distribution@npm:16.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fdistribution%2F16.0.0%2F98277f595f0e7fd610fe01571eda5168d8fcba8058ba06a85948871677a9e7d8"
+"@metalabsog/distribution@npm:17.0.0":
+  version: 17.0.0
+  resolution: "@metalabsog/distribution@npm:17.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fdistribution%2F17.0.0%2F3bb6c4e2fc893d11e31c8d04f887eacf0735023032e8343f41eecfcd71f1eff2"
   dependencies:
-    "@metalabsog/common": "npm:^16.0.0"
-    "@reach-sh/stdlib": "npm:0.1.10-rc.7"
+    "@metalabsog/common": "npm:^17.0.0"
+    "@reach-sh/stdlib": "npm:0.1.11-rc.0"
     inquirer: "npm:^8.2.1"
     loglevel: "npm:^1.8.0"
-  checksum: 0b3f9b09aeaa259c29ce57d759da3aa0c53fb2d3dbfc7a0640cbe2f1eb580709c903db751e8cab009e35a9769907de8e7c28fa306f9efa55c529fff9c158e94a
+  checksum: 180e855a4981c51beb7dd6ee7dee7c97b639ac1e2220746d17813163b0c87cac4473ad9e1a7bb043728fdd75bf3247e4216ecbbfea644d0b81e969312ad2f1c3
   languageName: node
   linkType: hard
 
-"@metalabsog/farm@npm:16.0.0":
-  version: 16.0.0
-  resolution: "@metalabsog/farm@npm:16.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F16.0.0%2F434210eb4045eef979e7b12504ba4ac9e48028847d122cbafad2a60256d7f0d3"
+"@metalabsog/farm@npm:17.0.2":
+  version: 17.0.2
+  resolution: "@metalabsog/farm@npm:17.0.2::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F17.0.2%2Ff35b6d7bd80949f49d69a38b02e1d55104844de2294c7f60f1101f5eafd2504b"
   dependencies:
-    "@metalabsog/common": "npm:^16.0.0"
-    "@reach-sh/stdlib": "npm:0.1.10-rc.7"
+    "@metalabsog/common": "npm:^17.0.0"
+    "@reach-sh/stdlib": "npm:0.1.11-rc.0"
     bent: "npm:^7.3.12"
     inquirer: "npm:^8.2.1"
     loglevel: "npm:^1.8.0"
-  checksum: 62ba211daec114a1bf4e4345c2b53721c4561ac91d9c8fcea617407aa10e90d8fe08f79053531d51b91780dfef224df7319043ffe522e325b221b18995aad4de
+  checksum: 648d99d359ba6331290c166ecd4ed2e7970fd3928502f29e38bcf24553e0907c8bfae1980e631a6eccfb23b68982ede149b8447adc3ded30d2f2ca65d0b53f08
   languageName: node
   linkType: hard
 
-"@metalabsog/metafomo@npm:16.0.0":
-  version: 16.0.0
-  resolution: "@metalabsog/metafomo@npm:16.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fmetafomo%2F16.0.0%2F6ab279e48b4383279491ae461d09f4bd7d6fd4e79eebae5c444d3afc342271ac"
+"@metalabsog/metafomo@npm:17.0.0":
+  version: 17.0.0
+  resolution: "@metalabsog/metafomo@npm:17.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fmetafomo%2F17.0.0%2F665fe962d19cc0bd3b4932bfdcac09baa8f1db46508e09998a1e1fa68c26b492"
   dependencies:
-    "@metalabsog/common": "npm:^16.0.0"
-    "@reach-sh/stdlib": "npm:0.1.10-rc.7"
-  checksum: fc3a7ad6c356b19400122850f7ded5ae27096b065ad00367c0c7877aae813930969cdc11a4b799ce2088c4ef633edf94776064a5373301c20697b661e281169b
+    "@metalabsog/common": "npm:^17.0.0"
+    "@reach-sh/stdlib": "npm:0.1.11-rc.0"
+  checksum: 0ee5bf7bc9cc469e577af46d835e2c3336858529498b14d98d77656c1f817a2437e92e6170d47b9d90483d957ab5746d9db4248468c57542f77ad6fcb1ae33db
   languageName: node
   linkType: hard
 
@@ -3619,9 +3619,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reach-sh/stdlib@npm:0.1.10-rc.7, @reach-sh/stdlib@npm:^0.1.10-rc.7":
-  version: 0.1.10-rc.7
-  resolution: "@reach-sh/stdlib@npm:0.1.10-rc.7"
+"@reach-sh/stdlib@npm:0.1.11-rc.0, @reach-sh/stdlib@npm:^0.1.11-rc.0":
+  version: 0.1.11-rc.0
+  resolution: "@reach-sh/stdlib@npm:0.1.11-rc.0"
   dependencies:
     "@msgpack/msgpack": "npm:^2.5.1"
     "@randlabs/myalgo-connect": "npm:^1.1.2"
@@ -3637,7 +3637,7 @@ __metadata:
     node-fetch: "npm:^2.6.1"
     tslib: "npm:^2.3.1"
     wait-port: "npm:^0.2.9"
-  checksum: 36b63c958914f0a7533db1d680f3419d3a961a9f6b36cc70c002aecbe6a4fc23a4d286bdb25a76c61458f45c0be437bb57fb6adf1c686f340aadb2143cac7aac
+  checksum: 6fc70c075634559ecb6f42090600db639b85d7ab588fd32d1173de1d1171e37e259a19cd4aeecce351b0e044c16443934b07a93d70f73603adc6b8f79c8e5bdc
   languageName: node
   linkType: hard
 
@@ -11941,14 +11941,14 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.16.0"
     "@ethersproject/bignumber": "npm:^5.6.2"
-    "@metalabsog/crowdsale": "npm:16.0.0"
-    "@metalabsog/distribution": "npm:16.0.0"
-    "@metalabsog/farm": "npm:16.0.0"
-    "@metalabsog/metafomo": "npm:16.0.0"
+    "@metalabsog/crowdsale": "npm:17.0.0"
+    "@metalabsog/distribution": "npm:17.0.0"
+    "@metalabsog/farm": "npm:17.0.2"
+    "@metalabsog/metafomo": "npm:17.0.0"
     "@pactfi/pactsdk": "npm:^0.2.2"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.3"
     "@ramonak/react-progress-bar": "npm:^4.4.0"
-    "@reach-sh/stdlib": "npm:^0.1.10-rc.7"
+    "@reach-sh/stdlib": "npm:^0.1.11-rc.0"
     "@svgr/webpack": "npm:^5.5.0"
     "@types/axios": "npm:^0.14.0"
     "@types/jest": "npm:^27.4.1"
