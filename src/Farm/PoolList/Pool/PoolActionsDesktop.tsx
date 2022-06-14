@@ -8,11 +8,10 @@ import { useStore } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
 import { DAY } from '../../../common/lib';
-import { useTimer } from '../../../common/reachHooks';
 
 export interface PoolActionsDesktopProps {
-    lpTokenInfo: LPTokenInfo | null;
-    stakedToken: LPTokenInfo | Priced<Asset>;
+    lpTokenInfo: Priced<LPTokenInfo> | null;
+    stakedToken: Priced<LPTokenInfo> | Priced<Asset>;
     stakedTokenBalance: Amount;
     balanceSuffix: string;
     rewardTokenInfo: Priced<Asset>;

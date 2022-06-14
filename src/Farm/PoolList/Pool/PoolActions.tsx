@@ -32,7 +32,7 @@ export const PoolActions = ({
     poolState: PoolState;
     ctc: any;
     contractState: AllDefined<ContractState<FarmType>>;
-    lpTokenInfo: LPTokenInfo | null;
+    lpTokenInfo: Priced<LPTokenInfo> | null;
     rewardTokenInfo: Priced<Asset>;
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
     currentBlock: number;

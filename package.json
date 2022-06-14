@@ -7,7 +7,7 @@
     "@ethersproject/bignumber": "^5.6.2",
     "@metalabsog/crowdsale": "^17.0.0",
     "@metalabsog/distribution": "^17.0.0",
-    "@metalabsog/farm": "^17.0.0",
+    "@metalabsog/farm": "^17.0.1",
     "@metalabsog/metafomo": "^17.0.0",
     "@pactfi/pactsdk": "^0.2.2",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",

@@ -7,11 +7,13 @@ import {
     LpTokensIconsWrapper,
     PoolInfoValue,
     Pacman,
+    RewardUSDValue,
+    RewardTokenValue,
 } from './styled';
 import { Arrow } from '../../../imgs/arrow';
 import { convertAmountToUSD, getTinyChartTokenLink, numberRound } from './utils';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import packman from '../../../imgs/pacman.gif';
+import pacman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
 import { calculateTokenAmount } from '../../../common/lib';
 import { FC } from 'react';
@@ -29,6 +31,33 @@ export interface PoolInfoDesktopProps {
     contractLockSuffix: string;
     isOpen: boolean;
 }
+
+export interface ValueProps {
+    contractState: ContractState<FarmType>;
+    tokenInfo: Priced<Asset> | Priced<LPTokenInfo>;
+}
+
+export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo }) => {
+    if (!contractState.local) {
+        return <div>—</div>;
+    }
+
+    return (
+        <>
+            <RewardUSDValue>${numberRound(convertAmountToUSD(tokenInfo, contractState.local.reward))}</RewardUSDValue>
+            <RewardTokenValue>
+                {numberRound(calculateTokenAmount(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
+            </RewardTokenValue>
+        </>
+    );
+};
+
+export const StakeValue: FC<ValueProps> = ({ contractState, tokenInfo }) => {
+    if (!contractState.local) {
+        return <>—</>;
+    }
+    return <>${numberRound(convertAmountToUSD(tokenInfo, contractState.local.staked))}</>;
+};
 
 export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     account,
@@ -71,25 +100,14 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             )}`}</PoolInfoValue>
             <PoolInfoValue>{numberRound(APR)}%</PoolInfoValue>
             <PoolInfoValue>
-                {contractState.local
-                    ? `$${numberRound(convertAmountToUSD(lpTokenInfo ?? rewardTokenInfo, contractState.local.staked))}`
-                    : '—'}
+                <StakeValue contractState={contractState} tokenInfo={lpTokenInfo ?? rewardTokenInfo} />
             </PoolInfoValue>
             <PoolInfoValue>
-                {contractState.local ? (
-                    <>
-                        <div>{`$${numberRound(convertAmountToUSD(rewardTokenInfo, contractState.local.reward))}`}</div>
-                        <div>{`${numberRound(calculateTokenAmount(rewardTokenInfo, contractState.local.reward))} ${
-                            rewardTokenInfo.unitName
-                        }`}</div>{' '}
-                    </>
-                ) : (
-                    '—'
-                )}
+                <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} />
             </PoolInfoValue>
             <PoolInfoValue style={{ color: 'gray' }}>{timing} </PoolInfoValue>
             <ArrowIconsWrapper>
-                {contractState.local ? <Arrow rotate={isOpen} /> : account !== null ? <Pacman src={packman} /> : ''}
+                {contractState.local ? <Arrow rotate={isOpen} /> : account !== null ? <Pacman src={pacman} /> : ''}
             </ArrowIconsWrapper>
         </PoolInfoDesktopContainer>
     );
