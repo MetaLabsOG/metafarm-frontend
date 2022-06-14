@@ -33,13 +33,21 @@ export const PoolActions = ({
 }) => {
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
+    const unlockTime = calculateUnlockTimeinSecs(
+        currentBlock,
+        contractState.local.lockTimestamp,
+        Number(contractState.initial.lockLengthBlocks)
+    );
+
+    const [unlockTimer] = useTimer(unlockTime);
+
     const stakedToken = lpTokenInfo ? lpTokenInfo : rewardTokenInfo;
     const stakedTokenBalance = useStoreMap($balances, (bs) => bs[stakedToken.id] || BigInt(0));
     const balanceSuffix = lpTokenInfo ? 'LP' : rewardTokenInfo.unitName;
 
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;
-    const isActiveClaim = contractState.local.reward > 0 && !pendingClaim;
+    const isActiveClaim = contractState.local.reward > 0 && !pendingClaim && !unlockTimer;
 
     const [Modal, openZapModal, closeZapModal] = useModal('root', { preventScroll: true });
 
@@ -51,14 +59,6 @@ export const PoolActions = ({
         pendingStatus: pendingClaim,
         action: ToastTypes.claim,
     });
-
-    const unlockTime = calculateUnlockTimeinSecs(
-        currentBlock,
-        contractState.local.lockTimestamp,
-        Number(contractState.initial.lockLengthBlocks)
-    );
-
-    const [unlockTimer] = useTimer(unlockTime);
 
     return (
         <>

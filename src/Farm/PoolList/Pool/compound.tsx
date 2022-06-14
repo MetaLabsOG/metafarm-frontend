@@ -52,6 +52,7 @@ export const runCompound = async (
     console.log('ZAP ' + result_zap_tx_id);
 
     // TODO: fast fix. we have to better calculate result LP amount considering dex fees and slippage.
+    // TODO: Maybe we can do Math.min(THIS, currentWalletLpBalance)
     const lpAmountWithSlippage = zap_data.lp_amount * 0.9;
     const microStakeAmount = calculateTokenMicroAmount(lpTokenInfo, lpAmountWithSlippage);
     console.log('start stake', lpAmountWithSlippage, microStakeAmount);

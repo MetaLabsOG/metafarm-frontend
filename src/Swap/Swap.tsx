@@ -238,7 +238,7 @@ export async function runTransactions(
         } else if (error_message.includes('Transaction not confirmed')) {
             alert(QueryType[type] + ': Transaction not confirmed');
         } else if (error_message.includes('would result negative')) {
-            alert(QueryType[type] + ': Slippage > 10% :(');
+            alert(QueryType[type] + ': Result slippage is higher than expected.');
         } else {
             alert(QueryType[type] + ' error :(');
         }

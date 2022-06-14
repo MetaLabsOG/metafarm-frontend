@@ -74,7 +74,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         buttonText="CLAIM"
                         buttonStyle="claim_button"
                         onClickAction={() => ctc.apis.claim()}
-                        isInactive={!isActiveClaim || unlockTimer > 0}
+                        isInactive={!isActiveClaim}
                     />
                     <UnlockTimer unlockTimer={unlockTimer} />
                 </div>
@@ -85,7 +85,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         onClickAction={() =>
                             runCompound(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
                         }
-                        isInactive={!isActiveClaim || unlockTimer > 0}
+                        isInactive={!isActiveClaim}
                     />
                 )}
             </RewardsContainer>
