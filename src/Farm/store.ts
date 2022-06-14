@@ -121,7 +121,7 @@ export const triggerPoolUpdate = triggerStateUpdate;
 
 //TODO NEED REFACTOR (quick solution)
 export const sortPoolsOnStatus = ({ networkTime, pools }: { networkTime: number; pools: Contract<FarmType>[] }) => {
-    const groupedByStatus = groupBy(function (pool: any) {
+    const groupedByStatus = groupBy(function (pool: Contract<FarmType>) {
         if (pool.state) {
             const initial = pool.state.initial;
             return networkTime < initial.beginBlock ? '2' : networkTime > initial.endBlock ? '3' : '1';

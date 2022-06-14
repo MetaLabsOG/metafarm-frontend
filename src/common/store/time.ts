@@ -10,7 +10,7 @@ export const { $store: $networkTime, update: queryTimeUpdate } = createTimeDefer
         indexer
             .makeHealthCheck()
             .do()
-            .then((data) => data.round)
+            .then((data) => data.round as number)
     )
 );
 

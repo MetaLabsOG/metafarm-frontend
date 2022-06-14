@@ -75,7 +75,7 @@ export const formatDecimalsMeaningful = (value: number, precision = 2): string =
     return formatter.format(value);
 };
 
-export const maybeToNullable = (mb: [string, any]) => {
+export const maybeToNullable = <T>(mb: [string, T]): T | null => {
     if (mb[0] === 'Some') return mb[1];
     return null;
 };

@@ -11,7 +11,8 @@ module.exports = {
         "plugin:effector/recommended",
         "plugin:effector/scope",
         "plugin:effector/react",
-        "plugin:effector/future"
+        "plugin:effector/future",
+        "plugin:react/jsx-runtime"
     ],
     parser: "@typescript-eslint/parser",
     parserOptions: {

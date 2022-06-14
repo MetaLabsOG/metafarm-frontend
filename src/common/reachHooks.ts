@@ -19,7 +19,6 @@ export const useReachContract = (
     const [state, setState] = useState<any | undefined>(undefined);
 
     const getCtc = useCallback(() => {
-        //@ts-ignore
         return account.contract(backend, contractId);
     }, [account, backend, contractId]);
 
@@ -27,7 +26,7 @@ export const useReachContract = (
     const refreshState = useCallback(async (ctc, account) => {
         const viewNames: string[] = Object.keys(ctc.views);
 
-        let state: any = {};
+        const state: any = {};
         for (const vName of viewNames) {
             // hacky shit to avoid overparametrization of the hook. could be done better?
             const args = vName === 'local' ? [account.networkAccount.addr] : [];
@@ -88,14 +87,12 @@ export const useTimer = (initialSeconds: number) => {
     const [seconds, setSeconds] = useState(0);
 
     useEffect(() => {
-        //@ts-ignore
-        let timeout;
+        let timeout: NodeJS.Timeout;
         if (seconds > 0) {
             timeout = setTimeout(() => {
                 setSeconds((seconds) => Math.max(0, seconds - 1));
             }, 1000);
         }
-        //@ts-ignore
         return () => clearTimeout(timeout);
     }, [seconds]);
 

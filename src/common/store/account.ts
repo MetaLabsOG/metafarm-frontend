@@ -19,7 +19,6 @@ export const $accountInfo = restore(fetchAccountInfo.doneData, null);
 export const refreshAccountInfo = createEvent();
 
 sample({
-    //@ts-ignore
     clock: refreshAccountInfo,
     source: $account,
     filter: (account) => account !== null,

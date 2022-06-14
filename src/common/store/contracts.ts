@@ -165,7 +165,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
                 contractId,
             }: {
                 contractId: AppId;
-                ctc: any;
+                ctc: Contract<T>;
                 account: Account | null;
             }): Promise<ContractState<T>> => {
                 return {
