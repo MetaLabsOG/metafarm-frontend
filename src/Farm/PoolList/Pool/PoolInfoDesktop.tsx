@@ -12,7 +12,7 @@ import {
     ContractLockSuffix,
 } from './styled';
 import { Arrow } from '../../../imgs/arrow';
-import { convertAmountToUSD, getTinyChartTokenLink, numberRound } from './utils';
+import { convertAmountToUSD, getTokenLink, numberRound } from './utils';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import pacman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
@@ -78,12 +78,12 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             <PoolInfoValue width={23}>
                 <BasicInfo>
                     <LpTokensIconsWrapper>
-                        <a target="_blank" href={getTinyChartTokenLink(lpTokenInfo?.asset1)} rel="noreferrer">
+                        <a target="_blank" href={getTokenLink(lpTokenInfo?.asset1)} rel="noreferrer">
                             <LPTokensIcon first>
                                 {asset1_logo && <img alt="" width="100%" height="100%" src={asset1_logo} />}
                             </LPTokensIcon>
                         </a>
-                        <a target="_blank" href={getTinyChartTokenLink(lpTokenInfo?.asset2)} rel="noreferrer">
+                        <a target="_blank" href={getTokenLink(lpTokenInfo?.asset2)} rel="noreferrer">
                             <LPTokensIcon>
                                 {asset2_logo && <img alt="" width="100%" height="100%" src={asset2_logo} />}
                             </LPTokensIcon>

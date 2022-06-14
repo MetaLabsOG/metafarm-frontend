@@ -43,6 +43,7 @@ export const MenuItemsBurger = styled.div`
 
 export const Logo = styled.img`
     margin: auto;
+    display: flex;
 `;
 
 export const Burger = styled.img`

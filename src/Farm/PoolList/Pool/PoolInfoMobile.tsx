@@ -8,7 +8,7 @@ import {
     ContractLockSuffix,
     TimingMobile,
 } from './styled';
-import { convertAmountToUSD, getTinyChartTokenLink, numberRound } from './utils';
+import { convertAmountToUSD, getTokenLink, numberRound } from './utils';
 import React, { FC } from 'react';
 import { PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
 
@@ -33,12 +33,12 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
         <PoolInfoMobileContainer>
             <PoolNameMobile>{pool_name}</PoolNameMobile>
             <LpTokensIconsWrapper>
-                <a target="_blank" href={getTinyChartTokenLink(lpTokenInfo?.asset1)} rel="noreferrer">
+                <a target="_blank" href={getTokenLink(lpTokenInfo?.asset1)} rel="noreferrer">
                     <LPTokensIcon first>
                         {asset1_logo && <img alt="" width="100%" height="100%" src={asset1_logo} />}
                     </LPTokensIcon>
                 </a>
-                <a target="_blank" href={getTinyChartTokenLink(lpTokenInfo?.asset2)} rel="noreferrer">
+                <a target="_blank" href={getTokenLink(lpTokenInfo?.asset2)} rel="noreferrer">
                     <LPTokensIcon>
                         {asset2_logo && <img alt="" width="100%" height="100%" src={asset2_logo} />}
                     </LPTokensIcon>
