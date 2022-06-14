@@ -111,8 +111,7 @@ type FarmInitialInfo = {
     endBlock: Time;
     beginBlock: Time;
     rewardPerBlock: Amount;
-
-    // TODO lockLengthBlocks: number; // > 0 if lock
+    lockLengthBlocks: Amount; // > 0 if lock
 };
 
 type DistributionInitialInfo = {
@@ -120,6 +119,7 @@ type DistributionInitialInfo = {
     endBlock: Time;
     beginBlock: Time;
     rewardPerBlock: Amount;
+    lockLengthBlocks: Amount; // > 0 if lock
 };
 
 export type FarmGlobalInfo = {
@@ -132,7 +132,7 @@ export type FarmGlobalInfo = {
 export type FarmLocalInfo = {
     reward: Amount;
     staked: Amount;
-    lockTimestamp: Time;
+    lockTimestamp: Time; // lock BEGINS from this block
     rewardPerTokenPaid: Amount;
 };
 
@@ -170,6 +170,7 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
         endBlock: obj.endBlock.toNumber(),
         beginBlock: obj.beginBlock.toNumber(),
         rewardPerBlock: obj.rewardPerBlock.toBigInt(),
+        lockLengthBlocks: obj.lockLengthBlocks.toBigInt(),
     });
 
     const parseFarmGlobalInfo = (obj: any): FarmGlobalInfo => ({
@@ -191,6 +192,7 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
         endBlock: obj.endBlock.toNumber(),
         beginBlock: obj.beginBlock.toNumber(),
         rewardPerBlock: obj.rewardPerBlock.toBigInt(),
+        lockLengthBlocks: obj.lockLengthBlocks.toBigInt(),
     });
 
     const parseCrowdsaleInitialInfo = (obj: any): CrowdsaleInitialInfo => ({

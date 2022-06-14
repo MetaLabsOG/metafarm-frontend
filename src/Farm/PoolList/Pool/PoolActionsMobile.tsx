@@ -1,5 +1,12 @@
 import React, { FC } from 'react';
-import { GetLpTokenButton, PoolActionsMobileContainer, TokenInfo, RewardsContainer, ButtonBackMobile } from './styled';
+import {
+    GetLpTokenButton,
+    PoolActionsMobileContainer,
+    TokenInfo,
+    RewardsContainer,
+    ButtonBackMobile,
+    PoolInfoValue,
+} from './styled';
 
 import { PoolActionsDesktopProps } from './PoolActionsDesktop';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
@@ -7,6 +14,8 @@ import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
 import { useStore } from 'effector-react';
 import { $account } from '../../../common/store';
+import { RewardValues, StakeValue } from './PoolInfoDesktop';
+import { UnlockTimer } from './UnlockTimer';
 
 export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     lpTokenInfo,
@@ -21,6 +30,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     isActiveClaim,
     openZapModal,
     setIsZapModalOpen,
+    unlockTimer,
 }) => {
     const account = useStore($account);
     return (
@@ -37,6 +47,12 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 buttonName="STAKE"
                 actionEffect={ctc.apis.stake}
             />
+            <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
+                <div>MY STAKE</div>
+                <div style={{ color: 'white' }}>
+                    <StakeValue contractState={contractState} tokenInfo={stakedToken} />
+                </div>
+            </PoolInfoValue>
             <TokenInputWithButton
                 token={stakedToken}
                 tokenMicroBalance={contractState.local.staked}
@@ -45,14 +61,23 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 actionEffect={ctc.apis.unstake}
                 blueButtonColor={true}
             />
+            <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
+                <div>REWARD</div>
+                <div style={{ color: 'white' }}>
+                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} />
+                </div>
+            </PoolInfoValue>
             <RewardsContainer>
-                <PacmanButton
-                    style={!canClaim ? { visibility: 'hidden' } : {}}
-                    buttonText="CLAIM"
-                    buttonStyle="claim_button"
-                    onClickAction={() => ctc.apis.claim()}
-                    isInactive={!isActiveClaim}
-                />
+                <div>
+                    <PacmanButton
+                        style={!canClaim ? { visibility: 'hidden' } : {}}
+                        buttonText="CLAIM"
+                        buttonStyle="claim_button"
+                        onClickAction={() => ctc.apis.claim()}
+                        isInactive={!isActiveClaim}
+                    />
+                    <UnlockTimer unlockTimer={unlockTimer} />
+                </div>
                 {canClaim && lpTokenInfo && account && isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
                     <PacmanButton
                         buttonText="COMPOUND"

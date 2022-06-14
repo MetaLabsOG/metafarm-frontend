@@ -1,5 +1,5 @@
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { Asset, Priced } from '../../../common/store';
+import { Asset, Priced, refreshAccountInfo } from '../../../common/store';
 import { calculateTokenAmount, calculateTokenMicroAmount } from '../../../common/lib';
 import { ZapData } from '../../../Zap/types';
 import { getData, QueryType, runTransactions } from '../../../Swap/Swap';
@@ -48,9 +48,24 @@ export const runCompound = async (
         reward_amount.toString(),
         '&swap_half=true&slippage=0.1'
     );
+    refreshAccountInfo();
     console.log('ZAP ' + result_zap_tx_id);
 
-    const microStakeAmount = calculateTokenMicroAmount(lpTokenInfo, zap_data.lp_amount);
-    console.log('start stake', zap_data.lp_amount, microStakeAmount);
-    await ctc.apis.stake([microStakeAmount]);
+    // TODO: fast fix. we have to better calculate result LP amount considering dex fees and slippage.
+    // TODO: Maybe we can do Math.min(THIS, currentWalletLpBalance)
+    const lpAmountWithSlippage = zap_data.lp_amount * 0.9;
+    const microStakeAmount = calculateTokenMicroAmount(lpTokenInfo, lpAmountWithSlippage);
+    console.log('start stake', lpAmountWithSlippage, microStakeAmount);
+    try {
+        await ctc.apis.stake([microStakeAmount]);
+    } catch (e) {
+        // @ts-ignore
+        const error_message = e.message;
+        console.log(error_message);
+        if (error_message.includes('underflow')) {
+            alert('Not enough LP tokens');
+        } else {
+            alert(error_message);
+        }
+    }
 };

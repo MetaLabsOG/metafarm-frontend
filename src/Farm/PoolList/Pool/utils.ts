@@ -28,7 +28,10 @@ export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenI
     }
 };
 
-export const getTinyChartTokenLink = (asset_id: number | undefined): string => {
+export const getTokenLink = (asset_id: number | undefined): string => {
+    if (asset_id === 0) {
+        return 'https://algoexplorer.io/top-statistics';
+    }
     const mainnet_asset_id = ALGONET === MAINNET || !asset_id ? asset_id : TESTNET_TO_MAINNET_ASA_ID[asset_id];
     return mainnet_asset_id ? 'https://tinychart.org/asset/' + mainnet_asset_id : '';
 };

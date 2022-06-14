@@ -14,6 +14,9 @@ import { Account, ReachStdlib } from '../types';
 import { Amount, Asset } from './store';
 import { reach } from '../AppContext';
 
+export const HOUR: number = 60 * 60;
+export const DAY: number = HOUR * 24;
+
 // BigNumbers from JSON decoding
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
 export type JsonWithBignum =

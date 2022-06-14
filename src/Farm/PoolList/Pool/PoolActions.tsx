@@ -11,6 +11,8 @@ import { PoolActionsDesktop } from './PoolActionsDesktop';
 import { PoolActionsMobile } from './PoolActionsMobile';
 import { ZapModal } from '../../../Zap/ZapModal';
 import { calculateTokenAmount } from '../../../common/lib';
+import { useTimer } from '../../../common/reachHooks';
+import { calculateUnlockTimeinSecs } from './UnlockTimer';
 
 export const PoolActions = ({
     poolState,
@@ -19,15 +21,25 @@ export const PoolActions = ({
     lpTokenInfo,
     rewardTokenInfo,
     setIsZapModalOpen,
+    currentBlock,
 }: {
     poolState: PoolState;
     ctc: any;
     contractState: AllDefined<ContractState<FarmType>>;
-    lpTokenInfo: LPTokenInfo | null;
+    lpTokenInfo: Priced<LPTokenInfo> | null;
     rewardTokenInfo: Priced<Asset>;
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
+    currentBlock: number;
 }) => {
     const pendingClaim = useStore(ctc.apis.claim.pending);
+
+    const unlockTime = calculateUnlockTimeinSecs(
+        currentBlock,
+        contractState.local.lockTimestamp,
+        Number(contractState.initial.lockLengthBlocks)
+    );
+
+    const [unlockTimer] = useTimer(unlockTime);
 
     const stakedToken = lpTokenInfo ? lpTokenInfo : rewardTokenInfo;
     const stakedTokenBalance = useStoreMap($balances, (bs) => bs[stakedToken.id] || BigInt(0));
@@ -35,7 +47,7 @@ export const PoolActions = ({
 
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;
-    const isActiveClaim = contractState.local.reward > 0 && !pendingClaim;
+    const isActiveClaim = contractState.local.reward > 0 && !pendingClaim && !unlockTimer;
 
     const [Modal, openZapModal, closeZapModal] = useModal('root', { preventScroll: true });
 
@@ -64,6 +76,7 @@ export const PoolActions = ({
                     isActiveClaim={isActiveClaim}
                     openZapModal={openZapModal}
                     setIsZapModalOpen={setIsZapModalOpen}
+                    unlockTimer={unlockTimer}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -79,6 +92,7 @@ export const PoolActions = ({
                     isActiveClaim={isActiveClaim}
                     openZapModal={openZapModal}
                     setIsZapModalOpen={setIsZapModalOpen}
+                    unlockTimer={unlockTimer}
                 />
             )}
             {lpTokenInfo && (

@@ -1,4 +1,3 @@
-import { Asset, ContractState, FarmType, Priced } from '../../../common/store';
 import {
     PoolInfoMobileContainer,
     LPTokensIcon,
@@ -6,12 +5,14 @@ import {
     PoolInfoValue,
     PoolNameMobile,
     StakeButtonMobile,
+    ContractLockSuffix,
+    TimingMobile,
 } from './styled';
-import { convertAmountToUSD, getTinyChartTokenLink, numberRound } from './utils';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { Account } from '../../../types';
+import { convertAmountToUSD, getTokenLink, numberRound } from './utils';
+import React, { FC } from 'react';
+import { PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
 
-export const PoolInfoMobile = ({
+export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,
     contractState,
     lpTokenInfo,
@@ -21,18 +22,8 @@ export const PoolInfoMobile = ({
     pool_name,
     APR,
     timing,
+    contractLockSuffix,
     isOpen,
-}: {
-    account: Account | null;
-    contractState: ContractState<FarmType>;
-    lpTokenInfo: Priced<LPTokenInfo> | null;
-    rewardTokenInfo: Priced<Asset>;
-    asset1_logo: string;
-    asset2_logo: string;
-    pool_name: string;
-    APR: number;
-    timing: JSX.Element | 'ended';
-    isOpen: boolean;
 }) => {
     if (contractState.local && isOpen) {
         return <></>;
@@ -40,33 +31,46 @@ export const PoolInfoMobile = ({
 
     return (
         <PoolInfoMobileContainer>
-            <PoolInfoValue width={23}>
-                <PoolNameMobile>{pool_name}</PoolNameMobile>
-                <LpTokensIconsWrapper>
-                    <a target="_blank" href={getTinyChartTokenLink(lpTokenInfo?.asset1)} rel="noreferrer">
-                        <LPTokensIcon first>
-                            {asset1_logo && <img alt="" width="100%" height="100%" src={asset1_logo} />}
-                        </LPTokensIcon>
-                    </a>
-                    <a target="_blank" href={getTinyChartTokenLink(lpTokenInfo?.asset2)} rel="noreferrer">
-                        <LPTokensIcon>
-                            {asset2_logo && <img alt="" width="100%" height="100%" src={asset2_logo} />}
-                        </LPTokensIcon>
-                    </a>
-                </LpTokensIconsWrapper>
-                <PoolNameMobile>EARN {rewardTokenInfo.unitName}</PoolNameMobile>
+            <PoolNameMobile>{pool_name}</PoolNameMobile>
+            <LpTokensIconsWrapper>
+                <a target="_blank" href={getTokenLink(lpTokenInfo?.asset1)} rel="noreferrer">
+                    <LPTokensIcon first>
+                        {asset1_logo && <img alt="" width="100%" height="100%" src={asset1_logo} />}
+                    </LPTokensIcon>
+                </a>
+                <a target="_blank" href={getTokenLink(lpTokenInfo?.asset2)} rel="noreferrer">
+                    <LPTokensIcon>
+                        {asset2_logo && <img alt="" width="100%" height="100%" src={asset2_logo} />}
+                    </LPTokensIcon>
+                </a>
+            </LpTokensIconsWrapper>
+            <PoolNameMobile style={{ marginBottom: '0' }}>EARN {rewardTokenInfo.unitName}</PoolNameMobile>
+            <ContractLockSuffix>{contractLockSuffix}</ContractLockSuffix>
+            <PoolInfoValue>
+                <div>TVL</div>
+                <div style={{ color: '#B5B5B5' }}>
+                    ${numberRound(convertAmountToUSD(lpTokenInfo ?? rewardTokenInfo, contractState.global.totalStaked))}
+                </div>
             </PoolInfoValue>
-            <PoolInfoValue style={{ fontSize: '20px', color: '#B5B5B5' }}>
-                TVL{' '}
-                {`$${numberRound(
-                    convertAmountToUSD(lpTokenInfo ?? rewardTokenInfo, contractState.global.totalStaked)
-                )}`}
+            <PoolInfoValue style={{ marginBottom: '30px' }}>
+                <div>APR</div> <div style={{ color: '#B5B5B5' }}>{numberRound(APR)}%</div>
             </PoolInfoValue>
-            <PoolInfoValue style={{ fontSize: '20px', color: '#B5B5B5' }}>APR {numberRound(APR)}%</PoolInfoValue>
-            {<StakeButtonMobile disabled={!contractState.local}>STAKE</StakeButtonMobile>}
-            <PoolInfoValue style={{ color: 'gray' }}>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '3px', fontSize: '10px' }}>{timing}</div>
+            <PoolInfoValue>
+                <div>MY STAKE</div>
+                <div style={{ color: 'white' }}>
+                    <StakeValue contractState={contractState} tokenInfo={lpTokenInfo ?? rewardTokenInfo} />
+                </div>
             </PoolInfoValue>
+            <PoolInfoValue>
+                <div>REWARD</div>
+                <div style={{ color: 'white' }}>
+                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} />
+                </div>
+            </PoolInfoValue>
+            {<StakeButtonMobile disabled={!contractState.local}>MANAGE</StakeButtonMobile>}
+            <div style={{ color: 'gray' }}>
+                <TimingMobile>{timing}</TimingMobile>
+            </div>
         </PoolInfoMobileContainer>
     );
 };

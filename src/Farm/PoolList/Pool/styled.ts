@@ -14,13 +14,12 @@ export const PoolContainer = styled.div`
     border-radius: 10px;
 
     @media (max-width: 1120px) {
-        width: 300px;
-        height: 320px;
+        width: 320px;
+        height: 420px;
         margin-bottom: 30px;
+        justify-content: center;
     }
 `;
-
-export const PoolInfoContainer = styled.div``;
 
 export const PoolInfoDesktopContainer = styled.div`
     position: relative;
@@ -42,8 +41,9 @@ export const PoolInfoDesktopContainer = styled.div`
 
 export const PoolInfoMobileContainer = styled.div`
     color: ${(props) => props.theme.white};
-    height: 78%;
     width: 100%;
+    padding-left: 40px;
+    padding-right: 40px;
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: 500;
@@ -64,10 +64,13 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
     width: ${({ width }) => (width ? `${width}%` : '12.5%')};
 
     @media (max-width: 1120px) {
-        margin-left: 0;
+        flex-direction: row;
+        justify-content: space-between;
         width: 100%;
-        text-align: center;
-        margin-bottom: 20px;
+        font-size: 20px;
+        color: #909090;
+        margin-left: 0;
+        margin-bottom: 15px;
     }
 `;
 
@@ -165,12 +168,13 @@ export const ArrowIconsWrapper = styled.div`
 `;
 
 export const PoolNameMobile = styled.div`
-    font-size: 14px;
+    font-size: 18px;
     color: #909090;
+    margin-bottom: 10px;
 `;
 
 export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
-    width: 200px;
+    width: 100%;
     height: 44px;
     margin: auto;
     background: linear-gradient(270deg, #06a903 1.29%, #00ff29 100%);
@@ -195,8 +199,10 @@ export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
 
 export const PoolActionsMobileContainer = styled.div`
     justify-content: left;
-    width: 95%;
+    width: 100%;
     margin-top: 0;
+    padding-right: 15px;
+    padding-left: 15px;
 
     @media (min-width: 1120px) {
         display: none;
@@ -205,17 +211,20 @@ export const PoolActionsMobileContainer = styled.div`
 
 export const RewardsContainer = styled.div`
     display: flex;
-    margin-left: 20px;
+    justify-content: space-between;
+    padding-right: 20px;
+    padding-left: 20px;
     gap: 15px;
 `;
 
 export const ButtonBackMobile = styled.button`
     background-color: transparent;
+    position: absolute;
     font-family: 'Krona One';
-    font-size: 14px;
-    margin-left: 220px;
+    font-size: 16px;
+    margin-left: 210px;
     margin-bottom: 10px;
-    color: darkgrey;
+    color: #676767;
     border: 0;
     cursor: pointer;
 `;
@@ -231,4 +240,34 @@ export const PoolLoadingAnimation = styled.img`
             margin-left: 90%;
         }
     }
+`;
+
+export const RewardUSDValue = styled.div`
+    @media (max-width: 1120px) {
+        text-align: right;
+    }
+`;
+
+export const RewardTokenValue = styled.div`
+    white-space: nowrap;
+    @media (max-width: 1120px) {
+        font-size: 14px;
+        color: #909090;
+        text-align: right;
+    }
+`;
+
+export const ContractLockSuffix = styled.div`
+    font-size: 12px;
+    color: #838383;
+    @media (max-width: 1120px) {
+        margin-bottom: 15px;
+    }
+`;
+
+export const TimingMobile = styled.div`
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    font-size: 12px;
 `;

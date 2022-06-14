@@ -7,10 +7,11 @@ import { $account, AllDefined, Amount, Asset, ContractState, FarmType, Priced } 
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
+import { UnlockTimer } from './UnlockTimer';
 
 export interface PoolActionsDesktopProps {
-    lpTokenInfo: LPTokenInfo | null;
-    stakedToken: LPTokenInfo | Priced<Asset>;
+    lpTokenInfo: Priced<LPTokenInfo> | null;
+    stakedToken: Priced<LPTokenInfo> | Priced<Asset>;
     stakedTokenBalance: Amount;
     balanceSuffix: string;
     rewardTokenInfo: Priced<Asset>;
@@ -21,6 +22,7 @@ export interface PoolActionsDesktopProps {
     isActiveClaim: boolean;
     openZapModal: () => void;
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
+    unlockTimer: number;
 }
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
@@ -35,6 +37,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     canClaim,
     isActiveClaim,
     openZapModal,
+    unlockTimer,
 }) => {
     const account = useStore($account);
 
@@ -59,13 +62,16 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 actionEffect={ctc.apis.unstake}
                 blueButtonColor={true}
             />
-            <PacmanButton
-                style={!canClaim ? { visibility: 'hidden' } : {}}
-                buttonText="CLAIM"
-                buttonStyle="claim_button"
-                onClickAction={() => ctc.apis.claim()}
-                isInactive={!isActiveClaim}
-            />
+            <div>
+                <PacmanButton
+                    style={!canClaim ? { visibility: 'hidden' } : {}}
+                    buttonText="CLAIM"
+                    buttonStyle="claim_button"
+                    onClickAction={() => ctc.apis.claim()}
+                    isInactive={!isActiveClaim}
+                />
+                <UnlockTimer unlockTimer={unlockTimer} />
+            </div>
             {canClaim && lpTokenInfo && account && isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
                 <PacmanButton
                     buttonText="COMPOUND"

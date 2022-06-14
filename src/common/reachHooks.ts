@@ -83,3 +83,25 @@ export const useContractOptin = (reach: ReachStdlib, account: Account, contractI
 
     return { userOptedIn, optIn };
 };
+
+export const useTimer = (initialSeconds: number) => {
+    const [seconds, setSeconds] = useState(0);
+
+    useEffect(() => {
+        //@ts-ignore
+        let timeout;
+        if (seconds > 0) {
+            timeout = setTimeout(() => {
+                setSeconds((seconds) => Math.max(0, seconds - 1));
+            }, 1000);
+        }
+        //@ts-ignore
+        return () => clearTimeout(timeout);
+    }, [seconds]);
+
+    useEffect(() => {
+        setSeconds(initialSeconds);
+    }, [initialSeconds]);
+
+    return [seconds];
+};

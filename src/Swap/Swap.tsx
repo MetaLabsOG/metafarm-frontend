@@ -234,13 +234,15 @@ export async function runTransactions(
         // @ts-ignore
         const error_message = e.message;
         if (error_message.includes('underflow')) {
-            alert('Not enough tokens');
+            alert(QueryType[type] + 'Not enough tokens');
         } else if (error_message.includes('Transaction not confirmed')) {
-            alert('Transaction not confirmed');
+            alert(QueryType[type] + ': Transaction not confirmed');
+        } else if (error_message.includes('would result negative')) {
+            alert(QueryType[type] + ': Result slippage is higher than expected.');
         } else {
-            console.log(e);
             alert(QueryType[type] + ' error :(');
         }
+        console.log(error_message);
         logEvent(
             account.networkAccount.addr,
             {

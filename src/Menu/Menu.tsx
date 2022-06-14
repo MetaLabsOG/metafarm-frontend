@@ -20,6 +20,7 @@ import { ConnectWallet } from '../wallet/ConnectWallet';
 import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
 import { useEffect, useState } from 'react';
 import { META_TOKEN_ID } from '../AppContext';
+import { getTokenLink } from '../Farm/PoolList/Pool/utils';
 
 const formatPrice = (price: number | null): string => (price === null ? '0.00' : price.toFixed(2));
 
@@ -40,9 +41,13 @@ const MenuItems = () => {
 const ExchangeRates = ({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) => {
     return (
         <>
-            <Logo src={algo_logo} alt="logo" height="24px" />
+            <a target="_blank" href={getTokenLink(0)} rel="noreferrer">
+                <Logo src={algo_logo} alt="logo" height="24px" />
+            </a>
             <ExchangeRate>${formatPrice(ALGOPrice)}</ExchangeRate>
-            <Logo src={meta_logo} alt="logo" height="24px" />
+            <a target="_blank" href={getTokenLink(META_TOKEN_ID)} rel="noreferrer">
+                <Logo src={meta_logo} alt="logo" height="24px" />
+            </a>
             <ExchangeRate>${formatPrice(METAPrice?.price ?? 0)}</ExchangeRate>
         </>
     );
