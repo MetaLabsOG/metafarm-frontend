@@ -61,7 +61,7 @@ export const sleep = (ms: number): Promise<void> => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export const formatDecimalsMeaningful = (value: number, precision: number = 2): string => {
+export const formatDecimalsMeaningful = (value: number, precision = 2): string => {
     if (value === 0) {
         return '0';
     }

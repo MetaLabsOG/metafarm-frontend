@@ -1,5 +1,14 @@
 import { Map } from 'immutable';
-import { createEffect, createEvent, createStore, sample, combine, split, forward, Store, restore } from 'effector';
+import {
+    createEffect,
+    createEvent,
+    createStore,
+    sample,
+    combine,
+    split,
+    Store,
+    restore,
+} from 'effector';
 import { algod } from '../../AppContext';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
@@ -79,9 +88,9 @@ split({
 });
 
 // fetch asset info from algod on asset registration
-forward({
-    from: registerAsset,
-    to: queryAsset,
+sample({
+    clock: registerAsset,
+    target: queryAsset,
 });
 
 /**
@@ -100,17 +109,17 @@ export const fetchAsset = async (id: AssetId): Promise<Asset> => {
 // ALGO price fetching
 // (token prices are in separate file to avoid circular import to/from dexesProvider)
 // =================================================================
-export const fetchAlgoPrice = createEffect(nonConcurrent(() => getBinanceCoinPrice('ALGOUSDT')));
-export const fetchBtcPrice = createEffect(nonConcurrent(() => getBinanceCoinPrice('BTCUSDT')));
+export const fetchAlgoPriceFx = createEffect(() => getBinanceCoinPrice('ALGOUSDT'));
+export const fetchBtcPriceFx = createEffect(() => getBinanceCoinPrice('BTCUSDT'));
 
-export const $algoUsdPrice = restore(fetchAlgoPrice.doneData, null);
-export const $btcUsdPrice = restore(fetchBtcPrice.doneData, null);
+export const $algoUsdPrice = restore(fetchAlgoPriceFx.doneData, null);
+export const $btcUsdPrice = restore(fetchBtcPriceFx.doneData, null);
 
 // re-fetch prices once in say, 1 minute
 makeClock(60000).watch(() => {
     console.log('prices refetching');
-    fetchAlgoPrice();
-    fetchBtcPrice();
+    fetchAlgoPriceFx();
+    fetchBtcPriceFx();
 });
 
 export const $pricedAlgo: Store<Priced<Asset> | null> = combine(

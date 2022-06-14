@@ -8379,6 +8379,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-effector@npm:^0.7.4":
+  version: 0.7.4
+  resolution: "eslint-plugin-effector@npm:0.7.4"
+  dependencies:
+    prettier: "npm:^2.3.2"
+  peerDependencies:
+    effector: "*"
+    eslint: 7 || 8
+  checksum: 1f66922c87f9ee9a2fd8ec594506a46ce46a68bbfb3abcf281ccb27f3a61693463c48d1fdba83e427f99ccdb886b1f57655c39ddcaf625063dcec73fa409d629
+  languageName: node
+  linkType: hard
+
 "eslint-plugin-flowtype@npm:^8.0.3":
   version: 8.0.3
   resolution: "eslint-plugin-flowtype@npm:8.0.3"
@@ -11328,7 +11340,7 @@ __metadata:
     secp256k1: "npm:^3.7.1"
     superagent: "npm:^5.1.0"
     websocket: "npm:^1.0.31"
-  checksum: 3056bbb9db7747f9b5b00aaf0f58d37b4dd2c624fb53b0f25ea24ba2a9d6244cae13496ab70f8a5579ad1b6e509b0912fd41c9ba3c63ef4cd9fadf092c983fda
+  checksum: 9df68f39d07528f4d48937bde91f458b8f3bc3b1cf5922e781a5326c42bcd9e2ba5f72de2240fd5cb690433a20c315c7dedd37bd76038cb89038a6c5ff27561e
   languageName: node
   linkType: hard
 
@@ -12228,6 +12240,7 @@ __metadata:
     eslint: "npm:^8.3.0"
     eslint-config-prettier: "npm:^8.5.0"
     eslint-config-react-app: "npm:^7.0.1"
+    eslint-plugin-effector: "npm:^0.7.4"
     eslint-webpack-plugin: "npm:^3.1.1"
     file-loader: "npm:^6.2.0"
     fs-extra: "npm:^10.0.0"
@@ -14540,6 +14553,15 @@ __metadata:
   bin:
     prettier: bin-prettier.js
   checksum: d0ad8c8b8a6375aefc5e7d3a12b72ed218ad58952a4ab083701ec8899cb496823a71dcc52e076813ae7930f57220a94c929df7c995a7037b1319f8e05555636a
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^2.3.2":
+  version: 2.7.0
+  resolution: "prettier@npm:2.7.0"
+  bin:
+    prettier: bin-prettier.js
+  checksum: a325056460177731710a0e954eff4b57819c883f3bee34150765495d04b6b3ada8c76cac31c71862880141c165727fcd51ae76755246e3b6e64cbc2600bdee60
   languageName: node
   linkType: hard
 

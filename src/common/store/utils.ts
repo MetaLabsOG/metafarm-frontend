@@ -72,13 +72,13 @@ export function createTimeDeferredStore<V, T>(
     const $store = createStore(initial).on(updateFx.done, (_, { result }) => result);
 
     const tick = createEvent<number>();
-    const lastTick = restore(tick, 0);
+    const $lastTick = restore(tick, 0);
     $store.updates.watch((_) => tick(Date.now()));
 
     const update = createEvent<V>();
     sample({
         clock: update,
-        source: lastTick,
+        source: $lastTick,
         filter: (prevMoment: number, _) => Date.now() - prevMoment > period,
         fn: (_, v: V) => v,
         target: updateFx,
@@ -91,16 +91,16 @@ export function createTimeDeferredStore<V, T>(
  * @param callback Async effect function
  */
 export function createNonConcurrentEffect<V, T>(callback: (a: V) => Promise<T>): Effect<V, T> {
-    const innerEff = createEffect(callback);
+    const innerFx = createEffect(callback);
     return createEffect(
         (a: V) =>
             new Promise<T>((resolve, reject) => {
-                fetchStore(innerEff.pending).then((pending) => {
+                fetchStore(innerFx.pending).then((pending) => {
                     if (!pending) {
-                        innerEff(a);
+                        innerFx(a);
                     }
-                    innerEff.doneData.watch(resolve);
-                    innerEff.failData.watch(reject);
+                    innerFx.doneData.watch(resolve);
+                    innerFx.failData.watch(reject);
                 });
             })
     );
@@ -125,7 +125,7 @@ export function expBackoff<V, T>(
         let numTries = 0;
         let delay = firstDelay;
 
-        while (true) {
+        for (;;) {
             try {
                 return await eff(v);
             } catch (e) {

@@ -16,7 +16,7 @@ import {
     $algoUsdPrice,
     fetchAsset,
     ALGO_ASSET,
-    fetchAlgoPrice,
+    fetchAlgoPriceFx,
     $pricedAssets,
     $networkTime,
     Contract,
@@ -50,7 +50,7 @@ export async function getLPTokenInfo(
         provider = detectAssetProvider(asset);
     }
     if (algoPrice === null) {
-        algoPrice = await fetchAlgoPrice();
+        algoPrice = await fetchAlgoPriceFx();
     }
 
     const dex = makeDex(provider);
@@ -155,7 +155,7 @@ const $isLPToken = createStore(Map<AssetId, boolean>()).on(markTokenAsLP, (state
 // automatically fetch LP token infos when general info about them gets fetched the first time
 sample({
     clock: assetLoaded,
-    source: combine({ isLP: $isLPToken, algoPrice: $algoUsdPrice }),
+    source: { isLP: $isLPToken, algoPrice: $algoUsdPrice },
     filter: ({ isLP }, asset) => isLP.get(asset.id, false),
     fn: ({ algoPrice }, asset) => ({ asset, algoPrice, provider: undefined }),
     target: getLPTokenInfoFx,
