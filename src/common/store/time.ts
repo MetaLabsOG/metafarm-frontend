@@ -19,4 +19,6 @@ export const makeClock = (period: number): Event<number> => {
     return clock;
 };
 
+// updating network time once in 5 secs - seems like an okay trade-off
 queryTimeUpdate();
+makeClock(5000).watch(() => queryTimeUpdate());

@@ -50,6 +50,14 @@ export type ContractState<T extends ContractType> = {
     local?: LocalInfo[T];
 };
 
+/**
+ * Type guard which makes the contract state `AllDefined`, if the local state is there.
+ * @param state
+ */
+export function hasLocalState<T extends ContractType, S extends ContractState<T>>(state: S): state is AllDefined<S> {
+    return !!state.local;
+}
+
 export type Contract<T extends ContractType> = {
     id: AppId;
     info: ContractInfo<T>;
@@ -118,12 +126,14 @@ export type FarmGlobalInfo = {
     totalStaked: Amount;
     lastUpdateBlock: Time;
     rewardPerTokenStored: Amount;
+    rewardsPaid: Amount;
 };
 
 export type FarmLocalInfo = {
     reward: Amount;
     staked: Amount;
     lockTimestamp: Time; // lock BEGINS from this block
+    rewardPerTokenPaid: Amount;
 };
 
 // Crowdsale types
@@ -167,12 +177,14 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
         totalStaked: obj.totalStaked.toBigInt(),
         lastUpdateBlock: obj.lastUpdateBlock.toNumber(),
         rewardPerTokenStored: obj.rewardPerTokenStored.toBigInt(),
+        rewardsPaid: obj.rewardsPaid.toBigInt(),
     });
 
     const parseFarmLocalInfo = (obj: any): FarmLocalInfo => ({
         reward: obj.reward.toBigInt(),
         staked: obj.staked.toBigInt(),
         lockTimestamp: obj.lockTimestamp.toNumber(),
+        rewardPerTokenPaid: obj.rewardPerTokenPaid.toBigInt(),
     });
 
     const parseDistributionInitialInfo = (obj: any): DistributionInitialInfo => ({

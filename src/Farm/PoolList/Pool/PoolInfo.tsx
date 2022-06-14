@@ -1,5 +1,5 @@
 import { useStore } from 'effector-react';
-import { $account, $meanRoundDuration, Asset, ContractState, FarmType, Priced } from '../../../common/store';
+import { $account, $meanRoundDuration, Asset, ContractState, FarmType, Priced, Time } from '../../../common/store';
 import { formatLPTokenName } from './utils';
 import { PoolState } from './types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
@@ -56,7 +56,7 @@ export const PoolInfo = ({
     poolState: PoolState;
     lpTokenInfo: Priced<LPTokenInfo> | null;
     rewardTokenInfo: Priced<Asset>;
-    currentBlock: number;
+    currentBlock: Time;
     isOpen: boolean;
 }) => {
     const account = useStore($account);
