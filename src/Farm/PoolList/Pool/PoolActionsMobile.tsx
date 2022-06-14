@@ -8,13 +8,14 @@ import {
     PoolInfoValue,
 } from './styled';
 
-import { formatUnlockTime, PoolActionsDesktopProps } from './PoolActionsDesktop';
+import { PoolActionsDesktopProps } from './PoolActionsDesktop';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
 import { useStore } from 'effector-react';
 import { $account } from '../../../common/store';
 import { RewardValues, StakeValue } from './PoolInfoDesktop';
+import { UnlockTimer } from './UnlockTimer';
 
 export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     lpTokenInfo,
@@ -73,13 +74,9 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         buttonText="CLAIM"
                         buttonStyle="claim_button"
                         onClickAction={() => ctc.apis.claim()}
-                        isInactive={!isActiveClaim}
+                        isInactive={!isActiveClaim || unlockTimer > 0}
                     />
-                    {unlockTimer > 0 && (
-                        <div style={{ marginTop: '5px', fontSize: '13px' }}>
-                            unlock in {formatUnlockTime(unlockTimer)}
-                        </div>
-                    )}
+                    <UnlockTimer unlockTimer={unlockTimer} />
                 </div>
                 {canClaim && lpTokenInfo && account && isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
                     <PacmanButton
@@ -88,7 +85,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         onClickAction={() =>
                             runCompound(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
                         }
-                        isInactive={!isActiveClaim}
+                        isInactive={!isActiveClaim || unlockTimer > 0}
                     />
                 )}
             </RewardsContainer>

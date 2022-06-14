@@ -7,7 +7,7 @@ import { $account, AllDefined, Amount, Asset, ContractState, FarmType, Priced } 
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
-import { DAY } from '../../../common/lib';
+import { UnlockTimer } from './UnlockTimer';
 
 export interface PoolActionsDesktopProps {
     lpTokenInfo: Priced<LPTokenInfo> | null;
@@ -24,14 +24,6 @@ export interface PoolActionsDesktopProps {
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
     unlockTimer: number;
 }
-
-export const formatUnlockTime = (unlockTime: number) => {
-    if (unlockTime > DAY) {
-        return Math.floor(unlockTime / DAY) + ' days';
-    }
-
-    return new Date(unlockTime * 1000).toISOString().substring(11, 19);
-};
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     lpTokenInfo,
@@ -76,11 +68,9 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     buttonText="CLAIM"
                     buttonStyle="claim_button"
                     onClickAction={() => ctc.apis.claim()}
-                    isInactive={!isActiveClaim}
+                    isInactive={!isActiveClaim || unlockTimer > 0}
                 />
-                {unlockTimer > 0 && (
-                    <div style={{ marginTop: '5px', fontSize: '13px' }}>unlock in {formatUnlockTime(unlockTimer)}</div>
-                )}
+                <UnlockTimer unlockTimer={unlockTimer} />
             </div>
             {canClaim && lpTokenInfo && account && isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
                 <PacmanButton
@@ -89,7 +79,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     onClickAction={() =>
                         runCompound(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
                     }
-                    isInactive={!isActiveClaim}
+                    isInactive={!isActiveClaim || unlockTimer > 0}
                 />
             )}
         </PoolActionsDesktopContainer>

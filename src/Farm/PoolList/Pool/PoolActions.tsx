@@ -12,13 +12,7 @@ import { PoolActionsMobile } from './PoolActionsMobile';
 import { ZapModal } from '../../../Zap/ZapModal';
 import { calculateTokenAmount } from '../../../common/lib';
 import { useTimer } from '../../../common/reachHooks';
-
-const calculateUnlockTimeinSecs = (currentBlock: number, lockTimestamp: number, lockLengthBlocks: number) => {
-    if (!lockLengthBlocks) {
-        return 0;
-    }
-    return Math.floor(Math.max(0, lockLengthBlocks - (currentBlock - lockTimestamp)) * 4.35); // in seconds
-};
+import { calculateUnlockTimeinSecs } from './UnlockTimer';
 
 export const PoolActions = ({
     poolState,

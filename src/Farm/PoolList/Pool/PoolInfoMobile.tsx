@@ -5,11 +5,12 @@ import {
     PoolInfoValue,
     PoolNameMobile,
     StakeButtonMobile,
+    ContractLockSuffix,
+    TimingMobile,
 } from './styled';
 import { convertAmountToUSD, getTinyChartTokenLink, numberRound } from './utils';
 import React, { FC } from 'react';
 import { PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
-import { calculateTokenAmount } from '../../../common/lib';
 
 export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,
@@ -44,7 +45,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 </a>
             </LpTokensIconsWrapper>
             <PoolNameMobile style={{ marginBottom: '0' }}>EARN {rewardTokenInfo.unitName}</PoolNameMobile>
-            <div style={{ fontSize: '12px', color: '#838383', marginBottom: '15px' }}>{contractLockSuffix}</div>
+            <ContractLockSuffix>{contractLockSuffix}</ContractLockSuffix>
             <PoolInfoValue>
                 <div>TVL</div>
                 <div style={{ color: '#B5B5B5' }}>
@@ -68,7 +69,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
             </PoolInfoValue>
             {<StakeButtonMobile disabled={!contractState.local}>MANAGE</StakeButtonMobile>}
             <div style={{ color: 'gray' }}>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '3px', fontSize: '12px' }}>{timing}</div>
+                <TimingMobile>{timing}</TimingMobile>
             </div>
         </PoolInfoMobileContainer>
     );

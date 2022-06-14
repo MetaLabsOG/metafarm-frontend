@@ -249,8 +249,25 @@ export const RewardUSDValue = styled.div`
 `;
 
 export const RewardTokenValue = styled.div`
+    white-space: nowrap;
     @media (max-width: 1120px) {
         font-size: 14px;
         color: #909090;
+        text-align: right;
     }
+`;
+
+export const ContractLockSuffix = styled.div`
+    font-size: 12px;
+    color: #838383;
+    @media (max-width: 1120px) {
+        margin-bottom: 15px;
+    }
+`;
+
+export const TimingMobile = styled.div`
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    font-size: 12px;
 `;

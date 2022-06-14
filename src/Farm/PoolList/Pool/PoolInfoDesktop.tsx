@@ -9,6 +9,7 @@ import {
     Pacman,
     RewardUSDValue,
     RewardTokenValue,
+    ContractLockSuffix,
 } from './styled';
 import { Arrow } from '../../../imgs/arrow';
 import { convertAmountToUSD, getTinyChartTokenLink, numberRound } from './utils';
@@ -91,7 +92,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     <div>
                         {pool_name}
                         <div>EARN {rewardTokenInfo.unitName}</div>
-                        <div style={{ fontSize: '12px', color: '#838383' }}>{contractLockSuffix}</div>
+                        <ContractLockSuffix>{contractLockSuffix}</ContractLockSuffix>
                     </div>
                 </BasicInfo>
             </PoolInfoValue>

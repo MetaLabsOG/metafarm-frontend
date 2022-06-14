@@ -3222,7 +3222,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metalabsog/crowdsale@npm:^17.0.0":
+"@metalabsog/crowdsale@npm:17.0.0":
   version: 17.0.0
   resolution: "@metalabsog/crowdsale@npm:17.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fcrowdsale%2F17.0.0%2F205693f4b469482a3328b45fc968278dc8be6de4da8ec10e0563eed4d9a5ed22"
   dependencies:
@@ -3233,7 +3233,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metalabsog/distribution@npm:^17.0.0":
+"@metalabsog/distribution@npm:17.0.0":
   version: 17.0.0
   resolution: "@metalabsog/distribution@npm:17.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fdistribution%2F17.0.0%2F3bb6c4e2fc893d11e31c8d04f887eacf0735023032e8343f41eecfcd71f1eff2"
   dependencies:
@@ -3245,20 +3245,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metalabsog/farm@npm:^17.0.1":
-  version: 17.0.1
-  resolution: "@metalabsog/farm@npm:17.0.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F17.0.1%2Fc228cd02518b2a8752307d1ada6a473099e7ceaaaba2039bd191d0f3f5f1a16a"
+"@metalabsog/farm@npm:17.0.2":
+  version: 17.0.2
+  resolution: "@metalabsog/farm@npm:17.0.2::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F17.0.2%2Ff35b6d7bd80949f49d69a38b02e1d55104844de2294c7f60f1101f5eafd2504b"
   dependencies:
     "@metalabsog/common": "npm:^17.0.0"
     "@reach-sh/stdlib": "npm:0.1.11-rc.0"
     bent: "npm:^7.3.12"
     inquirer: "npm:^8.2.1"
     loglevel: "npm:^1.8.0"
-  checksum: 7664a00f1ffa8b916422c311aeaf0b5b9e41263a29a67817666b6891a548cc1281c4a987304d7f62ef613c0cb2030cef5bbcc15f9a7cc677d7f224724c9c781a
+  checksum: 648d99d359ba6331290c166ecd4ed2e7970fd3928502f29e38bcf24553e0907c8bfae1980e631a6eccfb23b68982ede149b8447adc3ded30d2f2ca65d0b53f08
   languageName: node
   linkType: hard
 
-"@metalabsog/metafomo@npm:^17.0.0":
+"@metalabsog/metafomo@npm:17.0.0":
   version: 17.0.0
   resolution: "@metalabsog/metafomo@npm:17.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fmetafomo%2F17.0.0%2F665fe962d19cc0bd3b4932bfdcac09baa8f1db46508e09998a1e1fa68c26b492"
   dependencies:
@@ -11941,10 +11941,10 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.16.0"
     "@ethersproject/bignumber": "npm:^5.6.2"
-    "@metalabsog/crowdsale": "npm:^17.0.0"
-    "@metalabsog/distribution": "npm:^17.0.0"
-    "@metalabsog/farm": "npm:^17.0.1"
-    "@metalabsog/metafomo": "npm:^17.0.0"
+    "@metalabsog/crowdsale": "npm:17.0.0"
+    "@metalabsog/distribution": "npm:17.0.0"
+    "@metalabsog/farm": "npm:17.0.2"
+    "@metalabsog/metafomo": "npm:17.0.0"
     "@pactfi/pactsdk": "npm:^0.2.2"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.3"
     "@ramonak/react-progress-bar": "npm:^4.4.0"
