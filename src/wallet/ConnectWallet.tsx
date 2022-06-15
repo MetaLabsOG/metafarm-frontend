@@ -6,7 +6,7 @@ import { detect } from 'detect-browser';
 import '../css/wallet.css';
 import { logEvent } from '../logEvent';
 import { $account, setAccount } from '../common/store';
-import { reach } from '../AppContext';
+import { ALGONET, reach } from '../AppContext';
 import { WalletType, customWalletFallback } from './customWalletFallback';
 
 const browser = detect();
@@ -19,7 +19,7 @@ const connectWallet = (walletType: WalletType) => {
         throw new TypeError(`Invalid wallet type ${walletType}`);
     }
 
-    reach.setWalletFallback(customWalletFallback({ providerEnv: process.env, walletType }));
+    reach.setWalletFallback(customWalletFallback({ providerEnv: ALGONET, walletType }));
     reach
         .getDefaultAccount()
         .then((acc) => {
