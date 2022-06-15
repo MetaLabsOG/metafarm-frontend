@@ -22,8 +22,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const queryClient = new QueryClient();
 
-console.log('ENV', process.env);
-
 // throw events on initialization
 fetchAlgoPrice();
 fetchBtcPrice();

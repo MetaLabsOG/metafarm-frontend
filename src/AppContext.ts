@@ -1,17 +1,15 @@
-import { loadStdlib } from '@reach-sh/stdlib';
 import algosdk from 'algosdk';
 
-import { ReachStdlib } from './types';
+import type { Provider, ReachStdlib } from './types';
+import { loadStdlibShimmed, makeProviderByEnv } from './reachRedefinitions';
 
 export type NetworkName = 'TestNet' | 'MainNet';
 
-export const reach: ReachStdlib = loadStdlib(process.env as any);
-export const algod = new algosdk.Algodv2(process.env.ALGO_TOKEN!, process.env.ALGO_SERVER, process.env.ALGO_PORT);
-export const indexer = new algosdk.Indexer(
-    process.env.ALGO_INDEXER_TOKEN!,
-    process.env.ALGO_INDEXER_SERVER,
-    process.env.ALGO_INDEXER_PORT
-);
+export const reach: ReachStdlib = loadStdlibShimmed(process.env);
+export const reachDefaultProvider: Provider = makeProviderByEnv(process.env);
+
+export const algod: algosdk.Algodv2 = reachDefaultProvider.algodClient;
+export const indexer: algosdk.Indexer = reachDefaultProvider.indexer;
 
 export const METAWALLET = 'METAWEJ6MAPBIZBKZBX2RTGVEG4SFTB5BRJRKL3UYVXA6TT5YVWUAXV6PU';
 

@@ -1,32 +1,25 @@
 import { useState, useEffect, MouseEventHandler } from 'react';
 import { useStore } from 'effector-react';
-
-import { ALGONET, reach } from '../AppContext';
 import { useModal } from 'react-hooks-use-modal';
-import { ALGO_MyAlgoConnect as MyAlgoConnect, ALGO_WalletConnect as WalletConnect } from '@reach-sh/stdlib';
+import { detect } from 'detect-browser';
 
 import '../css/wallet.css';
 import { logEvent } from '../logEvent';
 import { $account, setAccount } from '../common/store';
-
-import { detect } from 'detect-browser';
+import { reach } from '../AppContext';
+import { WalletType, customWalletFallback } from './customWalletFallback';
 
 const browser = detect();
 const browserInfoString = browser === null ? 'unknown' : `${browser.name} ${browser.version} ${browser.os}`;
 
-export type WalletType = 'MyAlgo' | 'WalletConnect';
+const WALLET_TYPE_KEY = 'connectedWalletType';
 
 const connectWallet = (walletType: WalletType) => {
     if (walletType !== 'MyAlgo' && walletType !== 'WalletConnect') {
         throw new TypeError(`Invalid wallet type ${walletType}`);
     }
 
-    const walletFallback =
-        walletType === 'MyAlgo'
-            ? reach.walletFallback({ providerEnv: ALGONET, MyAlgoConnect })
-            : reach.walletFallback({ providerEnv: ALGONET, WalletConnect });
-
-    reach.setWalletFallback(walletFallback);
+    reach.setWalletFallback(customWalletFallback({ providerEnv: process.env, walletType }));
     reach
         .getDefaultAccount()
         .then((acc) => {
@@ -41,7 +34,7 @@ const connectWallet = (walletType: WalletType) => {
                 },
                 'wallet'
             );
-            localStorage.setItem('connectedWalletType', walletType);
+            localStorage.setItem(WALLET_TYPE_KEY, walletType);
 
             return acc;
         })
@@ -52,8 +45,18 @@ const connectWallet = (walletType: WalletType) => {
 };
 
 const disconnectWallet = () => {
-    localStorage.removeItem('connectedWalletType');
-    window.location.reload();
+    const finalDisconnect = () => {
+        localStorage.removeItem(WALLET_TYPE_KEY);
+        window.location.reload();
+    };
+
+    // @ts-ignore
+    if (window.algorand && window.algorand.disconnect) {
+        //@ts-ignore
+        window.algorand.disconnect().then(finalDisconnect);
+    } else {
+        finalDisconnect();
+    }
 };
 
 export function ConnectWallet() {
@@ -64,7 +67,7 @@ export function ConnectWallet() {
 
     // check local state once when the element is rendered first
     useEffect(() => {
-        const connectedWallet = localStorage.getItem('connectedWalletType');
+        const connectedWallet = localStorage.getItem(WALLET_TYPE_KEY);
         if (connectedWallet !== null && !window.algorand) {
             connectWallet(connectedWallet as WalletType);
         }
