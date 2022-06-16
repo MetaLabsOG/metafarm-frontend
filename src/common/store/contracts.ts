@@ -3,8 +3,8 @@ import { combine, createEffect, createEvent, createStore, sample, Store, Event }
 import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
 import { maybeToNullable } from '../lib';
-import { $account, refreshAccountInfo } from './account';
-import { expBackoff } from './utils';
+import { $account, fetchAccountInfo, refreshAccountInfo } from './account';
+import { expBackoff, waitForEvent } from './utils';
 
 // I'm sorry for this mess.... It can be done better I do believe.
 // In the end, it was not particularly necessary (I thought I would need more specific Reach
@@ -186,6 +186,15 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
             makeWrappedCtc(type, account, backend, contractId, async (id) => {
                 triggerStateUpdate(id);
                 refreshAccountInfo();
+
+                const stateUpdatePromise = waitForEvent(
+                    updateContractStateFx.done,
+                    updateContractStateFx.fail,
+                    (v) => v.params.contractId === id,
+                    (p) => p.contractId === id
+                );
+                const accountRefreshPromise = waitForEvent(fetchAccountInfo.done, fetchAccountInfo.fail);
+                await Promise.all([stateUpdatePromise, accountRefreshPromise]);
             }),
         ],
     });
