@@ -37,7 +37,7 @@ export interface BestSwap {
 export interface Transaction {
     transactions: {
         txns: string[];
-        signed_txns: string[];
+        signed_txns: (string | any[])[];
         tx_id?: string;
     }[];
     tx_id: string;
