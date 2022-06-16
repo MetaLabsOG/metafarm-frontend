@@ -22,8 +22,11 @@ import {
     $networkTime,
     Contract,
     FarmType,
+    AllDefined,
+    hasLocalState,
+    Time,
 } from '../common/store';
-import { groupBy, values } from 'ramda';
+import { groupBy, min, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
 import { convertAmountToUSD } from './PoolList/Pool/utils';
 
@@ -67,16 +70,52 @@ export async function getLPTokenInfo(
     return { ...asset, ...poolInfo, price, priceInAlgo: price / algoPrice };
 }
 
+const BIG_NUM = BigInt('1000000000000000000');
+
+export const recalculatedReward = (contractState: AllDefined<ContractState<FarmType>>, currentBlock: Time): Amount => {
+    const { endBlock, rewardPerBlock } = contractState.initial;
+    const { totalStaked, lastUpdateBlock, rewardPerTokenStored } = contractState.global;
+    const { staked, reward, rewardPerTokenPaid } = contractState.local;
+
+    if (lastUpdateBlock >= currentBlock || totalStaked === BigInt(0) || staked === BigInt(0)) {
+        return reward;
+    }
+
+    const lastBlockWithRewards = min(currentBlock, endBlock);
+    const rewardBlocksPassed = lastBlockWithRewards - lastUpdateBlock;
+    const rewardPerTokenStoredNew =
+        rewardPerTokenStored + (BigInt(rewardBlocksPassed) * rewardPerBlock * BIG_NUM) / totalStaked;
+
+    const rewardToPayNow = (staked * (rewardPerTokenStoredNew - rewardPerTokenPaid)) / BIG_NUM;
+    return reward + rewardToPayNow;
+};
+
+export const projectState = <T extends FarmType>(
+    contractState: ContractState<T>,
+    currentBlock: Time
+): ContractState<T> => {
+    if (!hasLocalState(contractState)) {
+        return contractState;
+    }
+
+    const projectedReward = recalculatedReward(contractState, currentBlock);
+    return { ...contractState, local: { ...contractState.local, reward: projectedReward } };
+};
+
+export const projectContracts = <T extends FarmType>(contracts: Contract<T>[], currentBlock: Time): Contract<T>[] => {
+    return contracts.map((contract) =>
+        contract.state === null ? contract : { ...contract, state: projectState(contract.state, currentBlock) }
+    );
+};
+
 const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpdate } = buildContractsStore(
     'farm',
     farmBackend
 );
 
-export const $pools = $contracts;
+export const $pools = combine($contracts, $networkTime, projectContracts);
 export const setPoolInfos = setContractInfos;
 export const triggerPoolUpdate = triggerStateUpdate;
-
-$pools.watch((v) => {}); //console.log('FARM POOLS', v));
 
 //TODO NEED REFACTOR (quick solution)
 export const sortPoolsOnStatus = ({ networkTime, pools }: { networkTime: number; pools: Contract<FarmType>[] }) => {
@@ -141,13 +180,13 @@ export const $farmRewardTokens = combine($pricedAssets, $contractStatesWithCache
 
 // Price aggregation
 const sumMoney = (
-    states: Map<AppId, ContractState<'farm'>>,
+    states: ContractState<'farm'>[],
     tokens: Map<AssetId, Priced<Asset>>,
     getAmount: (s: ContractState<'farm'>) => Amount | undefined,
     getToken: (s: ContractState<'farm'>) => AssetId
 ): number =>
     //@ts-ignore
-    states.valueSeq().reduce((sum, state) => {
+    states.reduce((sum, state) => {
         const token = getToken(state);
         const amount = getAmount(state);
         const tokenInfo = tokens.get(token, null);
@@ -166,7 +205,7 @@ export interface PoolAggregates {
 }
 
 export const $poolAggregates: Store<PoolAggregates> = combine(
-    $contractStatesWithCache,
+    $pools.map((contracts) => contracts.map((c) => c.state).filter((s): s is ContractState<'farm'> => s !== null)),
     $lpTokenInfos,
     $pricedAssets,
     (states, lpTokens, tokens) => {
