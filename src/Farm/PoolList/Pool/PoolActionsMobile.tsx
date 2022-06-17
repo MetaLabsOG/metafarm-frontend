@@ -16,6 +16,7 @@ import { useStore } from 'effector-react';
 import { $account } from '../../../common/store';
 import { RewardValues, StakeValue } from './PoolInfoDesktop';
 import { UnlockTimer } from './UnlockTimer';
+import { onClickClaim } from './PoolActions';
 
 export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     lpTokenInfo,
@@ -73,7 +74,9 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         style={!canClaim ? { visibility: 'hidden' } : {}}
                         buttonText="CLAIM"
                         buttonStyle="claim_button"
-                        onClickAction={() => ctc.apis.claim()}
+                        onClickAction={() =>
+                            onClickClaim(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
+                        }
                         isInactive={!isActiveClaim}
                     />
                     <UnlockTimer unlockTimer={unlockTimer} />

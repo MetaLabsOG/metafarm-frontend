@@ -1,13 +1,13 @@
-import { useState, useEffect, MouseEventHandler } from 'react';
+import { MouseEventHandler, useEffect, useState } from 'react';
 import { useStore } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
 import { detect } from 'detect-browser';
 
 import '../css/wallet.css';
-import { logEvent } from '../logEvent';
+import { logEvent, LogName } from '../logEvent';
 import { $account, setAccount } from '../common/store';
 import { ALGONET, reach } from '../AppContext';
-import { WalletType, customWalletFallback } from './customWalletFallback';
+import { customWalletFallback, WalletType } from './customWalletFallback';
 
 const browser = detect();
 const browserInfoString = browser === null ? 'unknown' : `${browser.name} ${browser.version} ${browser.os}`;
@@ -29,10 +29,10 @@ const connectWallet = (walletType: WalletType) => {
             logEvent(
                 acc.networkAccount.addr,
                 {
-                    action: 'WALLET CONNECT',
+                    action: walletType,
                     status: `Wallet connect ${walletType} window width: ${window.innerWidth} ${browserInfoString}`,
                 },
-                'wallet'
+                LogName.WALLET
             );
             localStorage.setItem(WALLET_TYPE_KEY, walletType);
 
@@ -40,7 +40,7 @@ const connectWallet = (walletType: WalletType) => {
         })
         .catch((e) => {
             console.log('ERROR. ConnectWallet: ' + e.name + ': ' + e.message);
-            logEvent('', { message: 'ERROR. ConnectWallet: ' + e.name + ': ' + e.message }, 'error');
+            logEvent('', { message: 'ERROR. ConnectWallet: ' + e.name + ': ' + e.message }, LogName.ERRORS);
         });
 };
 

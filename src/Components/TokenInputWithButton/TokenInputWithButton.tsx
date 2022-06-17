@@ -3,12 +3,13 @@ import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from
 
 import { LPTokenInfo } from '../../providers/dexesProvider';
 import { useStore } from 'effector-react';
-import { Asset, Priced } from '../../common/store';
+import { $account, Asset, Priced } from '../../common/store';
 import { calculateTokenAmount, calculateTokenMicroAmount } from '../../common/lib';
 import { Effect } from 'effector';
 import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/hooks';
 import { BigNumberish } from '@ethersproject/bignumber';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
+import { logFarmActionData } from '../../logEvent';
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;
@@ -42,6 +43,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     blueButtonColor = false,
     style,
 }) => {
+    const account = useStore($account);
     const isPending = useStore(actionEffect.pending);
 
     const [inputAmount, setInputAmount] = useState<string>('');
@@ -66,12 +68,27 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
         setInputAmount(e.currentTarget.value);
     };
 
-    const onClick = async (amount: string) => {
+    const onClick = async () => {
         const microAmount = calculateTokenMicroAmount(token, parseFloat(inputAmount));
         if (!isLoading && isValidInput && microAmount > 0) {
+            logFarmActionData(account, buttonName, inputAmount, token as LPTokenInfo);
             setIsLoading(true);
             setInputAmount('');
-            await actionEffect([microAmount]);
+            try {
+                await actionEffect([microAmount]);
+            } catch (e) {
+                // @ts-ignore
+                const error_message = e.message;
+                console.log(error_message);
+                logFarmActionData(
+                    account,
+                    buttonName + ' ERROR',
+                    inputAmount,
+                    token as LPTokenInfo,
+                    null,
+                    error_message
+                );
+            }
             setIsLoading(false);
         }
     };
@@ -84,7 +101,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                     style={blueButtonColor ? { color: '#55D6FF' } : {}}
                     buttonText={buttonName}
                     buttonStyle="token_input_button"
-                    onClickAction={() => onClick(inputAmount)}
+                    onClickAction={() => onClick()}
                     isInactive={!isValidInput || !isActive}
                 />
                 <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>

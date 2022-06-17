@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction } from 'react';
 import { useStore, useStoreMap } from 'effector-react';
-import { $balances, ContractState, Priced, Asset, AllDefined, FarmType, $account } from '../../../common/store';
+import { $balances, ContractState, Priced, Asset, AllDefined, FarmType, Amount } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 
 import { formatLPTokenName, numberRound } from './utils';
@@ -13,6 +13,27 @@ import { ZapModal } from '../../../Zap/ZapModal';
 import { calculateTokenAmount } from '../../../common/lib';
 import { useTimer } from '../../../common/reachHooks';
 import { calculateUnlockTimeinSecs } from './UnlockTimer';
+import { logFarmActionData } from '../../../logEvent';
+import { Account } from '@reach-sh/stdlib/ALGO';
+
+export const onClickClaim = async (
+    account: Account | null,
+    ctc: any,
+    lpTokenInfo: Priced<LPTokenInfo> | null,
+    rewardTokenInfo: Priced<Asset>,
+    microAmount: Amount
+) => {
+    const amount = calculateTokenAmount(rewardTokenInfo, microAmount);
+    logFarmActionData(account, 'CLAIM', amount, lpTokenInfo, rewardTokenInfo);
+    try {
+        await ctc.apis.claim();
+    } catch (e) {
+        // @ts-ignore
+        const error_message = e.message;
+        console.log(error_message);
+        logFarmActionData(account, 'CLAIM ERROR', amount, lpTokenInfo, rewardTokenInfo, error_message);
+    }
+};
 
 export const PoolActions = ({
     poolState,
