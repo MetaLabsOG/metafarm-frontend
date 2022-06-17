@@ -1,19 +1,18 @@
 import algosdk, { IntDecoding, waitForConfirmation } from 'algosdk';
-import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { ALGONET, MAINNET, META_TOKEN_ID, reach } from '../AppContext';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
-import { Token, TokenSelectOption, BestSwap, Transaction } from './types';
+import { BestSwap, Token, TokenSelectOption, Transaction } from './types';
 import { $account, $balances, Amount, AssetId } from '../common/store';
 
 import SelectSearch, { fuzzySearch, SelectedOption, SelectedOptionValue } from 'react-select-search';
-import React from 'react';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { logEvent } from '../logEvent';
-import { useStore, useStoreMap } from 'effector-react';
+import { logEvent, LogName } from '../logEvent';
+import { useStore } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { sleep, withAlgodEncoding } from '../common/lib';
+import { withAlgodEncoding } from '../common/lib';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
@@ -69,16 +68,16 @@ async function getBestSwap(
         console.log(best_swap);
 
         logEvent(
-            account ? account.networkAccount.addr : '',
+            account?.networkAccount.addr,
             {
-                message: '[FIND PRICE] ' + asset1_id + ' to ' + asset2_id,
+                message: '[SWAP] get data: ' + asset1_id + ' to ' + asset2_id,
                 amount: asset1_amount,
                 best_swap: best_swap.best_swap,
                 direct_swap: best_swap.direct_swap,
                 best_path: best_swap.best_path.map((t: { unit_name: any }) => t.unit_name).join('-'),
                 usdc_diff: best_swap.usdc_diff,
             },
-            'swap'
+            LogName.swap
         );
 
         setBestSwap(best_swap);
@@ -89,12 +88,12 @@ async function getBestSwap(
         console.log(error_message);
         alert('Fail to find the best swap :(');
         logEvent(
-            account ? account.networkAccount.addr : '',
+            account?.networkAccount.addr,
             {
-                message: '[ERROR FIND PRICE] Swap ' + asset1_id + ' to ' + asset2_id + ', amount: ' + asset1_amount,
+                message: '[SWAP ERROR] get data: ' + asset1_id + ' to ' + asset2_id + ', amount: ' + asset1_amount,
                 error: error_message,
             },
-            'swap'
+            LogName.swap
         );
     }
 }
@@ -222,11 +221,11 @@ export async function runTransactions(
         logEvent(
             account.networkAccount.addr,
             {
-                message: '[' + type + ' OK] ' + token1Id + ' to ' + token2Id,
+                message: '[' + QueryType[type].toUpperCase() + ' OK] ' + token1Id + ' to ' + token2Id,
                 amount: token1Amount,
                 txns: result_tx_id,
             },
-            QueryType[type]
+            type === QueryType.swap ? LogName.swap : LogName.zap
         );
 
         return result_tx_id;
@@ -246,10 +245,18 @@ export async function runTransactions(
         logEvent(
             account.networkAccount.addr,
             {
-                message: '[ERROR ' + type + '] ' + token1Id + ' to ' + token2Id + ', amount: ' + token1Amount,
+                message:
+                    '[' +
+                    QueryType[type].toUpperCase() +
+                    'ERROR] ' +
+                    token1Id +
+                    ' to ' +
+                    token2Id +
+                    ', amount: ' +
+                    token1Amount,
                 error: error_message,
             },
-            QueryType[type]
+            type === QueryType.swap ? LogName.swap : LogName.zap
         );
     }
 }

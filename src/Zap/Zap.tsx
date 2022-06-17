@@ -8,7 +8,7 @@ import { $account, $balances } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { logEvent } from '../logEvent';
+import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
 import {
     formatNumber,
@@ -49,14 +49,14 @@ export async function loadZapData(
         );
 
         logEvent(
-            account ? account.networkAccount.addr : '',
+            account?.networkAccount.addr,
             {
                 message: '[ZAP] ' + asset1_id + ' to ' + asset2_id,
-                amount: asset1_amount,
+                asset1_amount: asset1_amount,
                 asset2_amount: zap_data.asset2_amount,
                 lp_amount: zap_data.lp_amount,
             },
-            'zap'
+            LogName.zap
         );
 
         setResult(zap_data);
@@ -67,12 +67,12 @@ export async function loadZapData(
         const error_message = e.message;
         alert(error_message);
         logEvent(
-            account ? account.networkAccount.addr : '',
+            account?.networkAccount.addr,
             {
                 message: '[ERROR ZAP] Swap ' + asset1_id + ' to ' + asset2_id + ', amount: ' + asset1_amount,
                 error: error_message,
             },
-            'zap'
+            LogName.zap
         );
         setIsLoading(false);
     }
