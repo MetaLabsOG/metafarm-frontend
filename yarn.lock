@@ -2415,6 +2415,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@json-rpc-tools/types@npm:^1.7.6":
+  version: 1.7.6
+  resolution: "@json-rpc-tools/types@npm:1.7.6"
+  dependencies:
+    keyvaluestorage-interface: "npm:^1.0.0"
+  checksum: 37dc76c0dcd46aced8eb1bc00ddb8c3c54c22667baeb259b08959a8e720ef44ee051c3d96b226daf13e380e8d0aa187a97cf793826e6997bd5fee515b47549f1
+  languageName: node
+  linkType: hard
+
+"@json-rpc-tools/utils@npm:^1.7.6":
+  version: 1.7.6
+  resolution: "@json-rpc-tools/utils@npm:1.7.6"
+  dependencies:
+    "@json-rpc-tools/types": "npm:^1.7.6"
+    "@pedrouid/environment": "npm:^1.0.1"
+  checksum: f4e18f62915061aa722abbd9119660ec015a309e2b7a8765d18181bc99986338d5f42ed94ac61d4d72fe22f2a68f48aee4e10fc7a9ad51499ae3d9f0742881e6
+  languageName: node
+  linkType: hard
+
 "@leichtgewicht/ip-codec@npm:^2.0.1":
   version: 2.0.4
   resolution: "@leichtgewicht/ip-codec@npm:2.0.4"
@@ -3554,6 +3573,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pedrouid/environment@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@pedrouid/environment@npm:1.0.1"
+  checksum: 1c4d1dbabe48a9557d5e1cc5d7805cfa742d1001342fe6a73d9bd4c6c71ade7578c008e606b6dd9c4b4e9c7055d625ff11d9dd68ab4cdaacf19a505370f44b07
+  languageName: node
+  linkType: hard
+
+"@perawallet/connect@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@perawallet/connect@npm:0.1.0"
+  dependencies:
+    "@json-rpc-tools/utils": "npm:^1.7.6"
+    "@walletconnect/client": "npm:^1.7.7"
+    buffer: "npm:^6.0.3"
+    react-qrcode-logo: "npm:^2.7.0"
+  peerDependencies:
+    algosdk: ^1.15.0
+    react: ^17.0.2
+    react-dom: ^17.0.2
+  checksum: f36691f97d883060999b1bd73ac905904db66b1f8fa984d3550187d3ae3d235d3e7d1ca41d8131c6e8d42b44ca053a58f68c966521d8fc94fd694d7376b3e47a
+  languageName: node
+  linkType: hard
+
 "@pmmmwh/react-refresh-webpack-plugin@npm:^0.5.3":
   version: 0.5.5
   resolution: "@pmmmwh/react-refresh-webpack-plugin@npm:0.5.5"
@@ -4511,7 +4553,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/client@npm:^1.7.3":
+"@walletconnect/client@npm:^1.7.3, @walletconnect/client@npm:^1.7.7":
   version: 1.7.8
   resolution: "@walletconnect/client@npm:1.7.8"
   dependencies:
@@ -11699,6 +11741,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.isequal@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.isequal@npm:4.5.0"
+  checksum: d413585fd1dbcb6ebed6d9d98a7fe5e10cc6f653b6676a61a69185aa1f6ae5b4aac1367a632db0ee46197ee1ab6aa5b7428c1721f9b5459a3623e0cc930b9b77
+  languageName: node
+  linkType: hard
+
 "lodash.ismatch@npm:^4.4.0":
   version: 4.4.0
   resolution: "lodash.ismatch@npm:4.4.0"
@@ -12037,6 +12086,7 @@ __metadata:
     "@metalabsog/farm": "npm:17.0.2"
     "@metalabsog/metafomo": "npm:17.0.0"
     "@pactfi/pactsdk": "npm:^0.2.2"
+    "@perawallet/connect": "npm:^0.1.0"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.3"
     "@ramonak/react-progress-bar": "npm:^4.4.0"
     "@reach-sh/stdlib": "npm:^0.1.11-rc.0"
@@ -14535,6 +14585,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"qrcode-generator@npm:^1.4.1":
+  version: 1.4.4
+  resolution: "qrcode-generator@npm:1.4.4"
+  checksum: fc2333f8be14f0b6dfb23de2cc3692cbaa1cb505f0e42551ea7848438b2d912f930d302cd9a5c866d55ea737e5bc53f7aafc2d0eb189b18ba2385b409e721e2f
+  languageName: node
+  linkType: hard
+
 "qrcode@npm:1.4.4":
   version: 1.4.4
   resolution: "qrcode@npm:1.4.4"
@@ -14795,6 +14852,19 @@ __metadata:
   version: 18.1.0
   resolution: "react-is@npm:18.1.0"
   checksum: 04c8d17c44a0d981cdb70ababe8e230bc3864a339679f84c7107b489ac2721d5395311bf11b20a779685bd97fba7b69031db143fc37353dace1dac6599454471
+  languageName: node
+  linkType: hard
+
+"react-qrcode-logo@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "react-qrcode-logo@npm:2.7.0"
+  dependencies:
+    lodash.isequal: "npm:^4.5.0"
+    qrcode-generator: "npm:^1.4.1"
+  peerDependencies:
+    react: ">=16.4.1"
+    react-dom: ">=16.4.1"
+  checksum: 7c2fc724bcbadd3bec3740319b85b8602f4b932af2d55ba56e440883eddd91377b505885a9245348d4f1995af26d8065d4eb5399bd73f6c5f93f3247a35f644b
   languageName: node
   linkType: hard
 

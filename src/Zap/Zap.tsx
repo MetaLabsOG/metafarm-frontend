@@ -46,11 +46,11 @@ export async function loadZapData(
         logEvent(
             account?.networkAccount.addr,
             {
-                message: '[ZAP] get data: ' + asset1_id + ' to ' + asset2_id,
+                message: '[ZAP] get data',
+                asset1_id: asset1_id,
+                asset2_id: asset2_id,
                 amount: asset1_amount,
-                asset2_amount: zap_data.asset2_amount,
-                lp_amount: zap_data.lp_amount,
-                pool_lp_id: zap_data.pool_lp_id,
+                ...zap_data,
                 additionalParams: additionalParams,
             },
             LogName.zap
@@ -66,7 +66,10 @@ export async function loadZapData(
         logEvent(
             account?.networkAccount.addr,
             {
-                message: '[ZAP ERROR] ' + asset1_id + ' to ' + asset2_id + ', amount: ' + asset1_amount,
+                message: '[ZAP ERROR]',
+                asset1_id: asset1_id,
+                asset2_id: asset2_id,
+                amount: asset1_amount,
                 error: error_message,
             },
             LogName.zap

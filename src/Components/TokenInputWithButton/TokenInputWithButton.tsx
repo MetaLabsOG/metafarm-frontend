@@ -9,7 +9,7 @@ import { Effect } from 'effector';
 import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/hooks';
 import { BigNumberish } from '@ethersproject/bignumber';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
-import { logEvent, LogName } from '../../logEvent';
+import { logFarmActionData } from '../../logEvent';
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;
@@ -69,18 +69,9 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     const onClick = async (amount: string) => {
-        const microAmount = calculateTokenMicroAmount(token, parseFloat(inputAmount));
+        const microAmount = calculateTokenMicroAmount(token, parseFloat(amount));
         if (!isLoading && isValidInput && microAmount > 0) {
-            logEvent(
-                account?.networkAccount.addr,
-                {
-                    message: '[' + buttonName.toUpperCase() + ']',
-                    amount: inputAmount,
-                    lp_token_name: token.name,
-                    lp_token_id: token.id,
-                },
-                LogName.farm
-            );
+            logFarmActionData(account, buttonName, inputAmount, token as LPTokenInfo);
             setIsLoading(true);
             setInputAmount('');
             try {
@@ -89,15 +80,13 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 // @ts-ignore
                 const error_message = e.message;
                 console.log(error_message);
-                logEvent(
-                    account?.networkAccount.addr,
-                    {
-                        message: '[' + buttonName.toUpperCase() + ' ERROR]',
-                        amount: inputAmount,
-                        lp_token_name: token.name,
-                        error: error_message,
-                    },
-                    LogName.farm
+                logFarmActionData(
+                    account,
+                    buttonName + ' ERROR',
+                    inputAmount,
+                    token as LPTokenInfo,
+                    null,
+                    error_message
                 );
             }
             setIsLoading(false);

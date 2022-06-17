@@ -4,7 +4,7 @@ import { calculateTokenAmount, calculateTokenMicroAmount } from '../../../common
 import { ZapData } from '../../../Zap/types';
 import { getData, QueryType, runTransactions } from '../../../Swap/Swap';
 import { Account } from '../../../types';
-import { logEvent, LogName } from '../../../logEvent';
+import { logFarmActionData } from '../../../logEvent';
 
 export const isCompoundEnabled = (lpTokenInfo: LPTokenInfo, reward_asset_id: number) => {
     return reward_asset_id === lpTokenInfo.asset1 || reward_asset_id === lpTokenInfo.asset2;
@@ -30,20 +30,8 @@ export const runCompound = async (
     const firstAsset = asset1Id === rewardAssetId ? asset1Id : asset2Id;
     const secondAsset = asset1Id === rewardAssetId ? asset2Id : asset1Id;
 
-    logEvent(
-        account?.networkAccount.addr,
-        {
-            message: '[COMPOUND]',
-            amount: reward_amount.toString(),
-            lp_token_name: lpTokenInfo.name,
-            lp_token_id: lpTokenInfo.id,
-            lp_asset1_id: lpTokenInfo.asset1,
-            lp_asset2_id: lpTokenInfo.asset2,
-            reward_token_id: rewardAssetId,
-            reward_token_name: rewardAsset.unitName,
-        },
-        LogName.farm
-    );
+    logFarmActionData(account, 'COMPOUND', reward_amount, lpTokenInfo, rewardAsset);
+
     try {
         console.log('start claim');
         await ctc.apis.claim();
@@ -78,16 +66,7 @@ export const runCompound = async (
         // @ts-ignore
         const error_message = e.message;
         console.log(error_message);
-        logEvent(
-            account?.networkAccount.addr,
-            {
-                message: '[COMPOUND ERROR]',
-                amount: reward_amount.toString(),
-                lp_token_name: lpTokenInfo.name,
-                error: error_message,
-            },
-            LogName.farm
-        );
+        logFarmActionData(account, 'COMPOUND ERROR', reward_amount, lpTokenInfo, rewardAsset, error_message);
         if (error_message.includes('underflow')) {
             alert('Not enough LP tokens');
         } else {

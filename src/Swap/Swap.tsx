@@ -13,6 +13,8 @@ import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { withAlgodEncoding } from '../common/lib';
+import { WalletTransaction } from '../types';
+import { zip } from 'ramda';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
@@ -70,7 +72,9 @@ async function getBestSwap(
         logEvent(
             account?.networkAccount.addr,
             {
-                message: '[SWAP] get data: ' + asset1_id + ' to ' + asset2_id,
+                message: '[SWAP] get data',
+                asset1_id: asset1_id,
+                asset2_id: asset2_id,
                 amount: asset1_amount,
                 best_swap: best_swap.best_swap,
                 direct_swap: best_swap.direct_swap,
@@ -90,7 +94,10 @@ async function getBestSwap(
         logEvent(
             account?.networkAccount.addr,
             {
-                message: '[SWAP ERROR] get data: ' + asset1_id + ' to ' + asset2_id + ', amount: ' + asset1_amount,
+                message: '[SWAP ERROR] get data',
+                asset1_id: asset1_id,
+                asset2_id: asset2_id,
+                amount: asset1_amount,
                 error: error_message,
             },
             LogName.swap
@@ -146,26 +153,29 @@ export async function getTransactions(
 export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, input_transactions: Transaction) {
     const transactions = input_transactions.transactions;
 
-    let unsigned_transactions: string[] = [];
+    console.log('TRANSACTIONS', transactions);
+
+    let reachTxns: WalletTransaction[] = [];
     for (let key in transactions) {
-        const current_unsigned = transactions[key].txns.filter(
-            (txn, idx) => transactions[key].signed_txns[idx].length === 0
+        const cur = transactions[key];
+        reachTxns = reachTxns.concat(
+            zip(cur.txns, cur.signed_txns).map(([txn, stxn]) =>
+                typeof stxn === 'string' && stxn.length > 0 ? { txn, stxn } : { txn }
+            )
         );
-        unsigned_transactions = unsigned_transactions.concat(current_unsigned);
     }
 
-    const reachTxns = unsigned_transactions.map((txn) => ({ txn: txn }));
     const signed_user_data = await window.algorand.signTxns(reachTxns);
     const signed_user_trans = signed_user_data.map((txn) => Buffer.from(txn, 'base64'));
 
     let idx = 0;
     for (let key in transactions) {
-        const signed_transactions = transactions[key].signed_txns.map((txn) => Buffer.from(txn, 'base64'));
+        const signed_transactions = transactions[key].signed_txns.map((txn) => Buffer.from(txn as string, 'base64'));
         for (let sidx = 0; sidx < signed_transactions.length; sidx += 1) {
             if (signed_transactions[sidx].length === 0) {
                 signed_transactions[sidx] = signed_user_trans[idx];
-                idx += 1;
             }
+            idx += 1;
         }
 
         console.log('Sending', signed_transactions);
@@ -220,7 +230,9 @@ export async function runTransactions(
         logEvent(
             account.networkAccount.addr,
             {
-                message: '[' + QueryType[type].toUpperCase() + ' OK] ' + token1Id + ' to ' + token2Id,
+                message: '[' + QueryType[type].toUpperCase() + ' OK]',
+                asset1_id: token1Id,
+                asset2_id: token2Id,
                 amount: token1Amount,
                 txns: result_tx_id,
             },
@@ -244,15 +256,10 @@ export async function runTransactions(
         logEvent(
             account.networkAccount.addr,
             {
-                message:
-                    '[' +
-                    QueryType[type].toUpperCase() +
-                    ' ERROR] ' +
-                    token1Id +
-                    ' to ' +
-                    token2Id +
-                    ', amount: ' +
-                    token1Amount,
+                message: '[' + QueryType[type].toUpperCase() + ' ERROR]',
+                asset1_id: token1Id,
+                asset2_id: token2Id,
+                amount: token1Amount,
                 error: error_message,
             },
             type === QueryType.swap ? LogName.swap : LogName.zap
