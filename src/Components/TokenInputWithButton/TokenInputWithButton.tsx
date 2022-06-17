@@ -3,12 +3,13 @@ import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from
 
 import { LPTokenInfo } from '../../providers/dexesProvider';
 import { useStore } from 'effector-react';
-import { Asset, Priced } from '../../common/store';
+import { $account, Asset, Priced } from '../../common/store';
 import { calculateTokenAmount, calculateTokenMicroAmount } from '../../common/lib';
 import { Effect } from 'effector';
 import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/hooks';
 import { BigNumberish } from '@ethersproject/bignumber';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
+import { logEvent, LogName } from '../../logEvent';
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;
@@ -42,6 +43,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     blueButtonColor = false,
     style,
 }) => {
+    const account = useStore($account);
     const isPending = useStore(actionEffect.pending);
 
     const [inputAmount, setInputAmount] = useState<string>('');
@@ -69,9 +71,35 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     const onClick = async (amount: string) => {
         const microAmount = calculateTokenMicroAmount(token, parseFloat(inputAmount));
         if (!isLoading && isValidInput && microAmount > 0) {
+            logEvent(
+                account?.networkAccount.addr,
+                {
+                    message: '[' + buttonName.toUpperCase() + ']',
+                    amount: inputAmount,
+                    lp_token_name: token.name,
+                    lp_token_id: token.id,
+                },
+                LogName.farm
+            );
             setIsLoading(true);
             setInputAmount('');
-            await actionEffect([microAmount]);
+            try {
+                await actionEffect([microAmount]);
+            } catch (e) {
+                // @ts-ignore
+                const error_message = e.message;
+                console.log(error_message);
+                logEvent(
+                    account?.networkAccount.addr,
+                    {
+                        message: '[' + buttonName.toUpperCase() + ' ERROR]',
+                        amount: inputAmount,
+                        lp_token_name: token.name,
+                        error: error_message,
+                    },
+                    LogName.farm
+                );
+            }
             setIsLoading(false);
         }
     };

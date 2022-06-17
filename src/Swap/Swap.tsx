@@ -61,7 +61,7 @@ async function getBestSwap(
         return;
     }
 
-    console.log(asset1_id, asset2_id, asset1_amount);
+    console.log('[SWAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
         const best_swap = await getData(QueryType.swap, asset1_id, asset2_id, asset1_amount);
@@ -204,7 +204,6 @@ export async function runTransactions(
         const algodClient = provider.algodClient;
 
         const address = account.networkAccount.addr;
-        console.log(address);
 
         const transactions: Transaction = await getTransactions(
             type,
@@ -248,7 +247,7 @@ export async function runTransactions(
                 message:
                     '[' +
                     QueryType[type].toUpperCase() +
-                    'ERROR] ' +
+                    ' ERROR] ' +
                     token1Id +
                     ' to ' +
                     token2Id +

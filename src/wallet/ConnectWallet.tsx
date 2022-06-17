@@ -29,7 +29,7 @@ const connectWallet = (walletType: WalletType) => {
             logEvent(
                 acc.networkAccount.addr,
                 {
-                    action: 'WALLET CONNECT',
+                    action: walletType,
                     status: `Wallet connect ${walletType} window width: ${window.innerWidth} ${browserInfoString}`,
                 },
                 LogName.wallet

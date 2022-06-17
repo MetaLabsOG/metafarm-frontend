@@ -8,6 +8,7 @@ import { useStore } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
 import { UnlockTimer } from './UnlockTimer';
+import { onClickClaim } from './PoolActions';
 
 export interface PoolActionsDesktopProps {
     lpTokenInfo: Priced<LPTokenInfo> | null;
@@ -67,7 +68,9 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     style={!canClaim ? { visibility: 'hidden' } : {}}
                     buttonText="CLAIM"
                     buttonStyle="claim_button"
-                    onClickAction={() => ctc.apis.claim()}
+                    onClickAction={() =>
+                        onClickClaim(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
+                    }
                     isInactive={!isActiveClaim}
                 />
                 <UnlockTimer unlockTimer={unlockTimer} />

@@ -37,24 +37,21 @@ export async function loadZapData(
     }
 
     setIsLoading(true);
-    console.log(asset1_id, asset2_id, asset1_amount);
+    console.log('[ZAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
-        const zap_data: ZapData = await getData(
-            QueryType.zap,
-            asset1_id,
-            asset2_id,
-            asset1_amount,
-            '&swap_half=true&slippage=0.1'
-        );
+        const additionalParams = '&swap_half=true&slippage=0.1';
+        const zap_data: ZapData = await getData(QueryType.zap, asset1_id, asset2_id, asset1_amount, additionalParams);
 
         logEvent(
             account?.networkAccount.addr,
             {
-                message: '[ZAP] ' + asset1_id + ' to ' + asset2_id,
-                asset1_amount: asset1_amount,
+                message: '[ZAP] get data: ' + asset1_id + ' to ' + asset2_id,
+                amount: asset1_amount,
                 asset2_amount: zap_data.asset2_amount,
                 lp_amount: zap_data.lp_amount,
+                pool_lp_id: zap_data.pool_lp_id,
+                additionalParams: additionalParams,
             },
             LogName.zap
         );
@@ -69,7 +66,7 @@ export async function loadZapData(
         logEvent(
             account?.networkAccount.addr,
             {
-                message: '[ERROR ZAP] Swap ' + asset1_id + ' to ' + asset2_id + ', amount: ' + asset1_amount,
+                message: '[ZAP ERROR] ' + asset1_id + ' to ' + asset2_id + ', amount: ' + asset1_amount,
                 error: error_message,
             },
             LogName.zap
