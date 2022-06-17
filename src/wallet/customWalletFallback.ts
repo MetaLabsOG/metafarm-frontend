@@ -11,13 +11,15 @@ import type {
 
 import { makeProviderByEnv } from '../reachRedefinitions';
 import { reach } from '../AppContext';
+import algosdk from 'algosdk';
 import { Buffer } from 'buffer';
-import { ALGO_MyAlgoConnect as MyAlgoConnect, ALGO_WalletConnect as WalletConnect } from '@reach-sh/stdlib';
+import { ALGO_MyAlgoConnect as MyAlgoConnect } from '@reach-sh/stdlib';
+import { PeraWalletConnect } from '@perawallet/connect';
 
 export type WalletType = 'MyAlgo' | 'WalletConnect';
-export type WalletFallbackOpts = any & ({ MyAlgoConnect: MyAlgoConnect } | { WalletConnect: WalletConnect });
+export type WalletFallbackOpts = any & ({ MyAlgoConnect: MyAlgoConnect } | { WalletConnect: PeraWalletConnect });
 export type ARC11_Wallet_Disconnectable = ARC11_Wallet & { disconnect: () => Promise<void> };
-export type ARC11_Wallet_Exposed = ARC11_Wallet_Disconnectable & { _impl: MyAlgoConnect | WalletConnect };
+export type ARC11_Wallet_Exposed = ARC11_Wallet_Disconnectable & { _impl: MyAlgoConnect | PeraWalletConnect };
 
 /**
  * Another copypaste from Reach, but here we fix a bunch of stuff
@@ -29,7 +31,7 @@ export type ARC11_Wallet_Exposed = ARC11_Wallet_Disconnectable & { _impl: MyAlgo
 export const doCustomWalletFallback = (
     opts: any,
     getAddr: () => Promise<string>,
-    signTxns_: (txns: string[]) => Promise<string[]>,
+    signTxns_: (txns: WalletTransaction[]) => Promise<string[]>,
     disconnect: () => Promise<void> = async () => {
         return;
     }
@@ -66,24 +68,7 @@ export const doCustomWalletFallback = (
     };
     const signTxns = async (txns: WalletTransaction[], sopts?: object) => {
         void sopts;
-        const to_sign = txns.filter((txn) => !txn.stxn).map((txn) => txn.txn);
-        txns.forEach((txn) => {
-            if (!txn.stxn) {
-                to_sign.push(txn.txn);
-            }
-        });
-        const signed: string[] = to_sign.length === 0 ? [] : await signTxns_(to_sign);
-        const stxns: string[] = txns.map((txn) => {
-            if (txn.stxn) {
-                return txn.stxn;
-            }
-            const s = signed.shift();
-            if (!s) {
-                throw new Error(`txn not signed`);
-            }
-            return s;
-        });
-        return stxns;
+        return await signTxns_(txns);
     };
     const postTxns = async (stxns: string[], popts?: object) => {
         if (!p) {
@@ -139,9 +124,15 @@ const walletFallback_MyAlgoWallet = (opts: object) => (): ARC11_Wallet_Exposed =
         localStorage.setItem(LOCAL_STORAGE_KEY, addr);
         return addr;
     };
-    const signTxns = async (txns: string[]): Promise<string[]> => {
-        const stxns: Array<{ blob: Uint8Array }> = await mac.signTransaction(txns);
-        return stxns.map((sts) => Buffer.from(sts.blob).toString('base64'));
+    const signTxns = async (txns: WalletTransaction[]): Promise<string[]> => {
+        const toSign = txns.filter(({ stxn }) => !stxn).map(({ txn }) => txn);
+        const signedTxns: Array<{ blob: Uint8Array }> = await mac.signTransaction(toSign);
+        return txns.reduce((allStxns: string[], { stxn }) => {
+            allStxns.push(
+                stxn ? stxn : Buffer.from((signedTxns.shift() as { blob: Uint8Array }).blob).toString('base64')
+            );
+            return allStxns;
+        }, []);
     };
     const wallet = doCustomWalletFallback(opts, getAddr, signTxns, async () => {
         localStorage.removeItem(LOCAL_STORAGE_KEY);
@@ -150,14 +141,39 @@ const walletFallback_MyAlgoWallet = (opts: object) => (): ARC11_Wallet_Exposed =
 };
 
 const walletFallback_WalletConnect = (opts: object) => (): ARC11_Wallet_Exposed => {
-    const wc = new WalletConnect();
-    const wallet = doCustomWalletFallback(
-        opts,
-        () => wc.getAddr(),
-        (ts) => wc.signTxns(ts),
-        async () => {
-            localStorage.removeItem('walletconnect');
+    const peraWallet = new PeraWalletConnect();
+
+    const getAddr = async (): Promise<string> => {
+        let addrs;
+        try {
+            addrs = await peraWallet.reconnectSession();
+        } catch (err) {
+            addrs = await peraWallet.connect();
         }
-    );
-    return { ...wallet, _impl: wc };
+        return addrs[0];
+    };
+
+    const signTxns = async (txns: WalletTransaction[]): Promise<string[]> => {
+        const peraTxns = txns.map((wt) => {
+            const txn = algosdk.decodeUnsignedTransaction(Buffer.from(wt.txn, 'base64'));
+            return wt.stxn ? { txn, signers: [] } : { txn };
+        });
+
+        const signedTxns: string[] = await peraWallet
+            .signTransaction([peraTxns])
+            .then((stxns) => stxns.map((stxn) => Buffer.from(stxn).toString('base64')));
+
+        return txns.reduce((allStxns: string[], { stxn }) => {
+            allStxns.push(stxn ? stxn : (signedTxns.shift() as string));
+            return allStxns;
+        }, []);
+    };
+
+    const wallet = doCustomWalletFallback(opts, getAddr, signTxns, async () => {
+        const dc = peraWallet.disconnect();
+        if (dc) {
+            await dc;
+        }
+    });
+    return { ...wallet, _impl: peraWallet };
 };

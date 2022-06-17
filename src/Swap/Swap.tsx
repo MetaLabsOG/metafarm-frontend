@@ -14,6 +14,8 @@ import { logEvent } from '../logEvent';
 import { useStore, useStoreMap } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { sleep, withAlgodEncoding } from '../common/lib';
+import { WalletTransaction } from '../types';
+import { zip } from 'ramda';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
@@ -147,26 +149,27 @@ export async function getTransactions(
 export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, input_transactions: Transaction) {
     const transactions = input_transactions.transactions;
 
-    let unsigned_transactions: string[] = [];
+    console.log('TRANSACTIONS', transactions);
+
+    let reachTxns: WalletTransaction[] = [];
     for (let key in transactions) {
-        const current_unsigned = transactions[key].txns.filter(
-            (txn, idx) => transactions[key].signed_txns[idx].length === 0
+        const cur = transactions[key];
+        reachTxns = reachTxns.concat(
+            zip(cur.txns, cur.signed_txns).map(([txn, stxn]) => (typeof stxn === 'string' && stxn.length > 0 ? { txn, stxn } : { txn }))
         );
-        unsigned_transactions = unsigned_transactions.concat(current_unsigned);
     }
 
-    const reachTxns = unsigned_transactions.map((txn) => ({ txn: txn }));
     const signed_user_data = await window.algorand.signTxns(reachTxns);
     const signed_user_trans = signed_user_data.map((txn) => Buffer.from(txn, 'base64'));
 
     let idx = 0;
     for (let key in transactions) {
-        const signed_transactions = transactions[key].signed_txns.map((txn) => Buffer.from(txn, 'base64'));
+        const signed_transactions = transactions[key].signed_txns.map((txn) => Buffer.from(txn as string, 'base64'));
         for (let sidx = 0; sidx < signed_transactions.length; sidx += 1) {
             if (signed_transactions[sidx].length === 0) {
                 signed_transactions[sidx] = signed_user_trans[idx];
-                idx += 1;
             }
+            idx += 1;
         }
 
         console.log('Sending', signed_transactions);
