@@ -3,12 +3,12 @@ import { Asset, Priced } from './common/store';
 import { Account } from './types';
 
 export enum LogName {
-    wallet,
-    errors,
-    fomo,
-    swap,
-    zap,
-    farm,
+    WALLET,
+    ERRORS,
+    FOMO,
+    SWAP,
+    ZAP,
+    FARM,
 }
 
 export function logFarmActionData(
@@ -31,7 +31,7 @@ export function logFarmActionData(
         error: error,
     };
 
-    logEvent(account?.networkAccount.addr, data, LogName.farm);
+    logEvent(account?.networkAccount.addr, data, LogName.FARM);
 }
 
 export function logEvent(address: string | undefined, params: any, logName: LogName) {
@@ -52,5 +52,5 @@ export function logEvent(address: string | undefined, params: any, logName: LogN
         }),
     };
 
-    fetch('https://api.airtable.com/v0/appqAikFZd31XeJqW/' + LogName[logName], requestOptions);
+    fetch('https://api.airtable.com/v0/appqAikFZd31XeJqW/' + LogName[logName].toLowerCase(), requestOptions);
 }

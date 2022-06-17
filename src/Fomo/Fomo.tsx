@@ -134,7 +134,7 @@ export const Fomo = () => {
                     setBalance(reach.formatCurrency(balance, 0));
                     setAviableBalance(availableBalanceFormatted);
                 } catch (error) {
-                    logEvent(account.networkAccount.addr, { message: 'GET BALANCE FAIL' }, LogName.errors);
+                    logEvent(account.networkAccount.addr, { message: 'GET BALANCE FAIL' }, LogName.ERRORS);
                 }
 
                 if (token) {
@@ -143,7 +143,7 @@ export const Fomo = () => {
                         const fomoTokensBalance = reach.bigNumberToNumber(balanceFomo);
                         setFomoTokensOnAccount(fomoTokensBalance.toString());
                     } catch (error) {
-                        logEvent(account.networkAccount.addr, { message: 'GET FOMO BALANCE FAIL' }, LogName.errors);
+                        logEvent(account.networkAccount.addr, { message: 'GET FOMO BALANCE FAIL' }, LogName.ERRORS);
                     }
                 }
             }
@@ -182,7 +182,7 @@ export const Fomo = () => {
                     setNftPrize(reach.bigNumberToNumber(nftPrize));
                     const nftLink = (await getAssetInfo(reach.bigNumberToNumber(nftPrize))).params.url;
                     if (nftLink === '') {
-                        logEvent(account.networkAccount.addr, { message: 'GET NFT LINK FAIL' }, LogName.errors);
+                        logEvent(account.networkAccount.addr, { message: 'GET NFT LINK FAIL' }, LogName.ERRORS);
                     }
                     setnftLink(nftLink);
                 }
@@ -195,7 +195,7 @@ export const Fomo = () => {
                         const isAcceptedFomo = await account.tokenAccepted(fomoInfo.token);
                         setIsAcceptedFomo(isAcceptedFomo);
                     } catch (error) {
-                        logEvent(account.networkAccount.addr, { message: 'GET ACCEPTED TOKEN FAIL' }, LogName.errors);
+                        logEvent(account.networkAccount.addr, { message: 'GET ACCEPTED TOKEN FAIL' }, LogName.ERRORS);
                     }
                 }
                 if (!isAcceptedNFT) {
@@ -203,14 +203,14 @@ export const Fomo = () => {
                         const isAcceptedNFT = await account.tokenAccepted(fomoInfo.nftPrize);
                         setIsAccceptedNFT(isAcceptedNFT);
                     } catch (error) {
-                        logEvent(account.networkAccount.addr, { message: 'GET ACCEPTED NFT FAIL' }, LogName.errors);
+                        logEvent(account.networkAccount.addr, { message: 'GET ACCEPTED NFT FAIL' }, LogName.ERRORS);
                     }
                 }
 
                 if (!token) {
                     const [status, participantInfo] = await ctc.views.Fomo.participantInfo(account?.getAddress());
                     if (status === 'None') {
-                        logEvent(account.networkAccount.addr, { message: 'GET PARTICIPANT INFO FAIL' }, LogName.errors);
+                        logEvent(account.networkAccount.addr, { message: 'GET PARTICIPANT INFO FAIL' }, LogName.ERRORS);
                     } else {
                         const { discountLevel, timeReductionLevel } = participantInfo;
                         setTimeReductionLevel(reach.bigNumberToNumber(timeReductionLevel));
@@ -334,7 +334,7 @@ export const Fomo = () => {
                     setCurrentTime(currentTime);
                 }
             } catch (error) {
-                logEvent(account.networkAccount.addr, { message: 'GET NETWORK SEC FAIL' }, LogName.errors);
+                logEvent(account.networkAccount.addr, { message: 'GET NETWORK SEC FAIL' }, LogName.ERRORS);
             }
 
             fomo.Buyer(ctc, {
@@ -342,7 +342,7 @@ export const Fomo = () => {
                 deployed: () => {},
             }).catch((e: any) => {
                 console.log('[ERROR]', e);
-                logEvent(account.networkAccount.addr, { message: e }, LogName.errors);
+                logEvent(account.networkAccount.addr, { message: e }, LogName.ERRORS);
             });
 
             await events.showPurchase.monitor(({ when, what }: { when: BigNumber; what: BigNumber[] }) => {
@@ -363,9 +363,7 @@ export const Fomo = () => {
         //@ts-ignore
         ctc.apis.Api.buyDiscount()
             .then(({ discountLevel }: { discountLevel: BigNumber }) => {
-                if (reach) {
-                    setDiscountLevel(reach.bigNumberToNumber(discountLevel));
-                }
+                setDiscountLevel(reach.bigNumberToNumber(discountLevel));
                 logEvent(
                     account?.networkAccount.addr,
                     {
@@ -379,7 +377,7 @@ export const Fomo = () => {
                         totalFomoBalance: tokenOwnedByUsers,
                         timeLeft: timeLeft,
                     },
-                    LogName.fomo
+                    LogName.FOMO
                 );
                 setIsLoadingBoostDiscount(false);
             })
@@ -387,7 +385,7 @@ export const Fomo = () => {
                 setIsLoadingBoostDiscount(false);
                 console.log('[ERROR]', e);
                 if (account) {
-                    logEvent(account.networkAccount.addr, { message: e }, LogName.errors);
+                    logEvent(account.networkAccount.addr, { message: e }, LogName.ERRORS);
                 }
                 if (e.message.includes('logic eval error')) {
                     alert(USER_BEATEN_MESSAGE);
@@ -421,7 +419,7 @@ export const Fomo = () => {
                         totalFomoBalance: tokenOwnedByUsers,
                         timeLeft: timeLeft,
                     },
-                    LogName.fomo
+                    LogName.FOMO
                 );
             })
             .then(() => {
@@ -431,7 +429,7 @@ export const Fomo = () => {
                 setIsLoadingTimeReduction(false);
                 console.log('[ERROR]', e);
                 if (account) {
-                    logEvent(account.networkAccount.addr, { message: e }, LogName.errors);
+                    logEvent(account.networkAccount.addr, { message: e }, LogName.ERRORS);
                 }
                 if (e.message.includes('logic eval error')) {
                     alert(USER_BEATEN_MESSAGE);
@@ -464,14 +462,14 @@ export const Fomo = () => {
                         boostTimeValue: timeReductionSecAndPrice.value,
                         boostSaleValue: discountPercentAndPrice.value,
                     },
-                    LogName.fomo
+                    LogName.FOMO
                 );
             })
             .catch((e: Error) => {
                 setIsLoading(false);
                 console.log('[ERROR]', e);
                 if (account) {
-                    logEvent(account.networkAccount.addr, { message: e }, LogName.errors);
+                    logEvent(account.networkAccount.addr, { message: e }, LogName.ERRORS);
                 }
 
                 if (e.message.includes('logic eval error')) {

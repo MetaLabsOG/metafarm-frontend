@@ -68,8 +68,8 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
         setInputAmount(e.currentTarget.value);
     };
 
-    const onClick = async (amount: string) => {
-        const microAmount = calculateTokenMicroAmount(token, parseFloat(amount));
+    const onClick = async () => {
+        const microAmount = calculateTokenMicroAmount(token, parseFloat(inputAmount));
         if (!isLoading && isValidInput && microAmount > 0) {
             logFarmActionData(account, buttonName, inputAmount, token as LPTokenInfo);
             setIsLoading(true);
@@ -101,7 +101,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                     style={blueButtonColor ? { color: '#55D6FF' } : {}}
                     buttonText={buttonName}
                     buttonStyle="token_input_button"
-                    onClickAction={() => onClick(inputAmount)}
+                    onClickAction={() => onClick()}
                     isInactive={!isValidInput || !isActive}
                 />
                 <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>

@@ -32,7 +32,7 @@ const connectWallet = (walletType: WalletType) => {
                     action: walletType,
                     status: `Wallet connect ${walletType} window width: ${window.innerWidth} ${browserInfoString}`,
                 },
-                LogName.wallet
+                LogName.WALLET
             );
             localStorage.setItem(WALLET_TYPE_KEY, walletType);
 
@@ -40,7 +40,7 @@ const connectWallet = (walletType: WalletType) => {
         })
         .catch((e) => {
             console.log('ERROR. ConnectWallet: ' + e.name + ': ' + e.message);
-            logEvent('', { message: 'ERROR. ConnectWallet: ' + e.name + ': ' + e.message }, LogName.errors);
+            logEvent('', { message: 'ERROR. ConnectWallet: ' + e.name + ': ' + e.message }, LogName.ERRORS);
         });
 };
 

@@ -81,7 +81,7 @@ async function getBestSwap(
                 best_path: best_swap.best_path.map((t: { unit_name: any }) => t.unit_name).join('-'),
                 usdc_diff: best_swap.usdc_diff,
             },
-            LogName.swap
+            LogName.SWAP
         );
 
         setBestSwap(best_swap);
@@ -100,7 +100,7 @@ async function getBestSwap(
                 amount: asset1_amount,
                 error: error_message,
             },
-            LogName.swap
+            LogName.SWAP
         );
     }
 }
@@ -236,7 +236,7 @@ export async function runTransactions(
                 amount: token1Amount,
                 txns: result_tx_id,
             },
-            type === QueryType.swap ? LogName.swap : LogName.zap
+            type === QueryType.swap ? LogName.SWAP : LogName.ZAP
         );
 
         return result_tx_id;
@@ -262,7 +262,7 @@ export async function runTransactions(
                 amount: token1Amount,
                 error: error_message,
             },
-            type === QueryType.swap ? LogName.swap : LogName.zap
+            type === QueryType.swap ? LogName.SWAP : LogName.ZAP
         );
     }
 }

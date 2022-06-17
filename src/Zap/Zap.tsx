@@ -53,7 +53,7 @@ export async function loadZapData(
                 ...zap_data,
                 additionalParams: additionalParams,
             },
-            LogName.zap
+            LogName.ZAP
         );
 
         setResult(zap_data);
@@ -72,7 +72,7 @@ export async function loadZapData(
                 amount: asset1_amount,
                 error: error_message,
             },
-            LogName.zap
+            LogName.ZAP
         );
         setIsLoading(false);
     }
