@@ -64,6 +64,9 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (isNaN(Number(e.currentTarget.value))) {
+            return;
+        }
         setIsValidInput(checkValidInput(e.currentTarget.value, token, tokenMicroBalance));
         setInputAmount(e.currentTarget.value);
     };

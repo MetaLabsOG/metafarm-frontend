@@ -29,9 +29,12 @@ export const MetaDAO = () => {
                 <>
                     <WalletInfo>
                         <Header>The Metapunks holders community</Header>
-                        <Wallet target="_blank" href={`https://algoexplorer.io/address/${METAWALLET}`}>
-                            {`Wallet:${METAWALLET}`}
-                        </Wallet>
+                        <div style={{ marginTop: '20px', fontFamily: 'Montserrat' }}>
+                            Wallet:{' '}
+                            <Wallet target="_blank" href={`https://algoexplorer.io/address/${METAWALLET}`}>
+                                {METAWALLET}
+                            </Wallet>
+                        </div>
                     </WalletInfo>
                     <MetaTreasury>
                         <MetaTreasuryBalance>{`${

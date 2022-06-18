@@ -36,6 +36,11 @@ export async function loadZapData(
         return;
     }
 
+    if (!asset1_amount) {
+        alert('Please, enter the token amount.');
+        return;
+    }
+
     setIsLoading(true);
     console.log('[ZAP] get data:', asset1_id, asset2_id, asset1_amount);
 
@@ -151,7 +156,7 @@ export function Zap() {
     const getZapTimeout = useRef<any>();
 
     function getZapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
-        if (!token1_id || !token2_id) {
+        if (!token1_id || !token2_id || !amount) {
             return;
         }
         clearTimeout(getZapTimeout.current);
@@ -176,6 +181,9 @@ export function Zap() {
     };
 
     const inputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (isNaN(Number(e.target.value))) {
+            return;
+        }
         setShowResult(false);
         setToken1Amount(e.target.value);
         getZapThrottled(token1.value, token2.value, e.target.value, 1000);

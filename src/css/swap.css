@@ -143,8 +143,8 @@
 
 
 .token_price {
-    height: 120px;
     width: 350px;
+    min-height: 120px;
     padding: 20px;
     margin-top: 15px;
 
