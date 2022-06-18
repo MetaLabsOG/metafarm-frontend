@@ -81,16 +81,20 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                     />
                     <UnlockTimer unlockTimer={unlockTimer} />
                 </div>
-                {canClaim && lpTokenInfo && account && isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
-                    <PacmanButton
-                        buttonText="COMPOUND"
-                        buttonStyle="claim_button"
-                        onClickAction={() =>
-                            runCompound(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
-                        }
-                        isInactive={!isActiveClaim}
-                    />
-                )}
+                {canStake &&
+                    canClaim &&
+                    lpTokenInfo &&
+                    account &&
+                    isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
+                        <PacmanButton
+                            buttonText="COMPOUND"
+                            buttonStyle="claim_button"
+                            onClickAction={() =>
+                                runCompound(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
+                            }
+                            isInactive={!isActiveClaim}
+                        />
+                    )}
             </RewardsContainer>
         </PoolActionsMobileContainer>
     );

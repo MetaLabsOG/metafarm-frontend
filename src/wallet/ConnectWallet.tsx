@@ -75,7 +75,8 @@ export function ConnectWallet() {
 
     useEffect(() => {
         setFinishedOpening(isOpen);
-    }, [isOpen]);
+        window.addEventListener('click', () => accDropdownOpen && setAccDropdownOpen(!accDropdownOpen), { once: true });
+    }, [isOpen, accDropdownOpen]);
 
     const walletClick = (walletType: WalletType) => {
         connectWallet(walletType);

@@ -1,11 +1,8 @@
 import styled from 'styled-components';
 
 export const MetaDAOContainer = styled.div`
-    width: 100%;
+    width: 90%;
     margin-top: 40px;
-    @media (max-width: 640px) {
-        margin-top: 0px;
-    }
 `;
 
 export const WalletInfo = styled.div`
@@ -21,7 +18,7 @@ export const Wallet = styled.a`
     font-size: 16px;
     margin-top: 20px;
     font-weight: 200;
-    font-family: 'Inter';
+    font-family: 'Montserrat';
     color: #59f63c;
     text-overflow: ellipsis;
     width: 400px;

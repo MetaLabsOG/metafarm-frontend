@@ -63,6 +63,11 @@ async function getBestSwap(
         return;
     }
 
+    if (!asset1_amount) {
+        alert('Please, enter the token amount.');
+        return;
+    }
+
     console.log('[SWAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
@@ -206,6 +211,11 @@ export async function runTransactions(
 ) {
     if (!account) {
         alert('Please, connect the wallet');
+        return;
+    }
+
+    if (!token1Amount) {
+        alert('Please, enter the token amount.');
         return;
     }
 
@@ -408,7 +418,8 @@ function BestTokenPrice({
     token1: TokenSelectOption;
     token2: TokenSelectOption;
 }) {
-    const pricePerToken = bestSwap.best_swap / Number.parseFloat(token1Amount);
+    const pricePerToken =
+        Number.parseFloat(token1Amount) > 0 ? bestSwap.best_swap / Number.parseFloat(token1Amount) : 0;
     const best_algo = bestSwap.best_swap > bestSwap.direct_swap;
 
     if (isLoading) {
@@ -518,7 +529,12 @@ export function TokenSelectWithAmount({
                 placeholder=""
             />
             <div style={{ width: '100%' }}>
-                <input className="token_input" placeholder={'10'} onChange={inputOnChange} value={tokenAmount} />
+                <input
+                    className="token_input"
+                    placeholder={'Enter amount'}
+                    onChange={inputOnChange}
+                    value={tokenAmount}
+                />
                 {token.balance > 0 && <div className="token_balance">Balance: {formatNumber(token.balance)}</div>}
             </div>
         </div>
@@ -571,7 +587,7 @@ export function Swap() {
     const getSwapTimeout = useRef<any>();
 
     function getBestSwapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
-        if (!token1_id || !token2_id) {
+        if (!token1_id || !token2_id || !amount) {
             return;
         }
         clearTimeout(getSwapTimeout.current);
@@ -598,6 +614,9 @@ export function Swap() {
     };
 
     const inputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (isNaN(Number(e.target.value))) {
+            return;
+        }
         setShowResult(false);
         setToken1Amount(e.target.value);
         getBestSwapThrottled(token1.value, token2.value, e.target.value, 1000);
