@@ -259,8 +259,10 @@ export async function runTransactions(
             alert(QueryType[type] + ': Transaction not confirmed');
         } else if (error_message.includes('would result negative')) {
             alert(QueryType[type] + ': Result slippage is higher than expected.');
+        } else if (error_message.includes('popup')) {
+            alert(QueryType[type] + ': Popups are blocked. Please, allow popups in your browser.');
         } else {
-            alert(QueryType[type] + ' error :(');
+            alert(QueryType[type] + ' error. Please, contact us in twitter or discord.');
         }
         console.log(error_message);
         logEvent(
