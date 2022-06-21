@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { theme } from '../../../theme';
 
 export const PoolContainer = styled.div`
     display: flex;
@@ -67,8 +68,8 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
         flex-direction: row;
         justify-content: space-between;
         width: 100%;
-        font-size: 20px;
-        color: #909090;
+        font-size: 18px;
+        color: ${theme.gray};
         margin-left: 0;
         margin-bottom: 15px;
     }
@@ -104,7 +105,8 @@ export const TokenInfo = styled.div`
 
     @media (max-width: 1120px) {
         height: auto;
-        padding: 0 0 30px 20px;
+        margin-bottom: 30px;
+        margin-left: auto;
     }
 `;
 
@@ -118,8 +120,8 @@ export const GetLpTokenButton = styled.div<{ isActive?: boolean }>`
     width: 137px;
     height: 34px;
     background-color: 'inherit';
-    color: ${({ theme, isActive }) => (isActive ? theme.green : theme.gray)};
-    border: 1px solid;
+    color: ${({ theme, isActive }) => (isActive ? theme.green : theme.white)};
+    border: 1px solid #b6b9bd;
     display: flex;
     font-size: 12px;
     align-items: center;
@@ -130,7 +132,8 @@ export const GetLpTokenButton = styled.div<{ isActive?: boolean }>`
     cursor: pointer;
     font-family: 'Korona One';
     :hover {
-        background-color: ${({ theme, isActive }) => theme.green};
+        background: linear-gradient(270deg, #06a903 1.29%, #00ff29 100%);
+        border: 1px solid #009427;
         color: black;
     }
 
@@ -157,7 +160,7 @@ export const LpTokensIconsWrapper = styled.div`
     width: 85px;
 
     @media (max-width: 1120px) {
-        margin: 10px auto 10px auto;
+        //margin: 10px auto 10px auto;
     }
 `;
 
@@ -168,9 +171,11 @@ export const ArrowIconsWrapper = styled.div`
 `;
 
 export const PoolNameMobile = styled.div`
-    font-size: 18px;
-    color: #909090;
-    margin-bottom: 10px;
+    font-family: 'Krona One';
+    font-size: 17px;
+    color: white;
+    text-align: left;
+    white-space: nowrap;
 `;
 
 export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
@@ -217,15 +222,11 @@ export const RewardsContainer = styled.div`
     gap: 15px;
 `;
 
-export const ButtonBackMobile = styled.button`
+export const ButtonBackMobile = styled.img`
     background-color: transparent;
     position: absolute;
-    font-family: 'Krona One';
-    font-size: 16px;
-    margin-left: 210px;
-    margin-bottom: 10px;
-    color: #676767;
-    border: 0;
+    margin-left: 25px;
+    margin-top: 5px;
     cursor: pointer;
 `;
 
@@ -262,12 +263,16 @@ export const ContractLockSuffix = styled.div`
     color: #838383;
     @media (max-width: 1120px) {
         margin-bottom: 15px;
+        text-align: left;
+        color: white;
     }
 `;
 
 export const TimingMobile = styled.div`
+    color: ${theme.gray};
     display: flex;
     justify-content: center;
     gap: 3px;
-    font-size: 12px;
+    font-size: 15px;
+    margin-top: 10px;
 `;

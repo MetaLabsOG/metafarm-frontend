@@ -64,6 +64,9 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!isActive) {
+            return;
+        }
         if (isNaN(Number(e.currentTarget.value))) {
             return;
         }
@@ -98,10 +101,9 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
 
     return (
         <TokenInputWithButtonContainer style={style}>
-            <Action blueColor={blueButtonColor} isActive={isActive && isValidInput}>
-                <Input placeholder="0" isActive={isActive} value={inputAmount} onChange={onChange} />
+            <Action isActive={isActive && isValidInput}>
+                <Input placeholder="0" isActive={isActive && isValidInput} value={inputAmount} onChange={onChange} />
                 <PacmanButton
-                    style={blueButtonColor ? { color: '#55D6FF' } : {}}
                     buttonText={buttonName}
                     buttonStyle="token_input_button"
                     onClickAction={() => onClick()}

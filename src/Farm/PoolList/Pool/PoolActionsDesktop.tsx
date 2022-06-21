@@ -52,21 +52,21 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 token={stakedToken}
                 tokenMicroBalance={stakedTokenBalance}
                 balanceSuffix={balanceSuffix}
-                buttonName="STAKE"
+                buttonName="Stake"
                 actionEffect={ctc.apis.stake}
             />
             <TokenInputWithButton
                 token={stakedToken}
                 tokenMicroBalance={contractState.local.staked}
                 balanceSuffix={balanceSuffix}
-                buttonName="WITHDRAW"
+                buttonName="Withdraw"
                 actionEffect={ctc.apis.unstake}
                 blueButtonColor={true}
             />
             <div>
                 <PacmanButton
                     style={!canClaim ? { visibility: 'hidden' } : {}}
-                    buttonText="CLAIM"
+                    buttonText="Claim"
                     buttonStyle="claim_button"
                     onClickAction={() =>
                         onClickClaim(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
@@ -77,7 +77,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
             </div>
             {canStake && canClaim && lpTokenInfo && account && isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
                 <PacmanButton
-                    buttonText="COMPOUND"
+                    buttonText="Compound"
                     buttonStyle="claim_button"
                     onClickAction={() =>
                         runCompound(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)

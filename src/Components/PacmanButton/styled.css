@@ -79,8 +79,8 @@
     width: 115px;
     height: 34px;
     background-color: inherit;
-    color: #FBF33B;
-    border: 1px solid;
+    color: white;
+    border: 1px solid #B6B9BD;
     font-size: 12px;
     border-radius: 4px;
     display: flex;
@@ -91,29 +91,48 @@
 }
 
 .claim_button:hover {
-    color: #FBF33B;
+    background: linear-gradient(270deg, #06A903 1.29%, #00FF29 100%);
+    border: 1px solid #009427;
+    color: black;
 }
 
 .claim_button.loading {
-    color: #828282;
+    color: var(--gray);
+    border: 1px solid #676767;
     position: relative;
 }
 
-.claim_button.inactive {
-    color: #828282;
+.claim_button.loading:hover {
+    background: transparent;
     cursor: default;
 }
 
+.claim_button.inactive {
+    color: var(--gray);
+    cursor: default;
+    border-color: var(--gray);
+}
+
+.claim_button.inactive:hover {
+    background: transparent;
+}
+
 .token_input_button {
-    border: 1px solid;
     background-color: inherit;
-    color: #05FF00;
+    color: white;
     width: 120px;
     min-height: 33px;
     border-radius: 0 4px 4px 0;
     cursor: pointer;
     font-family: 'Korona One';
     font-size: 12px;
+    border: 1px solid #B6B9BD;
+}
+
+.token_input_button:hover {
+    background: linear-gradient(270deg, #06A903 1.29%, #00FF29 100%);
+    border: 1px solid #009427;
+    color: black;
 }
 
 .token_input_button.loading {
@@ -123,6 +142,12 @@
 }
 
 .token_input_button.inactive {
-    color: #828282;
+    color: var(--gray);
+    border: 1px solid;
+    border-color: var(--gray);
     cursor: default;
+}
+
+.token_input_button.inactive:hover {
+    background: transparent;
 }
