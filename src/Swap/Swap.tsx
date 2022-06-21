@@ -261,6 +261,8 @@ export async function runTransactions(
             alert(QueryType[type] + ': Result slippage is higher than expected.');
         } else if (error_message.includes('popup')) {
             alert(QueryType[type] + ': Popups are blocked. Please, allow popups in your browser.');
+        } else if (error_message.includes('missing')) {
+            alert(QueryType[type] + ": Your wallet doesn't have the input token.");
         } else {
             alert(QueryType[type] + ' error. Please, contact us in twitter or discord.');
         }

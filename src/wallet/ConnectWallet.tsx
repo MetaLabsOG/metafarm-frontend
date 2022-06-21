@@ -6,7 +6,7 @@ import { detect } from 'detect-browser';
 import '../css/wallet.css';
 import { logEvent, LogName } from '../logEvent';
 import { $account, setAccount } from '../common/store';
-import { ALGONET, reach } from '../AppContext';
+import { ALGONET, reach, TESTNET } from '../AppContext';
 import { customWalletFallback, WalletType } from './customWalletFallback';
 
 const browser = detect();
@@ -20,6 +20,9 @@ const connectWallet = (walletType: WalletType) => {
     }
 
     reach.setWalletFallback(customWalletFallback({ providerEnv: ALGONET, walletType }));
+    if (walletType === 'WalletConnect' && ALGONET === TESTNET) {
+        alert('Please, switch you Perra wallet to testnet');
+    }
     reach
         .getDefaultAccount()
         .then((acc) => {
