@@ -7,6 +7,7 @@ import {
     ButtonBackMobile,
     PoolInfoValue,
 } from './styled';
+import arrowBack from '../../../imgs/arrow_back.svg';
 
 import { PoolActionsDesktopProps } from './PoolActionsDesktop';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
@@ -36,7 +37,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     const account = useStore($account);
     return (
         <PoolActionsMobileContainer>
-            <ButtonBackMobile onClick={() => setIsZapModalOpen(false)}>BACK</ButtonBackMobile>
+            <ButtonBackMobile onClick={() => setIsZapModalOpen(false)} src={arrowBack} alt="BACK" />
             <TokenInfo>
                 {lpTokenInfo && canStake && <GetLpTokenButton onClick={openZapModal}>Get LP Tokens</GetLpTokenButton>}
             </TokenInfo>
