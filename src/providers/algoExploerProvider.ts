@@ -2,12 +2,6 @@
 import axios from 'axios';
 import { ALGONET, TESTNET } from '../AppContext';
 
-export type LPTokenInfo = {
-    name: string;
-    price: number;
-    decimals: number;
-}
-
 // @ts-ignore
 const prefix = ALGONET === TESTNET ? 'testnet.' : '';
 

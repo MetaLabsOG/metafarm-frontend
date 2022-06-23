@@ -5,4 +5,5 @@ export const theme = {
     darkGray: '#1F1F1F',
     yellow: '#FBF33B',
     blue: '#55D6FF',
+    red: '#d0373a',
 };

@@ -21,3 +21,9 @@ export async function getCoinRate(pair: Pair) {
         console.error(error);
     }
 }
+
+export async function getBinanceCoinPrice(pair: Pair): Promise<number> {
+    const rate = await getCoinRate(pair); 
+    return Number(rate.price);
+}
+

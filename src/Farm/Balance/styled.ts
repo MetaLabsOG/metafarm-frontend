@@ -17,11 +17,28 @@ export const AmountValue = styled.div`
 `;
 
 export const BalanceList = styled.div`
-    width: 100%;
+    width: 80%;
+    min-width: 1114px;
     display: flex;
     justify-content: space-evenly;
+    background-color: ${(props) => props.theme.darkGray};
+    height: 91px;
+    align-items: center;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 22px;
+    text-align: center;
+    border-radius: 10px;
+    font-size: 18px;
+    margin-bottom: 30px;
 
     &:first-child {
+    }
+
+    @media (max-width: 1100px) {
+        min-width: auto;
     }
 
     @media (max-width: 640px) {

@@ -1,1 +1,1 @@
-export { Swap } from './Swap'
+export { Swap } from './Swap';

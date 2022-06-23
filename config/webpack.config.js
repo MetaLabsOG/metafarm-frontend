@@ -338,6 +338,8 @@ module.exports = function (webpackEnv) {
       fallback: {
         'crypto': false,
         'buffer': require.resolve('buffer/'),
+        'path': require.resolve('path-browserify'),
+        'util': require.resolve('util/'),
       }
     },
     module: {

@@ -1,0 +1,128 @@
+.swap_button {
+    height: 50px;
+    width: 350px;
+    border-radius: 8px;
+    border: 1px solid #5cfc3c;
+    color: #5cfc3c;
+    background-color: #000;
+    margin-top: 20px;
+
+    font-family: 'Korona One';
+    font-size: 15px;
+
+    cursor: pointer;
+}
+
+.swap_button:hover {
+    color: black;
+    background-color: #5cfc3c;
+    border: 0;
+}
+
+.swap_button.loading {
+    height: 50px;
+    position: relative;
+}
+
+.swap_button.loading:hover {
+    border: 1px solid #5cfc3c;
+    background-color: transparent;
+    cursor: default;
+}
+
+.loading {
+    background-color: inherit;
+    position: absolute;
+    border-radius: 8px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.price_button {
+    height: 50px;
+    width: 350px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-size: 15px;
+    font-family: 'Korona One';
+    cursor: pointer;
+
+    border: 0px;
+    color: #B9B9B9;
+    background-color: #000;
+}
+
+.price_button.loading {
+    border: 1px solid #5cfc3c;
+    color: #5cfc3c;
+    background-color: inherit;
+    position: relative;
+}
+
+.price_button.loading:hover {
+    border: 1px solid #5cfc3c;
+    background-color: #000;
+}
+
+.price_button:hover {
+    color: black;
+    background-color: #5cfc3c;
+    border: 0;
+}
+
+.claim_button {
+    width: 115px;
+    height: 34px;
+    background-color: inherit;
+    color: #FBF33B;
+    border: 1px solid;
+    font-size: 12px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: 'Korona One';
+}
+
+.claim_button:hover {
+    color: #FBF33B;
+}
+
+.claim_button.loading {
+    color: #828282;
+    position: relative;
+}
+
+.claim_button.inactive {
+    color: #828282;
+    cursor: default;
+}
+
+.token_input_button {
+    border: 1px solid;
+    background-color: inherit;
+    color: #05FF00;
+    width: 120px;
+    min-height: 33px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    font-family: 'Korona One';
+    font-size: 12px;
+}
+
+.token_input_button.loading {
+    color: #828282;
+    position: relative;
+    cursor: default;
+}
+
+.token_input_button.inactive {
+    color: #828282;
+    cursor: default;
+}
