@@ -6,22 +6,20 @@ import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolLoadingAnimation } from './styled';
-import { $farmLPTokens, $farmRewardTokens } from '../../store';
+import { $farmRewardTokens } from '../../store';
 import { $stakingTokens } from '../../../Stake/store';
 import logo from '../../../imgs/logo.png';
 
 export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) => {
     const currentBlock = useStore($networkTime);
-    const lpTokenInfo = useStoreMap($farmLPTokens, (tokens) => tokens.get(contract.id, null));
-    const stakingTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
-    const rewardTokenInfo =
-        useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null)) ?? stakingTokenInfo;
+    const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
+    const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null)) ?? stakeTokenInfo;
 
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(queryTimeUpdate, [contract]);
 
-    const is_info_loaded = rewardTokenInfo && ((type === 'farm' && lpTokenInfo) || type === 'distribution');
+    const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
     if (currentBlock === 0 || !contract.state || !is_info_loaded) {
         // console.log('WHY LOADING?', type, currentBlock, contract.state, lpTokenInfo, rewardTokenInfo, stakingTokenInfo);
         return (
@@ -47,7 +45,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                         isOpen={isOpen}
                         contractState={contract.state}
                         poolState={poolState}
-                        lpTokenInfo={lpTokenInfo}
+                        stakeTokenInfo={stakeTokenInfo}
                         rewardTokenInfo={rewardTokenInfo}
                         currentBlock={currentBlock}
                     />
@@ -57,7 +55,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                         poolState={poolState}
                         ctc={contract.ctc}
                         contractState={contract.state}
-                        lpTokenInfo={lpTokenInfo}
+                        stakeTokenInfo={stakeTokenInfo}
                         rewardTokenInfo={rewardTokenInfo}
                         setIsZapModalOpen={setIsOpen}
                         currentBlock={currentBlock}

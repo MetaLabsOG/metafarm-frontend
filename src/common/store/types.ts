@@ -79,8 +79,8 @@ export type ContractInfo<T extends ContractType> = {
 };
 
 export type ContractMetadata = {
-    farm: {};
-    distribution: null;
+    farm: { dex?: string };
+    distribution: {};
     crowdsale: { whitelist: Array<string> };
     fomo: {};
 };

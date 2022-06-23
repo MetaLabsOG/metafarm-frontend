@@ -3,7 +3,6 @@ import { backend as farmBackend } from '@metalabsog/farm';
 import { Map } from 'immutable';
 import { createEffect, createStore, createEvent, sample, combine, Store } from 'effector';
 import {
-    AppId,
     Asset,
     AssetId,
     assetId,
@@ -114,6 +113,8 @@ const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpda
 );
 
 export const $pools = combine($contracts, $networkTime, projectContracts);
+export const $farmPools = $pools.map((pools) => pools.filter((pool) => !!pool.info.metadata.dex));
+export const $stakePools = $pools.map((pools) => pools.filter((pool) => !pool.info.metadata.dex));
 export const setPoolInfos = setContractInfos;
 export const triggerPoolUpdate = triggerStateUpdate;
 
@@ -129,11 +130,9 @@ export const sortPoolsOnStatus = ({ networkTime, pools }: { networkTime: number;
     return values(groupedByStatus(pools)).flat();
 };
 
-export const $sortedPools = combine($networkTime, $pools, (networkTime, pools) =>
+export const $sortedFarmPools = combine($networkTime, $farmPools, (networkTime, pools) =>
     sortPoolsOnStatus({ networkTime, pools })
 );
-
-$sortedPools.watch((v) => {}); //console.log(v));
 
 // LP token info store
 type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
@@ -161,17 +160,34 @@ sample({
     target: getLPTokenInfoFx,
 });
 
-$contractStatesWithCache.watch((states) =>
-    states.valueSeq().forEach((s) => {
-        markTokenAsLP(s.initial.stakeToken);
-        registerAsset(s.initial.stakeToken);
-        registerPricedAsset(s.initial.rewardToken);
-    })
+$farmPools.watch((farms) =>
+    farms
+        .map((farm) => farm.state)
+        .filter((s): s is ContractState<'farm'> => s !== null)
+        .forEach((s) => {
+            markTokenAsLP(s.initial.stakeToken);
+            registerAsset(s.initial.stakeToken);
+            registerPricedAsset(s.initial.rewardToken);
+        })
 );
 
+$stakePools.watch((farms) =>
+    farms
+        .map((farm) => farm.state)
+        .filter((s): s is ContractState<'farm'> => s !== null)
+        .forEach((s) => {
+            registerPricedAsset(s.initial.stakeToken);
+            registerPricedAsset(s.initial.rewardToken);
+        })
+);
+
+export const $lpAndSimpleTokens = combine($lpTokenInfos, $pricedAssets, (lpTokens, tokens) => tokens.merge(lpTokens));
+
 // These substores avoid a bug when token infos are not updated in components
-export const $farmLPTokens = combine($lpTokenInfos, $contractStatesWithCache, (lpTokens, states) =>
-    states.map((state, _) => lpTokens.get(state.initial.stakeToken, null))
+export const $farmStakeTokens: Store<Map<number, Priced<LPTokenInfo> | Priced<Asset> | null>> = combine(
+    $lpAndSimpleTokens,
+    $contractStatesWithCache,
+    (allTokens, states) => states.map((state, _) => allTokens.get(state.initial.stakeToken, null))
 );
 
 export const $farmRewardTokens = combine($pricedAssets, $contractStatesWithCache, (tokens, states) =>
@@ -204,8 +220,8 @@ export interface PoolAggregates {
     totalPendingReward: number;
 }
 
-export const $poolAggregates: Store<PoolAggregates> = combine(
-    $pools.map((contracts) => contracts.map((c) => c.state).filter((s): s is ContractState<'farm'> => s !== null)),
+export const $farmPoolAggregates: Store<PoolAggregates> = combine(
+    $farmPools.map((contracts) => contracts.map((c) => c.state).filter((s): s is ContractState<'farm'> => s !== null)),
     $lpTokenInfos,
     $pricedAssets,
     (states, lpTokens, tokens) => {

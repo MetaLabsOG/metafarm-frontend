@@ -9,9 +9,9 @@ import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
+import { isLPTokenInfo } from './utils';
 
 export interface PoolActionsDesktopProps {
-    lpTokenInfo: Priced<LPTokenInfo> | null;
     stakedToken: Priced<LPTokenInfo> | Priced<Asset>;
     stakedTokenBalance: Amount;
     balanceSuffix: string;
@@ -27,7 +27,6 @@ export interface PoolActionsDesktopProps {
 }
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
-    lpTokenInfo,
     stakedToken,
     stakedTokenBalance,
     balanceSuffix,
@@ -45,7 +44,9 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     return (
         <PoolActionsDesktopContainer>
             <TokenInfo>
-                {lpTokenInfo && canStake && <GetLpTokenButton onClick={openZapModal}>Get LP Tokens</GetLpTokenButton>}
+                {isLPTokenInfo(stakedToken) && canStake && (
+                    <GetLpTokenButton onClick={openZapModal}>Get LP Tokens</GetLpTokenButton>
+                )}
             </TokenInfo>
             <TokenInputWithButton
                 style={!canStake ? { visibility: 'hidden' } : {}}
@@ -69,22 +70,26 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     buttonText="Claim"
                     buttonStyle="claim_button"
                     onClickAction={() =>
-                        onClickClaim(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
+                        onClickClaim(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
                     }
                     isInactive={!isActiveClaim}
                 />
                 <UnlockTimer unlockTimer={unlockTimer} />
             </div>
-            {canStake && canClaim && lpTokenInfo && account && isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
-                <PacmanButton
-                    buttonText="Compound"
-                    buttonStyle="claim_button"
-                    onClickAction={() =>
-                        runCompound(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
-                    }
-                    isInactive={!isActiveClaim}
-                />
-            )}
+            {canStake &&
+                canClaim &&
+                isLPTokenInfo(stakedToken) &&
+                account &&
+                isCompoundEnabled(stakedToken, rewardTokenInfo.id) && (
+                    <PacmanButton
+                        buttonText="Compound"
+                        buttonStyle="claim_button"
+                        onClickAction={() =>
+                            runCompound(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
+                        }
+                        isInactive={!isActiveClaim}
+                    />
+                )}
         </PoolActionsDesktopContainer>
     );
 };

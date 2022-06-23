@@ -6,7 +6,7 @@ import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styl
 import { InfoHeader } from '../../common/styled';
 import { useList } from 'effector-react';
 import { Contract, ContractInfo, FarmType } from '../../common/store';
-import { Store } from 'effector';
+import { Store, Event } from 'effector';
 
 const headerColumn = [
     { name: 'POOL', width: 30 },
@@ -17,14 +17,14 @@ const headerColumn = [
     { name: 'ENDS IN', width: 16.5 },
 ];
 
-export const PoolList = ({
+export const PoolList = <T extends FarmType>({
     type,
     pools,
     setPoolInfos,
 }: {
-    type: FarmType;
-    pools: Store<Contract<FarmType>[]>; // @ts-ignore
-    setPoolInfos: Event<ContractInfo<FarmType>[]>;
+    type: T;
+    pools: Store<Contract<T>[]>;
+    setPoolInfos: Event<ContractInfo<T>[]>;
 }) => {
     const { data, isError, isSuccess } = useQuery(['contracts', type], () => getContracts(type));
 
@@ -34,7 +34,7 @@ export const PoolList = ({
         }
     }, [data, isError, isSuccess]);
 
-    const poolComponents = useList(pools, (ctc: Contract<FarmType>, index: number) => (
+    const poolComponents = useList(pools, (ctc: Contract<T>, index: number) => (
         <Pool type={type} key={index} contract={ctc} />
     ));
 

@@ -3,7 +3,7 @@ import { useStore, useStoreMap } from 'effector-react';
 import { $balances, ContractState, Priced, Asset, AllDefined, FarmType, Amount } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 
-import { formatLPTokenName, numberRound } from './utils';
+import { formatLPTokenName, isLPTokenInfo, numberRound } from './utils';
 import { PoolState } from './types';
 import { ToastTypes, useToasts } from './hooks';
 import { useModal } from 'react-hooks-use-modal';
@@ -19,19 +19,19 @@ import { Account } from '@reach-sh/stdlib/ALGO';
 export const onClickClaim = async (
     account: Account | null,
     ctc: any,
-    lpTokenInfo: Priced<LPTokenInfo> | null,
+    stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>,
     rewardTokenInfo: Priced<Asset>,
     microAmount: Amount
 ) => {
     const amount = calculateTokenAmount(rewardTokenInfo, microAmount);
-    logFarmActionData(account, 'CLAIM', amount, lpTokenInfo, rewardTokenInfo);
+    logFarmActionData(account, 'CLAIM', amount, stakeTokenInfo, rewardTokenInfo);
     try {
         await ctc.apis.claim();
     } catch (e) {
         // @ts-ignore
         const error_message = e.message;
         console.log(error_message);
-        logFarmActionData(account, 'CLAIM ERROR', amount, lpTokenInfo, rewardTokenInfo, error_message);
+        logFarmActionData(account, 'CLAIM ERROR', amount, stakeTokenInfo, rewardTokenInfo, error_message);
     }
 };
 
@@ -39,7 +39,7 @@ export const PoolActions = ({
     poolState,
     ctc,
     contractState,
-    lpTokenInfo,
+    stakeTokenInfo,
     rewardTokenInfo,
     setIsZapModalOpen,
     currentBlock,
@@ -47,7 +47,7 @@ export const PoolActions = ({
     poolState: PoolState;
     ctc: any;
     contractState: AllDefined<ContractState<FarmType>>;
-    lpTokenInfo: Priced<LPTokenInfo> | null;
+    stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>;
     rewardTokenInfo: Priced<Asset>;
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
     currentBlock: number;
@@ -62,9 +62,8 @@ export const PoolActions = ({
 
     const [unlockTimer] = useTimer(unlockTime);
 
-    const stakedToken = lpTokenInfo ? lpTokenInfo : rewardTokenInfo;
-    const stakedTokenBalance = useStoreMap($balances, (bs) => bs[stakedToken.id] || BigInt(0));
-    const balanceSuffix = lpTokenInfo ? 'LP' : rewardTokenInfo.unitName;
+    const stakedTokenBalance = useStoreMap($balances, (bs) => bs[stakeTokenInfo.id] || BigInt(0));
+    const balanceSuffix = isLPTokenInfo(stakeTokenInfo) ? 'LP' : stakeTokenInfo.unitName;
 
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;
@@ -74,7 +73,7 @@ export const PoolActions = ({
 
     useToasts({
         api: ctc.apis.claim,
-        text: `${formatLPTokenName(stakedToken.name)} ${numberRound(
+        text: `${formatLPTokenName(stakeTokenInfo.name)} ${numberRound(
             calculateTokenAmount(rewardTokenInfo, contractState.local.reward)
         )} claim`,
         pendingStatus: pendingClaim,
@@ -85,8 +84,7 @@ export const PoolActions = ({
         <>
             {window.innerWidth <= 1120 ? (
                 <PoolActionsMobile
-                    lpTokenInfo={lpTokenInfo}
-                    stakedToken={stakedToken}
+                    stakedToken={stakeTokenInfo}
                     stakedTokenBalance={stakedTokenBalance}
                     rewardTokenInfo={rewardTokenInfo}
                     ctc={ctc}
@@ -101,8 +99,7 @@ export const PoolActions = ({
                 />
             ) : (
                 <PoolActionsDesktop
-                    lpTokenInfo={lpTokenInfo}
-                    stakedToken={stakedToken}
+                    stakedToken={stakeTokenInfo}
                     stakedTokenBalance={stakedTokenBalance}
                     balanceSuffix={balanceSuffix}
                     rewardTokenInfo={rewardTokenInfo}
@@ -116,11 +113,11 @@ export const PoolActions = ({
                     unlockTimer={unlockTimer}
                 />
             )}
-            {lpTokenInfo && (
+            {isLPTokenInfo(stakeTokenInfo) && (
                 <Modal>
                     <ZapModal
-                        asset1_id={lpTokenInfo.asset1}
-                        asset2_id={lpTokenInfo.asset2}
+                        asset1_id={stakeTokenInfo.asset1}
+                        asset2_id={stakeTokenInfo.asset2}
                         closeModal={closeZapModal}
                     />
                 </Modal>
