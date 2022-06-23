@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { resolveBignums } from '../common/lib';
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -73,10 +74,10 @@ export async function getWalletNFT(wallet: string) {
     );
 }
 
-export async function getPools(type: string) {
+export async function getContracts(type: string) {
     return instance
         .get(`/contracts?type=${type}`)
-        .then(({ data }) => data)
+        .then(({ data }) => resolveBignums(data) as any)
         .catch((err) => console.log('ERR', err));
 }
 
@@ -87,5 +88,11 @@ export async function getPoolInfo(asset1: number, asset2: number): Promise<PoolI
 export async function getSwapCost(asset1: number, asset2: number, amount: number): Promise<SwapCost> {
     return instance
         .get(`/asset_swap_cost?address=asdf?asset1_id=${asset1}&asset2_id=${asset2}&asset1_amount=${amount}`)
+        .then(({ data }) => data);
+}
+
+export async function tokensaleWhitelist(contractId: number, address: string): Promise<boolean> {
+    return instance
+        .put(`/whitelist_confirm?contract_id=${contractId}&address=${address}`)
         .then(({ data }) => data);
 }

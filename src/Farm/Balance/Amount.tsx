@@ -1,13 +1,14 @@
+import { numberRound } from '../PoolList/Pool/utils';
 import { AmountContainer, AmountTitle, AmountValue } from './styled';
 
 type AmountPropsType = {
     title: string;
-    value: string;
+    value: number;
 };
 
 export const Amount = ({ title, value }: AmountPropsType) => (
     <AmountContainer>
         <AmountTitle>{title}</AmountTitle>
-        <AmountValue>{`$${value}`}</AmountValue>
+        <AmountValue>{`$${numberRound(value)}`}</AmountValue>
     </AmountContainer>
 );

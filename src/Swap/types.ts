@@ -1,17 +1,18 @@
 declare global {
     interface Window {
         algorand: {
-            signTxns: (param: {txn: string}[]) => Promise<string[]>
-        }
+            signTxns: (param: { txn: string }[]) => Promise<string[]>;
+        };
     }
 }
 
-export interface Option {
+export interface TokenSelectOption {
     value: string;
     name: string;
     unit_name: string;
     logo: string;
-    amount: number;
+    balance: number;
+    decimals: number;
 }
 
 export interface Token {
@@ -20,14 +21,15 @@ export interface Token {
     unit_name: string;
     logo: {
         png: string;
-    }
+    };
+    decimals: number;
 }
 
 export interface BestSwap {
     best_swap: number;
     direct_swap: number;
     best_path: {
-        unit_name: string
+        unit_name: string;
     }[];
     usdc_diff: number;
 }
@@ -35,7 +37,8 @@ export interface BestSwap {
 export interface Transaction {
     transactions: {
         txns: string[];
-        signed_txns: string[];
+        signed_txns: (string | any[])[];
+        tx_id?: string;
     }[];
     tx_id: string;
 }

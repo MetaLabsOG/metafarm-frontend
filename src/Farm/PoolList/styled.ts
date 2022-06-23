@@ -2,18 +2,41 @@ import styled from 'styled-components';
 
 export const PoolListHeader = styled.div`
     display: flex;
-    background: ${(props) => props.theme.darkGray};
     color: ${(props) => props.theme.gray};
     font-size: 16px;
-    height: 60px;
-    width: 100%;
+    height: 71px;
+    width: 95%;
     align-items: center;
-    justify-content: space-between;
-    margin-top: 40px;
-    padding-left: 20px;
-    padding-right: 20px;
-    border-radius: 4px;
-    @media (max-width: 640px) {
+    justify-content: flex-start;
+
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 15.4416px;
+    line-height: 19px;
+    @media (max-width: 1120px) {
         display: none;
+    }
+`;
+
+export const PoolListHeaderElement = styled.div<{ width?: number }>`
+    width: ${({ width }) => (width ? `${width}%` : '16.5%')};
+    margin-left: 20px;
+`;
+
+export const PoolListContainer = styled.div`
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #272727;
+    width: 80%;
+    min-width: 1114px;
+    border-radius: 10px;
+
+    @media (max-width: 1120px) {
+        background-color: black;
+        min-width: auto;
+        margin-top: 0;
     }
 `;
