@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { isError, QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import GlobalStyle from './common/globalStyles';
 
 import { Menu } from './Menu';
@@ -19,6 +19,10 @@ import { Stake } from './Stake/Stake';
 
 import './css/index.css';
 import 'react-toastify/dist/ReactToastify.css';
+import { useEffect } from 'react';
+import { setPoolInfos } from './Farm/store';
+import { getContracts } from './providers/apiProvider';
+import { setDistributionPoolInfos } from './Stake/store';
 
 const queryClient = new QueryClient();
 
@@ -27,8 +31,23 @@ fetchAlgoPrice();
 fetchBtcPrice();
 
 const App = () => {
+    const farmsFetch = useQuery(['contracts', 'farm'], () => getContracts('farm'));
+    const distrFetch = useQuery(['contracts', 'distribution'], () => getContracts('distribution'));
+
+    useEffect(() => {
+        if (farmsFetch.isSuccess) {
+            setPoolInfos(farmsFetch.data);
+        }
+    }, [farmsFetch]);
+
+    useEffect(() => {
+        if (distrFetch.isSuccess) {
+            setDistributionPoolInfos(distrFetch.data);
+        }
+    }, [distrFetch]);
+
     return (
-        <QueryClientProvider client={queryClient}>
+        <>
             <GlobalStyle />
             <StyledContainer limit={3} />
             <ThemeProvider theme={theme}>
@@ -48,13 +67,15 @@ const App = () => {
                     </ContentContainer>
                 </Container>
             </ThemeProvider>
-        </QueryClientProvider>
+        </>
     );
 };
 
 ReactDOM.render(
     <BrowserRouter>
-        <App />
+        <QueryClientProvider client={queryClient}>
+            <App />
+        </QueryClientProvider>
     </BrowserRouter>,
     document.getElementById('root')
 );

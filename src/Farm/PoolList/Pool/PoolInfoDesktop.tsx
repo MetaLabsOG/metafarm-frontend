@@ -1,4 +1,4 @@
-import { Asset, ContractState, FarmType, Priced } from '../../../common/store';
+import { Asset, AssetId, ContractState, FarmType, Priced } from '../../../common/store';
 import {
     PoolInfoDesktopContainer,
     ArrowIconsWrapper,
@@ -12,7 +12,7 @@ import {
     ContractLockSuffix,
 } from './styled';
 import { Arrow } from '../../../imgs/arrow';
-import { convertAmountToUSD, getTokenLink, numberRound } from './utils';
+import { convertAmountToUSD, getAssetLogoUrl, getTokenLink, numberRound } from './utils';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import pacman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
@@ -22,10 +22,10 @@ import { FC } from 'react';
 export interface PoolInfoDesktopProps {
     account: Account | null;
     contractState: ContractState<FarmType>;
-    lpTokenInfo: Priced<LPTokenInfo> | null;
+    stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>;
     rewardTokenInfo: Priced<Asset>;
-    asset1_logo: string;
-    asset2_logo: string;
+    asset1_id: AssetId;
+    asset2_id: AssetId;
     pool_name: string;
     APR: number;
     timing: JSX.Element | 'ended';
@@ -63,27 +63,29 @@ export const StakeValue: FC<ValueProps> = ({ contractState, tokenInfo }) => {
 export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     account,
     contractState,
-    lpTokenInfo,
+    stakeTokenInfo,
     rewardTokenInfo,
-    asset1_logo,
-    asset2_logo,
+    asset1_id,
+    asset2_id,
     pool_name,
     APR,
     timing,
     isOpen,
     contractLockSuffix,
 }) => {
+    const asset1_logo = getAssetLogoUrl(asset1_id);
+    const asset2_logo = getAssetLogoUrl(asset2_id);
     return (
         <PoolInfoDesktopContainer>
             <PoolInfoValue width={23}>
                 <BasicInfo>
                     <LpTokensIconsWrapper>
-                        <a target="_blank" href={getTokenLink(lpTokenInfo?.asset1)} rel="noreferrer">
+                        <a target="_blank" href={getTokenLink(asset1_id)} rel="noreferrer">
                             <LPTokensIcon first>
                                 {asset1_logo && <img alt="" width="100%" height="100%" src={asset1_logo} />}
                             </LPTokensIcon>
                         </a>
-                        <a target="_blank" href={getTokenLink(lpTokenInfo?.asset2)} rel="noreferrer">
+                        <a target="_blank" href={getTokenLink(asset2_id)} rel="noreferrer">
                             <LPTokensIcon>
                                 {asset2_logo && <img alt="" width="100%" height="100%" src={asset2_logo} />}
                             </LPTokensIcon>
@@ -97,11 +99,11 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                 </BasicInfo>
             </PoolInfoValue>
             <PoolInfoValue>{`$${numberRound(
-                convertAmountToUSD(lpTokenInfo ?? rewardTokenInfo, contractState.global.totalStaked)
+                convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked)
             )}`}</PoolInfoValue>
             <PoolInfoValue>{numberRound(APR)}%</PoolInfoValue>
             <PoolInfoValue>
-                <StakeValue contractState={contractState} tokenInfo={lpTokenInfo ?? rewardTokenInfo} />
+                <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} />
             </PoolInfoValue>
             <PoolInfoValue>
                 <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} />

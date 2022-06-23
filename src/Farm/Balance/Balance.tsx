@@ -1,10 +1,10 @@
 import { useStore } from 'effector-react';
-import { $poolAggregates } from '../store';
+import { $farmPoolAggregates } from '../store';
 import { Amount } from './Amount';
 import { BalanceList } from './styled';
 
 export const Balance = () => {
-    const aggregates = useStore($poolAggregates);
+    const aggregates = useStore($farmPoolAggregates);
     return (
         <BalanceList>
             <Amount title="TVL" value={aggregates.tvl} />

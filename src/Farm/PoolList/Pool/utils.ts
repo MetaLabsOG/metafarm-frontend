@@ -2,10 +2,27 @@ import { formatDecimalsMeaningful, unsafeFromBigint } from '../../../common/lib'
 import { Asset, Priced, Amount } from '../../../common/store/types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { ALGONET, MAINNET, reach, TESTNET } from '../../../AppContext';
-import { TESTNET_TO_MAINNET_ASA_ID } from './PoolInfo';
 
 const TINYMAN_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.tinyman.org`;
 const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
+
+export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
+    0: 0, // ALGO
+    85951079: 712012773, // META
+    19386116: 386192725, // goBTC
+    10458941: 31566704, // USDC
+    70283957: 463554836, // ALGF
+    96690153: 607591690, // XGLI
+};
+
+export const getAssetLogoUrl = (input_asset_id: number) => {
+    const asset_id = ALGONET === MAINNET ? input_asset_id : TESTNET_TO_MAINNET_ASA_ID[input_asset_id] ?? 0;
+    return 'https://asa-list.tinyman.org/assets/' + asset_id + '/icon.png';
+};
+
+export const isLPTokenInfo = (tokenInfo: Priced<Asset> | Priced<LPTokenInfo>): tokenInfo is Priced<LPTokenInfo> => {
+    return 'poolId' in tokenInfo;
+};
 
 export const convertAmountToUSD = (lpToken: Priced<Asset>, amount: Amount) => {
     return (lpToken.price * unsafeFromBigint(amount)) / 10 ** lpToken.decimals;

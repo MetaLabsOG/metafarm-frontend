@@ -5,7 +5,7 @@ import { Pool } from './Pool';
 import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
 import { InfoHeader } from '../../common/styled';
 import { useList } from 'effector-react';
-import { Contract, ContractInfo, FarmType } from '../../common/store';
+import { Contract, FarmType } from '../../common/store';
 import { Store } from 'effector';
 
 const headerColumn = [
@@ -17,24 +17,8 @@ const headerColumn = [
     { name: 'ENDS IN', width: 16.5 },
 ];
 
-export const PoolList = ({
-    type,
-    pools,
-    setPoolInfos,
-}: {
-    type: FarmType;
-    pools: Store<Contract<FarmType>[]>; // @ts-ignore
-    setPoolInfos: Event<ContractInfo<FarmType>[]>;
-}) => {
-    const { data, isError, isSuccess } = useQuery(['contracts', type], () => getContracts(type));
-
-    useEffect(() => {
-        if (isSuccess) {
-            setPoolInfos(data);
-        }
-    }, [data, isError, isSuccess]);
-
-    const poolComponents = useList(pools, (ctc: Contract<FarmType>, index: number) => (
+export const PoolList = <T extends FarmType>({ type, pools }: { type: T; pools: Store<Contract<T>[]> }) => {
+    const poolComponents = useList(pools, (ctc: Contract<T>, index: number) => (
         <Pool type={type} key={index} contract={ctc} />
     ));
 
@@ -47,7 +31,7 @@ export const PoolList = ({
                     </PoolListHeaderElement>
                 ))}
             </PoolListHeader>
-            {isError && <InfoHeader>Oops Something went wrong :( </InfoHeader>}
+            {/* {isError && <InfoHeader>Oops Something went wrong :( </InfoHeader>} */}
             {poolComponents}
         </PoolListContainer>
     );

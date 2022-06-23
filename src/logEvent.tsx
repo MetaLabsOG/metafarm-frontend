@@ -1,6 +1,7 @@
 import { LPTokenInfo } from './providers/dexesProvider';
 import { Asset, Priced } from './common/store';
 import { Account } from './types';
+import { isLPTokenInfo } from './Farm/PoolList/Pool/utils';
 
 export enum LogName {
     WALLET,
@@ -15,7 +16,7 @@ export function logFarmActionData(
     account: Account | null,
     action: string,
     amount: number | string,
-    lpTokenInfo: LPTokenInfo | null = null,
+    lpTokenInfo: LPTokenInfo | Asset | null = null,
     rewardAsset: Priced<Asset> | null = null,
     error: string | null = null
 ) {
@@ -24,7 +25,9 @@ export function logFarmActionData(
         amount: amount.toString(),
         lp_token_name: lpTokenInfo?.name,
         lp_token_id: lpTokenInfo?.id,
+        //@ts-ignore
         lp_asset1_id: lpTokenInfo?.asset1,
+        //@ts-ignore
         lp_asset2_id: lpTokenInfo?.asset2,
         reward_token_id: rewardAsset?.id,
         reward_token_name: rewardAsset?.unitName,
