@@ -5,7 +5,7 @@ import { ALGONET, MAINNET, META_TOKEN_ID, reach } from '../AppContext';
 import 'react-select-search/style.css';
 import '../css/swap.css';
 import { BestSwap, Token, TokenSelectOption, Transaction } from './types';
-import { $account, $balances, Amount, AssetId } from '../common/store';
+import { $account, $balances, Amount, AssetId, refreshAccountInfo } from '../common/store';
 
 import SelectSearch, { fuzzySearch, SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
@@ -17,7 +17,7 @@ import { WalletTransaction } from '../types';
 import { zip } from 'ramda';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
-export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
+export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';
 // export const API_PATH = 'http://0.0.0.0:5000/';
 
 const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
@@ -236,6 +236,7 @@ export async function runTransactions(
         // console.log(transactions);
         const result_tx_id = await signAndSubmitTransactions(algodClient, transactions);
         console.log('OK', result_tx_id);
+        refreshAccountInfo();
 
         logEvent(
             account.networkAccount.addr,
@@ -296,6 +297,16 @@ export async function getOptions(balances: Record<AssetId, Amount> | null = null
             decimals: token.decimals,
         }))
         .filter((token) => token.value);
+
+    // TODO hack for glitter
+    assets.push({
+        value: '96690352',
+        name: 'goSOL',
+        unit_name: 'goSOL',
+        logo: 'https://gateway.pinata.cloud/ipfs/QmXhUDU7QNxWg27JipSvLxc3wcsEL23RJW5fjDvEGzbZSb',
+        balance: 0,
+        decimals: 8,
+    });
 
     if (!balances) {
         return assets;
