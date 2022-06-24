@@ -254,20 +254,21 @@ export async function runTransactions(
     } catch (e) {
         // @ts-ignore
         const error_message = e.message;
+        const queryType = QueryType[type].toUpperCase();
         if (error_message.includes('underflow')) {
-            alert(QueryType[type] + 'Not enough tokens');
+            alert(queryType + ': Not enough tokens');
         } else if (error_message.includes('Transaction not confirmed')) {
-            alert(QueryType[type] + ': Transaction not confirmed');
+            alert(queryType + ': Transaction not confirmed');
         } else if (error_message.includes('would result negative')) {
-            alert(QueryType[type] + ': Result slippage is higher than expected.');
+            alert(queryType + ': Result slippage is higher than expected.');
         } else if (error_message.includes('popup')) {
-            alert(QueryType[type] + ': Popups are blocked. Please, allow popups in your browser.');
+            alert(queryType + ': Popups are blocked. Please, allow popups in your browser.');
         } else if (error_message.includes('missing')) {
-            alert(QueryType[type] + ": Your wallet doesn't have the input token.");
+            alert(queryType + ": Your wallet doesn't have the input token.");
         } else if (error_message.includes('below min') || error_message.includes('overspend')) {
-            alert(QueryType[type] + ': Not enough available algos.');
+            alert(queryType + ': Not enough available algos.');
         } else {
-            alert(QueryType[type] + ' error. Please, contact us in twitter or discord.');
+            alert(queryType + ' error. Please, contact us in twitter or discord.');
         }
         console.log(error_message);
         logEvent(
@@ -417,9 +418,9 @@ export function renderValue(valueProps, snapshot) {
 
 export function formatNumber(x: number) {
     if (x < 0.01) {
-        return Math.round(x * 1000) / 1000;
+        return Math.floor(x * 1000) / 1000;
     }
-    return x > 100 ? Math.round(x) : Math.round(x * 100) / 100;
+    return x > 100 ? Math.floor(x) : Math.floor(x * 100) / 100;
 }
 
 function BestTokenPrice({
