@@ -67,7 +67,7 @@
     font-size: 14px;
 }
 
-.token_descr {
+.option_descr {
     pointer-events: none;
     position: absolute;
     left: 0;
@@ -99,7 +99,7 @@
     flex-grow: 1;
 }
 
-.token_icon {
+.option_icon {
     border-radius: 50%;
     vertical-align: middle;
     margin: 10px;

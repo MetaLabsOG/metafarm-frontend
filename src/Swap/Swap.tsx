@@ -319,7 +319,7 @@ export async function getOptions(balances: Record<AssetId, Amount> | null = null
 function TokenDescrShort({ option }) {
     return (
         <React.Fragment>
-            <img alt="" className="token_icon" width="32" height="32" src={option.logo} />
+            <img alt="" className="option_icon" width="32" height="32" src={option.logo} />
             <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.unit_name}</div>
         </React.Fragment>
     );
@@ -329,7 +329,7 @@ function TokenDescrShort({ option }) {
 function TokenDescrLong({ option }) {
     return (
         <React.Fragment>
-            <img alt="" className="token_icon" width="32" height="32" src={option.logo} />
+            <img alt="" className="option_icon" width="32" height="32" src={option.logo} />
             <div>
                 <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.name}</div>
                 <div style={{ fontSize: '12px', textAlign: 'left' }}>{option.unit_name}</div>
@@ -369,7 +369,7 @@ export function renderValueShort(valueProps, snapshot) {
     return (
         <div style={{ position: 'relative' }}>
             {option && !snapshot.focus && (
-                <div className="token_descr">
+                <div className="option_descr">
                     <TokenDescrShort option={option} />
                 </div>
             )}
@@ -390,7 +390,7 @@ export function renderValue(valueProps, snapshot) {
     return (
         <div style={{ position: 'relative' }}>
             {option && !snapshot.focus && (
-                <div className="token_descr">
+                <div className="option_descr">
                     <TokenDescrLong option={option} />
                 </div>
             )}
