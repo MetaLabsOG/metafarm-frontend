@@ -15,6 +15,8 @@ import { useTimer } from '../../../common/reachHooks';
 import { calculateUnlockTimeinSecs } from './UnlockTimer';
 import { logFarmActionData } from '../../../logEvent';
 import { Account } from '@reach-sh/stdlib/ALGO';
+import { batchOptIn, checkOptIn } from '../../../batchOptIn';
+import { reach } from '../../../AppContext';
 
 export const onClickClaim = async (
     account: Account | null,
@@ -26,6 +28,10 @@ export const onClickClaim = async (
     const amount = calculateTokenAmount(rewardTokenInfo, microAmount);
     logFarmActionData(account, 'CLAIM', amount, stakeTokenInfo, rewardTokenInfo);
     try {
+        const isTokenOptIn = await checkOptIn(account?.networkAccount.addr, rewardTokenInfo.id);
+        if (account && !isTokenOptIn) {
+            await batchOptIn(reach, account.networkAccount.addr, [Number(rewardTokenInfo.id)], true);
+        }
         await ctc.apis.claim();
     } catch (e) {
         // @ts-ignore
