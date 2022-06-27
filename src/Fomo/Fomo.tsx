@@ -7,7 +7,7 @@ import { RulesModal } from './RulesModal';
 import { reach, IS_MOBILE } from '../AppContext';
 import { Timer } from './Timer';
 import { Status } from '../Status';
-import { batchOptIn } from '../batchOptIn.mjs';
+import { batchOptIn } from '../batchOptIn';
 import { getContracts } from '../providers/apiProvider';
 import { getAssetInfo } from '../providers/algoExploerProvider';
 import { logEvent, LogName } from '../logEvent';

@@ -45,7 +45,7 @@ export async function loadZapData(
     console.log('[ZAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
-        const additionalParams = '&swap_half=true&slippage=0.1';
+        const additionalParams = '&swap_half=true&slippage=0.01';
         const zap_data: ZapData = await getData(QueryType.zap, asset1_id, asset2_id, asset1_amount, additionalParams);
 
         logEvent(
@@ -62,6 +62,7 @@ export async function loadZapData(
         );
 
         setResult(zap_data);
+        console.log('[ZAP] res', zap_data);
         setIsLoading(false);
         setShowResults(true);
     } catch (e) {
@@ -200,7 +201,7 @@ export function Zap() {
             token1.value,
             token2.value,
             token1Amount,
-            '&swap_half=true&slippage=0.1'
+            '&swap_half=true&slippage=0.01'
         );
         if (result_tx_id) {
             alert('OK ' + result_tx_id);

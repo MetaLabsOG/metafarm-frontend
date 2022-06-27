@@ -67,6 +67,7 @@ export function ConnectWallet() {
     const [finishedOpening, setFinishedOpening] = useState(false);
     const [Modal, open, close, isOpen] = useModal('root', { preventScroll: true });
     const [accDropdownOpen, setAccDropdownOpen] = useState(false);
+    const preffix = ALGONET === TESTNET ? 'testnet.' : '';
 
     // check local state once when the element is rendered first
     useEffect(() => {
@@ -118,7 +119,7 @@ export function ConnectWallet() {
                         >
                             <a
                                 target="_blank"
-                                href={'https://algoexplorer.io/address/' + account.networkAccount.addr}
+                                href={'https://' + preffix + 'algoexplorer.io/address/' + account.networkAccount.addr}
                                 rel="noreferrer"
                             >
                                 algoexplorer

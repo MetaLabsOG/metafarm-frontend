@@ -87,7 +87,7 @@ export function ZapModal({
             token1.value,
             token2.value,
             token1Amount,
-            '&swap_half=true&slippage=0.1'
+            '&swap_half=true&slippage=0.01'
         );
         refreshAccountInfo();
         closeModal();

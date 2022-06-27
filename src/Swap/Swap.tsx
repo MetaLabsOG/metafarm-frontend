@@ -5,7 +5,7 @@ import { ALGONET, MAINNET, META_TOKEN_ID, reach } from '../AppContext';
 import 'react-select-search/style.css';
 import '../css/swap.css';
 import { BestSwap, Token, TokenSelectOption, Transaction } from './types';
-import { $account, $balances, Amount, AssetId } from '../common/store';
+import { $account, $balances, Amount, AssetId, refreshAccountInfo } from '../common/store';
 
 import SelectSearch, { fuzzySearch, SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
@@ -17,7 +17,7 @@ import { WalletTransaction } from '../types';
 import { zip } from 'ramda';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
-export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://testapi.cometa.farm/';
+export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';
 // export const API_PATH = 'http://0.0.0.0:5000/';
 
 const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
@@ -236,6 +236,7 @@ export async function runTransactions(
         // console.log(transactions);
         const result_tx_id = await signAndSubmitTransactions(algodClient, transactions);
         console.log('OK', result_tx_id);
+        refreshAccountInfo();
 
         logEvent(
             account.networkAccount.addr,
@@ -253,20 +254,21 @@ export async function runTransactions(
     } catch (e) {
         // @ts-ignore
         const error_message = e.message;
+        const queryType = QueryType[type].toUpperCase();
         if (error_message.includes('underflow')) {
-            alert(QueryType[type] + 'Not enough tokens');
+            alert(queryType + ': Not enough tokens');
         } else if (error_message.includes('Transaction not confirmed')) {
-            alert(QueryType[type] + ': Transaction not confirmed');
+            alert(queryType + ': Transaction not confirmed');
         } else if (error_message.includes('would result negative')) {
-            alert(QueryType[type] + ': Result slippage is higher than expected.');
+            alert(queryType + ': Result slippage is higher than expected.');
         } else if (error_message.includes('popup')) {
-            alert(QueryType[type] + ': Popups are blocked. Please, allow popups in your browser.');
+            alert(queryType + ': Popups are blocked. Please, allow popups in your browser.');
         } else if (error_message.includes('missing')) {
-            alert(QueryType[type] + ": Your wallet doesn't have the input token.");
+            alert(queryType + ": Your wallet doesn't have the input token.");
         } else if (error_message.includes('below min') || error_message.includes('overspend')) {
-            alert(QueryType[type] + ': Not enough available algos.');
+            alert(queryType + ': Not enough available algos.');
         } else {
-            alert(QueryType[type] + ' error. Please, contact us in twitter or discord.');
+            alert(queryType + ' error. Please, contact us in twitter or discord.');
         }
         console.log(error_message);
         logEvent(
@@ -296,6 +298,16 @@ export async function getOptions(balances: Record<AssetId, Amount> | null = null
             decimals: token.decimals,
         }))
         .filter((token) => token.value);
+
+    // TODO hack for glitter
+    assets.push({
+        value: '96690352',
+        name: 'goSOL',
+        unit_name: 'goSOL',
+        logo: 'https://gateway.pinata.cloud/ipfs/QmXhUDU7QNxWg27JipSvLxc3wcsEL23RJW5fjDvEGzbZSb',
+        balance: 0,
+        decimals: 8,
+    });
 
     if (!balances) {
         return assets;
@@ -406,9 +418,9 @@ export function renderValue(valueProps, snapshot) {
 
 export function formatNumber(x: number) {
     if (x < 0.01) {
-        return Math.round(x * 1000) / 1000;
+        return Math.floor(x * 1000) / 1000;
     }
-    return x > 100 ? Math.round(x) : Math.round(x * 100) / 100;
+    return x > 100 ? Math.floor(x) : Math.floor(x * 100) / 100;
 }
 
 function BestTokenPrice({
