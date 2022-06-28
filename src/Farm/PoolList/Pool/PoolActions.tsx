@@ -15,7 +15,7 @@ import { useTimer } from '../../../common/reachHooks';
 import { calculateUnlockTimeinSecs } from './UnlockTimer';
 import { logFarmActionData } from '../../../logEvent';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { batchOptIn, checkOptIn } from '../../../batchOptIn';
+import { batchOptIn, checkOptIn } from '../../../batchOptIn.mjs';
 import { reach } from '../../../AppContext';
 
 export const onClickClaim = async (

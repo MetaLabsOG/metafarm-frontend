@@ -108,7 +108,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => 
             <h4>SET AMOUNT TO BUY ({individualCap - alreadyBought} more microMETA allowed)</h4>
             <input
                 type="number"
-                className="token_input"
+                className="tokenInput"
                 placeholder={'10'}
                 onChange={(e) => setTokenAmountValidated(BigInt(parseInt(e.target.value)))}
                 // TODO: remove this conversion when adding proper display with decimals

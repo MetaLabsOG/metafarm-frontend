@@ -9,3 +9,18 @@ export const FarmContainer = styled.div`
     margin-top: 40px;
     font-family: 'Montserrat';
 `;
+
+export const DateInput = styled.input`
+    height: 50px;
+    width: 220px;
+    padding: 10px;
+    color: #ffffff;
+    background-color: #272727;
+    flex-shrink: 0;
+
+    font-family: 'Montserrat';
+    font-size: 18px;
+
+    border: 1px solid rgba(125, 125, 125, 0.66);
+    border-radius: 8px;
+`;

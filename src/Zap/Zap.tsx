@@ -10,17 +10,13 @@ import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
-import {
-    formatNumber,
-    getData,
-    getOptions,
-    QueryType,
-    runTransactions,
-    TOKEN_INITIAL_STATE,
-    TokenSelect,
-    TokenSelectWithAmount,
-} from '../Swap/Swap';
+import { formatNumber, getData, getOptions, QueryType, runTransactions, TOKEN_INITIAL_STATE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
+import { Select, SelectType } from '../Components/Select/Select';
+import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
+import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
+import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
+import { InfoRow } from '../Components/InfoRow/InfoRow';
 
 export async function loadZapData(
     account: Account | null,
@@ -95,37 +91,30 @@ export function ZapResult({
     token1: TokenSelectOption;
     token2: TokenSelectOption;
 }) {
-    if (isLoading) {
-        return (
-            <div className="token_price" style={{ display: 'flex', justifyContent: 'center' }}>
-                <img
-                    style={{ width: '50px', height: '50px', margin: 'auto' }}
-                    alt="loader"
-                    src={require('../imgs/loader.gif')}
-                />
-            </div>
-        );
-    }
+    const lpTokens =
+        formatNumber(zap_data.asset1_amount ?? 0) +
+        ' ' +
+        token1.unit_name +
+        ' ' +
+        formatNumber(zap_data.asset2_amount ?? 0) +
+        ' ' +
+        token2.unit_name;
 
     return (
-        <div className="token_price">
-            <div style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap' }}>
-                <h3 className="token_price_text">
-                    {token1.unit_name}-{token2.unit_name} LP
-                </h3>
-                <h3 className="token_price_zap_value">{formatNumber(zap_data.lp_amount ?? 0)}</h3>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'right', marginTop: '10px' }}>
-                <h3 className="token_price_text">
-                    {formatNumber(zap_data.asset1_amount ?? 0)} {token1.unit_name} +{' '}
-                    {formatNumber(zap_data.asset2_amount ?? 0)} {token2.unit_name}
-                </h3>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap', marginTop: '10px' }}>
-                <h3 className="token_price_text">LP ASA ID</h3>
-                <h3 className="token_price_text">{formatNumber(zap_data.pool_lp_id ?? 0)}</h3>
-            </div>
-        </div>
+        <InfoPanel isLoading={isLoading}>
+            <InfoRow
+                title={token1.unit_name + '-' + token2.unit_name + ' LP'}
+                value={formatNumber(zap_data.lp_amount ?? 0)}
+                valueStyle={{ fontSize: '18px', color: 'white' }}
+                style={{ marginBottom: '5px' }}
+            />
+            <InfoRow title=" " value={lpTokens} valueStyle={{ fontSize: '14px' }} />
+            <InfoRow
+                title="LP ASA ID"
+                value={formatNumber(zap_data.pool_lp_id ?? 0)}
+                valueStyle={{ fontSize: '14px' }}
+            />
+        </InfoPanel>
     );
 }
 
@@ -209,19 +198,24 @@ export function Zap() {
     };
 
     return (
-        <div className="swap_container">
-            <h1 className="swap_header">ZAP</h1>
-            <h3 className="swap_descr">Add liquidity and get LP tokens in one click</h3>
-            <h3 className="swap_text">FIRST TOKEN</h3>
-            <TokenSelectWithAmount
+        <ModalContainer>
+            <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>ZAP</ModalTitle>
+            <ModalSubtitle>Add liquidity and get LP tokens in one click</ModalSubtitle>
+            <Heading2>FIRST TOKEN</Heading2>
+            <SelectInputGroup
                 options={options}
-                token={token1}
-                tokenAmount={token1Amount}
+                selectedOption={token1}
+                inputData={token1Amount}
                 selectOnChange={select1OnChange}
                 inputOnChange={inputOnChange}
             />
-            <h3 className="swap_text">SECOND TOKEN</h3>
-            <TokenSelect options={options} token={token2} selectOnChange={select2OnChange} />
+            <Heading2>SECOND TOKEN</Heading2>
+            <Select
+                selectType={SelectType.tokenSelect}
+                options={options}
+                selectedOption={token2}
+                selectOnChange={select2OnChange}
+            />
             {!isLoading && !showResult && (
                 <PacmanButton
                     buttonText="FIND LIQUIDITY POOL"
@@ -238,6 +232,6 @@ export function Zap() {
                     <h3 className="dex_name">on tinyman</h3>
                 </React.Fragment>
             )}
-        </div>
+        </ModalContainer>
     );
 }

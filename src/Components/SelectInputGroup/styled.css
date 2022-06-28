@@ -1,0 +1,33 @@
+.SelectInputGroupContainer {
+    display: flex;
+    whiteSpace: nowrap;
+    width: 350px;
+    margin-bottom: 10px;
+}
+
+.tokenInput {
+    height: 50px;
+    width: 100%;
+    padding: 10px;
+    color: #ffffff;
+    background-color: #272727;
+
+    font-family: 'Montserrat';
+    font-size: 18px;
+
+    border: 1px solid rgba(125, 125, 125, 0.66);
+    border-radius: 8px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 0;
+    flex-grow: 1;
+}
+
+.tokenBalance {
+    color: #8b8b8b;
+    margin-top: 5px;
+    font-family: 'Montserrat';
+    font-size: 12px;
+    margin-left: 10px;
+    text-align: left;
+}
