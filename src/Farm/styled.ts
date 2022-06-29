@@ -12,7 +12,7 @@ export const FarmContainer = styled.div`
 
 export const DateInput = styled.input`
     height: 50px;
-    width: 220px;
+    width: 250px;
     padding: 10px;
     color: #ffffff;
     background-color: #272727;
@@ -23,4 +23,14 @@ export const DateInput = styled.input`
 
     border: 1px solid rgba(125, 125, 125, 0.66);
     border-radius: 8px;
+`;
+
+export const PoolCreateModalContainer = styled.div`
+    display: flex;
+    margin-right: auto;
+
+    @media (max-width: 1120px) {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
 `;

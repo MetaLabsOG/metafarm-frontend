@@ -268,7 +268,7 @@ export async function runTransactions(
         } else if (error_message.includes('popup')) {
             alert(queryType + ': Popups are blocked. Please, allow popups in your browser.');
         } else if (error_message.includes('missing')) {
-            alert(queryType + ": Your wallet doesn't have the input token.");
+            alert(queryType + ": Your wallet doesn't have the input token. You can get the tokens in the swap tab.");
         } else if (error_message.includes('below min') || error_message.includes('overspend')) {
             alert(queryType + ': Not enough available algos.');
         } else {

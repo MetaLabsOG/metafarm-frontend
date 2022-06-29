@@ -5,9 +5,10 @@ import { PoolState } from './types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
 import { PoolInfoMobile } from './PoolInfoMobile';
-import { unsafeFromBigint } from '../../../common/lib';
+import { BLOCK_SECS, DAY, unsafeFromBigint } from '../../../common/lib';
 
-const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
+const daysDiff = (currentBlock: number, block: number) =>
+    Math.floor((Math.abs(block - currentBlock) * BLOCK_SECS) / DAY);
 
 const calculateAPR = (
     meanRoundDuration: number,

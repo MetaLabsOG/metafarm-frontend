@@ -12081,6 +12081,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.16.0"
     "@ethersproject/bignumber": "npm:^5.6.2"
+    "@metalabsog/common": "npm:^17.0.0"
     "@metalabsog/crowdsale": "npm:17.0.0"
     "@metalabsog/distribution": "npm:17.0.0"
     "@metalabsog/farm": "npm:17.0.2"
