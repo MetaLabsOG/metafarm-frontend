@@ -3,10 +3,12 @@ import { useStore } from 'effector-react';
 import { $account, $balances, refreshAccountInfo } from '../common/store';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { TokenSelectOption } from '../Swap/types';
-import { getOptions, QueryType, runTransactions, TOKEN_INITIAL_STATE, TokenSelectWithAmount } from '../Swap/Swap';
+import { getOptions, QueryType, runTransactions, TOKEN_INITIAL_STATE } from '../Swap/Swap';
 import { ZapData } from './types';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
+import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
+import { Heading2, ModalContainer, ModalTitle } from '../common/styled';
 
 export function ZapModal({
     asset1_id,
@@ -94,18 +96,15 @@ export function ZapModal({
     };
 
     return (
-        <div className="swap_container" style={{ height: '450px' }}>
-            <h1
-                className="swap_header"
-                style={{ width: '100%', textAlign: 'left', fontSize: '22px', marginBottom: '20px' }}
-            >
+        <ModalContainer>
+            <ModalTitle>
                 GET {token1.unit_name}-{token2.unit_name} LP
-            </h1>
-            <h3 className="swap_text">FROM</h3>
-            <TokenSelectWithAmount
+            </ModalTitle>
+            <Heading2>FROM</Heading2>
+            <SelectInputGroup
                 options={options}
-                token={token1}
-                tokenAmount={token1Amount}
+                selectedOption={token1}
+                inputData={token1Amount}
                 selectOnChange={select1OnChange}
                 inputOnChange={inputOnChange}
             />
@@ -114,6 +113,6 @@ export function ZapModal({
                 <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
                 <h3 className="dex_name">on tinyman</h3>
             </React.Fragment>
-        </div>
+        </ModalContainer>
     );
 }

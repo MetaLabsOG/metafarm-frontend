@@ -186,3 +186,10 @@ export const calculateTokenMicroAmount = (token: Asset, amount: number | null): 
 
     return BigInt(Math.floor(amount * 10 ** token.decimals));
 };
+
+export function formatNumber(x: number) {
+    if (x < 0.01) {
+        return Math.round(x * 1000) / 1000;
+    }
+    return x > 100 ? Math.round(x) : Math.round(x * 100) / 100;
+}

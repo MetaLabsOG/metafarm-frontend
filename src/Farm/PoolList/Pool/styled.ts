@@ -145,11 +145,10 @@ export const GetLpTokenButton = styled.div<{ isActive?: boolean }>`
 export const LPTokensIcon = styled.div<{ first?: boolean }>`
     position: absolute;
     left: ${({ first }) => (first ? '0' : '30px')};
-    height: 40px;
-    width: 40px;
-    border: 0px solid;
+    height: 100%;
+    //width: 40px;
+    border: 0 solid;
     border-radius: 40px;
-    // color: ${({ theme, first }) => (first ? theme.green : theme.white)};
     background-color: black;
 `;
 
@@ -158,10 +157,6 @@ export const LpTokensIconsWrapper = styled.div`
     position: relative;
     height: 40px;
     width: 85px;
-
-    @media (max-width: 1120px) {
-        //margin: 10px auto 10px auto;
-    }
 `;
 
 export const ArrowIconsWrapper = styled.div`

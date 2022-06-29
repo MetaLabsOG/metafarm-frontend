@@ -7,7 +7,7 @@ import '../css/swap.css';
 import { BestSwap, Token, TokenSelectOption, Transaction } from './types';
 import { $account, $balances, Amount, AssetId, refreshAccountInfo } from '../common/store';
 
-import SelectSearch, { fuzzySearch, SelectedOption, SelectedOptionValue } from 'react-select-search';
+import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
@@ -15,6 +15,10 @@ import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { withAlgodEncoding } from '../common/lib';
 import { WalletTransaction } from '../types';
 import { zip } from 'ramda';
+import { Select, SelectType } from '../Components/Select/Select';
+import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
+import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
+import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';
@@ -327,95 +331,6 @@ export async function getOptions(balances: Record<AssetId, Amount> | null = null
     return assets;
 }
 
-// @ts-ignore
-function TokenDescrShort({ option }) {
-    return (
-        <React.Fragment>
-            <img alt="" className="token_icon" width="32" height="32" src={option.logo} />
-            <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.unit_name}</div>
-        </React.Fragment>
-    );
-}
-
-// @ts-ignore
-function TokenDescrLong({ option }) {
-    return (
-        <React.Fragment>
-            <img alt="" className="token_icon" width="32" height="32" src={option.logo} />
-            <div>
-                <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.name}</div>
-                <div style={{ fontSize: '12px', textAlign: 'left' }}>{option.unit_name}</div>
-            </div>
-            {option.amount > 0 && (
-                <div
-                    style={{
-                        marginLeft: 'auto',
-                        marginRight: '50px',
-                        fontFamily: 'Montserrat',
-                        fontSize: '14px',
-                        color: '#8b8b8b',
-                    }}
-                >
-                    bal: {formatNumber(option.amount)}
-                </div>
-            )}
-        </React.Fragment>
-    );
-}
-
-// @ts-ignore
-export function renderToken(props, option) {
-    return (
-        <button {...props} className="search_option" type="button">
-            <div style={{ display: 'flex', alignItems: 'center', fontFamily: 'Montserrat', whiteSpace: 'nowrap' }}>
-                <TokenDescrLong option={option} />
-            </div>
-        </button>
-    );
-}
-
-// @ts-ignore
-export function renderValueShort(valueProps, snapshot) {
-    const { option } = snapshot;
-
-    return (
-        <div style={{ position: 'relative' }}>
-            {option && !snapshot.focus && (
-                <div className="token_descr">
-                    <TokenDescrShort option={option} />
-                </div>
-            )}
-            <input
-                {...valueProps}
-                placeholder={snapshot.focus || !snapshot.displayValue ? 'Choose token' : ''}
-                className="search_value"
-                value={snapshot.search}
-            />
-        </div>
-    );
-}
-
-// @ts-ignore
-export function renderValue(valueProps, snapshot) {
-    const { option } = snapshot;
-
-    return (
-        <div style={{ position: 'relative' }}>
-            {option && !snapshot.focus && (
-                <div className="token_descr">
-                    <TokenDescrLong option={option} />
-                </div>
-            )}
-            <input
-                {...valueProps}
-                placeholder={snapshot.focus || !snapshot.displayValue ? 'Choose token' : ''}
-                className="search_value search_value_basic"
-                value={snapshot.search}
-            />
-        </div>
-    );
-}
-
 export function formatNumber(x: number) {
     if (x < 0.01) {
         return Math.floor(x * 1000) / 1000;
@@ -440,20 +355,8 @@ function BestTokenPrice({
         Number.parseFloat(token1Amount) > 0 ? bestSwap.best_swap / Number.parseFloat(token1Amount) : 0;
     const best_algo = bestSwap.best_swap > bestSwap.direct_swap;
 
-    if (isLoading) {
-        return (
-            <div className="token_price" style={{ display: 'flex', justifyContent: 'center' }}>
-                <img
-                    style={{ width: '50px', height: '50px', margin: 'auto' }}
-                    alt="loader"
-                    src={require('../imgs/loader.gif')}
-                />
-            </div>
-        );
-    }
-
     return (
-        <div className="token_price">
+        <InfoPanel isLoading={isLoading}>
             {best_algo && (
                 <div
                     style={{
@@ -510,76 +413,7 @@ function BestTokenPrice({
                     {formatNumber(pricePerToken)} {token2.unit_name} per {token1.unit_name}
                 </div>
             </div>
-        </div>
-    );
-}
-
-export function TokenSelectWithAmount({
-    options,
-    token,
-    tokenAmount,
-    selectOnChange,
-    inputOnChange,
-}: {
-    options: any;
-    token: TokenSelectOption;
-    tokenAmount: string;
-    selectOnChange: any;
-    inputOnChange: any;
-}) {
-    return (
-        <div
-            style={{
-                display: 'flex',
-                whiteSpace: 'nowrap',
-                width: '350px',
-            }}
-        >
-            <SelectSearch
-                className="select-search"
-                options={options}
-                filterOptions={fuzzySearch}
-                renderOption={renderToken}
-                renderValue={renderValueShort}
-                search={true}
-                value={token.value}
-                onChange={selectOnChange}
-                placeholder=""
-            />
-            <div style={{ width: '100%' }}>
-                <input
-                    className="token_input"
-                    placeholder={'Enter amount'}
-                    onChange={inputOnChange}
-                    value={tokenAmount}
-                />
-                {token.balance > 0 && <div className="token_balance">Balance: {formatNumber(token.balance)}</div>}
-            </div>
-        </div>
-    );
-}
-
-export function TokenSelect({
-    options,
-    token,
-    selectOnChange,
-}: {
-    options: any;
-    token: TokenSelectOption;
-    selectOnChange: any;
-}) {
-    return (
-        <SelectSearch
-            className="select-search select-search-basic"
-            options={options}
-            filterOptions={fuzzySearch}
-            renderOption={renderToken}
-            renderValue={renderValue}
-            search={true}
-            value={token.value}
-            onChange={selectOnChange}
-            placeholder="Choose token"
-        />
+        </InfoPanel>
     );
 }
 
@@ -652,19 +486,24 @@ export function Swap() {
     };
 
     return (
-        <div className="swap_container">
-            <h1 className="swap_header">OPTIMAL SWAP</h1>
-            <h3 className="swap_descr">we find the optimal path to swap your token</h3>
-            <h3 className="swap_text">FROM</h3>
-            <TokenSelectWithAmount
+        <ModalContainer>
+            <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>OPTIMAL SWAP</ModalTitle>
+            <ModalSubtitle>we find the optimal path to swap your token</ModalSubtitle>
+            <Heading2>FROM</Heading2>
+            <SelectInputGroup
                 options={options}
-                token={token1}
-                tokenAmount={token1Amount}
+                selectedOption={token1}
+                inputData={token1Amount}
                 selectOnChange={select1OnChange}
                 inputOnChange={inputOnChange}
             />
-            <h3 className="swap_text">TO</h3>
-            <TokenSelect options={options} token={token2} selectOnChange={select2OnChange} />
+            <Heading2>TO</Heading2>
+            <Select
+                selectType={SelectType.tokenSelect}
+                options={options}
+                selectedOption={token2}
+                selectOnChange={select2OnChange}
+            />
             {!isLoading && !showResult && (
                 <PacmanButton
                     buttonText="FIND BEST PRICE"
@@ -687,6 +526,6 @@ export function Swap() {
                     <h3 className="dex_name">via tinyman</h3>
                 </React.Fragment>
             )}
-        </div>
+        </ModalContainer>
     );
 }
