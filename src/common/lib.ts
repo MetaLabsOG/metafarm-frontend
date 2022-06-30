@@ -14,6 +14,7 @@ import { Account, ReachStdlib } from '../types';
 import { Amount, Asset } from './store';
 import { reach } from '../AppContext';
 
+export const MINUTE: number = 60;
 export const HOUR: number = 60 * 60;
 export const DAY: number = HOUR * 24;
 

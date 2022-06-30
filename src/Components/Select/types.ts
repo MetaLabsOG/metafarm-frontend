@@ -1,23 +1,9 @@
 import { SelectType } from './Select';
+import { Asset } from '../../common/store';
+import { PoolInfo } from '../../providers/dexesProvider';
 
-export interface PoolOptionType {
-    value: string;
-    name: string;
-    dex: string;
-    logo1: string;
-    logo2: string;
-    asaId: number;
-}
-
-export interface TokenOptionType {
-    value: string;
-    name: string;
-    unit_name: string;
-    logo: string;
-    balance: number;
-    decimals: number;
-}
-
+export type PoolOptionType = PoolInfo & { value: string; name: string };
+export type TokenOptionType = Asset & { value: string; balance: number };
 export type SelectOptionType = TokenOptionType | PoolOptionType;
 
 export interface SelectProps {

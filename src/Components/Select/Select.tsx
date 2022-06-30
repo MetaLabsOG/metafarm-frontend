@@ -4,6 +4,7 @@ import { formatNumber } from '../../common/lib';
 import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
 import './styled.css';
 import './types';
+import { getAssetLogoUrl, getDexName } from '../../Farm/PoolList/Pool/utils';
 
 export enum SelectType {
     tokenSelect,
@@ -13,19 +14,24 @@ export enum SelectType {
 export const TOKEN_OPTION: TokenOptionType = {
     value: '',
     name: '',
-    unit_name: '',
-    logo: '',
+    unitName: '',
     balance: 0,
     decimals: 0,
+    id: 0,
+    creator: '',
 };
 
 export const POOL_OPTION: PoolOptionType = {
     value: '',
     name: '',
-    dex: '',
-    logo1: '',
-    logo2: '',
-    asaId: 0,
+    poolDex: 'T2',
+    poolId: 0,
+    asset1: 0,
+    asset2: 0,
+    liquidityAsset: 0,
+    asset1Reserve: 0,
+    asset2Reserve: 0,
+    totalLiquidity: 0,
 };
 
 export const getPlaceholder = (selectType: SelectType) => {
@@ -43,10 +49,10 @@ export const getPlaceholder = (selectType: SelectType) => {
 function TokenOption({ option, showAdditionalInfo }: { option: TokenOptionType; showAdditionalInfo: boolean }) {
     return (
         <React.Fragment>
-            <img alt="" className="tokenIcon" src={option.logo} />
+            <img alt="" className="tokenIcon" src={getAssetLogoUrl(option.id)} />
             <div>
                 <div className="optionTitle">{option.name}</div>
-                <div className="optionSubTitle">{option.unit_name}</div>
+                <div className="optionSubTitle">{option.unitName}</div>
             </div>
             {showAdditionalInfo && option.balance > 0 && (
                 <div className="selectAdditionalInfo">
@@ -63,17 +69,17 @@ function PoolOption({ option }: { option: PoolOptionType }) {
     return (
         <React.Fragment>
             <div className="lpIcons">
-                <img className="lpIcon" alt="" src={option.logo1} />
-                <img className="lpIcon" style={{ left: '16px' }} alt="" src={option.logo2} />
+                <img className="lpIcon" alt="" src={getAssetLogoUrl(option.asset1)} />
+                <img className="lpIcon" style={{ left: '16px' }} alt="" src={getAssetLogoUrl(option.asset2)} />
             </div>
             <div>
                 <div className="optionTitle">{option.name}</div>
-                <div className="optionSubTitle">{option.dex}</div>
+                <div className="optionSubTitle">{getDexName(option.poolDex)}</div>
             </div>
             <div className="selectAdditionalInfo">
                 ASA ID
                 <br />
-                {option.asaId}
+                {option.liquidityAsset}
             </div>
         </React.Fragment>
     );

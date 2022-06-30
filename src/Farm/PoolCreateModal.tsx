@@ -7,26 +7,159 @@ import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, POOL_OPTION, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { PoolOptionType, TokenOptionType } from '../Components/Select/types';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
-import { DateInput } from './styled';
+import { DateInput, PoolCreateModalContainer } from './styled';
 import { Heading2, ModalContainer, ModalTitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
+// @ts-ignore
+import { deployStandardContract } from '@metalabsog/common';
+//@ts-ignore
+import { backend as farmBackend } from '@metalabsog/farm';
 
-const PoolInfo = () => {
+import testnetPools from '../testnet_pools.json';
+import { Account } from '@reach-sh/stdlib/ALGO';
+import {
+    $account,
+    $balances,
+    $meanRoundDuration,
+    $networkTime,
+    $pricedAssets,
+    Asset,
+    Priced,
+    Time,
+} from '../common/store';
+import { useStore, useStoreMap } from 'effector-react';
+import { DAY, formatDecimalsMeaningful } from '../common/lib';
+import { deployContractToBackend } from '../providers/apiProvider';
+import { ConnectWallet } from '../wallet/ConnectWallet';
+
+const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
+    return Math.floor(Math.max(0, endTime - startTime) / meanRoundDuration);
+};
+
+const daysToBlocks = (days: number, meanRoundDuration: number) => {
+    return Math.floor((days * DAY) / meanRoundDuration);
+};
+
+const createFarm = async (
+    account: Account,
+    stakeToken: PoolOptionType,
+    rewardToken: TokenOptionType,
+    beginBlock: number,
+    endBlock: number,
+    rewardPerBlock: number
+) => {
+    if (!stakeToken.poolId) {
+        alert('Please, choose LP pool');
+        return;
+    }
+    if (isNaN(rewardToken.id)) {
+        alert('Please, choose reward token');
+        return;
+    }
+    if (isNaN(beginBlock) || beginBlock === endBlock) {
+        alert('Please, choose start time and farm duration');
+        return;
+    }
+    if (isNaN(rewardPerBlock) || rewardPerBlock === 0) {
+        alert('Please, enter reward amount');
+        return;
+    }
+
+    const microRewardPerBlock = Math.floor(rewardPerBlock * 10 ** rewardToken.decimals);
+    console.log('Start create farm', stakeToken.poolId, rewardToken.id, beginBlock, endBlock, microRewardPerBlock);
+    const contractParams = {
+        stakeToken: stakeToken.poolId,
+        rewardToken: rewardToken.id,
+        beginBlock: beginBlock,
+        endBlock: endBlock,
+        rewardPerBlock: microRewardPerBlock,
+        lockLengthBlocks: 0,
+        stakeFee: 0,
+        unstakeFee: 0,
+        isDevEnv: false,
+    };
+    const ctc = account.contract(farmBackend);
+    const contractId = await deployStandardContract(ctc, contractParams);
+    console.log('ContractID', contractId);
+    const res = await deployContractToBackend(contractId, 'farm', stakeToken.name, stakeToken.poolDex);
+    console.log('Backend res', res);
+
+    alert('Done! Contract id is ' + contractId + '. Please, update the page.');
+};
+
+const calculateFarmData = (
+    currentBlock: number,
+    rewardAmount: number,
+    startTimestamp: Time,
+    daysDuration: number,
+    meanRoundDuration: number
+) => {
+    const beginBlock: number = currentBlock + deltaBlocks(Date.now(), startTimestamp, meanRoundDuration);
+    const endBlock: number = beginBlock + daysToBlocks(daysDuration, meanRoundDuration);
+    const rewardPerBlock: number = rewardAmount / (endBlock - beginBlock);
+
+    return [beginBlock, endBlock, rewardPerBlock];
+};
+
+const calculateAPR = (liquidity: number, rewards: number, rewardTokenPrice: Priced<Asset> | undefined) => {
+    if (isNaN(rewards) || !rewardTokenPrice) {
+        return 0;
+    }
+
+    return Math.floor(((rewards * rewardTokenPrice.price) / liquidity) * 100);
+};
+
+const PoolInfo = ({
+    beginBlock,
+    endBlock,
+    rewardPerBlock,
+    rewardAmount,
+    pricedRewardToken,
+}: {
+    beginBlock: number;
+    endBlock: number;
+    rewardPerBlock: number;
+    rewardAmount: number;
+    pricedRewardToken: Priced<Asset> | undefined;
+}) => {
+    const [minLiquidity, maxLiquidity] = [1000, 10000];
+    const [minAPR, maxAPR] = [
+        calculateAPR(minLiquidity, rewardAmount, pricedRewardToken),
+        calculateAPR(maxLiquidity, rewardAmount, pricedRewardToken),
+    ];
+
+    const rewardUnitName = pricedRewardToken ? pricedRewardToken.unitName : '';
+
     return (
         <InfoPanel isLoading={false}>
-            <InfoRow title={'Expected liquidity'} value={'1,000-10,000$'} />
-            <InfoRow style={{ color: '#676767', marginBottom: '20px' }} title={'Expected APR'} value={'1000%-500%'} />
-            <InfoRow title={'Current pool liquidity'} value={'110,000$'} />
-            <InfoRow title={'Start block'} value={'170432456'} />
-            <InfoRow title={'Total blocks'} value={'32459'} />
-            <InfoRow title={'Reward per block'} value={'3 META'} />
+            <InfoRow
+                title={'Expected liquidity'}
+                value={'$' + formatDecimalsMeaningful(minLiquidity) + '-$' + formatDecimalsMeaningful(maxLiquidity)}
+            />
+            <InfoRow
+                style={{ color: '#676767', marginBottom: '20px' }}
+                title={'Expected APR'}
+                value={minAPR + '%-' + maxAPR + '%'}
+            />
+            {/*<InfoRow title={'Current pool liquidity'} value={'110,000$'} />*/}
+            <InfoRow title={'Start block'} value={!isNaN(beginBlock) ? beginBlock : 0} />
+            <InfoRow title={'End block'} value={!isNaN(endBlock) ? endBlock : 0} />
+            <InfoRow
+                title={'Reward per block'}
+                value={!isNaN(rewardPerBlock) ? rewardPerBlock.toPrecision(6) + ' ' + rewardUnitName : 0}
+            />
         </InfoPanel>
     );
 };
 
 export const PoolCreateModal = () => {
-    const [PoolCreateModal, openPoolCreateModal] = useModal('root', { preventScroll: true });
+    const account = useStore($account);
+    const balances = useStore($balances);
+    const currentBlock = useStore($networkTime);
+    const meanRoundDuration = useStore($meanRoundDuration);
+
+    const [PoolCreateModal, openPoolCreateModal, closePoolCreateModal] = useModal('root', { preventScroll: true });
     const [poolOptions, setPoolOptions] = useState<PoolOptionType[]>([]);
     const [selectedPool, setSelectedPool] = useState<PoolOptionType>(POOL_OPTION);
 
@@ -34,31 +167,43 @@ export const PoolCreateModal = () => {
     const [selectedRewardToken, setSelectedRewardToken] = useState<TokenOptionType>(TOKEN_OPTION);
     const [rewardTokenAmount, setRewardTokenAmount] = useState<string>('');
 
-    const [startDate, setStartDate] = useState<string>('');
-    const [duration, setDuration] = useState<string>('');
+    const [startTime, setStartTime] = useState<string>('');
+    const [daysDuration, setDaysDuration] = useState<string>('');
+
+    const pricedRewardToken = useStoreMap({
+        store: $pricedAssets,
+        keys: [selectedRewardToken.id],
+        fn: (assets, [assetId]) => assets.find((asset) => asset.id === assetId),
+    });
+
+    const startTimestamp = Date.parse(startTime);
+    const [beginBlock, endBlock, rewardPerBlock] = calculateFarmData(
+        currentBlock,
+        Number(rewardTokenAmount),
+        startTimestamp,
+        Number(daysDuration),
+        meanRoundDuration
+    );
 
     useEffect(() => {
-        const options: PoolOptionType[] = [
-            {
-                value: '93085031',
-                name: 'META-ALGO LP',
-                dex: 'tinyman',
-                logo1: 'https://asa-list.tinyman.org/assets/712012773/icon.png',
-                logo2: 'https://asa-list.tinyman.org/assets/712012773/icon.png',
-                asaId: 93085031,
-            },
-            {
-                value: '62401500',
-                name: 'USDC-ALGO LP',
-                dex: 'tinyman',
-                logo1: 'https://asa-list.tinyman.org/assets/31566704/icon.png',
-                logo2: 'https://asa-list.tinyman.org/assets/31566704/icon.png',
-                asaId: 62401500,
-            },
-        ];
+        // TODO: use https://{mainnet|testnet}.analytics.tinyman.org/api/v1/pools/
+        const options: PoolOptionType[] = testnetPools.map((pool) => {
+            return {
+                value: pool.asaId.toString(),
+                name: pool.asset1_unitname + '-' + pool.asset2_unitname + ' LP',
+                poolId: 0, // this is bad but whatever for now...
+                poolDex: 'T2',
+                asset1: pool.asset1_id,
+                asset2: pool.asset2_id,
+                liquidityAsset: pool.asaId,
+                asset1Reserve: 0,
+                asset2Reserve: 0,
+                totalLiquidity: 0,
+            };
+        });
         setPoolOptions(options);
 
-        getOptions().then((res) => {
+        getOptions(balances).then((res) => {
             setRewardTokenOptions(res);
             setSelectedRewardToken(res[0]);
         });
@@ -72,7 +217,7 @@ export const PoolCreateModal = () => {
         setSelectedRewardToken(option);
     };
 
-    const inputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const rewardTokenAmountOnChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (isNaN(Number(e.target.value))) {
             return;
         }
@@ -80,16 +225,19 @@ export const PoolCreateModal = () => {
     };
 
     const dateInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setStartDate(e.target.value);
+        if (Date.parse(e.target.value) < Date.now()) {
+            return;
+        }
+        setStartTime(e.target.value);
     };
 
     const durationInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setDuration(e.target.value);
+        setDaysDuration(e.target.value);
     };
 
     return (
-        <div style={{ display: 'flex', marginRight: 'auto' }}>
-            <Button onClick={openPoolCreateModal}>ADD POOL</Button>
+        <PoolCreateModalContainer>
+            <Button onClick={openPoolCreateModal}>ADD FARM</Button>
             <PoolCreateModal>
                 <ModalContainer>
                     <ModalTitle>ADD FARM</ModalTitle>
@@ -106,7 +254,7 @@ export const PoolCreateModal = () => {
                         selectedOption={selectedRewardToken}
                         inputData={rewardTokenAmount}
                         selectOnChange={selectRewardTokenOnChange}
-                        inputOnChange={inputOnChange}
+                        inputOnChange={rewardTokenAmountOnChange}
                     />
                     <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                         <Heading2>START</Heading2>
@@ -114,7 +262,7 @@ export const PoolCreateModal = () => {
                             placeholder={'Select start time'}
                             type="datetime-local"
                             onChange={dateInputOnChange}
-                            value={startDate}
+                            value={startTime}
                         />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '20px' }}>
@@ -123,18 +271,38 @@ export const PoolCreateModal = () => {
                             style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
                             placeholder={'10-90'}
                             onChange={durationInputOnChange}
-                            value={duration}
+                            value={daysDuration}
                         />
                         <Heading2>DAYS</Heading2>
                     </div>
-                    <PoolInfo />
-                    <PacmanButton
-                        buttonText="CREATE FARM"
-                        buttonStyle="swap_button"
-                        onClickAction={() => alert('OK')}
+                    <PoolInfo
+                        beginBlock={beginBlock}
+                        endBlock={endBlock}
+                        rewardPerBlock={rewardPerBlock}
+                        rewardAmount={Number(rewardTokenAmount)}
+                        pricedRewardToken={pricedRewardToken}
                     />
+                    {!account ? (
+                        <ConnectWallet buttonClassName="swap_button" />
+                    ) : (
+                        <PacmanButton
+                            buttonText="CREATE FARM"
+                            buttonStyle="swap_button"
+                            onClickAction={async () => {
+                                await createFarm(
+                                    account,
+                                    selectedPool,
+                                    selectedRewardToken,
+                                    beginBlock,
+                                    endBlock,
+                                    rewardPerBlock
+                                );
+                                closePoolCreateModal();
+                            }}
+                        />
+                    )}
                 </ModalContainer>
             </PoolCreateModal>
-        </div>
+        </PoolCreateModalContainer>
     );
 };

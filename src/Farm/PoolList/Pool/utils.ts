@@ -49,6 +49,16 @@ export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenI
     }
 };
 
+export const getDexName = (poolDex: string): string => {
+    if (poolDex === 'T2') {
+        return 'tinyman';
+    }
+    if (poolDex === 'PT') {
+        return 'pact';
+    }
+    return poolDex;
+};
+
 export const getTokenLink = (asset_id: number | undefined): string => {
     if (asset_id === 0) {
         return 'https://algoexplorer.io/top-statistics';

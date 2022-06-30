@@ -2,13 +2,14 @@ import { loadZapData, ZapResult } from './Zap';
 import { useStore } from 'effector-react';
 import { $account, $balances, refreshAccountInfo } from '../common/store';
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { TokenSelectOption } from '../Swap/types';
-import { getOptions, QueryType, runTransactions, TOKEN_INITIAL_STATE } from '../Swap/Swap';
+import { getOptions, QueryType, runTransactions } from '../Swap/Swap';
 import { ZapData } from './types';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import { Heading2, ModalContainer, ModalTitle } from '../common/styled';
+import { TokenOptionType } from '../Components/Select/types';
+import { TOKEN_OPTION } from '../Components/Select/Select';
 
 export function ZapModal({
     asset1_id,
@@ -23,8 +24,8 @@ export function ZapModal({
     const account = useStore($account);
     const balances = useStore($balances);
 
-    const [token1, setToken1] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
-    const [token2, setToken2] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
+    const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
+    const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [zapData, setZapData] = useState<ZapData>({
         asset1_amount: 0,
@@ -33,7 +34,7 @@ export function ZapModal({
         pool_lp_id: 0,
     });
 
-    const [options, setOptions] = useState<TokenSelectOption[]>([]);
+    const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -98,7 +99,7 @@ export function ZapModal({
     return (
         <ModalContainer>
             <ModalTitle>
-                GET {token1.unit_name}-{token2.unit_name} LP
+                GET {token1.unitName}-{token2.unitName} LP
             </ModalTitle>
             <Heading2>FROM</Heading2>
             <SelectInputGroup

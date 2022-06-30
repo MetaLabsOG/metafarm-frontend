@@ -5,6 +5,7 @@
   "dependencies": {
     "@babel/core": "^7.16.0",
     "@ethersproject/bignumber": "^5.6.2",
+    "@metalabsog/common": "^17.0.0",
     "@metalabsog/crowdsale": "17.0.0",
     "@metalabsog/distribution": "17.0.0",
     "@metalabsog/farm": "17.0.2",

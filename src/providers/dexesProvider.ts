@@ -18,8 +18,9 @@ export type DexProvider =
 export type PoolInfo = {
     poolId: AppId;
     poolDex: DexProvider;
-    asset1: number;
-    asset2: number;
+    asset1: AssetId;
+    asset2: AssetId;
+    liquidityAsset: AssetId;
     asset1Reserve: number;
     asset2Reserve: number;
     totalLiquidity: number;
@@ -50,6 +51,7 @@ export class MockDex implements Dex {
             poolDex: 'MOCK',
             asset1: 0,
             asset2: 10000,
+            liquidityAsset: 100500,
             asset1Reserve: 100000000,
             asset2Reserve: 200000000,
             totalLiquidity: 100000000,
@@ -95,6 +97,7 @@ export class PactDex implements Dex {
             poolDex: 'PT',
             asset1: pool.primaryAsset.index,
             asset2: pool.secondaryAsset.index,
+            liquidityAsset: pool.liquidityAsset.index,
             asset1Reserve: pool.state.totalPrimary,
             asset2Reserve: pool.state.totalSecondary,
             totalLiquidity: pool.state.totalLiquidity,
@@ -427,11 +430,13 @@ export class TinymanDex implements Dex {
             [s1, s2] = [s2, s1];
         }
 
+        const liquidityAsset = accountInfo['created-assets'][0]['index'];
         return {
             poolId,
             poolDex: 'T2',
             asset1: a1,
             asset2: a2,
+            liquidityAsset,
             asset1Reserve: s1,
             asset2Reserve: s2,
             totalLiquidity: ilt,

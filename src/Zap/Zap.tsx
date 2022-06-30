@@ -2,7 +2,6 @@ import React, { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useSta
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
-import { TokenSelectOption } from '../Swap/types';
 import { ZapData } from './types';
 import { $account, $balances } from '../common/store';
 
@@ -10,13 +9,14 @@ import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
-import { formatNumber, getData, getOptions, QueryType, runTransactions, TOKEN_INITIAL_STATE } from '../Swap/Swap';
+import { formatNumber, getData, getOptions, QueryType, runTransactions } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { Select, SelectType } from '../Components/Select/Select';
+import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
+import { TokenOptionType } from '../Components/Select/types';
 
 export async function loadZapData(
     account: Account | null,
@@ -88,22 +88,22 @@ export function ZapResult({
 }: {
     isLoading: boolean;
     zap_data: ZapData;
-    token1: TokenSelectOption;
-    token2: TokenSelectOption;
+    token1: TokenOptionType;
+    token2: TokenOptionType;
 }) {
     const lpTokens =
         formatNumber(zap_data.asset1_amount ?? 0) +
         ' ' +
-        token1.unit_name +
+        token1.unitName +
         ' ' +
         formatNumber(zap_data.asset2_amount ?? 0) +
         ' ' +
-        token2.unit_name;
+        token2.unitName;
 
     return (
         <InfoPanel isLoading={isLoading}>
             <InfoRow
-                title={token1.unit_name + '-' + token2.unit_name + ' LP'}
+                title={token1.unitName + '-' + token2.unitName + ' LP'}
                 value={formatNumber(zap_data.lp_amount ?? 0)}
                 valueStyle={{ fontSize: '18px', color: 'white' }}
                 style={{ marginBottom: '5px' }}
@@ -122,8 +122,8 @@ export function Zap() {
     const account = useStore($account);
     const balances = useStore($balances);
 
-    const [token1, setToken1] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
-    const [token2, setToken2] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
+    const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
+    const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [zapData, setZapData] = useState<ZapData>({
         asset1_amount: 0,
@@ -132,7 +132,7 @@ export function Zap() {
         pool_lp_id: 0,
     });
 
-    const [options, setOptions] = useState<TokenSelectOption[]>([]);
+    const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 

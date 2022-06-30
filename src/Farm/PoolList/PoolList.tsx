@@ -1,9 +1,5 @@
-import { useEffect } from 'react';
-import { useQuery } from 'react-query';
-import { getContracts } from '../../providers/apiProvider';
 import { Pool } from './Pool';
 import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
-import { InfoHeader } from '../../common/styled';
 import { useList } from 'effector-react';
 import { Contract, FarmType } from '../../common/store';
 import { Store } from 'effector';
