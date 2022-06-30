@@ -28,6 +28,7 @@ export const POOL_OPTION: PoolOptionType = {
     poolId: 0,
     asset1: 0,
     asset2: 0,
+    liquidityAsset: 0,
     asset1Reserve: 0,
     asset2Reserve: 0,
     totalLiquidity: 0,
@@ -78,7 +79,7 @@ function PoolOption({ option }: { option: PoolOptionType }) {
             <div className="selectAdditionalInfo">
                 ASA ID
                 <br />
-                {option.poolId}
+                {option.liquidityAsset}
             </div>
         </React.Fragment>
     );

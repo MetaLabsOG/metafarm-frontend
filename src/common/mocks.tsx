@@ -17,6 +17,7 @@ export const lpTokenInfoMock: Priced<LPTokenInfo> = {
     poolDex: 'T2',
     asset1: 12,
     asset2: 11,
+    liquidityAsset: 13,
     asset1Reserve: 2,
     asset2Reserve: 23,
     totalLiquidity: 245,

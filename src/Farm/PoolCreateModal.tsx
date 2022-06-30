@@ -191,10 +191,11 @@ export const PoolCreateModal = () => {
             return {
                 value: pool.asaId.toString(),
                 name: pool.asset1_unitname + '-' + pool.asset2_unitname + ' LP',
+                poolId: 0, // this is bad but whatever for now...
                 poolDex: 'T2',
                 asset1: pool.asset1_id,
                 asset2: pool.asset2_id,
-                poolId: pool.asaId,
+                liquidityAsset: pool.asaId,
                 asset1Reserve: 0,
                 asset2Reserve: 0,
                 totalLiquidity: 0,
