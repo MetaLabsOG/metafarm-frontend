@@ -32,6 +32,7 @@ import {
 import { useStore } from 'effector-react';
 import { DAY, formatDecimalsMeaningful } from '../common/lib';
 import { deployContractToBackend } from '../providers/apiProvider';
+import { ConnectWallet } from '../wallet/ConnectWallet';
 
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
     return Math.floor(Math.max(0, endTime - startTime) / meanRoundDuration);
@@ -42,7 +43,7 @@ const daysToBlocks = (days: number, meanRoundDuration: number) => {
 };
 
 const createFarm = async (
-    account: Account | null,
+    account: Account,
     stakeToken: PoolOptionType,
     rewardToken: TokenOptionType,
     beginBlock: number,
@@ -50,11 +51,7 @@ const createFarm = async (
     rewardPerBlock: number
 ) => {
     const rewardTokenId = Number(rewardToken.value);
-    if (!account) {
-        alert('Please, connect your wallet');
-        return;
-    }
-    if (!stakeToken.asaId) {
+    if (!stakeToken.poolId) {
         alert('Please, choose LP pool');
         return;
     }
@@ -72,9 +69,9 @@ const createFarm = async (
     }
 
     const microRewardPerBlock = Math.floor(rewardPerBlock * 10 ** rewardToken.decimals);
-    console.log('Start create farm', stakeToken.asaId, rewardTokenId, beginBlock, endBlock, microRewardPerBlock);
+    console.log('Start create farm', stakeToken.poolId, rewardTokenId, beginBlock, endBlock, microRewardPerBlock);
     const contractParams = {
-        stakeToken: Number(stakeToken.asaId),
+        stakeToken: Number(stakeToken.poolId),
         rewardToken: rewardTokenId,
         beginBlock: beginBlock,
         endBlock: endBlock,
@@ -87,7 +84,7 @@ const createFarm = async (
     const ctc = account.contract(farmBackend);
     const contractId = await deployStandardContract(ctc, contractParams);
     console.log('ContractID', contractId);
-    const res = await deployContractToBackend(contractId, 'farm', stakeToken.name, stakeToken.dex);
+    const res = await deployContractToBackend(contractId, 'farm', stakeToken.name, stakeToken.poolDex);
     console.log('Backend res', res);
 
     alert('Done! Contract id is ' + contractId + '. Please, update the page.');
@@ -193,10 +190,13 @@ export const PoolCreateModal = () => {
             return {
                 value: pool.asaId.toString(),
                 name: pool.asset1_unitname + '-' + pool.asset2_unitname + ' LP',
-                dex: pool.dex,
-                logo1: getAssetLogoUrl(pool.asset1_id),
-                logo2: getAssetLogoUrl(pool.asset2_id),
-                asaId: pool.asaId,
+                poolDex: 'T2',
+                asset1: pool.asset1_id,
+                asset2: pool.asset2_id,
+                poolId: pool.asaId,
+                asset1Reserve: 0,
+                asset2Reserve: 0,
+                totalLiquidity: 0,
             };
         });
         setPoolOptions(options);
@@ -280,21 +280,25 @@ export const PoolCreateModal = () => {
                         rewardAmount={Number(rewardTokenAmount)}
                         pricedRewardToken={pricedRewardToken}
                     />
-                    <PacmanButton
-                        buttonText="CREATE FARM"
-                        buttonStyle="swap_button"
-                        onClickAction={async () => {
-                            await createFarm(
-                                account,
-                                selectedPool,
-                                selectedRewardToken,
-                                beginBlock,
-                                endBlock,
-                                rewardPerBlock
-                            );
-                            closePoolCreateModal();
-                        }}
-                    />
+                    {!account ? (
+                        <ConnectWallet buttonClassName="swap_button" />
+                    ) : (
+                        <PacmanButton
+                            buttonText="CREATE FARM"
+                            buttonStyle="swap_button"
+                            onClickAction={async () => {
+                                await createFarm(
+                                    account,
+                                    selectedPool,
+                                    selectedRewardToken,
+                                    beginBlock,
+                                    endBlock,
+                                    rewardPerBlock
+                                );
+                                closePoolCreateModal();
+                            }}
+                        />
+                    )}
                 </ModalContainer>
             </PoolCreateModal>
         </PoolCreateModalContainer>

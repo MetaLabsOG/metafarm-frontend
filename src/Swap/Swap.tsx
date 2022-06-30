@@ -287,12 +287,11 @@ export async function getOptions(balances: Record<AssetId, Amount> | null = null
     const assets: TokenOptionType[] = Object.values(assets_res)
         .map((token) => ({
             value: ALGONET === MAINNET ? `${token.id}` : `${MAINNET_TO_TESTNET_ASA_ID[token.id] ?? ''}`,
+            id: ALGONET === MAINNET ? token.id : MAINNET_TO_TESTNET_ASA_ID[token.id],
             name: token.name,
             unitName: token.unit_name,
-            logo: token.logo.png,
             balance: 0,
             decimals: token.decimals,
-            id: token.id,
             creator: '',
         }))
         .filter((token) => token.value);
@@ -302,7 +301,6 @@ export async function getOptions(balances: Record<AssetId, Amount> | null = null
         value: '96690352',
         name: 'goSOL',
         unitName: 'goSOL',
-        logo: 'https://gateway.pinata.cloud/ipfs/QmXhUDU7QNxWg27JipSvLxc3wcsEL23RJW5fjDvEGzbZSb',
         balance: 0,
         decimals: 8,
         id: 96690352,

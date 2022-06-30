@@ -5,12 +5,13 @@ import { formatNumber } from '../../common/lib';
 import { SelectInputGroupProps } from './types';
 import '../Select/styled.css';
 import './styled.css';
+import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
 
 // @ts-ignore
 function TokenOption({ option }) {
     return (
         <div className="TokenOptionContainer">
-            <img alt="" className="tokenIcon" width="32" height="32" src={option.logo} />
+            <img alt="" className="tokenIcon" width="32" height="32" src={getAssetLogoUrl(option.id)} />
             <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.unitName}</div>
         </div>
     );

@@ -62,7 +62,7 @@ const disconnectWallet = () => {
     }
 };
 
-export function ConnectWallet() {
+export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonClassName?: string }) {
     const account = useStore($account);
     const [finishedOpening, setFinishedOpening] = useState(false);
     const [Modal, open, close, isOpen] = useModal('root', { preventScroll: true });
@@ -103,8 +103,8 @@ export function ConnectWallet() {
         <>
             <div className="wallet_container">
                 {!account ? (
-                    <button className="connect_wallet" onClick={open}>
-                        connect wallet
+                    <button className={buttonClassName} onClick={open}>
+                        CONNECT WALLET
                     </button>
                 ) : (
                     <>
