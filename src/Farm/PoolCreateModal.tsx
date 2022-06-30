@@ -49,7 +49,7 @@ const createFarm = async (
     endBlock: number,
     rewardPerBlock: number
 ) => {
-    if (!stakeToken.poolId) {
+    if (!stakeToken.liquidityAsset) {
         alert('Please, choose LP pool');
         return;
     }
@@ -67,9 +67,16 @@ const createFarm = async (
     }
 
     const microRewardPerBlock = Math.floor(rewardPerBlock * 10 ** rewardToken.decimals);
-    console.log('Start create farm', stakeToken.poolId, rewardToken.id, beginBlock, endBlock, microRewardPerBlock);
+    console.log(
+        'Start create farm',
+        stakeToken.liquidityAsset,
+        rewardToken.id,
+        beginBlock,
+        endBlock,
+        microRewardPerBlock
+    );
     const contractParams = {
-        stakeToken: stakeToken.poolId,
+        stakeToken: stakeToken.liquidityAsset,
         rewardToken: rewardToken.id,
         beginBlock: beginBlock,
         endBlock: endBlock,
@@ -102,7 +109,7 @@ const calculateFarmData = (
     return [beginBlock, endBlock, rewardPerBlock];
 };
 
-const calculateAPR = (liquidity: number, rewards: number, rewardTokenPrice: Priced<Asset> | undefined) => {
+const calculateAPR = (liquidity: number, rewards: number, rewardTokenPrice: Priced<Asset> | null) => {
     if (isNaN(rewards) || !rewardTokenPrice) {
         return 0;
     }
@@ -121,7 +128,7 @@ const PoolInfo = ({
     endBlock: number;
     rewardPerBlock: number;
     rewardAmount: number;
-    pricedRewardToken: Priced<Asset> | undefined;
+    pricedRewardToken: Priced<Asset> | null;
 }) => {
     const [minLiquidity, maxLiquidity] = [1000, 10000];
     const [minAPR, maxAPR] = [
@@ -173,7 +180,7 @@ export const PoolCreateModal = () => {
     const pricedRewardToken = useStoreMap({
         store: $pricedAssets,
         keys: [selectedRewardToken.id],
-        fn: (assets, [assetId]) => assets.find((asset) => asset.id === assetId),
+        fn: (assets) => assets.get(selectedRewardToken.id, null),
     });
 
     const startTimestamp = Date.parse(startTime);
@@ -204,8 +211,10 @@ export const PoolCreateModal = () => {
         setPoolOptions(options);
 
         getOptions(balances).then((res) => {
-            setRewardTokenOptions(res);
-            setSelectedRewardToken(res[0]);
+            // TODO: registerPricedAsset
+            const filteredAssets = res.filter((asset) => asset.id !== 0);
+            setRewardTokenOptions(filteredAssets);
+            setSelectedRewardToken(filteredAssets[0]);
         });
     }, []);
 
