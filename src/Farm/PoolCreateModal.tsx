@@ -17,7 +17,6 @@ import { deployStandardContract } from '@metalabsog/common';
 import { backend as farmBackend } from '@metalabsog/farm';
 
 import testnetPools from '../testnet_pools.json';
-import { getAssetLogoUrl } from './PoolList/Pool/utils';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import {
     $account,
@@ -29,7 +28,7 @@ import {
     Priced,
     Time,
 } from '../common/store';
-import { useStore } from 'effector-react';
+import { useStore, useStoreMap } from 'effector-react';
 import { DAY, formatDecimalsMeaningful } from '../common/lib';
 import { deployContractToBackend } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
@@ -50,12 +49,11 @@ const createFarm = async (
     endBlock: number,
     rewardPerBlock: number
 ) => {
-    const rewardTokenId = Number(rewardToken.value);
     if (!stakeToken.poolId) {
         alert('Please, choose LP pool');
         return;
     }
-    if (isNaN(rewardTokenId)) {
+    if (isNaN(rewardToken.id)) {
         alert('Please, choose reward token');
         return;
     }
@@ -69,10 +67,10 @@ const createFarm = async (
     }
 
     const microRewardPerBlock = Math.floor(rewardPerBlock * 10 ** rewardToken.decimals);
-    console.log('Start create farm', stakeToken.poolId, rewardTokenId, beginBlock, endBlock, microRewardPerBlock);
+    console.log('Start create farm', stakeToken.poolId, rewardToken.id, beginBlock, endBlock, microRewardPerBlock);
     const contractParams = {
-        stakeToken: Number(stakeToken.poolId),
-        rewardToken: rewardTokenId,
+        stakeToken: stakeToken.poolId,
+        rewardToken: rewardToken.id,
         beginBlock: beginBlock,
         endBlock: endBlock,
         rewardPerBlock: microRewardPerBlock,
@@ -104,7 +102,7 @@ const calculateFarmData = (
     return [beginBlock, endBlock, rewardPerBlock];
 };
 
-const calculateAPR = (liquidity: number, rewards: number, rewardTokenPrice: Priced<Asset> | null) => {
+const calculateAPR = (liquidity: number, rewards: number, rewardTokenPrice: Priced<Asset> | undefined) => {
     if (isNaN(rewards) || !rewardTokenPrice) {
         return 0;
     }
@@ -123,7 +121,7 @@ const PoolInfo = ({
     endBlock: number;
     rewardPerBlock: number;
     rewardAmount: number;
-    pricedRewardToken: Priced<Asset> | null;
+    pricedRewardToken: Priced<Asset> | undefined;
 }) => {
     const [minLiquidity, maxLiquidity] = [1000, 10000];
     const [minAPR, maxAPR] = [
@@ -172,8 +170,11 @@ export const PoolCreateModal = () => {
     const [startTime, setStartTime] = useState<string>('');
     const [daysDuration, setDaysDuration] = useState<string>('');
 
-    const pricedAssets = useStore($pricedAssets);
-    const pricedRewardToken = pricedAssets.get(Number(selectedRewardToken.value), null);
+    const pricedRewardToken = useStoreMap({
+        store: $pricedAssets,
+        keys: [selectedRewardToken.id],
+        fn: (assets, [assetId]) => assets.find((asset) => asset.id === assetId),
+    });
 
     const startTimestamp = Date.parse(startTime);
     const [beginBlock, endBlock, rewardPerBlock] = calculateFarmData(

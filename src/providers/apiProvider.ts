@@ -106,8 +106,7 @@ export const deployContractToBackend = async (
     // @ts-ignore
     const contractVersion = packages.dependencies['@metalabsog/' + contractType];
     if (!contractVersion) {
-        console.error('Wrong contract type', contractType);
-        return null;
+        throw new Error('Wrong contract type:' + contractType);
     }
     const data = {
         type: contractType,

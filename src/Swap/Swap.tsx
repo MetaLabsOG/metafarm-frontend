@@ -312,7 +312,7 @@ export async function getOptions(balances: Record<AssetId, Amount> | null = null
     }
 
     assets.forEach((asset) => {
-        const asset_balance = Number(balances[Number(asset.value)]) / 10 ** asset.decimals;
+        const asset_balance = Number(balances[asset.id]) / 10 ** asset.decimals;
         asset.balance = asset_balance ?? 0;
 
         // TODO: remove it
