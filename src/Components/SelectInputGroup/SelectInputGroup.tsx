@@ -11,7 +11,7 @@ function TokenOption({ option }) {
     return (
         <div className="TokenOptionContainer">
             <img alt="" className="tokenIcon" width="32" height="32" src={option.logo} />
-            <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.unit_name}</div>
+            <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.unitName}</div>
         </div>
     );
 }

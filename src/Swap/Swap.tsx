@@ -4,7 +4,7 @@ import { ALGONET, MAINNET, META_TOKEN_ID, reach } from '../AppContext';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
-import { BestSwap, Token, TokenSelectOption, Transaction } from './types';
+import { BestSwap, Token, Transaction } from './types';
 import { $account, $balances, Amount, AssetId, refreshAccountInfo } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
@@ -15,10 +15,11 @@ import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { withAlgodEncoding } from '../common/lib';
 import { WalletTransaction } from '../types';
 import { zip } from 'ramda';
-import { Select, SelectType } from '../Components/Select/Select';
+import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
+import { TokenOptionType } from '../Components/Select/types';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';
@@ -30,15 +31,6 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     386192725: 19386116, // goBTC
     31566704: 10458941, // USDC
     463554836: 70283957, // ALGF
-};
-
-export const TOKEN_INITIAL_STATE = {
-    value: '',
-    name: '',
-    unit_name: '',
-    logo: '',
-    balance: 0,
-    decimals: 0,
 };
 
 export enum QueryType {
@@ -289,17 +281,19 @@ export async function runTransactions(
     }
 }
 
-export async function getOptions(balances: Record<AssetId, Amount> | null = null): Promise<TokenSelectOption[]> {
+export async function getOptions(balances: Record<AssetId, Amount> | null = null): Promise<TokenOptionType[]> {
     const asset_response = await fetch(ASSETS_PATH);
     const assets_res: Token[] = await asset_response.json();
-    const assets: TokenSelectOption[] = Object.values(assets_res)
+    const assets: TokenOptionType[] = Object.values(assets_res)
         .map((token) => ({
             value: ALGONET === MAINNET ? `${token.id}` : `${MAINNET_TO_TESTNET_ASA_ID[token.id] ?? ''}`,
             name: token.name,
-            unit_name: token.unit_name,
+            unitName: token.unit_name,
             logo: token.logo.png,
             balance: 0,
             decimals: token.decimals,
+            id: token.id,
+            creator: '',
         }))
         .filter((token) => token.value);
 
@@ -307,10 +301,12 @@ export async function getOptions(balances: Record<AssetId, Amount> | null = null
     assets.push({
         value: '96690352',
         name: 'goSOL',
-        unit_name: 'goSOL',
+        unitName: 'goSOL',
         logo: 'https://gateway.pinata.cloud/ipfs/QmXhUDU7QNxWg27JipSvLxc3wcsEL23RJW5fjDvEGzbZSb',
         balance: 0,
         decimals: 8,
+        id: 96690352,
+        creator: '',
     });
 
     if (!balances) {
@@ -348,8 +344,8 @@ function BestTokenPrice({
     isLoading: boolean;
     token1Amount: string;
     bestSwap: BestSwap;
-    token1: TokenSelectOption;
-    token2: TokenSelectOption;
+    token1: TokenOptionType;
+    token2: TokenOptionType;
 }) {
     const pricePerToken =
         Number.parseFloat(token1Amount) > 0 ? bestSwap.best_swap / Number.parseFloat(token1Amount) : 0;
@@ -369,10 +365,10 @@ function BestTokenPrice({
                     <div className="token_price_text">
                         Direct swap:
                         <br />
-                        {token1.unit_name}-{token2.unit_name}
+                        {token1.unitName}-{token2.unitName}
                     </div>
                     <h3 className="token_price_value" style={{ color: 'white', padding: '10px' }}>
-                        {formatNumber(bestSwap.direct_swap)} {token2.unit_name}
+                        {formatNumber(bestSwap.direct_swap)} {token2.unitName}
                     </h3>
                 </div>
             )}
@@ -388,7 +384,7 @@ function BestTokenPrice({
                     className="token_price_value"
                     style={{ backgroundColor: '#00ff00', color: 'black', padding: '7px', fontSize: '18px' }}
                 >
-                    {formatNumber(bestSwap.best_swap)} {token2.unit_name}
+                    {formatNumber(bestSwap.best_swap)} {token2.unitName}
                 </h3>
             </div>
             {best_algo && (
@@ -402,7 +398,7 @@ function BestTokenPrice({
                 >
                     <div className="token_price_text"> </div>
                     <div className="token_price_delta">
-                        +{formatNumber(bestSwap.best_swap - bestSwap.direct_swap)} {token2.unit_name}(
+                        +{formatNumber(bestSwap.best_swap - bestSwap.direct_swap)} {token2.unitName}(
                         {formatNumber(bestSwap.usdc_diff)}$)
                     </div>
                 </div>
@@ -410,7 +406,7 @@ function BestTokenPrice({
             <div style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap' }}>
                 <div className="token_price_text">Price</div>
                 <div className="token_price_text">
-                    {formatNumber(pricePerToken)} {token2.unit_name} per {token1.unit_name}
+                    {formatNumber(pricePerToken)} {token2.unitName} per {token1.unitName}
                 </div>
             </div>
         </InfoPanel>
@@ -421,11 +417,11 @@ export function Swap() {
     const account = useStore($account);
     const balances = useStore($balances);
 
-    const [token1, setToken1] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
-    const [token2, setToken2] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
+    const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
+    const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [bestSwap, setBestSwap] = useState<BestSwap>({ best_swap: 0, direct_swap: 0, best_path: [], usdc_diff: 0 });
-    const [options, setOptions] = useState<TokenSelectOption[]>([]);
+    const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 

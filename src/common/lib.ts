@@ -17,7 +17,6 @@ import { reach } from '../AppContext';
 export const MINUTE: number = 60;
 export const HOUR: number = 60 * 60;
 export const DAY: number = HOUR * 24;
-export const BLOCK_SECS: number = 4.35;
 
 // BigNumbers from JSON decoding
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };

@@ -1,4 +1,5 @@
 import { SelectType } from './Select';
+import { Asset } from '../../common/store';
 
 export interface PoolOptionType {
     value: string;
@@ -9,14 +10,7 @@ export interface PoolOptionType {
     asaId: number;
 }
 
-export interface TokenOptionType {
-    value: string;
-    name: string;
-    unit_name: string;
-    logo: string;
-    balance: number;
-    decimals: number;
-}
+export type TokenOptionType = Asset & { value: string; balance: number; logo: string };
 
 export type SelectOptionType = TokenOptionType | PoolOptionType;
 

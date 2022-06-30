@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useModal } from 'react-hooks-use-modal';
 import { SelectedOptionValue } from 'react-select-search';
-import { API_PATH, getOptions } from '../Swap/Swap';
+import { getOptions } from '../Swap/Swap';
 import { Button } from '../Components/Button/Button';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, POOL_OPTION, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
@@ -19,39 +19,26 @@ import { backend as farmBackend } from '@metalabsog/farm';
 import testnetPools from '../testnet_pools.json';
 import { getAssetLogoUrl } from './PoolList/Pool/utils';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { $account, $balances, $networkTime, $pricedAssets, Asset, Priced, Time } from '../common/store';
+import {
+    $account,
+    $balances,
+    $meanRoundDuration,
+    $networkTime,
+    $pricedAssets,
+    Asset,
+    Priced,
+    Time,
+} from '../common/store';
 import { useStore } from 'effector-react';
-import { BLOCK_SECS, DAY, formatDecimalsMeaningful, MINUTE } from '../common/lib';
+import { DAY, formatDecimalsMeaningful } from '../common/lib';
+import { deployContractToBackend } from '../providers/apiProvider';
 
-const deltaBlocks = (startTime: Time, endTime: Time) => {
-    return Math.floor(Math.max(0, endTime - startTime) / BLOCK_SECS);
+const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
+    return Math.floor(Math.max(0, endTime - startTime) / meanRoundDuration);
 };
 
-const daysToBlocks = (days: number) => {
-    return Math.floor((days * DAY) / BLOCK_SECS);
-};
-
-const deployContractToBackend = async (contractId: number, farmName: string) => {
-    const query = API_PATH + 'contract/add?password=%24C0metaT0TheM00n%24';
-    const data = {
-        type: 'farm',
-        id: contractId,
-        version: '17.0.2',
-        description: farmName,
-        metadata: {
-            dex: 'Tinyman',
-        },
-    };
-
-    const response = await fetch(query, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            accept: 'application/json',
-        },
-        body: JSON.stringify(data),
-    });
-    return await response.json();
+const daysToBlocks = (days: number, meanRoundDuration: number) => {
+    return Math.floor((days * DAY) / meanRoundDuration);
 };
 
 const createFarm = async (
@@ -84,12 +71,14 @@ const createFarm = async (
         return;
     }
 
+    const microRewardPerBlock = Math.floor(rewardPerBlock * 10 ** rewardToken.decimals);
+    console.log('Start create farm', stakeToken.asaId, rewardTokenId, beginBlock, endBlock, microRewardPerBlock);
     const contractParams = {
         stakeToken: Number(stakeToken.asaId),
         rewardToken: rewardTokenId,
         beginBlock: beginBlock,
         endBlock: endBlock,
-        rewardPerBlock: Math.floor(rewardPerBlock * 10 ** rewardToken.decimals),
+        rewardPerBlock: microRewardPerBlock,
         lockLengthBlocks: 0,
         stakeFee: 0,
         unstakeFee: 0,
@@ -98,15 +87,21 @@ const createFarm = async (
     const ctc = account.contract(farmBackend);
     const contractId = await deployStandardContract(ctc, contractParams);
     console.log('ContractID', contractId);
-    const res = await deployContractToBackend(contractId, stakeToken.name);
+    const res = await deployContractToBackend(contractId, 'farm', stakeToken.name, stakeToken.dex);
     console.log('Backend res', res);
 
     alert('Done! Contract id is ' + contractId + '. Please, update the page.');
 };
 
-const calculateFarmData = (currentBlock: number, rewardAmount: number, startTimestamp: Time, daysDuration: number) => {
-    const beginBlock: number = currentBlock + deltaBlocks(Date.now(), startTimestamp);
-    const endBlock: number = beginBlock + daysToBlocks(daysDuration);
+const calculateFarmData = (
+    currentBlock: number,
+    rewardAmount: number,
+    startTimestamp: Time,
+    daysDuration: number,
+    meanRoundDuration: number
+) => {
+    const beginBlock: number = currentBlock + deltaBlocks(Date.now(), startTimestamp, meanRoundDuration);
+    const endBlock: number = beginBlock + daysToBlocks(daysDuration, meanRoundDuration);
     const rewardPerBlock: number = rewardAmount / (endBlock - beginBlock);
 
     return [beginBlock, endBlock, rewardPerBlock];
@@ -124,22 +119,22 @@ const PoolInfo = ({
     beginBlock,
     endBlock,
     rewardPerBlock,
-    rewardToken,
     rewardAmount,
-    rewardTokenPrice,
+    pricedRewardToken,
 }: {
     beginBlock: number;
     endBlock: number;
     rewardPerBlock: number;
-    rewardToken: TokenOptionType;
     rewardAmount: number;
-    rewardTokenPrice: Priced<Asset> | null;
+    pricedRewardToken: Priced<Asset> | null;
 }) => {
     const [minLiquidity, maxLiquidity] = [1000, 10000];
     const [minAPR, maxAPR] = [
-        calculateAPR(minLiquidity, rewardAmount, rewardTokenPrice),
-        calculateAPR(maxLiquidity, rewardAmount, rewardTokenPrice),
+        calculateAPR(minLiquidity, rewardAmount, pricedRewardToken),
+        calculateAPR(maxLiquidity, rewardAmount, pricedRewardToken),
     ];
+
+    const rewardUnitName = pricedRewardToken ? pricedRewardToken.unitName : '';
 
     return (
         <InfoPanel isLoading={false}>
@@ -157,7 +152,7 @@ const PoolInfo = ({
             <InfoRow title={'End block'} value={!isNaN(endBlock) ? endBlock : 0} />
             <InfoRow
                 title={'Reward per block'}
-                value={!isNaN(rewardPerBlock) ? rewardPerBlock.toPrecision(6) + ' ' + rewardToken.unit_name : 0}
+                value={!isNaN(rewardPerBlock) ? rewardPerBlock.toPrecision(6) + ' ' + rewardUnitName : 0}
             />
         </InfoPanel>
     );
@@ -167,6 +162,7 @@ export const PoolCreateModal = () => {
     const account = useStore($account);
     const balances = useStore($balances);
     const currentBlock = useStore($networkTime);
+    const meanRoundDuration = useStore($meanRoundDuration);
 
     const [PoolCreateModal, openPoolCreateModal, closePoolCreateModal] = useModal('root', { preventScroll: true });
     const [poolOptions, setPoolOptions] = useState<PoolOptionType[]>([]);
@@ -179,18 +175,20 @@ export const PoolCreateModal = () => {
     const [startTime, setStartTime] = useState<string>('');
     const [daysDuration, setDaysDuration] = useState<string>('');
 
-    const pricedRewardTokenPrice = useStore($pricedAssets);
-    const rewardTokenPrice = pricedRewardTokenPrice.get(Number(selectedRewardToken.value), null);
+    const pricedAssets = useStore($pricedAssets);
+    const pricedRewardToken = pricedAssets.get(Number(selectedRewardToken.value), null);
 
     const startTimestamp = Date.parse(startTime);
     const [beginBlock, endBlock, rewardPerBlock] = calculateFarmData(
         currentBlock,
         Number(rewardTokenAmount),
         startTimestamp,
-        Number(daysDuration)
+        Number(daysDuration),
+        meanRoundDuration
     );
 
     useEffect(() => {
+        // TODO: use https://{mainnet|testnet}.analytics.tinyman.org/api/v1/pools/
         const options: PoolOptionType[] = testnetPools.map((pool) => {
             return {
                 value: pool.asaId.toString(),
@@ -279,9 +277,8 @@ export const PoolCreateModal = () => {
                         beginBlock={beginBlock}
                         endBlock={endBlock}
                         rewardPerBlock={rewardPerBlock}
-                        rewardToken={selectedRewardToken}
                         rewardAmount={Number(rewardTokenAmount)}
-                        rewardTokenPrice={rewardTokenPrice}
+                        pricedRewardToken={pricedRewardToken}
                     />
                     <PacmanButton
                         buttonText="CREATE FARM"

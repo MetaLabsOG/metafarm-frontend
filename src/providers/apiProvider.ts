@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { resolveBignums } from '../common/lib';
+import { API_PATH } from '../Swap/Swap';
+import packages from '../../package.json';
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -92,7 +94,30 @@ export async function getSwapCost(asset1: number, asset2: number, amount: number
 }
 
 export async function tokensaleWhitelist(contractId: number, address: string): Promise<boolean> {
-    return instance
-        .put(`/whitelist_confirm?contract_id=${contractId}&address=${address}`)
-        .then(({ data }) => data);
+    return instance.put(`/whitelist_confirm?contract_id=${contractId}&address=${address}`).then(({ data }) => data);
 }
+
+export const deployContractToBackend = async (
+    contractId: number,
+    contractType: string,
+    farmName: string,
+    dex?: string
+) => {
+    // @ts-ignore
+    const contractVersion = packages.dependencies['@metalabsog/' + contractType];
+    if (!contractVersion) {
+        console.error('Wrong contract type', contractType);
+        return null;
+    }
+    const data = {
+        type: contractType,
+        id: contractId,
+        version: contractVersion,
+        description: farmName,
+        metadata: {
+            dex: dex,
+        },
+    };
+
+    return instance.post('/contract/register', data).then(({ data }) => data);
+};

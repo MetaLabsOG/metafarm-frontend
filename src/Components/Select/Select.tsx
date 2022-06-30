@@ -13,10 +13,12 @@ export enum SelectType {
 export const TOKEN_OPTION: TokenOptionType = {
     value: '',
     name: '',
-    unit_name: '',
+    unitName: '',
     logo: '',
     balance: 0,
     decimals: 0,
+    id: 0,
+    creator: '',
 };
 
 export const POOL_OPTION: PoolOptionType = {
@@ -46,7 +48,7 @@ function TokenOption({ option, showAdditionalInfo }: { option: TokenOptionType; 
             <img alt="" className="tokenIcon" src={option.logo} />
             <div>
                 <div className="optionTitle">{option.name}</div>
-                <div className="optionSubTitle">{option.unit_name}</div>
+                <div className="optionSubTitle">{option.unitName}</div>
             </div>
             {showAdditionalInfo && option.balance > 0 && (
                 <div className="selectAdditionalInfo">

@@ -5,10 +5,10 @@ import { PoolState } from './types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
 import { PoolInfoMobile } from './PoolInfoMobile';
-import { BLOCK_SECS, DAY, unsafeFromBigint } from '../../../common/lib';
+import { DAY, unsafeFromBigint } from '../../../common/lib';
 
-const daysDiff = (currentBlock: number, block: number) =>
-    Math.floor((Math.abs(block - currentBlock) * BLOCK_SECS) / DAY);
+const daysDiff = (currentBlock: number, block: number, meanRoundDuration: number) =>
+    Math.floor((Math.abs(block - currentBlock) * meanRoundDuration) / DAY);
 
 const calculateAPR = (
     meanRoundDuration: number,
@@ -53,12 +53,12 @@ export const PoolInfo = ({
         poolState === PoolState.Upcoming ? (
             <>
                 <div>starts</div>
-                <div>in {daysDiff(currentBlock, beginBlock)} days</div>
+                <div>in {daysDiff(currentBlock, beginBlock, meanRoundDuration)} days</div>
             </>
         ) : poolState === PoolState.Running ? (
             <>
                 <div>ends</div>
-                <div>in {daysDiff(currentBlock, endBlock)} days</div>
+                <div>in {daysDiff(currentBlock, endBlock, meanRoundDuration)} days</div>
             </>
         ) : (
             'ended'
