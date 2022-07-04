@@ -10,7 +10,7 @@ import {
 } from 'algosdk';
 import { BigNumber } from '@ethersproject/bignumber';
 import { Buffer } from 'buffer';
-import { Account, ReachStdlib } from '../types';
+import { Account, ReachStdlib, WalletTransaction } from '../types';
 import { Amount, Asset } from './store';
 import { reach } from '../AppContext';
 
@@ -131,7 +131,7 @@ export const getLocalState = (ai: any, contractId: number): any | undefined => {
     return als ? als['key-value'] : undefined;
 };
 
-export const toReachTxn = (txn: Transaction): any => {
+export const toReachTxn = (txn: Transaction): WalletTransaction => {
     return { txn: Buffer.from(txn.toByte()).toString('base64') };
 };
 

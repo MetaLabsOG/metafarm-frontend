@@ -23,6 +23,11 @@ import type {
 import type { ViewVal, ViewMap, ViewFunMap } from '@reach-sh/stdlib/dist/types/shared_impl';
 import type { Stdlib_User } from '@reach-sh/stdlib/dist/types/interfaces';
 
+export type WalletTransactionGroup = {
+    firstTxID: string;
+    txns: WalletTransaction[];
+};
+
 export type ReachStdlib = Stdlib_User<
     Provider,
     ProviderEnv,
