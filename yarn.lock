@@ -3562,14 +3562,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pactfi/pactsdk@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "@pactfi/pactsdk@npm:0.2.2"
+"@pactfi/pactsdk@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@pactfi/pactsdk@npm:0.3.0"
   dependencies:
     algosdk: "npm:^1.14.0"
     buffer: "npm:^6.0.3"
     decimal.js: "npm:^10.3.1"
-  checksum: b8e4018569e6ab3472880b1a4890f05035806868a3cf496e26c857ec332fe570263ec039a0e31e9b5079d903dc71d7a76a1d88f6af0e89cec478427a215d6cc7
+  checksum: f080fea08f4cdea8e2e7c4c7386961023c55677037172f2c3a1e48738a12655a0688cf3f9015b3329ded8b694e692529675039828081dc85f02c35f1bff67850
   languageName: node
   linkType: hard
 
@@ -12086,7 +12086,7 @@ __metadata:
     "@metalabsog/distribution": "npm:17.0.0"
     "@metalabsog/farm": "npm:17.0.2"
     "@metalabsog/metafomo": "npm:17.0.0"
-    "@pactfi/pactsdk": "npm:^0.2.2"
+    "@pactfi/pactsdk": "npm:^0.3.0"
     "@perawallet/connect": "npm:^0.1.0"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.3"
     "@ramonak/react-progress-bar": "npm:^4.4.0"

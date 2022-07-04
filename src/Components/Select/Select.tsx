@@ -29,9 +29,9 @@ export const POOL_OPTION: PoolOptionType = {
     asset1: 0,
     asset2: 0,
     liquidityAsset: 0,
-    asset1Reserve: 0,
-    asset2Reserve: 0,
-    totalLiquidity: 0,
+    asset1Reserve: BigInt(0),
+    asset2Reserve: BigInt(0),
+    totalLiquidity: BigInt(0),
 };
 
 export const getPlaceholder = (selectType: SelectType) => {

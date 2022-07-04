@@ -61,11 +61,11 @@ export async function getLPTokenInfo(
         fstAssetPrice = algoPrice;
     } else {
         const firstAsset = await fetchAsset(poolInfo.asset1);
-        const priceInAlgo = (await dex.getSwapQuote(firstAsset, ALGO_ASSET, 10 ** firstAsset.decimals)).price;
+        const priceInAlgo = (await dex.getSwapQuote(firstAsset, ALGO_ASSET, BigInt(10 ** firstAsset.decimals))).price;
         fstAssetPrice = algoPrice * priceInAlgo;
     }
 
-    const price = (poolInfo.asset1Reserve * fstAssetPrice) / poolInfo.totalLiquidity;
+    const price = Number(poolInfo.asset1Reserve / poolInfo.totalLiquidity) * fstAssetPrice;
     return { ...asset, ...poolInfo, price, priceInAlgo: price / algoPrice };
 }
 

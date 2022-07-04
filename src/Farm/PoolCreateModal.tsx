@@ -203,9 +203,9 @@ export const PoolCreateModal = () => {
                 asset1: pool.asset1_id,
                 asset2: pool.asset2_id,
                 liquidityAsset: pool.asaId,
-                asset1Reserve: 0,
-                asset2Reserve: 0,
-                totalLiquidity: 0,
+                asset1Reserve: BigInt(0),
+                asset2Reserve: BigInt(0),
+                totalLiquidity: BigInt(0),
             };
         });
         setPoolOptions(options);
