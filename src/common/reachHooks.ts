@@ -73,9 +73,9 @@ export const useContractOptin = (reach: ReachStdlib, account: Account, contractI
     }, [reach, account, contractId, tokens]);
 
     const optIn = useCallback(async () => {
-        await manualBatchOptIn(reach, account, contractId, tokens);
+        await manualBatchOptIn(account, { appId: contractId, tokens });
         setUserOptedIn(true);
-    }, [reach, account, contractId, tokens]);
+    }, [account, contractId, tokens]);
 
     useEffect(() => {
         isOptedIn().then(setUserOptedIn);

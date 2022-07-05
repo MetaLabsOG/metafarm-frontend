@@ -10,8 +10,8 @@ import {
 } from 'algosdk';
 import { BigNumber } from '@ethersproject/bignumber';
 import { Buffer } from 'buffer';
-import { Account, ReachStdlib, WalletTransaction } from '../types';
-import { Amount, Asset } from './store';
+import { Account, ReachStdlib, WalletTransaction, WalletTransactionGroup } from '../types';
+import { Amount, AppId, Asset, AssetId } from './store';
 import { reach } from '../AppContext';
 
 export const MINUTE: number = 60;
@@ -135,24 +135,53 @@ export const toReachTxn = (txn: Transaction): WalletTransaction => {
     return { txn: Buffer.from(txn.toByte()).toString('base64') };
 };
 
-export const manualBatchOptIn = async (
-    reach: ReachStdlib,
+export const signAndPostTxnGroups = async (groups: WalletTransactionGroup[]): Promise<boolean> => {
+    const provider = await reach.getProvider();
+    const algod = provider.algodClient;
+
+    if (!window.algorand) {
+        throw new Error('window.algorand is not defined, apparently wallet is not connected!');
+    }
+
+    const signedTxns = await window.algorand.signTxns(groups.map((g) => g.txns).flat());
+    let offset = 0;
+    for (const group of groups) {
+        const toPost = signedTxns.slice(offset, offset + group.txns.length);
+        await window.algorand.postTxns(toPost);
+        const success = withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
+            return waitForConfirmation(algod, group.firstTxID, 3);
+        });
+
+        if (!success) {
+            return false;
+        }
+
+        offset += group.txns.length;
+    }
+
+    return true;
+};
+
+export const prepareOptinTxs = async (
     account: Account,
-    contractId: number,
-    tokens: number[] = []
-): Promise<boolean> => {
+    { appId, tokens }: { appId?: AppId; tokens?: AssetId[] }
+): Promise<WalletTransactionGroup[]> => {
     const provider = await reach.getProvider();
     const algod = provider.algodClient;
     const ps = await algod.getTransactionParams().do();
 
-    const appTxn = makeApplicationOptInTxn(account.networkAccount.addr, ps, contractId);
-    const txId = appTxn.txID();
+    const groups: WalletTransactionGroup[] = [];
+    if (appId !== undefined) {
+        const appTxn = makeApplicationOptInTxn(account.networkAccount.addr, ps, appId);
+        const txId = appTxn.txID();
+        groups.push({
+            firstTxID: txId,
+            txns: [toReachTxn(appTxn)],
+        });
+    }
 
-    // app optin and token opt in cannot be done in the same transaction group apparently...
-    await provider.signAndPostTxns([toReachTxn(appTxn)]);
-
-    if (tokens.length > 0) {
-        const txns = tokens.map((t) =>
+    if (tokens !== undefined && tokens.length > 0) {
+        let txns = tokens.map((t) =>
             makeAssetTransferTxnWithSuggestedParamsFromObject({
                 from: account.networkAccount.addr,
                 to: account.networkAccount.addr,
@@ -162,14 +191,23 @@ export const manualBatchOptIn = async (
             })
         );
         if (txns.length > 1) {
-            assignGroupID(txns);
+            txns = assignGroupID(txns);
         }
-        await provider.signAndPostTxns(txns.map(toReachTxn));
+        groups.push({
+            firstTxID: txns[0].txID(),
+            txns: txns.map(toReachTxn),
+        });
     }
 
-    return withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
-        return waitForConfirmation(algod, txId, 3);
-    });
+    return groups;
+};
+
+export const manualBatchOptIn = async (
+    account: Account,
+    toOptin: { appId?: AppId; tokens?: AssetId[] }
+): Promise<boolean> => {
+    const txGroups = await prepareOptinTxs(account, toOptin);
+    return signAndPostTxnGroups(txGroups);
 };
 
 export const calculateTokenAmount = (token: Asset, amount: Amount | null): number => {

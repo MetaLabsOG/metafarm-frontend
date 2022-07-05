@@ -1,6 +1,7 @@
 import React, { Dispatch, SetStateAction } from 'react';
 import { useStore, useStoreMap } from 'effector-react';
-import { $balances, ContractState, Priced, Asset, AllDefined, FarmType, Amount } from '../../../common/store';
+import { AllDefined } from '../../../types';
+import { $balances, ContractState, Priced, Asset, FarmType, Amount } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 
 import { formatLPTokenName, isLPTokenInfo, numberRound } from './utils';

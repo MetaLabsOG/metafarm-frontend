@@ -9,7 +9,7 @@ import { assetId } from '../common/store/utils';
 
 import TINYMAN_ASC from './tinyman_asc.json';
 import { ALGO_ASSET, fetchAsset } from '../common/store';
-import { WalletTransaction, WalletTransactionGroup } from '../types';
+import { WalletTransactionGroup } from '../types';
 import { toReachTxn } from '../common/lib';
 
 export type DexProvider =

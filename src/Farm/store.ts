@@ -21,10 +21,10 @@ import {
     $networkTime,
     Contract,
     FarmType,
-    AllDefined,
     hasLocalState,
     Time,
 } from '../common/store';
+import { AllDefined } from '../types';
 import { groupBy, min, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
 import { convertAmountToUSD } from './PoolList/Pool/utils';
