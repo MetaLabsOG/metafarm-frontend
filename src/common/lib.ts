@@ -7,6 +7,7 @@ import {
     makeApplicationOptInTxn,
     makeAssetTransferTxnWithSuggestedParamsFromObject,
     waitForConfirmation,
+    decodeUnsignedTransaction,
 } from 'algosdk';
 import { BigNumber } from '@ethersproject/bignumber';
 import { Buffer } from 'buffer';
@@ -109,7 +110,7 @@ export async function withAlgodEncoding<N extends Algodv2 | Indexer>(
     return res;
 }
 
-export const getAccountInfo = async (reach: ReachStdlib, account: Account): Promise<any> => {
+export const getAccountInfo = async (account: Account): Promise<any> => {
     const provider = await reach.getProvider();
     try {
         const algod = provider.algodClient;
@@ -135,7 +136,11 @@ export const toReachTxn = (txn: Transaction): WalletTransaction => {
     return { txn: Buffer.from(txn.toByte()).toString('base64') };
 };
 
-export const signAndPostTxnGroups = async (groups: WalletTransactionGroup[]): Promise<boolean> => {
+export const parseTxs = (txs: WalletTransactionGroup[]): Transaction[][] => {
+    return txs.map(({ txns }) => txns.map(({ txn }) => decodeUnsignedTransaction(Buffer.from(txn, 'base64'))));
+};
+
+export const signAndPostTxnGroups = async (groups: WalletTransactionGroup[]): Promise<string[]> => {
     const provider = await reach.getProvider();
     const algod = provider.algodClient;
 
@@ -144,22 +149,24 @@ export const signAndPostTxnGroups = async (groups: WalletTransactionGroup[]): Pr
     }
 
     const signedTxns = await window.algorand.signTxns(groups.map((g) => g.txns).flat());
+    const sentTxIds = [];
     let offset = 0;
     for (const group of groups) {
         const toPost = signedTxns.slice(offset, offset + group.txns.length);
         await window.algorand.postTxns(toPost);
-        const success = withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
+        const success = await withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
             return waitForConfirmation(algod, group.firstTxID, 3);
         });
 
         if (!success) {
-            return false;
+            throw new Error(`Could not wait for confirmation of transaction ${group.firstTxID}`);
         }
 
+        sentTxIds.push(group.firstTxID);
         offset += group.txns.length;
     }
 
-    return true;
+    return sentTxIds;
 };
 
 export const prepareOptinTxs = async (
@@ -205,7 +212,7 @@ export const prepareOptinTxs = async (
 export const manualBatchOptIn = async (
     account: Account,
     toOptin: { appId?: AppId; tokens?: AssetId[] }
-): Promise<boolean> => {
+): Promise<string[]> => {
     const txGroups = await prepareOptinTxs(account, toOptin);
     return signAndPostTxnGroups(txGroups);
 };

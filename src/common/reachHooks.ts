@@ -63,14 +63,14 @@ export const useContractOptin = (reach: ReachStdlib, account: Account, contractI
     const [userOptedIn, setUserOptedIn] = useState<boolean>(false);
 
     const isOptedIn = useCallback(async () => {
-        const ai = await getAccountInfo(reach, account);
+        const ai = await getAccountInfo(account);
         const appOptedIn = getLocalState(ai, contractId) !== undefined;
         const accAssets = ai.assets || [];
         const tokensOptedIn = tokens.map((t: number) => {
             return accAssets.find((asset: any) => t === asset['asset-id']) !== undefined;
         });
         return appOptedIn && tokensOptedIn.every((v) => v);
-    }, [reach, account, contractId, tokens]);
+    }, [account, contractId, tokens]);
 
     const optIn = useCallback(async () => {
         await manualBatchOptIn(account, { appId: contractId, tokens });

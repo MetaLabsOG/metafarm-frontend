@@ -17,7 +17,7 @@ export type DexProvider =
     | 'PT' // Pact
     | 'MOCK'; // Mock dex (random tokens are staked)
 
-export type PoolInfo = {
+export interface PoolInfo {
     poolId: AppId;
     poolDex: DexProvider;
     asset1: AssetId;
@@ -26,7 +26,7 @@ export type PoolInfo = {
     asset1Reserve: Amount;
     asset2Reserve: Amount;
     totalLiquidity: Amount;
-};
+}
 
 export type LPTokenInfo = Asset & PoolInfo;
 
@@ -35,8 +35,10 @@ export type SwapQuote = {
     assetOut: Asset;
     amountIn: Amount; // In MICROTOKENS
     amountOut: Amount; // In MICROTOKENS
+    minimalAmountOut: Amount; // this is to account for the slippage
     price: number; // but price is calculated in FULL TOKENS (considering the DECIMALS of assets), following the Pact interface
     fee: Amount; // yet the fee is still in MICROROKENS
+    slippage: number;
 };
 
 export type BestSwapQuote = {
@@ -45,10 +47,27 @@ export type BestSwapQuote = {
     path: SwapQuote[];
 };
 
+export type MintQuote = {
+    assetA: Asset;
+    assetB: Asset;
+    amountA: Amount;
+    amountB: Amount;
+    liquidityIssued: Amount;
+    minimalLiquidityIssued: Amount;
+    slippage: number;
+};
+
 export function getMicros(a: Asset, amount: number): Amount {
     // TODO FIXME: didn't want to solve this right now but it needs to be solved,
     // since it obviously loses precision if the resulting amount is >2^53 - 1
     return BigInt(amount * 10 ** a.decimals);
+}
+
+export function fromMicros(a: Asset, amount: Amount): number {
+    const ratio = BigInt(10 ** a.decimals);
+    const whole = amount / ratio;
+    const remainder = amount % ratio;
+    return Number(`${whole}.${remainder}`);
 }
 
 export abstract class Dex {
@@ -57,7 +76,12 @@ export abstract class Dex {
     abstract getPoolInfoByAssets(asset1: AssetId | Asset, asset2: AssetId | Asset): Promise<PoolInfo>;
 
     // The amount provided is in MICROTOKENS (bigint).
-    abstract getSwapQuote(assetIn: AssetId | Asset, assetOut: AssetId | Asset, amountIn: Amount): Promise<SwapQuote>;
+    abstract getSwapQuote(
+        assetIn: AssetId | Asset,
+        assetOut: AssetId | Asset,
+        amountIn: Amount,
+        slippage: number
+    ): Promise<SwapQuote>;
     abstract getSwapTxs(
         sender: string,
         assetIn: AssetId | Asset,
@@ -67,13 +91,32 @@ export abstract class Dex {
     ): Promise<WalletTransactionGroup[]>;
 
     async getSwapTxsFromQuote(sender: string, quote: SwapQuote): Promise<WalletTransactionGroup[]> {
-        return this.getSwapTxs(sender, quote.assetIn, quote.assetOut, quote.amountIn, quote.amountOut);
+        return this.getSwapTxs(sender, quote.assetIn, quote.assetOut, quote.amountIn, quote.minimalAmountOut);
+    }
+
+    abstract getMintQuote(
+        assetA: AssetId | Asset,
+        assetB: AssetId | Asset,
+        amountA: Amount,
+        slippage: number
+    ): Promise<MintQuote>;
+    abstract getMintTxs(
+        sender: string,
+        assetA: AssetId | Asset,
+        assetB: AssetId | Asset,
+        amountA: Amount,
+        amountB: Amount
+    ): Promise<WalletTransactionGroup[]>;
+
+    async getMintTxsFromQuote(sender: string, quote: MintQuote): Promise<WalletTransactionGroup[]> {
+        return this.getMintTxs(sender, quote.assetA, quote.assetB, quote.amountA, quote.amountB);
     }
 
     async getBestSwapQuote(
         assetIn: AssetId | Asset,
         assetOut: AssetId | Asset,
-        amountIn: Amount
+        amountIn: Amount,
+        slippage: number = 0.01
     ): Promise<BestSwapQuote> {
         assetIn = typeof assetIn === 'number' ? await fetchAsset(assetIn) : assetIn;
         assetOut = typeof assetOut === 'number' ? await fetchAsset(assetOut) : assetOut;
@@ -81,29 +124,30 @@ export abstract class Dex {
         let direct = undefined;
         // Make direct swap right away if one of the assets is ALGO
         if (assetIn.id === 0 || assetOut.id === 0) {
-            const best = (direct = await this.getSwapQuote(assetIn, assetOut, amountIn));
+            const best = (direct = await this.getSwapQuote(assetIn, assetOut, amountIn, slippage));
             return { best, direct, path: [best] };
         }
 
         // Try to find direct swap
         try {
-            direct = await this.getSwapQuote(assetIn, assetOut, amountIn);
+            direct = await this.getSwapQuote(assetIn, assetOut, amountIn, slippage);
         } catch (err) {
             console.log(`Direct swap for token IDs ${assetIn.id} ${assetOut.id} not found`);
         }
 
         try {
-            // Fees should already be accounted for in the calculated amounts of individual swap quotes
-            const toAlgo = await this.getSwapQuote(assetIn, ALGO_ASSET, amountIn);
-            const fromAlgo = await this.getSwapQuote(ALGO_ASSET, assetOut, toAlgo.amountOut);
+            const toAlgo = await this.getSwapQuote(assetIn, ALGO_ASSET, amountIn, slippage);
+            const fromAlgo = await this.getSwapQuote(ALGO_ASSET, assetOut, toAlgo.minimalAmountOut, slippage);
             const decRatio = 10 ** (assetIn.decimals - assetOut.decimals);
             const throughAlgo = {
                 assetIn,
                 assetOut,
                 amountIn: toAlgo.amountIn,
                 amountOut: fromAlgo.amountOut,
-                price: Number(fromAlgo.amountOut / toAlgo.amountIn) * decRatio,
+                minimalAmountOut: fromAlgo.minimalAmountOut,
+                price: (Number(fromAlgo.minimalAmountOut) / Number(toAlgo.amountIn)) * decRatio,
                 fee: toAlgo.fee + fromAlgo.fee,
+                slippage,
             };
 
             if (!direct || direct.price < throughAlgo.price) {
@@ -156,7 +200,12 @@ export class MockDex extends Dex {
         return this.getPoolInfo(0);
     }
 
-    async getSwapQuote(a1: AssetId | Asset, a2: AssetId | Asset, amount: Amount): Promise<SwapQuote> {
+    async getSwapQuote(
+        a1: AssetId | Asset,
+        a2: AssetId | Asset,
+        amount: Amount,
+        slippage: number = 0.01
+    ): Promise<SwapQuote> {
         const price = 0.01;
         const fee = BigInt(100);
         const assetIn = typeof a1 === 'number' ? await fetchAsset(a1) : a1;
@@ -166,8 +215,10 @@ export class MockDex extends Dex {
             assetOut,
             amountIn: BigInt(amount),
             amountOut: BigInt(Number(amount) * price),
+            minimalAmountOut: BigInt(Number(amount) * price * (1 - slippage)),
             price,
             fee,
+            slippage,
         };
     }
 
@@ -179,6 +230,25 @@ export class MockDex extends Dex {
         amountOut: Amount
     ): Promise<WalletTransactionGroup[]> {
         throw new Error('getSwapTxs not implemented for MOCK dex');
+    }
+
+    async getMintQuote(
+        assetA: number | Asset,
+        assetB: number | Asset,
+        amountA: bigint,
+        slippage: number
+    ): Promise<MintQuote> {
+        throw new Error('getMintQuote not implemented for MOCK dex');
+    }
+
+    async getMintTxs(
+        sender: string,
+        assetA: number | Asset,
+        assetB: number | Asset,
+        amountA: bigint,
+        amountB: bigint
+    ): Promise<WalletTransactionGroup[]> {
+        throw new Error('getMintTxs not implemented for MOCK dex');
     }
 }
 
@@ -270,7 +340,12 @@ export class PactDex extends Dex {
         return this.getMostLiquidPool(a1, a2).then(this.poolToPoolInfo);
     }
 
-    async getSwapQuote(assetIn: AssetId | Asset, assetOut: AssetId | Asset, amountIn: Amount): Promise<SwapQuote> {
+    async getSwapQuote(
+        assetIn: AssetId | Asset,
+        assetOut: AssetId | Asset,
+        amountIn: Amount,
+        slippage: number = 0.01
+    ): Promise<SwapQuote> {
         // Fetch both assets if they are not already fetched and cached
         if (typeof assetIn === 'number') {
             assetIn = await fetchAsset(assetIn);
@@ -285,16 +360,18 @@ export class PactDex extends Dex {
         const { effect } = pool.prepareSwap({
             asset: this.makePactAsset(assetIn),
             amount: Number(amountIn), // Pact SDK assumes that input amounts fit into Number
-            slippagePct: 2,
+            slippagePct: slippage * 100,
         });
         // Pact SDK got updated and its interface have changed. The problem with fixed-input swaps does not exist anymore.
         return {
             assetIn,
             assetOut,
             amountIn: BigInt(effect.amountDeposited),
-            amountOut: BigInt(effect.minimumAmountReceived),
+            amountOut: BigInt(effect.amountReceived),
+            minimalAmountOut: BigInt(effect.minimumAmountReceived),
             price: effect.price,
             fee: BigInt(effect.fee),
+            slippage,
         };
     }
 
@@ -306,6 +383,25 @@ export class PactDex extends Dex {
         amountOut: Amount
     ): Promise<WalletTransactionGroup[]> {
         throw new Error('getSwapTxs not implemented for Pact dex');
+    }
+
+    async getMintQuote(
+        assetA: number | Asset,
+        assetB: number | Asset,
+        amountA: bigint,
+        slippage: number
+    ): Promise<MintQuote> {
+        throw new Error('getMintQuote not implemented for Pact dex');
+    }
+
+    async getMintTxs(
+        sender: string,
+        assetA: number | Asset,
+        assetB: number | Asset,
+        amountA: bigint,
+        amountB: bigint
+    ): Promise<WalletTransactionGroup[]> {
+        throw new Error('getMintTxs not implemented for Pact dex');
     }
 }
 
@@ -556,9 +652,9 @@ export class TinymanDex extends Dex {
             asset1: a1,
             asset2: a2,
             liquidityAsset,
-            asset1Reserve: s1,
-            asset2Reserve: s2,
-            totalLiquidity: ilt,
+            asset1Reserve: BigInt(s1),
+            asset2Reserve: BigInt(s2),
+            totalLiquidity: BigInt(ilt),
         };
     }
 
@@ -567,7 +663,12 @@ export class TinymanDex extends Dex {
         return this.getPoolInfoByAddress(logicSig.address());
     }
 
-    async getSwapQuote(assetIn: AssetId | Asset, assetOut: AssetId | Asset, amountIn: Amount): Promise<SwapQuote> {
+    async getSwapQuote(
+        assetIn: AssetId | Asset,
+        assetOut: AssetId | Asset,
+        amountIn: Amount,
+        slippage: number = 0.01
+    ): Promise<SwapQuote> {
         if (typeof assetIn === 'number') {
             assetIn = await fetchAsset(assetIn);
         }
@@ -590,14 +691,18 @@ export class TinymanDex extends Dex {
         const amountOut = outputSupply - k / (inputSupply + amountAfterFees);
 
         const decRatio = 10 ** (assetIn.decimals - assetOut.decimals);
+        const bignumSlippage = BigInt(slippage * 1000);
+        const minimalAmountOut = amountOut - (amountOut * bignumSlippage) / BigInt(1000);
 
         return {
             assetIn,
             assetOut,
-            amountIn: amountIn,
-            amountOut: BigInt(amountOut),
-            price: Number(amountOut / amountIn) * decRatio,
+            amountIn,
+            amountOut,
+            minimalAmountOut,
+            price: (Number(minimalAmountOut) / Number(amountIn)) * decRatio,
             fee: BigInt(amountIn - amountAfterFees),
+            slippage,
         };
     }
 
@@ -637,6 +742,25 @@ export class TinymanDex extends Dex {
             },
         ];
     }
+
+    async getMintQuote(
+        assetA: number | Asset,
+        assetB: number | Asset,
+        amountA: bigint,
+        slippage: number
+    ): Promise<MintQuote> {
+        throw new Error('getMintQuote is not implemented for Tinyman');
+    }
+
+    async getMintTxs(
+        sender: string,
+        assetA: number | Asset,
+        assetB: number | Asset,
+        amountA: bigint,
+        amountB: bigint
+    ): Promise<WalletTransactionGroup[]> {
+        throw new Error('getMintTxs is not implemented for Tinyman');
+    }
 }
 
 export function makeDex(provider: DexProvider): Dex {
@@ -650,12 +774,13 @@ const DEX_TRY_ORDER: DexProvider[] = ALGONET === TESTNET ? ['T2', 'PT', 'MOCK'] 
 export async function getSwapCostSomewhere(
     assetIn: AssetId | Asset,
     assetOut: AssetId | Asset,
-    amountIn: Amount
+    amountIn: Amount,
+    slippage: number = 0.01
 ): Promise<SwapQuote> {
     let err = null;
     for (const provider of DEX_TRY_ORDER) {
         try {
-            return await makeDex(provider).getSwapQuote(assetIn, assetOut, amountIn);
+            return await makeDex(provider).getSwapQuote(assetIn, assetOut, amountIn, slippage);
         } catch (e) {
             err = e;
         }

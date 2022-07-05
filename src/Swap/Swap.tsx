@@ -5,21 +5,22 @@ import { ALGONET, MAINNET, META_TOKEN_ID, reach } from '../AppContext';
 import 'react-select-search/style.css';
 import '../css/swap.css';
 import { BestSwap, Token, Transaction } from './types';
-import { $account, $balances, Amount, AssetId, refreshAccountInfo } from '../common/store';
+import { $account, $balances, Amount, AssetId, fetchAsset, fetchAssetPrice, refreshAccountInfo } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { withAlgodEncoding } from '../common/lib';
-import { WalletTransaction } from '../types';
+import { parseTxs, signAndPostTxnGroups, withAlgodEncoding } from '../common/lib';
+import { WalletTransaction, WalletTransactionGroup } from '../types';
 import { zip } from 'ramda';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
+import { BestSwapQuote, getMicros, fromMicros, makeDex } from '../providers/dexesProvider';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';
@@ -32,6 +33,8 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     31566704: 10458941, // USDC
     463554836: 70283957, // ALGF
 };
+
+const tinyman = makeDex('T2');
 
 export enum QueryType {
     swap,
@@ -46,28 +49,52 @@ export const getNetworkAssetId = (asset_id: number) => {
     return MAINNET_TO_TESTNET_ASA_ID[asset_id] ?? -1;
 };
 
+// TODO: do something with usdc diff
+function quoteToBestSwap(q: BestSwapQuote, outTokenPrice: number): BestSwap {
+    const best_swap = fromMicros(q.best.assetOut, q.best.minimalAmountOut);
+    const direct_swap = q.direct ? fromMicros(q.direct.assetOut, q.direct.minimalAmountOut) : best_swap;
+    const usdc_diff = outTokenPrice * (best_swap - direct_swap);
+
+    const best_path = q.path.map((q) => ({ unit_name: q.assetIn.unitName }));
+    best_path.push({ unit_name: q.path[q.path.length - 1].assetOut.unitName });
+
+    return {
+        best_swap,
+        direct_swap,
+        best_path,
+        usdc_diff,
+    };
+}
+
 async function getBestSwap(
     account: Account | null,
     asset1_id: string | undefined,
     asset2_id: string | undefined,
-    asset1_amount: string,
-    setBestSwap: Dispatch<SetStateAction<BestSwap>>,
-    setShopSwap: Dispatch<SetStateAction<boolean>>
-) {
+    asset1_amount: string
+): Promise<BestSwap | null> {
     if (!asset1_id || !asset2_id) {
         alert('Please, choose tokens.');
-        return;
+        return null;
     }
 
     if (!asset1_amount) {
         alert('Please, enter the token amount.');
-        return;
+        return null;
     }
 
     console.log('[SWAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
-        const best_swap = await getData(QueryType.swap, asset1_id, asset2_id, asset1_amount);
+        // const best_swap = await getData(QueryType.swap, asset1_id, asset2_id, asset1_amount);
+        const asset1 = await fetchAsset(parseInt(asset1_id));
+        const asset2 = await fetchAsset(parseInt(asset2_id));
+        const amountIn = getMicros(asset1, parseFloat(asset1_amount));
+        const bestSwapQuote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn);
+        const asset2Price = await fetchAssetPrice(asset2);
+        console.log('ASSET PATH', asset2Price);
+        const best_swap = quoteToBestSwap(bestSwapQuote, asset2Price);
+
+        console.log(bestSwapQuote);
         console.log(best_swap);
 
         logEvent(
@@ -85,12 +112,11 @@ async function getBestSwap(
             LogName.SWAP
         );
 
-        setBestSwap(best_swap);
-        setShopSwap(true);
+        return best_swap;
     } catch (e) {
         // @ts-ignore
         const error_message = e.message;
-        console.log(error_message);
+        console.error(e);
         alert('Fail to find the best swap :(');
         logEvent(
             account?.networkAccount.addr,
@@ -103,6 +129,7 @@ async function getBestSwap(
             },
             LogName.SWAP
         );
+        return null;
     }
 }
 
@@ -149,6 +176,28 @@ export async function getTransactions(
         additional_params;
     const response = await fetch(query);
     return await response.json();
+}
+
+export async function getTransactions2(
+    type: QueryType,
+    address: string,
+    asset1_id: string,
+    asset2_id: string,
+    asset1_amount: string,
+    additional_params = ''
+): Promise<WalletTransactionGroup[]> {
+    if (type === QueryType.swap) {
+        const asset1 = await fetchAsset(Number(asset1_id));
+        const asset2 = await fetchAsset(Number(asset2_id));
+        const amountIn = getMicros(asset1, Number(asset1_amount));
+        const quote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn);
+        // TODO: optins!!
+        const txs = await tinyman.getBestSwapTxsFromQuote(address, quote);
+        console.log('TRANSACTIONS', parseTxs(txs)[0]);
+        return txs;
+    } else {
+        throw new Error('not supported yet');
+    }
 }
 
 export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, input_transactions: Transaction) {
@@ -216,12 +265,12 @@ export async function runTransactions(
     }
 
     try {
-        const provider = await reach.getProvider();
-        const algodClient = provider.algodClient;
+        // const provider = await reach.getProvider();
+        // const algodClient = provider.algodClient;
 
         const address = account.networkAccount.addr;
 
-        const transactions: Transaction = await getTransactions(
+        const transactions: WalletTransactionGroup[] = await getTransactions2(
             type,
             address,
             token1Id,
@@ -229,9 +278,9 @@ export async function runTransactions(
             token1Amount,
             additional_params
         );
-        // console.log(transactions);
-        const result_tx_id = await signAndSubmitTransactions(algodClient, transactions);
-        console.log('OK', result_tx_id);
+        console.log(transactions);
+        const result_tx_ids = await signAndPostTxnGroups(transactions);
+        console.log('OK', result_tx_ids);
         refreshAccountInfo();
 
         logEvent(
@@ -241,12 +290,12 @@ export async function runTransactions(
                 asset1_id: token1Id,
                 asset2_id: token2Id,
                 amount: token1Amount,
-                txns: result_tx_id,
+                txns: result_tx_ids,
             },
             type === QueryType.swap ? LogName.SWAP : LogName.ZAP
         );
 
-        return result_tx_id;
+        return result_tx_ids;
     } catch (e) {
         // @ts-ignore
         const error_message = e.message;
@@ -439,9 +488,13 @@ export function Swap() {
         clearTimeout(getSwapTimeout.current);
         getSwapTimeout.current = setTimeout(() => {
             setIsLoading(true);
-            getBestSwap(account, token1_id, token2_id, amount, setBestSwap, setShowResult).then(() =>
-                setIsLoading(false)
-            );
+            getBestSwap(account, token1_id, token2_id, amount).then((res) => {
+                if (res !== null) {
+                    setBestSwap(res);
+                    setShowResult(true);
+                }
+                setIsLoading(false);
+            });
         }, delay);
     }
 
@@ -469,7 +522,12 @@ export function Swap() {
     };
 
     const FindPriceButtonOnClick = async () => {
-        return getBestSwap(account, token1?.value, token2?.value, token1Amount, setBestSwap, setShowResult);
+        return getBestSwap(account, token1?.value, token2?.value, token1Amount).then((res) => {
+            if (res !== null) {
+                setBestSwap(res);
+                setShowResult(true);
+            }
+        });
     };
 
     const SwapButtonOnClick = async () => {

@@ -1,13 +1,18 @@
-import { Event, createEvent, createStore } from "effector";
-import { indexer } from "../../AppContext";
-import { createTimeDeferredStore } from "./utils";
+import { Event, createEvent, createStore } from 'effector';
+import { indexer } from '../../AppContext';
+import { createTimeDeferredStore, nonConcurrent } from './utils';
 
 // Time store
 export const { $store: $networkTime, update: queryTimeUpdate } = createTimeDeferredStore<void, number>(
     0,
     1000, // update once in a second max
-    () => indexer.makeHealthCheck().do().then(data => data.round)
-); 
+    nonConcurrent(() =>
+        indexer
+            .makeHealthCheck()
+            .do()
+            .then((data) => data.round)
+    )
+);
 
 // TODO: we can probably aggregate this value from the history of network time queries?....
 export const $meanRoundDuration = createStore<number>(4.35);

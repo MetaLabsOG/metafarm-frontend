@@ -42,7 +42,7 @@ const connectWallet = (walletType: WalletType) => {
             return acc;
         })
         .catch((e) => {
-            console.log('ERROR. ConnectWallet: ' + e.name + ': ' + e.message);
+            console.log('ERROR. ConnectWallet: ', e);
             logEvent('', { message: 'ERROR. ConnectWallet: ' + e.name + ': ' + e.message }, LogName.ERRORS);
         });
 };
