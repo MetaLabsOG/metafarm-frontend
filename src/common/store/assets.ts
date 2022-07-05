@@ -1,20 +1,9 @@
 import { Map } from 'immutable';
-import {
-    createEffect,
-    createEvent,
-    createStore,
-    sample,
-    combine,
-    merge,
-    split,
-    forward,
-    Store,
-    restore,
-} from 'effector';
-import { algod, ALGONET, MAINNET } from '../../AppContext';
+import { createEffect, createEvent, createStore, sample, combine, split, forward, Store, restore } from 'effector';
+import { algod } from '../../AppContext';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
-import { waitForEvent, assetId, nonConcurrent, fetchStore } from './utils';
+import { nonConcurrent, fetchStore } from './utils';
 import { getBinanceCoinPrice } from '../../providers/binanceProvider';
 import { makeClock } from './time';
 
@@ -102,11 +91,6 @@ forward({
  * @returns Promise with asset
  */
 export const fetchAsset = async (id: AssetId): Promise<Asset> => {
-    // console.log('Fetching asset', id);
-    // const filter = (a: AssetId | Asset) => assetId(a) === id;
-    // queryAsset(id);
-    // console.log('Asset queried');
-    // return waitForEvent(assetResolved, fetchAssetFx.fail, filter, filter);
     const saved = await fetchStore($assets.map((assets) => assets.get(id, null)));
     if (saved) return saved;
     else return await fetchAssetFx(id);

@@ -66,7 +66,7 @@ export async function getLPTokenInfo(
         fstAssetPrice = algoPrice * priceInAlgo;
     }
 
-    const price = Number(poolInfo.asset1Reserve / poolInfo.totalLiquidity) * fstAssetPrice;
+    const price = (Number(poolInfo.asset1Reserve) / Number(poolInfo.totalLiquidity)) * fstAssetPrice;
     return { ...asset, ...poolInfo, price, priceInAlgo: price / algoPrice };
 }
 
