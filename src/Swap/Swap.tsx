@@ -186,17 +186,21 @@ export async function getTransactions2(
     asset1_amount: string,
     additional_params = ''
 ): Promise<WalletTransactionGroup[]> {
+    const asset1 = await fetchAsset(Number(asset1_id));
+    const asset2 = await fetchAsset(Number(asset2_id));
+    const amountIn = getMicros(asset1, Number(asset1_amount));
+
     if (type === QueryType.swap) {
-        const asset1 = await fetchAsset(Number(asset1_id));
-        const asset2 = await fetchAsset(Number(asset2_id));
-        const amountIn = getMicros(asset1, Number(asset1_amount));
         const quote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn);
         // TODO: optins!!
         const txs = await tinyman.getBestSwapTxsFromQuote(address, quote);
-        console.log('TRANSACTIONS', parseTxs(txs)[0]);
+        console.log('SWAP TRANSACTIONS', parseTxs(txs)[0]);
         return txs;
     } else {
-        throw new Error('not supported yet');
+        const quote = await tinyman.getZapQuote(asset1, asset2, amountIn, 0.01);
+        const txs = await tinyman.getZapTxsFromQuote(address, quote);
+        console.log('ZAP TRANSACTIONS', parseTxs(txs));
+        return txs;
     }
 }
 

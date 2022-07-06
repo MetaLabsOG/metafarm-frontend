@@ -3,7 +3,7 @@ import React, { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useSta
 import 'react-select-search/style.css';
 import '../css/swap.css';
 import { ZapData } from './types';
-import { $account, $balances } from '../common/store';
+import { $account, $balances, fetchAsset } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
@@ -17,6 +17,21 @@ import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/s
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
+import { fromMicros, getMicros, makeDex, ZapQuote } from '../providers/dexesProvider';
+
+const tinyman = makeDex('T2');
+
+function zapQuoteToData(asset1_id: number, quote: ZapQuote): ZapData {
+    const assetsAreSwapped = asset1_id !== quote.mint.assetA.id;
+    const amountA = fromMicros(quote.mint.assetA, quote.mint.amountA);
+    const amountB = fromMicros(quote.mint.assetB, quote.mint.amountB);
+
+    const asset1_amount = assetsAreSwapped ? amountB : amountA;
+    const asset2_amount = assetsAreSwapped ? amountA : amountB;
+    const lp_amount = fromMicros(quote.mint.lpToken, quote.mint.minimalLiquidityIssued);
+    const pool_lp_id = quote.mint.lpToken.id;
+    return { asset1_amount, asset2_amount, lp_amount, pool_lp_id };
+}
 
 export async function loadZapData(
     account: Account | null,
@@ -42,7 +57,13 @@ export async function loadZapData(
 
     try {
         const additionalParams = '&swap_half=true&slippage=0.01';
-        const zap_data: ZapData = await getData(QueryType.zap, asset1_id, asset2_id, asset1_amount, additionalParams);
+        // const zap_data: ZapData = await getData(QueryType.zap, asset1_id, asset2_id, asset1_amount, additionalParams);
+        const asset1 = await fetchAsset(Number(asset1_id));
+        const asset2 = await fetchAsset(Number(asset2_id));
+        const amountIn = getMicros(asset1, Number(asset1_amount));
+        const zapQuote = await tinyman.getZapQuote(asset1, asset2, amountIn, 0.01);
+
+        const zap_data = zapQuoteToData(Number(asset1_id), zapQuote);
 
         logEvent(
             account?.networkAccount.addr,
