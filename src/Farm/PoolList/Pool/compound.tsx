@@ -1,10 +1,11 @@
-import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { LPTokenInfo, makeDex, ZapQuote } from '../../../providers/dexesProvider';
 import { Asset, Priced, refreshAccountInfo } from '../../../common/store';
 import { calculateTokenAmount, calculateTokenMicroAmount } from '../../../common/lib';
-import { ZapData } from '../../../Zap/types';
-import { getData, QueryType, runTransactions } from '../../../Swap/Swap';
+import { QueryType, runTransactions } from '../../../Swap/Swap';
 import { Account } from '../../../types';
 import { logFarmActionData } from '../../../logEvent';
+
+const tinyman = makeDex('T2');
 
 export const isCompoundEnabled = (lpTokenInfo: LPTokenInfo, reward_asset_id: number) => {
     return reward_asset_id === lpTokenInfo.asset1 || reward_asset_id === lpTokenInfo.asset2;
@@ -37,31 +38,35 @@ export const runCompound = async (
         await ctc.apis.claim();
 
         console.log('start zap');
-        const zap_data: ZapData = await getData(
-            QueryType.zap,
-            firstAsset.toString(),
-            secondAsset.toString(),
-            reward_amount.toString(),
-            '&swap_half=true&slippage=0.01'
-        );
-        const result_zap_tx_id = await runTransactions(
+        // TODO: this toString/fromString shenanigans should be gone. Overall, the methods in `Swap`
+        // would benefit from some refactoring... Also, the `claim` method returns
+        // the amount of tokens claimed which is always correct, so it should be taken from there,
+        // not provided as an argument to this method (it uses the frontend prediction AFAIU, which will most
+        // likely be smaller than the actual amount claimed since blocks come quick).
+        // just need to check the format it returns it in (i guess should be Ether's bignum).
+        const zapResult = await runTransactions(
             QueryType.zap,
             account,
             firstAsset.toString(),
             secondAsset.toString(),
-            reward_amount.toString(),
-            '&swap_half=true&slippage=0.01'
+            reward_amount.toString()
         );
+
+        if (zapResult === null) {
+            throw new Error('internal zap error!');
+        }
+
+        let { quote, txIds } = zapResult;
+        quote = quote as ZapQuote;
         refreshAccountInfo();
-        console.log('ZAP ' + result_zap_tx_id);
+        console.log('COMPOUND ZAP ', quote, txIds);
 
         // TODO: fast fix. we have to better calculate result LP amount considering dex fees and slippage.
         // TODO: Maybe we can do Math.min(THIS, currentWalletLpBalance)
-        const lpAmountWithSlippage = zap_data.lp_amount * 0.9;
-        const microStakeAmount = calculateTokenMicroAmount(lpTokenInfo, lpAmountWithSlippage);
-        console.log('start stake', lpAmountWithSlippage, microStakeAmount);
+        const microLpAmount = quote.mint.minimalLiquidityIssued;
+        console.log('start stake', calculateTokenAmount(lpTokenInfo, microLpAmount), microLpAmount);
 
-        await ctc.apis.stake([microStakeAmount]);
+        await ctc.apis.stake([microLpAmount]);
     } catch (e) {
         // @ts-ignore
         const error_message = e.message;

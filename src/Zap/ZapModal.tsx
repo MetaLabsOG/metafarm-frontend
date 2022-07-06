@@ -60,7 +60,15 @@ export function ZapModal({
         }
         clearTimeout(getZapTimeout.current);
         getZapTimeout.current = setTimeout(() => {
-            loadZapData(account, token1_id, token2_id, amount, setIsLoading, setZapData, setShowResult);
+            setIsLoading(true);
+            loadZapData(account, token1_id, token2_id, amount).then((res) => {
+                if (res !== null) {
+                    setZapData(res);
+                    console.log('[ZAP] res', res);
+                    setShowResult(true);
+                }
+                setIsLoading(false);
+            });
         }, delay);
     }
 
@@ -84,14 +92,7 @@ export function ZapModal({
     };
 
     const ZapButtonOnClick = async () => {
-        await runTransactions(
-            QueryType.zap,
-            account,
-            token1.value,
-            token2.value,
-            token1Amount,
-            '&swap_half=true&slippage=0.01'
-        );
+        await runTransactions(QueryType.zap, account, token1.value, token2.value, token1Amount);
         refreshAccountInfo();
         closeModal();
     };
