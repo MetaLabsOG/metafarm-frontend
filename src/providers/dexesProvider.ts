@@ -86,7 +86,8 @@ export abstract class Dex {
         assetIn: AssetId | Asset,
         assetOut: AssetId | Asset,
         amountIn: Amount,
-        slippage: number
+        slippage: number,
+        pool?: PoolInfo
     ): Promise<SwapQuote>;
     abstract getSwapTxs(
         sender: string,
@@ -104,7 +105,8 @@ export abstract class Dex {
         assetA: AssetId | Asset,
         assetB: AssetId | Asset,
         amountA: Amount,
-        slippage: number
+        slippage: number,
+        pool?: PoolInfo
     ): Promise<MintQuote>;
     abstract getMintTxs(
         sender: string,
@@ -130,7 +132,8 @@ export abstract class Dex {
         assetIn: AssetId | Asset,
         assetOut: AssetId | Asset,
         amountIn: Amount,
-        slippage: number = 0.01
+        slippage: number = 0.01,
+        pool?: PoolInfo
     ): Promise<BestSwapQuote> {
         assetIn = typeof assetIn === 'number' ? await fetchAsset(assetIn) : assetIn;
         assetOut = typeof assetOut === 'number' ? await fetchAsset(assetOut) : assetOut;
@@ -138,13 +141,13 @@ export abstract class Dex {
         let direct = undefined;
         // Make direct swap right away if one of the assets is ALGO
         if (assetIn.id === 0 || assetOut.id === 0) {
-            const best = (direct = await this.getSwapQuote(assetIn, assetOut, amountIn, slippage));
+            const best = (direct = await this.getSwapQuote(assetIn, assetOut, amountIn, slippage, pool));
             return { best, direct, path: [best] };
         }
 
         // Try to find direct swap
         try {
-            direct = await this.getSwapQuote(assetIn, assetOut, amountIn, slippage);
+            direct = await this.getSwapQuote(assetIn, assetOut, amountIn, slippage, pool);
         } catch (err) {
             console.log(`Direct swap for token IDs ${assetIn.id} ${assetOut.id} not found`);
         }
@@ -196,8 +199,9 @@ export abstract class Dex {
     ): Promise<ZapQuote> {
         const halfForSwap = amountIn / BigInt(2);
         const halfForMint = amountIn - halfForSwap;
+        const pool = await this.getPoolInfoByAssets(assetIn, assetOut);
 
-        const swap = await this.getBestSwapQuote(assetIn, assetOut, halfForSwap, slippage);
+        const swap = await this.getBestSwapQuote(assetIn, assetOut, halfForSwap, slippage, pool);
         const amountOut = swap.best.minimalAmountOut;
 
         // FIXME: The problem with zap is that after the swap is complete,
@@ -214,14 +218,29 @@ export abstract class Dex {
         // ALTERNATIVELY, we can just prepare and execute swap and mint sequentially. This will
         // always work as well as doing it manually, but the user will have to sign transactions twice
         // AND the end result might differ a lot from the quote displayed to the user.
-        //
+        if (swap.path.length === 1) {
+            // only do this in case of direct swap, because otherwise the pool is actually
+            // unaffected
+            // also, it's stupid here and of course works only for Tinyman because we need to
+            // account for FEES.
+            if (assetId(assetIn) === pool.asset1) {
+                pool.asset1Reserve += (swap.best.amountIn * BigInt(997)) / BigInt(1000);
+                pool.asset2Reserve -= swap.best.minimalAmountOut;
+            } else if (assetId(assetIn) === pool.asset2) {
+                pool.asset2Reserve += (swap.best.amountIn * BigInt(997)) / BigInt(1000);
+                pool.asset1Reserve -= swap.best.minimalAmountOut;
+            } else {
+                throw new Error('impossible: bad pool');
+            }
+        }
+
         // assetA = assetOut
         // assetB = assetIn
-        let mint = await this.getMintQuote(assetOut, assetIn, amountOut, slippage);
+        let mint = await this.getMintQuote(assetOut, assetIn, amountOut, slippage, pool);
 
         if (mint.amountB > halfForMint) {
             // try the other way
-            mint = await this.getMintQuote(assetIn, assetOut, halfForMint, slippage);
+            mint = await this.getMintQuote(assetIn, assetOut, halfForMint, slippage, pool);
             if (mint.amountB > amountOut) {
                 // is it possible? seemingly not, but who knows, mb something something
                 // integer division troubles
@@ -825,7 +844,8 @@ export class TinymanDex extends Dex {
         assetIn: AssetId | Asset,
         assetOut: AssetId | Asset,
         amountIn: Amount,
-        slippage: number = 0.01
+        slippage: number = 0.01,
+        pool?: PoolInfo
     ): Promise<SwapQuote> {
         if (typeof assetIn === 'number') {
             assetIn = await fetchAsset(assetIn);
@@ -835,7 +855,11 @@ export class TinymanDex extends Dex {
             assetOut = await fetchAsset(assetOut);
         }
 
-        const pool = await this.getPoolInfoByAssets(assetIn, assetOut);
+        if (!pool) {
+            pool = await this.getPoolInfoByAssets(assetIn, assetOut);
+        } else if (pool.asset1 !== min(assetIn.id, assetOut.id) || pool.asset2 !== max(assetIn.id, assetOut.id)) {
+            throw new Error('bad pool given');
+        }
 
         const [inputSupply, outputSupply] =
             assetIn.id === pool.asset1
@@ -896,7 +920,8 @@ export class TinymanDex extends Dex {
         assetA: number | Asset,
         assetB: number | Asset,
         amountA: bigint,
-        slippage: number
+        slippage: number = 0.01,
+        pool?: PoolInfo
     ): Promise<MintQuote> {
         if (typeof assetA === 'number') {
             assetA = await fetchAsset(assetA);
@@ -906,7 +931,12 @@ export class TinymanDex extends Dex {
             assetB = await fetchAsset(assetB);
         }
 
-        const pool = await this.getPoolInfoByAssets(assetA, assetB);
+        if (!pool) {
+            pool = await this.getPoolInfoByAssets(assetA, assetB);
+        } else if (pool.asset1 !== min(assetA.id, assetB.id) || pool.asset2 !== max(assetA.id, assetB.id)) {
+            throw new Error('bad pool given');
+        }
+
         const lpToken = await fetchAsset(pool.liquidityAsset);
 
         if (pool.totalLiquidity === BigInt(0)) {
