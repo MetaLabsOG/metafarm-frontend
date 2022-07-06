@@ -886,7 +886,10 @@ export class TinymanDex extends Dex {
             suggestedParams,
         });
 
-        return [this.encodeMaybeTxs(txs)];
+        const group = this.encodeMaybeTxs(txs);
+        group.usedApps = [this.validatorAppId];
+        group.usedAssets = [pool.asset1, pool.asset2];
+        return [group];
     }
 
     async getMintQuote(
@@ -958,7 +961,10 @@ export class TinymanDex extends Dex {
             suggestedParams,
         });
 
-        return [this.encodeMaybeTxs(txs)];
+        const group = this.encodeMaybeTxs(txs);
+        group.usedApps = [this.validatorAppId];
+        group.usedAssets = [pool.asset1, pool.asset2, pool.liquidityAsset];
+        return [group];
     }
 
     private encodeMaybeTxs(txs: Tinyman.MaybeSignedTx[]): WalletTransactionGroup {

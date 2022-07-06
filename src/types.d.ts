@@ -34,6 +34,8 @@ export type AllDefined<T> = {
 export type WalletTransactionGroup = {
     firstTxID: string;
     txns: WalletTransaction[];
+    usedApps?: number[];
+    usedAssets?: number[];
 };
 
 declare global {
