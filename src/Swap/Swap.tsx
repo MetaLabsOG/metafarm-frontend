@@ -11,7 +11,7 @@ import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { signAndPostTxnGroups } from '../common/lib';
+import { algoexplorerTxLink, signAndPostTxnGroups } from '../common/lib';
 import { WalletTransactionGroup } from '../types';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
@@ -181,7 +181,7 @@ export async function runTransactions(
                 asset1_id: token1Id,
                 asset2_id: token2Id,
                 amount: token1Amount,
-                txns: txIds,
+                txns: txIds.map(algoexplorerTxLink).join('\n'),
             },
             type === QueryType.swap ? LogName.SWAP : LogName.ZAP
         );
@@ -423,9 +423,10 @@ export function Swap() {
     };
 
     const SwapButtonOnClick = async () => {
-        const result_tx_id = await runTransactions(QueryType.swap, account, token1?.value, token2.value, token1Amount);
-        if (result_tx_id) {
-            alert('OK ' + result_tx_id);
+        const res = await runTransactions(QueryType.swap, account, token1?.value, token2.value, token1Amount);
+        if (res !== null) {
+            const { txIds } = res;
+            alert(`OK ${algoexplorerTxLink(txIds[0])}`);
         }
     };
 

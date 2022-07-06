@@ -11,19 +11,12 @@ export const isCompoundEnabled = (lpTokenInfo: LPTokenInfo, reward_asset_id: num
     return reward_asset_id === lpTokenInfo.asset1 || reward_asset_id === lpTokenInfo.asset2;
 };
 
-export const runCompound = async (
-    account: Account,
-    ctc: any,
-    lpTokenInfo: LPTokenInfo,
-    rewardAsset: Priced<Asset>,
-    rewardMicroamount: bigint
-) => {
+export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTokenInfo, rewardAsset: Priced<Asset>) => {
     const rewardAssetId = rewardAsset.id;
     const asset1Id = lpTokenInfo.asset1;
     const asset2Id = lpTokenInfo.asset2;
 
-    console.log('COMPOUND', asset1Id, asset2Id, rewardAssetId, rewardMicroamount);
-    const reward_amount = calculateTokenAmount(rewardAsset, rewardMicroamount);
+    console.log('COMPOUND', asset1Id, asset2Id, rewardAssetId);
     if (!isCompoundEnabled(lpTokenInfo, rewardAssetId)) {
         alert('Different assets for compound');
         return;
@@ -31,19 +24,19 @@ export const runCompound = async (
     const firstAsset = asset1Id === rewardAssetId ? asset1Id : asset2Id;
     const secondAsset = asset1Id === rewardAssetId ? asset2Id : asset1Id;
 
-    logFarmActionData(account, 'COMPOUND', reward_amount, lpTokenInfo, rewardAsset);
+    // is logging 0 ok? it's still useful to see how many rewards a person sees on the screen in logs right?
+    logFarmActionData(account, 'COMPOUND', 0, lpTokenInfo, rewardAsset);
 
     try {
         console.log('start claim');
-        await ctc.apis.claim();
+        const claimedAmountBignum = await ctc.apis.claim();
+        const claimedAmount = claimedAmountBignum.toBigInt();
+        const reward_amount = calculateTokenAmount(rewardAsset, claimedAmount);
+        console.log('CLAIMED', reward_amount, claimedAmount);
 
         console.log('start zap');
         // TODO: this toString/fromString shenanigans should be gone. Overall, the methods in `Swap`
-        // would benefit from some refactoring... Also, the `claim` method returns
-        // the amount of tokens claimed which is always correct, so it should be taken from there,
-        // not provided as an argument to this method (it uses the frontend prediction AFAIU, which will most
-        // likely be smaller than the actual amount claimed since blocks come quick).
-        // just need to check the format it returns it in (i guess should be Ether's bignum).
+        // would benefit from some refactoring...
         const zapResult = await runTransactions(
             QueryType.zap,
             account,
@@ -61,8 +54,8 @@ export const runCompound = async (
         refreshAccountInfo();
         console.log('COMPOUND ZAP ', quote, txIds);
 
-        // TODO: fast fix. we have to better calculate result LP amount considering dex fees and slippage.
-        // TODO: Maybe we can do Math.min(THIS, currentWalletLpBalance)
+        // If mint transaction passed, tinyman could not return less than that (since txs are deterministic).
+        // TODO: we should check
         const microLpAmount = quote.mint.minimalLiquidityIssued;
         console.log('start stake', calculateTokenAmount(lpTokenInfo, microLpAmount), microLpAmount);
 
@@ -71,7 +64,7 @@ export const runCompound = async (
         // @ts-ignore
         const error_message = e.message;
         console.log(error_message);
-        logFarmActionData(account, 'COMPOUND ERROR', reward_amount, lpTokenInfo, rewardAsset, error_message);
+        logFarmActionData(account, 'COMPOUND ERROR', 0, lpTokenInfo, rewardAsset, error_message);
         if (error_message.includes('underflow')) {
             alert('Not enough LP tokens');
         } else {

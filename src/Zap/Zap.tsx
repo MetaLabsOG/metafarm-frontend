@@ -18,6 +18,8 @@ import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
 import { fromMicros, getMicros, makeDex, ZapQuote } from '../providers/dexesProvider';
+import { ALGONET, MAINNET } from '../AppContext';
+import { algoexplorerTxLink } from '../common/lib';
 
 const tinyman = makeDex('T2');
 
@@ -52,7 +54,6 @@ export async function loadZapData(
     console.log('[ZAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
-        const additionalParams = '&swap_half=true&slippage=0.01';
         const asset1 = await fetchAsset(Number(asset1_id));
         const asset2 = await fetchAsset(Number(asset2_id));
         const amountIn = getMicros(asset1, Number(asset1_amount));
@@ -68,7 +69,6 @@ export async function loadZapData(
                 asset2_id: asset2_id,
                 amount: asset1_amount,
                 ...zap_data,
-                additionalParams: additionalParams,
             },
             LogName.ZAP
         );
@@ -207,9 +207,10 @@ export function Zap() {
     };
 
     const ZapButtonOnClick = async () => {
-        const result_tx_id = await runTransactions(QueryType.zap, account, token1.value, token2.value, token1Amount);
-        if (result_tx_id) {
-            alert('OK ' + result_tx_id);
+        const res = await runTransactions(QueryType.zap, account, token1.value, token2.value, token1Amount);
+        if (res !== null) {
+            const { txIds } = res;
+            alert(`OK ${algoexplorerTxLink(txIds[0])}`);
         }
     };
 

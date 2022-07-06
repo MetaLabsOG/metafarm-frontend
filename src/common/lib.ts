@@ -13,7 +13,7 @@ import { BigNumber } from '@ethersproject/bignumber';
 import { Buffer } from 'buffer';
 import { Account, WalletTransaction, WalletTransactionGroup } from '../types';
 import { Amount, AppId, Asset, AssetId } from './store';
-import { reach } from '../AppContext';
+import { ALGONET, MAINNET, reach } from '../AppContext';
 import { uniq } from 'ramda';
 
 export const MINUTE: number = 60;
@@ -271,4 +271,8 @@ export function formatNumber(x: number) {
         return Math.round(x * 1000) / 1000;
     }
     return x > 100 ? Math.round(x) : Math.round(x * 100) / 100;
+}
+
+export function algoexplorerTxLink(txId: string): string {
+    return `https://${ALGONET === MAINNET ? '' : 'testnet.'}algoexplorer.io/tx/${txId}`;
 }
