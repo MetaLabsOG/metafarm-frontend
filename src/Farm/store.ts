@@ -21,10 +21,10 @@ import {
     $networkTime,
     Contract,
     FarmType,
-    AllDefined,
     hasLocalState,
     Time,
 } from '../common/store';
+import { AllDefined } from '../types';
 import { groupBy, min, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
 import { convertAmountToUSD } from './PoolList/Pool/utils';
@@ -61,11 +61,12 @@ export async function getLPTokenInfo(
         fstAssetPrice = algoPrice;
     } else {
         const firstAsset = await fetchAsset(poolInfo.asset1);
-        const priceInAlgo = (await dex.getSwapQuote(firstAsset, ALGO_ASSET, 10 ** firstAsset.decimals)).price;
+        const priceInAlgo = (await dex.getSwapQuote(firstAsset, ALGO_ASSET, BigInt(10 ** firstAsset.decimals), 0.01))
+            .price;
         fstAssetPrice = algoPrice * priceInAlgo;
     }
 
-    const price = (poolInfo.asset1Reserve * fstAssetPrice) / poolInfo.totalLiquidity;
+    const price = (Number(poolInfo.asset1Reserve) / Number(poolInfo.totalLiquidity)) * fstAssetPrice;
     return { ...asset, ...poolInfo, price, priceInAlgo: price / algoPrice };
 }
 

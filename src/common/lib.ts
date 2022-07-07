@@ -1,4 +1,4 @@
-import {
+import algosdk, {
     Algodv2,
     assignGroupID,
     Indexer,
@@ -7,12 +7,14 @@ import {
     makeApplicationOptInTxn,
     makeAssetTransferTxnWithSuggestedParamsFromObject,
     waitForConfirmation,
+    decodeUnsignedTransaction,
 } from 'algosdk';
 import { BigNumber } from '@ethersproject/bignumber';
 import { Buffer } from 'buffer';
-import { Account, ReachStdlib } from '../types';
-import { Amount, Asset } from './store';
-import { reach } from '../AppContext';
+import { Account, WalletTransaction, WalletTransactionGroup } from '../types';
+import { Amount, AppId, Asset, AssetId } from './store';
+import { ALGONET, MAINNET, reach } from '../AppContext';
+import { uniq } from 'ramda';
 
 export const MINUTE: number = 60;
 export const HOUR: number = 60 * 60;
@@ -109,20 +111,36 @@ export async function withAlgodEncoding<N extends Algodv2 | Indexer>(
     return res;
 }
 
-export const getAccountInfo = async (reach: ReachStdlib, account: Account): Promise<any> => {
+export const getAccountInfo = async (account: Account | string): Promise<any> => {
     const provider = await reach.getProvider();
+    const addr = typeof account === 'string' ? account : account.networkAccount.addr;
+
     try {
         const algod = provider.algodClient;
         return await withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
-            return algod.accountInformation(account.networkAccount.addr).do();
+            return algod.accountInformation(addr).do();
         });
     } catch (e: any) {
         const indexer = provider.indexer;
         return withAlgodEncoding(indexer, IntDecoding.DEFAULT, async (indexer) => {
-            const res = await indexer.lookupAccountByID(account.networkAccount.addr).do();
+            const res = await indexer.lookupAccountByID(addr).do();
             return res.account;
         });
     }
+};
+
+// TODO: normal typing for account info (not any)
+export const filterOutOptedIn = (
+    accountInfo: any,
+    appIds: number[],
+    tokens: number[]
+): { appIds: number[]; tokens: number[] } => {
+    const optedInAppIds = (accountInfo['apps-local-state'] ?? []).map((x: any) => x.id);
+    const optedInTokens = (accountInfo['assets'] ?? []).map((x: any) => x['asset-id']);
+
+    appIds = appIds.filter((id) => !optedInAppIds.includes(id));
+    tokens = tokens.filter((id) => !optedInTokens.includes(id));
+    return { appIds, tokens };
 };
 
 export const getLocalState = (ai: any, contractId: number): any | undefined => {
@@ -131,45 +149,105 @@ export const getLocalState = (ai: any, contractId: number): any | undefined => {
     return als ? als['key-value'] : undefined;
 };
 
-export const toReachTxn = (txn: Transaction): any => {
+export const toReachTxn = (txn: Transaction): WalletTransaction => {
     return { txn: Buffer.from(txn.toByte()).toString('base64') };
 };
 
-export const manualBatchOptIn = async (
-    reach: ReachStdlib,
-    account: Account,
-    contractId: number,
-    tokens: number[] = []
-): Promise<boolean> => {
+export const parseTxs = (txs: WalletTransactionGroup[]): Transaction[][] => {
+    return txs.map(({ txns }) => txns.map(({ txn }) => decodeUnsignedTransaction(Buffer.from(txn, 'base64'))));
+};
+
+export const signAndPostTxnGroups = async (groups: WalletTransactionGroup[]): Promise<string[]> => {
     const provider = await reach.getProvider();
     const algod = provider.algodClient;
     const ps = await algod.getTransactionParams().do();
 
-    const appTxn = makeApplicationOptInTxn(account.networkAccount.addr, ps, contractId);
-    const txId = appTxn.txID();
-
-    // app optin and token opt in cannot be done in the same transaction group apparently...
-    await provider.signAndPostTxns([toReachTxn(appTxn)]);
-
-    if (tokens.length > 0) {
-        const txns = tokens.map((t) =>
-            makeAssetTransferTxnWithSuggestedParamsFromObject({
-                from: account.networkAccount.addr,
-                to: account.networkAccount.addr,
-                amount: 0,
-                assetIndex: t,
-                suggestedParams: ps,
-            })
-        );
-        if (txns.length > 1) {
-            assignGroupID(txns);
-        }
-        await provider.signAndPostTxns(txns.map(toReachTxn));
+    if (!window.algorand) {
+        throw new Error('window.algorand is not defined, apparently wallet is not connected!');
     }
 
-    return withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
-        return waitForConfirmation(algod, txId, 3);
-    });
+    // optin aggregation
+    const appIds = uniq(groups.flatMap(({ usedApps }) => usedApps ?? []));
+    const tokens = uniq(groups.flatMap(({ usedAssets }) => usedAssets ?? [])).filter((id) => id !== 0);
+
+    // TODO: I don't like how this window.algorand and provider are accessed separately and how here
+    // it is disentangled from the effector app state. It should work without issue but it becomes entangled.
+    const walletAddress = await provider.getDefaultAddress();
+    const accountInfo = await getAccountInfo(walletAddress);
+    const optinParams = filterOutOptedIn(accountInfo, appIds, tokens);
+    const optinTxs = prepareOptinTxs(walletAddress, ps, optinParams);
+
+    groups = [...optinTxs, ...groups];
+    const signedTxns = await window.algorand.signTxns(groups.flatMap((g) => g.txns));
+
+    const sentTxIds = [];
+    let offset = 0;
+    for (const group of groups) {
+        const toPost = signedTxns.slice(offset, offset + group.txns.length);
+        await window.algorand.postTxns(toPost);
+        const success = await withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
+            return waitForConfirmation(algod, group.firstTxID, 3);
+        });
+
+        if (!success) {
+            throw new Error(`Could not wait for confirmation of transaction ${group.firstTxID}`);
+        }
+
+        sentTxIds.push(group.firstTxID);
+        offset += group.txns.length;
+    }
+
+    return sentTxIds;
+};
+
+export const prepareOptinTxs = (
+    address: string,
+    ps: algosdk.SuggestedParams,
+    { appIds, tokens }: { appIds?: AppId[]; tokens?: AssetId[] }
+): WalletTransactionGroup[] => {
+    let txns: Transaction[] = [];
+    if (appIds !== undefined && appIds.length > 0) {
+        txns = [...txns, ...appIds.map((appId) => makeApplicationOptInTxn(address, ps, appId))];
+    }
+
+    if (tokens !== undefined && tokens.length > 0) {
+        txns = [
+            ...txns,
+            ...tokens.map((t) =>
+                makeAssetTransferTxnWithSuggestedParamsFromObject({
+                    from: address,
+                    to: address,
+                    amount: 0,
+                    assetIndex: t,
+                    suggestedParams: ps,
+                })
+            ),
+        ];
+    }
+
+    if (txns.length === 0) {
+        return [];
+    } else if (txns.length > 1) {
+        txns = assignGroupID(txns);
+    }
+
+    const group = {
+        firstTxID: txns[0].txID(),
+        txns: txns.map(toReachTxn),
+    };
+
+    return [group];
+};
+
+export const manualBatchOptIn = async (
+    account: Account,
+    toOptin: { appId?: AppId; tokens?: AssetId[] }
+): Promise<string[]> => {
+    const provider = await reach.getProvider();
+    const algod = provider.algodClient;
+    const ps = await algod.getTransactionParams().do();
+    const txGroups = prepareOptinTxs(account.networkAccount.addr, ps, toOptin);
+    return signAndPostTxnGroups(txGroups);
 };
 
 export const calculateTokenAmount = (token: Asset, amount: Amount | null): number => {
@@ -193,4 +271,8 @@ export function formatNumber(x: number) {
         return Math.round(x * 1000) / 1000;
     }
     return x > 100 ? Math.round(x) : Math.round(x * 100) / 100;
+}
+
+export function algoexplorerTxLink(txId: string): string {
+    return `https://${ALGONET === MAINNET ? '' : 'testnet.'}algoexplorer.io/tx/${txId}`;
 }

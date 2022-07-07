@@ -1,20 +1,9 @@
 import { Map } from 'immutable';
-import {
-    createEffect,
-    createEvent,
-    createStore,
-    sample,
-    combine,
-    merge,
-    split,
-    forward,
-    Store,
-    restore,
-} from 'effector';
-import { algod, ALGONET, MAINNET } from '../../AppContext';
+import { createEffect, createEvent, createStore, sample, combine, split, forward, Store, restore } from 'effector';
+import { algod } from '../../AppContext';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
-import { waitForEvent, assetId } from './utils';
+import { nonConcurrent, fetchStore } from './utils';
 import { getBinanceCoinPrice } from '../../providers/binanceProvider';
 import { makeClock } from './time';
 
@@ -54,18 +43,20 @@ export const ALGO_ASSET: Asset = {
     decimals: 6,
 };
 
-const fetchAssetFx = createEffect(async (id: AssetId): Promise<Asset> => {
-    const { params } = await algod.getAssetByID(id).do();
-    const { name, creator, decimals } = params;
+const fetchAssetFx = createEffect(
+    nonConcurrent(async (id: AssetId): Promise<Asset> => {
+        const { params } = await algod.getAssetByID(id).do();
+        const { name, creator, decimals } = params;
 
-    return {
-        id,
-        name,
-        unitName: params['unit-name'],
-        creator,
-        decimals,
-    };
-});
+        return {
+            id,
+            name,
+            unitName: params['unit-name'],
+            creator,
+            decimals,
+        };
+    })
+);
 
 export const assetLoaded = fetchAssetFx.doneData;
 export const $assets = createStore(Map<AssetId, Asset>().set(0, ALGO_ASSET)).on(assetLoaded, (assets, a) =>
@@ -87,8 +78,6 @@ split({
     },
 });
 
-const assetResolved = merge([assetFoundInStore, assetLoaded]);
-
 // fetch asset info from algod on asset registration
 forward({
     from: registerAsset,
@@ -102,9 +91,9 @@ forward({
  * @returns Promise with asset
  */
 export const fetchAsset = async (id: AssetId): Promise<Asset> => {
-    const filter = (a: AssetId | Asset) => assetId(a) === id;
-    queryAsset(id);
-    return waitForEvent(assetResolved, fetchAssetFx.fail, filter, filter);
+    const saved = await fetchStore($assets.map((assets) => assets.get(id, null)));
+    if (saved) return saved;
+    else return await fetchAssetFx(id);
 };
 
 // =================================================================

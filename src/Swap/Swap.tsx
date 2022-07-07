@@ -1,25 +1,24 @@
-import algosdk, { IntDecoding, waitForConfirmation } from 'algosdk';
-import React, { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { ALGONET, MAINNET, META_TOKEN_ID, reach } from '../AppContext';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ALGONET, MAINNET, META_TOKEN_ID } from '../AppContext';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
-import { BestSwap, Token, Transaction } from './types';
-import { $account, $balances, Amount, AssetId, refreshAccountInfo } from '../common/store';
+import { BestSwap, Token } from './types';
+import { $account, $balances, Amount, AssetId, fetchAsset, fetchAssetPrice, refreshAccountInfo } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { withAlgodEncoding } from '../common/lib';
-import { WalletTransaction } from '../types';
-import { zip } from 'ramda';
+import { algoexplorerTxLink, signAndPostTxnGroups } from '../common/lib';
+import { WalletTransactionGroup } from '../types';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
+import { BestSwapQuote, getMicros, fromMicros, makeDex, ZapQuote } from '../providers/dexesProvider';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';
@@ -32,6 +31,8 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     31566704: 10458941, // USDC
     463554836: 70283957, // ALGF
 };
+
+const tinyman = makeDex('T2');
 
 export enum QueryType {
     swap,
@@ -46,28 +47,49 @@ export const getNetworkAssetId = (asset_id: number) => {
     return MAINNET_TO_TESTNET_ASA_ID[asset_id] ?? -1;
 };
 
+function quoteToBestSwap(q: BestSwapQuote, outTokenPrice: number): BestSwap {
+    const best_swap = fromMicros(q.best.assetOut, q.best.minimalAmountOut);
+    const direct_swap = q.direct ? fromMicros(q.direct.assetOut, q.direct.minimalAmountOut) : best_swap;
+    const usdc_diff = outTokenPrice * (best_swap - direct_swap);
+
+    const best_path = q.path.map((q) => ({ unit_name: q.assetIn.unitName }));
+    best_path.push({ unit_name: q.path[q.path.length - 1].assetOut.unitName });
+
+    return {
+        best_swap,
+        direct_swap,
+        best_path,
+        usdc_diff,
+    };
+}
+
 async function getBestSwap(
     account: Account | null,
     asset1_id: string | undefined,
     asset2_id: string | undefined,
-    asset1_amount: string,
-    setBestSwap: Dispatch<SetStateAction<BestSwap>>,
-    setShopSwap: Dispatch<SetStateAction<boolean>>
-) {
+    asset1_amount: string
+): Promise<BestSwap | null> {
     if (!asset1_id || !asset2_id) {
         alert('Please, choose tokens.');
-        return;
+        return null;
     }
 
     if (!asset1_amount) {
         alert('Please, enter the token amount.');
-        return;
+        return null;
     }
 
     console.log('[SWAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
-        const best_swap = await getData(QueryType.swap, asset1_id, asset2_id, asset1_amount);
+        const asset1 = await fetchAsset(parseInt(asset1_id));
+        const asset2 = await fetchAsset(parseInt(asset2_id));
+        const amountIn = getMicros(asset1, parseFloat(asset1_amount));
+        const bestSwapQuote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn);
+        const asset2Price = await fetchAssetPrice(asset2);
+        const best_swap = quoteToBestSwap(bestSwapQuote, asset2Price);
+
+        console.log(bestSwapQuote);
         console.log(best_swap);
 
         logEvent(
@@ -85,12 +107,11 @@ async function getBestSwap(
             LogName.SWAP
         );
 
-        setBestSwap(best_swap);
-        setShopSwap(true);
+        return best_swap;
     } catch (e) {
         // @ts-ignore
         const error_message = e.message;
-        console.log(error_message);
+        console.error(e);
         alert('Fail to find the best swap :(');
         logEvent(
             account?.networkAccount.addr,
@@ -103,28 +124,8 @@ async function getBestSwap(
             },
             LogName.SWAP
         );
+        return null;
     }
-}
-
-export async function getData(
-    type: QueryType,
-    asset1_id: string,
-    asset2_id: string,
-    asset1_amount: string,
-    additional_params = ''
-) {
-    const query =
-        API_PATH +
-        QueryType[type] +
-        '_data?asset1_id=' +
-        asset1_id +
-        '&asset2_id=' +
-        asset2_id +
-        '&asset1_amount=' +
-        asset1_amount +
-        additional_params;
-    const response = await fetch(query);
-    return await response.json();
 }
 
 export async function getTransactions(
@@ -132,69 +133,21 @@ export async function getTransactions(
     address: string,
     asset1_id: string,
     asset2_id: string,
-    asset1_amount: string,
-    additional_params = ''
-) {
-    const query =
-        API_PATH +
-        QueryType[type] +
-        '_transactions?address=' +
-        address +
-        '&asset1_id=' +
-        asset1_id +
-        '&asset2_id=' +
-        asset2_id +
-        '&asset1_amount=' +
-        asset1_amount +
-        additional_params;
-    const response = await fetch(query);
-    return await response.json();
-}
+    asset1_amount: string
+): Promise<{ quote: BestSwapQuote | ZapQuote; txns: WalletTransactionGroup[] }> {
+    const asset1 = await fetchAsset(Number(asset1_id));
+    const asset2 = await fetchAsset(Number(asset2_id));
+    const amountIn = getMicros(asset1, Number(asset1_amount));
 
-export async function signAndSubmitTransactions(algodClient: algosdk.Algodv2, input_transactions: Transaction) {
-    const transactions = input_transactions.transactions;
-
-    console.log('TRANSACTIONS', transactions);
-
-    let reachTxns: WalletTransaction[] = [];
-    for (let key in transactions) {
-        const cur = transactions[key];
-        reachTxns = reachTxns.concat(
-            zip(cur.txns, cur.signed_txns).map(([txn, stxn]) =>
-                typeof stxn === 'string' && stxn.length > 0 ? { txn, stxn } : { txn }
-            )
-        );
+    if (type === QueryType.swap) {
+        const quote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn);
+        const txns = await tinyman.getBestSwapTxsFromQuote(address, quote);
+        return { quote, txns };
+    } else {
+        const quote = await tinyman.getZapQuote(asset1, asset2, amountIn, 0.01);
+        const txns = await tinyman.getZapTxsFromQuote(address, quote);
+        return { quote, txns };
     }
-
-    const signed_user_data = await window.algorand.signTxns(reachTxns);
-    const signed_user_trans = signed_user_data.map((txn) => Buffer.from(txn, 'base64'));
-
-    let idx = 0;
-    for (let key in transactions) {
-        const signed_transactions = transactions[key].signed_txns.map((txn) => Buffer.from(txn as string, 'base64'));
-        for (let sidx = 0; sidx < signed_transactions.length; sidx += 1) {
-            if (signed_transactions[sidx].length === 0) {
-                signed_transactions[sidx] = signed_user_trans[idx];
-            }
-            idx += 1;
-        }
-
-        console.log('Sending', signed_transactions);
-        await algodClient.sendRawTransaction(signed_transactions).do();
-        const tx_id = transactions[key].tx_id;
-        if (tx_id) {
-            console.log('Waiting txID', tx_id);
-            await withAlgodEncoding(algodClient, IntDecoding.DEFAULT, (algod) => {
-                return waitForConfirmation(algod, tx_id, 5);
-            });
-        }
-    }
-
-    return 'https://testnet.algoexplorer.io/tx/' + input_transactions.tx_id;
-
-    // const trx = await algosdk.waitForConfirmation(algodClient, input_transactions.tx_id, 5);
-    // const trx_grp = Buffer.from(trx.txn.txn.grp).toString('base64');
-    // return 'https://algoexplorer.io/tx/group/' + encodeURIComponent(trx_grp);
 }
 
 export async function runTransactions(
@@ -202,36 +155,23 @@ export async function runTransactions(
     account: Account | null,
     token1Id: string,
     token2Id: string,
-    token1Amount: string,
-    additional_params = ''
-) {
+    token1Amount: string
+): Promise<{ quote: BestSwapQuote | ZapQuote; txIds: string[] } | null> {
     if (!account) {
         alert('Please, connect the wallet');
-        return;
+        return null;
     }
 
     if (!token1Amount) {
         alert('Please, enter the token amount.');
-        return;
+        return null;
     }
 
     try {
-        const provider = await reach.getProvider();
-        const algodClient = provider.algodClient;
-
         const address = account.networkAccount.addr;
-
-        const transactions: Transaction = await getTransactions(
-            type,
-            address,
-            token1Id,
-            token2Id,
-            token1Amount,
-            additional_params
-        );
-        // console.log(transactions);
-        const result_tx_id = await signAndSubmitTransactions(algodClient, transactions);
-        console.log('OK', result_tx_id);
+        const { quote, txns } = await getTransactions(type, address, token1Id, token2Id, token1Amount);
+        const txIds = await signAndPostTxnGroups(txns);
+        console.log('OK', txIds);
         refreshAccountInfo();
 
         logEvent(
@@ -241,12 +181,12 @@ export async function runTransactions(
                 asset1_id: token1Id,
                 asset2_id: token2Id,
                 amount: token1Amount,
-                txns: result_tx_id,
+                txns: txIds.map(algoexplorerTxLink).join('\n'),
             },
             type === QueryType.swap ? LogName.SWAP : LogName.ZAP
         );
 
-        return result_tx_id;
+        return { quote, txIds };
     } catch (e) {
         // @ts-ignore
         const error_message = e.message;
@@ -278,6 +218,7 @@ export async function runTransactions(
             },
             type === QueryType.swap ? LogName.SWAP : LogName.ZAP
         );
+        return null;
     }
 }
 
@@ -439,9 +380,13 @@ export function Swap() {
         clearTimeout(getSwapTimeout.current);
         getSwapTimeout.current = setTimeout(() => {
             setIsLoading(true);
-            getBestSwap(account, token1_id, token2_id, amount, setBestSwap, setShowResult).then(() =>
-                setIsLoading(false)
-            );
+            getBestSwap(account, token1_id, token2_id, amount).then((res) => {
+                if (res !== null) {
+                    setBestSwap(res);
+                    setShowResult(true);
+                }
+                setIsLoading(false);
+            });
         }, delay);
     }
 
@@ -469,13 +414,19 @@ export function Swap() {
     };
 
     const FindPriceButtonOnClick = async () => {
-        return getBestSwap(account, token1?.value, token2?.value, token1Amount, setBestSwap, setShowResult);
+        return getBestSwap(account, token1?.value, token2?.value, token1Amount).then((res) => {
+            if (res !== null) {
+                setBestSwap(res);
+                setShowResult(true);
+            }
+        });
     };
 
     const SwapButtonOnClick = async () => {
-        const result_tx_id = await runTransactions(QueryType.swap, account, token1?.value, token2.value, token1Amount);
-        if (result_tx_id) {
-            alert('OK ' + result_tx_id);
+        const res = await runTransactions(QueryType.swap, account, token1?.value, token2.value, token1Amount);
+        if (res !== null) {
+            const { txIds } = res;
+            alert(`OK ${algoexplorerTxLink(txIds[0])}`);
         }
     };
 

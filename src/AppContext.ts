@@ -24,7 +24,13 @@ const META_TOKEN_IDS = {
     MainNet: 712012773,
 };
 
+const USDC_TOKEN_IDS = {
+    TestNet: 10458941,
+    MainNet: 31566704,
+};
+
 export const META_TOKEN_ID = META_TOKEN_IDS[ALGONET];
+export const USDC_TOKEN_ID = USDC_TOKEN_IDS[ALGONET];
 
 export const IS_MOBILE = window.innerWidth <= 768;
 console.log('Is mobile:', IS_MOBILE);

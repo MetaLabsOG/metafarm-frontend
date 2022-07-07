@@ -3,13 +3,13 @@ import React, { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useSta
 import 'react-select-search/style.css';
 import '../css/swap.css';
 import { ZapData } from './types';
-import { $account, $balances } from '../common/store';
+import { $account, $balances, fetchAsset } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
-import { formatNumber, getData, getOptions, QueryType, runTransactions } from '../Swap/Swap';
+import { formatNumber, getOptions, QueryType, runTransactions } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
@@ -17,32 +17,49 @@ import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/s
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
+import { fromMicros, getMicros, makeDex, ZapQuote } from '../providers/dexesProvider';
+import { ALGONET, MAINNET } from '../AppContext';
+import { algoexplorerTxLink } from '../common/lib';
+
+const tinyman = makeDex('T2');
+
+function zapQuoteToData(asset1_id: number, quote: ZapQuote): ZapData {
+    const assetsAreSwapped = asset1_id !== quote.mint.assetA.id;
+    const amountA = fromMicros(quote.mint.assetA, quote.mint.amountA);
+    const amountB = fromMicros(quote.mint.assetB, quote.mint.amountB);
+
+    const asset1_amount = assetsAreSwapped ? amountB : amountA;
+    const asset2_amount = assetsAreSwapped ? amountA : amountB;
+    const lp_amount = fromMicros(quote.mint.lpToken, quote.mint.minimalLiquidityIssued);
+    const pool_lp_id = quote.mint.lpToken.id;
+    return { asset1_amount, asset2_amount, lp_amount, pool_lp_id };
+}
 
 export async function loadZapData(
     account: Account | null,
     asset1_id: string | undefined,
     asset2_id: string | undefined,
-    asset1_amount: string,
-    setIsLoading: Dispatch<SetStateAction<boolean>>,
-    setResult: Dispatch<SetStateAction<ZapData>>,
-    setShowResults: Dispatch<SetStateAction<boolean>>
-) {
+    asset1_amount: string
+): Promise<ZapData | null> {
     if (!asset1_id || !asset2_id) {
         alert('Please, choose tokens.');
-        return;
+        return null;
     }
 
     if (!asset1_amount) {
         alert('Please, enter the token amount.');
-        return;
+        return null;
     }
 
-    setIsLoading(true);
     console.log('[ZAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
-        const additionalParams = '&swap_half=true&slippage=0.01';
-        const zap_data: ZapData = await getData(QueryType.zap, asset1_id, asset2_id, asset1_amount, additionalParams);
+        const asset1 = await fetchAsset(Number(asset1_id));
+        const asset2 = await fetchAsset(Number(asset2_id));
+        const amountIn = getMicros(asset1, Number(asset1_amount));
+        const zapQuote = await tinyman.getZapQuote(asset1, asset2, amountIn, 0.01);
+
+        const zap_data = zapQuoteToData(Number(asset1_id), zapQuote);
 
         logEvent(
             account?.networkAccount.addr,
@@ -52,15 +69,11 @@ export async function loadZapData(
                 asset2_id: asset2_id,
                 amount: asset1_amount,
                 ...zap_data,
-                additionalParams: additionalParams,
             },
             LogName.ZAP
         );
 
-        setResult(zap_data);
-        console.log('[ZAP] res', zap_data);
-        setIsLoading(false);
-        setShowResults(true);
+        return zap_data;
     } catch (e) {
         // @ts-ignore
         const error_message = e.message;
@@ -76,7 +89,7 @@ export async function loadZapData(
             },
             LogName.ZAP
         );
-        setIsLoading(false);
+        return null;
     }
 }
 
@@ -145,14 +158,24 @@ export function Zap() {
 
     const getZapTimeout = useRef<any>();
 
+    function getZap(token1_id: string, token2_id: string, amount: string) {
+        setIsLoading(true);
+        loadZapData(account, token1_id, token2_id, amount).then((res) => {
+            if (res !== null) {
+                setZapData(res);
+                console.log('[ZAP] res', res);
+                setShowResult(true);
+            }
+            setIsLoading(false);
+        });
+    }
+
     function getZapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
         if (!token1_id || !token2_id || !amount) {
             return;
         }
         clearTimeout(getZapTimeout.current);
-        getZapTimeout.current = setTimeout(() => {
-            loadZapData(account, token1_id, token2_id, amount, setIsLoading, setZapData, setShowResult);
-        }, delay);
+        getZapTimeout.current = setTimeout(() => getZap(token1_id, token2_id, amount), delay);
     }
 
     const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
@@ -180,20 +203,14 @@ export function Zap() {
     };
 
     const LoadZapButtonOnClick = async () => {
-        return loadZapData(account, token1.value, token2.value, token1Amount, setIsLoading, setZapData, setShowResult);
+        return getZap(token1.value, token2.value, token1Amount);
     };
 
     const ZapButtonOnClick = async () => {
-        const result_tx_id = await runTransactions(
-            QueryType.zap,
-            account,
-            token1.value,
-            token2.value,
-            token1Amount,
-            '&swap_half=true&slippage=0.01'
-        );
-        if (result_tx_id) {
-            alert('OK ' + result_tx_id);
+        const res = await runTransactions(QueryType.zap, account, token1.value, token2.value, token1Amount);
+        if (res !== null) {
+            const { txIds } = res;
+            alert(`OK ${algoexplorerTxLink(txIds[0])}`);
         }
     };
 

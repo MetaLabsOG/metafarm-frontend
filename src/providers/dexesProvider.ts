@@ -4,47 +4,264 @@ import { max, min } from 'ramda';
 import { Buffer } from 'buffer';
 
 import { ALGONET, MAINNET, TESTNET, algod } from '../AppContext';
-import { AppId, Asset, AssetId } from '../common/store/types';
+import { AppId, Asset, AssetId, Amount } from '../common/store/types';
 import { assetId } from '../common/store/utils';
 
 import TINYMAN_ASC from './tinyman_asc.json';
-import { fetchAsset } from '../common/store';
+import { ALGO_ASSET, fetchAsset } from '../common/store';
+import { WalletTransactionGroup } from '../types';
+import { toReachTxn } from '../common/lib';
 
 export type DexProvider =
     | 'T2' // Tinyman v1.1
     | 'PT' // Pact
     | 'MOCK'; // Mock dex (random tokens are staked)
 
-export type PoolInfo = {
+export interface PoolInfo {
     poolId: AppId;
     poolDex: DexProvider;
     asset1: AssetId;
     asset2: AssetId;
     liquidityAsset: AssetId;
-    asset1Reserve: number;
-    asset2Reserve: number;
-    totalLiquidity: number;
-};
+    asset1Reserve: Amount;
+    asset2Reserve: Amount;
+    totalLiquidity: Amount;
+}
 
 export type LPTokenInfo = Asset & PoolInfo;
 
 export type SwapQuote = {
-    amountIn: number; // In MICROTOKENS
-    amountOut: number; // In MICROTOKENS
+    assetIn: Asset;
+    assetOut: Asset;
+    amountIn: Amount; // In MICROTOKENS
+    amountOut: Amount; // In MICROTOKENS
+    minimalAmountOut: Amount; // this is to account for the slippage
     price: number; // but price is calculated in FULL TOKENS (considering the DECIMALS of assets), following the Pact interface
+    fee: Amount; // yet the fee is still in MICROROKENS
+    slippage: number;
 };
 
-export interface Dex {
-    getPoolInfo: (poolId: AppId) => Promise<PoolInfo>;
-    getPoolInfoByAddress: (poolAddress: string) => Promise<PoolInfo>;
-    getPoolInfoByAssets: (asset1: AssetId | Asset, asset2: AssetId | Asset) => Promise<PoolInfo>;
-    getSwapQuote: (fromAsset: AssetId | Asset, toAsset: AssetId | Asset, amount: number) => Promise<SwapQuote>;
+export type MintQuote = {
+    assetA: Asset;
+    assetB: Asset;
+    lpToken: Asset;
+    amountA: Amount;
+    amountB: Amount;
+    liquidityIssued: Amount;
+    minimalLiquidityIssued: Amount;
+    slippage: number;
+};
+
+export type BestSwapQuote = {
+    best: SwapQuote;
+    direct?: SwapQuote;
+    path: SwapQuote[];
+};
+
+export type ZapQuote = {
+    swap: BestSwapQuote;
+    mint: MintQuote;
+};
+
+export function getMicros(a: Asset, amount: number): Amount {
+    // TODO FIXME: didn't want to solve this right now but it needs to be solved,
+    // since it obviously loses precision if the resulting amount is >2^53 - 1
+    return BigInt(amount * 10 ** a.decimals);
+}
+
+export function fromMicros(a: Asset, amount: Amount): number {
+    const ratio = BigInt(10 ** a.decimals);
+    const whole = amount / ratio;
+    const remainder = amount % ratio;
+    return Number(`${whole}.${remainder}`);
+}
+
+export abstract class Dex {
+    abstract getPoolInfo(poolId: AppId): Promise<PoolInfo>;
+    abstract getPoolInfoByAddress(poolAddress: string): Promise<PoolInfo>;
+    abstract getPoolInfoByAssets(asset1: AssetId | Asset, asset2: AssetId | Asset): Promise<PoolInfo>;
+
+    // The amount provided is in MICROTOKENS (bigint).
+    abstract getSwapQuote(
+        assetIn: AssetId | Asset,
+        assetOut: AssetId | Asset,
+        amountIn: Amount,
+        slippage: number,
+        pool?: PoolInfo
+    ): Promise<SwapQuote>;
+    abstract getSwapTxs(
+        sender: string,
+        assetIn: AssetId | Asset,
+        assetOut: AssetId | Asset,
+        amountIn: Amount,
+        amountOut: Amount
+    ): Promise<WalletTransactionGroup[]>;
+
+    async getSwapTxsFromQuote(sender: string, quote: SwapQuote): Promise<WalletTransactionGroup[]> {
+        return this.getSwapTxs(sender, quote.assetIn, quote.assetOut, quote.amountIn, quote.minimalAmountOut);
+    }
+
+    abstract getMintQuote(
+        assetA: AssetId | Asset,
+        assetB: AssetId | Asset,
+        amountA: Amount,
+        slippage: number,
+        pool?: PoolInfo
+    ): Promise<MintQuote>;
+    abstract getMintTxs(
+        sender: string,
+        assetA: AssetId | Asset,
+        assetB: AssetId | Asset,
+        amountA: Amount,
+        amountB: Amount,
+        lpAmount: Amount
+    ): Promise<WalletTransactionGroup[]>;
+
+    async getMintTxsFromQuote(sender: string, quote: MintQuote): Promise<WalletTransactionGroup[]> {
+        return this.getMintTxs(
+            sender,
+            quote.assetA,
+            quote.assetB,
+            quote.amountA,
+            quote.amountB,
+            quote.minimalLiquidityIssued
+        );
+    }
+
+    async getBestSwapQuote(
+        assetIn: AssetId | Asset,
+        assetOut: AssetId | Asset,
+        amountIn: Amount,
+        slippage: number = 0.01,
+        pool?: PoolInfo
+    ): Promise<BestSwapQuote> {
+        assetIn = typeof assetIn === 'number' ? await fetchAsset(assetIn) : assetIn;
+        assetOut = typeof assetOut === 'number' ? await fetchAsset(assetOut) : assetOut;
+
+        let direct = undefined;
+        // Make direct swap right away if one of the assets is ALGO
+        if (assetIn.id === 0 || assetOut.id === 0) {
+            const best = (direct = await this.getSwapQuote(assetIn, assetOut, amountIn, slippage, pool));
+            return { best, direct, path: [best] };
+        }
+
+        // Try to find direct swap
+        try {
+            direct = await this.getSwapQuote(assetIn, assetOut, amountIn, slippage, pool);
+        } catch (err) {
+            console.log(`Direct swap for token IDs ${assetIn.id} ${assetOut.id} not found`);
+        }
+
+        try {
+            const toAlgo = await this.getSwapQuote(assetIn, ALGO_ASSET, amountIn, slippage);
+            const fromAlgo = await this.getSwapQuote(ALGO_ASSET, assetOut, toAlgo.minimalAmountOut, slippage);
+            const decRatio = 10 ** (assetIn.decimals - assetOut.decimals);
+            const throughAlgo = {
+                assetIn,
+                assetOut,
+                amountIn: toAlgo.amountIn,
+                amountOut: fromAlgo.amountOut,
+                minimalAmountOut: fromAlgo.minimalAmountOut,
+                price: (Number(fromAlgo.minimalAmountOut) / Number(toAlgo.amountIn)) * decRatio,
+                fee: toAlgo.fee + fromAlgo.fee,
+                slippage,
+            };
+
+            if (!direct || direct.price < throughAlgo.price) {
+                return { best: throughAlgo, direct, path: [toAlgo, fromAlgo] };
+            } else {
+                return { best: direct, direct, path: [direct] };
+            }
+        } catch (err) {
+            console.log(`Could not find a routed swap for token IDs ${assetIn.id} ${assetOut.id}`);
+            if (direct) {
+                return { best: direct, direct, path: [direct] };
+            } else {
+                throw new Error(`Failed to find any swap for token IDs ${assetIn.id} ${assetOut.id}`);
+            }
+        }
+    }
+
+    async getBestSwapTxsFromQuote(sender: string, quote: BestSwapQuote): Promise<WalletTransactionGroup[]> {
+        let txs: WalletTransactionGroup[] = [];
+        for (const q of quote.path) {
+            const curSwap = await this.getSwapTxsFromQuote(sender, q);
+            txs = [...txs, ...curSwap];
+        }
+        return txs;
+    }
+
+    async getZapQuote(
+        assetIn: AssetId | Asset,
+        assetOut: AssetId | Asset,
+        amountIn: Amount,
+        slippage: number = 0.01
+    ): Promise<ZapQuote> {
+        const halfForSwap = amountIn / BigInt(2);
+        const halfForMint = amountIn - halfForSwap;
+        const pool = await this.getPoolInfoByAssets(assetIn, assetOut);
+
+        const swap = await this.getBestSwapQuote(assetIn, assetOut, halfForSwap, slippage, pool);
+        const amountOut = swap.best.minimalAmountOut;
+
+        // FIXME: The problem with zap is that after the swap is complete,
+        // the distribution of tokens in the pool has changed. So the slippage is inevitable.
+        // Here we can make sure that we have enough tokens to perform the mint
+        // in the state of the pool which was __before__ the swap. But it will not be the
+        // same after the swap is done (unless, ironically, if the swap was routed - then everything
+        // is simpler). If the swap was small in comparison to the pool's liquidity, then the
+        // slippage will cover it. But I suspect that on testnet it is routinely not the case.
+        //
+        // To be precise, we will have to __simulate__ the swap on the pool so that the mint quote is
+        // as valid as the quote obtained from the pool after the swap is done. This is pain in the
+        // ass and requires even more code rewrites.
+        // ALTERNATIVELY, we can just prepare and execute swap and mint sequentially. This will
+        // always work as well as doing it manually, but the user will have to sign transactions twice
+        // AND the end result might differ a lot from the quote displayed to the user.
+        if (swap.path.length === 1) {
+            // only do this in case of direct swap, because otherwise the pool is actually
+            // unaffected
+            // also, it's stupid here and of course works only for Tinyman because we need to
+            // account for FEES.
+            if (assetId(assetIn) === pool.asset1) {
+                pool.asset1Reserve += (swap.best.amountIn * BigInt(997)) / BigInt(1000);
+                pool.asset2Reserve -= swap.best.minimalAmountOut;
+            } else if (assetId(assetIn) === pool.asset2) {
+                pool.asset2Reserve += (swap.best.amountIn * BigInt(997)) / BigInt(1000);
+                pool.asset1Reserve -= swap.best.minimalAmountOut;
+            } else {
+                throw new Error('impossible: bad pool');
+            }
+        }
+
+        // assetA = assetOut
+        // assetB = assetIn
+        let mint = await this.getMintQuote(assetOut, assetIn, amountOut, slippage, pool);
+
+        if (mint.amountB > halfForMint) {
+            // try the other way
+            mint = await this.getMintQuote(assetIn, assetOut, halfForMint, slippage, pool);
+            if (mint.amountB > amountOut) {
+                // is it possible? seemingly not, but who knows, mb something something
+                // integer division troubles
+                throw new Error('impossible: cannot perform the mint either way!');
+            }
+        }
+
+        return { swap, mint };
+    }
+
+    async getZapTxsFromQuote(sender: string, quote: ZapQuote): Promise<WalletTransactionGroup[]> {
+        const swapTxs = await this.getBestSwapTxsFromQuote(sender, quote.swap);
+        const mintTxs = await this.getMintTxsFromQuote(sender, quote.mint);
+        return [...swapTxs, ...mintTxs];
+    }
 }
 
 /**
  * Mock API for dexes (yields data with arbitrary numbers)
  */
-export class MockDex implements Dex {
+export class MockDex extends Dex {
     async getPoolInfo(_: AppId): Promise<PoolInfo> {
         return {
             poolId: 0,
@@ -52,9 +269,9 @@ export class MockDex implements Dex {
             asset1: 0,
             asset2: 10000,
             liquidityAsset: 100500,
-            asset1Reserve: 100000000,
-            asset2Reserve: 200000000,
-            totalLiquidity: 100000000,
+            asset1Reserve: BigInt(100000000),
+            asset2Reserve: BigInt(200000000),
+            totalLiquidity: BigInt(100000000),
         };
     }
 
@@ -66,24 +283,68 @@ export class MockDex implements Dex {
         return this.getPoolInfo(0);
     }
 
-    async getSwapQuote(_1: AssetId | Asset, _2: AssetId | Asset, amount: number): Promise<SwapQuote> {
+    async getSwapQuote(
+        a1: AssetId | Asset,
+        a2: AssetId | Asset,
+        amount: Amount,
+        slippage: number = 0.01
+    ): Promise<SwapQuote> {
         const price = 0.01;
+        const fee = BigInt(100);
+        const assetIn = typeof a1 === 'number' ? await fetchAsset(a1) : a1;
+        const assetOut = typeof a2 === 'number' ? await fetchAsset(a2) : a2;
         return {
-            amountIn: amount,
-            amountOut: amount * price,
+            assetIn,
+            assetOut,
+            amountIn: BigInt(amount),
+            amountOut: BigInt(Number(amount) * price),
+            minimalAmountOut: BigInt(Number(amount) * price * (1 - slippage)),
             price,
+            fee,
+            slippage,
         };
+    }
+
+    async getSwapTxs(
+        sender: string,
+        fromAsset: AssetId | Asset,
+        toAsset: AssetId | Asset,
+        amountIn: Amount,
+        amountOut: Amount
+    ): Promise<WalletTransactionGroup[]> {
+        throw new Error('getSwapTxs not implemented for MOCK dex');
+    }
+
+    async getMintQuote(
+        assetA: number | Asset,
+        assetB: number | Asset,
+        amountA: bigint,
+        slippage: number
+    ): Promise<MintQuote> {
+        throw new Error('getMintQuote not implemented for MOCK dex');
+    }
+
+    async getMintTxs(
+        sender: string,
+        assetA: number | Asset,
+        assetB: number | Asset,
+        amountA: bigint,
+        amountB: bigint,
+        lpAmount: Amount
+    ): Promise<WalletTransactionGroup[]> {
+        throw new Error('getMintTxs not implemented for MOCK dex');
     }
 }
 
 /*
  * Subset of Pact API implementation
  */
-export class PactDex implements Dex {
+export class PactDex extends Dex {
     algod: algosdk.Algodv2;
     pact: pactsdk.PactClient;
 
     constructor(algod: algosdk.Algodv2) {
+        super();
         this.algod = algod;
         this.pact = new pactsdk.PactClient(
             this.algod,
@@ -98,9 +359,9 @@ export class PactDex implements Dex {
             asset1: pool.primaryAsset.index,
             asset2: pool.secondaryAsset.index,
             liquidityAsset: pool.liquidityAsset.index,
-            asset1Reserve: pool.state.totalPrimary,
-            asset2Reserve: pool.state.totalSecondary,
-            totalLiquidity: pool.state.totalLiquidity,
+            asset1Reserve: BigInt(pool.state.totalPrimary),
+            asset2Reserve: BigInt(pool.state.totalSecondary),
+            totalLiquidity: BigInt(pool.state.totalLiquidity),
         };
     }
 
@@ -163,32 +424,69 @@ export class PactDex implements Dex {
         return this.getMostLiquidPool(a1, a2).then(this.poolToPoolInfo);
     }
 
-    async getSwapQuote(fromAsset: AssetId | Asset, toAsset: AssetId | Asset, amountIn: number): Promise<SwapQuote> {
+    async getSwapQuote(
+        assetIn: AssetId | Asset,
+        assetOut: AssetId | Asset,
+        amountIn: Amount,
+        slippage: number = 0.01
+    ): Promise<SwapQuote> {
         // Fetch both assets if they are not already fetched and cached
-        if (typeof fromAsset === 'number') {
-            fromAsset = await fetchAsset(fromAsset);
-            this.makePactAsset(fromAsset); // this simply ensures that Pact asset cache also gets updated
+        if (typeof assetIn === 'number') {
+            assetIn = await fetchAsset(assetIn);
         }
 
-        if (typeof toAsset === 'number') {
-            toAsset = await fetchAsset(toAsset);
+        if (typeof assetOut === 'number') {
+            assetOut = await fetchAsset(assetOut);
+            this.makePactAsset(assetOut); // this simply ensures that Pact asset cache also gets updated
         }
 
-        const pool = await this.getMostLiquidPool(fromAsset, toAsset);
+        const pool = await this.getMostLiquidPool(assetIn, assetOut);
         const { effect } = pool.prepareSwap({
-            asset: this.makePactAsset(toAsset),
-            amount: amountIn,
-            slippagePct: 2,
+            asset: this.makePactAsset(assetIn),
+            amount: Number(amountIn), // Pact SDK assumes that input amounts fit into Number
+            slippagePct: slippage * 100,
         });
-        // FIXME: Pactsdk calculates only __fixed output__ swaps, whereas we use __fixed input__ quotes.
-        // So we reverse its result here. This yields roughly correct price and in/out amounts a fixed input swap,
-        // but not precisely - can be used to estimate the token price, probably cannot be used for preparing swap
-        // transactions.
+        // Pact SDK got updated and its interface have changed. The problem with fixed-input swaps does not exist anymore.
         return {
-            amountIn: effect.amountOut,
-            amountOut: effect.amountIn,
-            price: 1 / effect.price,
+            assetIn,
+            assetOut,
+            amountIn: BigInt(effect.amountDeposited),
+            amountOut: BigInt(effect.amountReceived),
+            minimalAmountOut: BigInt(effect.minimumAmountReceived),
+            price: effect.price,
+            fee: BigInt(effect.fee),
+            slippage,
         };
+    }
+
+    async getSwapTxs(
+        sender: string,
+        assetIn: AssetId | Asset,
+        assetOut: AssetId | Asset,
+        amountIn: Amount,
+        amountOut: Amount
+    ): Promise<WalletTransactionGroup[]> {
+        throw new Error('getSwapTxs not implemented for Pact dex');
+    }
+
+    async getMintQuote(
+        assetA: number | Asset,
+        assetB: number | Asset,
+        amountA: bigint,
+        slippage: number
+    ): Promise<MintQuote> {
+        throw new Error('getMintQuote not implemented for Pact dex');
+    }
+
+    async getMintTxs(
+        sender: string,
+        assetA: number | Asset,
+        assetB: number | Asset,
+        amountA: bigint,
+        amountB: bigint,
+        lpAmount: Amount
+    ): Promise<WalletTransactionGroup[]> {
+        throw new Error('getMintTxs not implemented for Pact dex');
     }
 }
 
@@ -213,17 +511,24 @@ export namespace Tinyman {
 
     type SwapType = 'fi' | 'fo';
 
-    type SwapTxArgs = {
+    type CommonPoolArgs = {
         validatorAppId: AppId;
         a1: AssetId;
         a2: AssetId;
         lpTokenId: AssetId;
-        assetInId: AssetId;
         assetInAmount: number;
         assetOutAmount: number;
-        swapType: SwapType;
         sender: string;
         suggestedParams: algosdk.SuggestedParams;
+    };
+
+    type SwapTxArgs = CommonPoolArgs & {
+        assetInId: AssetId;
+        swapType: SwapType;
+    };
+
+    type MintTxArgs = CommonPoolArgs & {
+        lpAmount: number;
     };
 
     type SignedTxn = {
@@ -231,8 +536,8 @@ export namespace Tinyman {
         txID: string;
     };
 
-    type MaybeSignedTx = {
-        txn: algosdk.TransactionLike;
+    export type MaybeSignedTx = {
+        txn: algosdk.Transaction;
         signedTxn: SignedTxn | null;
     };
 
@@ -249,7 +554,6 @@ export namespace Tinyman {
         return new algosdk.LogicSigAccount(program);
     }
 
-    // TODO: not tested
     export function prepareSwapTransactions({
         validatorAppId,
         a1,
@@ -267,9 +571,9 @@ export namespace Tinyman {
         const assetOutId = assetInId === a1 ? a2 : a1;
         const feeNote = toUint8Array('fee');
         const validatorArgs = ['swap', swapType].map(toUint8Array);
-        const foreignAssets = a2 === 0 ? [a1, lpTokenId] : [a1, a2, lpTokenId];
+        const foreignAssets = [a1, a2, lpTokenId].filter((id) => id !== 0);
 
-        const txns = [
+        let txns = [
             algosdk.makePaymentTxnWithSuggestedParams(sender, poolAddress, 2000, undefined, feeNote, suggestedParams),
             algosdk.makeApplicationNoOpTxn(
                 poolAddress,
@@ -320,10 +624,97 @@ export namespace Tinyman {
                   ),
         ];
 
+        txns = algosdk.assignGroupID(txns);
+        return signWithLogicSig(poolLogicSig, txns);
+    }
+
+    export function prepareMintTransactions({
+        validatorAppId,
+        a1,
+        a2,
+        lpTokenId,
+        assetInAmount,
+        assetOutAmount,
+        lpAmount,
+        sender,
+        suggestedParams,
+    }: MintTxArgs): MaybeSignedTx[] {
+        // to ensure that a1 is not algo
+        if (a1 < a2) {
+            const a = a2;
+            a2 = a1;
+            a1 = a;
+            const amount = assetOutAmount;
+            assetOutAmount = assetInAmount;
+            assetInAmount = amount;
+        }
+        const poolLogicSig = getPoolLogicSig(a1, a2, validatorAppId);
+        const poolAddress = poolLogicSig.address();
+        const feeNote = toUint8Array('fee');
+        const validatorArgs = ['mint'].map(toUint8Array);
+        const foreignAssets = [a1, a2, lpTokenId].filter((id) => id !== 0);
+
+        let txns = [
+            algosdk.makePaymentTxnWithSuggestedParams(sender, poolAddress, 2000, undefined, feeNote, suggestedParams),
+            algosdk.makeApplicationNoOpTxn(
+                poolAddress,
+                suggestedParams,
+                validatorAppId,
+                validatorArgs,
+                [sender],
+                undefined,
+                foreignAssets
+            ),
+            algosdk.makeAssetTransferTxnWithSuggestedParams(
+                sender,
+                poolAddress,
+                undefined,
+                undefined,
+                assetInAmount,
+                undefined,
+                a1,
+                suggestedParams
+            ),
+            a2 === 0
+                ? algosdk.makePaymentTxnWithSuggestedParams(
+                      sender,
+                      poolAddress,
+                      assetOutAmount,
+                      undefined,
+                      undefined,
+                      suggestedParams
+                  )
+                : algosdk.makeAssetTransferTxnWithSuggestedParams(
+                      sender,
+                      poolAddress,
+                      undefined,
+                      undefined,
+                      assetOutAmount,
+                      undefined,
+                      a2,
+                      suggestedParams
+                  ),
+            algosdk.makeAssetTransferTxnWithSuggestedParams(
+                poolAddress,
+                sender,
+                undefined,
+                undefined,
+                lpAmount,
+                undefined,
+                lpTokenId,
+                suggestedParams
+            ),
+        ];
+
+        txns = algosdk.assignGroupID(txns);
+        return signWithLogicSig(poolLogicSig, txns);
+    }
+
+    function signWithLogicSig(lsig: algosdk.LogicSigAccount, txns: algosdk.Transaction[]): MaybeSignedTx[] {
         return txns.map((txn) => {
             const signedTxn =
-                algosdk.encodeAddress(txn.from.publicKey) === poolAddress
-                    ? algosdk.signLogicSigTransaction(txn, poolLogicSig)
+                algosdk.encodeAddress(txn.from.publicKey) === lsig.address()
+                    ? algosdk.signLogicSigTransaction(txn, lsig)
                     : null;
             return { txn, signedTxn };
         });
@@ -388,7 +779,7 @@ export namespace Tinyman {
 /**
  * Subset of Tinyman API implementation
  */
-export class TinymanDex implements Dex {
+export class TinymanDex extends Dex {
     static readonly VALIDATOR_APP_ID = {
         [TESTNET]: 62368684,
         [MAINNET]: 552635992,
@@ -398,6 +789,7 @@ export class TinymanDex implements Dex {
     validatorAppId: AppId;
 
     constructor(algod: algosdk.Algodv2) {
+        super();
         this.algod = algod;
         this.validatorAppId = TinymanDex.VALIDATOR_APP_ID[ALGONET];
     }
@@ -437,9 +829,9 @@ export class TinymanDex implements Dex {
             asset1: a1,
             asset2: a2,
             liquidityAsset,
-            asset1Reserve: s1,
-            asset2Reserve: s2,
-            totalLiquidity: ilt,
+            asset1Reserve: BigInt(s1),
+            asset2Reserve: BigInt(s2),
+            totalLiquidity: BigInt(ilt),
         };
     }
 
@@ -448,7 +840,13 @@ export class TinymanDex implements Dex {
         return this.getPoolInfoByAddress(logicSig.address());
     }
 
-    async getSwapQuote(assetIn: AssetId | Asset, assetOut: AssetId | Asset, amountIn: number): Promise<SwapQuote> {
+    async getSwapQuote(
+        assetIn: AssetId | Asset,
+        assetOut: AssetId | Asset,
+        amountIn: Amount,
+        slippage: number = 0.01,
+        pool?: PoolInfo
+    ): Promise<SwapQuote> {
         if (typeof assetIn === 'number') {
             assetIn = await fetchAsset(assetIn);
         }
@@ -457,7 +855,11 @@ export class TinymanDex implements Dex {
             assetOut = await fetchAsset(assetOut);
         }
 
-        const pool = await this.getPoolInfoByAssets(assetIn, assetOut);
+        if (!pool) {
+            pool = await this.getPoolInfoByAssets(assetIn, assetOut);
+        } else if (pool.asset1 !== min(assetIn.id, assetOut.id) || pool.asset2 !== max(assetIn.id, assetOut.id)) {
+            throw new Error('bad pool given');
+        }
 
         const [inputSupply, outputSupply] =
             assetIn.id === pool.asset1
@@ -467,15 +869,145 @@ export class TinymanDex implements Dex {
         const k = pool.asset1Reserve * pool.asset2Reserve;
 
         // We assume that amount is in microalgos
-        const amountAfterFees = (amountIn * 997) / 1000;
+        const amountAfterFees = (amountIn * BigInt(997)) / BigInt(1000);
         const amountOut = outputSupply - k / (inputSupply + amountAfterFees);
 
         const decRatio = 10 ** (assetIn.decimals - assetOut.decimals);
+        const bignumSlippage = BigInt(slippage * 1000);
+        const minimalAmountOut = amountOut - (amountOut * bignumSlippage) / BigInt(1000);
 
         return {
+            assetIn,
+            assetOut,
             amountIn,
             amountOut,
-            price: (amountOut / amountIn) * decRatio,
+            minimalAmountOut,
+            price: (Number(minimalAmountOut) / Number(amountIn)) * decRatio,
+            fee: BigInt(amountIn - amountAfterFees),
+            slippage,
+        };
+    }
+
+    async getSwapTxs(
+        sender: string,
+        assetIn: AssetId | Asset,
+        assetOut: AssetId | Asset,
+        amountIn: Amount,
+        amountOut: Amount
+    ): Promise<WalletTransactionGroup[]> {
+        const suggestedParams = await this.algod.getTransactionParams().do();
+        const pool = await this.getPoolInfoByAssets(assetIn, assetOut);
+        const txs = Tinyman.prepareSwapTransactions({
+            validatorAppId: this.validatorAppId,
+            a1: pool.asset1,
+            a2: pool.asset2,
+            lpTokenId: pool.liquidityAsset,
+            assetInId: assetId(assetIn),
+            assetInAmount: Number(amountIn),
+            assetOutAmount: Number(amountOut),
+            swapType: 'fi',
+            sender,
+            suggestedParams,
+        });
+
+        const group = this.encodeMaybeTxs(txs);
+        group.usedApps = [this.validatorAppId];
+        group.usedAssets = [pool.asset1, pool.asset2];
+        return [group];
+    }
+
+    async getMintQuote(
+        assetA: number | Asset,
+        assetB: number | Asset,
+        amountA: bigint,
+        slippage: number = 0.01,
+        pool?: PoolInfo
+    ): Promise<MintQuote> {
+        if (typeof assetA === 'number') {
+            assetA = await fetchAsset(assetA);
+        }
+
+        if (typeof assetB === 'number') {
+            assetB = await fetchAsset(assetB);
+        }
+
+        if (!pool) {
+            pool = await this.getPoolInfoByAssets(assetA, assetB);
+        } else if (pool.asset1 !== min(assetA.id, assetB.id) || pool.asset2 !== max(assetA.id, assetB.id)) {
+            throw new Error('bad pool given');
+        }
+
+        const lpToken = await fetchAsset(pool.liquidityAsset);
+
+        if (pool.totalLiquidity === BigInt(0)) {
+            throw new Error('first mint is not supported yet');
+        }
+
+        let amount1: Amount, amount2: Amount, amountB: Amount;
+        if (assetA.id === pool.asset1) {
+            amount1 = amountA;
+            amountB = amount2 = (amount1 * pool.asset2Reserve) / pool.asset1Reserve;
+        } else {
+            amount2 = amountA;
+            amountB = amount1 = (amount2 * pool.asset1Reserve) / pool.asset2Reserve;
+        }
+
+        const liqA = (amount1 * pool.totalLiquidity) / pool.asset1Reserve;
+        const liqB = (amount2 * pool.totalLiquidity) / pool.asset1Reserve;
+        const liquidityIssued = liqA < liqB ? liqA : liqB;
+        const bigintSlippage = BigInt(slippage * 1000);
+        const minimalLiquidityIssued = liquidityIssued - (liquidityIssued * bigintSlippage) / BigInt(1000);
+        return {
+            assetA,
+            assetB,
+            lpToken,
+            amountA,
+            amountB,
+            liquidityIssued,
+            minimalLiquidityIssued,
+            slippage,
+        };
+    }
+
+    async getMintTxs(
+        sender: string,
+        assetA: number | Asset,
+        assetB: number | Asset,
+        amountA: bigint,
+        amountB: bigint,
+        lpAmount: Amount
+    ): Promise<WalletTransactionGroup[]> {
+        const suggestedParams = await this.algod.getTransactionParams().do();
+        const pool = await this.getPoolInfoByAssets(assetA, assetB);
+        const txs = Tinyman.prepareMintTransactions({
+            validatorAppId: this.validatorAppId,
+            a1: assetId(assetA),
+            a2: assetId(assetB),
+            lpTokenId: pool.liquidityAsset,
+            assetInAmount: Number(amountA),
+            assetOutAmount: Number(amountB),
+            lpAmount: Number(lpAmount),
+            sender,
+            suggestedParams,
+        });
+
+        const group = this.encodeMaybeTxs(txs);
+        group.usedApps = [this.validatorAppId];
+        group.usedAssets = [pool.asset1, pool.asset2, pool.liquidityAsset];
+        return [group];
+    }
+
+    private encodeMaybeTxs(txs: Tinyman.MaybeSignedTx[]): WalletTransactionGroup {
+        const firstTxID = txs[0].txn.txID();
+        return {
+            firstTxID,
+            txns: txs.map(({ txn, signedTxn }) => {
+                const walletTx = toReachTxn(txn);
+                if (signedTxn !== null) {
+                    walletTx.stxn = Buffer.from(signedTxn.blob).toString('base64');
+                }
+                return walletTx;
+            }),
         };
     }
 }
@@ -491,12 +1023,13 @@ const DEX_TRY_ORDER: DexProvider[] = ALGONET === TESTNET ? ['T2', 'PT', 'MOCK'] 
 export async function getSwapCostSomewhere(
     assetIn: AssetId | Asset,
     assetOut: AssetId | Asset,
-    amountIn: number
+    amountIn: Amount,
+    slippage: number = 0.01
 ): Promise<SwapQuote> {
     let err = null;
     for (const provider of DEX_TRY_ORDER) {
         try {
-            return await makeDex(provider).getSwapQuote(assetIn, assetOut, amountIn);
+            return await makeDex(provider).getSwapQuote(assetIn, assetOut, amountIn, slippage);
         } catch (e) {
             err = e;
         }

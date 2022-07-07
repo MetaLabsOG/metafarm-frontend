@@ -3,7 +3,8 @@ import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { GetLpTokenButton, PoolActionsDesktopContainer, TokenInfo } from './styled';
 
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
-import { $account, AllDefined, Amount, Asset, ContractState, FarmType, Priced } from '../../../common/store';
+import { $account, Amount, Asset, ContractState, FarmType, Priced } from '../../../common/store';
+import { AllDefined } from '../../../types';
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
@@ -84,9 +85,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     <PacmanButton
                         buttonText="Compound"
                         buttonStyle="claim_button"
-                        onClickAction={() =>
-                            runCompound(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
-                        }
+                        onClickAction={() => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
                         isInactive={!isActiveClaim}
                     />
                 )}

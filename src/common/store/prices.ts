@@ -7,7 +7,7 @@ import { Asset, AssetId, Priced } from './types';
 import { META_TOKEN_ID } from '../../AppContext';
 
 export const fetchAssetPrice = createEffect(async (asset: Asset): Promise<number> => {
-    const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, 10 ** asset.decimals);
+    const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, BigInt(10 ** asset.decimals));
     return swapQuote.price;
 });
 

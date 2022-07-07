@@ -1,11 +1,3 @@
-declare global {
-    interface Window {
-        algorand: {
-            signTxns: (param: { txn: string }[]) => Promise<string[]>;
-        };
-    }
-}
-
 export interface Token {
     id: number;
     name: string;
