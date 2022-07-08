@@ -1,7 +1,7 @@
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
-import { isError, QueryClient, QueryClientProvider, useQuery } from 'react-query';
+import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import GlobalStyle from './common/globalStyles';
 
 import { Menu } from './Menu';
@@ -14,15 +14,18 @@ import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
 import { Container, ContentContainer, StyledContainer } from './common/styled';
 import { Crowdsale } from './Crowdsale';
-import { fetchAlgoPrice, fetchBtcPrice } from './common/store';
+import { $account, $balances, fetchAlgoPrice, fetchBtcPrice } from './common/store';
 import { Stake } from './Stake/Stake';
 
 import './css/index.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { setPoolInfos } from './Farm/store';
 import { getContracts } from './providers/apiProvider';
-import { setDistributionPoolInfos } from './Stake/store';
+import { $stakingTokens, setDistributionPoolInfos } from './Stake/store';
+import { TestnetModal } from './TestnetModal';
+import { useModal } from 'react-hooks-use-modal';
+import { useStore, useStoreMap } from 'effector-react';
 
 const queryClient = new QueryClient();
 
@@ -31,14 +34,24 @@ fetchAlgoPrice();
 fetchBtcPrice();
 
 const App = () => {
+    const account = useStore($account);
+    const algoBalance = useStoreMap($balances, (bs) => Number(bs[0]));
     const farmsFetch = useQuery(['contracts', 'farm'], () => getContracts('farm'));
     const distrFetch = useQuery(['contracts', 'distribution'], () => getContracts('distribution'));
+
+    const [hasTestnetModalOpened, setHasTestnetModalOpened] = useState(false);
+    const [Modal, openTestnetModal] = useModal('root', { preventScroll: true });
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
             setPoolInfos(farmsFetch.data);
         }
-    }, [farmsFetch]);
+
+        if (!hasTestnetModalOpened && account && !isNaN(algoBalance) && algoBalance === 0) {
+            openTestnetModal();
+            setHasTestnetModalOpened(true);
+        }
+    }, [farmsFetch, algoBalance, account]);
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
@@ -65,6 +78,9 @@ const App = () => {
                             <Route path="/tokensale" element={<Crowdsale />} />
                         </Routes>
                     </ContentContainer>
+                    <Modal>
+                        <TestnetModal />
+                    </Modal>
                 </Container>
             </ThemeProvider>
         </>

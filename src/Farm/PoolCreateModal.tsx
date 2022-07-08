@@ -47,7 +47,8 @@ const createFarm = async (
     rewardToken: TokenOptionType,
     beginBlock: number,
     endBlock: number,
-    rewardPerBlock: number
+    rewardPerBlock: number,
+    rewardTokenAmount: number
 ) => {
     if (!stakeToken.liquidityAsset) {
         alert('Please, choose LP pool');
@@ -63,6 +64,11 @@ const createFarm = async (
     }
     if (isNaN(rewardPerBlock) || rewardPerBlock === 0) {
         alert('Please, enter reward amount');
+        return;
+    }
+
+    if (!isNaN(rewardToken.balance) && rewardToken.balance < rewardTokenAmount) {
+        alert('Reward tokens amount is less than the wallet balance.');
         return;
     }
 
@@ -210,7 +216,7 @@ export const PoolCreateModal = () => {
         });
         setPoolOptions(options);
 
-        getOptions(balances).then((res) => {
+        getOptions(account, balances).then((res) => {
             // TODO: registerPricedAsset
             const filteredAssets = res.filter((asset) => asset.id !== 0);
             setRewardTokenOptions(filteredAssets);
@@ -226,13 +232,6 @@ export const PoolCreateModal = () => {
         setSelectedRewardToken(option);
     };
 
-    const rewardTokenAmountOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (isNaN(Number(e.target.value))) {
-            return;
-        }
-        setRewardTokenAmount(e.target.value);
-    };
-
     const dateInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (Date.parse(e.target.value) < Date.now()) {
             return;
@@ -246,7 +245,7 @@ export const PoolCreateModal = () => {
 
     return (
         <PoolCreateModalContainer>
-            <Button onClick={openPoolCreateModal}>ADD FARM</Button>
+            <Button onClick={openPoolCreateModal} buttonText="ADD FARM" />
             <PoolCreateModal>
                 <ModalContainer>
                     <ModalTitle>ADD FARM</ModalTitle>
@@ -262,8 +261,8 @@ export const PoolCreateModal = () => {
                         options={rewardTokenOptions}
                         selectedOption={selectedRewardToken}
                         inputData={rewardTokenAmount}
+                        setInputData={setRewardTokenAmount}
                         selectOnChange={selectRewardTokenOnChange}
-                        inputOnChange={rewardTokenAmountOnChange}
                     />
                     <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                         <Heading2>START</Heading2>
@@ -304,7 +303,8 @@ export const PoolCreateModal = () => {
                                     selectedRewardToken,
                                     beginBlock,
                                     endBlock,
-                                    rewardPerBlock
+                                    rewardPerBlock,
+                                    Number(rewardTokenAmount)
                                 );
                                 closePoolCreateModal();
                             }}

@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { ALGONET, MAINNET, META_TOKEN_ID } from '../AppContext';
+import { ALGONET, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
@@ -79,6 +79,11 @@ async function getBestSwap(
         return null;
     }
 
+    if (asset1_id === asset2_id) {
+        alert('Please, choose different tokens.');
+        return null;
+    }
+
     console.log('[SWAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
@@ -155,7 +160,8 @@ export async function runTransactions(
     account: Account | null,
     token1Id: string,
     token2Id: string,
-    token1Amount: string
+    token1Amount: string,
+    token1Balance?: number
 ): Promise<{ quote: BestSwapQuote | ZapQuote; txIds: string[] } | null> {
     if (!account) {
         alert('Please, connect the wallet');
@@ -164,6 +170,11 @@ export async function runTransactions(
 
     if (!token1Amount) {
         alert('Please, enter the token amount.');
+        return null;
+    }
+
+    if (token1Balance !== undefined && Number(token1Amount) > token1Balance) {
+        alert('Tokens amount below the wallet balance.');
         return null;
     }
 
@@ -222,7 +233,10 @@ export async function runTransactions(
     }
 }
 
-export async function getOptions(balances: Record<AssetId, Amount> | null = null): Promise<TokenOptionType[]> {
+export async function getOptions(
+    account: Account | null,
+    balances: Record<AssetId, Amount> | null = null
+): Promise<TokenOptionType[]> {
     const asset_response = await fetch(ASSETS_PATH);
     const assets_res: Token[] = await asset_response.json();
     const assets: TokenOptionType[] = Object.values(assets_res)
@@ -252,12 +266,17 @@ export async function getOptions(balances: Record<AssetId, Amount> | null = null
         return assets;
     }
 
+    const reservedAlgoBalance = account ? reach.bigNumberToNumber(await reach.minimumBalanceOf(account)) : 0;
     assets.forEach((asset) => {
         const asset_balance = Number(balances[asset.id]) / 10 ** asset.decimals;
         asset.balance = asset_balance ?? 0;
 
+        if (asset.id === 0) {
+            asset.balance -= reservedAlgoBalance / 10 ** asset.decimals;
+        }
+
         // TODO: remove it
-        if (asset.value === META_TOKEN_ID.toString()) {
+        if (ALGONET === TESTNET && asset.value === META_TOKEN_ID.toString()) {
             asset.balance /= 10 ** 2;
         }
     });
@@ -365,7 +384,7 @@ export function Swap() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        getOptions(balances).then((res) => {
+        getOptions(account, balances).then((res) => {
             setOptions(res);
             setToken1(res[0]);
         });
@@ -404,13 +423,9 @@ export function Swap() {
         getBestSwapThrottled(token1.value, option.value, token1Amount, 50);
     };
 
-    const inputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (isNaN(Number(e.target.value))) {
-            return;
-        }
+    const inputOnChange = (inputValue: string) => {
         setShowResult(false);
-        setToken1Amount(e.target.value);
-        getBestSwapThrottled(token1.value, token2.value, e.target.value, 1000);
+        getBestSwapThrottled(token1.value, token2.value, inputValue, 1000);
     };
 
     const FindPriceButtonOnClick = async () => {
@@ -423,7 +438,14 @@ export function Swap() {
     };
 
     const SwapButtonOnClick = async () => {
-        const res = await runTransactions(QueryType.swap, account, token1?.value, token2.value, token1Amount);
+        const res = await runTransactions(
+            QueryType.swap,
+            account,
+            token1.value,
+            token2.value,
+            token1Amount,
+            token1.balance
+        );
         if (res !== null) {
             const { txIds } = res;
             alert(`OK ${algoexplorerTxLink(txIds[0])}`);
@@ -439,6 +461,7 @@ export function Swap() {
                 options={options}
                 selectedOption={token1}
                 inputData={token1Amount}
+                setInputData={setToken1Amount}
                 selectOnChange={select1OnChange}
                 inputOnChange={inputOnChange}
             />

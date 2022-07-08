@@ -33,7 +33,7 @@ export function PacmanButton({
             })}
             onClick={!isLoading && !isInactive ? onClick : undefined}
         >
-            {!isLoading ? buttonText : ''}
+            {!isLoading ? <span style={{ position: 'relative' }}>{buttonText}</span> : ''}
             {isLoading && (
                 <span className="loading">
                     <img

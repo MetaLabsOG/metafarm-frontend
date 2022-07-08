@@ -28,7 +28,7 @@ export interface PoolInfoDesktopProps {
     asset2_id: AssetId;
     pool_name: string;
     APR: number;
-    timing: JSX.Element | 'ended';
+    timing: string;
     contractLockSuffix: string;
     isOpen: boolean;
 }
@@ -108,7 +108,11 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             <PoolInfoValue>
                 <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} />
             </PoolInfoValue>
-            <PoolInfoValue style={{ color: 'gray' }}>{timing} </PoolInfoValue>
+            <PoolInfoValue style={{ color: 'gray' }}>
+                {timing.split('\n').map((x) => (
+                    <div>{x}</div>
+                ))}
+            </PoolInfoValue>
             <ArrowIconsWrapper>
                 {contractState.local ? <Arrow rotate={isOpen} /> : account !== null ? <Pacman src={pacman} /> : ''}
             </ArrowIconsWrapper>

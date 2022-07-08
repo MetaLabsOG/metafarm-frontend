@@ -10,6 +10,7 @@ import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/hooks';
 import { BigNumberish } from '@ethersproject/bignumber';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
 import { logFarmActionData } from '../../logEvent';
+import Confetti from '../Confetti/Confetti';
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;
@@ -51,6 +52,8 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const isActive = tokenMicroBalance > 0 && !isLoading;
 
+    const [showConfetti, setShowConfetti] = useState(false);
+
     useToasts({
         api: actionEffect,
         text: `${inputAmount} ${balanceSuffix} ${buttonName}`,
@@ -82,6 +85,8 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
             setInputAmount('');
             try {
                 await actionEffect([microAmount]);
+                setShowConfetti(true);
+                setShowConfetti(false);
             } catch (e) {
                 // @ts-ignore
                 const error_message = e.message;
@@ -115,6 +120,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 Balance: {calculateTokenAmount(token, tokenMicroBalance)} {balanceSuffix}{' '}
                 {isValidInput ? '' : '(Not enough)'}
             </Balance>
+            <Confetti showConfetti={showConfetti} />
         </TokenInputWithButtonContainer>
     );
 };
