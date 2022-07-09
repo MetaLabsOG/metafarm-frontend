@@ -12,7 +12,7 @@ import { Zap } from './Zap';
 
 import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
-import { Container, ContentContainer, StyledContainer } from './common/styled';
+import { Container, ContentContainer } from './common/styled';
 import { Crowdsale } from './Crowdsale';
 import { $account, $balances, fetchAlgoPrice, fetchBtcPrice } from './common/store';
 import { Stake } from './Stake/Stake';
@@ -22,10 +22,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import React, { useEffect, useState } from 'react';
 import { setPoolInfos } from './Farm/store';
 import { getContracts } from './providers/apiProvider';
-import { $stakingTokens, setDistributionPoolInfos } from './Stake/store';
+import { setDistributionPoolInfos } from './Stake/store';
 import { TestnetModal } from './TestnetModal';
 import { useModal } from 'react-hooks-use-modal';
 import { useStore, useStoreMap } from 'effector-react';
+import { Flip, ToastContainer } from 'react-toastify';
 
 const queryClient = new QueryClient();
 
@@ -62,7 +63,7 @@ const App = () => {
     return (
         <>
             <GlobalStyle />
-            <StyledContainer limit={3} />
+            <ToastContainer limit={3} theme="colored" position="bottom-right" transition={Flip} />
             <ThemeProvider theme={theme}>
                 <Container>
                     <Menu />

@@ -57,7 +57,6 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 balanceSuffix={balanceSuffix}
                 buttonName="WITHDRAW"
                 actionEffect={ctc.apis.unstake}
-                blueButtonColor={true}
             />
             <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
                 <div>REWARD</div>

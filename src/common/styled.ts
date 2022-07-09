@@ -59,18 +59,6 @@ export const InfoHeader = styled.h2`
     font-family: 'Korona One';
 `;
 
-export const StyledContainer = styled(ToastContainer)`
-    &&&.Toastify__toast-container {
-    }
-    .Toastify__toast-body {
-        font-size: 14px;
-        font-family: 'Korona One';
-    }
-    .Toastify__toast-theme--dark {
-        background: #1f1f1f;
-    }
-`;
-
 export const Heading2 = styled.h2`
     font-family: 'Korona One';
     font-size: 16px;

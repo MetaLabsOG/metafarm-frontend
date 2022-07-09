@@ -64,7 +64,6 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 balanceSuffix={balanceSuffix}
                 buttonName="Withdraw"
                 actionEffect={ctc.apis.unstake}
-                blueButtonColor={true}
             />
             <div>
                 <PacmanButton

@@ -6,7 +6,7 @@ import { useStore } from 'effector-react';
 import { $account, Asset, Priced } from '../../common/store';
 import { calculateTokenAmount, calculateTokenMicroAmount } from '../../common/lib';
 import { Effect } from 'effector';
-import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/hooks';
+import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/Notification';
 import { BigNumberish } from '@ethersproject/bignumber';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
 import { logFarmActionData } from '../../logEvent';
@@ -18,7 +18,6 @@ export interface InputWithButtonProps {
     balanceSuffix: string;
     buttonName: string;
     actionEffect: Effect<BigNumberish[], any>;
-    blueButtonColor?: boolean;
     style?: React.CSSProperties;
 }
 
@@ -41,7 +40,6 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     balanceSuffix,
     buttonName,
     actionEffect,
-    blueButtonColor = false,
     style,
 }) => {
     const account = useStore($account);
@@ -54,16 +52,17 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
 
     const [showConfetti, setShowConfetti] = useState(false);
 
-    useToasts({
+    const setNotificationText = useToasts({
         api: actionEffect,
-        text: `${inputAmount} ${balanceSuffix} ${buttonName}`,
         pendingStatus: isPending,
-        action: ToastTypes.stake,
+        action: buttonName === 'Stake' ? ToastTypes.stake : ToastTypes.withdraw,
     });
 
     const setInputMaxAmount = () => {
         setIsValidInput(true);
-        setInputAmount(calculateTokenAmount(token, tokenMicroBalance).toString());
+        const tokenAmount = calculateTokenAmount(token, tokenMicroBalance).toString();
+        setInputAmount(tokenAmount);
+        setNotificationText(tokenAmount + ' ' + balanceSuffix);
     };
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
