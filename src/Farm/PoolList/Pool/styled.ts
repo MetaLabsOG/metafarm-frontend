@@ -19,6 +19,10 @@ export const PoolContainer = styled.div`
         height: 420px;
         margin-bottom: 30px;
         justify-content: center;
+
+        perspective: 1000px;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
     }
 `;
 

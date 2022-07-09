@@ -39,8 +39,14 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
 
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
         return (
-            <PoolContainer>
-                <div onClick={() => setIsOpen(!isOpen && contract.ctc)}>
+            <PoolContainer style={{ transform: window.innerWidth <= 1120 && isOpen ? 'rotateY(180deg)' : '' }}>
+                <div
+                    style={{
+                        backfaceVisibility: 'hidden',
+                        transform: window.innerWidth <= 1120 && isOpen ? 'rotateY(180deg)' : '',
+                    }}
+                    onClick={() => setIsOpen(!isOpen && contract.ctc)}
+                >
                     <PoolInfo
                         isOpen={isOpen}
                         contractState={contract.state}
@@ -51,15 +57,22 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                     />
                 </div>
                 {contract.ctc !== null && hasLocalState(contract.state) && isOpen && (
-                    <PoolActions
-                        poolState={poolState}
-                        ctc={contract.ctc}
-                        contractState={contract.state}
-                        stakeTokenInfo={stakeTokenInfo}
-                        rewardTokenInfo={rewardTokenInfo}
-                        setIsZapModalOpen={setIsOpen}
-                        currentBlock={currentBlock}
-                    />
+                    <div
+                        style={{
+                            backfaceVisibility: 'hidden',
+                            transform: window.innerWidth <= 1120 && isOpen ? 'rotateY(180deg)' : '',
+                        }}
+                    >
+                        <PoolActions
+                            poolState={poolState}
+                            ctc={contract.ctc}
+                            contractState={contract.state}
+                            stakeTokenInfo={stakeTokenInfo}
+                            rewardTokenInfo={rewardTokenInfo}
+                            setIsZapModalOpen={setIsOpen}
+                            currentBlock={currentBlock}
+                        />
+                    </div>
                 )}
             </PoolContainer>
         );
