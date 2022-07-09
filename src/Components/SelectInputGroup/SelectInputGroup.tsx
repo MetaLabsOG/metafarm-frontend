@@ -82,23 +82,24 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                     }}
                     value={inputData}
                 />
-                {!isNaN(selectedOption.balance) && (
-                    <div className="tokenBalance" style={isValidInput ? {} : { color: theme.red }}>
-                        Balance: {formatNumber(selectedOption.balance)}
-                        {isValidInput ? '' : ' (Not enough)'}
-                    </div>
+
+                <div className="tokenBalance" style={isValidInput ? {} : { color: theme.red }}>
+                    Balance: {formatNumber(selectedOption.balance ?? 0)}
+                    {isValidInput ? '' : ' (Not enough)'}
+                </div>
+                {selectedOption.balance > 0 && (
+                    <MaxButton
+                        style={{
+                            fontSize: '16px',
+                            background: '#272727',
+                            marginTop: '8px',
+                            left: '70%',
+                        }}
+                        onClick={setInputMaxAmount}
+                    >
+                        MAX
+                    </MaxButton>
                 )}
-                <MaxButton
-                    style={{
-                        fontSize: '16px',
-                        background: '#272727',
-                        marginTop: '8px',
-                        left: '70%',
-                    }}
-                    onClick={setInputMaxAmount}
-                >
-                    MAX
-                </MaxButton>
             </div>
         </div>
     );

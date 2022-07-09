@@ -77,6 +77,7 @@ export function ZapModal({
         setToken1(option);
         const token2Upd = options[0].value === option.value ? options[1] : options[0];
         setToken2(token2Upd);
+        setToken1Amount('');
         setShowResult(false);
         // @ts-ignore
         getZapThrottled(option.value, token2Upd.value, token1Amount, 50);

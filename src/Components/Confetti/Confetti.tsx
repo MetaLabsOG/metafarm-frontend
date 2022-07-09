@@ -11,7 +11,7 @@ const canvasStyles: any = {
     left: 0,
 };
 
-export default function Confetti({ showConfetti }: { showConfetti: boolean }) {
+export default function Confetti({ showConfetti, onFinish }: { showConfetti: boolean; onFinish?: VoidFunction }) {
     const refAnimationInstance = useRef(null);
 
     const getInstance = useCallback((instance) => {
@@ -59,7 +59,8 @@ export default function Confetti({ showConfetti }: { showConfetti: boolean }) {
 
     useEffect(() => {
         if (showConfetti) {
-            setTimeout(fire, 10);
+            fire();
+            typeof onFinish === 'function' && onFinish();
         }
     }, [showConfetti]);
 

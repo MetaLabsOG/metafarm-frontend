@@ -86,7 +86,6 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
             try {
                 await actionEffect([microAmount]);
                 setShowConfetti(true);
-                setShowConfetti(false);
             } catch (e) {
                 // @ts-ignore
                 const error_message = e.message;
@@ -120,7 +119,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 Balance: {calculateTokenAmount(token, tokenMicroBalance)} {balanceSuffix}{' '}
                 {isValidInput ? '' : '(Not enough)'}
             </Balance>
-            <Confetti showConfetti={showConfetti} />
+            <Confetti showConfetti={showConfetti} onFinish={() => setShowConfetti(false)} />
         </TokenInputWithButtonContainer>
     );
 };

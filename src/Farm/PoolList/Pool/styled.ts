@@ -101,6 +101,7 @@ export const Pacman = styled.img`
 `;
 
 export const TokenInfo = styled.div`
+    min-width: 135px;
     margin-left: 25px;
     @media (max-width: 1120px) {
         margin-bottom: 30px;

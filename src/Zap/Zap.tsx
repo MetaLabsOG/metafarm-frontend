@@ -50,6 +50,11 @@ export async function loadZapData(
         return null;
     }
 
+    if (asset1_id === asset2_id) {
+        alert('Please, choose different tokens.');
+        return null;
+    }
+
     console.log('[ZAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
@@ -180,6 +185,7 @@ export function Zap() {
     const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
         // @ts-ignore
         setToken1(option);
+        setToken1Amount('');
         setShowResult(false);
         getZapThrottled(option.value, token2.value, token1Amount, 50);
     };

@@ -110,7 +110,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             </PoolInfoValue>
             <PoolInfoValue style={{ color: 'gray' }}>
                 {timing.split('\n').map((x) => (
-                    <div>{x}</div>
+                    <div key={x}>{x}</div>
                 ))}
             </PoolInfoValue>
             <ArrowIconsWrapper>

@@ -173,7 +173,7 @@ export async function runTransactions(
         return null;
     }
 
-    if (token1Balance !== undefined && Number(token1Amount) > token1Balance) {
+    if (token1Balance !== undefined && (isNaN(token1Balance) || Number(token1Amount) > token1Balance)) {
         alert('Tokens amount below the wallet balance.');
         return null;
     }
@@ -412,6 +412,7 @@ export function Swap() {
     const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
         // @ts-ignore
         setToken1(option);
+        setToken1Amount('');
         setShowResult(false);
         getBestSwapThrottled(option.value, token2.value, token1Amount, 50);
     };
