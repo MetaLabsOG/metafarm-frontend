@@ -84,7 +84,7 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                 />
 
                 <div className="tokenBalance" style={isValidInput ? {} : { color: theme.red }}>
-                    Balance: {formatNumber(selectedOption.balance ?? 0)}
+                    Balance: {formatNumber(!isNaN(selectedOption.balance) ? selectedOption.balance : 0)}
                     {isValidInput ? '' : ' (Not enough)'}
                 </div>
                 {selectedOption.balance > 0 && (

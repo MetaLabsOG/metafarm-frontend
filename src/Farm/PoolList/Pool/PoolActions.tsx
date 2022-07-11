@@ -80,7 +80,10 @@ export const PoolActions = ({
 
     useToasts({
         api: ctc.apis.claim,
-        text: numberRound(calculateTokenAmount(rewardTokenInfo, contractState.local.reward)) + ' ' + balanceSuffix,
+        text:
+            numberRound(calculateTokenAmount(rewardTokenInfo, contractState.local.reward)) +
+            ' ' +
+            rewardTokenInfo.unitName,
         pendingStatus: pendingClaim,
         action: ToastTypes.claim,
     });
