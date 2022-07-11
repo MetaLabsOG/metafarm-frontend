@@ -1,12 +1,13 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { GetLpTokenButton, PoolActionsDesktopContainer, TokenInfo } from './styled';
+import { PoolActionsDesktopContainer, TokenInfo } from './styled';
 
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { $account, Amount, Asset, ContractState, FarmType, Priced } from '../../../common/store';
 import { AllDefined } from '../../../types';
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
+import { Button } from '../../../Components/Button/Button';
 import { isCompoundEnabled, runCompound } from './compound';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
@@ -46,7 +47,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
         <PoolActionsDesktopContainer>
             <TokenInfo>
                 {isLPTokenInfo(stakedToken) && canStake && (
-                    <GetLpTokenButton onClick={openZapModal}>Get LP Tokens</GetLpTokenButton>
+                    <Button onClick={openZapModal} style={{ color: 'white' }} buttonText="Get LP Tokens" />
                 )}
             </TokenInfo>
             <TokenInputWithButton
@@ -63,7 +64,6 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 balanceSuffix={balanceSuffix}
                 buttonName="Withdraw"
                 actionEffect={ctc.apis.unstake}
-                blueButtonColor={true}
             />
             <div>
                 <PacmanButton

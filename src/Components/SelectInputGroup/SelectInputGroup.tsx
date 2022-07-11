@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import SelectSearch, { fuzzySearch } from 'react-select-search';
 import { renderOption, SelectType } from '../Select/Select';
 import { formatNumber } from '../../common/lib';
@@ -6,6 +6,8 @@ import { SelectInputGroupProps } from './types';
 import '../Select/styled.css';
 import './styled.css';
 import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
+import { theme } from '../../theme';
+import { MaxButton } from '../TokenInputWithButton/styled';
 
 // @ts-ignore
 function TokenOption({ option }) {
@@ -38,9 +40,17 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
     options,
     selectedOption,
     inputData,
+    setInputData,
     selectOnChange,
     inputOnChange,
 }) => {
+    const [isValidInput, setIsValidInput] = useState<boolean>(true);
+
+    const setInputMaxAmount = () => {
+        setIsValidInput(true);
+        setInputData(selectedOption.balance.toString());
+    };
+
     return (
         <div className="SelectInputGroupContainer">
             <SelectSearch
@@ -54,10 +64,41 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                 onChange={selectOnChange}
                 placeholder=""
             />
-            <div style={{ width: '100%' }}>
-                <input className="tokenInput" placeholder={'Enter amount'} onChange={inputOnChange} value={inputData} />
+            <div style={{ width: '100%', position: 'relative' }}>
+                <input
+                    className="tokenInput"
+                    placeholder={'Enter amount'}
+                    onChange={(e) => {
+                        if (isNaN(Number(e.target.value))) {
+                            return;
+                        }
+                        const isValidInput =
+                            !e.target.value ||
+                            isNaN(selectedOption.balance) ||
+                            Number(e.target.value) <= selectedOption.balance;
+                        setIsValidInput(isValidInput);
+                        setInputData(e.target.value);
+                        inputOnChange && inputOnChange(e.target.value);
+                    }}
+                    value={inputData}
+                />
+
+                <div className="tokenBalance" style={isValidInput ? {} : { color: theme.red }}>
+                    Balance: {formatNumber(!isNaN(selectedOption.balance) ? selectedOption.balance : 0)}
+                    {isValidInput ? '' : ' (Not enough)'}
+                </div>
                 {selectedOption.balance > 0 && (
-                    <div className="tokenBalance">Balance: {formatNumber(selectedOption.balance)}</div>
+                    <MaxButton
+                        style={{
+                            fontSize: '16px',
+                            background: '#272727',
+                            marginTop: '8px',
+                            left: '70%',
+                        }}
+                        onClick={setInputMaxAmount}
+                    >
+                        MAX
+                    </MaxButton>
                 )}
             </div>
         </div>

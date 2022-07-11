@@ -6,10 +6,11 @@ import { useStore } from 'effector-react';
 import { $account, Asset, Priced } from '../../common/store';
 import { calculateTokenAmount, calculateTokenMicroAmount } from '../../common/lib';
 import { Effect } from 'effector';
-import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/hooks';
+import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/Notification';
 import { BigNumberish } from '@ethersproject/bignumber';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
 import { logFarmActionData } from '../../logEvent';
+import Confetti from '../Confetti/Confetti';
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;
@@ -17,7 +18,6 @@ export interface InputWithButtonProps {
     balanceSuffix: string;
     buttonName: string;
     actionEffect: Effect<BigNumberish[], any>;
-    blueButtonColor?: boolean;
     style?: React.CSSProperties;
 }
 
@@ -40,7 +40,6 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     balanceSuffix,
     buttonName,
     actionEffect,
-    blueButtonColor = false,
     style,
 }) => {
     const account = useStore($account);
@@ -51,16 +50,19 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const isActive = tokenMicroBalance > 0 && !isLoading;
 
-    useToasts({
+    const [showConfetti, setShowConfetti] = useState(false);
+
+    const setNotificationText = useToasts({
         api: actionEffect,
-        text: `${inputAmount} ${balanceSuffix} ${buttonName}`,
         pendingStatus: isPending,
-        action: ToastTypes.stake,
+        action: buttonName === 'Stake' ? ToastTypes.stake : ToastTypes.withdraw,
     });
 
     const setInputMaxAmount = () => {
         setIsValidInput(true);
-        setInputAmount(calculateTokenAmount(token, tokenMicroBalance).toString());
+        const tokenAmount = calculateTokenAmount(token, tokenMicroBalance).toString();
+        setInputAmount(tokenAmount);
+        setNotificationText(tokenAmount + ' ' + balanceSuffix);
     };
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,6 +84,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
             setInputAmount('');
             try {
                 await actionEffect([microAmount]);
+                setShowConfetti(true);
             } catch (e) {
                 // @ts-ignore
                 const error_message = e.message;
@@ -115,6 +118,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 Balance: {calculateTokenAmount(token, tokenMicroBalance)} {balanceSuffix}{' '}
                 {isValidInput ? '' : '(Not enough)'}
             </Balance>
+            <Confetti showConfetti={showConfetti} onFinish={() => setShowConfetti(false)} />
         </TokenInputWithButtonContainer>
     );
 };

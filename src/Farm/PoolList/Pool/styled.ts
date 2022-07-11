@@ -19,6 +19,10 @@ export const PoolContainer = styled.div`
         height: 420px;
         margin-bottom: 30px;
         justify-content: center;
+
+        perspective: 1000px;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
     }
 `;
 
@@ -101,45 +105,17 @@ export const Pacman = styled.img`
 `;
 
 export const TokenInfo = styled.div`
-    width: 160px;
-
+    min-width: 135px;
+    margin-left: 25px;
     @media (max-width: 1120px) {
-        height: auto;
         margin-bottom: 30px;
-        margin-left: auto;
+        margin-left: 133px;
     }
 `;
 
 export const Link = styled.a`
     text-decoration: none;
     color: black;
-`;
-
-export const GetLpTokenButton = styled.div<{ isActive?: boolean }>`
-    border-radius: 4px;
-    width: 137px;
-    height: 34px;
-    background-color: 'inherit';
-    color: ${({ theme, isActive }) => (isActive ? theme.green : theme.white)};
-    border: 1px solid #b6b9bd;
-    display: flex;
-    font-size: 12px;
-    align-items: center;
-    justify-content: center;
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-left: 20px;
-    cursor: pointer;
-    font-family: 'Korona One';
-    :hover {
-        background: linear-gradient(270deg, #06a903 1.29%, #00ff29 100%);
-        border: 1px solid #009427;
-        color: black;
-    }
-
-    @media (max-width: 1120px) {
-        margin-left: 0;
-    }
 `;
 
 export const LPTokensIcon = styled.div<{ first?: boolean }>`

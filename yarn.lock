@@ -4085,6 +4085,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/canvas-confetti@npm:1.4.2":
+  version: 1.4.2
+  resolution: "@types/canvas-confetti@npm:1.4.2"
+  checksum: 041e36faaa956a9114120641f93bb3804d6db3510ee7bc7ae13944f3d5385ff2a468b041288f645fc8c1b49af39d6c4227f1eae0a917723c427389ad762057da
+  languageName: node
+  linkType: hard
+
 "@types/connect-history-api-fallback@npm:^1.3.5":
   version: 1.3.5
   resolution: "@types/connect-history-api-fallback@npm:1.3.5"
@@ -6345,6 +6352,13 @@ __metadata:
   version: 1.0.30001339
   resolution: "caniuse-lite@npm:1.0.30001339"
   checksum: 4e4df7f6896aad92f64e82f9af07843e617f5648248d02ba6a47a588782eaadbf9e71af59900b32f59f19ea469746e6ba3de46da576aa6f22c135f7c8383b0c1
+  languageName: node
+  linkType: hard
+
+"canvas-confetti@npm:1.5.1":
+  version: 1.5.1
+  resolution: "canvas-confetti@npm:1.5.1"
+  checksum: deeb6eebef0810bdbe3e0e3a2459c110f0af7db97ecf38774c094dc0dd1a8a380fb50c5427863b29bd61ac7f330d6dd219643b57a7e354ce8598355213956e80
   languageName: node
   linkType: hard
 
@@ -12239,6 +12253,7 @@ __metadata:
     react: "npm:^17.0.2"
     react-app-polyfill: "npm:^3.0.0"
     react-awesome-modal: "npm:^2.0.5"
+    react-canvas-confetti: "npm:^1.3.0"
     react-chartjs-2: "npm:^4.1.0"
     react-dev-utils: "npm:^12.0.1"
     react-device-detect: "npm:^2.2.2"
@@ -14829,6 +14844,18 @@ __metadata:
   version: 2.0.5
   resolution: "react-awesome-modal@npm:2.0.5"
   checksum: f9127c573d9de51f800b2d1e8d3612336740fcde7bdc3eccbbf1fd570efb8a64b42e9bc1d33f528ec868b09938ac21fed30604036366c3692a2d9b594193ab2a
+  languageName: node
+  linkType: hard
+
+"react-canvas-confetti@npm:^1.3.0":
+  version: 1.3.0
+  resolution: "react-canvas-confetti@npm:1.3.0"
+  dependencies:
+    "@types/canvas-confetti": "npm:1.4.2"
+    canvas-confetti: "npm:1.5.1"
+  peerDependencies:
+    react: "*"
+  checksum: d3621dd6c6993d9582872d65656297a18fc01804d380f2b205654b25ba312fe083109a86b871d99c161beed27af8dc7b4d948b108bcf81a2f41380566d8bcd88
   languageName: node
   linkType: hard
 

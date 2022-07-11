@@ -88,33 +88,69 @@
     justify-content: center;
     cursor: pointer;
     font-family: 'Korona One';
+
+    transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+    position: relative;
 }
 
 .claim_button:hover {
-    background: linear-gradient(270deg, #06A903 1.29%, #00FF29 100%);
     border: 1px solid #009427;
-    color: black;
+    color: black !important;
+    background-color: transparent;
+    text-shadow: none;
+}
+
+.claim_button:hover:before {
+    bottom: 0;
+    top: auto;
+    height: 100%;
+}
+
+.claim_button:before {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 0;
+    width: 100%;
+    z-index: 0;
+    content: '';
+    color: black !important;
+    background: linear-gradient(270deg, #06a903 1.29%, #00ff29 100%);
+    transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
 }
 
 .claim_button.loading {
     color: var(--gray);
     border: 1px solid #676767;
     position: relative;
+    transition: none;
 }
 
 .claim_button.loading:hover {
     background: transparent;
     cursor: default;
+    border: 1px solid #676767;
+}
+
+.claim_button.loading:hover:before {
+    height: 0;
 }
 
 .claim_button.inactive {
-    color: var(--gray);
+    color: var(--gray) !important;
     cursor: default;
     border-color: var(--gray);
+    transition: none;
 }
 
 .claim_button.inactive:hover {
     background: transparent;
+    border: 1px solid #676767;
+}
+
+.claim_button.inactive:hover:before {
+    height: 0;
 }
 
 .token_input_button {
@@ -127,27 +163,66 @@
     font-family: 'Korona One';
     font-size: 12px;
     border: 1px solid #B6B9BD;
+
+    transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+    position: relative;
 }
 
 .token_input_button:hover {
-    background: linear-gradient(270deg, #06A903 1.29%, #00FF29 100%);
     border: 1px solid #009427;
-    color: black;
+    color: black !important;
+    background-color: transparent;
+    text-shadow: none;
+}
+
+.token_input_button:hover:before {
+    bottom: 0;
+    top: auto;
+    height: 100%;
+}
+
+.token_input_button:before {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 0;
+    width: 100%;
+    z-index: 0;
+    content: '';
+    color: black !important;
+    background: linear-gradient(270deg, #06a903 1.29%, #00ff29 100%);
+    transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
 }
 
 .token_input_button.loading {
     color: #828282;
     position: relative;
     cursor: default;
+    transition: none;
+}
+
+.token_input_button.loading:hover {
+    border: 1px solid #676767;
+}
+
+.token_input_button.loading:hover:before {
+    height: 0;
 }
 
 .token_input_button.inactive {
-    color: var(--gray);
+    color: var(--gray) !important;
     border: 1px solid;
     border-color: var(--gray);
     cursor: default;
+    transition: none;
 }
 
 .token_input_button.inactive:hover {
     background: transparent;
+    border: 1px solid #676767;
+}
+
+.token_input_button.inactive:hover:before {
+    height: 0;
 }

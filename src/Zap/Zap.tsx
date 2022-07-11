@@ -1,4 +1,4 @@
-import React, { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
@@ -18,7 +18,6 @@ import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
 import { fromMicros, getMicros, makeDex, ZapQuote } from '../providers/dexesProvider';
-import { ALGONET, MAINNET } from '../AppContext';
 import { algoexplorerTxLink } from '../common/lib';
 
 const tinyman = makeDex('T2');
@@ -48,6 +47,11 @@ export async function loadZapData(
 
     if (!asset1_amount) {
         alert('Please, enter the token amount.');
+        return null;
+    }
+
+    if (asset1_id === asset2_id) {
+        alert('Please, choose different tokens.');
         return null;
     }
 
@@ -108,7 +112,7 @@ export function ZapResult({
         formatNumber(zap_data.asset1_amount ?? 0) +
         ' ' +
         token1.unitName +
-        ' ' +
+        ' + ' +
         formatNumber(zap_data.asset2_amount ?? 0) +
         ' ' +
         token2.unitName;
@@ -150,7 +154,7 @@ export function Zap() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        getOptions(balances).then((res) => {
+        getOptions(account, balances).then((res) => {
             setOptions(res);
             setToken1(res[0]);
         });
@@ -181,6 +185,7 @@ export function Zap() {
     const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
         // @ts-ignore
         setToken1(option);
+        setToken1Amount('');
         setShowResult(false);
         getZapThrottled(option.value, token2.value, token1Amount, 50);
     };
@@ -193,13 +198,9 @@ export function Zap() {
         getZapThrottled(token1.value, option.value, token1Amount, 50);
     };
 
-    const inputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (isNaN(Number(e.target.value))) {
-            return;
-        }
+    const inputOnChange = (inputValue: string) => {
         setShowResult(false);
-        setToken1Amount(e.target.value);
-        getZapThrottled(token1.value, token2.value, e.target.value, 1000);
+        getZapThrottled(token1.value, token2.value, inputValue, 1000);
     };
 
     const LoadZapButtonOnClick = async () => {
@@ -207,7 +208,14 @@ export function Zap() {
     };
 
     const ZapButtonOnClick = async () => {
-        const res = await runTransactions(QueryType.zap, account, token1.value, token2.value, token1Amount);
+        const res = await runTransactions(
+            QueryType.zap,
+            account,
+            token1.value,
+            token2.value,
+            token1Amount,
+            token1.balance
+        );
         if (res !== null) {
             const { txIds } = res;
             alert(`OK ${algoexplorerTxLink(txIds[0])}`);
@@ -223,6 +231,7 @@ export function Zap() {
                 options={options}
                 selectedOption={token1}
                 inputData={token1Amount}
+                setInputData={setToken1Amount}
                 selectOnChange={select1OnChange}
                 inputOnChange={inputOnChange}
             />

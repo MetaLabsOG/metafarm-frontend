@@ -6,7 +6,7 @@ import { LPTokenInfo } from '../../../providers/dexesProvider';
 
 import { formatLPTokenName, isLPTokenInfo, numberRound } from './utils';
 import { PoolState } from './types';
-import { ToastTypes, useToasts } from './hooks';
+import { ToastTypes, useToasts } from './Notification';
 import { useModal } from 'react-hooks-use-modal';
 import { PoolActionsDesktop } from './PoolActionsDesktop';
 import { PoolActionsMobile } from './PoolActionsMobile';
@@ -80,9 +80,10 @@ export const PoolActions = ({
 
     useToasts({
         api: ctc.apis.claim,
-        text: `${formatLPTokenName(stakeTokenInfo.name)} ${numberRound(
-            calculateTokenAmount(rewardTokenInfo, contractState.local.reward)
-        )} claim`,
+        text:
+            numberRound(calculateTokenAmount(rewardTokenInfo, contractState.local.reward)) +
+            ' ' +
+            rewardTokenInfo.unitName,
         pendingStatus: pendingClaim,
         action: ToastTypes.claim,
     });

@@ -1,12 +1,5 @@
 import React, { FC } from 'react';
-import {
-    GetLpTokenButton,
-    PoolActionsMobileContainer,
-    TokenInfo,
-    RewardsContainer,
-    ButtonBackMobile,
-    PoolInfoValue,
-} from './styled';
+import { PoolActionsMobileContainer, TokenInfo, RewardsContainer, ButtonBackMobile, PoolInfoValue } from './styled';
 import arrowBack from '../../../imgs/arrow_back.svg';
 
 import { PoolActionsDesktopProps } from './PoolActionsDesktop';
@@ -19,6 +12,7 @@ import { RewardValues, StakeValue } from './PoolInfoDesktop';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
 import { isLPTokenInfo } from './utils';
+import { Button } from '../../../Components/Button/Button';
 
 export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     stakedToken,
@@ -40,7 +34,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
             <ButtonBackMobile onClick={() => setIsZapModalOpen(false)} src={arrowBack} alt="BACK" />
             <TokenInfo>
                 {isLPTokenInfo(stakedToken) && canStake && (
-                    <GetLpTokenButton onClick={openZapModal}>Get LP Tokens</GetLpTokenButton>
+                    <Button onClick={openZapModal} style={{ color: 'white' }} buttonText="Get LP Tokens" />
                 )}
             </TokenInfo>
             <TokenInputWithButton
@@ -63,7 +57,6 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 balanceSuffix={balanceSuffix}
                 buttonName="WITHDRAW"
                 actionEffect={ctc.apis.unstake}
-                blueButtonColor={true}
             />
             <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
                 <div>REWARD</div>

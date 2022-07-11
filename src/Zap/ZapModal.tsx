@@ -40,7 +40,7 @@ export function ZapModal({
 
     useEffect(() => {
         setIsLoading(true);
-        getOptions(balances).then((res) => {
+        getOptions(account, balances).then((res) => {
             const filtered_res = res.filter(
                 (token) => token.value === asset1_id.toString() || token.value === asset2_id.toString()
             );
@@ -77,22 +77,19 @@ export function ZapModal({
         setToken1(option);
         const token2Upd = options[0].value === option.value ? options[1] : options[0];
         setToken2(token2Upd);
+        setToken1Amount('');
         setShowResult(false);
         // @ts-ignore
         getZapThrottled(option.value, token2Upd.value, token1Amount, 50);
     };
 
-    const inputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (isNaN(Number(e.target.value))) {
-            return;
-        }
+    const inputOnChange = (inputValue: string) => {
         setShowResult(false);
-        setToken1Amount(e.target.value);
-        getZapThrottled(token1.value, token2.value, e.target.value, 1000);
+        getZapThrottled(token1.value, token2.value, inputValue, 1000);
     };
 
     const ZapButtonOnClick = async () => {
-        await runTransactions(QueryType.zap, account, token1.value, token2.value, token1Amount);
+        await runTransactions(QueryType.zap, account, token1.value, token2.value, token1Amount, token1.balance);
         refreshAccountInfo();
         closeModal();
     };
@@ -107,6 +104,7 @@ export function ZapModal({
                 options={options}
                 selectedOption={token1}
                 inputData={token1Amount}
+                setInputData={setToken1Amount}
                 selectOnChange={select1OnChange}
                 inputOnChange={inputOnChange}
             />

@@ -1,4 +1,4 @@
-import { MouseEventHandler, useEffect, useState } from 'react';
+import React, { MouseEventHandler, useEffect, useState } from 'react';
 import { useStore } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
 import { detect } from 'detect-browser';
@@ -8,6 +8,7 @@ import { logEvent, LogName } from '../logEvent';
 import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
 import { customWalletFallback, WalletType } from './customWalletFallback';
+import { Heading2 } from '../common/styled';
 
 const browser = detect();
 const browserInfoString = browser === null ? 'unknown' : `${browser.name} ${browser.version} ${browser.os}`;
@@ -67,7 +68,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
     const [finishedOpening, setFinishedOpening] = useState(false);
     const [Modal, open, close, isOpen] = useModal('root', { preventScroll: true });
     const [accDropdownOpen, setAccDropdownOpen] = useState(false);
-    const preffix = ALGONET === TESTNET ? 'testnet.' : '';
+    const prefix = ALGONET === TESTNET ? 'testnet.' : '';
 
     // check local state once when the element is rendered first
     useEffect(() => {
@@ -119,13 +120,24 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                         >
                             <a
                                 target="_blank"
-                                href={'https://' + preffix + 'algoexplorer.io/address/' + account.networkAccount.addr}
+                                href={'https://' + prefix + 'algoexplorer.io/address/' + account.networkAccount.addr}
                                 rel="noreferrer"
+                                style={{ textDecoration: 'none' }}
                             >
-                                algoexplorer
+                                <div className="account_item">Algoexplorer</div>
                             </a>
-                            <a href="/" onClick={disconnect}>
-                                disconnect
+                            {ALGONET === TESTNET && (
+                                <a
+                                    target="_blank"
+                                    href={'https://dispenser.testnet.aws.algodev.network/'}
+                                    rel="noreferrer"
+                                    style={{ textDecoration: 'none' }}
+                                >
+                                    <div className="account_item">Get testnet ALGOs</div>
+                                </a>
+                            )}
+                            <a href="/" style={{ textDecoration: 'none' }} onClick={disconnect}>
+                                <div className="account_item">Disconnect</div>
                             </a>
                         </div>
                     </>

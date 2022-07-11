@@ -16,17 +16,21 @@ import { Zap } from './Zap';
 
 import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
-import { Container, ContentContainer, StyledContainer } from './common/styled';
+import { Container, ContentContainer } from './common/styled';
 import { Crowdsale } from './Crowdsale';
-import { fetchAlgoPrice, fetchBtcPrice } from './common/store';
+import { $account, $balances, fetchAlgoPrice, fetchBtcPrice } from './common/store';
 import { Stake } from './Stake/Stake';
 
 import './css/index.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { setPoolInfos } from './Farm/store';
 import { getContracts } from './providers/apiProvider';
 import { setDistributionPoolInfos } from './Stake/store';
+import { TestnetModal } from './TestnetModal';
+import { useModal } from 'react-hooks-use-modal';
+import { useStore, useStoreMap } from 'effector-react';
+import { Flip, ToastContainer } from 'react-toastify';
 
 Sentry.init({
     dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',
@@ -45,14 +49,26 @@ fetchAlgoPrice();
 fetchBtcPrice();
 
 const App = () => {
+    const account = useStore($account);
+    const algoBalance = useStoreMap($balances, (bs) => Number(bs[0]));
     const farmsFetch = useQuery(['contracts', 'farm'], () => getContracts('farm'));
     const distrFetch = useQuery(['contracts', 'distribution'], () => getContracts('distribution'));
+
+    const [hasTestnetModalOpened, setHasTestnetModalOpened] = useState(false);
+    const [Modal, openTestnetModal] = useModal('root', { preventScroll: true });
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
             setPoolInfos(farmsFetch.data);
         }
     }, [farmsFetch]);
+
+    useEffect(() => {
+        if (!hasTestnetModalOpened && account && !isNaN(algoBalance) && algoBalance === 0) {
+            openTestnetModal();
+            setHasTestnetModalOpened(true);
+        }
+    }, [algoBalance, account]);
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
@@ -63,7 +79,7 @@ const App = () => {
     return (
         <>
             <GlobalStyle />
-            <StyledContainer limit={3} />
+            <ToastContainer limit={3} theme="colored" position="bottom-right" transition={Flip} />
             <ThemeProvider theme={theme}>
                 <Container>
                     <Menu />
@@ -79,6 +95,9 @@ const App = () => {
                             <Route path="/tokensale" element={<Crowdsale />} />
                         </Routes>
                     </ContentContainer>
+                    <Modal>
+                        <TestnetModal />
+                    </Modal>
                 </Container>
             </ThemeProvider>
         </>

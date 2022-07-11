@@ -2,6 +2,7 @@ import { LPTokenInfo } from './providers/dexesProvider';
 import { Asset, Priced } from './common/store';
 import { Account } from './types';
 import { isLPTokenInfo } from './Farm/PoolList/Pool/utils';
+import { ALGONET } from './AppContext';
 
 export enum LogName {
     WALLET,
@@ -50,6 +51,7 @@ export function logEvent(address: string | undefined, params: any, logName: LogN
                 address: address ?? '',
                 timestamp: Date.now(),
                 date: new Date(Date.now()).toUTCString(),
+                algonet: ALGONET.toString(),
                 ...params,
             },
         }),
