@@ -1,5 +1,9 @@
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
+import * as Sentry from '@sentry/react';
+import { BrowserTracing } from '@sentry/tracing';
+
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import GlobalStyle from './common/globalStyles';
@@ -27,6 +31,16 @@ import { TestnetModal } from './TestnetModal';
 import { useModal } from 'react-hooks-use-modal';
 import { useStore, useStoreMap } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
+
+Sentry.init({
+    dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',
+    integrations: [new BrowserTracing()],
+
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+});
 
 const queryClient = new QueryClient();
 

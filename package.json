@@ -15,6 +15,8 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@ramonak/react-progress-bar": "^4.4.0",
     "@reach-sh/stdlib": "^0.1.11-rc.0",
+    "@sentry/react": "^7.6.0",
+    "@sentry/tracing": "^7.6.0",
     "@svgr/webpack": "^5.5.0",
     "algosdk": "^1.12.0",
     "axios": "^0.26.1",
