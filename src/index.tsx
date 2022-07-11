@@ -61,12 +61,14 @@ const App = () => {
         if (farmsFetch.isSuccess) {
             setPoolInfos(farmsFetch.data);
         }
+    }, [farmsFetch]);
 
+    useEffect(() => {
         if (!hasTestnetModalOpened && account && !isNaN(algoBalance) && algoBalance === 0) {
             openTestnetModal();
             setHasTestnetModalOpened(true);
         }
-    }, [farmsFetch, algoBalance, account]);
+    }, [algoBalance, account]);
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
