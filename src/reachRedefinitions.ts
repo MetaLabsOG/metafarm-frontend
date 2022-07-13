@@ -1,8 +1,9 @@
 import algosdk from 'algosdk';
 
 import { loadStdlib } from '@reach-sh/stdlib';
-import * as UTBC from '@reach-sh/stdlib/ALGO_UTBC';
 import * as RHC from '@reach-sh/stdlib/ALGO_ReachHTTPClient';
+
+import { NonRedundantHTTPClient } from './httpClient';
 
 import {
     Provider,
@@ -48,7 +49,7 @@ export function indexerFromEnv(env: any): [algosdk.BaseHTTPClient, algosdk.Index
     const token =
         typeof ALGO_INDEXER_TOKEN === 'string' ? { 'X-Indexer-API-Token': ALGO_INDEXER_TOKEN } : ALGO_INDEXER_TOKEN;
 
-    const utbc = new UTBC.URLTokenBaseHTTPClient(token, ALGO_INDEXER_SERVER, port);
+    const utbc = new NonRedundantHTTPClient(token, ALGO_INDEXER_SERVER, port);
     const rhc = new RHC.ReachHTTPClient(utbc, 'indexer', async (e) => {});
     return [rhc, new algosdk.Indexer(rhc)];
 }
@@ -58,7 +59,7 @@ export function algodClientFromEnv(env: any): [algosdk.BaseHTTPClient, algosdk.A
     const port = ALGO_PORT || undefined; // UTBC checks for undefiend
     const token = typeof ALGO_TOKEN === 'string' ? { 'X-Algo-API-Token': ALGO_TOKEN } : ALGO_TOKEN;
 
-    const utbc = new UTBC.URLTokenBaseHTTPClient(token, ALGO_SERVER, port);
+    const utbc = new NonRedundantHTTPClient(token, ALGO_SERVER, port);
     const rhc = new RHC.ReachHTTPClient(utbc, 'algodv2', async (e) => {});
     return [rhc, new algosdk.Algodv2(rhc)];
 }
