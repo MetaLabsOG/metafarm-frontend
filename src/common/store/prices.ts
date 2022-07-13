@@ -5,11 +5,14 @@ import { getSwapCostSomewhere } from '../../providers/dexesProvider';
 import { Map } from 'immutable';
 import { Asset, AssetId, Priced } from './types';
 import { META_TOKEN_ID } from '../../AppContext';
+import { nonConcurrent } from './utils';
 
-export const fetchAssetPrice = createEffect(async (asset: Asset): Promise<number> => {
-    const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, BigInt(10 ** asset.decimals));
-    return swapQuote.price;
-});
+export const fetchAssetPrice = createEffect(
+    nonConcurrent(async (asset: Asset): Promise<number> => {
+        const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, BigInt(10 ** asset.decimals));
+        return swapQuote.price;
+    })
+);
 
 export const $assetAlgoPrices = createStore(Map<AssetId, number>()).on(
     fetchAssetPrice.done,
@@ -36,10 +39,6 @@ sample({
     fn: (_, asset) => asset,
     target: fetchAssetPrice,
 });
-
-$assetAlgoPrices.watch((v) => {}); //console.log('ASSET PRICES', v));
-assetLoaded.watch((v) => {}); //console.log('ASSET LOADED', v));
-fetchAssetPrice.watch((v) => {}); //console.log('FETCHING ASSET PRICE', v));
 
 fetchAssetPrice.fail.watch((v) => console.log('ASSET PRICE FETCHING FAILED', v));
 
