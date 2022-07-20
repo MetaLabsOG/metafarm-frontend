@@ -13,7 +13,15 @@ import {
     DexIcon,
 } from './styled';
 import { Arrow } from '../../../imgs/arrow';
-import { convertAmountToUSD, getAssetLogoUrl, getDexIcon, getTokenLink, numberRound } from './utils';
+import {
+    getDexIcon,
+    algoRewardPerBlock,
+    calculateAlgoReward,
+    convertAmountToUSD,
+    getAssetLogoUrl,
+    getTokenLink,
+    numberRound,
+} from './utils';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import pacman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
@@ -22,6 +30,7 @@ import { FC } from 'react';
 
 export interface PoolInfoDesktopProps {
     account: Account | null;
+    pricedAlgo: Priced<Asset>;
     contractState: ContractState<FarmType>;
     stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>;
     rewardTokenInfo: Priced<Asset>;
@@ -38,9 +47,10 @@ export interface PoolInfoDesktopProps {
 export interface ValueProps {
     contractState: ContractState<FarmType>;
     tokenInfo: Priced<Asset> | Priced<LPTokenInfo>;
+    pricedAlgo: Priced<Asset>;
 }
 
-export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo }) => {
+export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedAlgo }) => {
     if (!contractState.local) {
         return <div>—</div>;
     }
@@ -51,6 +61,14 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo }) => {
             <RewardTokenValue>
                 {numberRound(fromMicros(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
             </RewardTokenValue>
+            {algoRewardPerBlock(contractState.initial) && (
+                <RewardTokenValue>
+                    {numberRound(
+                        fromMicros(pricedAlgo, calculateAlgoReward(contractState.initial, contractState.local.reward))
+                    )}
+                    ' ALGO'
+                </RewardTokenValue>
+            )}
         </>
     );
 };
@@ -64,6 +82,7 @@ export const StakeValue: FC<ValueProps> = ({ contractState, tokenInfo }) => {
 
 export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     account,
+    pricedAlgo,
     contractState,
     stakeTokenInfo,
     rewardTokenInfo,
@@ -108,10 +127,10 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             )}`}</PoolInfoValue>
             <PoolInfoValue>{numberRound(APR)}%</PoolInfoValue>
             <PoolInfoValue>
-                <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} />
+                <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
             <PoolInfoValue>
-                <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} />
+                <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
             <PoolInfoValue style={{ color: 'gray' }}>
                 {timing.split('\n').map((x) => (

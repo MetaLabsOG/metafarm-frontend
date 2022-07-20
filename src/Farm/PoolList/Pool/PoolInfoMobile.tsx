@@ -16,6 +16,7 @@ import { theme } from '../../../theme';
 
 export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,
+    pricedAlgo,
     contractState,
     stakeTokenInfo,
     rewardTokenInfo,
@@ -70,13 +71,13 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
             <PoolInfoValue>
                 <div>MY STAKE</div>
                 <div style={{ color: 'white' }}>
-                    <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} />
+                    <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
             <PoolInfoValue>
                 <div>REWARD</div>
                 <div style={{ color: 'white' }}>
-                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} />
+                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
             {<StakeButtonMobile disabled={!contractState.local}>MANAGE</StakeButtonMobile>}

@@ -15,6 +15,7 @@ import { isLPTokenInfo } from './utils';
 import { algoexplorerContractLink } from '../../../common/lib';
 
 export interface PoolActionsDesktopProps {
+    pricedAlgo: Priced<Asset>;
     stakedToken: Priced<LPTokenInfo> | Priced<Asset>;
     stakedTokenBalance: Amount;
     balanceSuffix: string;

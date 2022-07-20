@@ -65,6 +65,7 @@ export const PoolInfo = ({
     stakeTokenInfo,
     rewardTokenInfo,
     currentBlock,
+    pricedAlgo,
     isOpen,
 }: {
     contractState: ContractState<FarmType>;
@@ -72,6 +73,7 @@ export const PoolInfo = ({
     stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>;
     rewardTokenInfo: Priced<Asset>;
     currentBlock: Time;
+    pricedAlgo: Priced<Asset>;
     isOpen: boolean;
 }) => {
     const account = useStore($account);
@@ -98,6 +100,7 @@ export const PoolInfo = ({
             {window.innerWidth <= 1120 ? (
                 <PoolInfoMobile
                     account={account}
+                    pricedAlgo={pricedAlgo}
                     contractState={contractState}
                     stakeTokenInfo={stakeTokenInfo}
                     rewardTokenInfo={rewardTokenInfo}
@@ -113,6 +116,7 @@ export const PoolInfo = ({
             ) : (
                 <PoolInfoDesktop
                     account={account}
+                    pricedAlgo={pricedAlgo}
                     contractState={contractState}
                     stakeTokenInfo={stakeTokenInfo}
                     rewardTokenInfo={rewardTokenInfo}
