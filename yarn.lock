@@ -3264,16 +3264,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metalabsog/farm@npm:17.2.0":
-  version: 17.2.0
-  resolution: "@metalabsog/farm@npm:17.2.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F17.2.0%2F7dcfb396c3c640a314cf182d3f3508247f92d6da0dc6cf2806ad99bca5fb21be"
+"@metalabsog/farm@npm:^17.2.1":
+  version: 17.2.1
+  resolution: "@metalabsog/farm@npm:17.2.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F17.2.1%2Faadb4f45ed37d60ffe110dfcbc1ecb7f9a0898c8c748b099d16239f6d5762784"
   dependencies:
     "@metalabsog/common": "npm:^17.0.0"
     "@reach-sh/stdlib": "npm:0.1.11-rc.0"
     bent: "npm:^7.3.12"
     inquirer: "npm:^8.2.1"
     loglevel: "npm:^1.8.0"
-  checksum: 98153f69e382bde2b2d92ef517f72b5918c48720b12875b7979fedb88578ece1014dca8c035796b86f927af44138295365e35101993fc3304eb0bcfbb5d2bc62
+  checksum: ed074f24c2b87aa67a3361ef5b0ce3c47dd3123b0ed5fcb561385e109ec5ee4ecf6c8a7d4ce02756a55f23faeb59d53bca8210ca3c9440a295d3fb01d0cfb3ee
   languageName: node
   linkType: hard
 
@@ -12184,7 +12184,7 @@ __metadata:
     "@metalabsog/common": "npm:^17.0.0"
     "@metalabsog/crowdsale": "npm:17.0.0"
     "@metalabsog/distribution": "npm:17.0.0"
-    "@metalabsog/farm": "npm:17.2.0"
+    "@metalabsog/farm": "npm:^17.2.1"
     "@metalabsog/metafomo": "npm:17.0.0"
     "@pactfi/pactsdk": "npm:^0.3.0"
     "@perawallet/connect": "npm:^0.1.0"

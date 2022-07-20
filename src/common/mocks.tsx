@@ -41,11 +41,14 @@ export const ctcMock: Contract<'farm'> = {
         metadata: {
             cache: {
                 initial: {
+                    beneficiary: 'sdfafasdasd',
+                    creationFee: BigNumber.from(100),
                     stakeToken: BigNumber.from(123),
                     rewardToken: BigNumber.from(123),
                     endBlock: BigNumber.from(2345),
                     beginBlock: BigNumber.from(3),
                     rewardPerBlock: BigNumber.from(3456),
+                    extraAlgoRewardPerBlock: BigNumber.from(0),
                     lockLengthBlocks: BigNumber.from(10),
                 },
                 global: {
@@ -66,11 +69,14 @@ export const ctcMock: Contract<'farm'> = {
     },
     state: {
         initial: {
+            beneficiary: 'sdfafasdasd',
+            creationFee: BigInt(100),
             stakeToken: 123,
             rewardToken: 123,
             endBlock: 2345,
             beginBlock: 3,
             rewardPerBlock: BigInt(3456),
+            extraAlgoRewardPerBlock: BigInt(0),
             lockLengthBlocks: BigInt(10),
         },
         global: {

@@ -99,11 +99,14 @@ type LocalInfo = {
 // Farm types
 
 type FarmInitialInfo = {
+    beneficiary: string;
+    creationFee: Amount;
     stakeToken: AssetId;
     rewardToken: AssetId;
     endBlock: Time;
     beginBlock: Time;
     rewardPerBlock: Amount;
+    extraAlgoRewardPerBlock: Amount;
     lockLengthBlocks: Amount; // > 0 if lock
 };
 
@@ -158,11 +161,14 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
     viewType: V
 ): (obj: any) => AllDefined<ContractState<T>>[V] {
     const parseFarmInitialInfo = (obj: any): FarmInitialInfo => ({
+        beneficiary: obj.beneficiary,
+        creationFee: obj.creationFee.toBigInt(),
         stakeToken: obj.stakeToken.toNumber(),
         rewardToken: obj.rewardToken.toNumber(),
         endBlock: obj.endBlock.toNumber(),
         beginBlock: obj.beginBlock.toNumber(),
         rewardPerBlock: obj.rewardPerBlock.toBigInt(),
+        extraAlgoRewardPerBlock: obj.extraAlgoRewardPerBlock.toBigInt(),
         lockLengthBlocks: obj.lockLengthBlocks.toBigInt(),
     });
 
