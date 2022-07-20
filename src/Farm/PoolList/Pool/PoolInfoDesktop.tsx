@@ -10,9 +10,10 @@ import {
     RewardUSDValue,
     RewardTokenValue,
     ContractLockSuffix,
+    DexIcon,
 } from './styled';
 import { Arrow } from '../../../imgs/arrow';
-import { convertAmountToUSD, getAssetLogoUrl, getTokenLink, numberRound } from './utils';
+import { convertAmountToUSD, getAssetLogoUrl, getDexIcon, getTokenLink, numberRound } from './utils';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import pacman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
@@ -31,6 +32,7 @@ export interface PoolInfoDesktopProps {
     timing: string;
     contractLockSuffix: string;
     isOpen: boolean;
+    dexIcon: any;
 }
 
 export interface ValueProps {
@@ -72,6 +74,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     timing,
     isOpen,
     contractLockSuffix,
+    dexIcon,
 }) => {
     const asset1_logo = getAssetLogoUrl(asset1_id);
     const asset2_logo = getAssetLogoUrl(asset2_id);
@@ -82,14 +85,15 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     <LpTokensIconsWrapper>
                         <a target="_blank" href={getTokenLink(asset1_id)} rel="noreferrer">
                             <LPTokensIcon first>
-                                {asset1_logo && <img alt="" width="100%" height="100%" src={asset1_logo} />}
+                                {asset1_logo && <img alt="" width="40px" height="40px" src={asset1_logo} />}
                             </LPTokensIcon>
                         </a>
                         <a target="_blank" href={getTokenLink(asset2_id)} rel="noreferrer">
                             <LPTokensIcon>
-                                {asset2_logo && <img alt="" width="100%" height="100%" src={asset2_logo} />}
+                                {asset2_logo && <img alt="" width="40px" height="40px" src={asset2_logo} />}
                             </LPTokensIcon>
                         </a>
+                        {dexIcon && <DexIcon alt="" src={dexIcon} />}
                     </LpTokensIconsWrapper>
                     <div>
                         {pool_name}

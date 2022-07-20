@@ -11,7 +11,7 @@ export const PoolListHeader = styled.div`
 
     font-family: 'Montserrat';
     font-style: normal;
-    font-weight: 600;
+    font-weight: normal;
     font-size: 15.4416px;
     line-height: 19px;
     @media (max-width: 1120px) {

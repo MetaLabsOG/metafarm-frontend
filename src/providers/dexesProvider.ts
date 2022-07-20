@@ -132,7 +132,7 @@ export abstract class Dex {
         assetIn: AssetId | Asset,
         assetOut: AssetId | Asset,
         amountIn: Amount,
-        slippage: number = 0.01,
+        slippage: number,
         pool?: PoolInfo
     ): Promise<BestSwapQuote> {
         assetIn = typeof assetIn === 'number' ? await fetchAsset(assetIn) : assetIn;
@@ -195,7 +195,7 @@ export abstract class Dex {
         assetIn: AssetId | Asset,
         assetOut: AssetId | Asset,
         amountIn: Amount,
-        slippage: number = 0.01
+        slippage: number
     ): Promise<ZapQuote> {
         const halfForSwap = amountIn / BigInt(2);
         const halfForMint = amountIn - halfForSwap;
@@ -283,12 +283,7 @@ export class MockDex extends Dex {
         return this.getPoolInfo(0);
     }
 
-    async getSwapQuote(
-        a1: AssetId | Asset,
-        a2: AssetId | Asset,
-        amount: Amount,
-        slippage: number = 0.01
-    ): Promise<SwapQuote> {
+    async getSwapQuote(a1: AssetId | Asset, a2: AssetId | Asset, amount: Amount, slippage: number): Promise<SwapQuote> {
         const price = 0.01;
         const fee = BigInt(100);
         const assetIn = typeof a1 === 'number' ? await fetchAsset(a1) : a1;
@@ -428,7 +423,7 @@ export class PactDex extends Dex {
         assetIn: AssetId | Asset,
         assetOut: AssetId | Asset,
         amountIn: Amount,
-        slippage: number = 0.01
+        slippage: number
     ): Promise<SwapQuote> {
         // Fetch both assets if they are not already fetched and cached
         if (typeof assetIn === 'number') {
@@ -844,7 +839,7 @@ export class TinymanDex extends Dex {
         assetIn: AssetId | Asset,
         assetOut: AssetId | Asset,
         amountIn: Amount,
-        slippage: number = 0.01,
+        slippage: number,
         pool?: PoolInfo
     ): Promise<SwapQuote> {
         if (typeof assetIn === 'number') {
@@ -920,7 +915,7 @@ export class TinymanDex extends Dex {
         assetA: number | Asset,
         assetB: number | Asset,
         amountA: bigint,
-        slippage: number = 0.01,
+        slippage: number,
         pool?: PoolInfo
     ): Promise<MintQuote> {
         if (typeof assetA === 'number') {
@@ -1024,7 +1019,7 @@ export async function getSwapCostSomewhere(
     assetIn: AssetId | Asset,
     assetOut: AssetId | Asset,
     amountIn: Amount,
-    slippage: number = 0.01
+    slippage: number
 ): Promise<SwapQuote> {
     let err = null;
     for (const provider of DEX_TRY_ORDER) {

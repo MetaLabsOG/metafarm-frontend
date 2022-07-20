@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Id, toast } from 'react-toastify';
+import { Bounce, Id, Slide, toast, TypeOptions, Zoom } from 'react-toastify';
 import { isNil } from 'ramda';
 import pacman_grey from '../../../imgs/pacman.gif';
+import { getTokenLink } from './utils';
+
+const NOTIFICATION_ICONS: Record<TypeOptions, string> = {
+    success: '🚀',
+    warning: '⚠️',
+    info: '💁‍',
+    error: '🙁',
+    default: '',
+};
 
 export enum ToastTypes {
     stake,
@@ -47,10 +56,11 @@ export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<an
         if (!isNil(toastIds[action])) {
             api.finally.watch(({ status }: { status: string }) => {
                 const toastId = toastIds[action] as Id;
+                const type = status === 'done' ? 'success' : 'error';
                 toast.update(toastId, {
                     render: <Notification action={action} status={status} text={notificationText} />,
-                    type: status === 'done' ? 'success' : 'error',
-                    icon: status === 'done' ? '🚀' : '🙁',
+                    type: type,
+                    icon: NOTIFICATION_ICONS[type],
                     isLoading: false,
                     autoClose: 5000,
                     closeOnClick: true,
@@ -73,4 +83,30 @@ const Notification = ({ action, status, text }: { action: ToastTypes; status: st
             <div>AMOUNT: {text}</div>
         </div>
     );
+};
+
+const Alert = ({ text, link }: { text: string; link?: string }) => {
+    return (
+        <div style={{ marginLeft: '10px', fontFamily: 'Montserrat' }}>
+            <div>{text}</div>
+            {link && (
+                <a target="_blank" href={link} rel="noreferrer">
+                    Transaction
+                </a>
+            )}
+        </div>
+    );
+};
+
+export const notify = (text: string, type: TypeOptions, link?: string) => {
+    toast(<Alert text={text} link={link} />, {
+        type: type,
+        icon: NOTIFICATION_ICONS[type],
+        isLoading: false,
+        autoClose: 5000,
+        closeOnClick: true,
+        position: toast.POSITION.TOP_CENTER,
+        hideProgressBar: true,
+        theme: 'light',
+    });
 };

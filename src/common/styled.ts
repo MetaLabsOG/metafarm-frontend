@@ -1,4 +1,3 @@
-import { ToastContainer } from 'react-toastify';
 import styled from 'styled-components';
 
 export const NFTCard = styled.div`
@@ -81,6 +80,10 @@ export const ModalContainer = styled.div`
     input {
         outline: none;
     }
+
+    @media (max-width: 390px) {
+        padding: 15px;
+    }
 `;
 
 export const ModalTitle = styled.h1`
@@ -96,6 +99,7 @@ export const ModalSubtitle = styled.h3`
     margin-top: 5px;
     font-family: 'Montserrat';
     font-size: 14px;
+    font-weight: normal;
     text-align: center;
     margin-bottom: 10px;
 `;

@@ -7,6 +7,7 @@ import {
     StakeButtonMobile,
     ContractLockSuffix,
     TimingMobile,
+    DexIcon,
 } from './styled';
 import { convertAmountToUSD, getAssetLogoUrl, getTokenLink, numberRound } from './utils';
 import React, { FC } from 'react';
@@ -25,6 +26,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     timing,
     contractLockSuffix,
     isOpen,
+    dexIcon,
 }) => {
     if (contractState.local && isOpen) {
         return <></>;
@@ -38,14 +40,15 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 <LpTokensIconsWrapper>
                     <a target="_blank" style={{ width: '40px' }} href={getTokenLink(asset1_id)} rel="noreferrer">
                         <LPTokensIcon first>
-                            {asset1_logo && <img alt="" width="100%" height="100%" src={asset1_logo} />}
+                            {asset1_logo && <img alt="" width="40px" height="40px" src={asset1_logo} />}
                         </LPTokensIcon>
                     </a>
                     <a target="_blank" style={{ width: '40px' }} href={getTokenLink(asset2_id)} rel="noreferrer">
                         <LPTokensIcon>
-                            {asset2_logo && <img alt="" width="100%" height="100%" src={asset2_logo} />}
+                            {asset2_logo && <img alt="" width="40px" height="40px" src={asset2_logo} />}
                         </LPTokensIcon>
                     </a>
+                    {dexIcon && <DexIcon alt="" src={dexIcon} />}
                 </LpTokensIconsWrapper>
                 <div>
                     <PoolNameMobile>{pool_name}</PoolNameMobile>

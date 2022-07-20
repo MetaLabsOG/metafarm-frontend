@@ -35,7 +35,7 @@ export const PoolInfoDesktopContainer = styled.div`
     width: 100%;
     font-family: 'Montserrat';
     font-style: normal;
-    font-weight: 500;
+    font-weight: normal;
     line-height: 22px;
     font-size: 17px;
 
@@ -51,7 +51,7 @@ export const PoolInfoMobileContainer = styled.div`
     padding-right: 40px;
     font-family: 'Montserrat';
     font-style: normal;
-    font-weight: 500;
+    font-weight: normal;
     line-height: 22px;
     font-size: 17px;
     text-align: center;
@@ -81,8 +81,9 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
 
 export const PoolActionsDesktopContainer = styled.div`
     display: flex;
-    gap: 40px;
     margin-top: 38px;
+    width: 83%;
+    justify-content: space-between;
 
     @media (max-width: 1120px) {
         display: none;
@@ -92,7 +93,7 @@ export const PoolActionsDesktopContainer = styled.div`
 export const BasicInfo = styled.div`
     font-family: 'Montserrat';
     font-style: normal;
-    font-weight: 600;
+    font-weight: normal;
     font-size: 16px;
     line-height: 20px;
     display: flex;
@@ -128,6 +129,14 @@ export const LPTokensIcon = styled.div<{ first?: boolean }>`
     background-color: black;
 `;
 
+export const DexIcon = styled.img`
+    position: absolute;
+    left: 59px;
+    background-color: white;
+    height: 16px;
+    border-radius: 5px;
+`;
+
 export const LpTokensIconsWrapper = styled.div`
     display: flex;
     position: relative;
@@ -142,7 +151,7 @@ export const ArrowIconsWrapper = styled.div`
 `;
 
 export const PoolNameMobile = styled.div`
-    font-family: 'Krona One';
+    font-family: 'Korona One';
     font-size: 17px;
     color: white;
     text-align: left;

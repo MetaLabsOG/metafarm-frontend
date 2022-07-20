@@ -60,7 +60,7 @@ export const MaxButton = styled.div`
     cursor: pointer;
     font-family: 'Montserrat';
     font-style: normal;
-    font-weight: 600;
+    font-weight: normal;
     font-size: 12px;
     line-height: 15px;
     background-color: ${(props) => props.theme.darkGray};

@@ -9,6 +9,7 @@ import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
 import { customWalletFallback, WalletType } from './customWalletFallback';
 import { Heading2 } from '../common/styled';
+import { notify } from '../Farm/PoolList/Pool/Notification';
 
 const browser = detect();
 const browserInfoString = browser === null ? 'unknown' : `${browser.name} ${browser.version} ${browser.os}`;
@@ -22,7 +23,7 @@ const connectWallet = (walletType: WalletType) => {
 
     reach.setWalletFallback(customWalletFallback({ providerEnv: ALGONET, walletType }));
     if (walletType === 'WalletConnect' && ALGONET === TESTNET) {
-        alert('Please, switch you Perra wallet to testnet');
+        notify('Please, switch you Perra wallet to testnet.', 'info');
     }
     reach
         .getDefaultAccount()

@@ -1,11 +1,10 @@
 import { LPTokenInfo, makeDex, ZapQuote } from '../../../providers/dexesProvider';
 import { Asset, Priced, refreshAccountInfo } from '../../../common/store';
-import { calculateTokenAmount, calculateTokenMicroAmount } from '../../../common/lib';
+import { calculateTokenAmount } from '../../../common/lib';
 import { QueryType, runTransactions } from '../../../Swap/Swap';
 import { Account } from '../../../types';
 import { logFarmActionData } from '../../../logEvent';
-
-const tinyman = makeDex('T2');
+import { notify } from './Notification';
 
 export const isCompoundEnabled = (lpTokenInfo: LPTokenInfo, reward_asset_id: number) => {
     return reward_asset_id === lpTokenInfo.asset1 || reward_asset_id === lpTokenInfo.asset2;
@@ -18,7 +17,7 @@ export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTok
 
     console.log('COMPOUND', asset1Id, asset2Id, rewardAssetId);
     if (!isCompoundEnabled(lpTokenInfo, rewardAssetId)) {
-        alert('Different assets for compound');
+        notify('Different assets for compound.', 'error');
         return;
     }
     const firstAsset = asset1Id === rewardAssetId ? asset1Id : asset2Id;
@@ -66,9 +65,9 @@ export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTok
         console.log(error_message);
         logFarmActionData(account, 'COMPOUND ERROR', 0, lpTokenInfo, rewardAsset, error_message);
         if (error_message.includes('underflow')) {
-            alert('Not enough LP tokens');
+            notify('Not enough LP tokens.', 'error');
         } else {
-            alert(error_message);
+            notify(error_message, 'error');
         }
     }
 };

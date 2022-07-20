@@ -26,7 +26,7 @@ export const BalanceList = styled.div`
     align-items: center;
     font-family: 'Montserrat';
     font-style: normal;
-    font-weight: 600;
+    font-weight: normal;
     font-size: 18px;
     line-height: 22px;
     text-align: center;

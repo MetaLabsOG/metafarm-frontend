@@ -1,5 +1,5 @@
 .token_price_text {
-    color: #9C9C9C;
+    color: var(--lightGray);
     font-family: 'Montserrat', serif;
     font-weight: normal;
     font-size: 14px;

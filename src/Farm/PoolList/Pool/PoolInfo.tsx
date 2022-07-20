@@ -1,6 +1,6 @@
 import { useStore } from 'effector-react';
 import { $account, $meanRoundDuration, Asset, ContractState, FarmType, Priced, Time } from '../../../common/store';
-import { formatLPTokenName, isLPTokenInfo } from './utils';
+import { formatLPTokenName, getDexIcon, isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
@@ -91,6 +91,8 @@ export const PoolInfo = ({
         ? 'with ' + blocksToText(Number(contractState.initial.lockLengthBlocks), meanRoundDuration) + ' lock'
         : '';
 
+    const dexIcon = isLPTokenInfo(stakeTokenInfo) ? getDexIcon(stakeTokenInfo.poolDex) : null;
+
     return (
         <>
             {window.innerWidth <= 1120 ? (
@@ -106,6 +108,7 @@ export const PoolInfo = ({
                     timing={timing}
                     contractLockSuffix={contractLockSuffix}
                     isOpen={isOpen}
+                    dexIcon={dexIcon}
                 />
             ) : (
                 <PoolInfoDesktop
@@ -120,6 +123,7 @@ export const PoolInfo = ({
                     timing={timing}
                     contractLockSuffix={contractLockSuffix}
                     isOpen={isOpen}
+                    dexIcon={dexIcon}
                 />
             )}
         </>
