@@ -27,6 +27,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     openZapModal,
     setIsZapModalOpen,
     unlockTimer,
+    contractId,
 }) => {
     const account = useStore($account);
     return (

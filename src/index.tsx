@@ -32,6 +32,7 @@ import { useModal } from 'react-hooks-use-modal';
 import { useStore, useStoreMap } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
 import { notify } from './Farm/PoolList/Pool/Notification';
+import { Footer } from './Menu/Footer';
 
 // TODO
 window.open = (function (open) {
@@ -113,6 +114,7 @@ const App = () => {
                         <TestnetModal />
                     </Modal>
                 </Container>
+                <Footer />
             </ThemeProvider>
         </>
     );

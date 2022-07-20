@@ -71,6 +71,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                             rewardTokenInfo={rewardTokenInfo}
                             setIsZapModalOpen={setIsOpen}
                             currentBlock={currentBlock}
+                            contractId={contract.id}
                         />
                     </div>
                 )}

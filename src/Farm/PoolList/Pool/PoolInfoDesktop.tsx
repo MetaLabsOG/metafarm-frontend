@@ -99,6 +99,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                         {pool_name}
                         <div>EARN {rewardTokenInfo.unitName}</div>
                         <ContractLockSuffix>{contractLockSuffix}</ContractLockSuffix>
+                        {/*<ContractLockSuffix>AENEAS rewards</ContractLockSuffix>*/}
                     </div>
                 </BasicInfo>
             </PoolInfoValue>

@@ -82,7 +82,7 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
 export const PoolActionsDesktopContainer = styled.div`
     display: flex;
     margin-top: 38px;
-    width: 83%;
+    width: 97%;
     justify-content: space-between;
 
     @media (max-width: 1120px) {
@@ -255,4 +255,12 @@ export const TimingMobile = styled.div`
     gap: 3px;
     font-size: 15px;
     margin-top: 10px;
+`;
+
+export const ContractLink = styled.div`
+    margin-top: 7px;
+    margin-left: 5px;
+    font-size: 13px;
+    text-decoration: underline;
+    color: #676767;
 `;

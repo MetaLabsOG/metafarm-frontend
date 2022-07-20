@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction } from 'react';
 import { useStore, useStoreMap } from 'effector-react';
 import { AllDefined } from '../../../types';
-import { $balances, ContractState, Priced, Asset, FarmType, Amount } from '../../../common/store';
+import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 
 import { formatLPTokenName, isLPTokenInfo, numberRound } from './utils';
@@ -50,6 +50,7 @@ export const PoolActions = ({
     rewardTokenInfo,
     setIsZapModalOpen,
     currentBlock,
+    contractId,
 }: {
     poolState: PoolState;
     ctc: any;
@@ -58,6 +59,7 @@ export const PoolActions = ({
     rewardTokenInfo: Priced<Asset>;
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
     currentBlock: number;
+    contractId: AppId;
 }) => {
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
@@ -104,6 +106,7 @@ export const PoolActions = ({
                     openZapModal={openZapModal}
                     setIsZapModalOpen={setIsZapModalOpen}
                     unlockTimer={unlockTimer}
+                    contractId={contractId}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -119,6 +122,7 @@ export const PoolActions = ({
                     openZapModal={openZapModal}
                     setIsZapModalOpen={setIsZapModalOpen}
                     unlockTimer={unlockTimer}
+                    contractId={contractId}
                 />
             )}
             {isLPTokenInfo(stakeTokenInfo) && (

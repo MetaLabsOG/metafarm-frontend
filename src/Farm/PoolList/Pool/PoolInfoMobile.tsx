@@ -50,7 +50,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                     </a>
                     {dexIcon && <DexIcon alt="" src={dexIcon} />}
                 </LpTokensIconsWrapper>
-                <div>
+                <div style={{ marginLeft: '5px' }}>
                     <PoolNameMobile>{pool_name}</PoolNameMobile>
                     <PoolNameMobile style={{ marginBottom: '0', color: theme.green }}>
                         EARN {rewardTokenInfo.unitName}
