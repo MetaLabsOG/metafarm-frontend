@@ -28,10 +28,11 @@ export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTok
 
     try {
         console.log('start claim');
-        const claimedAmountBignum = await ctc.apis.claim();
+        const [claimedAmountBignum, claimedExtraAlgosBignum] = await ctc.apis.claim();
         const claimedAmount = claimedAmountBignum.toBigInt();
+        const claimedExtraAlgos = claimedExtraAlgosBignum.toBigInt();
         const reward_amount = calculateTokenAmount(rewardAsset, claimedAmount);
-        console.log('CLAIMED', reward_amount, claimedAmount);
+        console.log('CLAIMED', reward_amount, claimedAmount, claimedExtraAlgos);
 
         console.log('start zap');
         // TODO: this toString/fromString shenanigans should be gone. Overall, the methods in `Swap`
