@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
@@ -17,8 +17,8 @@ import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/s
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
-import { fromMicros, getMicros, makeDex, ZapQuote } from '../providers/dexesProvider';
-import { algoexplorerTxLink } from '../common/lib';
+import { makeDex, ZapQuote } from '../providers/dexesProvider';
+import { algoexplorerTxLink, fromMicros, getMicros } from '../common/lib';
 import { notify } from '../Farm/PoolList/Pool/Notification';
 
 const tinyman = makeDex('T2');

@@ -1,6 +1,6 @@
 import { LPTokenInfo, makeDex, ZapQuote } from '../../../providers/dexesProvider';
 import { Asset, Priced, refreshAccountInfo } from '../../../common/store';
-import { calculateTokenAmount } from '../../../common/lib';
+import { fromMicros } from '../../../common/lib';
 import { QueryType, runTransactions } from '../../../Swap/Swap';
 import { Account } from '../../../types';
 import { logFarmActionData } from '../../../logEvent';
@@ -31,7 +31,7 @@ export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTok
         const [claimedAmountBignum, claimedExtraAlgosBignum] = await ctc.apis.claim();
         const claimedAmount = claimedAmountBignum.toBigInt();
         const claimedExtraAlgos = claimedExtraAlgosBignum.toBigInt();
-        const reward_amount = calculateTokenAmount(rewardAsset, claimedAmount);
+        const reward_amount = fromMicros(rewardAsset, claimedAmount);
         console.log('CLAIMED', reward_amount, claimedAmount, claimedExtraAlgos);
 
         console.log('start zap');
@@ -57,7 +57,7 @@ export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTok
         // If mint transaction passed, tinyman could not return less than that (since txs are deterministic).
         // TODO: we should check
         const microLpAmount = quote.mint.minimalLiquidityIssued;
-        console.log('start stake', calculateTokenAmount(lpTokenInfo, microLpAmount), microLpAmount);
+        console.log('start stake', fromMicros(lpTokenInfo, microLpAmount), microLpAmount);
 
         await ctc.apis.stake([microLpAmount]);
     } catch (e) {

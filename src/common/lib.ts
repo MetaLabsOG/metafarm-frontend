@@ -250,7 +250,7 @@ export const manualBatchOptIn = async (
     return signAndPostTxnGroups(txGroups);
 };
 
-export const calculateTokenAmount = (token: Asset, amount: Amount | null): number => {
+export const fromMicros = (token: Asset, amount: Amount | null): number => {
     if (amount === null) {
         return 0;
     }
@@ -258,7 +258,7 @@ export const calculateTokenAmount = (token: Asset, amount: Amount | null): numbe
     return Number(reach.formatWithDecimals(amount.toString(), token.decimals));
 };
 
-export const calculateTokenMicroAmount = (token: Asset, amount: number | null): Amount => {
+export const getMicros = (token: Asset, amount: number | null): Amount => {
     if (amount === null || isNaN(amount)) {
         return BigInt(0);
     }

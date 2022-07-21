@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ALGONET, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
 
 import 'react-select-search/style.css';
@@ -11,14 +11,14 @@ import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { algoexplorerTxLink, signAndPostTxnGroups } from '../common/lib';
+import { algoexplorerTxLink, fromMicros, getMicros, signAndPostTxnGroups } from '../common/lib';
 import { WalletTransactionGroup } from '../types';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
-import { BestSwapQuote, getMicros, fromMicros, makeDex, ZapQuote } from '../providers/dexesProvider';
+import { BestSwapQuote, makeDex, ZapQuote } from '../providers/dexesProvider';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Farm/PoolList/Pool/Notification';
 

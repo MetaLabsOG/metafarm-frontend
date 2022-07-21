@@ -63,19 +63,6 @@ export type ZapQuote = {
     mint: MintQuote;
 };
 
-export function getMicros(a: Asset, amount: number): Amount {
-    // TODO FIXME: didn't want to solve this right now but it needs to be solved,
-    // since it obviously loses precision if the resulting amount is >2^53 - 1
-    return BigInt(amount * 10 ** a.decimals);
-}
-
-export function fromMicros(a: Asset, amount: Amount): number {
-    const ratio = BigInt(10 ** a.decimals);
-    const whole = amount / ratio;
-    const remainder = amount % ratio;
-    return Number(`${whole}.${remainder}`);
-}
-
 export abstract class Dex {
     abstract getPoolInfo(poolId: AppId): Promise<PoolInfo>;
     abstract getPoolInfoByAddress(poolAddress: string): Promise<PoolInfo>;

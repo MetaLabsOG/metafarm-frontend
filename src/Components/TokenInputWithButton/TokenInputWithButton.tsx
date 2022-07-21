@@ -4,7 +4,7 @@ import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from
 import { LPTokenInfo } from '../../providers/dexesProvider';
 import { useStore } from 'effector-react';
 import { $account, Asset, Priced } from '../../common/store';
-import { calculateTokenAmount, calculateTokenMicroAmount } from '../../common/lib';
+import { fromMicros, getMicros } from '../../common/lib';
 import { Effect } from 'effector';
 import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/Notification';
 import { BigNumberish } from '@ethersproject/bignumber';
@@ -30,7 +30,7 @@ const checkValidInput = (input: string, token: LPTokenInfo | Priced<Asset>, toke
         return false;
     }
 
-    const microAmount = calculateTokenMicroAmount(token, parseFloat(input));
+    const microAmount = getMicros(token, parseFloat(input));
     return microAmount <= tokenMicroBalance;
 };
 
@@ -60,7 +60,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
 
     const setInputMaxAmount = () => {
         setIsValidInput(true);
-        const tokenAmount = calculateTokenAmount(token, tokenMicroBalance).toString();
+        const tokenAmount = fromMicros(token, tokenMicroBalance).toString();
         setInputAmount(tokenAmount);
         setNotificationText(tokenAmount + ' ' + balanceSuffix);
     };
@@ -77,7 +77,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     const onClick = async () => {
-        const microAmount = calculateTokenMicroAmount(token, parseFloat(inputAmount));
+        const microAmount = getMicros(token, parseFloat(inputAmount));
         if (!isLoading && isValidInput && microAmount > 0) {
             logFarmActionData(account, buttonName, inputAmount, token as LPTokenInfo);
             setIsLoading(true);
@@ -115,8 +115,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>
             </Action>
             <Balance isValid={isValidInput}>
-                Balance: {calculateTokenAmount(token, tokenMicroBalance)} {balanceSuffix}{' '}
-                {isValidInput ? '' : '(Not enough)'}
+                Balance: {fromMicros(token, tokenMicroBalance)} {balanceSuffix} {isValidInput ? '' : '(Not enough)'}
             </Balance>
             <Confetti showConfetti={showConfetti} onFinish={() => setShowConfetti(false)} />
         </TokenInputWithButtonContainer>

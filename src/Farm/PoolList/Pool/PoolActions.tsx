@@ -11,7 +11,7 @@ import { useModal } from 'react-hooks-use-modal';
 import { PoolActionsDesktop } from './PoolActionsDesktop';
 import { PoolActionsMobile } from './PoolActionsMobile';
 import { ZapModal } from '../../../Zap/ZapModal';
-import { calculateTokenAmount } from '../../../common/lib';
+import { fromMicros } from '../../../common/lib';
 import { useTimer } from '../../../common/reachHooks';
 import { calculateUnlockTimeinSecs } from './UnlockTimer';
 import { logFarmActionData } from '../../../logEvent';
@@ -26,7 +26,7 @@ export const onClickClaim = async (
     rewardTokenInfo: Priced<Asset>,
     microAmount: Amount
 ) => {
-    const amount = calculateTokenAmount(rewardTokenInfo, microAmount);
+    const amount = fromMicros(rewardTokenInfo, microAmount);
     logFarmActionData(account, 'CLAIM', amount, stakeTokenInfo, rewardTokenInfo);
     try {
         const isTokenOptIn = await checkOptIn(account?.networkAccount.addr, rewardTokenInfo.id);
@@ -82,10 +82,7 @@ export const PoolActions = ({
 
     useToasts({
         api: ctc.apis.claim,
-        text:
-            numberRound(calculateTokenAmount(rewardTokenInfo, contractState.local.reward)) +
-            ' ' +
-            rewardTokenInfo.unitName,
+        text: numberRound(fromMicros(rewardTokenInfo, contractState.local.reward)) + ' ' + rewardTokenInfo.unitName,
         pendingStatus: pendingClaim,
         action: ToastTypes.claim,
     });

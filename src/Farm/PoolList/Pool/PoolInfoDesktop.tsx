@@ -17,7 +17,7 @@ import { convertAmountToUSD, getAssetLogoUrl, getDexIcon, getTokenLink, numberRo
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import pacman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
-import { calculateTokenAmount } from '../../../common/lib';
+import { fromMicros } from '../../../common/lib';
 import { FC } from 'react';
 
 export interface PoolInfoDesktopProps {
@@ -49,7 +49,7 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo }) => {
         <>
             <RewardUSDValue>${numberRound(convertAmountToUSD(tokenInfo, contractState.local.reward))}</RewardUSDValue>
             <RewardTokenValue>
-                {numberRound(calculateTokenAmount(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
+                {numberRound(fromMicros(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
             </RewardTokenValue>
         </>
     );
