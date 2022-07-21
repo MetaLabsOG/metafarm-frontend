@@ -37,13 +37,17 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
             ? PoolState.Finished
             : PoolState.Running;
 
+    const isSafari = navigator.userAgent.toLowerCase().indexOf('safari') !== -1;
+
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
         return (
-            <PoolContainer style={{ transform: window.innerWidth <= 1120 && isOpen ? 'rotateY(180deg)' : '' }}>
+            <PoolContainer
+                style={{ transform: window.innerWidth <= 1120 && isOpen && !isSafari ? 'rotateY(180deg)' : '' }}
+            >
                 <div
                     style={{
                         backfaceVisibility: 'hidden',
-                        transform: window.innerWidth <= 1120 && isOpen ? 'rotateY(180deg)' : '',
+                        transform: window.innerWidth <= 1120 && isOpen && !isSafari ? 'rotateY(180deg)' : '',
                     }}
                     onClick={() => setIsOpen(!isOpen && contract.ctc)}
                 >
@@ -60,7 +64,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                     <div
                         style={{
                             backfaceVisibility: 'hidden',
-                            transform: window.innerWidth <= 1120 && isOpen ? 'rotateY(180deg)' : '',
+                            transform: window.innerWidth <= 1120 && isOpen && !isSafari ? 'rotateY(180deg)' : '',
                         }}
                     >
                         <PoolActions
@@ -71,6 +75,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                             rewardTokenInfo={rewardTokenInfo}
                             setIsZapModalOpen={setIsOpen}
                             currentBlock={currentBlock}
+                            contractId={contract.id}
                         />
                     </div>
                 )}

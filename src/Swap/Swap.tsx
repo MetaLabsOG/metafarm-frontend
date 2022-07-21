@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ALGONET, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
 
 import 'react-select-search/style.css';
@@ -11,14 +11,16 @@ import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { algoexplorerTxLink, signAndPostTxnGroups } from '../common/lib';
+import { algoexplorerTxLink, fromMicros, getMicros, signAndPostTxnGroups } from '../common/lib';
 import { WalletTransactionGroup } from '../types';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
-import { BestSwapQuote, getMicros, fromMicros, makeDex, ZapQuote } from '../providers/dexesProvider';
+import { BestSwapQuote, makeDex, ZapQuote } from '../providers/dexesProvider';
+import { InfoRow } from '../Components/InfoRow/InfoRow';
+import { notify } from '../Components/Notification';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';
@@ -31,6 +33,8 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     31566704: 10458941, // USDC
     463554836: 70283957, // ALGF
 };
+
+export const SLIPPAGE = 0.01;
 
 const tinyman = makeDex('T2');
 
@@ -70,17 +74,17 @@ async function getBestSwap(
     asset1_amount: string
 ): Promise<BestSwap | null> {
     if (!asset1_id || !asset2_id) {
-        alert('Please, choose tokens.');
+        notify('Please, choose tokens.', 'warning');
         return null;
     }
 
     if (!asset1_amount) {
-        alert('Please, enter the token amount.');
+        notify('Please, enter the token amount.', 'warning');
         return null;
     }
 
     if (asset1_id === asset2_id) {
-        alert('Please, choose different tokens.');
+        notify('Please, choose different tokens.', 'warning');
         return null;
     }
 
@@ -90,7 +94,7 @@ async function getBestSwap(
         const asset1 = await fetchAsset(parseInt(asset1_id));
         const asset2 = await fetchAsset(parseInt(asset2_id));
         const amountIn = getMicros(asset1, parseFloat(asset1_amount));
-        const bestSwapQuote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn);
+        const bestSwapQuote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
         const asset2Price = await fetchAssetPrice(asset2);
         const best_swap = quoteToBestSwap(bestSwapQuote, asset2Price);
 
@@ -117,7 +121,7 @@ async function getBestSwap(
         // @ts-ignore
         const error_message = e.message;
         console.error(e);
-        alert('Fail to find the best swap :(');
+        notify('Fail to find the best swap.', 'error');
         logEvent(
             account?.networkAccount.addr,
             {
@@ -145,11 +149,11 @@ export async function getTransactions(
     const amountIn = getMicros(asset1, Number(asset1_amount));
 
     if (type === QueryType.swap) {
-        const quote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn);
+        const quote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
         const txns = await tinyman.getBestSwapTxsFromQuote(address, quote);
         return { quote, txns };
     } else {
-        const quote = await tinyman.getZapQuote(asset1, asset2, amountIn, 0.01);
+        const quote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
         const txns = await tinyman.getZapTxsFromQuote(address, quote);
         return { quote, txns };
     }
@@ -164,17 +168,17 @@ export async function runTransactions(
     token1Balance?: number
 ): Promise<{ quote: BestSwapQuote | ZapQuote; txIds: string[] } | null> {
     if (!account) {
-        alert('Please, connect the wallet');
+        notify('Please, connect the wallet.', 'warning');
         return null;
     }
 
     if (!token1Amount) {
-        alert('Please, enter the token amount.');
+        notify('Please, enter the token amount.', 'warning');
         return null;
     }
 
     if (token1Balance !== undefined && (isNaN(token1Balance) || Number(token1Amount) > token1Balance)) {
-        alert('Tokens amount below the wallet balance.');
+        notify('Tokens amount below the wallet balance.', 'warning');
         return null;
     }
 
@@ -203,19 +207,22 @@ export async function runTransactions(
         const error_message = e.message;
         const queryType = QueryType[type].toUpperCase();
         if (error_message.includes('underflow')) {
-            alert(queryType + ': Not enough tokens');
+            notify(queryType + ': Not enough tokens.', 'error');
         } else if (error_message.includes('Transaction not confirmed')) {
-            alert(queryType + ': Transaction not confirmed');
+            notify(queryType + ': Transaction not confirmed', 'error');
         } else if (error_message.includes('would result negative')) {
-            alert(queryType + ': Result slippage is higher than expected.');
+            notify(queryType + ': Result slippage is higher than expected.', 'error');
         } else if (error_message.includes('popup')) {
-            alert(queryType + ': Popups are blocked. Please, allow popups in your browser.');
+            notify(queryType + ': Popups are blocked. Please, allow popups in your browser.', 'error');
         } else if (error_message.includes('missing')) {
-            alert(queryType + ": Your wallet doesn't have the input token. You can get the tokens in the swap tab.");
+            notify(
+                queryType + ": Your wallet doesn't have the input token. You can get the tokens in the swap tab.",
+                'error'
+            );
         } else if (error_message.includes('below min') || error_message.includes('overspend')) {
-            alert(queryType + ': Not enough available algos.');
+            notify(queryType + ': Not enough available algos.', 'error');
         } else {
-            alert(queryType + ' error. Please, contact us in twitter or discord.');
+            notify(queryType + ' error. Please, contact us in twitter or discord.', 'error');
         }
         console.log(error_message);
         logEvent(
@@ -361,12 +368,12 @@ function BestTokenPrice({
                     </div>
                 </div>
             )}
-            <div style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap' }}>
-                <div className="token_price_text">Price</div>
-                <div className="token_price_text">
-                    {formatNumber(pricePerToken)} {token2.unitName} per {token1.unitName}
-                </div>
-            </div>
+            <InfoRow
+                title="Price"
+                value={formatNumber(pricePerToken) + ' ' + token2.unitName + ' per ' + token1.unitName}
+                valueStyle={{ fontSize: '14px' }}
+            />
+            <InfoRow title="Slippage" value={SLIPPAGE * 100 + '%'} valueStyle={{ fontSize: '14px' }} />
         </InfoPanel>
     );
 }
@@ -449,7 +456,7 @@ export function Swap() {
         );
         if (res !== null) {
             const { txIds } = res;
-            alert(`OK ${algoexplorerTxLink(txIds[0])}`);
+            notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
         }
     };
 

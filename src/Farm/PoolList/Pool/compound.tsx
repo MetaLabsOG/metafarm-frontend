@@ -1,11 +1,10 @@
 import { LPTokenInfo, makeDex, ZapQuote } from '../../../providers/dexesProvider';
 import { Asset, Priced, refreshAccountInfo } from '../../../common/store';
-import { calculateTokenAmount, calculateTokenMicroAmount } from '../../../common/lib';
+import { fromMicros } from '../../../common/lib';
 import { QueryType, runTransactions } from '../../../Swap/Swap';
 import { Account } from '../../../types';
 import { logFarmActionData } from '../../../logEvent';
-
-const tinyman = makeDex('T2');
+import { notify } from '../../../Components/Notification';
 
 export const isCompoundEnabled = (lpTokenInfo: LPTokenInfo, reward_asset_id: number) => {
     return reward_asset_id === lpTokenInfo.asset1 || reward_asset_id === lpTokenInfo.asset2;
@@ -18,7 +17,7 @@ export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTok
 
     console.log('COMPOUND', asset1Id, asset2Id, rewardAssetId);
     if (!isCompoundEnabled(lpTokenInfo, rewardAssetId)) {
-        alert('Different assets for compound');
+        notify('Different assets for compound.', 'error');
         return;
     }
     const firstAsset = asset1Id === rewardAssetId ? asset1Id : asset2Id;
@@ -32,7 +31,7 @@ export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTok
         const [claimedAmountBignum, claimedExtraAlgosBignum] = await ctc.apis.claim();
         const claimedAmount = claimedAmountBignum.toBigInt();
         const claimedExtraAlgos = claimedExtraAlgosBignum.toBigInt();
-        const reward_amount = calculateTokenAmount(rewardAsset, claimedAmount);
+        const reward_amount = fromMicros(rewardAsset, claimedAmount);
         console.log('CLAIMED', reward_amount, claimedAmount, claimedExtraAlgos);
 
         console.log('start zap');
@@ -58,7 +57,7 @@ export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTok
         // If mint transaction passed, tinyman could not return less than that (since txs are deterministic).
         // TODO: we should check
         const microLpAmount = quote.mint.minimalLiquidityIssued;
-        console.log('start stake', calculateTokenAmount(lpTokenInfo, microLpAmount), microLpAmount);
+        console.log('start stake', fromMicros(lpTokenInfo, microLpAmount), microLpAmount);
 
         await ctc.apis.stake([microLpAmount]);
     } catch (e) {
@@ -67,9 +66,9 @@ export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTok
         console.log(error_message);
         logFarmActionData(account, 'COMPOUND ERROR', 0, lpTokenInfo, rewardAsset, error_message);
         if (error_message.includes('underflow')) {
-            alert('Not enough LP tokens');
+            notify('Not enough LP tokens.', 'error');
         } else {
-            alert(error_message);
+            notify(error_message, 'error');
         }
     }
 };

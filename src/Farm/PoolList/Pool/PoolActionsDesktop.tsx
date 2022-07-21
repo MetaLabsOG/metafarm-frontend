@@ -1,9 +1,9 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { PoolActionsDesktopContainer, TokenInfo } from './styled';
+import { ContractLink, ContractLockSuffix, PoolActionsDesktopContainer, TokenInfo } from './styled';
 
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
-import { $account, Amount, Asset, ContractState, FarmType, Priced } from '../../../common/store';
+import { $account, Amount, AppId, Asset, ContractState, FarmType, Priced } from '../../../common/store';
 import { AllDefined } from '../../../types';
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
@@ -12,6 +12,7 @@ import { isCompoundEnabled, runCompound } from './compound';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
 import { isLPTokenInfo } from './utils';
+import { algoexplorerContractLink } from '../../../common/lib';
 
 export interface PoolActionsDesktopProps {
     stakedToken: Priced<LPTokenInfo> | Priced<Asset>;
@@ -26,6 +27,7 @@ export interface PoolActionsDesktopProps {
     openZapModal: () => void;
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
     unlockTimer: number;
+    contractId: AppId;
 }
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
@@ -40,6 +42,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     isActiveClaim,
     openZapModal,
     unlockTimer,
+    contractId,
 }) => {
     const account = useStore($account);
 
@@ -49,6 +52,9 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 {isLPTokenInfo(stakedToken) && canStake && (
                     <Button onClick={openZapModal} style={{ color: 'white' }} buttonText="Get LP Tokens" />
                 )}
+                <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
+                    <ContractLink>Farm contract</ContractLink>
+                </a>
             </TokenInfo>
             <TokenInputWithButton
                 style={!canStake ? { visibility: 'hidden' } : {}}

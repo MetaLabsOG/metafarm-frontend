@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
@@ -9,7 +9,7 @@ import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
-import { formatNumber, getOptions, QueryType, runTransactions } from '../Swap/Swap';
+import { formatNumber, getOptions, QueryType, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
@@ -17,8 +17,9 @@ import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/s
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
-import { fromMicros, getMicros, makeDex, ZapQuote } from '../providers/dexesProvider';
-import { algoexplorerTxLink } from '../common/lib';
+import { makeDex, ZapQuote } from '../providers/dexesProvider';
+import { algoexplorerTxLink, fromMicros, getMicros } from '../common/lib';
+import { notify } from '../Components/Notification';
 
 const tinyman = makeDex('T2');
 
@@ -41,17 +42,17 @@ export async function loadZapData(
     asset1_amount: string
 ): Promise<ZapData | null> {
     if (!asset1_id || !asset2_id) {
-        alert('Please, choose tokens.');
+        notify('Please, choose tokens.', 'warning');
         return null;
     }
 
     if (!asset1_amount) {
-        alert('Please, enter the token amount.');
+        notify('Please, enter the token amount.', 'warning');
         return null;
     }
 
     if (asset1_id === asset2_id) {
-        alert('Please, choose different tokens.');
+        notify('Please, choose different tokens.', 'warning');
         return null;
     }
 
@@ -61,7 +62,7 @@ export async function loadZapData(
         const asset1 = await fetchAsset(Number(asset1_id));
         const asset2 = await fetchAsset(Number(asset2_id));
         const amountIn = getMicros(asset1, Number(asset1_amount));
-        const zapQuote = await tinyman.getZapQuote(asset1, asset2, amountIn, 0.01);
+        const zapQuote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
 
         const zap_data = zapQuoteToData(Number(asset1_id), zapQuote);
 
@@ -81,7 +82,7 @@ export async function loadZapData(
     } catch (e) {
         // @ts-ignore
         const error_message = e.message;
-        alert(error_message);
+        notify(error_message, 'error');
         logEvent(
             account?.networkAccount.addr,
             {
@@ -131,6 +132,7 @@ export function ZapResult({
                 value={formatNumber(zap_data.pool_lp_id ?? 0)}
                 valueStyle={{ fontSize: '14px' }}
             />
+            <InfoRow title="Slippage" value={SLIPPAGE * 100 + '%'} valueStyle={{ fontSize: '14px' }} />
         </InfoPanel>
     );
 }
@@ -218,7 +220,7 @@ export function Zap() {
         );
         if (res !== null) {
             const { txIds } = res;
-            alert(`OK ${algoexplorerTxLink(txIds[0])}`);
+            notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
         }
     };
 

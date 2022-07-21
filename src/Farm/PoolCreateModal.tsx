@@ -32,6 +32,7 @@ import { useStore, useStoreMap } from 'effector-react';
 import { DAY, formatDecimalsMeaningful } from '../common/lib';
 import { deployContractToBackend } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
+import { notify } from '../Components/Notification';
 
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
     return Math.floor(Math.max(0, endTime - startTime) / meanRoundDuration);
@@ -51,25 +52,25 @@ const createFarm = async (
     rewardTokenAmount: number
 ) => {
     if (!stakeToken.liquidityAsset) {
-        alert('Please, choose LP pool');
-        return;
+        notify('Please, choose LP pool.', 'warning');
+        return false;
     }
     if (isNaN(rewardToken.id)) {
-        alert('Please, choose reward token');
-        return;
+        notify('Please, choose reward token.', 'warning');
+        return false;
     }
     if (isNaN(beginBlock) || beginBlock === endBlock) {
-        alert('Please, choose start time and farm duration');
-        return;
+        notify('Please, choose start time and farm duration.', 'warning');
+        return false;
     }
     if (isNaN(rewardPerBlock) || rewardPerBlock === 0) {
-        alert('Please, enter reward amount');
-        return;
+        notify('Please, enter reward amount.', 'warning');
+        return false;
     }
 
     if (!isNaN(rewardToken.balance) && rewardToken.balance < rewardTokenAmount) {
-        alert('Reward tokens amount is less than the wallet balance.');
-        return;
+        notify('Reward tokens amount is less than the wallet balance.', 'warning');
+        return false;
     }
 
     const microRewardPerBlock = Math.floor(rewardPerBlock * 10 ** rewardToken.decimals);
@@ -98,7 +99,8 @@ const createFarm = async (
     const res = await deployContractToBackend(contractId, 'farm', stakeToken.name, stakeToken.poolDex);
     console.log('Backend res', res);
 
-    alert('Done! Contract id is ' + contractId + '. Please, update the page.');
+    notify('Done! Contract id is ' + contractId + '. Please, update the page.', 'success');
+    return true;
 };
 
 const calculateFarmData = (
@@ -297,7 +299,7 @@ export const PoolCreateModal = () => {
                             buttonText="CREATE FARM"
                             buttonStyle="swap_button"
                             onClickAction={async () => {
-                                await createFarm(
+                                const res = await createFarm(
                                     account,
                                     selectedPool,
                                     selectedRewardToken,
@@ -306,7 +308,7 @@ export const PoolCreateModal = () => {
                                     rewardPerBlock,
                                     Number(rewardTokenAmount)
                                 );
-                                closePoolCreateModal();
+                                res && closePoolCreateModal();
                             }}
                         />
                     )}

@@ -6,10 +6,11 @@ import { Map } from 'immutable';
 import { Asset, AssetId, Priced } from './types';
 import { META_TOKEN_ID } from '../../AppContext';
 import { nonConcurrent } from './utils';
+import { SLIPPAGE } from '../../Swap/Swap';
 
 export const fetchAssetPrice = createEffect(
     nonConcurrent(async (asset: Asset): Promise<number> => {
-        const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, BigInt(10 ** asset.decimals));
+        const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, BigInt(10 ** asset.decimals), SLIPPAGE);
         return swapQuote.price;
     })
 );
