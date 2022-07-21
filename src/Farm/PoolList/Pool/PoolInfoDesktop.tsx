@@ -54,20 +54,22 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedA
     if (!contractState.local) {
         return <div>—</div>;
     }
+    const algoReward = calculateAlgoReward(contractState.initial, contractState.local.reward);
 
     return (
         <>
-            <RewardUSDValue>${numberRound(convertAmountToUSD(tokenInfo, contractState.local.reward))}</RewardUSDValue>
+            <RewardUSDValue>
+                $
+                {numberRound(
+                    convertAmountToUSD(tokenInfo, contractState.local.reward) +
+                        convertAmountToUSD(pricedAlgo, algoReward)
+                )}
+            </RewardUSDValue>
             <RewardTokenValue>
                 {numberRound(fromMicros(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
             </RewardTokenValue>
             {algoRewardPerBlock(contractState.initial) && (
-                <RewardTokenValue>
-                    {numberRound(
-                        fromMicros(pricedAlgo, calculateAlgoReward(contractState.initial, contractState.local.reward))
-                    )}{' '}
-                    ALGO
-                </RewardTokenValue>
+                <RewardTokenValue>{numberRound(fromMicros(pricedAlgo, algoReward))} ALGO</RewardTokenValue>
             )}
         </>
     );
@@ -116,7 +118,10 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     </LpTokensIconsWrapper>
                     <div>
                         {pool_name}
-                        <div>EARN {rewardTokenInfo.unitName}</div>
+                        <div>
+                            EARN {rewardTokenInfo.unitName}
+                            {algoRewardPerBlock(contractState.initial) && ' + ALGO'}
+                        </div>
                         <ContractLockSuffix>{contractLockSuffix}</ContractLockSuffix>
                         {/*<ContractLockSuffix>AENEAS rewards</ContractLockSuffix>*/}
                     </div>

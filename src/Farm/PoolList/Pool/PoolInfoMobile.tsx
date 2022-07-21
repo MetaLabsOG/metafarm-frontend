@@ -9,7 +9,7 @@ import {
     TimingMobile,
     DexIcon,
 } from './styled';
-import { convertAmountToUSD, getAssetLogoUrl, getTokenLink, numberRound } from './utils';
+import { algoRewardPerBlock, convertAmountToUSD, getAssetLogoUrl, getTokenLink, numberRound } from './utils';
 import React, { FC } from 'react';
 import { PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
 import { theme } from '../../../theme';
@@ -55,6 +55,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                     <PoolNameMobile>{pool_name}</PoolNameMobile>
                     <PoolNameMobile style={{ marginBottom: '0', color: theme.green }}>
                         EARN {rewardTokenInfo.unitName}
+                        {algoRewardPerBlock(contractState.initial) && ' + ALGO'}
                     </PoolNameMobile>
                     <ContractLockSuffix>{contractLockSuffix}</ContractLockSuffix>
                 </div>
