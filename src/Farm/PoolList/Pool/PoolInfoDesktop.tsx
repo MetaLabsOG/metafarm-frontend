@@ -13,7 +13,14 @@ import {
     DexIcon,
 } from './styled';
 import { Arrow } from '../../../imgs/arrow';
-import { convertAmountToUSD, getAssetLogoUrl, getDexIcon, getTokenLink, numberRound } from './utils';
+import {
+    algoRewardPerBlock,
+    calculateAlgoReward,
+    convertAmountToUSD,
+    getAssetLogoUrl,
+    getTokenLink,
+    numberRound,
+} from './utils';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import pacman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
@@ -22,6 +29,7 @@ import { FC } from 'react';
 
 export interface PoolInfoDesktopProps {
     account: Account | null;
+    pricedAlgo: Priced<Asset>;
     contractState: ContractState<FarmType>;
     stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>;
     rewardTokenInfo: Priced<Asset>;
@@ -38,19 +46,30 @@ export interface PoolInfoDesktopProps {
 export interface ValueProps {
     contractState: ContractState<FarmType>;
     tokenInfo: Priced<Asset> | Priced<LPTokenInfo>;
+    pricedAlgo: Priced<Asset>;
 }
 
-export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo }) => {
+export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedAlgo }) => {
     if (!contractState.local) {
         return <div>—</div>;
     }
+    const algoReward = calculateAlgoReward(contractState.initial, contractState.local.reward);
 
     return (
         <>
-            <RewardUSDValue>${numberRound(convertAmountToUSD(tokenInfo, contractState.local.reward))}</RewardUSDValue>
+            <RewardUSDValue>
+                $
+                {numberRound(
+                    convertAmountToUSD(tokenInfo, contractState.local.reward) +
+                        convertAmountToUSD(pricedAlgo, algoReward)
+                )}
+            </RewardUSDValue>
             <RewardTokenValue>
                 {numberRound(fromMicros(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
             </RewardTokenValue>
+            {algoRewardPerBlock(contractState.initial) && (
+                <RewardTokenValue>{numberRound(fromMicros(pricedAlgo, algoReward))} ALGO</RewardTokenValue>
+            )}
         </>
     );
 };
@@ -64,6 +83,7 @@ export const StakeValue: FC<ValueProps> = ({ contractState, tokenInfo }) => {
 
 export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     account,
+    pricedAlgo,
     contractState,
     stakeTokenInfo,
     rewardTokenInfo,
@@ -78,6 +98,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
 }) => {
     const asset1_logo = getAssetLogoUrl(asset1_id);
     const asset2_logo = getAssetLogoUrl(asset2_id);
+
     return (
         <PoolInfoDesktopContainer>
             <PoolInfoValue width={23}>
@@ -97,7 +118,10 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     </LpTokensIconsWrapper>
                     <div>
                         {pool_name}
-                        <div>EARN {rewardTokenInfo.unitName}</div>
+                        <div style={{ whiteSpace: 'nowrap' }}>
+                            EARN {rewardTokenInfo.unitName}
+                            {algoRewardPerBlock(contractState.initial) && ' + ALGO'}
+                        </div>
                         <ContractLockSuffix>{contractLockSuffix}</ContractLockSuffix>
                         {/*<ContractLockSuffix>AENEAS rewards</ContractLockSuffix>*/}
                     </div>
@@ -108,10 +132,10 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             )}`}</PoolInfoValue>
             <PoolInfoValue>{numberRound(APR)}%</PoolInfoValue>
             <PoolInfoValue>
-                <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} />
+                <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
             <PoolInfoValue>
-                <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} />
+                <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
             <PoolInfoValue style={{ color: 'gray' }}>
                 {timing.split('\n').map((x) => (

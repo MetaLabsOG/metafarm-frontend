@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Status } from '../../../Status';
-import { $networkTime, queryTimeUpdate, Contract, FarmType, hasLocalState } from '../../../common/store';
+import { $networkTime, queryTimeUpdate, Contract, FarmType, hasLocalState, $pricedAlgo } from '../../../common/store';
 import { useStore, useStoreMap } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
@@ -12,6 +12,7 @@ import logo from '../../../imgs/logo.png';
 
 export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) => {
     const currentBlock = useStore($networkTime);
+    const pricedAlgo = useStore($pricedAlgo);
     const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
     const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null)) ?? stakeTokenInfo;
 
@@ -20,7 +21,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
     useEffect(queryTimeUpdate, [contract]);
 
     const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
-    if (currentBlock === 0 || !contract.state || !is_info_loaded) {
+    if (currentBlock === 0 || !contract.state || !is_info_loaded || !pricedAlgo) {
         // console.log('WHY LOADING?', type, currentBlock, contract.state, lpTokenInfo, rewardTokenInfo, stakingTokenInfo);
         return (
             <PoolContainer>
@@ -58,6 +59,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                         stakeTokenInfo={stakeTokenInfo}
                         rewardTokenInfo={rewardTokenInfo}
                         currentBlock={currentBlock}
+                        pricedAlgo={pricedAlgo}
                     />
                 </div>
                 {contract.ctc !== null && hasLocalState(contract.state) && isOpen && (
@@ -76,6 +78,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                             setIsZapModalOpen={setIsOpen}
                             currentBlock={currentBlock}
                             contractId={contract.id}
+                            pricedAlgo={pricedAlgo}
                         />
                     </div>
                 )}

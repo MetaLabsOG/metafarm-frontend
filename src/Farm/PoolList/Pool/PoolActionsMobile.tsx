@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { PoolActionsMobileContainer, TokenInfo, RewardsContainer, ButtonBackMobile, PoolInfoValue } from './styled';
 import arrowBack from '../../../imgs/arrow_back.svg';
 
-import { PoolActionsDesktopProps } from './PoolActionsDesktop';
+import { PoolActionsDesktopProps, getLPTokenAction } from './PoolActionsDesktop';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
@@ -15,6 +15,7 @@ import { isLPTokenInfo } from './utils';
 import { Button } from '../../../Components/Button/Button';
 
 export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
+    pricedAlgo,
     stakedToken,
     stakedTokenBalance,
     balanceSuffix,
@@ -35,7 +36,11 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
             <ButtonBackMobile onClick={() => setIsZapModalOpen(false)} src={arrowBack} alt="BACK" />
             <TokenInfo>
                 {isLPTokenInfo(stakedToken) && canStake && (
-                    <Button onClick={openZapModal} style={{ color: 'white' }} buttonText="Get LP Tokens" />
+                    <Button
+                        onClick={getLPTokenAction(stakedToken, openZapModal)}
+                        style={{ color: 'white' }}
+                        buttonText="Get LP Tokens"
+                    />
                 )}
             </TokenInfo>
             <TokenInputWithButton
@@ -49,7 +54,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
             <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
                 <div>MY STAKE</div>
                 <div style={{ color: 'white' }}>
-                    <StakeValue contractState={contractState} tokenInfo={stakedToken} />
+                    <StakeValue contractState={contractState} tokenInfo={stakedToken} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
             <TokenInputWithButton
@@ -62,7 +67,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
             <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
                 <div>REWARD</div>
                 <div style={{ color: 'white' }}>
-                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} />
+                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
             <RewardsContainer>

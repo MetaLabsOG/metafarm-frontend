@@ -13,8 +13,22 @@ import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
 import { isLPTokenInfo } from './utils';
 import { algoexplorerContractLink } from '../../../common/lib';
+import { ALGONET, TESTNET } from '../../../AppContext';
+import { notify } from '../../../Components/Notification';
+
+export const getLPTokenAction = (lpToken: LPTokenInfo, openModal: () => void) => {
+    if (lpToken.poolDex === 'T2') {
+        return openModal;
+    } else if (lpToken.poolDex === 'PT') {
+        const pactPrefix = ALGONET === TESTNET ? 'testnet.' : '';
+        return () => window.open(`https://${pactPrefix}pact.fi/add-liquidity/${lpToken.poolId}`, '_blank');
+    } else {
+        return () => notify('Sorry, this is a mock token, you cannot get it', 'error');
+    }
+};
 
 export interface PoolActionsDesktopProps {
+    pricedAlgo: Priced<Asset>;
     stakedToken: Priced<LPTokenInfo> | Priced<Asset>;
     stakedTokenBalance: Amount;
     balanceSuffix: string;
@@ -50,7 +64,11 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
         <PoolActionsDesktopContainer>
             <TokenInfo>
                 {isLPTokenInfo(stakedToken) && canStake && (
-                    <Button onClick={openZapModal} style={{ color: 'white' }} buttonText="Get LP Tokens" />
+                    <Button
+                        onClick={getLPTokenAction(stakedToken, openZapModal)}
+                        style={{ color: 'white' }}
+                        buttonText="Get LP Tokens"
+                    />
                 )}
                 <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
                     <ContractLink>Farm contract</ContractLink>

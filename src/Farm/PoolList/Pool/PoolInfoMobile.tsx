@@ -9,13 +9,14 @@ import {
     TimingMobile,
     DexIcon,
 } from './styled';
-import { convertAmountToUSD, getAssetLogoUrl, getTokenLink, numberRound } from './utils';
+import { algoRewardPerBlock, convertAmountToUSD, getAssetLogoUrl, getTokenLink, numberRound } from './utils';
 import React, { FC } from 'react';
 import { PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
 import { theme } from '../../../theme';
 
 export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,
+    pricedAlgo,
     contractState,
     stakeTokenInfo,
     rewardTokenInfo,
@@ -54,6 +55,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                     <PoolNameMobile>{pool_name}</PoolNameMobile>
                     <PoolNameMobile style={{ marginBottom: '0', color: theme.green }}>
                         EARN {rewardTokenInfo.unitName}
+                        {algoRewardPerBlock(contractState.initial) && ' + ALGO'}
                     </PoolNameMobile>
                     <ContractLockSuffix>{contractLockSuffix}</ContractLockSuffix>
                 </div>
@@ -70,13 +72,13 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
             <PoolInfoValue>
                 <div>MY STAKE</div>
                 <div style={{ color: 'white' }}>
-                    <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} />
+                    <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
             <PoolInfoValue>
                 <div>REWARD</div>
                 <div style={{ color: 'white' }}>
-                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} />
+                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
             {<StakeButtonMobile disabled={!contractState.local}>MANAGE</StakeButtonMobile>}

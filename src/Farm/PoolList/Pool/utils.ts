@@ -1,12 +1,11 @@
 import { formatDecimalsMeaningful, unsafeFromBigint } from '../../../common/lib';
-import { Asset, Priced, Amount } from '../../../common/store/types';
-import { DexProvider, LPTokenInfo } from '../../../providers/dexesProvider';
-import { ALGONET, MAINNET, TESTNET } from '../../../AppContext';
-
 import tinyman from '../../../imgs/dexes/tinyman.png';
 import pact from '../../../imgs/dexes/pact.png';
 import humble from '../../../imgs/dexes/humble.png';
 import algofi from '../../../imgs/dexes/algofi.png';
+import { Asset, Priced, Amount, ContractState, FarmType } from '../../../common/store/types';
+import { LPTokenInfo, DexProvider } from '../../../providers/dexesProvider';
+import { ALGONET, MAINNET, TESTNET } from '../../../AppContext';
 
 const TINYMAN_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.tinyman.org`;
 const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
@@ -18,6 +17,7 @@ export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
     10458941: 31566704, // USDC
     70283957: 463554836, // ALGF
     96690153: 607591690, // XGLI
+    27963203: 342889824, // BOARD
 };
 
 export const getAssetLogoUrl = (input_asset_id: number) => {
@@ -74,7 +74,7 @@ export const getTokenLink = (asset_id: number | undefined): string => {
 
 // TODO: remove this when pools name it will be not test names
 export const formatLPTokenName = (name: string) => {
-    return name.replace('TinymanPool1.1 ', '');
+    return name.replace('TinymanPool1.1 ', '').replace('liquidity', '');
 };
 
 export const getDexIcon = (poolDex: DexProvider) => {
@@ -85,4 +85,18 @@ export const getDexIcon = (poolDex: DexProvider) => {
         return pact;
     }
     return null;
+};
+
+export const algoRewardPerBlock = (initial: ContractState<FarmType>['initial']): Amount => {
+    if ('extraAlgoRewardPerBlock' in initial) {
+        return initial.extraAlgoRewardPerBlock;
+    }
+    return BigInt(0);
+};
+
+export const calculateAlgoReward = (initial: ContractState<FarmType>['initial'], tokenReward: Amount): Amount => {
+    const duration = BigInt(initial.endBlock - initial.beginBlock);
+    const totalTokenReward = initial.rewardPerBlock * duration;
+    const totalAlgoReward = algoRewardPerBlock(initial) * duration;
+    return (tokenReward * totalAlgoReward) / totalTokenReward;
 };

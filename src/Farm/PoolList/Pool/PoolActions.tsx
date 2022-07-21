@@ -4,7 +4,7 @@ import { AllDefined } from '../../../types';
 import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 
-import { formatLPTokenName, isLPTokenInfo, numberRound } from './utils';
+import { isLPTokenInfo, numberRound } from './utils';
 import { PoolState } from './types';
 import { ToastTypes, useToasts } from '../../../Components/Notification';
 import { useModal } from 'react-hooks-use-modal';
@@ -51,6 +51,7 @@ export const PoolActions = ({
     setIsZapModalOpen,
     currentBlock,
     contractId,
+    pricedAlgo,
 }: {
     poolState: PoolState;
     ctc: any;
@@ -60,6 +61,7 @@ export const PoolActions = ({
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
     currentBlock: number;
     contractId: AppId;
+    pricedAlgo: Priced<Asset>;
 }) => {
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
@@ -91,6 +93,7 @@ export const PoolActions = ({
         <>
             {window.innerWidth <= 1120 ? (
                 <PoolActionsMobile
+                    pricedAlgo={pricedAlgo}
                     stakedToken={stakeTokenInfo}
                     stakedTokenBalance={stakedTokenBalance}
                     rewardTokenInfo={rewardTokenInfo}
@@ -107,6 +110,7 @@ export const PoolActions = ({
                 />
             ) : (
                 <PoolActionsDesktop
+                    pricedAlgo={pricedAlgo}
                     stakedToken={stakeTokenInfo}
                     stakedTokenBalance={stakedTokenBalance}
                     balanceSuffix={balanceSuffix}
