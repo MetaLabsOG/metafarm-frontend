@@ -82,8 +82,7 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
 export const PoolActionsDesktopContainer = styled.div`
     display: flex;
     margin-top: 38px;
-    width: 97%;
-    justify-content: space-between;
+    gap: 40px;
 
     @media (max-width: 1120px) {
         display: none;
