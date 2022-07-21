@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { PoolActionsMobileContainer, TokenInfo, RewardsContainer, ButtonBackMobile, PoolInfoValue } from './styled';
 import arrowBack from '../../../imgs/arrow_back.svg';
 
-import { PoolActionsDesktopProps } from './PoolActionsDesktop';
+import { PoolActionsDesktopProps, getLPTokenAction } from './PoolActionsDesktop';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
@@ -36,7 +36,11 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
             <ButtonBackMobile onClick={() => setIsZapModalOpen(false)} src={arrowBack} alt="BACK" />
             <TokenInfo>
                 {isLPTokenInfo(stakedToken) && canStake && (
-                    <Button onClick={openZapModal} style={{ color: 'white' }} buttonText="Get LP Tokens" />
+                    <Button
+                        onClick={getLPTokenAction(stakedToken, openZapModal)}
+                        style={{ color: 'white' }}
+                        buttonText="Get LP Tokens"
+                    />
                 )}
             </TokenInfo>
             <TokenInputWithButton

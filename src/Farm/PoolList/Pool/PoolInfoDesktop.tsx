@@ -65,8 +65,8 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedA
                 <RewardTokenValue>
                     {numberRound(
                         fromMicros(pricedAlgo, calculateAlgoReward(contractState.initial, contractState.local.reward))
-                    )}
-                    ' ALGO'
+                    )}{' '}
+                    ALGO
                 </RewardTokenValue>
             )}
         </>

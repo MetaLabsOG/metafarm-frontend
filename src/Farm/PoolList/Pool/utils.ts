@@ -73,7 +73,7 @@ export const getTokenLink = (asset_id: number | undefined): string => {
 
 // TODO: remove this when pools name it will be not test names
 export const formatLPTokenName = (name: string) => {
-    return name.replace('TinymanPool1.1 ', '');
+    return name.replace('TinymanPool1.1 ', '').replace('liquidity', '');
 };
 
 export const getDexIcon = (poolDex: DexProvider) => {
