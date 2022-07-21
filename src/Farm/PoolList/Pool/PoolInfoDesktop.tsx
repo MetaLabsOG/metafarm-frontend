@@ -14,7 +14,6 @@ import {
 } from './styled';
 import { Arrow } from '../../../imgs/arrow';
 import {
-    getDexIcon,
     algoRewardPerBlock,
     calculateAlgoReward,
     convertAmountToUSD,

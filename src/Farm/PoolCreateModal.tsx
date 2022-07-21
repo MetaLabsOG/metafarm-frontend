@@ -24,15 +24,17 @@ import {
     $meanRoundDuration,
     $networkTime,
     $pricedAssets,
+    ALGO_ASSET,
     Asset,
     Priced,
     Time,
 } from '../common/store';
 import { useStore, useStoreMap } from 'effector-react';
-import { DAY, formatDecimalsMeaningful } from '../common/lib';
+import { DAY, formatDecimalsMeaningful, getMicros } from '../common/lib';
 import { deployContractToBackend } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
+import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE } from '../AppContext';
 
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
     return Math.floor(Math.max(0, endTime - startTime) / meanRoundDuration);
@@ -49,7 +51,8 @@ const createFarm = async (
     beginBlock: number,
     endBlock: number,
     rewardPerBlock: number,
-    rewardTokenAmount: number
+    rewardTokenAmount: number,
+    extraAlgoRewardPerBlock: number
 ) => {
     if (!stakeToken.liquidityAsset) {
         notify('Please, choose LP pool.', 'warning');
@@ -73,7 +76,8 @@ const createFarm = async (
         return false;
     }
 
-    const microRewardPerBlock = Math.floor(rewardPerBlock * 10 ** rewardToken.decimals);
+    const microRewardPerBlock = Number(getMicros(rewardToken, rewardPerBlock));
+    const algoMicroRewardPerBlock = Number(getMicros(ALGO_ASSET, extraAlgoRewardPerBlock));
     console.log(
         'Start create farm',
         stakeToken.liquidityAsset,
@@ -83,11 +87,14 @@ const createFarm = async (
         microRewardPerBlock
     );
     const contractParams = {
+        beneficiary: FARM_BENEFICIARY_ADDR,
+        creationFee: FARM_CREATION_FEE,
         stakeToken: stakeToken.liquidityAsset,
         rewardToken: rewardToken.id,
         beginBlock: beginBlock,
         endBlock: endBlock,
         rewardPerBlock: microRewardPerBlock,
+        extraAlgoRewardPerBlock: algoMicroRewardPerBlock,
         lockLengthBlocks: 0,
         stakeFee: 0,
         unstakeFee: 0,
@@ -224,7 +231,7 @@ export const PoolCreateModal = () => {
             setRewardTokenOptions(filteredAssets);
             setSelectedRewardToken(filteredAssets[0]);
         });
-    }, []);
+    }, [account, balances]);
 
     const selectPoolOnChange = (value: SelectedOptionValue, option: PoolOptionType) => {
         setSelectedPool(option);
@@ -306,7 +313,8 @@ export const PoolCreateModal = () => {
                                     beginBlock,
                                     endBlock,
                                     rewardPerBlock,
-                                    Number(rewardTokenAmount)
+                                    Number(rewardTokenAmount),
+                                    0 // TODO: add extra algo rewards to the interface!!
                                 );
                                 res && closePoolCreateModal();
                             }}
