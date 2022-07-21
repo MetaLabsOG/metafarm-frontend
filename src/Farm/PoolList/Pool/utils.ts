@@ -17,6 +17,7 @@ export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
     10458941: 31566704, // USDC
     70283957: 463554836, // ALGF
     96690153: 607591690, // XGLI
+    27963203: 342889824, // BOARD
 };
 
 export const getAssetLogoUrl = (input_asset_id: number) => {

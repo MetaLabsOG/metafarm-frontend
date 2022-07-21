@@ -98,6 +98,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
 }) => {
     const asset1_logo = getAssetLogoUrl(asset1_id);
     const asset2_logo = getAssetLogoUrl(asset2_id);
+
     return (
         <PoolInfoDesktopContainer>
             <PoolInfoValue width={23}>
@@ -117,7 +118,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     </LpTokensIconsWrapper>
                     <div>
                         {pool_name}
-                        <div>
+                        <div style={{ whiteSpace: 'nowrap' }}>
                             EARN {rewardTokenInfo.unitName}
                             {algoRewardPerBlock(contractState.initial) && ' + ALGO'}
                         </div>
