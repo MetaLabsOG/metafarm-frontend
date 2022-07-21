@@ -20,7 +20,7 @@ import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
 import { BestSwapQuote, makeDex, ZapQuote } from '../providers/dexesProvider';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
-import { notify } from '../Farm/PoolList/Pool/Notification';
+import { notify } from '../Components/Notification';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';

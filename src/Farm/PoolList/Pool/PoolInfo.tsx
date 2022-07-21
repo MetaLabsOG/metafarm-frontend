@@ -33,8 +33,8 @@ const calculateTiming = (
         return 'ended';
     }
 
-    const timingPrefix = PoolState.Running ? 'ends\nin ' : 'starts\nin ';
-    const blocksDiff = PoolState.Running ? endBlock - currentBlock : beginBlock - currentBlock;
+    const timingPrefix = poolState === PoolState.Running ? 'ends\nin ' : 'starts\nin ';
+    const blocksDiff = poolState === PoolState.Running ? endBlock - currentBlock : beginBlock - currentBlock;
     const diffText = blocksToText(blocksDiff, meanRoundDuration);
 
     return timingPrefix + diffText;

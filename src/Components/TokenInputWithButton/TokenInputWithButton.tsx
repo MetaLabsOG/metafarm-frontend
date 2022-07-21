@@ -6,7 +6,7 @@ import { useStore } from 'effector-react';
 import { $account, Asset, Priced } from '../../common/store';
 import { fromMicros, getMicros } from '../../common/lib';
 import { Effect } from 'effector';
-import { ToastTypes, useToasts } from '../../Farm/PoolList/Pool/Notification';
+import { ToastTypes, useToasts } from '../Notification';
 import { BigNumberish } from '@ethersproject/bignumber';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
 import { logFarmActionData } from '../../logEvent';

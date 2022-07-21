@@ -36,6 +36,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
             : currentBlock > initial.endBlock
             ? PoolState.Finished
             : PoolState.Running;
+
     const isSafari = navigator.userAgent.toLowerCase().indexOf('safari') !== -1;
 
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {

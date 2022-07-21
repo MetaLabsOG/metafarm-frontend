@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Bounce, Id, Slide, toast, TypeOptions, Zoom } from 'react-toastify';
 import { isNil } from 'ramda';
-import pacman_grey from '../../../imgs/pacman.gif';
-import { getTokenLink } from './utils';
+import pacman_grey from '../imgs/pacman.gif';
+import { getTokenLink } from '../Farm/PoolList/Pool/utils';
 
 const NOTIFICATION_ICONS: Record<TypeOptions, string> = {
     success: '🚀',

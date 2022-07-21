@@ -9,7 +9,7 @@ import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
 import { customWalletFallback, WalletType } from './customWalletFallback';
 import { Heading2 } from '../common/styled';
-import { notify } from '../Farm/PoolList/Pool/Notification';
+import { notify } from '../Components/Notification';
 
 const browser = detect();
 const browserInfoString = browser === null ? 'unknown' : `${browser.name} ${browser.version} ${browser.os}`;

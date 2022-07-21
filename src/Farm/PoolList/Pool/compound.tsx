@@ -4,7 +4,7 @@ import { fromMicros } from '../../../common/lib';
 import { QueryType, runTransactions } from '../../../Swap/Swap';
 import { Account } from '../../../types';
 import { logFarmActionData } from '../../../logEvent';
-import { notify } from './Notification';
+import { notify } from '../../../Components/Notification';
 
 export const isCompoundEnabled = (lpTokenInfo: LPTokenInfo, reward_asset_id: number) => {
     return reward_asset_id === lpTokenInfo.asset1 || reward_asset_id === lpTokenInfo.asset2;

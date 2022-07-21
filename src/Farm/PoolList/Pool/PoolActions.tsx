@@ -6,7 +6,7 @@ import { LPTokenInfo } from '../../../providers/dexesProvider';
 
 import { formatLPTokenName, isLPTokenInfo, numberRound } from './utils';
 import { PoolState } from './types';
-import { ToastTypes, useToasts } from './Notification';
+import { ToastTypes, useToasts } from '../../../Components/Notification';
 import { useModal } from 'react-hooks-use-modal';
 import { PoolActionsDesktop } from './PoolActionsDesktop';
 import { PoolActionsMobile } from './PoolActionsMobile';

@@ -19,7 +19,7 @@ import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
 import { makeDex, ZapQuote } from '../providers/dexesProvider';
 import { algoexplorerTxLink, fromMicros, getMicros } from '../common/lib';
-import { notify } from '../Farm/PoolList/Pool/Notification';
+import { notify } from '../Components/Notification';
 
 const tinyman = makeDex('T2');
 

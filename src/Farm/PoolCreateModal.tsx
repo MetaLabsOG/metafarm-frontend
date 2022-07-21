@@ -32,7 +32,7 @@ import { useStore, useStoreMap } from 'effector-react';
 import { DAY, formatDecimalsMeaningful } from '../common/lib';
 import { deployContractToBackend } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
-import { notify } from './PoolList/Pool/Notification';
+import { notify } from '../Components/Notification';
 
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
     return Math.floor(Math.max(0, endTime - startTime) / meanRoundDuration);
