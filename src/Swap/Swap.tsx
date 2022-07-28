@@ -118,7 +118,6 @@ async function getBestSwap(
 
         return best_swap;
     } catch (e) {
-        // @ts-ignore
         const error_message = e.message;
         console.error(e);
         notify('Fail to find the best swap.', 'error');

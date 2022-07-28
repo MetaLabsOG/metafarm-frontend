@@ -114,17 +114,24 @@ export const fetchBtcPriceFx = createEffect(() => getBinanceCoinPrice('BTCUSDT')
 export const $algoUsdPrice = restore(fetchAlgoPriceFx.doneData, null);
 export const $btcUsdPrice = restore(fetchBtcPriceFx.doneData, null);
 
-// re-fetch prices once in say, 1 minute
-makeClock(60000).watch(() => {
-    console.log('refetching prices...');
+export const fetchAllPrices = () => {
+    console.log('fetching prices...');
     Promise.all(
         [
             fetchAlgoPriceFx(),
             fetchBtcPriceFx()
         ]
     ).then(
-        () => console.log('prices refetched')
-    )
+        () => console.log('prices fetched')
+    ).catch(() => {
+        console.log('failed to fetch');
+    })
+}
+
+
+// re-fetch prices once in say, 1 minute
+makeClock(60000).watch(() => {
+    fetchAllPrices();
 });
 
 export const $pricedAlgo: Store<Priced<Asset> | null> = combine(

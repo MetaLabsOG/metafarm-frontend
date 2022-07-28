@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { resolveBignums } from '../common/lib';
-import { API_PATH } from '../Swap/Swap';
+import { Json, resolveBignums } from '../common/lib';
 import packages from '../../package.json';
 
 const instance = axios.create({
@@ -15,14 +14,12 @@ type totalCost = {
 };
 
 export function getTotalCost(
-    //@ts-ignore
-    address,
+    address: any,
     weeks = 6
 ): Promise<totalCost[]> {
     return (
         instance
             .get(`total_cost/${address}`, { params: { weeks_count: weeks } })
-            //@ts-ignore
             .then(({ data }) => data)
             .catch((err) => {
                 console.log('ERR', err);
@@ -66,8 +63,7 @@ export function getAssets(address: string): Promise<asset[]> {
 export async function getWalletNFT(wallet: string) {
     return (
         instance
-            .get(`wallet_nfts/${wallet}`)
-            //@ts-ignore
+            .get<string>(`wallet_nfts/${wallet}`)
             .then(({ data }) => data)
             .catch((err) => {
                 console.log('ERR', err);
@@ -78,23 +74,23 @@ export async function getWalletNFT(wallet: string) {
 
 export async function getContracts(type: string) {
     return instance
-        .get(`/contracts?type=${type}`)
-        .then(({ data }) => resolveBignums(data) as any)
+        .get<Json>(`/contracts?type=${type}`)
+        .then(({ data }) => resolveBignums(data))
         .catch((err) => console.log('ERR', err));
 }
 
 export async function getPoolInfo(asset1: number, asset2: number): Promise<PoolInfo> {
-    return instance.get(`/pool?asset_1_id=${asset1}&asset_2_id=${asset2}`).then(({ data }) => data);
+    return instance.get<PoolInfo>(`/pool?asset_1_id=${asset1}&asset_2_id=${asset2}`).then(({ data }) => data);
 }
 
 export async function getSwapCost(asset1: number, asset2: number, amount: number): Promise<SwapCost> {
     return instance
-        .get(`/asset_swap_cost?address=asdf?asset1_id=${asset1}&asset2_id=${asset2}&asset1_amount=${amount}`)
+        .get<SwapCost>(`/asset_swap_cost?address=asdf?asset1_id=${asset1}&asset2_id=${asset2}&asset1_amount=${amount}`)
         .then(({ data }) => data);
 }
 
 export async function tokensaleWhitelist(contractId: number, address: string): Promise<boolean> {
-    return instance.put(`/whitelist_confirm?contract_id=${contractId}&address=${address}`).then(({ data }) => data);
+    return instance.put<boolean>(`/whitelist_confirm?contract_id=${contractId}&address=${address}`).then(({ data }) => data);
 }
 
 export const deployContractToBackend = async (
@@ -103,7 +99,6 @@ export const deployContractToBackend = async (
     farmName: string,
     dex?: string
 ) => {
-    // @ts-ignore
     const contractVersion = packages.dependencies['@metalabsog/' + contractType];
     if (!contractVersion) {
         throw new Error('Wrong contract type:' + contractType);

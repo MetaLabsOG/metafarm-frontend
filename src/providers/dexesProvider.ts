@@ -249,6 +249,7 @@ export abstract class Dex {
  * Mock API for dexes (yields data with arbitrary numbers)
  */
 export class MockDex extends Dex {
+    // eslint-disable-next-line @typescript-eslint/require-await
     async getPoolInfo(_: AppId): Promise<PoolInfo> {
         return {
             poolId: 0,
@@ -270,6 +271,7 @@ export class MockDex extends Dex {
         return this.getPoolInfo(0);
     }
 
+    // eslint-disable-next-line @typescript-eslint/require-await
     async getSwapQuote(a1: AssetId | Asset, a2: AssetId | Asset, amount: Amount, slippage: number): Promise<SwapQuote> {
         const price = 0.01;
         const fee = BigInt(100);

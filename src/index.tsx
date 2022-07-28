@@ -60,8 +60,7 @@ Sentry.init({
 const queryClient = new QueryClient();
 
 // throw events on initialization
-fetchAlgoPriceFx();
-fetchBtcPriceFx();
+fetchAllPrices();
 
 const App = () => {
     const account = useStore($account);
@@ -74,6 +73,7 @@ const App = () => {
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
+            // TODO fix lint error (might be a bug)
             setPoolInfos(farmsFetch.data);
         }
     }, [farmsFetch]);
@@ -87,6 +87,7 @@ const App = () => {
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
+            // TODO fix lint error (might be a bug)
             setDistributionPoolInfos(distrFetch.data);
         }
     }, [distrFetch]);
