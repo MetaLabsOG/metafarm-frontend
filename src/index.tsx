@@ -73,7 +73,10 @@ const App = () => {
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
-            // TODO fix lint error (might be a bug)
+            // TODO(DariaYakovleva)
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            // eslint-disable-next-line effector/mandatory-useEvent
             setPoolInfos(farmsFetch.data);
         }
     }, [farmsFetch]);
@@ -87,7 +90,10 @@ const App = () => {
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
-            // TODO fix lint error (might be a bug)
+            // TODO(DariaYakovleva)
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            // eslint-disable-next-line effector/mandatory-useEvent
             setDistributionPoolInfos(distrFetch.data);
         }
     }, [distrFetch]);

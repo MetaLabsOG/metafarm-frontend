@@ -1,7 +1,9 @@
+import { BigNumber } from '@ethersproject/bignumber';
 import { useState, useEffect, useCallback } from 'react';
 
 import { Account, ReachStdlib } from '../types';
 import { maybeToNullable, convertBns, getAccountInfo, getLocalState, manualBatchOptIn } from './lib';
+import { InnerCtc } from './store/types';
 
 type ReachContractHookSettings = {
     launchEventMonitors: boolean;
@@ -15,11 +17,11 @@ export const useReachContract = (
         launchEventMonitors: false,
     }
 ) => {
-    const [ctc, setCtc] = useState<any | undefined>(undefined);
+    const [ctc, setCtc] = useState<InnerCtc | undefined>(undefined);
     const [state, setState] = useState<any | undefined>(undefined);
 
     const getCtc = useCallback(() => {
-        return account.contract(backend, contractId);
+        return account.contract(backend, Promise.resolve(BigNumber.from(contractId)));
     }, [account, backend, contractId]);
 
     // TODO: `initial` view should actually be only fetched once
@@ -48,8 +50,7 @@ export const useReachContract = (
             // which triggers state refresh?)
             if (settings.launchEventMonitors) {
                 for (const eventStream of Object.values(ctc.events)) {
-                    //@ts-ignore
-                    eventStream.monitor((_) => refreshState(ctc, account));
+                    (eventStream as any).monitor((_: any) => refreshState(ctc, account));
                 }
             }
         }

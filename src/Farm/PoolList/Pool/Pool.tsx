@@ -18,6 +18,8 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
 
     const [isOpen, setIsOpen] = useState(false);
 
+    // TODO(DariaYakovleva): please fix
+    // eslint-disable-next-line effector/mandatory-useEvent
     useEffect(queryTimeUpdate, [contract]);
 
     const is_info_loaded = rewardTokenInfo && stakeTokenInfo;

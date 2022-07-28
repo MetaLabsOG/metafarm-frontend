@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import { backend as farmBackend } from '@metalabsog/farm';
 import { Map } from 'immutable';
@@ -146,7 +147,6 @@ export const getLPTokenInfoFx = createEffect(
 );
 
 $lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
-$lpTokenInfos.watch((v) => {}); //console.log('LP TOKEN INFOS', v.toJS()));
 
 // Fetching LP token infos similarly to how asset prices are fetched
 const markTokenAsLP = createEvent<AssetId>();

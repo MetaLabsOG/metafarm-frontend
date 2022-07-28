@@ -55,10 +55,8 @@ const disconnectWallet = () => {
         window.location.reload();
     };
 
-    // @ts-ignore
-    if (window.algorand && window.algorand.disconnect) {
-        //@ts-ignore
-        window.algorand.disconnect().then(finalDisconnect);
+    if (window.algorand) {
+        void window.algorand.disconnect().then(finalDisconnect);
     } else {
         finalDisconnect();
     }

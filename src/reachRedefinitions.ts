@@ -57,7 +57,9 @@ export function indexerFromEnv(env: any): [algosdk.BaseHTTPClient, algosdk.Index
         typeof ALGO_INDEXER_TOKEN === 'string' ? { 'X-Indexer-API-Token': ALGO_INDEXER_TOKEN } : ALGO_INDEXER_TOKEN;
 
     const utbc = new NonRedundantHTTPClient(token, ALGO_INDEXER_SERVER, port, REACH_GET_REQUEST_CACHE_PERIOD);
-    const rhc = new RHC.ReachHTTPClient(utbc, 'indexer', async (e) => {});
+    const rhc = new RHC.ReachHTTPClient(utbc, 'indexer', async (e) => {
+        // do nothing
+    });
     return [rhc, new algosdk.Indexer(rhc)];
 }
 
@@ -67,7 +69,9 @@ export function algodClientFromEnv(env: any): [algosdk.BaseHTTPClient, algosdk.A
     const token = typeof ALGO_TOKEN === 'string' ? { 'X-Algo-API-Token': ALGO_TOKEN } : ALGO_TOKEN;
 
     const utbc = new NonRedundantHTTPClient(token, ALGO_SERVER, port, REACH_GET_REQUEST_CACHE_PERIOD);
-    const rhc = new RHC.ReachHTTPClient(utbc, 'algodv2', async (e) => {});
+    const rhc = new RHC.ReachHTTPClient(utbc, 'algodv2', async (e) => {
+        // do nothing
+    });
     return [rhc, new algosdk.Algodv2(rhc)];
 }
 

@@ -1,7 +1,6 @@
-import React from 'react';
 import { useQuery } from 'react-query';
 import { METAWALLET } from '../AppContext';
-import { getWalletNFT } from '../providers/apiProvider';
+import { getWalletNFTs, WalletNFT } from '../providers/apiProvider';
 import { ArrowUp } from '../imgs/arrowUp';
 
 import {
@@ -17,12 +16,12 @@ import {
 import { formatNumber } from '../Swap/Swap';
 
 export const NFTList = () => {
-    const { data } = useQuery(['nftAssets', METAWALLET], () => getWalletNFT(METAWALLET));
+    const { data } = useQuery(['nftAssets', METAWALLET], () => getWalletNFTs(METAWALLET));
 
     return (
         <NFTListContainer>
             {data &&
-                data.map((nft: any) => (
+                data.map((nft: WalletNFT) => (
                     <a
                         key={nft.image_url}
                         target="_blank"

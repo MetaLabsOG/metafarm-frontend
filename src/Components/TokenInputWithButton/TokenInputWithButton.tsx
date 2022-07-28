@@ -1,3 +1,5 @@
+// TODO(DariaYakovleva): please enable this lint and fix this issue
+/* eslint-disable effector/mandatory-useEvent */
 import React, { FC, useState } from 'react';
 import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
@@ -86,8 +88,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 await actionEffect([microAmount]);
                 setShowConfetti(true);
             } catch (e) {
-                // @ts-ignore
-                const error_message = e.message;
+                const error_message = e instanceof Error ? e.message : String(e);
                 console.log(error_message);
                 logFarmActionData(
                     account,

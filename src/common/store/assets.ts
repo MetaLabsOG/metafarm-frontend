@@ -39,8 +39,6 @@ function getBalancesFromAccountInfo(accountInfo: any): Record<AssetId, Amount> {
 
 export const $balances = $accountInfo.map(getBalancesFromAccountInfo);
 
-$balances.watch((bs) => {}); //console.log('BALANCES', bs));
-
 // =================================================================
 // Asset info store with one-time fetching from algod
 // =================================================================

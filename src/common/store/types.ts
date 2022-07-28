@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { BigNumber } from '@ethersproject/bignumber';
 import { AllDefined } from '../../types';
 
@@ -26,7 +27,7 @@ export type Priced<T> = T & { price: number; priceInAlgo: number };
  */
 export type AllBignums<T> = T extends number | bigint
     ? BigNumber
-    : T extends {} | unknown[]
+    : T extends any | unknown[]
     ? { [K in keyof T]: AllBignums<T[K]> }
     : T;
 
@@ -51,10 +52,16 @@ export function hasLocalState<T extends ContractType, S extends ContractState<T>
     return !!state.local;
 }
 
+type InitialView = any;
+type GlobalView = any;
+type LocalView = any;
+
+export type InnerCtc = any;
+
 export type Contract<T extends ContractType> = {
     id: AppId;
     info: ContractInfo<T>;
-    ctc: any | null; // fix later (or fucking never)
+    ctc: InnerCtc | null; // fix later (or fucking never)
     state: ContractState<T> | null;
 };
 
@@ -73,9 +80,9 @@ export type ContractInfo<T extends ContractType> = {
 
 export type ContractMetadata = {
     farm: { dex?: string };
-    distribution: {};
+    distribution: unknown;
     crowdsale: { whitelist: Array<string> };
-    fomo: {};
+    fomo: unknown;
 };
 
 type InitialInfo = {

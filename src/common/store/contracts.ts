@@ -1,10 +1,11 @@
 import { Map } from 'immutable';
 import { combine, createEffect, createEvent, createStore, sample, Store, Event } from 'effector';
-import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
+import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums, InnerCtc } from './types';
 import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
 import { maybeToNullable } from '../lib';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
+import { BigNumber } from 'ethers';
 
 // I'm sorry for this mess.... It can be done better I do believe.
 // In the end, it was not particularly necessary (I thought I would need more specific Reach
@@ -58,8 +59,7 @@ function makeWrappedCtc<T extends ContractType>(
     onWrite: (id: AppId) => Promise<void>
 ): ReachContract {
     // TODO: make read-only ctc when account is null
-    //@ts-ignore
-    const ctc = account!.contract(backend, contractId);
+    const ctc = account!.contract(backend, Promise.resolve(BigNumber.from(contractId)));
     ctc.views = mapViewMap(
         ctc.views,
         (k, view) =>
@@ -73,6 +73,8 @@ function makeWrappedCtc<T extends ContractType>(
     ctc.apis = mapViewMap(ctc.apis, (_, api) =>
         createEffect(async (args?: any[]) => {
             args = args ?? [];
+            // TODO(qumeric): I think this try-catch is useless but I am afraid to remove.
+            // eslint-disable-next-line no-useless-catch
             try {
                 const res = await api(...args);
                 await onWrite(contractId);
@@ -93,6 +95,7 @@ function parseBignumState<T extends ContractType>(
 ): ContractState<T> {
     return Object.keys(bignumState).reduce((newState: ContractState<T>, k: string) => {
         const key = k as keyof ContractState<T>;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         newState[key] = parseView(type, key)(bignumState[key]);
         return newState;
@@ -162,10 +165,9 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
             async ({
                 ctc,
                 account,
-                contractId,
             }: {
                 contractId: AppId;
-                ctc: Contract<T>;
+                ctc: InnerCtc;
                 account: Account | null;
             }): Promise<ContractState<T>> => {
                 return {
@@ -205,7 +207,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
         clock: ctcInitialized,
         source: $account,
         fn: (account, [contractId, ctc]) => {
-            return { ctc, account, contractId };
+            return { contractId, ctc, account };
         },
         target: updateContractStateFx,
     });
@@ -227,7 +229,6 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
     });
 
     $contractStates.on(contractStateUpdated, (states, { id, state }) => states.set(id, state));
-    $contractStates.watch((s) => {}); //console.log('STATES', s.toJS()));
 
     const $contractIds = $contractInfos.map((infos) => infos.map((i) => i.id));
 

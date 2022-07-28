@@ -73,12 +73,14 @@ export function ZapModal({
     }
 
     const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         setToken1(option);
         const token2Upd = options[0].value === option.value ? options[1] : options[0];
         setToken2(token2Upd);
         setToken1Amount('');
         setShowResult(false);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         getZapThrottled(option.value, token2Upd.value, token1Amount, 50);
     };
@@ -90,6 +92,8 @@ export function ZapModal({
 
     const ZapButtonOnClick = async () => {
         await runTransactions(QueryType.zap, account, token1.value, token2.value, token1Amount, token1.balance);
+        // TODO(DariaYakovleva)
+        // eslint-disable-next-line effector/mandatory-useEvent
         refreshAccountInfo();
         closeModal();
     };

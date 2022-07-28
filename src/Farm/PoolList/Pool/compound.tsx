@@ -61,8 +61,7 @@ export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTok
 
         await ctc.apis.stake([microLpAmount]);
     } catch (e) {
-        // @ts-ignore
-        const error_message = e.message;
+        const error_message = e instanceof Error ? e.message : String(e);
         console.log(error_message);
         logFarmActionData(account, 'COMPOUND ERROR', 0, lpTokenInfo, rewardAsset, error_message);
         if (error_message.includes('underflow')) {
