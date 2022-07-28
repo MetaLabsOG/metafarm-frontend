@@ -12,7 +12,7 @@ import { algoRewardPerBlock, calculateAlgoReward, convertAmountToUSD, numberRoun
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import pacman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
-import { fromMicros } from '../../../common/lib';
+import { fromSmallestUnits } from '../../../common/lib';
 import React, { FC } from 'react';
 
 import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
@@ -60,10 +60,10 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedA
                 )}
             </RewardUSDValue>
             <RewardTokenValue>
-                {numberRound(fromMicros(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
+                {numberRound(fromSmallestUnits(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
             </RewardTokenValue>
             {algoRewardPerBlock(contractState.initial) && (
-                <RewardTokenValue>{numberRound(fromMicros(pricedAlgo, algoReward))} ALGO</RewardTokenValue>
+                <RewardTokenValue>{numberRound(fromSmallestUnits(pricedAlgo, algoReward))} ALGO</RewardTokenValue>
             )}
         </>
     );

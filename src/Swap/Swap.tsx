@@ -19,7 +19,7 @@ import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { algoexplorerTxLink, fromMicros, getMicros, signAndPostTxnGroups } from '../common/lib';
+import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits, signAndPostTxnGroups } from '../common/lib';
 import { WalletTransactionGroup } from '../types';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
@@ -60,8 +60,8 @@ export const getNetworkAssetId = (asset_id: number) => {
 };
 
 function quoteToBestSwap(q: BestSwapQuote, outTokenPrice: number): BestSwap {
-    const best_swap = fromMicros(q.best.assetOut, q.best.minimalAmountOut);
-    const direct_swap = q.direct ? fromMicros(q.direct.assetOut, q.direct.minimalAmountOut) : best_swap;
+    const best_swap = fromSmallestUnits(q.best.assetOut, q.best.minimalAmountOut);
+    const direct_swap = q.direct ? fromSmallestUnits(q.direct.assetOut, q.direct.minimalAmountOut) : best_swap;
     const usdc_diff = outTokenPrice * (best_swap - direct_swap);
 
     const best_path = q.path.map((q) => ({ unit_name: q.assetIn.unitName }));
@@ -101,7 +101,7 @@ async function getBestSwap(
     try {
         const asset1 = await fetchAsset(parseInt(asset1_id));
         const asset2 = await fetchAsset(parseInt(asset2_id));
-        const amountIn = getMicros(asset1, parseFloat(asset1_amount));
+        const amountIn = getSmallestUnits(asset1, parseFloat(asset1_amount));
         const bestSwapQuote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
         const asset2Price = await fetchAssetPriceFx(asset2);
         const best_swap = quoteToBestSwap(bestSwapQuote, asset2Price);
@@ -153,7 +153,7 @@ export async function getTransactions(
 ): Promise<{ quote: BestSwapQuote | ZapQuote; txns: WalletTransactionGroup[] }> {
     const asset1 = await fetchAsset(Number(asset1_id));
     const asset2 = await fetchAsset(Number(asset2_id));
-    const amountIn = getMicros(asset1, Number(asset1_amount));
+    const amountIn = getSmallestUnits(asset1, Number(asset1_amount));
 
     if (type === QueryType.swap) {
         const quote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);

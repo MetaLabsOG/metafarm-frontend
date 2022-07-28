@@ -4,6 +4,8 @@ import packages from '../../package.json';
 import { AssetId } from '../common/store';
 import { ALGONET } from '../AppContext';
 import { nonConcurrent } from '../common/store/utils';
+import { ContractType } from '../common/store';
+import { DexProvider } from './dexesProvider';
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -111,11 +113,19 @@ export async function tokensaleWhitelist(contractId: number, address: string): P
         .then(({ data }) => data);
 }
 
+type AddContractType = {
+    type: ContractType;
+    id: number;
+    version: string;
+    description: string;
+    metadata: Record<string, string | undefined>;
+};
+
 export const deployContractToBackend = async (
     contractId: number,
-    contractType: string,
+    contractType: ContractType,
     farmName: string,
-    dex?: string
+    dex: DexProvider
 ) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
@@ -123,7 +133,7 @@ export const deployContractToBackend = async (
     if (!contractVersion) {
         throw new Error('Wrong contract type:' + contractType);
     }
-    const data = {
+    const request: AddContractType = {
         type: contractType,
         id: contractId,
         version: contractVersion,
@@ -132,8 +142,17 @@ export const deployContractToBackend = async (
             dex: dex,
         },
     };
-
-    return instance.post('/contract/register', data).then(({ data }) => data);
+    try {
+        await instance.post('/contract/register', request);
+        return true;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            console.error('error message: ', error.message);
+        } else {
+            console.error('unexpected error: ', error);
+        }
+        return false;
+    }
 };
 
 export const getTinymanPools = nonConcurrent(async (limit: number, search = ''): Promise<TinymanPool[]> => {

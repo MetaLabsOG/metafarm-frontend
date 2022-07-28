@@ -18,19 +18,19 @@ import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
 import { makeDex, ZapQuote } from '../providers/dexesProvider';
-import { algoexplorerTxLink, fromMicros, getMicros } from '../common/lib';
+import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
 
 const tinyman = makeDex('T2');
 
 function zapQuoteToData(asset1_id: number, quote: ZapQuote): ZapData {
     const assetsAreSwapped = asset1_id !== quote.mint.assetA.id;
-    const amountA = fromMicros(quote.mint.assetA, quote.mint.amountA);
-    const amountB = fromMicros(quote.mint.assetB, quote.mint.amountB);
+    const amountA = fromSmallestUnits(quote.mint.assetA, quote.mint.amountA);
+    const amountB = fromSmallestUnits(quote.mint.assetB, quote.mint.amountB);
 
     const asset1_amount = assetsAreSwapped ? amountB : amountA;
     const asset2_amount = assetsAreSwapped ? amountA : amountB;
-    const lp_amount = fromMicros(quote.mint.lpToken, quote.mint.minimalLiquidityIssued);
+    const lp_amount = fromSmallestUnits(quote.mint.lpToken, quote.mint.minimalLiquidityIssued);
     const pool_lp_id = quote.mint.lpToken.id;
     return { asset1_amount, asset2_amount, lp_amount, pool_lp_id };
 }
@@ -61,7 +61,7 @@ export async function loadZapData(
     try {
         const asset1 = await fetchAsset(Number(asset1_id));
         const asset2 = await fetchAsset(Number(asset2_id));
-        const amountIn = getMicros(asset1, Number(asset1_amount));
+        const amountIn = getSmallestUnits(asset1, Number(asset1_amount));
         const zapQuote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
 
         const zap_data = zapQuoteToData(Number(asset1_id), zapQuote);

@@ -1,5 +1,4 @@
 import { DAY } from '../../../common/lib';
-import React from 'react';
 
 export const calculateUnlockTimeinSecs = (currentBlock: number, lockTimestamp: number, lockLengthBlocks: number) => {
     if (!lockLengthBlocks || !lockTimestamp) {
@@ -10,7 +9,7 @@ export const calculateUnlockTimeinSecs = (currentBlock: number, lockTimestamp: n
 
 const formatUnlockTime = (unlockTime: number) => {
     if (unlockTime > DAY) {
-        return Math.floor(unlockTime / DAY) + ' days';
+        return `${Math.floor(unlockTime / DAY)} days`;
     }
 
     return new Date(unlockTime * 1000).toISOString().substring(11, 19);

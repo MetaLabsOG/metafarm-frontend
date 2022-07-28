@@ -1,6 +1,6 @@
 type PricesAndValuesType = { price: number; value: number; nextLvlValue: number };
 
-export const setLevelAndValue = (prices: any[], values: any[], lvl: any, reach: any): PricesAndValuesType => {
+export const setLevelAndValue = (prices: any[], values: any[], lvl: number, reach: any): PricesAndValuesType => {
     if (!prices.length || !values.length) {
         return { price: 0, value: 0, nextLvlValue: 0 };
     }

@@ -4,7 +4,7 @@ import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from
 import { LPTokenInfo } from '../../providers/dexesProvider';
 import { useEvent, useStore } from 'effector-react';
 import { $account, Asset, Priced } from '../../common/store';
-import { fromMicros, getMicros, sleep } from '../../common/lib';
+import { fromSmallestUnits, getSmallestUnits, sleep } from '../../common/lib';
 import { Effect } from 'effector';
 import { notify, ToastTypes, useToasts } from '../Notification';
 import { BigNumberish } from '@ethersproject/bignumber';
@@ -34,7 +34,7 @@ const checkValidInput = (input: string, token: LPTokenInfo | Priced<Asset>, toke
         return false;
     }
 
-    const microAmount = getMicros(token, parseFloat(input));
+    const microAmount = getSmallestUnits(token, parseFloat(input));
     return microAmount <= tokenMicroBalance;
 };
 
@@ -43,7 +43,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     tokenMicroBalance,
     balanceSuffix,
     buttonName,
-    // eslint-disable-next-line effector/mandatory-useEvent
+    // eslint-disable-next-line effector/mandatory-scope-binding
     actionEffect,
     optInId,
     style,
@@ -71,7 +71,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
 
     const setInputMaxAmount = () => {
         setIsValidInput(true);
-        const tokenAmount = fromMicros(token, tokenMicroBalance).toString();
+        const tokenAmount = fromSmallestUnits(token, tokenMicroBalance).toString();
         setInputAmount(tokenAmount);
         setNotificationText(tokenAmount + ' ' + balanceSuffix);
     };
@@ -89,7 +89,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     const onClick = async () => {
-        const microAmount = getMicros(token, parseFloat(inputAmount));
+        const microAmount = getSmallestUnits(token, parseFloat(inputAmount));
         if (!isLoading && isValidInput && microAmount > 0) {
             logFarmActionData(account, buttonName, inputAmount, token as LPTokenInfo);
             setIsLoading(true);
@@ -146,7 +146,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>
             </Action>
             <Balance isValid={isValidInput}>
-                {balanceField}: {fromMicros(token, tokenMicroBalance)} {balanceSuffix}{' '}
+                {balanceField}: {fromSmallestUnits(token, tokenMicroBalance)} {balanceSuffix}{' '}
                 {isValidInput ? '' : '(Not enough)'}
             </Balance>
             <Confetti showConfetti={showConfetti} onFinish={() => setShowConfetti(false)} />
