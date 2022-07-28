@@ -9,8 +9,10 @@ import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
 import { theme } from '../../theme';
 import { MaxButton } from '../TokenInputWithButton/styled';
 
+// TODO(DariaYakovleva): please check types, looks very suspicious
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-function TokenOption({ option }) {
+function TokenOption({ option }: { option: any }) {
     return (
         <div className="TokenOptionContainer">
             <img alt="" className="tokenIcon" width="32" height="32" src={getAssetLogoUrl(option.id)} />
@@ -19,6 +21,8 @@ function TokenOption({ option }) {
     );
 }
 
+// TODO(DariaYakovleva): please check types, looks very suspicious
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 function renderSelectedOption(valueProps, snapshot) {
     const { option } = snapshot;

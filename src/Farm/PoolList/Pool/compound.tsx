@@ -1,5 +1,5 @@
 import { LPTokenInfo, makeDex, ZapQuote } from '../../../providers/dexesProvider';
-import { Asset, Priced, refreshAccountInfo } from '../../../common/store';
+import { Asset, InnerCtc, Priced, refreshAccountInfo } from '../../../common/store';
 import { fromMicros } from '../../../common/lib';
 import { QueryType, runTransactions } from '../../../Swap/Swap';
 import { Account } from '../../../types';
@@ -10,7 +10,7 @@ export const isCompoundEnabled = (lpTokenInfo: LPTokenInfo, reward_asset_id: num
     return reward_asset_id === lpTokenInfo.asset1 || reward_asset_id === lpTokenInfo.asset2;
 };
 
-export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTokenInfo, rewardAsset: Priced<Asset>) => {
+export const runCompound = async (account: Account, ctc: InnerCtc, lpTokenInfo: LPTokenInfo, rewardAsset: Priced<Asset>) => {
     const rewardAssetId = rewardAsset.id;
     const asset1Id = lpTokenInfo.asset1;
     const asset2Id = lpTokenInfo.asset2;
@@ -49,10 +49,9 @@ export const runCompound = async (account: Account, ctc: any, lpTokenInfo: LPTok
             throw new Error('internal zap error!');
         }
 
-        let { quote, txIds } = zapResult;
-        quote = quote as ZapQuote;
+        const quote = zapResult.quote as ZapQuote;
         refreshAccountInfo();
-        console.log('COMPOUND ZAP ', quote, txIds);
+        console.log('COMPOUND ZAP ', quote, zapResult.txIds);
 
         // If mint transaction passed, tinyman could not return less than that (since txs are deterministic).
         // TODO: we should check

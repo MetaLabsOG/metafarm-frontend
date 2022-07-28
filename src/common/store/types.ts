@@ -61,7 +61,7 @@ export type InnerCtc = any;
 export type Contract<T extends ContractType> = {
     id: AppId;
     info: ContractInfo<T>;
-    ctc: InnerCtc | null; // fix later (or fucking never)
+    ctc: any | null; // fix later (or fucking never)
     state: ContractState<T> | null;
 };
 

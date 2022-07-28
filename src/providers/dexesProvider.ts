@@ -1,3 +1,4 @@
+/* eslint-disable no-inner-declarations */
 import algosdk from 'algosdk';
 import pactsdk from '@pactfi/pactsdk';
 import { max, min } from 'ramda';
@@ -477,6 +478,7 @@ export class PactDex extends Dex {
 // TODO: all this should be somewhere else probably (a separate lib, our own limited implementation of Tinyman SDK?)
 // These are basically rewrites of the Python Tinyman SDK library, so that we can fetch token prices from there
 // without bothering the backend all the time (which does algoindexer queries anyway).
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Tinyman {
     type VariableDef = {
         name: string;
@@ -711,8 +713,8 @@ export namespace Tinyman {
         if (type !== 'int') {
             throw new Error('tinymanEncodeVal: only int variables are supported');
         }
-        let bytes = [];
-        while (true) {
+        const bytes = [];
+        for (;;) {
             const b = value & 0x7f;
             value >>= 7;
             if (value) {
@@ -800,7 +802,7 @@ export class TinymanDex extends Dex {
             return { [newKey]: newVal, ...acc };
         }, {});
 
-        let { a1, a2, s1, s2, ilt } = appState;
+        let { a1, a2, s1, s2 } = appState;
         if (a1 > a2) {
             [a1, a2] = [a2, a1];
             [s1, s2] = [s2, s1];
@@ -815,7 +817,7 @@ export class TinymanDex extends Dex {
             liquidityAsset,
             asset1Reserve: BigInt(s1),
             asset2Reserve: BigInt(s2),
-            totalLiquidity: BigInt(ilt),
+            totalLiquidity: BigInt(appState.ilt),
         };
     }
 

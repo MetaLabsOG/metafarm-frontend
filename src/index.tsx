@@ -18,7 +18,7 @@ import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
 import { Crowdsale } from './Crowdsale';
-import { $account, $balances, fetchAlgoPriceFx, fetchBtcPriceFx } from './common/store';
+import { $account, $balances, fetchAlgoPriceFx, fetchAllPrices, fetchBtcPriceFx } from './common/store';
 import { Stake } from './Stake/Stake';
 
 import './css/index.css';

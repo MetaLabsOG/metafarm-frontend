@@ -26,8 +26,10 @@ export function logFarmActionData(
         amount: amount.toString(),
         lp_token_name: lpTokenInfo?.name,
         lp_token_id: lpTokenInfo?.id,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         lp_asset1_id: lpTokenInfo?.asset1,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         lp_asset2_id: lpTokenInfo?.asset2,
         reward_token_id: rewardAsset?.id,
