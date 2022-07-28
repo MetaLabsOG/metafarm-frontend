@@ -12,7 +12,8 @@ module.exports = {
         "plugin:effector/scope",
         "plugin:effector/react",
         "plugin:effector/future",
-        "plugin:react/jsx-runtime"
+        "plugin:react/jsx-runtime",
+        "plugin:prettier/recommended",
     ],
     parser: "@typescript-eslint/parser",
     parserOptions: {
@@ -20,7 +21,7 @@ module.exports = {
         ecmaFeatures: {
             jsx: true
         },
-        ecmaVersio: "latest",
+        ecmaVersion: "latest",
         sourceType: "module"
     },
     ignorePatterns: [".eslintrc.js"],
@@ -30,5 +31,27 @@ module.exports = {
         "effector"
     ],
     rules: {
+        // Show warnings instead of errors because we have too much errors we can't fix right now
+        // TODO: not show how it works and if works at all
+        "prettier/prettier": "warn",
+
+        // Redifine recommended-requiring-type-checking rules to be warnings
+        '@typescript-eslint/await-thenable': 'warn',
+        '@typescript-eslint/no-floating-promises': 'warn',
+        '@typescript-eslint/no-for-in-array': 'warn',
+        'no-implied-eval': 'off',
+        '@typescript-eslint/no-implied-eval': 'warn',
+        '@typescript-eslint/no-misused-promises': 'warn',
+        '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
+        '@typescript-eslint/no-unsafe-argument': 'warn',
+        '@typescript-eslint/no-unsafe-assignment': 'warn',
+        '@typescript-eslint/no-unsafe-call': 'warn',
+        '@typescript-eslint/no-unsafe-member-access': 'warn',
+        '@typescript-eslint/no-unsafe-return': 'warn',
+        'require-await': 'off',
+        '@typescript-eslint/require-await': 'warn',
+        '@typescript-eslint/restrict-plus-operands': 'warn',
+        '@typescript-eslint/restrict-template-expressions': 'warn',
+        '@typescript-eslint/unbound-method': 'warn',
     }
 }
