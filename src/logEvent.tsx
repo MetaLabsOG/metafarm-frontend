@@ -1,7 +1,6 @@
 import { LPTokenInfo } from './providers/dexesProvider';
 import { Asset, Priced } from './common/store';
 import { Account } from './types';
-import { isLPTokenInfo } from './Farm/PoolList/Pool/utils';
 import { ALGONET } from './AppContext';
 
 export enum LogName {
@@ -40,7 +39,7 @@ export function logFarmActionData(
     logEvent(account?.networkAccount.addr, data, LogName.FARM);
 }
 
-export function logEvent(address: string | undefined, params: any, logName: LogName) {
+export function logEvent(address: string | undefined, params: Record<string, unknown>, logName: LogName) {
     // console.log('LOG', address, status, error);
     const requestOptions = {
         method: 'POST',
@@ -59,5 +58,9 @@ export function logEvent(address: string | undefined, params: any, logName: LogN
         }),
     };
 
-    fetch('https://api.airtable.com/v0/appqAikFZd31XeJqW/' + LogName[logName].toLowerCase(), requestOptions);
+    fetch('https://api.airtable.com/v0/appqAikFZd31XeJqW/' + LogName[logName].toLowerCase(), requestOptions).catch(
+        () => {
+            console.warn('Faliled to log event to Airtable');
+        }
+    );
 }

@@ -18,12 +18,12 @@ import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
 import { Crowdsale } from './Crowdsale';
-import { $account, $balances, fetchAlgoPriceFx, fetchAllPrices, fetchBtcPriceFx } from './common/store';
+import { $account, $balances, fetchAllPrices } from './common/store';
 import { Stake } from './Stake/Stake';
 
 import './css/index.css';
 import 'react-toastify/dist/ReactToastify.css';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { setPoolInfos } from './Farm/store';
 import { getContracts } from './providers/apiProvider';
 import { setDistributionPoolInfos } from './Stake/store';

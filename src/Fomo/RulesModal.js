@@ -1,4 +1,3 @@
-import React from 'react'
 // TODO: change this pack to react-hook-use-modal
 import Modal from 'react-awesome-modal';
 import { RulesItems, RulesStrong,RulesItem, Subitems, RulesItemOrdinalNumber, RulesItemText }    from './styled'
@@ -24,7 +23,7 @@ export function RulesModal({ isModalOpen, setIsModalOpen }) {
                         With each bid the next bid price increases by <RulesStrong>0.5 ALGO</RulesStrong> and the timer increases for 30 seconds.
                     </RulesItemText>
                 </RulesItem>
-                   
+
                 <RulesItem>
                     <RulesItemOrdinalNumber>4.</RulesItemOrdinalNumber>
                     <RulesItemText>

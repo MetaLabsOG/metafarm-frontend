@@ -1,7 +1,7 @@
 import { loadZapData, ZapResult } from './Zap';
 import { useStore } from 'effector-react';
 import { $account, $balances, refreshAccountInfo } from '../common/store';
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { getOptions, QueryType, runTransactions } from '../Swap/Swap';
 import { ZapData } from './types';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';

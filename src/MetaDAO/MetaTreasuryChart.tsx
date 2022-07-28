@@ -9,11 +9,11 @@ import {
 } from './styled';
 import dayjs from 'dayjs';
 import { metaTreasuryChartOptions } from './chartsConfig';
-import { TotalCost } from '../providers/apiProvider'
+import { TotalCost } from '../providers/apiProvider';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip);
 
-export const MetaTreasuryChart = ({ dataset }: { dataset: TotalCost[] } ) => {
+export const MetaTreasuryChart = ({ dataset }: { dataset: TotalCost[] }) => {
     const labels = dataset.map((el) => dayjs(el.timestamp * 1000).format('D.MM'));
     console.log(labels);
 

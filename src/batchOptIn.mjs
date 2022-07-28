@@ -13,10 +13,10 @@ const { Buffer } = buffer;
  */
 export async function batchOptIn(reach, addr, asaIds, waitConfirmation = true) {
     if (asaIds.length === 0) {
-        throw Error("Empty opt-in asa id list");
+        throw Error('Empty opt-in asa id list');
     }
     if (asaIds.length > 16) {
-        throw Error(`Too many asa ids in the list. Should be at most 16 but is: ${asaIds}`)
+        throw Error(`Too many asa ids in the list. Should be at most 16 but is: ${asaIds}`);
     }
 
     const p = await reach.getProvider();
@@ -27,33 +27,40 @@ export async function batchOptIn(reach, addr, asaIds, waitConfirmation = true) {
     const note = undefined;
     const amount = 0;
 
-    const txns = asaIds.map(id =>
+    const txns = asaIds.map((id) =>
         algosdk.makeAssetTransferTxnWithSuggestedParams(
-            addr, addr, CloseRemainderTo, revocationTarget, amount, note, id, ps
+            addr,
+            addr,
+            CloseRemainderTo,
+            revocationTarget,
+            amount,
+            note,
+            id,
+            ps
         )
     );
     algosdk.assignGroupID(txns);
 
-    const reachTxns = txns.map(txn => ({
-        txn: Buffer.from(txn.toByte()).toString("base64")
+    const reachTxns = txns.map((txn) => ({
+        txn: Buffer.from(txn.toByte()).toString('base64'),
     }));
 
-    let optedIn = false
+    let optedIn = false;
     while (!optedIn) {
         try {
             await p.signAndPostTxns(reachTxns);
-            optedIn = true
+            optedIn = true;
         } catch (e) {
-            console.log("Opt in failed... Trying again.")
+            console.log('Opt in failed... Trying again.');
         }
     }
     let txId = txns[0].txID().toString();
     if (waitConfirmation) {
-        console.log("Waiting for confirmation of opt-in")
+        console.log('Waiting for confirmation of opt-in');
         await withAlgodEncoding(algodClient, IntDecoding.DEFAULT, (algodClient) => {
             return waitForConfirmation(algodClient, txId, 4);
         });
-        console.log("Confirmed")
+        console.log('Confirmed');
     }
     return true; // we don't need this but have to send something to make contract wait
 }
@@ -72,11 +79,10 @@ export async function multiBatchOptIn(addr) {
 }
 
 export function checkOptIn(addr, asaId) {
-    const preffix = (ALGONET === TESTNET) ? "testnet." : "";
-    return (
-        fetch("https://algoindexer." + preffix + "algoexplorerapi.io/v2/accounts/" + addr, {method: 'GET'})
-        .then(res => res.json())
-        .then(data => {
+    const preffix = ALGONET === TESTNET ? 'testnet.' : '';
+    return fetch('https://algoindexer.' + preffix + 'algoexplorerapi.io/v2/accounts/' + addr, { method: 'GET' })
+        .then((res) => res.json())
+        .then((data) => {
             if (!data.account || !data.account.assets) {
                 return false;
             }
@@ -86,9 +92,9 @@ export function checkOptIn(addr, asaId) {
                 }
             }
             return false;
-        }).catch(err => {
+        })
+        .catch((err) => {
             console.log('ERR', err);
             return false;
-        })
-    );
+        });
 }

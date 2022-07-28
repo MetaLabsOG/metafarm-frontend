@@ -52,10 +52,6 @@ export function hasLocalState<T extends ContractType, S extends ContractState<T>
     return !!state.local;
 }
 
-type InitialView = any;
-type GlobalView = any;
-type LocalView = any;
-
 export type InnerCtc = any;
 
 export type Contract<T extends ContractType> = {

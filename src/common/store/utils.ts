@@ -95,13 +95,17 @@ export function createNonConcurrentEffect<V, T>(callback: (a: V) => Promise<T>):
     return createEffect(
         (a: V) =>
             new Promise<T>((resolve, reject) => {
-                fetchStore(innerFx.pending).then((pending) => {
-                    if (!pending) {
-                        innerFx(a);
-                    }
-                    innerFx.doneData.watch(resolve);
-                    innerFx.failData.watch(reject);
-                });
+                fetchStore(innerFx.pending)
+                    .then((pending) => {
+                        if (!pending) {
+                            innerFx(a);
+                        }
+                        innerFx.doneData.watch(resolve);
+                        innerFx.failData.watch(reject);
+                    })
+                    .catch((err) => {
+                        console.log('failed to fetch', err);
+                    });
             })
     );
 }

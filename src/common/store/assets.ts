@@ -1,14 +1,5 @@
 import { Map } from 'immutable';
-import {
-    createEffect,
-    createEvent,
-    createStore,
-    sample,
-    combine,
-    split,
-    Store,
-    restore,
-} from 'effector';
+import { createEffect, createEvent, createStore, sample, combine, split, Store, restore } from 'effector';
 import { algod } from '../../AppContext';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
@@ -53,7 +44,7 @@ export const ALGO_ASSET: Asset = {
 const fetchAssetFx = createEffect(
     nonConcurrent(async (id: AssetId): Promise<Asset> => {
         const { params } = await algod.getAssetByID(id).do();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { name, creator, decimals } = params;
 
         return {
@@ -62,7 +53,7 @@ const fetchAssetFx = createEffect(
             unitName: params['unit-name'],
             creator,
             decimals,
-        };
+        } as Asset;
     })
 );
 

@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import { FC, useState } from 'react';
 import SelectSearch, { fuzzySearch } from 'react-select-search';
 import { renderOption, SelectType } from '../Select/Select';
 import { formatNumber } from '../../common/lib';

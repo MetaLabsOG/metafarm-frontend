@@ -45,7 +45,7 @@ function truthyEnv(v: string | undefined | null): v is string {
     return !['0', 'false', 'f', '#f', 'no', 'off', 'n', ''].includes(v && v.toLowerCase && v.toLowerCase());
 }
 
-function envDefaultsALGO(env: any) {
+function envDefaultsALGO(env: Record<string, unknown>) {
     return { ...localhostProviderEnv, ...env };
 }
 

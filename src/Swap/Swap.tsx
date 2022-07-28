@@ -4,7 +4,15 @@ import { ALGONET, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
 import 'react-select-search/style.css';
 import '../css/swap.css';
 import { BestSwap, Token } from './types';
-import { $account, $balances, Amount, AssetId, fetchAsset, fetchAssetPriceFx, refreshAccountInfo } from '../common/store';
+import {
+    $account,
+    $balances,
+    Amount,
+    AssetId,
+    fetchAsset,
+    fetchAssetPriceFx,
+    refreshAccountInfo,
+} from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';

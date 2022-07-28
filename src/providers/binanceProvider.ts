@@ -4,12 +4,11 @@ type Pair = 'BTCUSDT' | 'ALGOUSDT';
 
 type Rate = {
     price: number;
-}
+};
 
 const instance = axios.create({
     baseURL: 'https://api2.binance.com/api/v3/',
 });
-
 
 async function getCoinRate(pair: Pair): Promise<Rate | null> {
     try {
@@ -38,4 +37,3 @@ export async function getBinanceCoinPrice(pair: Pair): Promise<number> {
     }
     return 0;
 }
-
