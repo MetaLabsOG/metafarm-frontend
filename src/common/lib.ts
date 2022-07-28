@@ -16,9 +16,9 @@ import { Amount, AppId, Asset, AssetId } from './store';
 import { ALGONET, MAINNET, reach } from '../AppContext';
 import { uniq } from 'ramda';
 
-export const MINUTE: number = 60;
-export const HOUR: number = 60 * 60;
-export const DAY: number = HOUR * 24;
+export const MINUTE = 60;
+export const HOUR = 60 * 60;
+export const DAY = HOUR * 24;
 
 // BigNumbers from JSON decoding
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };

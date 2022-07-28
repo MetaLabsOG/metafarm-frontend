@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { useQuery } from 'react-query';
 import { last, path } from 'ramda';
 import {

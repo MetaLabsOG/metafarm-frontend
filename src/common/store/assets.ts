@@ -55,6 +55,7 @@ export const ALGO_ASSET: Asset = {
 const fetchAssetFx = createEffect(
     nonConcurrent(async (id: AssetId): Promise<Asset> => {
         const { params } = await algod.getAssetByID(id).do();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { name, creator, decimals } = params;
 
         return {
@@ -71,8 +72,6 @@ export const assetLoaded = fetchAssetFx.doneData;
 export const $assets = createStore(Map<AssetId, Asset>().set(0, ALGO_ASSET)).on(assetLoaded, (assets, a) =>
     assets.set(a.id, a)
 );
-
-$assets.watch((assets) => {}); //console.log('ASSETS', assets.toJS()));
 
 const queryAsset = createEvent<AssetId>();
 const assetFoundInStore = createEvent<Asset>();
@@ -117,9 +116,15 @@ export const $btcUsdPrice = restore(fetchBtcPriceFx.doneData, null);
 
 // re-fetch prices once in say, 1 minute
 makeClock(60000).watch(() => {
-    console.log('prices refetching');
-    fetchAlgoPriceFx();
-    fetchBtcPriceFx();
+    console.log('refetching prices...');
+    Promise.all(
+        [
+            fetchAlgoPriceFx(),
+            fetchBtcPriceFx()
+        ]
+    ).then(
+        () => console.log('prices refetched')
+    )
 });
 
 export const $pricedAlgo: Store<Priced<Asset> | null> = combine(

@@ -3,7 +3,7 @@ import { combine, createEffect, createEvent, createStore, sample, Store, Event }
 import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
 import { maybeToNullable } from '../lib';
-import { $account, fetchAccountInfo, refreshAccountInfo } from './account';
+import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
 
 // I'm sorry for this mess.... It can be done better I do believe.
@@ -193,7 +193,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
                     (v) => v.params.contractId === id,
                     (p) => p.contractId === id
                 );
-                const accountRefreshPromise = waitForEvent(fetchAccountInfo.done, fetchAccountInfo.fail);
+                const accountRefreshPromise = waitForEvent(fetchAccountInfoFx.done, fetchAccountInfoFx.fail);
                 await Promise.all([stateUpdatePromise, accountRefreshPromise]);
             }),
         ],

@@ -1,4 +1,4 @@
-import { createStore, createEffect, createEvent, forward, combine, sample, Store } from 'effector';
+import { createStore, createEffect, createEvent, combine, sample, Store } from 'effector';
 
 import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
 import { getSwapCostSomewhere } from '../../providers/dexesProvider';
@@ -41,7 +41,7 @@ sample({
     target: fetchAssetPriceFx,
 });
 
-fetchAssetPrice.fail.watch((v) => console.log('ASSET PRICE FETCHING FAILED', v));
+fetchAssetPriceFx.fail.watch((v) => console.log('ASSET PRICE FETCHING FAILED', v));
 
 export const $pricedAssets: Store<Map<AssetId, Priced<Asset>>> = combine(
     $pricedAlgo,
@@ -65,5 +65,3 @@ export const $pricedAssets: Store<Map<AssetId, Priced<Asset>>> = combine(
             .set(0, pricedAlgo);
     }
 );
-
-$pricedAssets.watch((v) => {}); //console.log('PRICED ASSETS', v.toJS()));

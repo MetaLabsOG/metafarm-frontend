@@ -202,7 +202,6 @@ const sumMoney = (
     getAmount: (s: ContractState<'farm'>) => Amount | undefined,
     getToken: (s: ContractState<'farm'>) => AssetId
 ): number =>
-    //@ts-ignore
     states.reduce((sum, state) => {
         const token = getToken(state);
         const amount = getAmount(state);
