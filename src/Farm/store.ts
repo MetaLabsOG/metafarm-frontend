@@ -27,7 +27,7 @@ import {
 import { AllDefined } from '../types';
 import { groupBy, min, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
-import { convertAmountToUSD } from './PoolList/Pool/utils';
+import { convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 
 // TODO: this function is a huge costyl
 export function detectAssetProvider({ name }: { name: string }): DexProvider {

@@ -1,6 +1,6 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { ContractLink, ContractLockSuffix, PoolActionsDesktopContainer, TokenInfo } from './styled';
+import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
 
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { $account, Amount, AppId, Asset, ContractState, FarmType, Priced } from '../../../common/store';
@@ -42,6 +42,7 @@ export interface PoolActionsDesktopProps {
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
     unlockTimer: number;
     contractId: AppId;
+    hasLock: boolean;
 }
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
@@ -57,6 +58,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     openZapModal,
     unlockTimer,
     contractId,
+    hasLock,
 }) => {
     const account = useStore($account);
 
@@ -81,6 +83,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 balanceSuffix={balanceSuffix}
                 buttonName="Stake"
                 actionEffect={ctc.apis.stake}
+                hasLock={hasLock}
             />
             <TokenInputWithButton
                 token={stakedToken}
@@ -88,6 +91,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 balanceSuffix={balanceSuffix}
                 buttonName="Withdraw"
                 actionEffect={ctc.apis.unstake}
+                hasLock={hasLock}
             />
             <div>
                 <PacmanButton

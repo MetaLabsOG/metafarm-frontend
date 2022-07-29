@@ -2,30 +2,20 @@ import { Asset, AssetId, ContractState, FarmType, Priced } from '../../../common
 import {
     PoolInfoDesktopContainer,
     ArrowIconsWrapper,
-    BasicInfo,
-    LPTokensIcon,
-    LpTokensIconsWrapper,
     PoolInfoValue,
     Pacman,
     RewardUSDValue,
     RewardTokenValue,
-    ContractLockSuffix,
-    DexIcon,
 } from './styled';
 import { Arrow } from '../../../imgs/arrow';
-import {
-    algoRewardPerBlock,
-    calculateAlgoReward,
-    convertAmountToUSD,
-    getAssetLogoUrl,
-    getTokenLink,
-    numberRound,
-} from './utils';
+import { algoRewardPerBlock, calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import pacman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
 import { fromMicros } from '../../../common/lib';
-import { FC } from 'react';
+import React, { FC } from 'react';
+
+import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
 
 export interface PoolInfoDesktopProps {
     account: Account | null;
@@ -41,6 +31,8 @@ export interface PoolInfoDesktopProps {
     contractLockSuffix: string;
     isOpen: boolean;
     dexIcon: any;
+    isVerified: boolean;
+    algorandRewards: boolean;
 }
 
 export interface ValueProps {
@@ -95,37 +87,23 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     isOpen,
     contractLockSuffix,
     dexIcon,
+    isVerified,
+    algorandRewards,
 }) => {
-    const asset1_logo = getAssetLogoUrl(asset1_id);
-    const asset2_logo = getAssetLogoUrl(asset2_id);
-
     return (
         <PoolInfoDesktopContainer>
             <PoolInfoValue width={23}>
-                <BasicInfo>
-                    <LpTokensIconsWrapper>
-                        <a target="_blank" href={getTokenLink(asset1_id)} rel="noreferrer">
-                            <LPTokensIcon first>
-                                {asset1_logo && <img alt="" width="40px" height="40px" src={asset1_logo} />}
-                            </LPTokensIcon>
-                        </a>
-                        <a target="_blank" href={getTokenLink(asset2_id)} rel="noreferrer">
-                            <LPTokensIcon>
-                                {asset2_logo && <img alt="" width="40px" height="40px" src={asset2_logo} />}
-                            </LPTokensIcon>
-                        </a>
-                        {dexIcon && <DexIcon alt="" src={dexIcon} />}
-                    </LpTokensIconsWrapper>
-                    <div>
-                        {pool_name}
-                        <div style={{ whiteSpace: 'nowrap' }}>
-                            EARN {rewardTokenInfo.unitName}
-                            {algoRewardPerBlock(contractState.initial) && ' + ALGO'}
-                        </div>
-                        <ContractLockSuffix>{contractLockSuffix}</ContractLockSuffix>
-                        {/*<ContractLockSuffix>AENEAS rewards</ContractLockSuffix>*/}
-                    </div>
-                </BasicInfo>
+                <PoolHeader
+                    asset1_id={asset1_id}
+                    asset2_id={asset2_id}
+                    pool_name={pool_name}
+                    rewardTokenName={rewardTokenInfo.unitName}
+                    dexIcon={dexIcon}
+                    lock={contractLockSuffix}
+                    isVerified={isVerified}
+                    algoRewards={algoRewardPerBlock(contractState.initial) > 0}
+                    aenasRewards={algorandRewards}
+                />
             </PoolInfoValue>
             <PoolInfoValue>{`$${numberRound(
                 convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked)

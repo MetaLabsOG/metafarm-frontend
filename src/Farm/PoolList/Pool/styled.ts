@@ -65,7 +65,7 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-left: 17px;
+    margin-left: 20px;
     width: ${({ width }) => (width ? `${width}%` : '12.5%')};
 
     @media (max-width: 1120px) {
@@ -82,7 +82,7 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
 export const PoolActionsDesktopContainer = styled.div`
     display: flex;
     margin-top: 38px;
-    gap: 40px;
+    gap: 30px;
 
     @media (max-width: 1120px) {
         display: none;
@@ -118,43 +118,13 @@ export const Link = styled.a`
     color: black;
 `;
 
-export const LPTokensIcon = styled.div<{ first?: boolean }>`
-    position: absolute;
-    left: ${({ first }) => (first ? '0' : '30px')};
-    height: 100%;
-    //width: 40px;
-    border: 0 solid;
-    border-radius: 40px;
-    background-color: black;
-`;
-
-export const DexIcon = styled.img`
-    position: absolute;
-    left: 59px;
-    background-color: white;
-    height: 16px;
-    border-radius: 5px;
-`;
-
-export const LpTokensIconsWrapper = styled.div`
-    display: flex;
-    position: relative;
-    height: 40px;
-    width: 85px;
-`;
-
 export const ArrowIconsWrapper = styled.div`
-    position: absolute;
-    right: 20px;
-    top: 10px;
-`;
-
-export const PoolNameMobile = styled.div`
-    font-family: 'Korona One';
-    font-size: 17px;
-    color: white;
-    text-align: left;
-    white-space: nowrap;
+    //position: absolute;
+    //right: 20px;
+    //top: 10px;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 25px;
 `;
 
 export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
@@ -234,16 +204,6 @@ export const RewardTokenValue = styled.div`
         font-size: 14px;
         color: #909090;
         text-align: right;
-    }
-`;
-
-export const ContractLockSuffix = styled.div`
-    font-size: 12px;
-    color: #838383;
-    @media (max-width: 1120px) {
-        margin-bottom: 15px;
-        text-align: left;
-        color: white;
     }
 `;
 

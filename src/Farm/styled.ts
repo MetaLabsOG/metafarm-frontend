@@ -17,6 +17,7 @@ export const DateInput = styled.input`
     color: #ffffff;
     background-color: #272727;
     flex-shrink: 0;
+    color-scheme: dark;
 
     font-family: 'Montserrat';
     font-size: 18px;

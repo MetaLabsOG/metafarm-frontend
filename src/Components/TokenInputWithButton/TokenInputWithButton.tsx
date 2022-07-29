@@ -4,9 +4,9 @@ import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from
 import { LPTokenInfo } from '../../providers/dexesProvider';
 import { useStore } from 'effector-react';
 import { $account, Asset, Priced } from '../../common/store';
-import { fromMicros, getMicros } from '../../common/lib';
+import { fromMicros, getMicros, sleep } from '../../common/lib';
 import { Effect } from 'effector';
-import { ToastTypes, useToasts } from '../Notification';
+import { notify, ToastTypes, useToasts } from '../Notification';
 import { BigNumberish } from '@ethersproject/bignumber';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
 import { logFarmActionData } from '../../logEvent';
@@ -19,6 +19,7 @@ export interface InputWithButtonProps {
     buttonName: string;
     actionEffect: Effect<BigNumberish[], any>;
     style?: React.CSSProperties;
+    hasLock?: boolean;
 }
 
 const checkValidInput = (input: string, token: LPTokenInfo | Priced<Asset>, tokenMicroBalance: bigint) => {
@@ -41,6 +42,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     buttonName,
     actionEffect,
     style,
+    hasLock,
 }) => {
     const account = useStore($account);
     const isPending = useStore(actionEffect.pending);
@@ -74,6 +76,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
         }
         setIsValidInput(checkValidInput(e.currentTarget.value, token, tokenMicroBalance));
         setInputAmount(e.currentTarget.value);
+        setNotificationText(e.currentTarget.value + ' ' + balanceSuffix);
     };
 
     const onClick = async () => {
@@ -82,6 +85,15 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
             logFarmActionData(account, buttonName, inputAmount, token as LPTokenInfo);
             setIsLoading(true);
             setInputAmount('');
+            if (hasLock) {
+                notify(
+                    buttonName === 'Stake'
+                        ? 'Your lock period will be reset.'
+                        : 'Your rewards and lock period will be reset.',
+                    'warning'
+                );
+                await sleep(3000);
+            }
             try {
                 await actionEffect([microAmount]);
                 setShowConfetti(true);

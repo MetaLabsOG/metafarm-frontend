@@ -137,3 +137,9 @@ export const FooterContainer = styled.div`
     background: #1d1f23;
     padding: 15px 30px 15px 30px;
 `;
+
+export const FooterItem = styled.div`
+    font-family: 'Montserrat', serif;
+    margin-top: auto;
+    margin-bottom: auto;
+`;

@@ -71,6 +71,8 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
     const [accDropdownOpen, setAccDropdownOpen] = useState(false);
     const prefix = ALGONET === TESTNET ? 'testnet.' : '';
 
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
     // check local state once when the element is rendered first
     useEffect(() => {
         const connectedWallet = localStorage.getItem(WALLET_TYPE_KEY);
@@ -164,9 +166,16 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                     <button className="wallet-button" onClick={() => walletClick('MyAlgo')}>
                         Connect to MyAlgo
                     </button>
-                    <button className="wallet-button" onClick={() => walletClick('WalletConnect')}>
-                        Connect to Pera wallet
-                    </button>
+                    {!isIOS && (
+                        <button className="wallet-button" onClick={() => walletClick('WalletConnect')}>
+                            Connect to Pera wallet
+                        </button>
+                    )}
+                    {isIOS && (
+                        <div style={{ fontFamily: 'Montserrat', color: 'black', textAlign: 'center', width: '70%' }}>
+                            Perra wallet should be here, but it doesn't work on iOS.
+                        </div>
+                    )}
                 </div>
             </Modal>
         </>

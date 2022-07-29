@@ -29,6 +29,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     setIsZapModalOpen,
     unlockTimer,
     contractId,
+    hasLock,
 }) => {
     const account = useStore($account);
     return (
@@ -50,6 +51,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 balanceSuffix={balanceSuffix}
                 buttonName="STAKE"
                 actionEffect={ctc.apis.stake}
+                hasLock={hasLock}
             />
             <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
                 <div>MY STAKE</div>
@@ -63,6 +65,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 balanceSuffix={balanceSuffix}
                 buttonName="WITHDRAW"
                 actionEffect={ctc.apis.unstake}
+                hasLock={hasLock}
             />
             <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
                 <div>REWARD</div>

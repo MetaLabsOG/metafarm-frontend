@@ -98,7 +98,7 @@ type LocalInfo = {
 
 // Farm types
 
-type FarmInitialInfo = {
+export type FarmInitialInfo = {
     beneficiary: string;
     creationFee: Amount;
     stakeToken: AssetId;
@@ -110,7 +110,7 @@ type FarmInitialInfo = {
     lockLengthBlocks: Amount; // > 0 if lock
 };
 
-type DistributionInitialInfo = {
+export type DistributionInitialInfo = {
     token: AssetId;
     endBlock: Time;
     beginBlock: Time;

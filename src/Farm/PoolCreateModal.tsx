@@ -26,18 +26,20 @@ import {
     $pricedAssets,
     ALGO_ASSET,
     Asset,
+    AssetId,
     Priced,
+    registerPricedAsset,
     Time,
 } from '../common/store';
 import { useStore, useStoreMap } from 'effector-react';
 import { DAY, formatDecimalsMeaningful, getMicros } from '../common/lib';
-import { deployContractToBackend } from '../providers/apiProvider';
+import { deployContractToBackend, getTinymanPools } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
 import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE } from '../AppContext';
 
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
-    return Math.floor(Math.max(0, endTime - startTime) / meanRoundDuration);
+    return Math.floor(Math.max(5, (endTime - startTime) / 1000) / meanRoundDuration);
 };
 
 const daysToBlocks = (days: number, meanRoundDuration: number) => {
@@ -119,7 +121,7 @@ const calculateFarmData = (
 ) => {
     const beginBlock: number = currentBlock + deltaBlocks(Date.now(), startTimestamp, meanRoundDuration);
     const endBlock: number = beginBlock + daysToBlocks(daysDuration, meanRoundDuration);
-    const rewardPerBlock: number = rewardAmount / (endBlock - beginBlock);
+    const rewardPerBlock: number = rewardAmount / (endBlock - beginBlock + 1);
 
     return [beginBlock, endBlock, rewardPerBlock];
 };
@@ -133,37 +135,48 @@ const calculateAPR = (liquidity: number, rewards: number, rewardTokenPrice: Pric
 };
 
 const PoolInfo = ({
+    selectedPool,
     beginBlock,
     endBlock,
     rewardPerBlock,
     rewardAmount,
     pricedRewardToken,
 }: {
+    selectedPool: PoolOptionType;
     beginBlock: number;
     endBlock: number;
     rewardPerBlock: number;
     rewardAmount: number;
     pricedRewardToken: Priced<Asset> | null;
 }) => {
-    const [minLiquidity, maxLiquidity] = [1000, 10000];
-    const [minAPR, maxAPR] = [
-        calculateAPR(minLiquidity, rewardAmount, pricedRewardToken),
-        calculateAPR(maxLiquidity, rewardAmount, pricedRewardToken),
-    ];
+    // const [minLiquidity, maxLiquidity] = [1000, 10000];
+    // const [minAPR, maxAPR] = [
+    //     calculateAPR(minLiquidity, rewardAmount, pricedRewardToken),
+    //     calculateAPR(maxLiquidity, rewardAmount, pricedRewardToken),
+    // ];
 
     const rewardUnitName = pricedRewardToken ? pricedRewardToken.unitName : '';
 
     return (
         <InfoPanel isLoading={false}>
             <InfoRow
-                title={'Expected liquidity'}
-                value={'$' + formatDecimalsMeaningful(minLiquidity) + '-$' + formatDecimalsMeaningful(maxLiquidity)}
+                title={'Current liquidity'}
+                value={'$' + formatDecimalsMeaningful(Number(selectedPool.totalLiquidity))}
             />
             <InfoRow
                 style={{ color: '#676767', marginBottom: '20px' }}
-                title={'Expected APR'}
-                value={minAPR + '%-' + maxAPR + '%'}
+                title={'Current APR'}
+                value={(selectedPool.apr ? (selectedPool.apr * 100).toFixed(2) : 0) + '%'}
             />
+            {/*<InfoRow*/}
+            {/*    title={'Expected liquidity'}*/}
+            {/*    value={'$' + formatDecimalsMeaningful(minLiquidity) + '-$' + formatDecimalsMeaningful(maxLiquidity)}*/}
+            {/*/>*/}
+            {/*<InfoRow*/}
+            {/*    style={{ color: '#676767', marginBottom: '20px' }}*/}
+            {/*    title={'Expected APR'}*/}
+            {/*    value={minAPR + '%-' + maxAPR + '%'}*/}
+            {/*/>*/}
             {/*<InfoRow title={'Current pool liquidity'} value={'110,000$'} />*/}
             <InfoRow title={'Start block'} value={!isNaN(beginBlock) ? beginBlock : 0} />
             <InfoRow title={'End block'} value={!isNaN(endBlock) ? endBlock : 0} />
@@ -171,6 +184,7 @@ const PoolInfo = ({
                 title={'Reward per block'}
                 value={!isNaN(rewardPerBlock) ? rewardPerBlock.toPrecision(6) + ' ' + rewardUnitName : 0}
             />
+            <InfoRow title={'Farm creation fee'} value={FARM_CREATION_FEE ?? 0} />
         </InfoPanel>
     );
 };
@@ -208,28 +222,30 @@ export const PoolCreateModal = () => {
     );
 
     useEffect(() => {
-        // TODO: use https://{mainnet|testnet}.analytics.tinyman.org/api/v1/pools/
-        const options: PoolOptionType[] = testnetPools.map((pool) => {
-            return {
-                value: pool.asaId.toString(),
-                name: pool.asset1_unitname + '-' + pool.asset2_unitname + ' LP',
-                poolId: 0, // this is bad but whatever for now...
-                poolDex: 'T2',
-                asset1: pool.asset1_id,
-                asset2: pool.asset2_id,
-                liquidityAsset: pool.asaId,
-                asset1Reserve: BigInt(0),
-                asset2Reserve: BigInt(0),
-                totalLiquidity: BigInt(0),
-            };
+        getTinymanPools(50).then((pools) => {
+            const options: PoolOptionType[] = pools.map((pool) => {
+                return {
+                    value: pool.liquidity_asset.id.toString(),
+                    name: pool.asset_1.unit_name + '-' + pool.asset_2.unit_name + ' LP',
+                    poolId: 0,
+                    poolDex: 'T2',
+                    asset1: pool.asset_1.id,
+                    asset2: pool.asset_2.id,
+                    liquidityAsset: pool.liquidity_asset.id,
+                    asset1Reserve: BigInt(0),
+                    asset2Reserve: BigInt(0),
+                    totalLiquidity: BigInt(Math.round(pool.liquidity_in_usd)),
+                    apr: pool.annual_percentage_rate,
+                };
+            });
+            setPoolOptions(options);
         });
-        setPoolOptions(options);
 
         getOptions(account, balances).then((res) => {
-            // TODO: registerPricedAsset
             const filteredAssets = res.filter((asset) => asset.id !== 0);
             setRewardTokenOptions(filteredAssets);
             setSelectedRewardToken(filteredAssets[0]);
+            registerPricedAsset(filteredAssets[0].id);
         });
     }, [account, balances]);
 
@@ -239,6 +255,7 @@ export const PoolCreateModal = () => {
 
     const selectRewardTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
         setSelectedRewardToken(option);
+        registerPricedAsset(option.id);
     };
 
     const dateInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -293,6 +310,7 @@ export const PoolCreateModal = () => {
                         <Heading2>DAYS</Heading2>
                     </div>
                     <PoolInfo
+                        selectedPool={selectedPool}
                         beginBlock={beginBlock}
                         endBlock={endBlock}
                         rewardPerBlock={rewardPerBlock}

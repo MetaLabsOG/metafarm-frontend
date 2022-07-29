@@ -107,6 +107,7 @@ export const PoolActions = ({
                     setIsZapModalOpen={setIsZapModalOpen}
                     unlockTimer={unlockTimer}
                     contractId={contractId}
+                    hasLock={contractState.initial.lockLengthBlocks > 0}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -124,6 +125,7 @@ export const PoolActions = ({
                     setIsZapModalOpen={setIsZapModalOpen}
                     unlockTimer={unlockTimer}
                     contractId={contractId}
+                    hasLock={contractState.initial.lockLengthBlocks > 0}
                 />
             )}
             {isLPTokenInfo(stakeTokenInfo) && (
