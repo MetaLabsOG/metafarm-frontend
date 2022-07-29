@@ -1,8 +1,8 @@
 import { LPTokenInfo, ZapQuote } from '../../../providers/dexesProvider';
-import { Asset, InnerCtc, Priced, refreshAccountInfo } from '../../../common/store';
+import { Asset, Priced, refreshAccountInfo } from '../../../common/store';
 import { fromSmallestUnits } from '../../../common/lib';
 import { QueryType, runTransactions } from '../../../Swap/Swap';
-import { Account } from '../../../types';
+import { Account, Contract, ViewVal } from '../../../types';
 import { logFarmActionData } from '../../../logEvent';
 import { notify } from '../../../Components/Notification';
 import { reach } from '../../../AppContext';
@@ -13,7 +13,7 @@ export const isCompoundEnabled = (lpTokenInfo: LPTokenInfo, reward_asset_id: num
 
 export const runCompound = async (
     account: Account,
-    ctc: InnerCtc,
+    ctc: Contract,
     lpTokenInfo: LPTokenInfo,
     rewardAsset: Priced<Asset>
 ) => {
@@ -34,8 +34,7 @@ export const runCompound = async (
 
     try {
         console.log('start claim');
-        const res = await ctc.apis.claim();
-        const [claimedAmountBignum, claimedExtraAlgosBignum] = res.result;
+        const [claimedAmountBignum, claimedExtraAlgosBignum] = await (ctc.apis.claim as ViewVal)([]);
         const claimedAmount = claimedAmountBignum.toBigInt();
         const claimedExtraAlgos = claimedExtraAlgosBignum.toBigInt();
         const reward_amount = fromSmallestUnits(rewardAsset, claimedAmount);
@@ -85,7 +84,7 @@ export const runCompound = async (
         const microLpAmount = quote.mint.minimalLiquidityIssued + microAlgoLpAmount;
         console.log('start stake', fromSmallestUnits(lpTokenInfo, microLpAmount), microLpAmount);
 
-        await ctc.apis.stake([microLpAmount]);
+        await (ctc.apis.stake as ViewVal)([microLpAmount]);
 
         notify('Compound done!', 'success');
     } catch (e) {

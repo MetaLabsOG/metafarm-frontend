@@ -1,5 +1,5 @@
 import { ReactElement, useCallback, useEffect, useState } from 'react';
-import { useStore, useStoreMap } from 'effector-react';
+import { useStoreMap, useUnit } from 'effector-react';
 import { useQuery } from 'react-query';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore TODO: type definitions for contract packages?... damn seems bad...
@@ -64,7 +64,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
 
     const buy = useCallback(
         async (tokenAmount: any) => {
-            const res = await ctc.a.purchase([tokenAmount]);
+            const res = await ctc.apis.purchase([tokenAmount]);
             console.log('PURCHASE', res);
         },
         [ctc]
@@ -122,9 +122,11 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
     );
 };
 
-export const Crowdsale = () => {
-    const account = useStore($account);
+export const Crowdsale = (): ReactElement => {
+    const account = useUnit($account);
     const { data, isError, isSuccess } = useQuery(['contracts', 'crowdsale'], () => getContracts('crowdsale'));
+
+    const setContractInfosEvent = useUnit(setContractInfos);
 
     useEffect(() => {
         if (isSuccess && data instanceof Array) {
@@ -132,8 +134,7 @@ export const Crowdsale = () => {
             // TODO(flyingleafe) pls fix
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            // eslint-disable-next-line effector/mandatory-useEvent
-            setContractInfos(contracts);
+            setContractInfosEvent(contracts);
         }
     }, [data, isError, isSuccess]);
 

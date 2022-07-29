@@ -5,4 +5,4 @@ export type CrowdsaleT = {
     deployed_timestamp: number;
     description: string;
     metadata: any;
-}
+};

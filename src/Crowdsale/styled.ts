@@ -15,7 +15,7 @@ type ButtonProps = ColorThemed<{ isActive: boolean }>;
 export const Button = styled.button<{ customColor?: boolean; isActive: boolean }>`
     border: 2px solid;
     background-color: inherit;
-    color: ${({ theme, isActive }: ButtonProps) => isActive ? 'inherit' : theme.gray};
+    color: ${({ theme, isActive }: ButtonProps) => (isActive ? 'inherit' : theme.gray)};
     width: 400px;
     min-height: 40px;
     cursor: pointer;

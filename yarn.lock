@@ -8083,13 +8083,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"effector-react@npm:^22.0.6":
-  version: 22.0.6
-  resolution: "effector-react@npm:22.0.6"
+"effector-react@npm:^22.1.5":
+  version: 22.1.5
+  resolution: "effector-react@npm:22.1.5"
+  dependencies:
+    use-sync-external-store: "npm:^1.0.0"
   peerDependencies:
     effector: ^22.0.2
     react: ">=16.8.0 <19.0.0"
-  checksum: 418d611c521bd11dfc721f526ec8871ea3c7fd18b0ed37e944d523d44eefd386b38c966ad954e761dc7b9f8e40ceb6d77c0f7b8a0c85f536dbe36e045af87ece
+  checksum: 7d245519fa8e36166d7f6a391c7b2d9e00e4a22a8c35cf9be6efd704639ce816e5571c93f78b559f5201ab3f0ef41da610aff58edafcc76c3e9020f71d21b241
   languageName: node
   linkType: hard
 
@@ -8488,15 +8490,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-effector@npm:^0.7.4":
-  version: 0.7.4
-  resolution: "eslint-plugin-effector@npm:0.7.4"
+"eslint-plugin-effector@npm:^0.8.1":
+  version: 0.8.1
+  resolution: "eslint-plugin-effector@npm:0.8.1"
   dependencies:
     prettier: "npm:^2.3.2"
   peerDependencies:
     effector: "*"
     eslint: 7 || 8
-  checksum: 1f66922c87f9ee9a2fd8ec594506a46ce46a68bbfb3abcf281ccb27f3a61693463c48d1fdba83e427f99ccdb886b1f57655c39ddcaf625063dcec73fa409d629
+  checksum: 72f1a9992e8b857f42f6ca8c3f8a99ed433ae2e5084b5bcb0be2126e342bfa99e97dd71fe9286eaa28ce291c02ee223f35b9b0964e58b711f1f454102b9de4f2
   languageName: node
   linkType: hard
 
@@ -12386,12 +12388,12 @@ __metadata:
     dotenv: "npm:^10.0.0"
     dotenv-expand: "npm:^5.1.0"
     effector: "npm:^22.3.0"
-    effector-react: "npm:^22.0.6"
+    effector-react: "npm:^22.1.5"
     env-cmd: "npm:^10.1.0"
     eslint: "npm:^8.20.0"
     eslint-config-prettier: "npm:^8.5.0"
     eslint-config-react-app: "npm:^7.0.1"
-    eslint-plugin-effector: "npm:^0.7.4"
+    eslint-plugin-effector: "npm:^0.8.1"
     eslint-plugin-prettier: "npm:^4.2.1"
     eslint-webpack-plugin: "npm:^3.1.1"
     file-loader: "npm:^6.2.0"
@@ -17661,6 +17663,15 @@ __metadata:
     querystringify: "npm:^2.1.1"
     requires-port: "npm:^1.0.0"
   checksum: 66bbd003c46f39998b1c127b26b2ff4e8426e8597bb46ddb758fb3e05f56eaac745c05d40af07e87d72cab5827fbfe88050dec58d3128c82629731f8ceea42c2
+  languageName: node
+  linkType: hard
+
+"use-sync-external-store@npm:^1.0.0":
+  version: 1.2.0
+  resolution: "use-sync-external-store@npm:1.2.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: bed3d1f68ca3dd33647035dbeb9d3a5ece12fced0245cb0fa831426192e52e4948b0fc6e9187d9d4dce9f58269af605f8feeeda100d2928f8b865f9cd9cc4a4a
   languageName: node
   linkType: hard
 

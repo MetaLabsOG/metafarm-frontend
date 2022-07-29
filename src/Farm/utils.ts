@@ -1,6 +1,6 @@
 import { BigNumberish } from '@ethersproject/bignumber';
 import { reach } from '../AppContext';
-import { InnerCtc } from '../common/store';
+import { Contract } from '../types';
 
 export type InitialState = {
     beneficiary: string;
@@ -14,7 +14,7 @@ export type InitialState = {
     lockLengthBlocks: number;
 };
 
-export async function deployFarm(ctc: InnerCtc, initialState: InitialState): Promise<BigNumberish> {
+export async function deployFarm(ctc: Contract, initialState: InitialState): Promise<BigNumberish> {
     const creatorInteract = {
         getParams: () => initialState,
         deployed: reach.disconnect,

@@ -1,4 +1,5 @@
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
+import { Effect } from 'effector';
 import { AllDefined } from '../../types';
 
 export type AssetId = number;
@@ -51,12 +52,15 @@ export function hasLocalState<T extends ContractType, S extends ContractState<T>
     return !!state.local;
 }
 
-export type InnerCtc = any;
+// TODO what does it return?
+export type ReachApiCallType = (payload: BigNumberish[]) => Promise<any>;
+
+export type ReachApiEffectType = Effect<BigNumberish[], any>;
 
 export type Contract<T extends ContractType> = {
     id: AppId;
     info: ContractInfo<T>;
-    ctc: InnerCtc | null; // fix later (or fucking never)
+    ctc: any | null; // TODO fix later (or fucking never) Is it just ReachContract?????
     state: ContractState<T> | null;
 };
 

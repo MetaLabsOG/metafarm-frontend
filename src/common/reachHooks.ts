@@ -1,24 +1,30 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { useState, useEffect, useCallback } from 'react';
 
-import { Account, ReachStdlib } from '../types';
+import { Account, Backend, Contract, ReachStdlib } from '../types';
 import { maybeToNullable, convertBns, getAccountInfo, getLocalState, manualBatchOptIn } from './lib';
-import { InnerCtc } from './store/types';
 
 type ReachContractHookSettings = {
     launchEventMonitors: boolean;
 };
 
+// We can do this because we follow a convention.
+type ReachContractState = {
+    initial: any;
+    global: any;
+    local: any;
+};
+
 export const useReachContract = (
-    backend: any,
+    backend: Backend,
     account: Account,
     contractId: number,
     settings: ReachContractHookSettings = {
         launchEventMonitors: false,
     }
 ) => {
-    const [ctc, setCtc] = useState<InnerCtc | undefined>(undefined);
-    const [state, setState] = useState<any | undefined>(undefined);
+    const [ctc, setCtc] = useState<Contract | undefined>(undefined);
+    const [state, setState] = useState<ReachContractState | undefined>(undefined);
 
     const getCtc = useCallback(() => {
         return account.contract(backend, Promise.resolve(BigNumber.from(contractId)));
@@ -28,16 +34,17 @@ export const useReachContract = (
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const refreshState = useCallback(async (ctc, account) => {
-        const viewNames: string[] = Object.keys(ctc.views);
-
-        const state: any = {};
-        for (const vName of viewNames) {
-            // hacky shit to avoid overparametrization of the hook. could be done better?
-            const args = vName === 'local' ? [account.networkAccount.addr] : [];
-            state[vName] = await ctc.views[vName](...args)
+        const getView = (name: string, args: string[]) =>
+            ctc.views[name](...args)
                 .then(maybeToNullable)
                 .then(convertBns);
-        }
+
+        const state: ReachContractState = {
+            initial: await getView('initial', []),
+            global: await getView('global', []),
+            local: await getView('local', [account.networkAccount.addr]),
+        };
+
         setState(state);
     }, []);
 
@@ -67,7 +74,7 @@ export const useContractOptin = (reach: ReachStdlib, account: Account, contractI
     const isOptedIn = useCallback(async () => {
         const ai = await getAccountInfo(account);
         const appOptedIn = getLocalState(ai, contractId) !== undefined;
-        const accAssets = ai.assets || [];
+        const accAssets = ai.assets ?? [];
         const tokensOptedIn = tokens.map((t: number) => {
             return accAssets.find((asset: any) => t === asset['asset-id']) !== undefined;
         });

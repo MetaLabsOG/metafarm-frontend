@@ -87,6 +87,7 @@ export async function getWalletNFTs(wallet: string): Promise<WalletNFT[]> {
         });
 }
 
+// TODO maybe typing could be improved
 export async function getContracts(type: string): Promise<JsonWithBignum> {
     return instance
         .get<Json>(`/contracts?type=${type}`)

@@ -18,7 +18,7 @@ import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
 import { Crowdsale } from './Crowdsale';
-import { $account, $balances, fetchAllPrices } from './common/store';
+import { $account, $balances, ContractInfo, fetchAllPrices } from './common/store';
 import { Stake } from './Stake/Stake';
 
 import './css/index.css';
@@ -29,7 +29,7 @@ import { getContracts } from './providers/apiProvider';
 import { setDistributionPoolInfos } from './Stake/store';
 import { TestnetModal } from './TestnetModal';
 import { useModal } from 'react-hooks-use-modal';
-import { useEvent, useStore, useStoreMap } from 'effector-react';
+import { useStoreMap, useUnit } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
 import { notify } from './Components/Notification';
 import { Footer } from './Menu/Footer';
@@ -64,22 +64,20 @@ const queryClient = new QueryClient();
 fetchAllPrices();
 
 const App = () => {
-    const account = useStore($account);
+    const account = useUnit($account);
     const algoBalance = useStoreMap($balances, (bs) => Number(bs[0]));
+    const setPoolInfosEvent = useUnit(setPoolInfos);
+    const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
     const farmsFetch = useQuery(['contracts', 'farm'], () => getContracts('farm'));
     const distrFetch = useQuery(['contracts', 'distribution'], () => getContracts('distribution'));
 
     const [hasTestnetModalOpened, setHasTestnetModalOpened] = useState(false);
     const [Modal, openTestnetModal] = useModal('root', { preventScroll: true });
 
-    const setPoolInfosEvent = useEvent(setPoolInfos);
-    const setDistributionPoolInfosEvent = useEvent(setDistributionPoolInfos);
-
     useEffect(() => {
         if (farmsFetch.isSuccess) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            setPoolInfosEvent(farmsFetch.data);
+            const data = farmsFetch.data! as ContractInfo<'farm'>[];
+            setPoolInfosEvent(data);
         }
     }, [farmsFetch]);
 
@@ -92,9 +90,8 @@ const App = () => {
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            setDistributionPoolInfosEvent(distrFetch.data);
+            const data = distrFetch.data! as ContractInfo<'distribution'>[];
+            setDistributionPoolInfosEvent(data);
         }
     }, [distrFetch]);
 

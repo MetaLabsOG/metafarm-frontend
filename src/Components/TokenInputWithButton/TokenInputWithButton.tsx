@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
 import { LPTokenInfo } from '../../providers/dexesProvider';
-import { useEvent, useStore } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { $account, Asset, Priced } from '../../common/store';
 import { fromSmallestUnits, getSmallestUnits, sleep } from '../../common/lib';
 import { Effect } from 'effector';
@@ -43,15 +43,16 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     tokenMicroBalance,
     balanceSuffix,
     buttonName,
+    // TODO passing effects through props are wrong, probably we just need contractId?
     // eslint-disable-next-line effector/mandatory-scope-binding
     actionEffect,
     optInId,
     style,
     hasLock,
 }) => {
-    const account = useStore($account);
-    const isPending = useStore(actionEffect.pending);
-    const actionEffectEvent = useEvent(actionEffect);
+    const account = useUnit($account);
+    const isPending = useUnit(actionEffect.pending);
+    const actionEffectEvent = useUnit(actionEffect);
 
     const [inputAmount, setInputAmount] = useState<string>('');
     const [isValidInput, setIsValidInput] = useState<boolean>(true);

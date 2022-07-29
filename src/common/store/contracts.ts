@@ -1,6 +1,6 @@
 import { Map } from 'immutable';
 import { combine, createEffect, createEvent, createStore, sample, Store, Event } from 'effector';
-import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums, InnerCtc } from './types';
+import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
 import { maybeToNullable } from '../lib';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
@@ -167,13 +167,13 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
                 account,
             }: {
                 contractId: AppId;
-                ctc: InnerCtc;
+                ctc: ReachContract;
                 account: Account | null;
             }): Promise<ContractState<T>> => {
                 return {
-                    initial: await ctc.views.initial(),
-                    global: await ctc.views.global(),
-                    local: await ctc.views.local(account!.networkAccount.addr),
+                    initial: await (ctc.views.initial as ViewVal)(),
+                    global: await (ctc.views.global as ViewVal)(),
+                    local: await (ctc.views.local as ViewVal)(account!.networkAccount.addr),
                 };
             }
         )
@@ -214,8 +214,8 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
 
     sample({
         clock: triggerStateUpdate,
-        source: [$account, $contractCtcs],
-        fn: ([account, ctcs], contractId) => {
+        source: { account: $account, ctcs: $contractCtcs },
+        fn: ({ account, ctcs }, contractId) => {
             return { ctc: ctcs.get(contractId, null), contractId, account };
         },
         target: updateContractStateFx,
