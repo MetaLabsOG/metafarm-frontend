@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, SetStateAction } from 'react';
+import { Dispatch, FC, SetStateAction } from 'react';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
 

@@ -1,7 +1,7 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { useStore, useStoreMap } from 'effector-react';
 import { AllDefined } from '../../../types';
-import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
+import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId, InnerCtc } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 
 import { isLPTokenInfo, numberRound } from './utils';
@@ -21,7 +21,7 @@ import { reach } from '../../../AppContext';
 
 export const onClickClaim = async (
     account: Account | null,
-    ctc: any,
+    ctc: InnerCtc,
     stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>,
     rewardTokenInfo: Priced<Asset>,
     microAmount: Amount
@@ -88,7 +88,7 @@ export const PoolActions = ({
 
     useToasts({
         api: ctc.apis.claim,
-        text: numberRound(fromSmallestUnits(rewardTokenInfo, contractState.local.reward)) + ' ' + rewardTokenInfo.unitName,
+        text: `${numberRound(fromSmallestUnits(rewardTokenInfo, contractState.local.reward))} ${rewardTokenInfo.unitName}`,
         pendingStatus: pendingClaim,
         action: ToastTypes.claim,
     });

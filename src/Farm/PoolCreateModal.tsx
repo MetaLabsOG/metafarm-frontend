@@ -125,13 +125,6 @@ const calculateFarmData = (
     return [beginBlock, endBlock, rewardPerBlock];
 };
 
-// const calculateAPR = (liquidity: number, rewards: number, rewardTokenPrice: Priced<Asset> | null) => {
-//     if (isNaN(rewards) || !rewardTokenPrice) {
-//         return 0;
-//     }
-//     return Math.floor(((rewards * rewardTokenPrice.price) / liquidity) * 100);
-// };
-
 const PoolInfo = ({
     selectedPool,
     beginBlock,
@@ -147,12 +140,6 @@ const PoolInfo = ({
     rewardAmount: number;
     pricedRewardToken: Priced<Asset> | null;
 }) => {
-    // const [minLiquidity, maxLiquidity] = [1000, 10000];
-    // const [minAPR, maxAPR] = [
-    //     calculateAPR(minLiquidity, rewardAmount, pricedRewardToken),
-    //     calculateAPR(maxLiquidity, rewardAmount, pricedRewardToken),
-    // ];
-
     const rewardUnitName = pricedRewardToken ? pricedRewardToken.unitName : '';
     const farmCreationFee = (rewardAmount * Number(FARM_CREATION_FEE)) / 10_000;
 

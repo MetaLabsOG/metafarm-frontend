@@ -57,13 +57,15 @@ export function ZapModal({
         });
     }, [balances]);
 
-    const getZapTimeout = useRef<any>();
+    const getZapTimeout = useRef<NodeJS.Timeout | null>(null);
 
     function getZapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
         if (!token1_id || !token2_id || !amount) {
             return;
         }
-        clearTimeout(getZapTimeout.current);
+        if (getZapTimeout.current) {
+            clearTimeout(getZapTimeout.current);
+        }
         getZapTimeout.current = setTimeout(() => {
             setIsLoading(true);
             loadZapData(account, token1_id, token2_id, amount).then((res) => {
