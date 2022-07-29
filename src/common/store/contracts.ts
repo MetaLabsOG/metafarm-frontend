@@ -214,7 +214,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
 
     sample({
         clock: triggerStateUpdate,
-        source: combine([$account, $contractCtcs]),
+        source: [$account, $contractCtcs],
         fn: ([account, ctcs], contractId) => {
             return { ctc: ctcs.get(contractId, null), contractId, account };
         },

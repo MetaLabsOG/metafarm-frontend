@@ -7,7 +7,7 @@ import { $account, $balances, fetchAsset } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { logEvent, LogName } from '../logEvent';
+import { logEvent, logFarmActionData, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
 import { formatNumber, getOptions, QueryType, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
@@ -113,13 +113,9 @@ export function ZapResult({
     token2: TokenOptionType;
 }) {
     const lpTokens =
-        formatNumber(zap_data.asset1_amount ?? 0) +
-        ' ' +
-        token1.unitName +
+        `${formatNumber(zap_data.asset1_amount ?? 0)} ${token1.unitName}` +
         ' + ' +
-        formatNumber(zap_data.asset2_amount ?? 0) +
-        ' ' +
-        token2.unitName;
+        `${formatNumber(zap_data.asset2_amount ?? 0)} ${token2.unitName}`;
 
     return (
         <InfoPanel isLoading={isLoading}>
@@ -135,7 +131,7 @@ export function ZapResult({
                 value={formatNumber(zap_data.pool_lp_id ?? 0)}
                 valueStyle={{ fontSize: '14px' }}
             />
-            <InfoRow title="Slippage" value={SLIPPAGE * 100 + '%'} valueStyle={{ fontSize: '14px' }} />
+            <InfoRow title="Slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
         </InfoPanel>
     );
 }
@@ -159,13 +155,17 @@ export function Zap() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        getOptions(account, balances).then((res) => {
-            setOptions(res);
-            setToken1(res[0]);
-        });
+        getOptions(account, balances)
+            .then((res) => {
+                setOptions(res);
+                setToken1(res[0]);
+            })
+            .catch((err) => {
+                logFarmActionData(account, 'ZAP', token1Amount, null, null, `Failed to fetch options: ${String(err)}`);
+            });
     }, [balances]);
 
-    const getZapTimeout = useRef<any>();
+    const getZapTimeout = useRef<NodeJS.Timeout>();
 
     function getZap(token1_id: string, token2_id: string, amount: string) {
         setIsLoading(true);
@@ -176,14 +176,16 @@ export function Zap() {
                 setShowResult(true);
             }
             setIsLoading(false);
-        });
+        })
     }
 
     function getZapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
         if (!token1_id || !token2_id || !amount) {
             return;
         }
-        clearTimeout(getZapTimeout.current);
+        if (getZapTimeout.current) {
+            clearTimeout(getZapTimeout.current);
+        }
         getZapTimeout.current = setTimeout(() => getZap(token1_id, token2_id, amount), delay);
     }
 
@@ -212,8 +214,8 @@ export function Zap() {
         getZapThrottled(token1.value, token2.value, inputValue, 1000);
     };
 
-    const LoadZapButtonOnClick = async () => {
-        return getZap(token1.value, token2.value, token1Amount);
+    const LoadZapButtonOnClick = () => {
+        return Promise.resolve(getZap(token1.value, token2.value, token1Amount));
     };
 
     const ZapButtonOnClick = async () => {

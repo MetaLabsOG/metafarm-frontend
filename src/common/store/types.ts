@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { BigNumber } from '@ethersproject/bignumber';
 import { AllDefined } from '../../types';
 
@@ -161,11 +160,13 @@ type CrowdsaleLocalInfo = {
 // in Typescript somehow but I'll probably spend several hours more trying to understand
 // how to do it
 // TODO: maybe some sort of codegen exists?...
+/* eslint-disable */
 export function parseView<T extends ContractType, V extends keyof ContractState<T>>(
     contractType: T,
     viewType: V
 ): (obj: any) => AllDefined<ContractState<T>>[V] {
     const parseFarmInitialInfo = (obj: any): FarmInitialInfo => ({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         beneficiary: obj.beneficiary,
         creationFee: obj.creationFee.toBigInt(),
         stakeToken: obj.stakeToken.toNumber(),
@@ -265,3 +266,4 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
         throw new Error('impossible: not matched any type');
     };
 }
+/* eslint-enable */
