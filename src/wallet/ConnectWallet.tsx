@@ -1,5 +1,4 @@
 import { MouseEventHandler, useEffect, useState } from 'react';
-import { useStore } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
 import { detect } from 'detect-browser';
 
@@ -9,6 +8,7 @@ import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
 import { customWalletFallback, WalletType } from './customWalletFallback';
 import { notify } from '../Components/Notification';
+import { useUnit } from 'effector-react';
 
 const browser = detect();
 const browserInfoString =
@@ -67,7 +67,7 @@ const disconnectWallet = () => {
 };
 
 export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonClassName?: string }) {
-    const account = useStore($account);
+    const account = useUnit($account);
     const [finishedOpening, setFinishedOpening] = useState(false);
     const [Modal, open, close, isOpen] = useModal('root', { preventScroll: true });
     const [accDropdownOpen, setAccDropdownOpen] = useState(false);

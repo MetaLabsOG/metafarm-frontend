@@ -1,7 +1,15 @@
 import { Dispatch, SetStateAction } from 'react';
-import { useStore, useStoreMap } from 'effector-react';
+import { useStoreMap, useUnit } from 'effector-react';
 import { AllDefined } from '../../../types';
-import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId, InnerCtc } from '../../../common/store';
+import {
+    $balances,
+    ContractState,
+    Priced,
+    Asset,
+    FarmType,
+    Amount,
+    AppId,
+} from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 
 import { isLPTokenInfo, numberRound } from './utils';
@@ -21,7 +29,7 @@ import { reach } from '../../../AppContext';
 
 export const onClickClaim = async (
     account: Account | null,
-    ctc: InnerCtc,
+    ctc: any,
     stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>,
     rewardTokenInfo: Priced<Asset>,
     microAmount: Amount
@@ -67,7 +75,7 @@ export const PoolActions = ({
     contractId: AppId;
     pricedAlgo: Priced<Asset>;
 }) => {
-    const pendingClaim = useStore(ctc.apis.claim.pending);
+    const pendingClaim = useUnit(ctc.apis.claim.pending);
 
     const unlockTime = calculateUnlockTimeinSecs(
         currentBlock,

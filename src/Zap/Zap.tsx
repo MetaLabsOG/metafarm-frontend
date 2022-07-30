@@ -8,7 +8,7 @@ import { $account, $balances, fetchAsset } from '../common/store';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, logFarmActionData, LogName } from '../logEvent';
-import { useStore } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { formatNumber, getOptions, QueryType, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
@@ -137,8 +137,8 @@ export function ZapResult({
 }
 
 export function Zap() {
-    const account = useStore($account);
-    const balances = useStore($balances);
+    const account = useUnit($account);
+    const balances = useUnit($balances);
 
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);

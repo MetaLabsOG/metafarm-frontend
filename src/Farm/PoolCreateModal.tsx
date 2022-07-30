@@ -27,7 +27,7 @@ import {
     Priced,
     Time,
 } from '../common/store';
-import { useStore, useStoreMap } from 'effector-react';
+import { useUnit, useStoreMap } from 'effector-react';
 import { DAY, formatDecimalsMeaningful, getSmallestUnits } from '../common/lib';
 import { deployContractToBackend, getTinymanPools } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
@@ -176,10 +176,10 @@ const PoolInfo = ({
 };
 
 export const PoolCreateModal = () => {
-    const account = useStore($account);
-    const balances = useStore($balances);
-    const currentBlock = useStore($networkTime);
-    const meanRoundDuration = useStore($meanRoundDuration);
+    const account = useUnit($account);
+    const balances = useUnit($balances);
+    const currentBlock = useUnit($networkTime);
+    const meanRoundDuration = useUnit($meanRoundDuration);
 
     const [PoolCreateModal, openPoolCreateModal, closePoolCreateModal] = useModal('root');
     const [poolOptions, setPoolOptions] = useState<PoolOptionType[]>([]);

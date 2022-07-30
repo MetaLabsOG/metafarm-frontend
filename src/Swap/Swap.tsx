@@ -17,7 +17,7 @@ import {
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
-import { useStore } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits, signAndPostTxnGroups } from '../common/lib';
 import { WalletTransactionGroup } from '../types';
@@ -389,8 +389,8 @@ function BestTokenPrice({
 }
 
 export function Swap() {
-    const account = useStore($account);
-    const balances = useStore($balances);
+    const account = useUnit($account);
+    const balances = useUnit($balances);
 
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);

@@ -39,7 +39,7 @@ import {
 import { NFTCard, NFTCardInfo, Nft, InfoHeader } from '../common/styled';
 import { setLevelAndValue } from './utils';
 import { BigNumber } from 'ethers';
-import { useStore } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { $account } from '../common/store';
 
 const USER_BEATEN_MESSAGE = 'Sorry, someone beat you';
@@ -70,7 +70,7 @@ export const Fomo = () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
     const id = data && data.length ? data[0].id : undefined;
-    const account = useStore($account);
+    const account = useUnit($account);
     const [ctc, setCtc] = useState<null>(null);
     const [isAccountConnected, setIsAccountConnected] = useState<boolean>(false);
     const [isFomoSet, setIsFomoSet] = useState<boolean>(false);
