@@ -30,7 +30,7 @@ const blocksToText = (blocks: number, meanRoundDuration: number) => {
     const resTimeSuffix = resTimeUnit === DAY ? 'day' : resTimeUnit === HOUR ? 'hour' : 'minute';
     const timeUnits = Math.floor(diffSecs / resTimeUnit);
     const suffix = timeUnits > 1 ? 's' : '';
-    return timeUnits + ' ' + resTimeSuffix + suffix;
+    return `${timeUnits} ${resTimeSuffix}${suffix}`;
 };
 
 const calculateTiming = (

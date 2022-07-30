@@ -5,7 +5,7 @@ import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { $account, Amount, AppId, Asset, ContractState, FarmType, Priced } from '../../../common/store';
 import { AllDefined } from '../../../types';
-import { useEvent, useStore } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { Button } from '../../../Components/Button/Button';
 import { isCompoundEnabled, runCompound } from './compound';
@@ -60,7 +60,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     contractId,
     hasLock,
 }) => {
-    const account = useStore($account);
+    const account = useUnit($account);
 
     return (
         <PoolActionsDesktopContainer>

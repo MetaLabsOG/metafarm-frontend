@@ -130,7 +130,7 @@ export const deployContractToBackend = async (
 ) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    const contractVersion = packages.dependencies['@metalabsog/' + contractType];
+    const contractVersion = packages.dependencies['@metalabsog/' + contractType] as string;
     if (!contractVersion) {
         throw new Error('Wrong contract type:' + contractType);
     }

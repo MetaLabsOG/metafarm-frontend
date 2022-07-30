@@ -176,7 +176,7 @@ export function Zap() {
                 setShowResult(true);
             }
             setIsLoading(false);
-        })
+        });
     }
 
     function getZapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {

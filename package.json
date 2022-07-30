@@ -131,6 +131,7 @@
     "buffer": "^6.0.3",
     "env-cmd": "^10.1.0",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-detailed-reporter": "^0.9.0",
     "eslint-plugin-effector": "^0.8.1",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.30.1",

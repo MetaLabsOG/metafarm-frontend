@@ -96,7 +96,9 @@ export const PoolActions = ({
 
     useToasts({
         api: ctc.apis.claim,
-        text: `${numberRound(fromSmallestUnits(rewardTokenInfo, contractState.local.reward))} ${rewardTokenInfo.unitName}`,
+        text: `${numberRound(fromSmallestUnits(rewardTokenInfo, contractState.local.reward))} ${
+            rewardTokenInfo.unitName
+        }`,
         pendingStatus: pendingClaim,
         action: ToastTypes.claim,
     });

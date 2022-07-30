@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const AlgoIcon = ({ fill, width }: { fill: string; width: string }) => {
     return (
         <svg

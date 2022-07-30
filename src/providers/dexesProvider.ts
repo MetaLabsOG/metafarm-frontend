@@ -399,7 +399,9 @@ export class PactDex extends Dex {
     async getPoolInfoByAddress(poolAddress: string): Promise<PoolInfo> {
         const accountInfo = await algod.accountInformation(poolAddress).do();
         const lpTokenId = accountInfo['created-assets'][0].index;
-        let poolAssets = accountInfo.assets.map((a: any) => a['asset-id']).filter((id: number) => id !== lpTokenId);
+        let poolAssets: AssetId[] = accountInfo.assets
+            .map((a: any) => a['asset-id'])
+            .filter((id: AssetId) => id !== lpTokenId);
 
         if (poolAssets.length < 2) {
             poolAssets = [0, ...poolAssets];
@@ -408,11 +410,13 @@ export class PactDex extends Dex {
         // repeated code, yes, but we need to filter by lpTokenId here because Pact can have several pools on a pair
         const pools = await this.pact.fetchPoolsByAssets(poolAssets[0], poolAssets[1]);
         const selectedPool = pools.filter((pool: pactsdk.Pool) => pool.liquidityAsset.index === lpTokenId)[0];
-        return this.fixPactPoolDefaults(selectedPool, poolAssets[0], poolAssets[1]).then(this.poolToPoolInfo);
+        return this.fixPactPoolDefaults(selectedPool, poolAssets[0], poolAssets[1]).then((pool) =>
+            this.poolToPoolInfo(pool)
+        );
     }
 
     async getPoolInfoByAssets(a1: AssetId | Asset, a2: AssetId | Asset): Promise<PoolInfo> {
-        return this.getMostLiquidPool(a1, a2).then(this.poolToPoolInfo);
+        return this.getMostLiquidPool(a1, a2).then((pool) => this.poolToPoolInfo(pool));
     }
 
     async getSwapQuote(

@@ -8383,6 +8383,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-detailed-reporter@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "eslint-detailed-reporter@npm:0.9.0"
+  dependencies:
+    lodash: "npm:^4.17.21"
+  peerDependencies:
+    eslint: ">=3.0.0 <9"
+  checksum: cccae34be2698390833d8fa9fa2708e8ab0c783f055f3d9276d27d8d5ab27f1fb67209ffc98713e69e2e999053599d03773831f8763c2c232ab43c77d5cca3bd
+  languageName: node
+  linkType: hard
+
 "eslint-import-resolver-node@npm:^0.3.6":
   version: 0.3.6
   resolution: "eslint-import-resolver-node@npm:0.3.6"
@@ -12005,6 +12016,7 @@ __metadata:
     eslint: "npm:^8.20.0"
     eslint-config-prettier: "npm:^8.5.0"
     eslint-config-react-app: "npm:^7.0.1"
+    eslint-detailed-reporter: "npm:^0.9.0"
     eslint-plugin-effector: "npm:^0.8.1"
     eslint-plugin-prettier: "npm:^4.2.1"
     eslint-plugin-react: "npm:^7.30.1"
