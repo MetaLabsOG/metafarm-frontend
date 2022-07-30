@@ -38,7 +38,7 @@ import {
 } from './styled';
 import { NFTCard, NFTCardInfo, Nft, InfoHeader } from '../common/styled';
 import { setLevelAndValue } from './utils';
-import { BigNumber } from 'ethers';
+import { BigNumber } from '@ethersproject/bignumber';
 import { useUnit } from 'effector-react';
 import { $account } from '../common/store';
 

@@ -5,7 +5,7 @@ import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContra
 import { maybeToNullable } from '../lib';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
-import { BigNumber } from 'ethers';
+import { BigNumber } from '@ethersproject/bignumber';
 
 // I'm sorry for this mess.... It can be done better I do believe.
 // In the end, it was not particularly necessary (I thought I would need more specific Reach
