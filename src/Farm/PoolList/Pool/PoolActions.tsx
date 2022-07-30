@@ -35,8 +35,7 @@ export const onClickClaim = async (
         }
         await ctc.apis.claim();
     } catch (e) {
-        // @ts-ignore
-        const error_message = e.message;
+        const error_message = e instanceof Error ? e.message : String(e);
         console.log(error_message);
         logFarmActionData(account, 'CLAIM ERROR', amount, stakeTokenInfo, rewardTokenInfo, error_message);
     }

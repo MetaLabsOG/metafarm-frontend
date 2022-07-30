@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import ReactCanvasConfetti from 'react-canvas-confetti';
-import { useTimer } from '../../common/reachHooks';
+import confetti from 'canvas-confetti';
 
-const canvasStyles: any = {
+const canvasStyles: React.CSSProperties = {
     position: 'fixed',
     pointerEvents: 'none',
     width: '100%',
@@ -12,20 +12,19 @@ const canvasStyles: any = {
 };
 
 export default function Confetti({ showConfetti, onFinish }: { showConfetti: boolean; onFinish?: VoidFunction }) {
-    const refAnimationInstance = useRef(null);
+    const refAnimationInstance = useRef<confetti.CreateTypes | null>(null);
 
-    const getInstance = useCallback((instance) => {
+    const getInstance = useCallback((instance: confetti.CreateTypes | null) => {
         refAnimationInstance.current = instance;
     }, []);
 
     const makeShot = useCallback((particleRatio, opts) => {
         refAnimationInstance.current &&
-            // @ts-ignore
             refAnimationInstance.current({
                 ...opts,
                 origin: { y: 0.7 },
                 particleCount: Math.floor(200 * particleRatio),
-            });
+            } as confetti.Options);
     }, []);
 
     const fire = useCallback(() => {

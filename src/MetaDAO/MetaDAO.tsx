@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { useQuery } from 'react-query';
 import { last, path } from 'ramda';
 import {
@@ -21,7 +20,7 @@ import { MetaTreasuryChart } from './MetaTreasuryChart';
 
 export const MetaDAO = () => {
     const totalCostsQuery = useQuery(['totalCost', METAWALLET], () => getTotalCost(METAWALLET));
-    const dataset = totalCostsQuery.data ? totalCostsQuery.data : [];
+    const dataset = totalCostsQuery.data ?? [];
 
     return (
         <MetaDAOContainer>
@@ -38,14 +37,12 @@ export const MetaDAO = () => {
                     </WalletInfo>
                     <MetaTreasury>
                         <MetaTreasuryBalance>{`${
-                            totalCostsQuery.isLoading
-                                ? 0
-                                : Math.floor(path(['cost', 'usd'], last(totalCostsQuery.data)))
+                            totalCostsQuery.isLoading ? 0 : Math.floor(path(['cost', 'usd'], last(dataset)) ?? 0)
                         }$`}</MetaTreasuryBalance>
                         <MetaTreasuryText>/MetaTreasury</MetaTreasuryText>
                     </MetaTreasury>
                     <Charts>
-                        <MetaTreasuryChart dataSet={dataset} />
+                        <MetaTreasuryChart dataset={dataset} />
                         <AssetsChart />
                     </Charts>
                     <NFTList />

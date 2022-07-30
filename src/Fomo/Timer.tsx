@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import ProgressBar from '@ramonak/react-progress-bar';
 import { useTimer } from '../common/reachHooks';
 

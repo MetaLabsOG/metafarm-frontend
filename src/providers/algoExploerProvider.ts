@@ -2,7 +2,6 @@
 import axios from 'axios';
 import { ALGONET, TESTNET } from '../AppContext';
 
-// @ts-ignore
 const prefix = ALGONET === TESTNET ? 'testnet.' : '';
 
 const instance = axios.create({
@@ -17,17 +16,4 @@ export async function getAssetInfo(assetId: number): Promise<any> {
             console.log('ERR', err);
             return '';
         });
-}
-
-export async function getWalletInfo(wallet: string): Promise<any> {
-    return (
-        instance
-            .get(`accounts/${wallet}`)
-            //@ts-ignore
-            .then(({ data }) => data.account)
-            .catch((err) => {
-                console.log('ERR', err);
-                return 0;
-            })
-    );
 }

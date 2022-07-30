@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import { backend as farmBackend } from '@metalabsog/farm';
 import { Map } from 'immutable';
@@ -16,7 +17,7 @@ import {
     $algoUsdPrice,
     fetchAsset,
     ALGO_ASSET,
-    fetchAlgoPrice,
+    fetchAlgoPriceFx,
     $pricedAssets,
     $networkTime,
     Contract,
@@ -50,7 +51,7 @@ export async function getLPTokenInfo(
         provider = detectAssetProvider(asset);
     }
     if (algoPrice === null) {
-        algoPrice = await fetchAlgoPrice();
+        algoPrice = await fetchAlgoPriceFx();
     }
 
     const dex = makeDex(provider);
@@ -121,7 +122,7 @@ export const triggerPoolUpdate = triggerStateUpdate;
 
 //TODO NEED REFACTOR (quick solution)
 export const sortPoolsOnStatus = ({ networkTime, pools }: { networkTime: number; pools: Contract<FarmType>[] }) => {
-    const groupedByStatus = groupBy(function (pool: any) {
+    const groupedByStatus = groupBy(function (pool: Contract<FarmType>) {
         if (pool.state) {
             const initial = pool.state.initial;
             return networkTime < initial.beginBlock ? '2' : networkTime > initial.endBlock ? '3' : '1';
@@ -146,7 +147,6 @@ export const getLPTokenInfoFx = createEffect(
 );
 
 $lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
-$lpTokenInfos.watch((v) => {}); //console.log('LP TOKEN INFOS', v.toJS()));
 
 // Fetching LP token infos similarly to how asset prices are fetched
 const markTokenAsLP = createEvent<AssetId>();
@@ -155,7 +155,7 @@ const $isLPToken = createStore(Map<AssetId, boolean>()).on(markTokenAsLP, (state
 // automatically fetch LP token infos when general info about them gets fetched the first time
 sample({
     clock: assetLoaded,
-    source: combine({ isLP: $isLPToken, algoPrice: $algoUsdPrice }),
+    source: { isLP: $isLPToken, algoPrice: $algoUsdPrice },
     filter: ({ isLP }, asset) => isLP.get(asset.id, false),
     fn: ({ algoPrice }, asset) => ({ asset, algoPrice, provider: undefined }),
     target: getLPTokenInfoFx,
@@ -202,7 +202,6 @@ const sumMoney = (
     getAmount: (s: ContractState<'farm'>) => Amount | undefined,
     getToken: (s: ContractState<'farm'>) => AssetId
 ): number =>
-    //@ts-ignore
     states.reduce((sum, state) => {
         const token = getToken(state);
         const amount = getAmount(state);

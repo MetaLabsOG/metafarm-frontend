@@ -80,8 +80,7 @@ export async function loadZapData(
 
         return zap_data;
     } catch (e) {
-        // @ts-ignore
-        const error_message = e.message;
+        const error_message = e instanceof Error ? e.message : String(e);
         notify(error_message, 'error');
         logEvent(
             account?.networkAccount.addr,
@@ -185,6 +184,8 @@ export function Zap() {
     }
 
     const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
+        // FIXME
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         setToken1(option);
         setToken1Amount('');
@@ -193,6 +194,8 @@ export function Zap() {
     };
 
     const select2OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
+        // FIXME
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         setToken2(option);
         setShowResult(false);

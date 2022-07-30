@@ -32,6 +32,7 @@ export const doCustomWalletFallback = (
     opts: any,
     getAddr: () => Promise<string>,
     signTxns_: (txns: WalletTransaction[]) => Promise<string[]>,
+    // eslint-disable-next-line @typescript-eslint/require-await
     disconnect: () => Promise<void> = async () => {
         return;
     }

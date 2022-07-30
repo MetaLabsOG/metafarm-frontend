@@ -1,7 +1,6 @@
 import { LPTokenInfo } from './providers/dexesProvider';
 import { Asset, Priced } from './common/store';
 import { Account } from './types';
-import { isLPTokenInfo } from './Farm/PoolList/Pool/utils';
 import { ALGONET } from './AppContext';
 
 export enum LogName {
@@ -26,8 +25,10 @@ export function logFarmActionData(
         amount: amount.toString(),
         lp_token_name: lpTokenInfo?.name,
         lp_token_id: lpTokenInfo?.id,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         lp_asset1_id: lpTokenInfo?.asset1,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore
         lp_asset2_id: lpTokenInfo?.asset2,
         reward_token_id: rewardAsset?.id,
@@ -38,7 +39,7 @@ export function logFarmActionData(
     logEvent(account?.networkAccount.addr, data, LogName.FARM);
 }
 
-export function logEvent(address: string | undefined, params: any, logName: LogName) {
+export function logEvent(address: string | undefined, params: Record<string, unknown>, logName: LogName) {
     // console.log('LOG', address, status, error);
     const requestOptions = {
         method: 'POST',
@@ -57,5 +58,9 @@ export function logEvent(address: string | undefined, params: any, logName: LogN
         }),
     };
 
-    fetch('https://api.airtable.com/v0/appqAikFZd31XeJqW/' + LogName[logName].toLowerCase(), requestOptions);
+    fetch('https://api.airtable.com/v0/appqAikFZd31XeJqW/' + LogName[logName].toLowerCase(), requestOptions).catch(
+        () => {
+            console.warn('Faliled to log event to Airtable');
+        }
+    );
 }

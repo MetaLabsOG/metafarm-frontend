@@ -4,7 +4,15 @@ import { ALGONET, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
 import 'react-select-search/style.css';
 import '../css/swap.css';
 import { BestSwap, Token } from './types';
-import { $account, $balances, Amount, AssetId, fetchAsset, fetchAssetPrice, refreshAccountInfo } from '../common/store';
+import {
+    $account,
+    $balances,
+    Amount,
+    AssetId,
+    fetchAsset,
+    fetchAssetPriceFx,
+    refreshAccountInfo,
+} from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
@@ -95,7 +103,7 @@ async function getBestSwap(
         const asset2 = await fetchAsset(parseInt(asset2_id));
         const amountIn = getMicros(asset1, parseFloat(asset1_amount));
         const bestSwapQuote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
-        const asset2Price = await fetchAssetPrice(asset2);
+        const asset2Price = await fetchAssetPriceFx(asset2);
         const best_swap = quoteToBestSwap(bestSwapQuote, asset2Price);
 
         console.log(bestSwapQuote);
@@ -118,8 +126,7 @@ async function getBestSwap(
 
         return best_swap;
     } catch (e) {
-        // @ts-ignore
-        const error_message = e.message;
+        const error_message = e instanceof Error ? e.message : String(e);
         console.error(e);
         notify('Fail to find the best swap.', 'error');
         logEvent(
@@ -203,8 +210,7 @@ export async function runTransactions(
 
         return { quote, txIds };
     } catch (e) {
-        // @ts-ignore
-        const error_message = e.message;
+        const error_message = e instanceof Error ? e.message : String(e);
         const queryType = QueryType[type].toUpperCase();
         if (error_message.includes('underflow')) {
             notify(queryType + ': Not enough tokens.', 'error');
@@ -417,6 +423,7 @@ export function Swap() {
     }
 
     const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         setToken1(option);
         setToken1Amount('');
@@ -425,6 +432,7 @@ export function Swap() {
     };
 
     const select2OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         setToken2(option);
         setShowResult(false);
