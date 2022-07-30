@@ -13,7 +13,7 @@ import { LPTokenInfo } from '../../../providers/dexesProvider';
 import pacman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
 import { fromSmallestUnits } from '../../../common/lib';
-import React, { FC } from 'react';
+import { FC } from 'react';
 
 import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
 import { POOL_COLUMN_WIDTH } from '../PoolList';

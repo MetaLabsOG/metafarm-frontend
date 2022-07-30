@@ -14,6 +14,7 @@ import { $account, Amount, buildContractsStore, Contract } from '../common/store
 import { Account, Backend } from '../types';
 import { Button } from './styled';
 import { unsafeFromBigint } from '../common/lib';
+import { BigNumberish } from '@ethersproject/bignumber';
 
 const { $contracts, setContractInfos } = buildContractsStore('crowdsale', backend as Backend);
 
@@ -63,7 +64,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
     );
 
     const buy = useCallback(
-        async (tokenAmount: any) => {
+        async (tokenAmount: BigNumberish) => {
             const res = await ctc.apis.purchase([tokenAmount]);
             console.log('PURCHASE', res);
         },
@@ -79,7 +80,9 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <InfoHeader>YOU ARE WHITELISTED!</InfoHeader>
                 <h4 style={{ marginBottom: '20px' }}>Opt into META token and the token sale app to buy META!</h4>
-                <Button onClick={optInAndWhitelist} isActive={true}>OPT IN</Button>
+                <Button onClick={optInAndWhitelist} isActive={true}>
+                    OPT IN
+                </Button>
             </div>
         ) : (
             <Status status="OPTING YOU IN. PLEASE CONFIRM TRANSACTIONS" showLoading={true} />
@@ -100,13 +103,19 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
             <h1>BUY META</h1>
             <br />
             <h3 style={{ marginBottom: '20px' }}>
-                microMETA/microALGO rate: {rate[0]}/{rate[1]}
+                <>
+                    microMETA/microALGO rate: {rate[0]}/{rate[1]}
+                </>
             </h3>
             <h3 style={{ marginBottom: '50px' }}>
-                Already sold: {sold} microMETA of {totalAmount}
+                <>
+                    Already sold: {sold} microMETA of {totalAmount}
+                </>
             </h3>
 
-            <h4>SET AMOUNT TO BUY ({individualCap - alreadyBought} more microMETA allowed)</h4>
+            <h4>
+                <>SET AMOUNT TO BUY ({individualCap - alreadyBought} more microMETA allowed)</>
+            </h4>
             <input
                 type="number"
                 className="tokenInput"
@@ -116,8 +125,12 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
                 value={unsafeFromBigint(tokenAmount)}
             />
 
-            <h4 style={{ marginTop: '30px' }}>microALGOs to pay: {algoPrice(tokenAmount)}</h4>
-            <Button onClick={() => buy(tokenAmount)} isActive={true}>BUY META</Button>
+            <h4 style={{ marginTop: '30px' }}>
+                <>microALGOs to pay: {algoPrice(tokenAmount)}</>
+            </h4>
+            <Button onClick={() => buy(tokenAmount)} isActive={true}>
+                BUY META
+            </Button>
         </div>
     );
 };

@@ -2,7 +2,12 @@ import { FC, ReactNode } from 'react';
 import { InfoPanelContainer } from './styled';
 import pacman from '../../imgs/loader.gif';
 
-export const InfoPanel: FC<{ isLoading: boolean; children: ReactNode }> = ({ children, isLoading }) => {
+type InfoPanelProps = {
+    children: any[];
+    isLoading: boolean;
+};
+
+export const InfoPanel: FC<InfoPanelProps> = ({ children, isLoading }: InfoPanelProps) => {
     if (isLoading) {
         return (
             <InfoPanelContainer style={{ display: 'flex', justifyContent: 'center' }}>

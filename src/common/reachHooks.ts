@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { useState, useEffect, useCallback } from 'react';
 
-import { Account, Backend, Contract, ReachStdlib } from '../types';
+import { Account, Backend, Contract, ReachStdlib, ViewVal } from '../types';
 import { maybeToNullable, convertBns, getAccountInfo, getLocalState, manualBatchOptIn } from './lib';
 
 type ReachContractHookSettings = {
@@ -31,11 +31,9 @@ export const useReachContract = (
     }, [account, backend, contractId]);
 
     // TODO: `initial` view should actually be only fetched once
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const refreshState = useCallback(async (ctc, account) => {
+    const refreshState = useCallback(async (ctc: Contract, account: Account) => {
         const getView = (name: string, args: string[]) =>
-            ctc.views[name](...args)
+            (ctc.views[name] as ViewVal)(...args)
                 .then(maybeToNullable)
                 .then(convertBns);
 
@@ -59,13 +57,21 @@ export const useReachContract = (
             // which triggers state refresh?)
             if (settings.launchEventMonitors) {
                 for (const eventStream of Object.values(ctc.events)) {
-                    (eventStream as any).monitor((_: any) => refreshState(ctc, account));
+                    eventStream.monitor((_: any) => refreshState(ctc, account));
                 }
             }
         }
     }, [account, ctc, refreshState, settings.launchEventMonitors]);
 
-    return { ctc, state, reload: () => refreshState(ctc, account) };
+    return {
+        ctc,
+        state,
+        reload: () => {
+            if (ctc !== undefined) {
+                refreshState(ctc, account);
+            }
+        },
+    };
 };
 
 export const useContractOptin = (reach: ReachStdlib, account: Account, contractId: number, tokens: number[] = []) => {

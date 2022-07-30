@@ -1,4 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
+// TODO
+/* eslint-disable */
+//@ts-nocheck
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from 'react-query';
 import { LevelInfo } from './types';
