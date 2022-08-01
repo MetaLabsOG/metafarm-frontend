@@ -172,7 +172,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                     )}
                     {isIOS && (
                         <div style={{ fontFamily: 'Montserrat', color: 'black', textAlign: 'center', width: '70%' }}>
-                            Perra wallet should be here, but it doesn't work on iOS.
+                            Perra wallet should be here, but it doesn&apos;t work on iOS.
                         </div>
                     )}
                 </div>

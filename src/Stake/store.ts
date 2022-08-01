@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { backend as distributionBackend } from '@metalabsog/distribution';
 import { combine } from 'effector';
@@ -18,8 +19,6 @@ export const $sortedStakingPools = combine(
     $distributionPools,
     (networkTime, stakePools, distrPools) => sortPoolsOnStatus({ networkTime, pools: [...stakePools, ...distrPools] })
 );
-
-$sortedStakingPools.watch((v) => {}); //console.log(v));
 
 $contractStatesWithCache.watch((states) =>
     states.valueSeq().forEach((s) => {

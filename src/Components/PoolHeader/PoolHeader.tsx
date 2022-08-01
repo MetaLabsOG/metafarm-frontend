@@ -72,6 +72,7 @@ export const PoolHeader = ({
                     )}
                 </div>
             </PoolInfo>
+            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
             {/*
              // @ts-ignore */}
             {window.innerWidth > 1120 && <ReactTooltip place="top" type="light" effect="solid" />}

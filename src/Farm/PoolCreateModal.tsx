@@ -27,9 +27,7 @@ import {
     $pricedAssets,
     ALGO_ASSET,
     Asset,
-    AssetId,
     Priced,
-    registerPricedAsset,
     Time,
 } from '../common/store';
 import { useStore, useStoreMap } from 'effector-react';
@@ -247,7 +245,6 @@ export const PoolCreateModal = () => {
             const filteredAssets = res.filter((asset) => asset.id !== 0);
             setRewardTokenOptions(filteredAssets);
             setSelectedRewardToken(filteredAssets[0]);
-            registerPricedAsset(filteredAssets[0].id);
         });
     }, [account, balances]);
 
@@ -257,7 +254,6 @@ export const PoolCreateModal = () => {
 
     const selectRewardTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
         setSelectedRewardToken(option);
-        registerPricedAsset(option.id);
     };
 
     const dateInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {

@@ -192,7 +192,6 @@ export const BoostButton = styled.button<{ disabled: boolean; isLoading: boolean
         top: ${({ isLoading }) => (isLoading ? ' 5px' : '8px')};
         left: ${({ isLoading }) => (isLoading ? '30px' : '14px')};
         content: ' ';
-        background-image: ${({ isLoading }) => (isLoading ? `url(${require('../imgs/loader.gif').default})` : null)};
         background-position: center center;
         background-size: cover;
         width: 40px;
