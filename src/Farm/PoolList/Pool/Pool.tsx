@@ -9,6 +9,7 @@ import { PoolContainer, PoolLoadingAnimation } from './styled';
 import { $farmRewardTokens } from '../../store';
 import { $stakingTokens } from '../../../Stake/store';
 import logo from '../../../imgs/logo.png';
+import { getPoolState } from './utils';
 
 export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) => {
     const currentBlock = useStore($networkTime);
@@ -32,13 +33,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
         );
     }
 
-    const initial = contract.state.initial;
-    const poolState =
-        currentBlock < initial.beginBlock
-            ? PoolState.Upcoming
-            : currentBlock > initial.endBlock
-            ? PoolState.Finished
-            : PoolState.Running;
+    const poolState = getPoolState(currentBlock, contract.state.initial);
 
     const isSafari = navigator.userAgent.toLowerCase().indexOf('safari') !== -1;
 
@@ -62,6 +57,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                         rewardTokenInfo={rewardTokenInfo}
                         currentBlock={currentBlock}
                         pricedAlgo={pricedAlgo}
+                        poolMetadata={contract.info.metadata}
                     />
                 </div>
                 {contract.ctc !== null && hasLocalState(contract.state) && isOpen && (

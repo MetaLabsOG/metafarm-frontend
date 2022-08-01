@@ -1,4 +1,4 @@
-import { FooterContainer, Logo, MenuItem } from './styled';
+import { FooterContainer, FooterItem, Logo, MenuItem } from './styled';
 import logo from '../imgs/logo.png';
 import { ALGONET } from '../AppContext';
 
@@ -8,7 +8,8 @@ export const Footer = () => {
             <MenuItem to="/">
                 <Logo src={logo} alt="logo" height="40px" />
             </MenuItem>
-            <div style={{ fontFamily: 'Montserrat', marginTop: 'auto', marginBottom: 'auto' }}>{ALGONET}</div>
+            <FooterItem>This is the first public beta version. Use the dApp at your own risk.</FooterItem>
+            <FooterItem>{ALGONET}</FooterItem>
         </FooterContainer>
     );
 };

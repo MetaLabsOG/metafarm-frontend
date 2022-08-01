@@ -32,6 +32,7 @@ export const POOL_OPTION: PoolOptionType = {
     asset1Reserve: BigInt(0),
     asset2Reserve: BigInt(0),
     totalLiquidity: BigInt(0),
+    apr: 0,
 };
 
 export const getPlaceholder = (selectType: SelectType) => {

@@ -33,6 +33,7 @@ import { useStore, useStoreMap } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
 import { notify } from './Components/Notification';
 import { Footer } from './Menu/Footer';
+import ReactTooltip from 'react-tooltip';
 
 // TODO
 window.open = (function (open) {

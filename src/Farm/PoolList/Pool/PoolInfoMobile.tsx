@@ -1,18 +1,8 @@
-import {
-    PoolInfoMobileContainer,
-    LPTokensIcon,
-    LpTokensIconsWrapper,
-    PoolInfoValue,
-    PoolNameMobile,
-    StakeButtonMobile,
-    ContractLockSuffix,
-    TimingMobile,
-    DexIcon,
-} from './styled';
-import { algoRewardPerBlock, convertAmountToUSD, getAssetLogoUrl, getTokenLink, numberRound } from './utils';
+import { PoolInfoMobileContainer, PoolInfoValue, StakeButtonMobile, TimingMobile } from './styled';
+import { algoRewardPerBlock, convertAmountToUSD, numberRound } from './utils';
 import React, { FC } from 'react';
 import { PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
-import { theme } from '../../../theme';
+import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
 
 export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,
@@ -28,39 +18,27 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     contractLockSuffix,
     isOpen,
     dexIcon,
+    isVerified,
+    algorandRewards,
 }) => {
     if (contractState.local && isOpen) {
         return <></>;
     }
-    const asset1_logo = getAssetLogoUrl(asset1_id);
-    const asset2_logo = getAssetLogoUrl(asset2_id);
 
     return (
         <PoolInfoMobileContainer>
-            <div style={{ display: 'flex', marginBottom: '10px' }}>
-                <LpTokensIconsWrapper>
-                    <a target="_blank" style={{ width: '40px' }} href={getTokenLink(asset1_id)} rel="noreferrer">
-                        <LPTokensIcon first>
-                            {asset1_logo && <img alt="" width="40px" height="40px" src={asset1_logo} />}
-                        </LPTokensIcon>
-                    </a>
-                    <a target="_blank" style={{ width: '40px' }} href={getTokenLink(asset2_id)} rel="noreferrer">
-                        <LPTokensIcon>
-                            {asset2_logo && <img alt="" width="40px" height="40px" src={asset2_logo} />}
-                        </LPTokensIcon>
-                    </a>
-                    {dexIcon && <DexIcon alt="" src={dexIcon} />}
-                </LpTokensIconsWrapper>
-                <div style={{ marginLeft: '5px' }}>
-                    <PoolNameMobile>{pool_name}</PoolNameMobile>
-                    <PoolNameMobile style={{ marginBottom: '0', color: theme.green }}>
-                        EARN {rewardTokenInfo.unitName}
-                        {algoRewardPerBlock(contractState.initial) && ' + ALGO'}
-                    </PoolNameMobile>
-                    <ContractLockSuffix>{contractLockSuffix}</ContractLockSuffix>
-                </div>
-            </div>
-            <PoolInfoValue>
+            <PoolHeader
+                asset1_id={asset1_id}
+                asset2_id={asset2_id}
+                pool_name={pool_name}
+                rewardTokenName={rewardTokenInfo.unitName}
+                dexIcon={dexIcon}
+                lock={contractLockSuffix}
+                isVerified={isVerified}
+                algoRewards={algoRewardPerBlock(contractState.initial) > 0}
+                aenasRewards={algorandRewards}
+            />
+            <PoolInfoValue style={{ marginTop: '30px' }}>
                 <div>TVL</div>
                 <div style={{ color: 'white' }}>
                     ${numberRound(convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked))}

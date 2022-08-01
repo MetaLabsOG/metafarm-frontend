@@ -67,6 +67,7 @@ export const PoolInfo = ({
     currentBlock,
     pricedAlgo,
     isOpen,
+    poolMetadata,
 }: {
     contractState: ContractState<FarmType>;
     poolState: PoolState;
@@ -75,6 +76,7 @@ export const PoolInfo = ({
     currentBlock: Time;
     pricedAlgo: Priced<Asset>;
     isOpen: boolean;
+    poolMetadata: any;
 }) => {
     const account = useStore($account);
     const meanRoundDuration = useStore($meanRoundDuration);
@@ -112,6 +114,8 @@ export const PoolInfo = ({
                     contractLockSuffix={contractLockSuffix}
                     isOpen={isOpen}
                     dexIcon={dexIcon}
+                    isVerified={poolMetadata.verified ?? false}
+                    algorandRewards={poolMetadata.algorand_rewards ?? false}
                 />
             ) : (
                 <PoolInfoDesktop
@@ -128,6 +132,8 @@ export const PoolInfo = ({
                     contractLockSuffix={contractLockSuffix}
                     isOpen={isOpen}
                     dexIcon={dexIcon}
+                    isVerified={poolMetadata.verified ?? false}
+                    algorandRewards={poolMetadata.algorand_rewards ?? false}
                 />
             )}
         </>

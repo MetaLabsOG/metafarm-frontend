@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
 import packages from '../../package.json';
+import { AssetId } from '../common/store';
+import { ALGONET } from '../AppContext';
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -40,6 +42,14 @@ export type PoolInfo = {
 export type SwapCost = {
     res_tokens: number;
     price_per_token: number;
+};
+
+export type TinymanPool = {
+    liquidity_asset: { id: AssetId };
+    asset_1: { unit_name: string; id: AssetId };
+    asset_2: { unit_name: string; id: AssetId };
+    liquidity_in_usd: number;
+    annual_percentage_rate: number;
 };
 
 export function getAssets(address: string): Promise<Asset[]> {
@@ -124,3 +134,19 @@ export const deployContractToBackend = async (
 
     return instance.post('/contract/register', data).then(({ data }) => data);
 };
+
+export async function getTinymanPools(limit: number, search = ''): Promise<TinymanPool[]> {
+    const prefix = ALGONET.toLowerCase();
+    let tinymanUrl =
+        'https://' +
+        prefix +
+        '.analytics.tinyman.org/api/v1/pools/?limit=' +
+        limit +
+        '&with_statistics=false&verified_only=false&ordering=-liquidity';
+    if (search) {
+        tinymanUrl += '&search=' + search;
+    }
+    const poolsResponse = await fetch(tinymanUrl);
+    const pools = await poolsResponse.json();
+    return pools['results'];
+}

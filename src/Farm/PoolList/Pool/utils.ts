@@ -3,9 +3,18 @@ import tinyman from '../../../imgs/dexes/tinyman.png';
 import pact from '../../../imgs/dexes/pact.png';
 import humble from '../../../imgs/dexes/humble.png';
 import algofi from '../../../imgs/dexes/algofi.png';
-import { Asset, Priced, Amount, ContractState, FarmType } from '../../../common/store/types';
+import {
+    Asset,
+    Priced,
+    Amount,
+    ContractState,
+    FarmType,
+    FarmInitialInfo,
+    DistributionInitialInfo,
+} from '../../../common/store/types';
 import { LPTokenInfo, DexProvider } from '../../../providers/dexesProvider';
 import { ALGONET, MAINNET, TESTNET } from '../../../AppContext';
+import { PoolState } from './types';
 
 const TINYMAN_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.tinyman.org`;
 const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
@@ -99,4 +108,14 @@ export const calculateAlgoReward = (initial: ContractState<FarmType>['initial'],
     const totalTokenReward = initial.rewardPerBlock * duration;
     const totalAlgoReward = algoRewardPerBlock(initial) * duration;
     return (tokenReward * totalAlgoReward) / totalTokenReward;
+};
+
+export const getPoolState = (currentBlock: number, initial: FarmInitialInfo | DistributionInitialInfo): PoolState => {
+    if (currentBlock < initial.beginBlock) {
+        return PoolState.Upcoming;
+    }
+    if (currentBlock > initial.endBlock) {
+        return PoolState.Finished;
+    }
+    return PoolState.Running;
 };

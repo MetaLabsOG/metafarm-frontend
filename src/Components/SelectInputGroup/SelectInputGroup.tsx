@@ -56,7 +56,7 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
         const changed = newInputData !== inputData;
         setInputData(newInputData);
         if (changed) {
-            inputOnChange(newInputData);
+            inputOnChange && inputOnChange(newInputData);
         }
     };
 
