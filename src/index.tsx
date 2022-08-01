@@ -18,12 +18,12 @@ import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
 import { Crowdsale } from './Crowdsale';
-import { $account, $balances, fetchAlgoPrice, fetchBtcPrice } from './common/store';
+import { $account, $balances, fetchAllPrices } from './common/store';
 import { Stake } from './Stake/Stake';
 
 import './css/index.css';
 import 'react-toastify/dist/ReactToastify.css';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { setPoolInfos } from './Farm/store';
 import { getContracts } from './providers/apiProvider';
 import { setDistributionPoolInfos } from './Stake/store';
@@ -61,8 +61,7 @@ Sentry.init({
 const queryClient = new QueryClient();
 
 // throw events on initialization
-fetchAlgoPrice();
-fetchBtcPrice();
+fetchAllPrices();
 
 const App = () => {
     const account = useStore($account);
@@ -75,6 +74,10 @@ const App = () => {
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
+            // TODO(DariaYakovleva)
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            // eslint-disable-next-line effector/mandatory-useEvent
             setPoolInfos(farmsFetch.data);
         }
     }, [farmsFetch]);
@@ -88,6 +91,10 @@ const App = () => {
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
+            // TODO(DariaYakovleva)
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            // eslint-disable-next-line effector/mandatory-useEvent
             setDistributionPoolInfos(distrFetch.data);
         }
     }, [distrFetch]);

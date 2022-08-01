@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from 'react-query';
 import { LevelInfo } from './types';
@@ -43,21 +44,22 @@ import { $account } from '../common/store';
 
 const USER_BEATEN_MESSAGE = 'Sorry, someone beat you';
 
-function useInterval(callback: () => void, delay: number) {
-    const savedCallback = useRef();
+type Callback = () => void;
+
+function useInterval(callback: Callback, delay: number) {
+    const savedCallback = useRef<Callback>();
 
     useEffect(() => {
-        //@ts-ignore
         savedCallback.current = callback;
     }, [callback]);
 
     useEffect(() => {
         function tick() {
-            //@ts-ignore
-            savedCallback.current();
+            const cb = savedCallback.current as Callback;
+            cb();
         }
         if (delay !== null) {
-            let id = setInterval(tick, delay);
+            const id = setInterval(tick, delay);
             return () => clearInterval(id);
         }
     }, [delay]);
@@ -65,6 +67,8 @@ function useInterval(callback: () => void, delay: number) {
 
 export const Fomo = () => {
     const { data } = useQuery(['contracts', 'fomo'], () => getContracts('fomo'));
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-ignore
     const id = data && data.length ? data[0].id : undefined;
     const account = useStore($account);
     const [ctc, setCtc] = useState<null>(null);
@@ -339,7 +343,9 @@ export const Fomo = () => {
 
             fomo.Buyer(ctc, {
                 showOutcome,
-                deployed: () => {},
+                deployed: () => {
+                    // do nothing, can be changed if neeeded
+                },
             }).catch((e: any) => {
                 console.log('[ERROR]', e);
                 logEvent(account.networkAccount.addr, { message: e }, LogName.ERRORS);
@@ -669,6 +675,7 @@ export const Fomo = () => {
                                 <img
                                     style={{ maxWidth: '100%', maxHeight: '100%' }}
                                     alt="loader"
+                                    // eslint-disable-next-line @typescript-eslint/no-var-requires
                                     src={require('../imgs/loader.gif').default}
                                 />
                             </span>

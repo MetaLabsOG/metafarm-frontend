@@ -42,6 +42,7 @@ declare global {
     interface Window {
         algorand: Omit<AllDefined<ARC11_Wallet>, 'signTxns'> & {
             signTxns: (txns: WalletTransaction[], opts?: any) => Promise<string[]>;
+            disconnect: () => Promise<void>;
         };
     }
 }

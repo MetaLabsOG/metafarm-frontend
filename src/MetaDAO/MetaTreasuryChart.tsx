@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip } from 'chart.js';
 import {
@@ -10,18 +9,19 @@ import {
 } from './styled';
 import dayjs from 'dayjs';
 import { metaTreasuryChartOptions } from './chartsConfig';
+import { TotalCost } from '../providers/apiProvider';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip);
 
-export const MetaTreasuryChart = ({ dataSet }) => {
-    const labels = dataSet.map((el) => dayjs(el.timestamp * 1000).format('D.MM'));
+export const MetaTreasuryChart = ({ dataset }: { dataset: TotalCost[] }) => {
+    const labels = dataset.map((el) => dayjs(el.timestamp * 1000).format('D.MM'));
     console.log(labels);
 
     const data = {
         labels,
         datasets: [
             {
-                data: labels.map((el, i) => (dataSet.length ? dataSet[i]?.cost?.usd : '')),
+                data: labels.map((el, i) => (dataset.length ? dataset[i]?.cost?.usd : '')),
                 borderColor: '#59f63c',
                 borderWidth: 3,
             },

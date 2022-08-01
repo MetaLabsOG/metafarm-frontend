@@ -1,4 +1,3 @@
-//@ts-nocheck
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { getAssets } from '../providers/apiProvider';
 import { METAWALLET } from '../AppContext';

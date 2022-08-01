@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import SelectSearch, { fuzzySearch } from 'react-select-search';
+import SelectSearch, { fuzzySearch, ValueSnapshot } from 'react-select-search';
 import { formatNumber } from '../../common/lib';
 import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
 import './styled.css';
@@ -106,6 +106,8 @@ function SelectOption({
     return <></>;
 }
 
+// TODO(DariaYakovleva): please check types, looks very suspicious
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 export function renderOption(props, option, selectType: SelectType, showAdditionalInfo = true) {
     return (
@@ -117,6 +119,8 @@ export function renderOption(props, option, selectType: SelectType, showAddition
     );
 }
 
+// TODO(DariaYakovleva): please check types, looks very suspicious
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 function renderSelectedOption(valueProps, snapshot, selectType: SelectType) {
     const { option } = snapshot;

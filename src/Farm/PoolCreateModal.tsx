@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useModal } from 'react-hooks-use-modal';
 import { SelectedOptionValue } from 'react-select-search';
