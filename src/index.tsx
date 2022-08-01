@@ -29,11 +29,10 @@ import { getContracts } from './providers/apiProvider';
 import { setDistributionPoolInfos } from './Stake/store';
 import { TestnetModal } from './TestnetModal';
 import { useModal } from 'react-hooks-use-modal';
-import { useStore, useStoreMap } from 'effector-react';
+import { useEvent, useStore, useStoreMap } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
 import { notify } from './Components/Notification';
 import { Footer } from './Menu/Footer';
-import ReactTooltip from 'react-tooltip';
 
 // TODO
 window.open = (function (open) {
@@ -72,13 +71,13 @@ const App = () => {
     const [hasTestnetModalOpened, setHasTestnetModalOpened] = useState(false);
     const [Modal, openTestnetModal] = useModal('root', { preventScroll: true });
 
+    const setPoolInfosEvent = useEvent(setPoolInfos);
+
     useEffect(() => {
         if (farmsFetch.isSuccess) {
-            // TODO(DariaYakovleva)
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            // eslint-disable-next-line effector/mandatory-useEvent
-            setPoolInfos(farmsFetch.data);
+            setPoolInfosEvent(farmsFetch.data);
         }
     }, [farmsFetch]);
 
