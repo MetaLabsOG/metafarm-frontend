@@ -24,7 +24,7 @@ export const PoolTitle = styled.div`
     white-space: nowrap;
 
     @media (max-width: 1120px) {
-        font-family: 'Krona One';
+        font-family: 'Korona One';
         color: white;
     }
 `;
@@ -34,7 +34,7 @@ export const PoolSubtitle = styled.div`
     white-space: nowrap;
 
     @media (max-width: 1120px) {
-        font-family: 'Krona One';
+        font-family: 'Korona One';
         color: var(--green);
     }
 `;

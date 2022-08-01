@@ -64,7 +64,7 @@ const createFarm = async (
         notify('Please, choose reward token.', 'warning');
         return false;
     }
-    if (isNaN(beginBlock) || beginBlock === endBlock) {
+    if (isNaN(beginBlock) || beginBlock >= endBlock) {
         notify('Please, choose start time and farm duration.', 'warning');
         return false;
     }
@@ -121,7 +121,7 @@ const calculateFarmData = (
 ) => {
     const beginBlock: number = currentBlock + deltaBlocks(Date.now(), startTimestamp, meanRoundDuration);
     const endBlock: number = beginBlock + daysToBlocks(daysDuration, meanRoundDuration);
-    const rewardPerBlock: number = rewardAmount / (endBlock - beginBlock + 1);
+    const rewardPerBlock: number = endBlock - beginBlock ? rewardAmount / (endBlock - beginBlock) : 0;
 
     return [beginBlock, endBlock, rewardPerBlock];
 };
@@ -156,6 +156,7 @@ const PoolInfo = ({
     // ];
 
     const rewardUnitName = pricedRewardToken ? pricedRewardToken.unitName : '';
+    const farmCreationFee = (rewardAmount * Number(FARM_CREATION_FEE)) / 10_000;
 
     return (
         <InfoPanel isLoading={false}>
@@ -184,7 +185,7 @@ const PoolInfo = ({
                 title={'Reward per block'}
                 value={!isNaN(rewardPerBlock) ? rewardPerBlock.toPrecision(6) + ' ' + rewardUnitName : 0}
             />
-            <InfoRow title={'Farm creation fee'} value={FARM_CREATION_FEE ?? 0} />
+            <InfoRow title={'Farm creation fee'} value={farmCreationFee} />
         </InfoPanel>
     );
 };
