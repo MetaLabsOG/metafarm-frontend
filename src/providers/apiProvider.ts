@@ -3,6 +3,7 @@ import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
 import packages from '../../package.json';
 import { AssetId } from '../common/store';
 import { ALGONET } from '../AppContext';
+import { nonConcurrent } from '../common/store/utils';
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -135,7 +136,7 @@ export const deployContractToBackend = async (
     return instance.post('/contract/register', data).then(({ data }) => data);
 };
 
-export async function getTinymanPools(limit: number, search = ''): Promise<TinymanPool[]> {
+export const getTinymanPools = nonConcurrent(async (limit: number, search = ''): Promise<TinymanPool[]> => {
     const prefix = ALGONET.toLowerCase();
     let tinymanUrl =
         'https://' +
@@ -149,4 +150,4 @@ export async function getTinymanPools(limit: number, search = ''): Promise<Tinym
     const poolsResponse = await fetch(tinymanUrl);
     const pools = await poolsResponse.json();
     return pools['results'];
-}
+});
