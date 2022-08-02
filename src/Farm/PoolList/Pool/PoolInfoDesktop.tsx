@@ -16,6 +16,10 @@ import { fromMicros } from '../../../common/lib';
 import React, { FC } from 'react';
 
 import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
+import { POOL_COLUMN_WIDTH } from '../PoolList';
+import { APRTypes } from './PoolInfo';
+import ReactTooltip from 'react-tooltip';
+import info from '../../../imgs/info.svg';
 
 export interface PoolInfoDesktopProps {
     account: Account | null;
@@ -26,13 +30,12 @@ export interface PoolInfoDesktopProps {
     asset1_id: AssetId;
     asset2_id: AssetId;
     pool_name: string;
-    APR: number;
+    APR: Record<APRTypes, number>;
     timing: string;
     contractLockSuffix: string;
     isOpen: boolean;
     dexIcon: any;
     isVerified: boolean;
-    algorandRewards: boolean;
 }
 
 export interface ValueProps {
@@ -73,6 +76,13 @@ export const StakeValue: FC<ValueProps> = ({ contractState, tokenInfo }) => {
     return <>${numberRound(convertAmountToUSD(tokenInfo, contractState.local.staked))}</>;
 };
 
+export const getAPRTip = (APR: Record<APRTypes, number>, unitname: string) => {
+    const rewards = APR[APRTypes.reward].toFixed(0) + '% ' + unitname;
+    const algoRewards = APR[APRTypes.algoReward] ? ' + ' + APR[APRTypes.algoReward].toFixed(0) + '% ALGO' : '';
+    const fees = APR[APRTypes.fees] ? ' + ' + APR[APRTypes.fees].toFixed(0) + '% fee' : '';
+    return rewards + algoRewards + fees;
+};
+
 export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     account,
     pricedAlgo,
@@ -88,11 +98,10 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     contractLockSuffix,
     dexIcon,
     isVerified,
-    algorandRewards,
 }) => {
     return (
         <PoolInfoDesktopContainer>
-            <PoolInfoValue width={23}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH['POOL']}>
                 <PoolHeader
                     asset1_id={asset1_id}
                     asset2_id={asset2_id}
@@ -102,20 +111,34 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     lock={contractLockSuffix}
                     isVerified={isVerified}
                     algoRewards={algoRewardPerBlock(contractState.initial) > 0}
-                    aenasRewards={algorandRewards}
                 />
             </PoolInfoValue>
-            <PoolInfoValue>{`$${numberRound(
+            <PoolInfoValue width={POOL_COLUMN_WIDTH['TVL']}>{`$${numberRound(
                 convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked)
             )}`}</PoolInfoValue>
-            <PoolInfoValue>{numberRound(APR)}%</PoolInfoValue>
-            <PoolInfoValue>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH['APR']}>
+                <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+                    {numberRound(APR[APRTypes.total])}%
+                    <img
+                        data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
+                        style={{ marginLeft: '3px' }}
+                        alt="APR info"
+                        height="14px"
+                        src={info}
+                    />
+                    {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                    {/*
+                     // @ts-ignore */}
+                    <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
+                </div>
+            </PoolInfoValue>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH['MY STAKE']}>
                 <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
-            <PoolInfoValue>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH['REWARD']}>
                 <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
-            <PoolInfoValue style={{ color: 'gray' }}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH['ENDS IN']} style={{ color: 'gray' }}>
                 {timing.split('\n').map((x) => (
                     <div key={x}>{x}</div>
                 ))}

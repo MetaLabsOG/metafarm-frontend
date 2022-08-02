@@ -4,14 +4,14 @@ import { useList } from 'effector-react';
 import { Contract, FarmType } from '../../common/store';
 import { Store } from 'effector';
 
-const headerColumn = [
-    { name: 'POOL', width: 30 },
-    { name: 'TVL', width: 16.5 },
-    { name: 'APR', width: 16.5 },
-    { name: 'MY STAKE', width: 16.5 },
-    { name: 'REWARD', width: 16.5 },
-    { name: 'ENDS IN', width: 16.5 },
-];
+export const POOL_COLUMN_WIDTH: Record<string, string> = {
+    POOL: '300px',
+    TVL: '130px',
+    APR: '130px',
+    'MY STAKE': '138px',
+    REWARD: '180px',
+    'ENDS IN': '120px',
+};
 
 export const PoolList = <T extends FarmType>({ type, pools }: { type: T; pools: Store<Contract<T>[]> }) => {
     const poolComponents = useList(pools, (ctc: Contract<T>, index: number) => (
@@ -21,9 +21,9 @@ export const PoolList = <T extends FarmType>({ type, pools }: { type: T; pools: 
     return (
         <PoolListContainer>
             <PoolListHeader>
-                {headerColumn.map((column, i) => (
-                    <PoolListHeaderElement width={column.width} key={`${column.name}${i}`}>
-                        {column.name}
+                {Object.keys(POOL_COLUMN_WIDTH).map((key, i) => (
+                    <PoolListHeaderElement width={POOL_COLUMN_WIDTH[key]} key={i}>
+                        {key}
                     </PoolListHeaderElement>
                 ))}
             </PoolListHeader>

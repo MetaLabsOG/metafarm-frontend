@@ -50,6 +50,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 tokenMicroBalance={stakedTokenBalance}
                 balanceSuffix={balanceSuffix}
                 buttonName="STAKE"
+                optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.stake}
                 hasLock={hasLock}
             />
@@ -64,6 +65,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 tokenMicroBalance={contractState.local.staked}
                 balanceSuffix={balanceSuffix}
                 buttonName="WITHDRAW"
+                optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.unstake}
                 hasLock={hasLock}
             />

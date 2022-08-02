@@ -1,5 +1,15 @@
 import { useStore } from 'effector-react';
-import { $account, $meanRoundDuration, Asset, ContractState, FarmType, Priced, Time } from '../../../common/store';
+import {
+    $account,
+    $algoUsdPrice,
+    $meanRoundDuration,
+    Asset,
+    ContractState,
+    FarmInitialInfo,
+    FarmType,
+    Priced,
+    Time,
+} from '../../../common/store';
 import { formatLPTokenName, getDexIcon, isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
@@ -40,23 +50,54 @@ const calculateTiming = (
     return timingPrefix + diffText;
 };
 
+export enum APRTypes {
+    reward,
+    algoReward,
+    fees,
+    total,
+}
+
 const calculateAPR = (
     meanRoundDuration: number,
     poolState: PoolState,
     contractState: ContractState<FarmType>,
-    stakeTokenInfo: Priced<Asset>,
-    rewardTokenInfo: Priced<Asset>
-): number => {
+    stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>,
+    rewardTokenInfo: Priced<Asset>,
+    ALGOPrice: number | null
+): Record<APRTypes, number> => {
+    if (poolState === PoolState.Finished) {
+        return {
+            [APRTypes.reward]: 0,
+            [APRTypes.algoReward]: 0,
+            [APRTypes.fees]: 0,
+            [APRTypes.total]: 0,
+        };
+    }
+
     const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
     const stakePrice = stakeTokenInfo.price;
     const totalStaked = unsafeFromBigint(contractState.global.totalStaked);
     const rewardPerBlock = unsafeFromBigint(contractState.initial.rewardPerBlock);
 
-    return poolState === PoolState.Finished
-        ? 0
-        : totalStaked === 0 || stakePrice === 0
-        ? 0
-        : ((rewardPerBlock * blocksInAYear * rewardTokenInfo.price) / (totalStaked * stakePrice)) * 100;
+    const extraAlgoRewardPerBlock = (contractState.initial as FarmInitialInfo).extraAlgoRewardPerBlock;
+    const algoRewardPerBlock = extraAlgoRewardPerBlock ? unsafeFromBigint(extraAlgoRewardPerBlock) : 0;
+
+    const totalStakedUSD = totalStaked * stakePrice;
+    const rewardAPR = totalStakedUSD
+        ? ((rewardPerBlock * rewardTokenInfo.price * blocksInAYear) / totalStakedUSD) * 100
+        : 0;
+
+    const algoRewardAPR =
+        totalStakedUSD && ALGOPrice ? ((algoRewardPerBlock * ALGOPrice * blocksInAYear) / totalStakedUSD) * 100 : 0;
+
+    const feesAPR = ((stakeTokenInfo as Priced<LPTokenInfo>).dexFeeApr ?? 0) * 100;
+
+    return {
+        [APRTypes.reward]: rewardAPR,
+        [APRTypes.algoReward]: algoRewardAPR,
+        [APRTypes.fees]: feesAPR,
+        [APRTypes.total]: rewardAPR + algoRewardAPR + feesAPR,
+    };
 };
 
 export const PoolInfo = ({
@@ -80,8 +121,9 @@ export const PoolInfo = ({
 }) => {
     const account = useStore($account);
     const meanRoundDuration = useStore($meanRoundDuration);
+    const ALGOPrice = useStore($algoUsdPrice);
     const { endBlock, beginBlock } = contractState.initial;
-    const APR = calculateAPR(meanRoundDuration, poolState, contractState, stakeTokenInfo, rewardTokenInfo);
+    const APR = calculateAPR(meanRoundDuration, poolState, contractState, stakeTokenInfo, rewardTokenInfo, ALGOPrice);
 
     const timing = calculateTiming(poolState, currentBlock, beginBlock, endBlock, meanRoundDuration);
 
@@ -115,7 +157,6 @@ export const PoolInfo = ({
                     isOpen={isOpen}
                     dexIcon={dexIcon}
                     isVerified={poolMetadata.verified ?? false}
-                    algorandRewards={poolMetadata.algorand_rewards ?? false}
                 />
             ) : (
                 <PoolInfoDesktop
@@ -133,7 +174,6 @@ export const PoolInfo = ({
                     isOpen={isOpen}
                     dexIcon={dexIcon}
                     isVerified={poolMetadata.verified ?? false}
-                    algorandRewards={poolMetadata.algorand_rewards ?? false}
                 />
             )}
         </>

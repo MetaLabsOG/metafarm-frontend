@@ -23,7 +23,7 @@ const connectWallet = (walletType: WalletType) => {
 
     reach.setWalletFallback(customWalletFallback({ providerEnv: ALGONET, walletType }));
     if (walletType === 'WalletConnect' && ALGONET === TESTNET) {
-        notify('Please, switch you Perra wallet to testnet.', 'info');
+        notify('Please, switch you Pera wallet to testnet.', 'info');
     }
     reach
         .getDefaultAccount()
@@ -70,7 +70,8 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
     const [accDropdownOpen, setAccDropdownOpen] = useState(false);
     const prefix = ALGONET === TESTNET ? 'testnet.' : '';
 
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    // TODO(DariaYakovleva): test Pera on ios.
+    const isIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent);
 
     // check local state once when the element is rendered first
     useEffect(() => {
@@ -172,7 +173,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                     )}
                     {isIOS && (
                         <div style={{ fontFamily: 'Montserrat', color: 'black', textAlign: 'center', width: '70%' }}>
-                            Perra wallet should be here, but it doesn&apos;t work on iOS.
+                            Pera wallet should be here, but it doesn&apos;t work on iOS.
                         </div>
                     )}
                 </div>

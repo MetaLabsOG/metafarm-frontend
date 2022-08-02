@@ -72,6 +72,7 @@ const App = () => {
     const [Modal, openTestnetModal] = useModal('root', { preventScroll: true });
 
     const setPoolInfosEvent = useEvent(setPoolInfos);
+    const setDistributionPoolInfosEvent = useEvent(setDistributionPoolInfos);
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
@@ -90,11 +91,9 @@ const App = () => {
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
-            // TODO(DariaYakovleva)
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            // eslint-disable-next-line effector/mandatory-useEvent
-            setDistributionPoolInfos(distrFetch.data);
+            setDistributionPoolInfosEvent(distrFetch.data);
         }
     }, [distrFetch]);
 

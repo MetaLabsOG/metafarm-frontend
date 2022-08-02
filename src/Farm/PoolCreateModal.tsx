@@ -17,7 +17,6 @@ import { deployStandardContract } from '@metalabsog/common';
 //@ts-ignore
 import { backend as farmBackend } from '@metalabsog/farm';
 
-import testnetPools from '../testnet_pools.json';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import {
     $account,
@@ -53,7 +52,8 @@ const createFarm = async (
     endBlock: number,
     rewardPerBlock: number,
     rewardTokenAmount: number,
-    extraAlgoRewardPerBlock: number
+    extraAlgoRewardPerBlock: number,
+    lockPeriodBlocks: number
 ) => {
     if (!stakeToken.liquidityAsset) {
         notify('Please, choose LP pool.', 'warning');
@@ -125,13 +125,12 @@ const calculateFarmData = (
     return [beginBlock, endBlock, rewardPerBlock];
 };
 
-const calculateAPR = (liquidity: number, rewards: number, rewardTokenPrice: Priced<Asset> | null) => {
-    if (isNaN(rewards) || !rewardTokenPrice) {
-        return 0;
-    }
-
-    return Math.floor(((rewards * rewardTokenPrice.price) / liquidity) * 100);
-};
+// const calculateAPR = (liquidity: number, rewards: number, rewardTokenPrice: Priced<Asset> | null) => {
+//     if (isNaN(rewards) || !rewardTokenPrice) {
+//         return 0;
+//     }
+//     return Math.floor(((rewards * rewardTokenPrice.price) / liquidity) * 100);
+// };
 
 const PoolInfo = ({
     selectedPool,
@@ -166,7 +165,7 @@ const PoolInfo = ({
             <InfoRow
                 style={{ color: '#676767', marginBottom: '20px' }}
                 title={'Current APR'}
-                value={(selectedPool.apr ? (selectedPool.apr * 100).toFixed(2) : 0) + '%'}
+                value={(selectedPool.dexFeeApr ? (selectedPool.dexFeeApr * 100).toFixed(2) : 0) + '%'}
             />
             {/*<InfoRow*/}
             {/*    title={'Expected liquidity'}*/}
@@ -195,7 +194,7 @@ export const PoolCreateModal = () => {
     const currentBlock = useStore($networkTime);
     const meanRoundDuration = useStore($meanRoundDuration);
 
-    const [PoolCreateModal, openPoolCreateModal, closePoolCreateModal] = useModal('root', { preventScroll: true });
+    const [PoolCreateModal, openPoolCreateModal, closePoolCreateModal] = useModal('root');
     const [poolOptions, setPoolOptions] = useState<PoolOptionType[]>([]);
     const [selectedPool, setSelectedPool] = useState<PoolOptionType>(POOL_OPTION);
 
@@ -205,6 +204,7 @@ export const PoolCreateModal = () => {
 
     const [startTime, setStartTime] = useState<string>('');
     const [daysDuration, setDaysDuration] = useState<string>('');
+    const [lockPeriod, setLockPeriod] = useState<string>('0');
 
     const pricedRewardToken = useStoreMap({
         store: $pricedAssets,
@@ -235,7 +235,7 @@ export const PoolCreateModal = () => {
                     asset1Reserve: BigInt(0),
                     asset2Reserve: BigInt(0),
                     totalLiquidity: BigInt(Math.round(pool.liquidity_in_usd)),
-                    apr: pool.annual_percentage_rate,
+                    dexFeeApr: pool.annual_percentage_rate,
                 };
             });
             setPoolOptions(options);
@@ -265,6 +265,10 @@ export const PoolCreateModal = () => {
 
     const durationInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
         setDaysDuration(e.target.value);
+    };
+
+    const lockInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setLockPeriod(e.target.value);
     };
 
     return (
@@ -301,9 +305,19 @@ export const PoolCreateModal = () => {
                         <Heading2>DURATION</Heading2>
                         <DateInput
                             style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
-                            placeholder={'10-90'}
+                            placeholder={'1-999'}
                             onChange={durationInputOnChange}
                             value={daysDuration}
+                        />
+                        <Heading2>DAYS</Heading2>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '20px' }}>
+                        <Heading2>LOCK</Heading2>
+                        <DateInput
+                            style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
+                            placeholder={'1-999'}
+                            onChange={lockInputOnChange}
+                            value={lockPeriod}
                         />
                         <Heading2>DAYS</Heading2>
                     </div>
@@ -330,7 +344,8 @@ export const PoolCreateModal = () => {
                                     endBlock,
                                     rewardPerBlock,
                                     Number(rewardTokenAmount),
-                                    0 // TODO: add extra algo rewards to the interface!!
+                                    0, // TODO: add extra algo rewards to the interface!!
+                                    daysToBlocks(Number(lockPeriod), meanRoundDuration)
                                 );
                                 res && closePoolCreateModal();
                             }}

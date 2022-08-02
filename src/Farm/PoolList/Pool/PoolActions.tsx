@@ -79,7 +79,7 @@ export const PoolActions = ({
     const canClaim = poolState > PoolState.Upcoming;
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim && !unlockTimer;
 
-    const [Modal, openZapModal, closeZapModal] = useModal('root', { preventScroll: true });
+    const [Modal, openZapModal, closeZapModal] = useModal('root');
 
     useToasts({
         api: ctc.apis.claim,

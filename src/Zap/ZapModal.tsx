@@ -1,5 +1,5 @@
 import { loadZapData, ZapResult } from './Zap';
-import { useStore } from 'effector-react';
+import { useEvent, useStore } from 'effector-react';
 import { $account, $balances, refreshAccountInfo } from '../common/store';
 import React, { useEffect, useRef, useState } from 'react';
 import { getOptions, QueryType, runTransactions } from '../Swap/Swap';
@@ -10,6 +10,9 @@ import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGrou
 import { Heading2, ModalContainer, ModalTitle } from '../common/styled';
 import { TokenOptionType } from '../Components/Select/types';
 import { TOKEN_OPTION } from '../Components/Select/Select';
+import { notify } from '../Components/Notification';
+import { algoexplorerTxLink } from '../common/lib';
+import { setPoolInfos } from '../Farm/store';
 
 export function ZapModal({
     asset1_id,
@@ -37,6 +40,8 @@ export function ZapModal({
     const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const refreshAccountInfoEvent = useEvent(refreshAccountInfo);
 
     useEffect(() => {
         setIsLoading(true);
@@ -91,11 +96,20 @@ export function ZapModal({
     };
 
     const ZapButtonOnClick = async () => {
-        await runTransactions(QueryType.zap, account, token1.value, token2.value, token1Amount, token1.balance);
-        // TODO(DariaYakovleva)
-        // eslint-disable-next-line effector/mandatory-useEvent
-        refreshAccountInfo();
-        closeModal();
+        const res = await runTransactions(
+            QueryType.zap,
+            account,
+            token1.value,
+            token2.value,
+            token1Amount,
+            token1.balance
+        );
+        if (res !== null) {
+            const { txIds } = res;
+            notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
+            refreshAccountInfoEvent();
+            closeModal();
+        }
     };
 
     return (
