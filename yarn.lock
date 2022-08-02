@@ -3252,28 +3252,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metalabsog/distribution@npm:17.0.0":
-  version: 17.0.0
-  resolution: "@metalabsog/distribution@npm:17.0.0::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fdistribution%2F17.0.0%2F3bb6c4e2fc893d11e31c8d04f887eacf0735023032e8343f41eecfcd71f1eff2"
+"@metalabsog/distribution@npm:^17.0.2":
+  version: 17.0.2
+  resolution: "@metalabsog/distribution@npm:17.0.2::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Fdistribution%2F17.0.2%2Feed8843bfa10be6690acc653354d2aec5e16012b11d4d06a5f915bb39cf4be58"
   dependencies:
     "@metalabsog/common": "npm:^17.0.0"
     "@reach-sh/stdlib": "npm:0.1.11-rc.0"
     inquirer: "npm:^8.2.1"
     loglevel: "npm:^1.8.0"
-  checksum: 180e855a4981c51beb7dd6ee7dee7c97b639ac1e2220746d17813163b0c87cac4473ad9e1a7bb043728fdd75bf3247e4216ecbbfea644d0b81e969312ad2f1c3
+  checksum: 7e4ad8b160379a60c214ba1815e8100920f51198021f10fe8f80e25bb57484ff8262fc78c69dde20f924f4cbc969d12a7d51606ac749d96c402c36db59dac7eb
   languageName: node
   linkType: hard
 
-"@metalabsog/farm@npm:^17.2.1":
-  version: 17.2.1
-  resolution: "@metalabsog/farm@npm:17.2.1::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F17.2.1%2Faadb4f45ed37d60ffe110dfcbc1ecb7f9a0898c8c748b099d16239f6d5762784"
+"@metalabsog/farm@npm:^17.2.3":
+  version: 17.2.3
+  resolution: "@metalabsog/farm@npm:17.2.3::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40metalabsog%2Ffarm%2F17.2.3%2F5aefb9a34220c776a967770eee37f6dbefe532096751e06fb4801da359384054"
   dependencies:
     "@metalabsog/common": "npm:^17.0.0"
     "@reach-sh/stdlib": "npm:0.1.11-rc.0"
     bent: "npm:^7.3.12"
     inquirer: "npm:^8.2.1"
     loglevel: "npm:^1.8.0"
-  checksum: ed074f24c2b87aa67a3361ef5b0ce3c47dd3123b0ed5fcb561385e109ec5ee4ecf6c8a7d4ce02756a55f23faeb59d53bca8210ca3c9440a295d3fb01d0cfb3ee
+  checksum: 1a2615e32300ae66ad6423d93a9c08b09cdaa4dec48b7076e4687225dbe1cdf8ed61aecec544716cf2f8d23d95c7543a3c16827ed3c89e23884a820c84a3cc80
   languageName: node
   linkType: hard
 
@@ -12226,8 +12226,8 @@ __metadata:
     "@ethersproject/bignumber": "npm:^5.6.2"
     "@metalabsog/common": "npm:^17.0.0"
     "@metalabsog/crowdsale": "npm:17.0.0"
-    "@metalabsog/distribution": "npm:17.0.0"
-    "@metalabsog/farm": "npm:^17.2.1"
+    "@metalabsog/distribution": "npm:^17.0.2"
+    "@metalabsog/farm": "npm:^17.2.3"
     "@metalabsog/metafomo": "npm:17.0.0"
     "@pactfi/pactsdk": "npm:^0.3.0"
     "@perawallet/connect": "npm:^0.1.0"

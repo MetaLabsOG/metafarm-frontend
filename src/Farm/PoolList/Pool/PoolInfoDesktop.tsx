@@ -114,7 +114,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                 />
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH['TVL']}>{`$${numberRound(
-                convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked)
+                convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)) // VIRTUAL STAKE!
             )}`}</PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH['APR']}>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
