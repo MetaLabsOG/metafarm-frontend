@@ -1,8 +1,11 @@
 import { PoolInfoMobileContainer, PoolInfoValue, StakeButtonMobile, TimingMobile } from './styled';
 import { algoRewardPerBlock, convertAmountToUSD, numberRound } from './utils';
 import React, { FC } from 'react';
-import { PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
+import { getAPRTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
 import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
+import { APRTypes } from './PoolInfo';
+import info from '../../../imgs/info.svg';
+import ReactTooltip from 'react-tooltip';
 
 export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,
@@ -19,7 +22,6 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     isOpen,
     dexIcon,
     isVerified,
-    algorandRewards,
 }) => {
     if (contractState.local && isOpen) {
         return <></>;
@@ -36,7 +38,6 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 lock={contractLockSuffix}
                 isVerified={isVerified}
                 algoRewards={algoRewardPerBlock(contractState.initial) > 0}
-                aenasRewards={algorandRewards}
             />
             <PoolInfoValue style={{ marginTop: '30px' }}>
                 <div>TVL</div>
@@ -45,7 +46,21 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 </div>
             </PoolInfoValue>
             <PoolInfoValue style={{ marginBottom: '30px' }}>
-                <div>APR</div> <div style={{ color: 'white' }}>{numberRound(APR)}%</div>
+                <div>APR</div>{' '}
+                <div style={{ color: 'white', display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+                    {numberRound(APR[APRTypes.total])}%
+                    <img
+                        data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
+                        style={{ marginLeft: '3px' }}
+                        alt="APR info"
+                        height="14px"
+                        src={info}
+                    />
+                    {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                    {/*
+                     // @ts-ignore */}
+                    <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
+                </div>
             </PoolInfoValue>
             <PoolInfoValue>
                 <div>MY STAKE</div>

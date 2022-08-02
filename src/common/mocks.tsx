@@ -28,6 +28,7 @@ export const lpTokenInfoMock: Priced<LPTokenInfo> = {
     decimals: 5,
     price: 1,
     priceInAlgo: 2,
+    dexFeeApr: 0,
 };
 
 export const ctcMock: Contract<'farm'> = {

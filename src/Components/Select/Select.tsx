@@ -1,10 +1,9 @@
 import React, { FC } from 'react';
-import SelectSearch, { fuzzySearch, ValueSnapshot } from 'react-select-search';
+import SelectSearch, { fuzzySearch } from 'react-select-search';
 import { formatNumber } from '../../common/lib';
 import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
-import './styled.css';
-import './types';
 import { getAssetLogoUrl, getDexName } from '../../Farm/PoolList/Pool/utils';
+import './styled.css';
 
 export enum SelectType {
     tokenSelect,
@@ -32,7 +31,7 @@ export const POOL_OPTION: PoolOptionType = {
     asset1Reserve: BigInt(0),
     asset2Reserve: BigInt(0),
     totalLiquidity: BigInt(0),
-    apr: 0,
+    dexFeeApr: 0,
 };
 
 export const getPlaceholder = (selectType: SelectType) => {

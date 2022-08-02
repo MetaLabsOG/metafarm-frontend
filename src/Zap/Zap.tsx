@@ -81,7 +81,11 @@ export async function loadZapData(
         return zap_data;
     } catch (e) {
         const error_message = e instanceof Error ? e.message : String(e);
-        notify(error_message, 'error');
+        if (error_message.includes('cancelled')) {
+            notify('Operation is cancelled.', 'warning');
+        } else {
+            notify(error_message, 'error');
+        }
         logEvent(
             account?.networkAccount.addr,
             {

@@ -23,7 +23,6 @@ export const PoolHeader = ({
     lock,
     isVerified,
     algoRewards,
-    aenasRewards,
 }: {
     asset1_id: number;
     asset2_id: number;
@@ -33,7 +32,6 @@ export const PoolHeader = ({
     lock: string;
     isVerified: boolean;
     algoRewards: boolean;
-    aenasRewards: boolean;
 }) => {
     const asset1_logo = getAssetLogoUrl(asset1_id);
     const asset2_logo = getAssetLogoUrl(asset2_id);
@@ -60,11 +58,10 @@ export const PoolHeader = ({
                     <PoolTitle style={{ marginRight: '5px' }}>{pool_name}</PoolTitle>
                     {isVerified && <img data-tip="Project is verified by Cometa" alt="" height="14px" src={verified} />}
                 </div>
-                <PoolSubtitle>
-                    EARN {rewardTokenName}
-                    {algoRewards && ' + ALGO'}
-                </PoolSubtitle>
-                {aenasRewards && <ContractLockSuffix>AENEAS rewards</ContractLockSuffix>}
+                <div style={{ display: 'flex' }}>
+                    <PoolSubtitle>EARN {rewardTokenName}</PoolSubtitle>
+                    {algoRewards && <PoolSubtitle style={{ marginLeft: '3px' }}>+ ALGO</PoolSubtitle>}
+                </div>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                     <ContractLockSuffix>{lock}</ContractLockSuffix>
                     {lock && (
@@ -75,7 +72,7 @@ export const PoolHeader = ({
             {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
             {/*
              // @ts-ignore */}
-            {window.innerWidth > 1120 && <ReactTooltip place="top" type="light" effect="solid" />}
+            <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
         </PoolHeaderContainer>
     );
 };

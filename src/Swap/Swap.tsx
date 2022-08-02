@@ -227,6 +227,8 @@ export async function runTransactions(
             );
         } else if (error_message.includes('below min') || error_message.includes('overspend')) {
             notify(queryType + ': Not enough available algos.', 'error');
+        } else if (error_message.includes('cancelled')) {
+            notify('Operation is cancelled.', 'warning');
         } else {
             notify(queryType + ' error. Please, contact us in twitter or discord.', 'error');
         }
@@ -286,6 +288,8 @@ export async function getOptions(
 
         if (asset.id === 0) {
             asset.balance -= reservedAlgoBalance / 10 ** asset.decimals;
+            // TODO(DariaYakovleva): reach.minimumBalanceOf return wrong amount, ya hz.
+            asset.balance = Math.max(0, asset.balance - 2);
         }
 
         // TODO: remove it

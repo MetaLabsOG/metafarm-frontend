@@ -12,6 +12,7 @@ import TINYMAN_ASC from './tinyman_asc.json';
 import { ALGO_ASSET, fetchAsset } from '../common/store';
 import { WalletTransactionGroup } from '../types';
 import { toReachTxn } from '../common/lib';
+import { getTinymanPools } from './apiProvider';
 
 export type DexProvider =
     | 'T2' // Tinyman v1.1
@@ -27,6 +28,7 @@ export interface PoolInfo {
     asset1Reserve: Amount;
     asset2Reserve: Amount;
     totalLiquidity: Amount;
+    dexFeeApr: number;
 }
 
 export type LPTokenInfo = Asset & PoolInfo;
@@ -261,6 +263,7 @@ export class MockDex extends Dex {
             asset1Reserve: BigInt(100000000),
             asset2Reserve: BigInt(200000000),
             totalLiquidity: BigInt(100000000),
+            dexFeeApr: 0, // TODO
         };
     }
 
@@ -347,6 +350,7 @@ export class PactDex extends Dex {
             asset1Reserve: BigInt(pool.state.totalPrimary),
             asset2Reserve: BigInt(pool.state.totalSecondary),
             totalLiquidity: BigInt(pool.state.totalLiquidity),
+            dexFeeApr: 0, // TODO
         };
     }
 
@@ -809,6 +813,10 @@ export class TinymanDex extends Dex {
         }
 
         const liquidityAsset = accountInfo['created-assets'][0]['index'];
+
+        const tinymanPoolData = await getTinymanPools(1, poolAddress);
+        const dexFeeApr = tinymanPoolData[0].annual_percentage_rate;
+
         return {
             poolId,
             poolDex: 'T2',
@@ -818,6 +826,7 @@ export class TinymanDex extends Dex {
             asset1Reserve: BigInt(s1),
             asset2Reserve: BigInt(s2),
             totalLiquidity: BigInt(appState.ilt),
+            dexFeeApr: dexFeeApr,
         };
     }
 

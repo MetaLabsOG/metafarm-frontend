@@ -5,7 +5,7 @@ import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { $account, Amount, AppId, Asset, ContractState, FarmType, Priced } from '../../../common/store';
 import { AllDefined } from '../../../types';
-import { useStore } from 'effector-react';
+import { useEvent, useStore } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { Button } from '../../../Components/Button/Button';
 import { isCompoundEnabled, runCompound } from './compound';
@@ -82,6 +82,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 tokenMicroBalance={stakedTokenBalance}
                 balanceSuffix={balanceSuffix}
                 buttonName="Stake"
+                optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.stake}
                 hasLock={hasLock}
             />
@@ -90,6 +91,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 tokenMicroBalance={contractState.local.staked}
                 balanceSuffix={balanceSuffix}
                 buttonName="Withdraw"
+                optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.unstake}
                 hasLock={hasLock}
             />

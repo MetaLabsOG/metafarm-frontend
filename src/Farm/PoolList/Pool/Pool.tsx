@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Status } from '../../../Status';
 import { $networkTime, queryTimeUpdate, Contract, FarmType, hasLocalState, $pricedAlgo } from '../../../common/store';
-import { useStore, useStoreMap } from 'effector-react';
+import { useEvent, useStore, useStoreMap } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
@@ -19,9 +19,9 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
 
     const [isOpen, setIsOpen] = useState(false);
 
-    // TODO(DariaYakovleva): please fix
-    // eslint-disable-next-line effector/mandatory-useEvent
-    useEffect(queryTimeUpdate, [contract]);
+    const queryTimeUpdateEvent = useEvent(queryTimeUpdate);
+
+    useEffect(queryTimeUpdateEvent, [contract]);
 
     const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
     if (currentBlock === 0 || !contract.state || !is_info_loaded || !pricedAlgo) {

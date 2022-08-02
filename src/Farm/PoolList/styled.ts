@@ -8,7 +8,8 @@ export const PoolListHeader = styled.div`
     width: 95%;
     align-items: center;
     justify-content: flex-start;
-    padding-right: 30px;
+    padding-right: 40px;
+    padding-left: 20px;
 
     font-family: 'Montserrat';
     font-style: normal;
@@ -19,9 +20,9 @@ export const PoolListHeader = styled.div`
     }
 `;
 
-export const PoolListHeaderElement = styled.div<{ width?: number }>`
-    width: ${({ width }) => (width ? `${width}%` : '20%')};
-    margin-left: 10px;
+export const PoolListHeaderElement = styled.div<{ width: string }>`
+    width: ${({ width }) => width};
+    padding-right: 20px;
 `;
 
 export const PoolListContainer = styled.div`

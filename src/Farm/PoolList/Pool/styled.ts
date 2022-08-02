@@ -29,7 +29,7 @@ export const PoolContainer = styled.div`
 export const PoolInfoDesktopContainer = styled.div`
     position: relative;
     display: flex;
-    justify-content: space-around;
+    justify-content: flex-start;
     color: ${(props) => props.theme.white};
     height: 78%;
     width: 100%;
@@ -38,6 +38,7 @@ export const PoolInfoDesktopContainer = styled.div`
     font-weight: normal;
     line-height: 22px;
     font-size: 17px;
+    padding-left: 20px;
 
     @media (max-width: 1120px) {
         display: none;
@@ -61,12 +62,13 @@ export const PoolInfoMobileContainer = styled.div`
     }
 `;
 
-export const PoolInfoValue = styled.div<{ width?: number }>`
+export const PoolInfoValue = styled.div<{ width?: string }>`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-left: 20px;
-    width: ${({ width }) => (width ? `${width}%` : '12.5%')};
+    padding-right: 20px;
+    width: ${({ width }) => width};
+    white-space: nowrap;
 
     @media (max-width: 1120px) {
         flex-direction: row;
@@ -74,7 +76,7 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
         width: 100%;
         font-size: 18px;
         color: ${theme.gray};
-        margin-left: 0;
+        padding-right: 0;
         margin-bottom: 15px;
     }
 `;
@@ -82,7 +84,7 @@ export const PoolInfoValue = styled.div<{ width?: number }>`
 export const PoolActionsDesktopContainer = styled.div`
     display: flex;
     margin-top: 38px;
-    gap: 30px;
+    gap: 25px;
 
     @media (max-width: 1120px) {
         display: none;
@@ -119,12 +121,10 @@ export const Link = styled.a`
 `;
 
 export const ArrowIconsWrapper = styled.div`
-    //position: absolute;
-    //right: 20px;
-    //top: 10px;
     margin-top: auto;
     margin-bottom: auto;
-    margin-right: 25px;
+    margin-right: 0;
+    padding-right: 20px;
 `;
 
 export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`

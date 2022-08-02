@@ -5,12 +5,18 @@ import { QueryType, runTransactions } from '../../../Swap/Swap';
 import { Account } from '../../../types';
 import { logFarmActionData } from '../../../logEvent';
 import { notify } from '../../../Components/Notification';
+import { reach } from '../../../AppContext';
 
 export const isCompoundEnabled = (lpTokenInfo: LPTokenInfo, reward_asset_id: number) => {
     return reward_asset_id === lpTokenInfo.asset1 || reward_asset_id === lpTokenInfo.asset2;
 };
 
-export const runCompound = async (account: Account, ctc: InnerCtc, lpTokenInfo: LPTokenInfo, rewardAsset: Priced<Asset>) => {
+export const runCompound = async (
+    account: Account,
+    ctc: InnerCtc,
+    lpTokenInfo: LPTokenInfo,
+    rewardAsset: Priced<Asset>
+) => {
     const rewardAssetId = rewardAsset.id;
     const asset1Id = lpTokenInfo.asset1;
     const asset2Id = lpTokenInfo.asset2;
@@ -49,13 +55,33 @@ export const runCompound = async (account: Account, ctc: InnerCtc, lpTokenInfo: 
             throw new Error('internal zap error!');
         }
 
+        const algoRewardAmount = Number(reach.formatWithDecimals(claimedExtraAlgos, 6));
+        let microAlgoLpAmount = BigInt(0);
+        if (secondAsset === 0 && algoRewardAmount > 0) {
+            const algoZapResult = await runTransactions(
+                QueryType.zap,
+                account,
+                secondAsset.toString(),
+                firstAsset.toString(),
+                algoRewardAmount.toString()
+            );
+
+            if (algoZapResult === null) {
+                throw new Error('internal algo zap error!');
+            }
+
+            const algoQuote = algoZapResult.quote as ZapQuote;
+            microAlgoLpAmount = algoQuote.mint.minimalLiquidityIssued;
+            console.log('Algo zap res lp amount', microAlgoLpAmount);
+        }
+
         const quote = zapResult.quote as ZapQuote;
         refreshAccountInfo();
         console.log('COMPOUND ZAP ', quote, zapResult.txIds);
 
         // If mint transaction passed, tinyman could not return less than that (since txs are deterministic).
         // TODO: we should check
-        const microLpAmount = quote.mint.minimalLiquidityIssued;
+        const microLpAmount = quote.mint.minimalLiquidityIssued + microAlgoLpAmount;
         console.log('start stake', fromMicros(lpTokenInfo, microLpAmount), microLpAmount);
 
         await ctc.apis.stake([microLpAmount]);
@@ -65,6 +91,8 @@ export const runCompound = async (account: Account, ctc: InnerCtc, lpTokenInfo: 
         logFarmActionData(account, 'COMPOUND ERROR', 0, lpTokenInfo, rewardAsset, error_message);
         if (error_message.includes('underflow')) {
             notify('Not enough LP tokens.', 'error');
+        } else if (error_message.includes('cancelled')) {
+            notify('Operation is cancelled.', 'warning');
         } else {
             notify(error_message, 'error');
         }

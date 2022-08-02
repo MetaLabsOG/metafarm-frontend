@@ -52,7 +52,7 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
 
     const setInputMaxAmount = () => {
         setIsValidInput(true);
-        const newInputData = selectedOption.balance.toString();
+        const newInputData = formatNumber(selectedOption.balance).toString();
         const changed = newInputData !== inputData;
         setInputData(newInputData);
         if (changed) {

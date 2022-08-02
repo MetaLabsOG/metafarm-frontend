@@ -9,6 +9,10 @@ export const PoolHeaderContainer = styled.div`
     display: flex;
     align-items: center;
     color: ${(props) => props.theme.white};
+
+    @media (max-width: 1120px) {
+        justify-content: center;
+    }
 `;
 
 export const PoolInfo = styled.div`
@@ -70,5 +74,27 @@ export const ContractLockSuffix = styled.div`
     color: #838383;
     @media (max-width: 1120px) {
         color: white;
+    }
+`;
+
+// Даша: оставим на будущее, прикольная анимашка!!!
+export const AnimatedText = styled.div`
+    text-transform: uppercase;
+    background-image: linear-gradient(-225deg, darkgreen 0%, greenyellow 29%, #ff1361 67%, #fff800 100%);
+    background-size: auto auto;
+    background-clip: border-box;
+    background-size: 200% auto;
+    color: #fff;
+    text-fill-color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textclip 2s linear infinite;
+    display: inline-block;
+    white-space: nowrap;
+
+    @keyframes textclip {
+        to {
+            background-position: 200% center;
+        }
     }
 `;
