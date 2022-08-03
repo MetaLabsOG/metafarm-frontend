@@ -15,8 +15,6 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 export const MetaTreasuryChart = ({ dataset }: { dataset: TotalCost[] }) => {
     const labels = dataset.map((el) => dayjs(el.timestamp * 1000).format('D.MM'));
-    console.log(labels);
-
     const data = {
         labels,
         datasets: [
@@ -27,13 +25,14 @@ export const MetaTreasuryChart = ({ dataset }: { dataset: TotalCost[] }) => {
             },
         ],
     };
+
     return (
         <MetaTreasuryChartStyled>
             <ChartTitle>MetaTreasury</ChartTitle>
+            <MetaTreasuryChartYTitle>$$</MetaTreasuryChartYTitle>
             <MetaTreasuryChartContainer>
                 <Line data={data} options={metaTreasuryChartOptions} />
             </MetaTreasuryChartContainer>
-            <MetaTreasuryChartYTitle>$$</MetaTreasuryChartYTitle>
             <MetaTreasuryChartXTitle>week</MetaTreasuryChartXTitle>
         </MetaTreasuryChartStyled>
     );
