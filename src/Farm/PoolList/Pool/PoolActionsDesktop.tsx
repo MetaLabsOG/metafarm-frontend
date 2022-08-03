@@ -73,7 +73,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     />
                 )}
                 <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
-                    <ContractLink>Farm contract</ContractLink>
+                    <ContractLink>Сontract</ContractLink>
                 </a>
             </TokenInfo>
             <TokenInputWithButton

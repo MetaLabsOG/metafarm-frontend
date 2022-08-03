@@ -32,6 +32,13 @@
     border-radius: 6px;
 }
 
+@media (max-width: 490px) {
+    .account_dropdown_container {
+        top: -10px;
+        padding-top: 40px;
+    }
+}
+
 .connect_wallet {
     width: 155px;
     height: 30px;
