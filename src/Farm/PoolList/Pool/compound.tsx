@@ -34,7 +34,8 @@ export const runCompound = async (
 
     try {
         console.log('start claim');
-        const [claimedAmountBignum, claimedExtraAlgosBignum] = await ctc.apis.claim();
+        const res = await ctc.apis.claim();
+        const [claimedAmountBignum, claimedExtraAlgosBignum] = res.result;
         const claimedAmount = claimedAmountBignum.toBigInt();
         const claimedExtraAlgos = claimedExtraAlgosBignum.toBigInt();
         const reward_amount = fromMicros(rewardAsset, claimedAmount);
@@ -85,6 +86,8 @@ export const runCompound = async (
         console.log('start stake', fromMicros(lpTokenInfo, microLpAmount), microLpAmount);
 
         await ctc.apis.stake([microLpAmount]);
+
+        notify('Compound done!', 'success');
     } catch (e) {
         const error_message = e instanceof Error ? e.message : String(e);
         console.log(error_message);
