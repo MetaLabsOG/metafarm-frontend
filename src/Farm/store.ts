@@ -228,7 +228,7 @@ export const $farmPoolAggregates: Store<PoolAggregates> = combine(
         const tvl = sumMoney(
             states,
             lpTokens,
-            (s) => s.global.totalStaked,
+            (s) => s.global.totalStaked - BigInt(1), // VIRTUAL STAKE!
             (s) => s.initial.stakeToken
         );
         const totalUserStake = sumMoney(

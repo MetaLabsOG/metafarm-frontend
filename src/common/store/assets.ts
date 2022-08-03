@@ -97,26 +97,18 @@ export const fetchAsset = async (id: AssetId): Promise<Asset> => {
 // ALGO price fetching
 // (token prices are in separate file to avoid circular import to/from dexesProvider)
 // =================================================================
-export const fetchAlgoPriceFx = createEffect(() => getBinanceCoinPrice('ALGOUSDT'));
-export const fetchBtcPriceFx = createEffect(() => getBinanceCoinPrice('BTCUSDT'));
+export const fetchAlgoPriceFx = createEffect(nonConcurrent(() => getBinanceCoinPrice('ALGOUSDT')));
 
 export const $algoUsdPrice = restore(fetchAlgoPriceFx.doneData, null);
-export const $btcUsdPrice = restore(fetchBtcPriceFx.doneData, null);
 
 export const fetchAllPrices = () => {
     console.log('fetching prices...');
-    Promise.all(
-        [
-            fetchAlgoPriceFx(),
-            fetchBtcPriceFx()
-        ]
-    ).then(
-        () => console.log('prices fetched')
-    ).catch(() => {
-        console.log('failed to fetch');
-    })
-}
-
+    return fetchAlgoPriceFx()
+        .then(() => console.log('prices fetched'))
+        .catch(() => {
+            console.log('failed to fetch');
+        });
+};
 
 // re-fetch prices once in say, 1 minute
 makeClock(60000).watch(() => {

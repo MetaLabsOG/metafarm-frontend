@@ -125,7 +125,6 @@ export type FarmGlobalInfo = {
     totalStaked: Amount;
     lastUpdateBlock: Time;
     rewardPerTokenStored: Amount;
-    rewardsPaid: Amount;
 };
 
 export type FarmLocalInfo = {
@@ -179,7 +178,6 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
         totalStaked: obj.totalStaked.toBigInt(),
         lastUpdateBlock: obj.lastUpdateBlock.toNumber(),
         rewardPerTokenStored: obj.rewardPerTokenStored.toBigInt(),
-        rewardsPaid: obj.rewardsPaid.toBigInt(),
     });
 
     const parseFarmLocalInfo = (obj: any): FarmLocalInfo => ({
