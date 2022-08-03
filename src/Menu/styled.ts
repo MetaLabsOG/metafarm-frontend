@@ -142,4 +142,9 @@ export const FooterItem = styled.div`
     font-family: 'Montserrat', serif;
     margin-top: auto;
     margin-bottom: auto;
+    text-align: center;
+
+    @media (max-width: 640px) {
+        font-size: 10px;
+    }
 `;

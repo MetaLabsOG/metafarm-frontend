@@ -24,7 +24,7 @@ type CrowdsaleProps = {
 
 type OptinState = 'before' | 'transactions' | 'whitelisting' | 'done';
 
-const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => {
+const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
     const { userOptedIn, optIn } = useContractOptin(reach, account, contract.id, [META_TOKEN_ID]);
     const [optInState, setOptInState] = useState<OptinState>('before');
     const [tokenAmount, setTokenAmount] = useState<Amount>(BigInt(0));
@@ -63,7 +63,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => 
     );
 
     const buy = useCallback(
-        async (tokenAmount) => {
+        async (tokenAmount: any) => {
             const res = await ctc.a.purchase([tokenAmount]);
             console.log('PURCHASE', res);
         },
@@ -97,32 +97,32 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => 
     // TODO: i dont care about user-friendly price rates and amounts (with correct decimals) for now
     return (
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <h1>BUY META</h1>
-            <br />
-            <h3 style={{ marginBottom: '20px' }}>
-                microMETA/microALGO rate: {rate[0]}/{rate[1]}
-            </h3>
-            <h3 style={{ marginBottom: '50px' }}>
-                Already sold: {sold} microMETA of {totalAmount}
-            </h3>
+            {/*<h1>BUY META</h1>*/}
 
-            <h4>SET AMOUNT TO BUY ({individualCap - alreadyBought} more microMETA allowed)</h4>
-            <input
-                type="number"
-                className="tokenInput"
-                placeholder={'10'}
-                onChange={(e) => setTokenAmountValidated(BigInt(parseInt(e.target.value)))}
-                // TODO: remove this conversion when adding proper display with decimals
-                value={unsafeFromBigint(tokenAmount)}
-            />
+            {/*<h3 style={{ marginBottom: '20px' }}>*/}
+            {/*    microMETA/microALGO rate: {rate[0]}/{rate[1]}*/}
+            {/*</h3>*/}
+            {/*<h3 style={{ marginBottom: '50px' }}>*/}
+            {/*    Already sold: {sold} microMETA of {totalAmount}*/}
+            {/*</h3>*/}
 
-            <h4 style={{ marginTop: '30px' }}>microALGOs to pay: {algoPrice(tokenAmount)}</h4>
-            <Button onClick={() => buy(tokenAmount)}>BUY META</Button>
+            {/*<h4>SET AMOUNT TO BUY ({individualCap - alreadyBought} more microMETA allowed)</h4>*/}
+            {/*<input*/}
+            {/*    type="number"*/}
+            {/*    className="tokenInput"*/}
+            {/*    placeholder={'10'}*/}
+            {/*    onChange={(e) => setTokenAmountValidated(BigInt(parseInt(e.target.value)))}*/}
+            {/*    // TODO: remove this conversion when adding proper display with decimals*/}
+            {/*    value={unsafeFromBigint(tokenAmount)}*/}
+            {/*/>*/}
+
+            {/*<h4 style={{ marginTop: '30px' }}>microALGOs to pay: {algoPrice(tokenAmount)}</h4>*/}
+            {/*<Button onClick={() => buy(tokenAmount)}>BUY META</Button>*/}
         </div>
     );
 };
 
-export const Crowdsale = (): ReactElement => {
+export const Crowdsale = () => {
     const account = useStore($account);
     const { data, isError, isSuccess } = useQuery(['contracts', 'crowdsale'], () => getContracts('crowdsale'));
 

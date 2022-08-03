@@ -96,6 +96,8 @@ export const runCompound = async (
             notify('Not enough LP tokens.', 'error');
         } else if (error_message.includes('cancelled')) {
             notify('Operation is cancelled.', 'warning');
+        } else if (error_message.includes('stake is locked')) {
+            notify('Please, wait. Stake is locked.', 'error');
         } else {
             notify(error_message, 'error');
         }

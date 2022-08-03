@@ -128,6 +128,7 @@ export const Fomo = () => {
     const isBoostAviable = (boostPrice: number) => Number(fomoTokensOnAccount) >= boostPrice;
 
     const updateBalance = useCallback(
+        // @ts-ignore
         async (token) => {
             if (reach && account) {
                 try {
@@ -156,6 +157,7 @@ export const Fomo = () => {
     );
 
     const updateFomoInfo = useCallback(
+        // @ts-ignore
         async (ctc) => {
             if (!ctc || isFinish) {
                 return;
@@ -276,6 +278,7 @@ export const Fomo = () => {
         }
     }, 10000);
 
+    // @ts-ignore
     const showPurchase = useCallback(([winnerAddress, winnerPriceHex, newPriceHex]) => {
         if (reach) {
             const winnerPrice = reach.formatCurrency(winnerPriceHex, 2);
@@ -299,6 +302,7 @@ export const Fomo = () => {
         }
     }, [ctc, currentPrice, showPurchase, showPurchaseOutput]);
 
+    // @ts-ignore
     const showOutcome = useCallback((address) => {
         if (reach) {
             const winnerAddress = reach.formatAddress(address);
@@ -324,6 +328,7 @@ export const Fomo = () => {
     }, [discountLevel, discountPercents, discountPrices]);
 
     const connectToContract = useCallback(
+        // @ts-ignore
         async (account) => {
             const ctc = account.contract(fomo, id);
             setCtc(ctc);
@@ -352,6 +357,7 @@ export const Fomo = () => {
             });
 
             await events.showPurchase.monitor(({ when, what }: { when: BigNumber; what: BigNumber[] }) => {
+                // @ts-ignore
                 showPurchase(what);
             });
         },

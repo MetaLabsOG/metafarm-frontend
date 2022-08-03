@@ -60,10 +60,13 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
 
     const [showConfetti, setShowConfetti] = useState(false);
 
+    const buttonType = buttonName.toLowerCase();
+    const balanceField = buttonType === 'stake' ? 'Balance' : 'Staked';
+
     const setNotificationText = useToasts({
         api: actionEffectEvent,
         pendingStatus: isPending,
-        action: buttonName === 'Stake' ? ToastTypes.stake : ToastTypes.withdraw,
+        action: buttonType === 'stake' ? ToastTypes.stake : ToastTypes.withdraw,
     });
 
     const setInputMaxAmount = () => {
@@ -143,7 +146,8 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>
             </Action>
             <Balance isValid={isValidInput}>
-                Balance: {fromMicros(token, tokenMicroBalance)} {balanceSuffix} {isValidInput ? '' : '(Not enough)'}
+                {balanceField}: {fromMicros(token, tokenMicroBalance)} {balanceSuffix}{' '}
+                {isValidInput ? '' : '(Not enough)'}
             </Balance>
             <Confetti showConfetti={showConfetti} onFinish={() => setShowConfetti(false)} />
         </TokenInputWithButtonContainer>

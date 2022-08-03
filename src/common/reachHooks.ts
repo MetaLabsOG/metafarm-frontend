@@ -25,6 +25,8 @@ export const useReachContract = (
     }, [account, backend, contractId]);
 
     // TODO: `initial` view should actually be only fetched once
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const refreshState = useCallback(async (ctc, account) => {
         const viewNames: string[] = Object.keys(ctc.views);
 
