@@ -4,33 +4,23 @@ import { METAWALLET } from '../AppContext';
 import { useQuery } from 'react-query';
 import { Pie } from 'react-chartjs-2';
 import { assetsChartOptions } from './chartsConfig';
-import { ChartTitle, AssetsChartStyled, Info, LegendValues } from './styled';
+import { ChartTitle, AssetsChartStyled } from './styled';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export const AssetsChart = (assets: any) => {
+export const AssetsChart = () => {
     const assetsQuery = useQuery(['assets', METAWALLET], () => getAssets(METAWALLET));
-
-    const dataSet = assetsQuery.data ? assetsQuery.data : [];
-
-    console.log(dataSet);
+    const dataset = assetsQuery.data ?? [];
+    console.log('DATASET', dataset);
 
     const data = {
-        labels: dataSet.length ? dataSet?.map(({ ticker }) => ticker) : [],
-        overrides: {
-            plugins: {
-                legend: {
-                    positon: 'left',
-                },
-            },
-        },
+        labels: dataset.map(({ ticker, amount, price }) => amount + ' ' + ticker + ' ($' + price.usd + ')'),
         datasets: [
             {
-                data: dataSet?.map(({ amount, price }) => amount * price.usd),
+                data: dataset.map(({ amount, price }) => amount * price.usd),
                 backgroundColor: ['#027a00', '#59f63c', '#56CCF2', '#FBF33B', '#828282'],
                 borderColor: ['#027a00', '#59f63c', '#56CCF2', '#FBF33B', '#828282'],
                 borderWidth: 1,
-                hoverOffset: 4,
             },
         ],
     };
@@ -39,14 +29,6 @@ export const AssetsChart = (assets: any) => {
         <AssetsChartStyled>
             <ChartTitle>Assets</ChartTitle>
             <Pie data={data} options={assetsChartOptions} />
-            <LegendValues>
-                {dataSet.map(({ amount, price }) => (
-                    <Info key={`${amount}${price}`}>
-                        <div>{amount}</div>
-                        <div>({Math.floor(amount * price.usd)}$)</div>
-                    </Info>
-                ))}
-            </LegendValues>
         </AssetsChartStyled>
     );
 };

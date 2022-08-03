@@ -1,10 +1,5 @@
 export const assetsChartOptions = {
-    layout: {
-        padding: {
-            top: 0,
-            left: 20,
-        },
-    },
+    aspectRatio: 3,
     plugins: {
         tooltip: {
             enabled: false,
@@ -15,14 +10,11 @@ export const assetsChartOptions = {
 
             labels: {
                 usePointStyle: true,
-                boxWidth: 28,
-                boxHeight: 28,
-                padding: 30,
                 pointStyle: 'rectRounded',
                 color: 'white',
                 font: {
                     size: 16,
-                    family: 'Inter',
+                    family: 'Montserrat',
                 },
             },
         },
@@ -30,15 +22,7 @@ export const assetsChartOptions = {
 };
 
 export const metaTreasuryChartOptions = {
-    layout: {
-        padding: {
-            rigth: 20,
-            top: 10,
-        },
-    },
     scales: {
-        // TODO(qumeric): I was unable to get it through typescript checker
-        // borderWidth: 2,
         x: {
             display: true,
             grid: {
