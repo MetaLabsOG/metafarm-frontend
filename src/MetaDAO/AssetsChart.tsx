@@ -5,6 +5,7 @@ import { useQuery } from 'react-query';
 import { Pie } from 'react-chartjs-2';
 import { assetsChartOptions } from './chartsConfig';
 import { ChartTitle, AssetsChartStyled } from './styled';
+import { formatNumber } from '../common/lib';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -14,7 +15,9 @@ export const AssetsChart = () => {
     console.log('DATASET', dataset);
 
     const data = {
-        labels: dataset.map(({ ticker, amount, price }) => amount + ' ' + ticker + ' ($' + price.usd + ')'),
+        labels: dataset.map(
+            ({ ticker, amount, price }) => formatNumber(amount) + ' ' + ticker + ' ($' + formatNumber(price.usd) + ')'
+        ),
         datasets: [
             {
                 data: dataset.map(({ amount, price }) => amount * price.usd),

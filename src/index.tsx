@@ -33,6 +33,7 @@ import { useEvent, useStore, useStoreMap } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
 import { notify } from './Components/Notification';
 import { Footer } from './Menu/Footer';
+import { ALGONET, TESTNET } from './AppContext';
 
 // TODO
 window.open = (function (open) {
@@ -83,7 +84,7 @@ const App = () => {
     }, [farmsFetch]);
 
     useEffect(() => {
-        if (!hasTestnetModalOpened && account && !isNaN(algoBalance) && algoBalance === 0) {
+        if (!hasTestnetModalOpened && account && !isNaN(algoBalance) && algoBalance === 0 && ALGONET === TESTNET) {
             openTestnetModal();
             setHasTestnetModalOpened(true);
         }
