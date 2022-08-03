@@ -114,10 +114,13 @@ export type FarmInitialInfo = {
 };
 
 export type DistributionInitialInfo = {
+    beneficiary: string;
+    creationFee: Amount;
     token: AssetId;
     endBlock: Time;
     beginBlock: Time;
     rewardPerBlock: Amount;
+    extraAlgoRewardPerBlock: Amount;
     lockLengthBlocks: Amount; // > 0 if lock
 };
 
@@ -188,10 +191,13 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
     });
 
     const parseDistributionInitialInfo = (obj: any): DistributionInitialInfo => ({
+        beneficiary: obj.beneficiary,
+        creationFee: obj.creationFee.toBigInt(),
         token: obj.token.toNumber(),
         endBlock: obj.endBlock.toNumber(),
         beginBlock: obj.beginBlock.toNumber(),
         rewardPerBlock: obj.rewardPerBlock.toBigInt(),
+        extraAlgoRewardPerBlock: obj.extraAlgoRewardPerBlock.toBigInt(),
         lockLengthBlocks: obj.lockLengthBlocks.toBigInt(),
     });
 
