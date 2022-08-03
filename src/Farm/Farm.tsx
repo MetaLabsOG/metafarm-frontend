@@ -1,13 +1,15 @@
 import { Balance } from './Balance';
 import { PoolList } from './PoolList';
 import { FarmContainer } from './styled';
-import { $sortedPools, setPoolInfos } from './store';
+import { $sortedFarmPools } from './store';
+import { PoolCreateModal } from './PoolCreateModal';
 
 export const Farm = () => {
     return (
         <FarmContainer>
             <Balance />
-            <PoolList type="farm" pools={$sortedPools} setPoolInfos={setPoolInfos} />
+            <PoolCreateModal />
+            <PoolList type="farm" pools={$sortedFarmPools} />
         </FarmContainer>
     );
 };

@@ -1,24 +1,24 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { backend as distributionBackend } from '@metalabsog/distribution';
 import { combine } from 'effector';
 import { buildContractsStore, registerPricedAsset, $networkTime, $pricedAssets } from '../common/store';
-import { sortPoolsOnStatus } from '../Farm/store';
+import { sortPoolsOnStatus, $stakePools, $farmStakeTokens } from '../Farm/store';
 
 const { $contracts, $contractStatesWithCache, setContractInfos } = buildContractsStore(
     'distribution',
     distributionBackend
 );
 
-export const $stakingPools = $contracts;
-export const setStakingPoolInfos = setContractInfos;
+export const $distributionPools = $contracts;
+export const setDistributionPoolInfos = setContractInfos;
 
-$stakingPools.watch((v) => {}); //console.log('STAKE POOLS', v));
-
-export const $sortedStakingPools = combine($networkTime, $stakingPools, (networkTime, pools) =>
-    sortPoolsOnStatus({ networkTime, pools })
+export const $sortedStakingPools = combine(
+    $networkTime,
+    $stakePools,
+    $distributionPools,
+    (networkTime, stakePools, distrPools) => sortPoolsOnStatus({ networkTime, pools: [...stakePools, ...distrPools] })
 );
-
-$sortedStakingPools.watch((v) => {}); //console.log(v));
 
 $contractStatesWithCache.watch((states) =>
     states.valueSeq().forEach((s) => {
@@ -26,6 +26,8 @@ $contractStatesWithCache.watch((states) =>
     })
 );
 
-export const $stakingTokens = combine($pricedAssets, $contractStatesWithCache, (tokens, states) =>
+export const $distributedTokens = combine($pricedAssets, $contractStatesWithCache, (tokens, states) =>
     states.map((state, _) => tokens.get(state.initial.token, null))
 );
+
+export const $stakingTokens = combine($distributedTokens, $farmStakeTokens, (distr, farm) => distr.merge(farm));

@@ -1,8 +1,9 @@
 import algosdk from 'algosdk';
 
 import { loadStdlib } from '@reach-sh/stdlib';
-import * as UTBC from '@reach-sh/stdlib/ALGO_UTBC';
 import * as RHC from '@reach-sh/stdlib/ALGO_ReachHTTPClient';
+
+import { NonRedundantHTTPClient } from './httpClient';
 
 import {
     Provider,
@@ -14,6 +15,13 @@ import {
     EnableNetworkResult,
     EnableAccountsResult,
 } from './types';
+
+/**
+ * Let's cache the GET requests Reach does for 1 second.
+ * Should not lead to many bugs; if it does, we probably should
+ * invalidate the request cache after doing POST requests or something.
+ */
+const REACH_GET_REQUEST_CACHE_PERIOD = 1000;
 
 /**
  * Lots of copy-paste from Reach here, but this allows us to easily
@@ -37,7 +45,7 @@ function truthyEnv(v: string | undefined | null): v is string {
     return !['0', 'false', 'f', '#f', 'no', 'off', 'n', ''].includes(v && v.toLowerCase && v.toLowerCase());
 }
 
-function envDefaultsALGO(env: any) {
+function envDefaultsALGO(env: Record<string, unknown>) {
     return { ...localhostProviderEnv, ...env };
 }
 
@@ -48,8 +56,10 @@ export function indexerFromEnv(env: any): [algosdk.BaseHTTPClient, algosdk.Index
     const token =
         typeof ALGO_INDEXER_TOKEN === 'string' ? { 'X-Indexer-API-Token': ALGO_INDEXER_TOKEN } : ALGO_INDEXER_TOKEN;
 
-    const utbc = new UTBC.URLTokenBaseHTTPClient(token, ALGO_INDEXER_SERVER, port);
-    const rhc = new RHC.ReachHTTPClient(utbc, 'indexer', async (e) => {});
+    const utbc = new NonRedundantHTTPClient(token, ALGO_INDEXER_SERVER, port, REACH_GET_REQUEST_CACHE_PERIOD);
+    const rhc = new RHC.ReachHTTPClient(utbc, 'indexer', async (e) => {
+        // do nothing
+    });
     return [rhc, new algosdk.Indexer(rhc)];
 }
 
@@ -58,8 +68,10 @@ export function algodClientFromEnv(env: any): [algosdk.BaseHTTPClient, algosdk.A
     const port = ALGO_PORT || undefined; // UTBC checks for undefiend
     const token = typeof ALGO_TOKEN === 'string' ? { 'X-Algo-API-Token': ALGO_TOKEN } : ALGO_TOKEN;
 
-    const utbc = new UTBC.URLTokenBaseHTTPClient(token, ALGO_SERVER, port);
-    const rhc = new RHC.ReachHTTPClient(utbc, 'algodv2', async (e) => {});
+    const utbc = new NonRedundantHTTPClient(token, ALGO_SERVER, port, REACH_GET_REQUEST_CACHE_PERIOD);
+    const rhc = new RHC.ReachHTTPClient(utbc, 'algodv2', async (e) => {
+        // do nothing
+    });
     return [rhc, new algosdk.Algodv2(rhc)];
 }
 

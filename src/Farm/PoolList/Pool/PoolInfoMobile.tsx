@@ -1,29 +1,27 @@
-import {
-    PoolInfoMobileContainer,
-    LPTokensIcon,
-    LpTokensIconsWrapper,
-    PoolInfoValue,
-    PoolNameMobile,
-    StakeButtonMobile,
-    ContractLockSuffix,
-    TimingMobile,
-} from './styled';
-import { convertAmountToUSD, getTokenLink, numberRound } from './utils';
+import { PoolInfoMobileContainer, PoolInfoValue, StakeButtonMobile, TimingMobile } from './styled';
+import { algoRewardPerBlock, convertAmountToUSD, numberRound } from './utils';
 import React, { FC } from 'react';
-import { PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
+import { getAPRTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
+import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
+import { APRTypes } from './PoolInfo';
+import info from '../../../imgs/info.svg';
+import ReactTooltip from 'react-tooltip';
 
 export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,
+    pricedAlgo,
     contractState,
-    lpTokenInfo,
+    stakeTokenInfo,
     rewardTokenInfo,
-    asset1_logo,
-    asset2_logo,
+    asset1_id,
+    asset2_id,
     pool_name,
     APR,
     timing,
     contractLockSuffix,
     isOpen,
+    dexIcon,
+    isVerified,
 }) => {
     if (contractState.local && isOpen) {
         return <></>;
@@ -31,46 +29,53 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
 
     return (
         <PoolInfoMobileContainer>
-            <PoolNameMobile>{pool_name}</PoolNameMobile>
-            <LpTokensIconsWrapper>
-                <a target="_blank" href={getTokenLink(lpTokenInfo?.asset1)} rel="noreferrer">
-                    <LPTokensIcon first>
-                        {asset1_logo && <img alt="" width="100%" height="100%" src={asset1_logo} />}
-                    </LPTokensIcon>
-                </a>
-                <a target="_blank" href={getTokenLink(lpTokenInfo?.asset2)} rel="noreferrer">
-                    <LPTokensIcon>
-                        {asset2_logo && <img alt="" width="100%" height="100%" src={asset2_logo} />}
-                    </LPTokensIcon>
-                </a>
-            </LpTokensIconsWrapper>
-            <PoolNameMobile style={{ marginBottom: '0' }}>EARN {rewardTokenInfo.unitName}</PoolNameMobile>
-            <ContractLockSuffix>{contractLockSuffix}</ContractLockSuffix>
-            <PoolInfoValue>
+            <PoolHeader
+                asset1_id={asset1_id}
+                asset2_id={asset2_id}
+                pool_name={pool_name}
+                rewardTokenName={rewardTokenInfo.unitName}
+                dexIcon={dexIcon}
+                lock={contractLockSuffix}
+                isVerified={isVerified}
+                algoRewards={algoRewardPerBlock(contractState.initial) > 0}
+            />
+            <PoolInfoValue style={{ marginTop: '30px' }}>
                 <div>TVL</div>
-                <div style={{ color: '#B5B5B5' }}>
-                    ${numberRound(convertAmountToUSD(lpTokenInfo ?? rewardTokenInfo, contractState.global.totalStaked))}
+                <div style={{ color: 'white' }}>
+                    ${numberRound(convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked))}
                 </div>
             </PoolInfoValue>
             <PoolInfoValue style={{ marginBottom: '30px' }}>
-                <div>APR</div> <div style={{ color: '#B5B5B5' }}>{numberRound(APR)}%</div>
+                <div>APR</div>{' '}
+                <div style={{ color: 'white', display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+                    {numberRound(APR[APRTypes.total])}%
+                    <img
+                        data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
+                        style={{ marginLeft: '3px' }}
+                        alt="APR info"
+                        height="14px"
+                        src={info}
+                    />
+                    {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+                    {/*
+                     // @ts-ignore */}
+                    <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
+                </div>
             </PoolInfoValue>
             <PoolInfoValue>
                 <div>MY STAKE</div>
                 <div style={{ color: 'white' }}>
-                    <StakeValue contractState={contractState} tokenInfo={lpTokenInfo ?? rewardTokenInfo} />
+                    <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
             <PoolInfoValue>
                 <div>REWARD</div>
                 <div style={{ color: 'white' }}>
-                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} />
+                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
             {<StakeButtonMobile disabled={!contractState.local}>MANAGE</StakeButtonMobile>}
-            <div style={{ color: 'gray' }}>
-                <TimingMobile>{timing}</TimingMobile>
-            </div>
+            <TimingMobile>{timing}</TimingMobile>
         </PoolInfoMobileContainer>
     );
 };

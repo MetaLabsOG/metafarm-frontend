@@ -1,6 +1,7 @@
 import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useStore, useStoreMap } from 'effector-react';
 import { useQuery } from 'react-query';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore TODO: type definitions for contract packages?... damn seems bad...
 import { backend, reach } from '@metalabsog/crowdsale';
 
@@ -108,7 +109,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps): ReactElement => 
             <h4>SET AMOUNT TO BUY ({individualCap - alreadyBought} more microMETA allowed)</h4>
             <input
                 type="number"
-                className="token_input"
+                className="tokenInput"
                 placeholder={'10'}
                 onChange={(e) => setTokenAmountValidated(BigInt(parseInt(e.target.value)))}
                 // TODO: remove this conversion when adding proper display with decimals
@@ -126,8 +127,12 @@ export const Crowdsale = (): ReactElement => {
     const { data, isError, isSuccess } = useQuery(['contracts', 'crowdsale'], () => getContracts('crowdsale'));
 
     useEffect(() => {
-        if (isSuccess) {
+        if (isSuccess && data instanceof Array) {
             const contracts = data.sort((a: any, b: any) => b.deployed_timestamp - a.deployed_timestamp).slice(0, 1);
+            // TODO(flyingleafe) pls fix
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            // eslint-disable-next-line effector/mandatory-useEvent
             setContractInfos(contracts);
         }
     }, [data, isError, isSuccess]);

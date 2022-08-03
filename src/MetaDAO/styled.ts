@@ -8,6 +8,7 @@ export const MetaDAOContainer = styled.div`
 export const WalletInfo = styled.div`
     display: flex;
     flex-direction: column;
+    margin-top: 50px;
 `;
 
 export const Header = styled.div`
@@ -46,72 +47,46 @@ export const MetaTreasuryText = styled.div`
 export const Charts = styled.div`
     display: flex;
     margin-top: 50px;
-    flex-wrap: wrap;
     width: 100%;
-    height: 25%;
     justify-content: flex-start;
-    margin-right: 40px;
-    margin-bottom: 60px;
     @media (max-width: 640px) {
-        margin-top: 20px;
-        margin-bottom: 20px;
+        flex-direction: column;
+        gap: 20px;
     }
 `;
 
 export const MetaTreasuryChartStyled = styled.div`
     width: 50%;
-    height: 100%;
-    margin-right: 100px;
-    position: relative;
-    padding-right: 60px;
     @media (max-width: 640px) {
-        padding: 0;
-        margin: 0;
         width: 100%;
-        height: 30%;
     }
 `;
 
 export const MetaTreasuryChartContainer = styled.div`
     width: 90%;
-    margin-top: 30px;
 `;
 
 export const MetaTreasuryChartXTitle = styled.div`
-    position: absolute;
-    right: 10px;
-    bottom: 26%;
+    margin-left: 10px;
     font-size: 16px;
-    @media (max-width: 640px) {
-        bottom: 20%;
-        left: 90%;
-    }
 `;
 
 export const MetaTreasuryChartYTitle = styled.div`
-    position: absolute;
-    top: 10%;
-    left: 4%;
-    @media (max-width: 640px) {
-        top: 14%;
-        left: 9%;
-    }
+    margin-top: 15px;
+    margin-left: 15px;
 `;
 
 export const ChartTitle = styled.div`
     color: white;
     font-size: 20px;
+    margin-bottom: 30px;
 `;
 
 export const AssetsChartStyled = styled.div`
-    height: 100%;
-    width: 25%;
-    position: relative;
+    width: 50%;
     @media (max-width: 640px) {
-        padding: 0;
-        margin: 0;
-        width: 75%;
-        height: 30%;
+        width: 100%;
+        margin-bottom: 50px;
     }
 `;
 
@@ -171,26 +146,6 @@ export const NftWeekPriceChange = styled.div`
 
 export const NFtPriceValue = styled.div`
     margin: 5px;
-`;
-
-export const Info = styled.div`
-    font-size: 16;
-    font-family: 'Inter';
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    margin-bottom: 10px;
-`;
-
-export const LegendValues = styled.div`
-    position: absolute;
-    left: 123%;
-    top: 20%;
-    @media (max-width: 640px) {
-        left: 100%;
-        top: 40%;
-    }
 `;
 
 export const Fail = styled.div`

@@ -1,52 +1,70 @@
-import React, { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
-import { TokenSelectOption } from '../Swap/types';
 import { ZapData } from './types';
-import { $account, $balances } from '../common/store';
+import { $account, $balances, fetchAsset } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
 import { useStore } from 'effector-react';
-import {
-    formatNumber,
-    getData,
-    getOptions,
-    QueryType,
-    runTransactions,
-    TOKEN_INITIAL_STATE,
-    TokenSelect,
-    TokenSelectWithAmount,
-} from '../Swap/Swap';
+import { formatNumber, getOptions, QueryType, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
+import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
+import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
+import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
+import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
+import { InfoRow } from '../Components/InfoRow/InfoRow';
+import { TokenOptionType } from '../Components/Select/types';
+import { makeDex, ZapQuote } from '../providers/dexesProvider';
+import { algoexplorerTxLink, fromMicros, getMicros } from '../common/lib';
+import { notify } from '../Components/Notification';
+
+const tinyman = makeDex('T2');
+
+function zapQuoteToData(asset1_id: number, quote: ZapQuote): ZapData {
+    const assetsAreSwapped = asset1_id !== quote.mint.assetA.id;
+    const amountA = fromMicros(quote.mint.assetA, quote.mint.amountA);
+    const amountB = fromMicros(quote.mint.assetB, quote.mint.amountB);
+
+    const asset1_amount = assetsAreSwapped ? amountB : amountA;
+    const asset2_amount = assetsAreSwapped ? amountA : amountB;
+    const lp_amount = fromMicros(quote.mint.lpToken, quote.mint.minimalLiquidityIssued);
+    const pool_lp_id = quote.mint.lpToken.id;
+    return { asset1_amount, asset2_amount, lp_amount, pool_lp_id };
+}
 
 export async function loadZapData(
     account: Account | null,
     asset1_id: string | undefined,
     asset2_id: string | undefined,
-    asset1_amount: string,
-    setIsLoading: Dispatch<SetStateAction<boolean>>,
-    setResult: Dispatch<SetStateAction<ZapData>>,
-    setShowResults: Dispatch<SetStateAction<boolean>>
-) {
+    asset1_amount: string
+): Promise<ZapData | null> {
     if (!asset1_id || !asset2_id) {
-        alert('Please, choose tokens.');
-        return;
+        notify('Please, choose tokens.', 'warning');
+        return null;
     }
 
     if (!asset1_amount) {
-        alert('Please, enter the token amount.');
-        return;
+        notify('Please, enter the token amount.', 'warning');
+        return null;
     }
 
-    setIsLoading(true);
+    if (asset1_id === asset2_id) {
+        notify('Please, choose different tokens.', 'warning');
+        return null;
+    }
+
     console.log('[ZAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
-        const additionalParams = '&swap_half=true&slippage=0.1';
-        const zap_data: ZapData = await getData(QueryType.zap, asset1_id, asset2_id, asset1_amount, additionalParams);
+        const asset1 = await fetchAsset(Number(asset1_id));
+        const asset2 = await fetchAsset(Number(asset2_id));
+        const amountIn = getMicros(asset1, Number(asset1_amount));
+        const zapQuote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
+
+        const zap_data = zapQuoteToData(Number(asset1_id), zapQuote);
 
         logEvent(
             account?.networkAccount.addr,
@@ -56,18 +74,18 @@ export async function loadZapData(
                 asset2_id: asset2_id,
                 amount: asset1_amount,
                 ...zap_data,
-                additionalParams: additionalParams,
             },
             LogName.ZAP
         );
 
-        setResult(zap_data);
-        setIsLoading(false);
-        setShowResults(true);
+        return zap_data;
     } catch (e) {
-        // @ts-ignore
-        const error_message = e.message;
-        alert(error_message);
+        const error_message = e instanceof Error ? e.message : String(e);
+        if (error_message.includes('cancelled')) {
+            notify('Operation is cancelled.', 'warning');
+        } else {
+            notify(error_message, 'error');
+        }
         logEvent(
             account?.networkAccount.addr,
             {
@@ -79,7 +97,7 @@ export async function loadZapData(
             },
             LogName.ZAP
         );
-        setIsLoading(false);
+        return null;
     }
 }
 
@@ -91,40 +109,34 @@ export function ZapResult({
 }: {
     isLoading: boolean;
     zap_data: ZapData;
-    token1: TokenSelectOption;
-    token2: TokenSelectOption;
+    token1: TokenOptionType;
+    token2: TokenOptionType;
 }) {
-    if (isLoading) {
-        return (
-            <div className="token_price" style={{ display: 'flex', justifyContent: 'center' }}>
-                <img
-                    style={{ width: '50px', height: '50px', margin: 'auto' }}
-                    alt="loader"
-                    src={require('../imgs/loader.gif')}
-                />
-            </div>
-        );
-    }
+    const lpTokens =
+        formatNumber(zap_data.asset1_amount ?? 0) +
+        ' ' +
+        token1.unitName +
+        ' + ' +
+        formatNumber(zap_data.asset2_amount ?? 0) +
+        ' ' +
+        token2.unitName;
 
     return (
-        <div className="token_price">
-            <div style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap' }}>
-                <h3 className="token_price_text">
-                    {token1.unit_name}-{token2.unit_name} LP
-                </h3>
-                <h3 className="token_price_zap_value">{formatNumber(zap_data.lp_amount ?? 0)}</h3>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'right', marginTop: '10px' }}>
-                <h3 className="token_price_text">
-                    {formatNumber(zap_data.asset1_amount ?? 0)} {token1.unit_name} +{' '}
-                    {formatNumber(zap_data.asset2_amount ?? 0)} {token2.unit_name}
-                </h3>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', whiteSpace: 'nowrap', marginTop: '10px' }}>
-                <h3 className="token_price_text">LP ASA ID</h3>
-                <h3 className="token_price_text">{formatNumber(zap_data.pool_lp_id ?? 0)}</h3>
-            </div>
-        </div>
+        <InfoPanel isLoading={isLoading}>
+            <InfoRow
+                title={token1.unitName + '-' + token2.unitName + ' LP'}
+                value={formatNumber(zap_data.lp_amount ?? 0)}
+                valueStyle={{ fontSize: '18px', color: 'white' }}
+                style={{ marginBottom: '5px' }}
+            />
+            <InfoRow title=" " value={lpTokens} valueStyle={{ fontSize: '14px' }} />
+            <InfoRow
+                title="LP ASA ID"
+                value={formatNumber(zap_data.pool_lp_id ?? 0)}
+                valueStyle={{ fontSize: '14px' }}
+            />
+            <InfoRow title="Slippage" value={SLIPPAGE * 100 + '%'} valueStyle={{ fontSize: '14px' }} />
+        </InfoPanel>
     );
 }
 
@@ -132,8 +144,8 @@ export function Zap() {
     const account = useStore($account);
     const balances = useStore($balances);
 
-    const [token1, setToken1] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
-    const [token2, setToken2] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
+    const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
+    const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [zapData, setZapData] = useState<ZapData>({
         asset1_amount: 0,
@@ -142,12 +154,12 @@ export function Zap() {
         pool_lp_id: 0,
     });
 
-    const [options, setOptions] = useState<TokenSelectOption[]>([]);
+    const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        getOptions(balances).then((res) => {
+        getOptions(account, balances).then((res) => {
             setOptions(res);
             setToken1(res[0]);
         });
@@ -155,24 +167,39 @@ export function Zap() {
 
     const getZapTimeout = useRef<any>();
 
+    function getZap(token1_id: string, token2_id: string, amount: string) {
+        setIsLoading(true);
+        loadZapData(account, token1_id, token2_id, amount).then((res) => {
+            if (res !== null) {
+                setZapData(res);
+                console.log('[ZAP] res', res);
+                setShowResult(true);
+            }
+            setIsLoading(false);
+        });
+    }
+
     function getZapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
         if (!token1_id || !token2_id || !amount) {
             return;
         }
         clearTimeout(getZapTimeout.current);
-        getZapTimeout.current = setTimeout(() => {
-            loadZapData(account, token1_id, token2_id, amount, setIsLoading, setZapData, setShowResult);
-        }, delay);
+        getZapTimeout.current = setTimeout(() => getZap(token1_id, token2_id, amount), delay);
     }
 
     const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
+        // FIXME
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         setToken1(option);
+        setToken1Amount('');
         setShowResult(false);
         getZapThrottled(option.value, token2.value, token1Amount, 50);
     };
 
     const select2OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
+        // FIXME
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         setToken2(option);
         setShowResult(false);
@@ -180,47 +207,50 @@ export function Zap() {
         getZapThrottled(token1.value, option.value, token1Amount, 50);
     };
 
-    const inputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (isNaN(Number(e.target.value))) {
-            return;
-        }
+    const inputOnChange = (inputValue: string) => {
         setShowResult(false);
-        setToken1Amount(e.target.value);
-        getZapThrottled(token1.value, token2.value, e.target.value, 1000);
+        getZapThrottled(token1.value, token2.value, inputValue, 1000);
     };
 
     const LoadZapButtonOnClick = async () => {
-        return loadZapData(account, token1.value, token2.value, token1Amount, setIsLoading, setZapData, setShowResult);
+        return getZap(token1.value, token2.value, token1Amount);
     };
 
     const ZapButtonOnClick = async () => {
-        const result_tx_id = await runTransactions(
+        const res = await runTransactions(
             QueryType.zap,
             account,
             token1.value,
             token2.value,
             token1Amount,
-            '&swap_half=true&slippage=0.1'
+            token1.balance
         );
-        if (result_tx_id) {
-            alert('OK ' + result_tx_id);
+        if (res !== null) {
+            const { txIds } = res;
+            notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
         }
     };
 
     return (
-        <div className="swap_container">
-            <h1 className="swap_header">ZAP</h1>
-            <h3 className="swap_descr">Add liquidity and get LP tokens in one click</h3>
-            <h3 className="swap_text">FIRST TOKEN</h3>
-            <TokenSelectWithAmount
+        <ModalContainer>
+            <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>ZAP</ModalTitle>
+            <ModalSubtitle>Add liquidity and get LP tokens in one click</ModalSubtitle>
+            <Heading2>FIRST TOKEN</Heading2>
+            <SelectInputGroup
                 options={options}
-                token={token1}
-                tokenAmount={token1Amount}
+                selectedOption={token1}
+                inputData={token1Amount}
+                setInputData={setToken1Amount}
                 selectOnChange={select1OnChange}
                 inputOnChange={inputOnChange}
             />
-            <h3 className="swap_text">SECOND TOKEN</h3>
-            <TokenSelect options={options} token={token2} selectOnChange={select2OnChange} />
+            <Heading2>SECOND TOKEN</Heading2>
+            <Select
+                selectType={SelectType.tokenSelect}
+                options={options}
+                selectedOption={token2}
+                selectOnChange={select2OnChange}
+            />
             {!isLoading && !showResult && (
                 <PacmanButton
                     buttonText="FIND LIQUIDITY POOL"
@@ -237,6 +267,6 @@ export function Zap() {
                     <h3 className="dex_name">on tinyman</h3>
                 </React.Fragment>
             )}
-        </div>
+        </ModalContainer>
     );
 }

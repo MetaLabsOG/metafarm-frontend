@@ -1,121 +1,179 @@
 import { useStore } from 'effector-react';
-import { $account, $meanRoundDuration, Asset, ContractState, FarmType, Priced, Time } from '../../../common/store';
-import { formatLPTokenName } from './utils';
+import {
+    $account,
+    $algoUsdPrice,
+    $meanRoundDuration,
+    Asset,
+    ContractState,
+    FarmInitialInfo,
+    FarmType,
+    Priced,
+    Time,
+} from '../../../common/store';
+import { formatLPTokenName, getDexIcon, isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import React from 'react';
-import { ALGONET, MAINNET } from '../../../AppContext';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
 import { PoolInfoMobile } from './PoolInfoMobile';
-import { unsafeFromBigint } from '../../../common/lib';
+import { DAY, HOUR, MINUTE, unsafeFromBigint } from '../../../common/lib';
 
-export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
-    0: 0, // ALGO
-    85951079: 712012773, // META
-    19386116: 386192725, // goBTC
-    10458941: 31566704, // USDC
-    70283957: 463554836, // ALGF
+const blocksToText = (blocks: number, meanRoundDuration: number) => {
+    const diffSecs = Math.abs(blocks) * meanRoundDuration;
+    let resTimeUnit = MINUTE;
+    if (diffSecs > DAY) {
+        resTimeUnit = DAY;
+    } else if (diffSecs > HOUR) {
+        resTimeUnit = HOUR;
+    }
+
+    const resTimeSuffix = resTimeUnit === DAY ? 'day' : resTimeUnit === HOUR ? 'hour' : 'minute';
+    const timeUnits = Math.floor(diffSecs / resTimeUnit);
+    const suffix = timeUnits > 1 ? 's' : '';
+    return timeUnits + ' ' + resTimeSuffix + suffix;
 };
 
-const getAssetLogoUrl = (input_asset_id: number) => {
-    const asset_id = ALGONET === MAINNET ? input_asset_id : TESTNET_TO_MAINNET_ASA_ID[input_asset_id] ?? 0;
+const calculateTiming = (
+    poolState: PoolState,
+    currentBlock: number,
+    beginBlock: number,
+    endBlock: number,
+    meanRoundDuration: number
+) => {
+    if (poolState === PoolState.Finished) {
+        return 'ended';
+    }
 
-    return 'https://asa-list.tinyman.org/assets/' + asset_id + '/icon.png';
+    const timingPrefix = poolState === PoolState.Running ? 'ends\nin ' : 'starts\nin ';
+    const blocksDiff = poolState === PoolState.Running ? endBlock - currentBlock : beginBlock - currentBlock;
+    const diffText = blocksToText(blocksDiff, meanRoundDuration);
+
+    return timingPrefix + diffText;
 };
 
-const daysDiff = (currentBlock: number, block: number) => Math.floor((Math.abs(block - currentBlock) * 4.35) / 86400);
+export enum APRTypes {
+    reward,
+    algoReward,
+    fees,
+    total,
+}
 
 const calculateAPR = (
     meanRoundDuration: number,
     poolState: PoolState,
     contractState: ContractState<FarmType>,
-    lpTokenInfo: Priced<Asset> | null,
-    rewardTokenInfo: Priced<Asset>
-): number => {
+    stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>,
+    rewardTokenInfo: Priced<Asset>,
+    ALGOPrice: number | null
+): Record<APRTypes, number> => {
+    if (poolState === PoolState.Finished) {
+        return {
+            [APRTypes.reward]: 0,
+            [APRTypes.algoReward]: 0,
+            [APRTypes.fees]: 0,
+            [APRTypes.total]: 0,
+        };
+    }
+
     const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
-    const lpPrice = lpTokenInfo ? lpTokenInfo.price : rewardTokenInfo.price;
-    const totalStaked = unsafeFromBigint(contractState.global.totalStaked);
+    const stakePrice = stakeTokenInfo.price;
+    const totalStaked = unsafeFromBigint(contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
     const rewardPerBlock = unsafeFromBigint(contractState.initial.rewardPerBlock);
 
-    return poolState === PoolState.Finished
-        ? 0
-        : totalStaked === 0 || lpPrice === 0
-        ? 0
-        : ((rewardPerBlock * blocksInAYear * rewardTokenInfo.price) / (totalStaked * lpPrice)) * 100;
+    const extraAlgoRewardPerBlock = (contractState.initial as FarmInitialInfo).extraAlgoRewardPerBlock;
+    const algoRewardPerBlock = extraAlgoRewardPerBlock ? unsafeFromBigint(extraAlgoRewardPerBlock) : 0;
+
+    const totalStakedUSD = totalStaked * stakePrice;
+    const rewardAPR = totalStakedUSD
+        ? ((rewardPerBlock * rewardTokenInfo.price * blocksInAYear) / totalStakedUSD) * 100
+        : 0;
+
+    const algoRewardAPR =
+        totalStakedUSD && ALGOPrice ? ((algoRewardPerBlock * ALGOPrice * blocksInAYear) / totalStakedUSD) * 100 : 0;
+
+    const feesAPR = ((stakeTokenInfo as Priced<LPTokenInfo>).dexFeeApr ?? 0) * 100;
+
+    return {
+        [APRTypes.reward]: rewardAPR,
+        [APRTypes.algoReward]: algoRewardAPR,
+        [APRTypes.fees]: feesAPR,
+        [APRTypes.total]: rewardAPR + algoRewardAPR + feesAPR,
+    };
 };
 
 export const PoolInfo = ({
     contractState,
     poolState,
-    lpTokenInfo,
+    stakeTokenInfo,
     rewardTokenInfo,
     currentBlock,
+    pricedAlgo,
     isOpen,
+    poolMetadata,
 }: {
     contractState: ContractState<FarmType>;
     poolState: PoolState;
-    lpTokenInfo: Priced<LPTokenInfo> | null;
+    stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>;
     rewardTokenInfo: Priced<Asset>;
     currentBlock: Time;
+    pricedAlgo: Priced<Asset>;
     isOpen: boolean;
+    poolMetadata: any;
 }) => {
     const account = useStore($account);
     const meanRoundDuration = useStore($meanRoundDuration);
+    const ALGOPrice = useStore($algoUsdPrice);
     const { endBlock, beginBlock } = contractState.initial;
-    const APR = calculateAPR(meanRoundDuration, poolState, contractState, lpTokenInfo, rewardTokenInfo);
+    const APR = calculateAPR(meanRoundDuration, poolState, contractState, stakeTokenInfo, rewardTokenInfo, ALGOPrice);
 
-    const timing =
-        poolState === PoolState.Upcoming ? (
-            <>
-                <div>starts</div>
-                <div>in {daysDiff(currentBlock, beginBlock)} days</div>
-            </>
-        ) : poolState === PoolState.Running ? (
-            <>
-                <div>ends</div>
-                <div>in {daysDiff(currentBlock, endBlock)} days</div>
-            </>
-        ) : (
-            'ended'
-        );
+    const timing = calculateTiming(poolState, currentBlock, beginBlock, endBlock, meanRoundDuration);
 
-    const asset1_id = lpTokenInfo ? lpTokenInfo.asset1 : rewardTokenInfo.id;
-    const asset2_id = lpTokenInfo ? lpTokenInfo.asset2 : rewardTokenInfo.id;
-    const pool_name = lpTokenInfo ? formatLPTokenName(lpTokenInfo.name) + ' LP' : 'STAKE ' + rewardTokenInfo.unitName;
+    const asset1_id = isLPTokenInfo(stakeTokenInfo) ? stakeTokenInfo.asset1 : stakeTokenInfo.id;
+    const asset2_id = isLPTokenInfo(stakeTokenInfo) ? stakeTokenInfo.asset2 : rewardTokenInfo.id;
+    const pool_name = isLPTokenInfo(stakeTokenInfo)
+        ? formatLPTokenName(stakeTokenInfo.name) + ' LP'
+        : 'STAKE ' + stakeTokenInfo.unitName;
     // TODO: separate 0 from undefined in lpTokenInfo.asset
-    const asset1_logo = getAssetLogoUrl(asset1_id);
-    const asset2_logo = getAssetLogoUrl(asset2_id);
-    const contractLockSuffix = contractState.initial.lockLengthBlocks ? 'with lock' : '';
+    const contractLockSuffix = contractState.initial.lockLengthBlocks
+        ? 'with ' + blocksToText(Number(contractState.initial.lockLengthBlocks), meanRoundDuration) + ' lock'
+        : '';
+
+    const dexIcon = isLPTokenInfo(stakeTokenInfo) ? getDexIcon(stakeTokenInfo.poolDex) : null;
 
     return (
         <>
             {window.innerWidth <= 1120 ? (
                 <PoolInfoMobile
                     account={account}
+                    pricedAlgo={pricedAlgo}
                     contractState={contractState}
-                    lpTokenInfo={lpTokenInfo}
+                    stakeTokenInfo={stakeTokenInfo}
                     rewardTokenInfo={rewardTokenInfo}
-                    asset1_logo={asset1_logo}
-                    asset2_logo={asset2_logo}
+                    asset1_id={asset1_id}
+                    asset2_id={asset2_id}
                     pool_name={pool_name}
                     APR={APR}
                     timing={timing}
                     contractLockSuffix={contractLockSuffix}
                     isOpen={isOpen}
+                    dexIcon={dexIcon}
+                    isVerified={poolMetadata.verified ?? false}
                 />
             ) : (
                 <PoolInfoDesktop
                     account={account}
+                    pricedAlgo={pricedAlgo}
                     contractState={contractState}
-                    lpTokenInfo={lpTokenInfo}
+                    stakeTokenInfo={stakeTokenInfo}
                     rewardTokenInfo={rewardTokenInfo}
-                    asset1_logo={asset1_logo}
-                    asset2_logo={asset2_logo}
+                    asset1_id={asset1_id}
+                    asset2_id={asset2_id}
                     pool_name={pool_name}
                     APR={APR}
                     timing={timing}
                     contractLockSuffix={contractLockSuffix}
                     isOpen={isOpen}
+                    dexIcon={dexIcon}
+                    isVerified={poolMetadata.verified ?? false}
                 />
             )}
         </>

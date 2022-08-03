@@ -32,6 +32,7 @@ export const doCustomWalletFallback = (
     opts: any,
     getAddr: () => Promise<string>,
     signTxns_: (txns: WalletTransaction[]) => Promise<string[]>,
+    // eslint-disable-next-line @typescript-eslint/require-await
     disconnect: () => Promise<void> = async () => {
         return;
     }
@@ -147,6 +148,9 @@ const walletFallback_WalletConnect = (opts: object) => (): ARC11_Wallet_Exposed 
         let addrs;
         try {
             addrs = await peraWallet.reconnectSession();
+            if (addrs.length === 0) {
+                throw new Error('could not reconnect');
+            }
         } catch (err) {
             addrs = await peraWallet.connect();
         }
