@@ -1,11 +1,46 @@
 import { formatDecimalsMeaningful, unsafeFromBigint } from '../../../common/lib';
-import { Asset, Priced, Amount } from '../../../common/store/types';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { ALGONET, MAINNET, reach, TESTNET } from '../../../AppContext';
-import { TESTNET_TO_MAINNET_ASA_ID } from './PoolInfo';
+import tinyman from '../../../imgs/dexes/tinyman.png';
+import pact from '../../../imgs/dexes/pact.png';
+import humble from '../../../imgs/dexes/humble.png';
+import algofi from '../../../imgs/dexes/algofi.png';
+import {
+    Asset,
+    Priced,
+    Amount,
+    ContractState,
+    FarmType,
+    FarmInitialInfo,
+    DistributionInitialInfo,
+} from '../../../common/store/types';
+import { LPTokenInfo, DexProvider } from '../../../providers/dexesProvider';
+import { ALGONET, MAINNET, TESTNET } from '../../../AppContext';
+import { PoolState } from './types';
 
 const TINYMAN_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.tinyman.org`;
 const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
+
+export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
+    0: 0, // ALGO
+    85951079: 712012773, // META
+    19386116: 386192725, // goBTC
+    10458941: 31566704, // USDC
+    70283957: 463554836, // ALGF
+    96690153: 607591690, // XGLI
+    27963203: 342889824, // BOARD
+};
+
+export const getAssetLogoUrl = (input_asset_id: number) => {
+    // TODO hack for glitter
+    if (input_asset_id === 96690352) {
+        return 'https://gateway.pinata.cloud/ipfs/QmXhUDU7QNxWg27JipSvLxc3wcsEL23RJW5fjDvEGzbZSb';
+    }
+    const asset_id = ALGONET === MAINNET ? input_asset_id : TESTNET_TO_MAINNET_ASA_ID[input_asset_id] ?? 0;
+    return 'https://asa-list.tinyman.org/assets/' + asset_id + '/icon.png';
+};
+
+export const isLPTokenInfo = (tokenInfo: Priced<Asset> | Priced<LPTokenInfo>): tokenInfo is Priced<LPTokenInfo> => {
+    return 'poolId' in tokenInfo;
+};
 
 export const convertAmountToUSD = (lpToken: Priced<Asset>, amount: Amount) => {
     return (lpToken.price * unsafeFromBigint(amount)) / 10 ** lpToken.decimals;
@@ -28,6 +63,16 @@ export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenI
     }
 };
 
+export const getDexName = (poolDex: string): string => {
+    if (poolDex === 'T2') {
+        return 'tinyman';
+    }
+    if (poolDex === 'PT') {
+        return 'pact';
+    }
+    return poolDex;
+};
+
 export const getTokenLink = (asset_id: number | undefined): string => {
     if (asset_id === 0) {
         return 'https://algoexplorer.io/top-statistics';
@@ -38,5 +83,39 @@ export const getTokenLink = (asset_id: number | undefined): string => {
 
 // TODO: remove this when pools name it will be not test names
 export const formatLPTokenName = (name: string) => {
-    return name.replace('TinymanPool1.1 ', '');
+    return name.replace('TinymanPool1.1 ', '').replace('liquidity', '');
+};
+
+export const getDexIcon = (poolDex: DexProvider) => {
+    if (poolDex === 'T2') {
+        return tinyman;
+    }
+    if (poolDex === 'PT') {
+        return pact;
+    }
+    return null;
+};
+
+export const algoRewardPerBlock = (initial: ContractState<FarmType>['initial']): Amount => {
+    if ('extraAlgoRewardPerBlock' in initial) {
+        return initial.extraAlgoRewardPerBlock;
+    }
+    return BigInt(0);
+};
+
+export const calculateAlgoReward = (initial: ContractState<FarmType>['initial'], tokenReward: Amount): Amount => {
+    const duration = BigInt(initial.endBlock - initial.beginBlock);
+    const totalTokenReward = initial.rewardPerBlock * duration;
+    const totalAlgoReward = algoRewardPerBlock(initial) * duration;
+    return (tokenReward * totalAlgoReward) / totalTokenReward;
+};
+
+export const getPoolState = (currentBlock: number, initial: FarmInitialInfo | DistributionInitialInfo): PoolState => {
+    if (currentBlock < initial.beginBlock) {
+        return PoolState.Upcoming;
+    }
+    if (currentBlock > initial.endBlock) {
+        return PoolState.Finished;
+    }
+    return PoolState.Running;
 };

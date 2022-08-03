@@ -6,7 +6,7 @@ export const Action = styled.div<{ customColor?: boolean }>`
     display: flex;
     height: 40px;
     width: 100%;
-    color: ${(props) => (props.customColor ? props.theme.blue : props.theme.green)};
+    color: white;
 `;
 
 export const Button = styled.button<{ customColor?: boolean; isActive?: boolean }>`
@@ -20,4 +20,3 @@ export const Button = styled.button<{ customColor?: boolean; isActive?: boolean 
         color: inherit;
     }
 `;
-

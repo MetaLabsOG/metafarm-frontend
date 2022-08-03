@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { BigNumber } from '@ethersproject/bignumber';
+import { AllDefined } from '../../types';
 
 export type AssetId = number;
 export type AppId = number;
@@ -19,21 +21,13 @@ export type Asset = {
 export type Priced<T> = T & { price: number; priceInAlgo: number };
 
 /**
- * Makes all optional fields in the record type (ones ending with `?`) non-optional.
- * E.g. `AllDetined<ContractState<T>>` __must__ have the `local` field.
- */
-export type AllDefined<T> = {
-    [Property in keyof T]-?: T[Property];
-};
-
-/**
  * Makes both `number`s and `bigint`s inside the type be `BigNumber`s.
  * So that we can get "raw" types (as produced by Reach) from our
  * semantic types automatically.
  */
 export type AllBignums<T> = T extends number | bigint
     ? BigNumber
-    : T extends {} | unknown[]
+    : T extends any | unknown[]
     ? { [K in keyof T]: AllBignums<T[K]> }
     : T;
 
@@ -58,6 +52,8 @@ export function hasLocalState<T extends ContractType, S extends ContractState<T>
     return !!state.local;
 }
 
+export type InnerCtc = any;
+
 export type Contract<T extends ContractType> = {
     id: AppId;
     info: ContractInfo<T>;
@@ -79,10 +75,10 @@ export type ContractInfo<T extends ContractType> = {
 };
 
 export type ContractMetadata = {
-    farm: {};
-    distribution: null;
+    farm: { dex?: string };
+    distribution: unknown;
     crowdsale: { whitelist: Array<string> };
-    fomo: {};
+    fomo: unknown;
 };
 
 type InitialInfo = {
@@ -105,16 +101,19 @@ type LocalInfo = {
 
 // Farm types
 
-type FarmInitialInfo = {
+export type FarmInitialInfo = {
+    beneficiary: string;
+    creationFee: Amount;
     stakeToken: AssetId;
     rewardToken: AssetId;
     endBlock: Time;
     beginBlock: Time;
     rewardPerBlock: Amount;
+    extraAlgoRewardPerBlock: Amount;
     lockLengthBlocks: Amount; // > 0 if lock
 };
 
-type DistributionInitialInfo = {
+export type DistributionInitialInfo = {
     token: AssetId;
     endBlock: Time;
     beginBlock: Time;
@@ -126,7 +125,6 @@ export type FarmGlobalInfo = {
     totalStaked: Amount;
     lastUpdateBlock: Time;
     rewardPerTokenStored: Amount;
-    rewardsPaid: Amount;
 };
 
 export type FarmLocalInfo = {
@@ -165,11 +163,14 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
     viewType: V
 ): (obj: any) => AllDefined<ContractState<T>>[V] {
     const parseFarmInitialInfo = (obj: any): FarmInitialInfo => ({
+        beneficiary: obj.beneficiary,
+        creationFee: obj.creationFee.toBigInt(),
         stakeToken: obj.stakeToken.toNumber(),
         rewardToken: obj.rewardToken.toNumber(),
         endBlock: obj.endBlock.toNumber(),
         beginBlock: obj.beginBlock.toNumber(),
         rewardPerBlock: obj.rewardPerBlock.toBigInt(),
+        extraAlgoRewardPerBlock: obj.extraAlgoRewardPerBlock.toBigInt(),
         lockLengthBlocks: obj.lockLengthBlocks.toBigInt(),
     });
 
@@ -177,7 +178,6 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
         totalStaked: obj.totalStaked.toBigInt(),
         lastUpdateBlock: obj.lastUpdateBlock.toNumber(),
         rewardPerTokenStored: obj.rewardPerTokenStored.toBigInt(),
-        rewardsPaid: obj.rewardsPaid.toBigInt(),
     });
 
     const parseFarmLocalInfo = (obj: any): FarmLocalInfo => ({

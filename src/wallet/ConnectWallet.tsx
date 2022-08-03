@@ -1,4 +1,4 @@
-import { MouseEventHandler, useEffect, useState } from 'react';
+import React, { MouseEventHandler, useEffect, useState } from 'react';
 import { useStore } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
 import { detect } from 'detect-browser';
@@ -8,6 +8,8 @@ import { logEvent, LogName } from '../logEvent';
 import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
 import { customWalletFallback, WalletType } from './customWalletFallback';
+import { Heading2 } from '../common/styled';
+import { notify } from '../Components/Notification';
 
 const browser = detect();
 const browserInfoString = browser === null ? 'unknown' : `${browser.name} ${browser.version} ${browser.os}`;
@@ -21,7 +23,7 @@ const connectWallet = (walletType: WalletType) => {
 
     reach.setWalletFallback(customWalletFallback({ providerEnv: ALGONET, walletType }));
     if (walletType === 'WalletConnect' && ALGONET === TESTNET) {
-        alert('Please, switch you Perra wallet to testnet');
+        notify('Please, switch you Pera wallet to testnet.', 'info');
     }
     reach
         .getDefaultAccount()
@@ -42,7 +44,7 @@ const connectWallet = (walletType: WalletType) => {
             return acc;
         })
         .catch((e) => {
-            console.log('ERROR. ConnectWallet: ' + e.name + ': ' + e.message);
+            console.log('ERROR. ConnectWallet: ', e);
             logEvent('', { message: 'ERROR. ConnectWallet: ' + e.name + ': ' + e.message }, LogName.ERRORS);
         });
 };
@@ -53,20 +55,23 @@ const disconnectWallet = () => {
         window.location.reload();
     };
 
-    // @ts-ignore
-    if (window.algorand && window.algorand.disconnect) {
-        //@ts-ignore
-        window.algorand.disconnect().then(finalDisconnect);
+    const algorand = window.algorand;
+    if (algorand && 'disconnect' in algorand) {
+        void algorand.disconnect().then(finalDisconnect);
     } else {
         finalDisconnect();
     }
 };
 
-export function ConnectWallet() {
+export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonClassName?: string }) {
     const account = useStore($account);
     const [finishedOpening, setFinishedOpening] = useState(false);
     const [Modal, open, close, isOpen] = useModal('root', { preventScroll: true });
     const [accDropdownOpen, setAccDropdownOpen] = useState(false);
+    const prefix = ALGONET === TESTNET ? 'testnet.' : '';
+
+    // TODO(DariaYakovleva): test Pera on ios.
+    const isIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent);
 
     // check local state once when the element is rendered first
     useEffect(() => {
@@ -102,8 +107,8 @@ export function ConnectWallet() {
         <>
             <div className="wallet_container">
                 {!account ? (
-                    <button className="connect_wallet" onClick={open}>
-                        connect wallet
+                    <button className={buttonClassName} onClick={open}>
+                        CONNECT WALLET
                     </button>
                 ) : (
                     <>
@@ -118,13 +123,24 @@ export function ConnectWallet() {
                         >
                             <a
                                 target="_blank"
-                                href={'https://algoexplorer.io/address/' + account.networkAccount.addr}
+                                href={'https://' + prefix + 'algoexplorer.io/address/' + account.networkAccount.addr}
                                 rel="noreferrer"
+                                style={{ textDecoration: 'none' }}
                             >
-                                algoexplorer
+                                <div className="account_item">Algoexplorer</div>
                             </a>
-                            <a href="/" onClick={disconnect}>
-                                disconnect
+                            {ALGONET === TESTNET && (
+                                <a
+                                    target="_blank"
+                                    href={'https://dispenser.testnet.aws.algodev.network/'}
+                                    rel="noreferrer"
+                                    style={{ textDecoration: 'none' }}
+                                >
+                                    <div className="account_item">Get testnet ALGOs</div>
+                                </a>
+                            )}
+                            <a href="/" style={{ textDecoration: 'none' }} onClick={disconnect}>
+                                <div className="account_item">Disconnect</div>
                             </a>
                         </div>
                     </>
@@ -150,9 +166,16 @@ export function ConnectWallet() {
                     <button className="wallet-button" onClick={() => walletClick('MyAlgo')}>
                         Connect to MyAlgo
                     </button>
-                    <button className="wallet-button" onClick={() => walletClick('WalletConnect')}>
-                        Connect to Pera wallet
-                    </button>
+                    {!isIOS && (
+                        <button className="wallet-button" onClick={() => walletClick('WalletConnect')}>
+                            Connect to Pera wallet
+                        </button>
+                    )}
+                    {isIOS && (
+                        <div style={{ fontFamily: 'Montserrat', color: 'black', textAlign: 'center', width: '70%' }}>
+                            Pera wallet should be here, but it doesn&apos;t work on iOS.
+                        </div>
+                    )}
                 </div>
             </Modal>
         </>

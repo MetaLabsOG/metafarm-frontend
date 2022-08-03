@@ -1,12 +1,18 @@
 import { loadZapData, ZapResult } from './Zap';
-import { useStore } from 'effector-react';
+import { useEvent, useStore } from 'effector-react';
 import { $account, $balances, refreshAccountInfo } from '../common/store';
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { TokenSelectOption } from '../Swap/types';
-import { getOptions, QueryType, runTransactions, TOKEN_INITIAL_STATE, TokenSelectWithAmount } from '../Swap/Swap';
+import React, { useEffect, useRef, useState } from 'react';
+import { getOptions, QueryType, runTransactions } from '../Swap/Swap';
 import { ZapData } from './types';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
+import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
+import { Heading2, ModalContainer, ModalTitle } from '../common/styled';
+import { TokenOptionType } from '../Components/Select/types';
+import { TOKEN_OPTION } from '../Components/Select/Select';
+import { notify } from '../Components/Notification';
+import { algoexplorerTxLink } from '../common/lib';
+import { setPoolInfos } from '../Farm/store';
 
 export function ZapModal({
     asset1_id,
@@ -21,8 +27,8 @@ export function ZapModal({
     const account = useStore($account);
     const balances = useStore($balances);
 
-    const [token1, setToken1] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
-    const [token2, setToken2] = useState<TokenSelectOption>(TOKEN_INITIAL_STATE);
+    const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
+    const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [zapData, setZapData] = useState<ZapData>({
         asset1_amount: 0,
@@ -31,13 +37,15 @@ export function ZapModal({
         pool_lp_id: 0,
     });
 
-    const [options, setOptions] = useState<TokenSelectOption[]>([]);
+    const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
+    const refreshAccountInfoEvent = useEvent(refreshAccountInfo);
+
     useEffect(() => {
         setIsLoading(true);
-        getOptions(balances).then((res) => {
+        getOptions(account, balances).then((res) => {
             const filtered_res = res.filter(
                 (token) => token.value === asset1_id.toString() || token.value === asset2_id.toString()
             );
@@ -57,55 +65,64 @@ export function ZapModal({
         }
         clearTimeout(getZapTimeout.current);
         getZapTimeout.current = setTimeout(() => {
-            loadZapData(account, token1_id, token2_id, amount, setIsLoading, setZapData, setShowResult);
+            setIsLoading(true);
+            loadZapData(account, token1_id, token2_id, amount).then((res) => {
+                if (res !== null) {
+                    setZapData(res);
+                    console.log('[ZAP] res', res);
+                    setShowResult(true);
+                }
+                setIsLoading(false);
+            });
         }, delay);
     }
 
     const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         setToken1(option);
         const token2Upd = options[0].value === option.value ? options[1] : options[0];
         setToken2(token2Upd);
+        setToken1Amount('');
         setShowResult(false);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         getZapThrottled(option.value, token2Upd.value, token1Amount, 50);
     };
 
-    const inputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (isNaN(Number(e.target.value))) {
-            return;
-        }
+    const inputOnChange = (inputValue: string) => {
         setShowResult(false);
-        setToken1Amount(e.target.value);
-        getZapThrottled(token1.value, token2.value, e.target.value, 1000);
+        getZapThrottled(token1.value, token2.value, inputValue, 1000);
     };
 
     const ZapButtonOnClick = async () => {
-        await runTransactions(
+        const res = await runTransactions(
             QueryType.zap,
             account,
             token1.value,
             token2.value,
             token1Amount,
-            '&swap_half=true&slippage=0.1'
+            token1.balance
         );
-        refreshAccountInfo();
-        closeModal();
+        if (res !== null) {
+            const { txIds } = res;
+            notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
+            refreshAccountInfoEvent();
+            closeModal();
+        }
     };
 
     return (
-        <div className="swap_container" style={{ height: '450px' }}>
-            <h1
-                className="swap_header"
-                style={{ width: '100%', textAlign: 'left', fontSize: '22px', marginBottom: '20px' }}
-            >
-                GET {token1.unit_name}-{token2.unit_name} LP
-            </h1>
-            <h3 className="swap_text">FROM</h3>
-            <TokenSelectWithAmount
+        <ModalContainer>
+            <ModalTitle>
+                GET {token1.unitName}-{token2.unitName} LP
+            </ModalTitle>
+            <Heading2>FROM</Heading2>
+            <SelectInputGroup
                 options={options}
-                token={token1}
-                tokenAmount={token1Amount}
+                selectedOption={token1}
+                inputData={token1Amount}
+                setInputData={setToken1Amount}
                 selectOnChange={select1OnChange}
                 inputOnChange={inputOnChange}
             />
@@ -114,6 +131,6 @@ export function ZapModal({
                 <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
                 <h3 className="dex_name">on tinyman</h3>
             </React.Fragment>
-        </div>
+        </ModalContainer>
     );
 }

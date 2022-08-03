@@ -1,14 +1,8 @@
 import React, { FC } from 'react';
-import {
-    GetLpTokenButton,
-    PoolActionsMobileContainer,
-    TokenInfo,
-    RewardsContainer,
-    ButtonBackMobile,
-    PoolInfoValue,
-} from './styled';
+import { PoolActionsMobileContainer, TokenInfo, RewardsContainer, ButtonBackMobile, PoolInfoValue } from './styled';
+import arrowBack from '../../../imgs/arrow_back.svg';
 
-import { PoolActionsDesktopProps } from './PoolActionsDesktop';
+import { PoolActionsDesktopProps, getLPTokenAction } from './PoolActionsDesktop';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
@@ -17,9 +11,11 @@ import { $account } from '../../../common/store';
 import { RewardValues, StakeValue } from './PoolInfoDesktop';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
+import { isLPTokenInfo } from './utils';
+import { Button } from '../../../Components/Button/Button';
 
 export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
-    lpTokenInfo,
+    pricedAlgo,
     stakedToken,
     stakedTokenBalance,
     balanceSuffix,
@@ -32,13 +28,21 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     openZapModal,
     setIsZapModalOpen,
     unlockTimer,
+    contractId,
+    hasLock,
 }) => {
     const account = useStore($account);
     return (
         <PoolActionsMobileContainer>
-            <ButtonBackMobile onClick={() => setIsZapModalOpen(false)}>BACK</ButtonBackMobile>
+            <ButtonBackMobile onClick={() => setIsZapModalOpen(false)} src={arrowBack} alt="BACK" />
             <TokenInfo>
-                {lpTokenInfo && canStake && <GetLpTokenButton onClick={openZapModal}>Get LP Tokens</GetLpTokenButton>}
+                {isLPTokenInfo(stakedToken) && canStake && (
+                    <Button
+                        onClick={getLPTokenAction(stakedToken, openZapModal)}
+                        style={{ color: 'white' }}
+                        buttonText="Get LP Tokens"
+                    />
+                )}
             </TokenInfo>
             <TokenInputWithButton
                 style={!canStake ? { visibility: 'hidden' } : {}}
@@ -46,12 +50,14 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 tokenMicroBalance={stakedTokenBalance}
                 balanceSuffix={balanceSuffix}
                 buttonName="STAKE"
+                optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.stake}
+                hasLock={hasLock}
             />
             <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
                 <div>MY STAKE</div>
                 <div style={{ color: 'white' }}>
-                    <StakeValue contractState={contractState} tokenInfo={stakedToken} />
+                    <StakeValue contractState={contractState} tokenInfo={stakedToken} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
             <TokenInputWithButton
@@ -59,13 +65,14 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 tokenMicroBalance={contractState.local.staked}
                 balanceSuffix={balanceSuffix}
                 buttonName="WITHDRAW"
+                optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.unstake}
-                blueButtonColor={true}
+                hasLock={hasLock}
             />
             <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
                 <div>REWARD</div>
                 <div style={{ color: 'white' }}>
-                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} />
+                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
             <RewardsContainer>
@@ -75,7 +82,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         buttonText="CLAIM"
                         buttonStyle="claim_button"
                         onClickAction={() =>
-                            onClickClaim(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
+                            onClickClaim(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
                         }
                         isInactive={!isActiveClaim}
                     />
@@ -83,15 +90,13 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 </div>
                 {canStake &&
                     canClaim &&
-                    lpTokenInfo &&
+                    isLPTokenInfo(stakedToken) &&
                     account &&
-                    isCompoundEnabled(lpTokenInfo, rewardTokenInfo.id) && (
+                    isCompoundEnabled(stakedToken, rewardTokenInfo.id) && (
                         <PacmanButton
                             buttonText="COMPOUND"
                             buttonStyle="claim_button"
-                            onClickAction={() =>
-                                runCompound(account, ctc, lpTokenInfo, rewardTokenInfo, contractState.local.reward)
-                            }
+                            onClickAction={() => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
                             isInactive={!isActiveClaim}
                         />
                     )}

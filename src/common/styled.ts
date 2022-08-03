@@ -1,4 +1,3 @@
-import { ToastContainer } from 'react-toastify';
 import styled from 'styled-components';
 
 export const NFTCard = styled.div`
@@ -59,14 +58,48 @@ export const InfoHeader = styled.h2`
     font-family: 'Korona One';
 `;
 
-export const StyledContainer = styled(ToastContainer)`
-    &&&.Toastify__toast-container {
+export const Heading2 = styled.h2`
+    font-family: 'Korona One';
+    font-size: 16px;
+    text-align: left;
+    width: 100%;
+    padding: 10px;
+    color: #7a7a7a;
+`;
+
+export const ModalContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #272727;
+    border-radius: 10px;
+    padding: 30px;
+    margin-top: 30px;
+
+    input {
+        outline: none;
     }
-    .Toastify__toast-body {
-        font-size: 14px;
-        font-family: 'Korona One';
+
+    @media (max-width: 390px) {
+        padding: 15px;
     }
-    .Toastify__toast-theme--dark {
-        background: #1f1f1f;
-    }
+`;
+
+export const ModalTitle = styled.h1`
+    color: #d3d3d3;
+    width: 100%;
+    text-align: left;
+    font-size: 22px;
+    margin-bottom: 20px;
+`;
+
+export const ModalSubtitle = styled.h3`
+    color: #8b8b8b;
+    margin-top: 5px;
+    font-family: 'Montserrat';
+    font-size: 14px;
+    font-weight: normal;
+    text-align: center;
+    margin-bottom: 10px;
 `;

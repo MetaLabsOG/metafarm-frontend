@@ -1,18 +1,22 @@
-import { createStore, createEffect, createEvent, forward, combine, sample, Store } from 'effector';
+import { createStore, createEffect, createEvent, combine, sample, Store } from 'effector';
 
 import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
 import { getSwapCostSomewhere } from '../../providers/dexesProvider';
 import { Map } from 'immutable';
 import { Asset, AssetId, Priced } from './types';
 import { META_TOKEN_ID } from '../../AppContext';
+import { nonConcurrent } from './utils';
+import { SLIPPAGE } from '../../Swap/Swap';
 
-export const fetchAssetPrice = createEffect(async (asset: Asset): Promise<number> => {
-    const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, 10 ** asset.decimals);
-    return swapQuote.price;
-});
+export const fetchAssetPriceFx = createEffect(
+    nonConcurrent(async (asset: Asset): Promise<number> => {
+        const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, BigInt(10 ** asset.decimals), SLIPPAGE);
+        return swapQuote.price;
+    })
+);
 
 export const $assetAlgoPrices = createStore(Map<AssetId, number>()).on(
-    fetchAssetPrice.done,
+    fetchAssetPriceFx.done,
     (prices, { params, result }) => prices.set(params.id, result)
 );
 
@@ -21,9 +25,9 @@ export const requireAssetPrice = createEvent<AssetId>();
 export const $assetIsPriced = createStore(Map<AssetId, boolean>()).on(requireAssetPrice, (as, id) => as.set(id, true));
 
 export const registerPricedAsset = createEvent<AssetId>();
-forward({
-    from: registerPricedAsset,
-    to: [registerAsset, requireAssetPrice],
+sample({
+    clock: registerPricedAsset,
+    target: [registerAsset, requireAssetPrice],
 });
 
 registerPricedAsset(META_TOKEN_ID);
@@ -34,14 +38,10 @@ sample({
     source: $assetIsPriced,
     filter: (pricedFlags, asset) => pricedFlags.get(asset.id, false),
     fn: (_, asset) => asset,
-    target: fetchAssetPrice,
+    target: fetchAssetPriceFx,
 });
 
-$assetAlgoPrices.watch((v) => {}); //console.log('ASSET PRICES', v));
-assetLoaded.watch((v) => {}); //console.log('ASSET LOADED', v));
-fetchAssetPrice.watch((v) => {}); //console.log('FETCHING ASSET PRICE', v));
-
-fetchAssetPrice.fail.watch((v) => console.log('ASSET PRICE FETCHING FAILED', v));
+fetchAssetPriceFx.fail.watch((v) => console.log('ASSET PRICE FETCHING FAILED', v));
 
 export const $pricedAssets: Store<Map<AssetId, Priced<Asset>>> = combine(
     $pricedAlgo,
@@ -65,5 +65,3 @@ export const $pricedAssets: Store<Map<AssetId, Priced<Asset>>> = combine(
             .set(0, pricedAlgo);
     }
 );
-
-$pricedAssets.watch((v) => {}); //console.log('PRICED ASSETS', v.toJS()));

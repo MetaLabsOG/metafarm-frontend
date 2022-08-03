@@ -8,20 +8,21 @@ export const PoolListHeader = styled.div`
     width: 95%;
     align-items: center;
     justify-content: flex-start;
+    padding-right: 40px;
+    padding-left: 20px;
 
     font-family: 'Montserrat';
     font-style: normal;
-    font-weight: 600;
-    font-size: 15.4416px;
+    font-weight: normal;
     line-height: 19px;
     @media (max-width: 1120px) {
         display: none;
     }
 `;
 
-export const PoolListHeaderElement = styled.div<{ width?: number }>`
-    width: ${({ width }) => (width ? `${width}%` : '16.5%')};
-    margin-left: 20px;
+export const PoolListHeaderElement = styled.div<{ width: string }>`
+    width: ${({ width }) => width};
+    padding-right: 20px;
 `;
 
 export const PoolListContainer = styled.div`

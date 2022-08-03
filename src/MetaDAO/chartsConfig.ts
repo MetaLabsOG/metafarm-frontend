@@ -1,28 +1,20 @@
 export const assetsChartOptions = {
-    layout: {
-        padding: {
-            top: 0,
-            left: 20,
-        },
-    },
+    aspectRatio: 3,
     plugins: {
         tooltip: {
             enabled: false,
         },
         legend: {
-            position: 'right',
-            align: 'center',
+            position: 'right' as const,
+            align: 'center' as const,
 
             labels: {
                 usePointStyle: true,
-                boxWidth: 28,
-                boxHeight: 28,
-                padding: 30,
                 pointStyle: 'rectRounded',
                 color: 'white',
                 font: {
                     size: 16,
-                    family: 'Inter',
+                    family: 'Montserrat',
                 },
             },
         },
@@ -30,14 +22,7 @@ export const assetsChartOptions = {
 };
 
 export const metaTreasuryChartOptions = {
-    layout: {
-        padding: {
-            rigth: 20,
-            top: 10,
-        },
-    },
     scales: {
-        borderWidth: 2,
         x: {
             display: true,
             grid: {
@@ -55,12 +40,15 @@ export const metaTreasuryChartOptions = {
         },
         y: {
             beginAtZero: true,
-            type: 'linear',
+            type: 'linear' as const,
             grid: {
                 borderColor: 'white',
             },
             ticks: {
-                callback: function (value: number) {
+                callback: function (value: string | number) {
+                    if (typeof value == 'string') {
+                        return parseFloat(value);
+                    }
                     return Math.floor(value / 1000);
                 },
                 color: 'white',
@@ -84,19 +72,18 @@ export const metaTreasuryChartOptions = {
             display: false,
         },
         tooltip: {
-            mode: 'index',
+            mode: 'index' as const,
             intersect: false,
             displayColors: false,
             backgroundColor: '#05FF00',
-            titleAlign: 'center',
+            titleAlign: 'center' as const,
             bodyColor: 'black',
             titleColor: 'black',
             titleFont: { family: 'Korona One', weight: 'bold', size: 14 },
             footerColor: 'black',
             footerFont: { family: 'Korona One', weight: 'bold', size: 14 },
             callbacks: {
-                //@ts-ignore
-                title: function (context) {
+                title: function (context: any[]) {
                     const indexPrevPrice = context[0].parsed.x - 1;
                     if (indexPrevPrice >= 0) {
                         const prevPrice = context[0].dataset.data[indexPrevPrice];
@@ -106,8 +93,7 @@ export const metaTreasuryChartOptions = {
 
                     return `0%`;
                 },
-                //@ts-ignore
-                footer: function (context) {
+                footer: function (context: any[]) {
                     return `${context[0].formattedValue}$`;
                 },
                 label: function () {

@@ -127,3 +127,19 @@ export const BurgerMenuContainer = styled.div`
     z-index: 10;
     padding-bottom: 20px;
 `;
+
+export const FooterContainer = styled.div`
+    width: 100% !important;
+    height: 70px;
+    display: flex;
+    margin-top: 100px;
+    justify-content: space-between;
+    background: #1d1f23;
+    padding: 15px 30px 15px 30px;
+`;
+
+export const FooterItem = styled.div`
+    font-family: 'Montserrat', serif;
+    margin-top: auto;
+    margin-bottom: auto;
+`;

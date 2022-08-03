@@ -1,17 +1,16 @@
 import { createEffect, createStore, sample, createEvent, Event, Store, restore, Effect } from 'effector';
 import { sleep } from '../lib';
 import { AssetId, Asset } from './types';
+import hash from 'object-hash';
 
 export const assetId = (a: AssetId | Asset): number => (typeof a === 'number' ? a : a.id);
 
-/**
-/**
 /**
  * Asynchronously gets the value of the store
  * NB: we cannot use just `store.watch` here because:
  * 1. we will need to unsub so that the store watchers do not leak
  * 2. we cannot do that with `store.watch` because the first watcher call gets
- *    fired synchronously (apparently lol) so that 
+ *    fired synchronously (apparently lol) so that
  *    `const unsub = store.watch((v) => {unsub(); resolve(v)})` does not work
  *    since `unsub` gets fired before it is defined.
  * So better just use a throwaway event which gets GCed later anyway.
@@ -19,7 +18,7 @@ export const assetId = (a: AssetId | Asset): number => (typeof a === 'number' ? 
 export function fetchStore<T>(store: Store<T>): Promise<T> {
     return new Promise<T>((resolve) => {
         sample({ source: store }).watch((v) => {
-            resolve(v)
+            resolve(v);
         });
     });
 }
@@ -32,12 +31,14 @@ export function fetchStore<T>(store: Store<T>): Promise<T> {
  */
 export async function waitForEvent<T, P, E>(
     event: Event<T>,
-    failEvent?: Event<{ params: P, error: E }>, // designed to usually be provided effect.fail event
+    failEvent?: Event<{ params: P; error: E }>, // designed to usually be provided effect.fail event
     filter?: (v: T) => boolean,
     failFilter?: (p: P) => boolean
 ): Promise<T> {
     return new Promise<T>((resolve, reject) => {
-        let unsubFail = () => { return; };
+        let unsubFail = () => {
+            return;
+        };
         const unsub = event.watch((v) => {
             if (filter === undefined || filter(v)) {
                 unsub();
@@ -52,7 +53,7 @@ export async function waitForEvent<T, P, E>(
                     unsubFail();
                     reject(e.error);
                 }
-            })
+            });
         }
     });
 }
@@ -71,13 +72,13 @@ export function createTimeDeferredStore<V, T>(
     const $store = createStore(initial).on(updateFx.done, (_, { result }) => result);
 
     const tick = createEvent<number>();
-    const lastTick = restore(tick, 0);
+    const $lastTick = restore(tick, 0);
     $store.updates.watch((_) => tick(Date.now()));
 
     const update = createEvent<V>();
     sample({
         clock: update,
-        source: lastTick,
+        source: $lastTick,
         filter: (prevMoment: number, _) => Date.now() - prevMoment > period,
         fn: (_, v: V) => v,
         target: updateFx,
@@ -90,17 +91,21 @@ export function createTimeDeferredStore<V, T>(
  * @param callback Async effect function
  */
 export function createNonConcurrentEffect<V, T>(callback: (a: V) => Promise<T>): Effect<V, T> {
-    const innerEff = createEffect(callback);
+    const innerFx = createEffect(callback);
     return createEffect(
         (a: V) =>
             new Promise<T>((resolve, reject) => {
-                fetchStore(innerEff.pending).then((pending) => {
-                    if (!pending) {
-                        innerEff(a);
-                    }
-                    innerEff.doneData.watch(resolve);
-                    innerEff.failData.watch(reject);
-                });
+                fetchStore(innerFx.pending)
+                    .then((pending) => {
+                        if (!pending) {
+                            innerFx(a);
+                        }
+                        innerFx.doneData.watch(resolve);
+                        innerFx.failData.watch(reject);
+                    })
+                    .catch((err) => {
+                        console.log('failed to fetch', err);
+                    });
             })
     );
 }
@@ -124,7 +129,7 @@ export function expBackoff<V, T>(
         let numTries = 0;
         let delay = firstDelay;
 
-        while (true) {
+        for (;;) {
             try {
                 return await eff(v);
             } catch (e) {
@@ -137,6 +142,25 @@ export function expBackoff<V, T>(
                 await sleep(delay);
                 delay *= multiplier;
             }
+        }
+    };
+}
+
+/**
+ * Do not call the async function with the same parameters again if it has been already
+ * called and is still resolving.
+ * Good for not making the same request many times in parallel.
+ */
+export function nonConcurrent<A extends any[], V>(f: (...args: A) => Promise<V>): (...args: A) => Promise<V> {
+    const promiseStorage: Record<string, Promise<V>> = {};
+    return async (...args: A): Promise<V> => {
+        const key = hash(args);
+        if (key in promiseStorage) {
+            return promiseStorage[key];
+        } else {
+            return (promiseStorage[key] = f(...args).finally(() => {
+                delete promiseStorage[key];
+            }));
         }
     };
 }
