@@ -1,8 +1,8 @@
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import { InfoPanelContainer } from './styled';
 import pacman from '../../imgs/loader.gif';
 
-export const InfoPanel: FC<{ isLoading: boolean }> = ({ children, isLoading }) => {
+export const InfoPanel: FC<{ isLoading: boolean; children: ReactNode }> = ({ children, isLoading }) => {
     if (isLoading) {
         return (
             <InfoPanelContainer style={{ display: 'flex', justifyContent: 'center' }}>
