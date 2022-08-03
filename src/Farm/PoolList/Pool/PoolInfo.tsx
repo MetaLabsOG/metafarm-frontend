@@ -3,6 +3,7 @@ import {
     $account,
     $algoUsdPrice,
     $meanRoundDuration,
+    ALGO_ASSET,
     Asset,
     ContractState,
     FarmInitialInfo,
@@ -15,7 +16,7 @@ import { PoolState } from './types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
 import { PoolInfoMobile } from './PoolInfoMobile';
-import { DAY, HOUR, MINUTE, unsafeFromBigint } from '../../../common/lib';
+import { DAY, fromMicros, HOUR, MINUTE, unsafeFromBigint } from '../../../common/lib';
 
 const blocksToText = (blocks: number, meanRoundDuration: number) => {
     const diffSecs = Math.abs(blocks) * meanRoundDuration;
@@ -76,11 +77,11 @@ const calculateAPR = (
 
     const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
     const stakePrice = stakeTokenInfo.price;
-    const totalStaked = unsafeFromBigint(contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
-    const rewardPerBlock = unsafeFromBigint(contractState.initial.rewardPerBlock);
+    const totalStaked = fromMicros(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
+    const rewardPerBlock = fromMicros(rewardTokenInfo, contractState.initial.rewardPerBlock);
 
     const extraAlgoRewardPerBlock = (contractState.initial as FarmInitialInfo).extraAlgoRewardPerBlock;
-    const algoRewardPerBlock = extraAlgoRewardPerBlock ? unsafeFromBigint(extraAlgoRewardPerBlock) : 0;
+    const algoRewardPerBlock = extraAlgoRewardPerBlock ? fromMicros(ALGO_ASSET, extraAlgoRewardPerBlock) : 0;
 
     const totalStakedUSD = totalStaked * stakePrice;
     const rewardAPR = totalStakedUSD
