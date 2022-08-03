@@ -18,7 +18,7 @@ export default function Confetti({ showConfetti, onFinish }: { showConfetti: boo
         refAnimationInstance.current = instance;
     }, []);
 
-    const makeShot = useCallback((particleRatio, opts) => {
+    const makeShot = useCallback((particleRatio: number, opts: any) => {
         refAnimationInstance.current &&
             refAnimationInstance.current({
                 ...opts,
