@@ -63,7 +63,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     const setNotificationText = useToasts({
         api: actionEffectEvent,
         pendingStatus: isPending,
-        action: buttonName === 'Stake' ? ToastTypes.stake : ToastTypes.withdraw,
+        action: buttonName.toLowerCase() === 'stake' ? ToastTypes.stake : ToastTypes.withdraw,
     });
 
     const setInputMaxAmount = () => {
