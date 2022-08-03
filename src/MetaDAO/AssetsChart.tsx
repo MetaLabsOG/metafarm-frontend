@@ -10,14 +10,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const AssetsChart = () => {
     const assetsQuery = useQuery(['assets', METAWALLET], () => getAssets(METAWALLET));
-    // const dataset = assetsQuery.data ?? [];
-    const dataset = [
-        { ticker: 'ALGO', amount: 10, price: { usd: 1 } },
-        { ticker: 'META', amount: 1, price: { usd: 14 } },
-        { ticker: 'DMNG', amount: 140, price: { usd: 15 } },
-        { ticker: 'BOARD', amount: 140, price: { usd: 122 } },
-        { ticker: 'YLFD', amount: 1210, price: { usd: 1 } },
-    ];
+    const dataset = assetsQuery.data ?? [];
     console.log('DATASET', dataset);
 
     const data = {
