@@ -6,7 +6,7 @@ import { LPTokenInfo } from '../../../providers/dexesProvider';
 
 import { isLPTokenInfo, numberRound } from './utils';
 import { PoolState } from './types';
-import { ToastTypes, useToasts } from '../../../Components/Notification';
+import { notify, ToastTypes, useToasts } from '../../../Components/Notification';
 import { useModal } from 'react-hooks-use-modal';
 import { PoolActionsDesktop } from './PoolActionsDesktop';
 import { PoolActionsMobile } from './PoolActionsMobile';
@@ -37,6 +37,11 @@ export const onClickClaim = async (
     } catch (e) {
         const error_message = e instanceof Error ? e.message : String(e);
         console.log(error_message);
+        if (error_message.includes('stake is locked')) {
+            notify('Please, wait. Stake is locked.', 'error');
+        } else {
+            notify(error_message, 'error');
+        }
         logFarmActionData(account, 'CLAIM ERROR', amount, stakeTokenInfo, rewardTokenInfo, error_message);
     }
 };
