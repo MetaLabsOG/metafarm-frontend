@@ -18,6 +18,7 @@ export default function Confetti({ showConfetti, onFinish }: { showConfetti: boo
         refAnimationInstance.current = instance;
     }, []);
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const makeShot = useCallback((particleRatio, opts) => {
         refAnimationInstance.current &&

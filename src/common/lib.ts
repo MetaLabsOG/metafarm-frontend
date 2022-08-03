@@ -65,6 +65,9 @@ export const formatDecimalsMeaningful = (value: number, precision = 2): string =
     if (value === 0) {
         return '0';
     }
+    if (value > 100) {
+        precision = 0;
+    }
     const wholeLog = Math.floor(-Math.log10(Math.abs(value)));
     const zeros = wholeLog <= 0 ? 0 : wholeLog;
     const formatter = new Intl.NumberFormat('en-US', {

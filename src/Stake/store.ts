@@ -3,14 +3,14 @@
 import { backend as distributionBackend } from '@metalabsog/distribution';
 import { combine } from 'effector';
 import { buildContractsStore, registerPricedAsset, $networkTime, $pricedAssets } from '../common/store';
-import { sortPoolsOnStatus, $stakePools, $farmStakeTokens } from '../Farm/store';
+import { sortPoolsOnStatus, $stakePools, $farmStakeTokens, projectContracts } from '../Farm/store';
 
 const { $contracts, $contractStatesWithCache, setContractInfos } = buildContractsStore(
     'distribution',
     distributionBackend
 );
 
-export const $distributionPools = $contracts;
+export const $distributionPools = combine($contracts, $networkTime, projectContracts);
 export const setDistributionPoolInfos = setContractInfos;
 
 export const $sortedStakingPools = combine(
