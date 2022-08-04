@@ -1,8 +1,6 @@
 import { Pool } from './Pool';
 import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
-import { useList } from 'effector-react';
 import { Contract, FarmType } from '../../common/store';
-import { Store } from 'effector';
 
 export const POOL_COLUMN_WIDTH: Record<string, string> = {
     POOL: '300px',
@@ -13,10 +11,8 @@ export const POOL_COLUMN_WIDTH: Record<string, string> = {
     'ENDS IN': '120px',
 };
 
-export const PoolList = <T extends FarmType>({ type, pools }: { type: T; pools: Store<Contract<T>[]> }) => {
-    const poolComponents = useList(pools, (ctc: Contract<T>, index: number) => (
-        <Pool type={type} key={index} contract={ctc} />
-    ));
+export const PoolList = <T extends FarmType>({ type, pools }: { type: T; pools: Contract<T>[] }) => {
+    const poolComponents = pools.map((ctc: Contract<T>) => <Pool type={type} key={ctc.id} contract={ctc} />);
 
     return (
         <PoolListContainer>

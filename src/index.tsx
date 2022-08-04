@@ -18,7 +18,7 @@ import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
 import { Crowdsale } from './Crowdsale';
-import { $account, $balances, ContractInfo, fetchAllPrices } from './common/store';
+import { $account, $balances, ContractInfo, fetchAllPricesFx } from './common/store';
 import { Stake } from './Stake/Stake';
 
 import './css/index.css';
@@ -47,7 +47,7 @@ Sentry.init({
 const queryClient = new QueryClient();
 
 // throw events on initialization
-fetchAllPrices();
+fetchAllPricesFx();
 
 const App = () => {
     const account = useUnit($account);

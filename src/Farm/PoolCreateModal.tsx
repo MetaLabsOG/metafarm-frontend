@@ -35,6 +35,7 @@ import { notify } from '../Components/Notification';
 import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE } from '../AppContext';
 import { Backend } from '../types';
 import { deployFarm, InitialState } from './utils';
+import { expBackoff } from '../common/store/utils';
 
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
     return Math.floor(Math.max(5, (endTime - startTime) / 1000) / meanRoundDuration);
@@ -100,7 +101,12 @@ const createFarm = async (
     };
     const ctc = account.contract(farmBackend as Backend);
     const contractId = await deployFarm(ctc, contractParams);
-    const status = await deployContractToBackend(Number(contractId), 'farm', stakeToken.name, stakeToken.poolDex);
+
+    const deployToBackendWithBackoffFun = expBackoff(() =>
+        deployContractToBackend(Number(contractId), 'farm', stakeToken.name, stakeToken.poolDex)
+    );
+
+    const status = await deployToBackendWithBackoffFun(null);
 
     if (status) {
         notify(`Done! Contract id is ${Number(contractId)}. Please, update the page.`, 'success');
