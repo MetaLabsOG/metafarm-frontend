@@ -83,6 +83,8 @@ export async function loadZapData(
         const error_message = e instanceof Error ? e.message : String(e);
         if (error_message.includes('cancelled')) {
             notify('Operation is cancelled.', 'warning');
+        } else if (error_message.includes('pool for address')) {
+            notify('There is no pool for tokens pair.', 'warning');
         } else {
             notify(error_message, 'error');
         }

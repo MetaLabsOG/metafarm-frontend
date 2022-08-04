@@ -110,8 +110,7 @@ export const TokenInfo = styled.div`
     min-width: 135px;
     margin-left: 25px;
     @media (max-width: 1120px) {
-        margin-bottom: 30px;
-        margin-left: 133px;
+        margin-right: 20px;
     }
 `;
 
@@ -173,9 +172,7 @@ export const RewardsContainer = styled.div`
 
 export const ButtonBackMobile = styled.img`
     background-color: transparent;
-    position: absolute;
     margin-left: 25px;
-    margin-top: 5px;
     cursor: pointer;
 `;
 

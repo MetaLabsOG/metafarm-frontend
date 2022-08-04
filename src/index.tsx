@@ -33,6 +33,7 @@ import { useStoreMap, useUnit } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
 import { Footer } from './Menu/Footer';
 import { ALGONET, TESTNET } from './AppContext';
+import { notify } from './Components/Notification';
 
 Sentry.init({
     dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',
