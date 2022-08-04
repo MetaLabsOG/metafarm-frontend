@@ -1,5 +1,5 @@
 import { loadZapData, ZapResult } from './Zap';
-import { useEvent, useStore } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { $account, $balances, refreshAccountInfo } from '../common/store';
 import React, { useEffect, useRef, useState } from 'react';
 import { getOptions, QueryType, runTransactions } from '../Swap/Swap';
@@ -24,8 +24,9 @@ export function ZapModal({
     closeModal: () => void;
 }) {
     console.log('ZAP', asset1_id, asset2_id);
-    const account = useStore($account);
-    const balances = useStore($balances);
+    const account = useUnit($account);
+    const balances = useUnit($balances);
+    const refreshAccountInfoEvent = useUnit(refreshAccountInfo);
 
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
@@ -41,8 +42,6 @@ export function ZapModal({
     const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const refreshAccountInfoEvent = useEvent(refreshAccountInfo);
-
     useEffect(() => {
         setIsLoading(true);
         getOptions(account, balances).then((res) => {
@@ -57,13 +56,15 @@ export function ZapModal({
         });
     }, [balances]);
 
-    const getZapTimeout = useRef<any>();
+    const getZapTimeout = useRef<NodeJS.Timeout | null>(null);
 
     function getZapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
         if (!token1_id || !token2_id || !amount) {
             return;
         }
-        clearTimeout(getZapTimeout.current);
+        if (getZapTimeout.current) {
+            clearTimeout(getZapTimeout.current);
+        }
         getZapTimeout.current = setTimeout(() => {
             setIsLoading(true);
             loadZapData(account, token1_id, token2_id, amount).then((res) => {

@@ -1,4 +1,4 @@
-import { useStore, useStoreMap } from 'effector-react';
+import { useUnit, useStoreMap } from 'effector-react';
 import logo from '../imgs/logo.png';
 import meta_logo from '../imgs/meta_token.svg';
 import algo_logo from '../imgs/algo_token.svg';
@@ -67,7 +67,7 @@ const BurgerMenu = ({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPr
 };
 
 export const Menu = () => {
-    const ALGOPrice = useStore($algoUsdPrice);
+    const ALGOPrice = useUnit($algoUsdPrice);
     const METAPrice = useStoreMap($pricedAssets, (as) => as.get(META_TOKEN_ID, null));
     const [isBurgerOpen, setIsBurgerOpen] = useState(false);
 

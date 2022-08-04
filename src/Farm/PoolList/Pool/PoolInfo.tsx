@@ -1,4 +1,3 @@
-import { useStore } from 'effector-react';
 import {
     $account,
     $algoUsdPrice,
@@ -16,7 +15,8 @@ import { PoolState } from './types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
 import { PoolInfoMobile } from './PoolInfoMobile';
-import { DAY, fromMicros, HOUR, MINUTE, unsafeFromBigint } from '../../../common/lib';
+import { DAY, fromSmallestUnits, HOUR, MINUTE, unsafeFromBigint } from '../../../common/lib';
+import { useUnit } from 'effector-react';
 
 const blocksToText = (blocks: number, meanRoundDuration: number) => {
     const diffSecs = Math.abs(blocks) * meanRoundDuration;
@@ -30,7 +30,7 @@ const blocksToText = (blocks: number, meanRoundDuration: number) => {
     const resTimeSuffix = resTimeUnit === DAY ? 'day' : resTimeUnit === HOUR ? 'hour' : 'minute';
     const timeUnits = Math.floor(diffSecs / resTimeUnit);
     const suffix = timeUnits > 1 ? 's' : '';
-    return timeUnits + ' ' + resTimeSuffix + suffix;
+    return `${timeUnits} ${resTimeSuffix}${suffix}`;
 };
 
 const calculateTiming = (
@@ -77,11 +77,11 @@ const calculateAPR = (
 
     const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
     const stakePrice = stakeTokenInfo.price;
-    const totalStaked = fromMicros(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
-    const rewardPerBlock = fromMicros(rewardTokenInfo, contractState.initial.rewardPerBlock);
+    const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
+    const rewardPerBlock = fromSmallestUnits(rewardTokenInfo, contractState.initial.rewardPerBlock);
 
     const extraAlgoRewardPerBlock = (contractState.initial as FarmInitialInfo).extraAlgoRewardPerBlock;
-    const algoRewardPerBlock = extraAlgoRewardPerBlock ? fromMicros(ALGO_ASSET, extraAlgoRewardPerBlock) : 0;
+    const algoRewardPerBlock = extraAlgoRewardPerBlock ? fromSmallestUnits(ALGO_ASSET, extraAlgoRewardPerBlock) : 0;
 
     const totalStakedUSD = totalStaked * stakePrice;
     const rewardAPR = totalStakedUSD
@@ -120,9 +120,9 @@ export const PoolInfo = ({
     isOpen: boolean;
     poolMetadata: any;
 }) => {
-    const account = useStore($account);
-    const meanRoundDuration = useStore($meanRoundDuration);
-    const ALGOPrice = useStore($algoUsdPrice);
+    const account = useUnit($account);
+    const meanRoundDuration = useUnit($meanRoundDuration);
+    const ALGOPrice = useUnit($algoUsdPrice);
     const { endBlock, beginBlock } = contractState.initial;
     const APR = calculateAPR(meanRoundDuration, poolState, contractState, stakeTokenInfo, rewardTokenInfo, ALGOPrice);
 

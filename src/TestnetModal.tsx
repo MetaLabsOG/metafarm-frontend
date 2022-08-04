@@ -1,5 +1,4 @@
 import { Heading2, ModalContainer, ModalTitle } from './common/styled';
-import React from 'react';
 import Confetti from './Components/Confetti/Confetti';
 import { theme } from './theme';
 

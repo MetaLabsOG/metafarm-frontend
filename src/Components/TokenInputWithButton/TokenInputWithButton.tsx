@@ -2,9 +2,9 @@ import React, { FC, useState } from 'react';
 import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
 import { LPTokenInfo } from '../../providers/dexesProvider';
-import { useEvent, useStore } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { $account, Asset, Priced } from '../../common/store';
-import { fromMicros, getMicros, sleep } from '../../common/lib';
+import { fromSmallestUnits, getSmallestUnits, sleep } from '../../common/lib';
 import { Effect } from 'effector';
 import { notify, ToastTypes, useToasts } from '../Notification';
 import { BigNumberish } from '@ethersproject/bignumber';
@@ -34,7 +34,7 @@ const checkValidInput = (input: string, token: LPTokenInfo | Priced<Asset>, toke
         return false;
     }
 
-    const microAmount = getMicros(token, parseFloat(input));
+    const microAmount = getSmallestUnits(token, parseFloat(input));
     return microAmount <= tokenMicroBalance;
 };
 
@@ -43,15 +43,16 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     tokenMicroBalance,
     balanceSuffix,
     buttonName,
-    // eslint-disable-next-line effector/mandatory-useEvent
+    // TODO passing effects through props are wrong, probably we just need contractId?
+    // eslint-disable-next-line effector/mandatory-scope-binding
     actionEffect,
     optInId,
     style,
     hasLock,
 }) => {
-    const account = useStore($account);
-    const isPending = useStore(actionEffect.pending);
-    const actionEffectEvent = useEvent(actionEffect);
+    const account = useUnit($account);
+    const isPending = useUnit(actionEffect.pending);
+    const actionEffectEvent = useUnit(actionEffect);
 
     const [inputAmount, setInputAmount] = useState<string>('');
     const [isValidInput, setIsValidInput] = useState<boolean>(true);
@@ -71,7 +72,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
 
     const setInputMaxAmount = () => {
         setIsValidInput(true);
-        const tokenAmount = fromMicros(token, tokenMicroBalance).toString();
+        const tokenAmount = fromSmallestUnits(token, tokenMicroBalance).toString();
         setInputAmount(tokenAmount);
         setNotificationText(tokenAmount + ' ' + balanceSuffix);
     };
@@ -89,7 +90,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     const onClick = async () => {
-        const microAmount = getMicros(token, parseFloat(inputAmount));
+        const microAmount = getSmallestUnits(token, parseFloat(inputAmount));
         if (!isLoading && isValidInput && microAmount > 0) {
             logFarmActionData(account, buttonName, inputAmount, token as LPTokenInfo);
             setIsLoading(true);
@@ -117,6 +118,8 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                     notify('Not enough ALGOs for opt-in. Please top up ALGO balance.', 'error');
                 } else if (error_message.includes('cancelled')) {
                     notify('Operation is cancelled.', 'warning');
+                } else if (error_message.includes('popup')) {
+                    notify('Popups are blocked. Please, allow popups in your browser.', 'error');
                 } else {
                     notify(error_message, 'error');
                 }
@@ -146,7 +149,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>
             </Action>
             <Balance isValid={isValidInput}>
-                {balanceField}: {fromMicros(token, tokenMicroBalance)} {balanceSuffix}{' '}
+                {balanceField}: {fromSmallestUnits(token, tokenMicroBalance)} {balanceSuffix}{' '}
                 {isValidInput ? '' : '(Not enough)'}
             </Balance>
             <Confetti showConfetti={showConfetti} onFinish={() => setShowConfetti(false)} />

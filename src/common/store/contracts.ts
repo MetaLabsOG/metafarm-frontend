@@ -1,11 +1,11 @@
 import { Map } from 'immutable';
-import { combine, createEffect, createEvent, createStore, sample, Store, Event } from 'effector';
-import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums, InnerCtc } from './types';
+import { combine, createEffect, createEvent, createStore, sample, Store, Event, Effect } from 'effector';
+import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
 import { maybeToNullable } from '../lib';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
-import { BigNumber } from 'ethers';
+import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 
 // I'm sorry for this mess.... It can be done better I do believe.
 // In the end, it was not particularly necessary (I thought I would need more specific Reach
@@ -42,6 +42,15 @@ function mapViewMap<V extends ViewFunMap | ViewVal, T>(
     }, {});
 }
 
+// This can be passed to or received from smart-contract
+type ReachVal = string | BigNumberish;
+
+// TODO
+type WrappedContract = {
+    views: any;
+    apis: Record<string, Effect<ReachVal[], ReachVal[]>>;
+};
+
 /**
  * Wrap the methods of ctc with bignum parsing and callback on api calls.
  * @param type
@@ -60,6 +69,12 @@ function makeWrappedCtc<T extends ContractType>(
 ): ReachContract {
     // TODO: make read-only ctc when account is null
     const ctc = account!.contract(backend, Promise.resolve(BigNumber.from(contractId)));
+
+    // TODO: proper typing for wrapped contracts
+    // const wCtc: WrappedContract = {
+    //     views: Object.keys(ctc.views).map((k: string) => k)
+    // }
+
     ctc.views = mapViewMap(
         ctc.views,
         (k, view) =>
@@ -167,13 +182,13 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
                 account,
             }: {
                 contractId: AppId;
-                ctc: InnerCtc;
+                ctc: ReachContract;
                 account: Account | null;
             }): Promise<ContractState<T>> => {
                 return {
-                    initial: await ctc.views.initial(),
-                    global: await ctc.views.global(),
-                    local: await ctc.views.local(account!.networkAccount.addr),
+                    initial: await (ctc.views.initial as ViewVal)(),
+                    global: await (ctc.views.global as ViewVal)(),
+                    local: await (ctc.views.local as ViewVal)(account!.networkAccount.addr),
                 };
             }
         )
@@ -214,8 +229,8 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
 
     sample({
         clock: triggerStateUpdate,
-        source: combine([$account, $contractCtcs]),
-        fn: ([account, ctcs], contractId) => {
+        source: { account: $account, ctcs: $contractCtcs },
+        fn: ({ account, ctcs }, contractId) => {
             return { ctc: ctcs.get(contractId, null), contractId, account };
         },
         target: updateContractStateFx,

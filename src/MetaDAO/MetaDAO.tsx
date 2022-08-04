@@ -18,7 +18,6 @@ import { NFTList } from './NFTList';
 import { AssetsChart } from './AssetsChart';
 import { MetaTreasuryChart } from './MetaTreasuryChart';
 import metapunks_banner from '../imgs/metapunks_banner.png';
-import React from 'react';
 import { Button } from '../Components/Button/Button';
 
 export const MetaDAO = () => {

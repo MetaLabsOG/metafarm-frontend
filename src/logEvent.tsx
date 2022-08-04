@@ -20,20 +20,19 @@ export function logFarmActionData(
     rewardAsset: Priced<Asset> | null = null,
     error: string | null = null
 ) {
+    const asset1 = lpTokenInfo != null && 'asset1' in lpTokenInfo ? lpTokenInfo.asset1 : null;
+    const asset2 = lpTokenInfo != null && 'asset2' in lpTokenInfo ? lpTokenInfo.asset2 : null;
+
     const data = {
         message: '[' + action.toUpperCase() + ']',
         amount: amount.toString(),
         lp_token_name: lpTokenInfo?.name,
         lp_token_id: lpTokenInfo?.id,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
-        lp_asset1_id: lpTokenInfo?.asset1,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
-        lp_asset2_id: lpTokenInfo?.asset2,
         reward_token_id: rewardAsset?.id,
         reward_token_name: rewardAsset?.unitName,
         error: error,
+        lp_asset1_id: asset1,
+        lp_asset2_id: asset2,
     };
 
     logEvent(account?.networkAccount.addr, data, LogName.FARM);

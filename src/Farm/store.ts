@@ -25,7 +25,7 @@ import {
     hasLocalState,
     Time,
 } from '../common/store';
-import { AllDefined } from '../types';
+import { AllDefined, Backend } from '../types';
 import { groupBy, min, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
 import { convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
@@ -111,7 +111,7 @@ export const projectContracts = <T extends FarmType>(contracts: Contract<T>[], c
 
 const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpdate } = buildContractsStore(
     'farm',
-    farmBackend
+    farmBackend as Backend
 );
 
 export const $pools = combine($contracts, $networkTime, projectContracts);

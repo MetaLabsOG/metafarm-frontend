@@ -5,7 +5,7 @@ import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
 import { nonConcurrent, fetchStore } from './utils';
 import { getBinanceCoinPrice } from '../../providers/binanceProvider';
-import { makeClock } from './time';
+import { doEachTick } from './time';
 
 // Main event to add the asset, adds it to all of the relevant stores
 export const registerAsset = createEvent<AssetId>();
@@ -13,7 +13,7 @@ export const registerAsset = createEvent<AssetId>();
 // =================================================================
 // Balances store which watches updates in accountInfo
 // =================================================================
-function getBalancesFromAccountInfo(accountInfo: any): Record<AssetId, Amount> {
+function getBalancesFromAccountInfo(accountInfo: Record<string, any> | null): Record<AssetId, Amount> {
     if (accountInfo === null) {
         return {};
     }
@@ -46,13 +46,14 @@ const fetchAssetFx = createEffect(
         const { params } = await algod.getAssetByID(id).do();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { name, creator, decimals } = params;
+        const unit_name = params['unit-name'];
 
         return {
             id,
-            name,
-            unitName: params['unit-name'],
-            creator,
-            decimals,
+            name: name as string,
+            unitName: unit_name as string,
+            creator: creator as string,
+            decimals: decimals as number,
         } as Asset;
     })
 );
@@ -101,19 +102,17 @@ export const fetchAlgoPriceFx = createEffect(nonConcurrent(() => getBinanceCoinP
 
 export const $algoUsdPrice = restore(fetchAlgoPriceFx.doneData, null);
 
-export const fetchAllPrices = () => {
+export const fetchAllPricesFx = createEffect(async () => {
     console.log('fetching prices...');
     return fetchAlgoPriceFx()
         .then(() => console.log('prices fetched'))
         .catch(() => {
             console.log('failed to fetch');
         });
-};
+});
 
 // re-fetch prices once in say, 1 minute
-makeClock(60000).watch(() => {
-    fetchAllPrices();
-});
+void doEachTick(60000, fetchAllPricesFx);
 
 export const $pricedAlgo: Store<Priced<Asset> | null> = combine(
     $assets.map((as) => as.get(0, ALGO_ASSET)),

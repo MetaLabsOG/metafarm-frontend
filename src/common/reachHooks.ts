@@ -1,43 +1,48 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { useState, useEffect, useCallback } from 'react';
 
-import { Account, ReachStdlib } from '../types';
+import { Account, Backend, Contract, ReachStdlib, ViewVal } from '../types';
 import { maybeToNullable, convertBns, getAccountInfo, getLocalState, manualBatchOptIn } from './lib';
-import { InnerCtc } from './store/types';
 
 type ReachContractHookSettings = {
     launchEventMonitors: boolean;
 };
 
+// We can do this because we follow a convention.
+type ReachContractState = {
+    initial: any;
+    global: any;
+    local: any;
+};
+
 export const useReachContract = (
-    backend: any,
+    backend: Backend,
     account: Account,
     contractId: number,
     settings: ReachContractHookSettings = {
         launchEventMonitors: false,
     }
 ) => {
-    const [ctc, setCtc] = useState<InnerCtc | undefined>(undefined);
-    const [state, setState] = useState<any | undefined>(undefined);
+    const [ctc, setCtc] = useState<Contract | undefined>(undefined);
+    const [state, setState] = useState<ReachContractState | undefined>(undefined);
 
     const getCtc = useCallback(() => {
         return account.contract(backend, Promise.resolve(BigNumber.from(contractId)));
     }, [account, backend, contractId]);
 
     // TODO: `initial` view should actually be only fetched once
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const refreshState = useCallback(async (ctc, account) => {
-        const viewNames: string[] = Object.keys(ctc.views);
-
-        const state: any = {};
-        for (const vName of viewNames) {
-            // hacky shit to avoid overparametrization of the hook. could be done better?
-            const args = vName === 'local' ? [account.networkAccount.addr] : [];
-            state[vName] = await ctc.views[vName](...args)
+    const refreshState = useCallback(async (ctc: Contract, account: Account) => {
+        const getView = (name: string, args: string[]) =>
+            (ctc.views[name] as ViewVal)(...args)
                 .then(maybeToNullable)
                 .then(convertBns);
-        }
+
+        const state: ReachContractState = {
+            initial: await getView('initial', []),
+            global: await getView('global', []),
+            local: await getView('local', [account.networkAccount.addr]),
+        };
+
         setState(state);
     }, []);
 
@@ -52,13 +57,21 @@ export const useReachContract = (
             // which triggers state refresh?)
             if (settings.launchEventMonitors) {
                 for (const eventStream of Object.values(ctc.events)) {
-                    (eventStream as any).monitor((_: any) => refreshState(ctc, account));
+                    eventStream.monitor((_: any) => refreshState(ctc, account));
                 }
             }
         }
     }, [account, ctc, refreshState, settings.launchEventMonitors]);
 
-    return { ctc, state, reload: () => refreshState(ctc, account) };
+    return {
+        ctc,
+        state,
+        reload: () => {
+            if (ctc !== undefined) {
+                refreshState(ctc, account);
+            }
+        },
+    };
 };
 
 export const useContractOptin = (reach: ReachStdlib, account: Account, contractId: number, tokens: number[] = []) => {
@@ -67,7 +80,7 @@ export const useContractOptin = (reach: ReachStdlib, account: Account, contractI
     const isOptedIn = useCallback(async () => {
         const ai = await getAccountInfo(account);
         const appOptedIn = getLocalState(ai, contractId) !== undefined;
-        const accAssets = ai.assets || [];
+        const accAssets = ai.assets ?? [];
         const tokensOptedIn = tokens.map((t: number) => {
             return accAssets.find((asset: any) => t === asset['asset-id']) !== undefined;
         });

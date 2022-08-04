@@ -31,6 +31,32 @@ module.exports = {
         "effector"
     ],
     rules: {
+        "@typescript-eslint/no-unused-vars": ["warn", {
+            "argsIgnorePattern": '^_',
+            "varsIgnorePattern": '^_',
+            "caughtErrorsIgnorePattern": '^_',
+        }],
+
+        // Additional useful rules which are not included in recommended
+        'react/button-has-type': 'warn',
+        'react/destructuring-assignment': 'warn',
+        'react/hook-use-state': 'warn',
+        'react/iframe-missing-sandbox': 'error',
+        'react/no-access-state-in-setstate': 'warn',
+        'react/no-array-index-key': 'warn',
+        'react/no-arrow-function-lifecycle': 'warn',
+        'react/no-danger': 'warn',
+        'react/no-did-mount-set-state': 'warn',
+        'react/no-did-update-set-state': 'warn',
+        'react/no-invalid-html-attribute': 'warn',
+        'react/no-redundant-should-component-update': 'warn',
+        // 'react/no-set-state': 'warn' -- maybe it would be the right thing to do but we are not ready
+        'react/no-this-in-sfc': 'warn',
+        'react/prefer-stateless-function': 'warn',
+        'react/self-closing-comp': 'warn',
+
+        // TODO: add jsx-eslint JSX specific rules (they make more sense probably)
+
         // Show warnings instead of errors because we have too much errors we can't fix right now
         // TODO: not show how it works and if works at all
         "prettier/prettier": "warn",
