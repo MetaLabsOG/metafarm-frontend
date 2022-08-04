@@ -12323,6 +12323,7 @@ __metadata:
     mini-css-extract-plugin: "npm:^2.6.1"
     object-hash: "npm:^3.0.0"
     path-browserify: "npm:^1.0.1"
+    patronum: "npm:^1.9.0"
     postcss: "npm:^8.4.14"
     postcss-flexbugs-fixes: "npm:^5.0.2"
     postcss-loader: "npm:^7.0.1"
@@ -13605,6 +13606,15 @@ __metadata:
   version: 4.0.0
   resolution: "path-type@npm:4.0.0"
   checksum: 6a9330ad8d96f31e929feb414cde2959078379ba5a48c9e3eab34f280d7850eec6a0fa3ed5be9150e9e4d7df5139c1ae92f891b18167528553a11382d8f54183
+  languageName: node
+  linkType: hard
+
+"patronum@npm:^1.9.0":
+  version: 1.9.0
+  resolution: "patronum@npm:1.9.0"
+  peerDependencies:
+    effector: ^22.1.2
+  checksum: 66654ea2a1113241b4ace3a0bb309fe6d3cd398ddbf5877c9b9b742246520ef5d8f576ec82d98267b4cec66cdda255711749db38c3917e3efd3bc0023775e90b
   languageName: node
   linkType: hard
 

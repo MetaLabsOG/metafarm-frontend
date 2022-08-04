@@ -2,14 +2,12 @@ import { Balance } from './Balance';
 import { PoolList } from './PoolList';
 import { FarmContainer } from './styled';
 import { $sortedFarmPools } from './store';
-import { PoolCreateModal } from './PoolCreateModal';
+import { createComponent } from 'effector-react';
 
-export const Farm = () => {
-    return (
-        <FarmContainer>
-            <Balance />
-            {/*<PoolCreateModal />*/}
-            <PoolList type="farm" pools={$sortedFarmPools} />
-        </FarmContainer>
-    );
-};
+export const Farm = createComponent($sortedFarmPools, (_props, state) => (
+    <FarmContainer>
+        <Balance />
+        {/*<PoolCreateModal />*/}
+        <PoolList type="farm" pools={state} />
+    </FarmContainer>
+));

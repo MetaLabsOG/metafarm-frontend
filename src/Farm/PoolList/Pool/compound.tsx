@@ -34,7 +34,8 @@ export const runCompound = async (
 
     try {
         console.log('start claim');
-        const [claimedAmountBignum, claimedExtraAlgosBignum] = await (ctc.apis.claim as ViewVal)([]);
+        const { result } = await (ctc.apis.claim as ViewVal)([]);
+        const [claimedAmountBignum, claimedExtraAlgosBignum] = result;
         const claimedAmount = claimedAmountBignum.toBigInt();
         const claimedExtraAlgos = claimedExtraAlgosBignum.toBigInt();
         const reward_amount = fromSmallestUnits(rewardAsset, claimedAmount);
