@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Id, toast, TypeOptions } from 'react-toastify';
 import { isNil } from 'ramda';
 import pacman_grey from '../imgs/pacman.gif';

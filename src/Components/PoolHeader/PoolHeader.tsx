@@ -10,7 +10,6 @@ import {
 } from './styled';
 import { getAssetLogoUrl, getTokenLink } from '../../Farm/PoolList/Pool/utils';
 import verified from '../../imgs/verified.svg';
-import React from 'react';
 import ReactTooltip from 'react-tooltip';
 import info from '../../imgs/info.svg';
 
