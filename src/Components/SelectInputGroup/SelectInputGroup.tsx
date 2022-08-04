@@ -75,6 +75,7 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
             />
             <div style={{ width: '100%', position: 'relative' }}>
                 <input
+                    disabled={selectedOption.balance === 0}
                     className="tokenInput"
                     placeholder={'Enter amount'}
                     onChange={(e) => {

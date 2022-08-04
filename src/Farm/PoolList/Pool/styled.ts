@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { theme } from '../../../theme';
+import { ColorThemed, theme } from '../../../theme';
 
 export const PoolContainer = styled.div`
     display: flex;
@@ -7,8 +7,8 @@ export const PoolContainer = styled.div`
     justify-content: space-between;
     height: auto;
     margin-bottom: 16px;
-    color: ${(props) => props.theme.gray};
-    background-color: ${(props) => props.theme.darkGray};
+    color: ${(props: ColorThemed<unknown>) => props.theme.gray};
+    background-color: ${(props: ColorThemed<unknown>) => props.theme.darkGray};
     width: 95%;
     font-size: 14px;
     padding: 20px 0 20px 0;

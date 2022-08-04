@@ -1,7 +1,15 @@
-import React, { Dispatch, SetStateAction } from 'react';
-import { useStore, useStoreMap } from 'effector-react';
+import { Dispatch, SetStateAction } from 'react';
+import { useStoreMap, useUnit } from 'effector-react';
 import { AllDefined } from '../../../types';
-import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
+import {
+    $balances,
+    ContractState,
+    Priced,
+    Asset,
+    FarmType,
+    Amount,
+    AppId,
+} from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 
 import { isLPTokenInfo, numberRound } from './utils';
@@ -11,7 +19,7 @@ import { useModal } from 'react-hooks-use-modal';
 import { PoolActionsDesktop } from './PoolActionsDesktop';
 import { PoolActionsMobile } from './PoolActionsMobile';
 import { ZapModal } from '../../../Zap/ZapModal';
-import { fromMicros } from '../../../common/lib';
+import { fromSmallestUnits } from '../../../common/lib';
 import { useTimer } from '../../../common/reachHooks';
 import { calculateUnlockTimeinSecs } from './UnlockTimer';
 import { logFarmActionData } from '../../../logEvent';
@@ -26,7 +34,7 @@ export const onClickClaim = async (
     rewardTokenInfo: Priced<Asset>,
     microAmount: Amount
 ) => {
-    const amount = fromMicros(rewardTokenInfo, microAmount);
+    const amount = fromSmallestUnits(rewardTokenInfo, microAmount);
     logFarmActionData(account, 'CLAIM', amount, stakeTokenInfo, rewardTokenInfo);
     try {
         const isTokenOptIn = await checkOptIn(account?.networkAccount.addr, rewardTokenInfo.id);
@@ -67,7 +75,7 @@ export const PoolActions = ({
     contractId: AppId;
     pricedAlgo: Priced<Asset>;
 }) => {
-    const pendingClaim = useStore(ctc.apis.claim.pending);
+    const pendingClaim = useUnit(ctc.apis.claim.pending);
 
     const unlockTime = calculateUnlockTimeinSecs(
         currentBlock,
@@ -88,7 +96,9 @@ export const PoolActions = ({
 
     useToasts({
         api: ctc.apis.claim,
-        text: numberRound(fromMicros(rewardTokenInfo, contractState.local.reward)) + ' ' + rewardTokenInfo.unitName,
+        text: `${numberRound(fromSmallestUnits(rewardTokenInfo, contractState.local.reward))} ${
+            rewardTokenInfo.unitName
+        }`,
         pendingStatus: pendingClaim,
         action: ToastTypes.claim,
     });

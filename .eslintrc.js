@@ -31,6 +31,12 @@ module.exports = {
         "effector"
     ],
     rules: {
+        "@typescript-eslint/no-unused-vars": ["warn", {
+            "argsIgnorePattern": '^_',
+            "varsIgnorePattern": '^_',
+            "caughtErrorsIgnorePattern": '^_',
+        }],
+
         // Show warnings instead of errors because we have too much errors we can't fix right now
         // TODO: not show how it works and if works at all
         "prettier/prettier": "warn",

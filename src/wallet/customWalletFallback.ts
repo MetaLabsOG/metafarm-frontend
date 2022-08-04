@@ -42,7 +42,7 @@ export const doCustomWalletFallback = (
     const _env = typeof base === 'string' ? reach.providerEnvByName(base) : base;
     const enableNetwork = async (eopts?: EnableOpts): Promise<EnableNetworkResult> => {
         p = makeProviderByEnv(_env);
-        const { genesisID, genesisHash } = await p!.algodClient.getTransactionParams().do();
+        const { genesisID, genesisHash } = await p.algodClient.getTransactionParams().do();
         const ret = { genesisID, genesisHash };
         return ret;
     };

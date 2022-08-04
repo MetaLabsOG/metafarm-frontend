@@ -13,7 +13,7 @@ export function PacmanButton({
 }: {
     buttonText: string;
     buttonStyle: string;
-    onClickAction: any;
+    onClickAction: () => Promise<void>;
     isInactive?: boolean;
     style?: React.CSSProperties;
 }) {

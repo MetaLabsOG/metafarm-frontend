@@ -1,5 +1,4 @@
-import React, { MouseEventHandler, useEffect, useState } from 'react';
-import { useStore } from 'effector-react';
+import { MouseEventHandler, useEffect, useState } from 'react';
 import { useModal } from 'react-hooks-use-modal';
 import { detect } from 'detect-browser';
 
@@ -8,19 +7,18 @@ import { logEvent, LogName } from '../logEvent';
 import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
 import { customWalletFallback, WalletType } from './customWalletFallback';
-import { Heading2 } from '../common/styled';
 import { notify } from '../Components/Notification';
+import { useUnit } from 'effector-react';
 
 const browser = detect();
-const browserInfoString = browser === null ? 'unknown' : `${browser.name} ${browser.version} ${browser.os}`;
+const browserInfoString =
+    browser === null
+        ? 'unknown'
+        : `${browser.name} ${browser.version ?? 'UNKNOWN_VERSION'} ${browser.os ?? 'UNKNOWN_OS'}`;
 
 const WALLET_TYPE_KEY = 'connectedWalletType';
 
 const connectWallet = (walletType: WalletType) => {
-    if (walletType !== 'MyAlgo' && walletType !== 'WalletConnect') {
-        throw new TypeError(`Invalid wallet type ${walletType}`);
-    }
-
     reach.setWalletFallback(customWalletFallback({ providerEnv: ALGONET, walletType }));
     if (walletType === 'WalletConnect' && ALGONET === TESTNET) {
         notify('Please, switch you Pera wallet to testnet.', 'info');
@@ -44,8 +42,13 @@ const connectWallet = (walletType: WalletType) => {
             return acc;
         })
         .catch((e) => {
-            console.log('ERROR. ConnectWallet: ', e);
-            logEvent('', { message: 'ERROR. ConnectWallet: ' + e.name + ': ' + e.message }, LogName.ERRORS);
+            if (e instanceof Error) {
+                console.log('ERROR. ConnectWallet: ', e);
+                logEvent('', { message: `ERROR. ConnectWallet: ${e.name}: ${e.message}` }, LogName.ERRORS);
+            } else {
+                console.log('ERROR (of unexpected type!). ConnectWallet: ', e);
+                logEvent('', { message: `ERROR (of unexpected type!). ConnectWallet: ${String(e)}` }, LogName.ERRORS);
+            }
         });
 };
 
@@ -64,7 +67,7 @@ const disconnectWallet = () => {
 };
 
 export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonClassName?: string }) {
-    const account = useStore($account);
+    const account = useUnit($account);
     const [finishedOpening, setFinishedOpening] = useState(false);
     const [Modal, open, close, isOpen] = useModal('root', { preventScroll: true });
     const [accDropdownOpen, setAccDropdownOpen] = useState(false);

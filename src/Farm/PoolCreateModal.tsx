@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useModal } from 'react-hooks-use-modal';
 import { SelectedOptionValue } from 'react-select-search';
 import { getOptions } from '../Swap/Swap';
@@ -12,8 +12,6 @@ import { DateInput, PoolCreateModalContainer } from './styled';
 import { Heading2, ModalContainer, ModalTitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
-// @ts-ignore
-import { deployStandardContract } from '@metalabsog/common';
 //@ts-ignore
 import { backend as farmBackend } from '@metalabsog/farm';
 
@@ -29,12 +27,14 @@ import {
     Priced,
     Time,
 } from '../common/store';
-import { useStore, useStoreMap } from 'effector-react';
-import { DAY, formatDecimalsMeaningful, getMicros } from '../common/lib';
+import { useUnit, useStoreMap } from 'effector-react';
+import { DAY, formatDecimalsMeaningful, getSmallestUnits } from '../common/lib';
 import { deployContractToBackend, getTinymanPools } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
 import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE } from '../AppContext';
+import { Backend } from '../types';
+import { deployFarm, InitialState } from './utils';
 
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
     return Math.floor(Math.max(5, (endTime - startTime) / 1000) / meanRoundDuration);
@@ -77,8 +77,8 @@ const createFarm = async (
         return false;
     }
 
-    const microRewardPerBlock = Number(getMicros(rewardToken, rewardPerBlock));
-    const algoMicroRewardPerBlock = Number(getMicros(ALGO_ASSET, extraAlgoRewardPerBlock));
+    const microRewardPerBlock = getSmallestUnits(rewardToken, rewardPerBlock);
+    const algoMicroRewardPerBlock = getSmallestUnits(ALGO_ASSET, extraAlgoRewardPerBlock);
     console.log(
         'Start create farm',
         stakeToken.liquidityAsset,
@@ -87,9 +87,9 @@ const createFarm = async (
         endBlock,
         microRewardPerBlock
     );
-    const contractParams = {
-        beneficiary: FARM_BENEFICIARY_ADDR,
-        creationFee: FARM_CREATION_FEE,
+    const contractParams: InitialState = {
+        beneficiary: FARM_BENEFICIARY_ADDR!,
+        creationFee: FARM_CREATION_FEE!,
         stakeToken: stakeToken.liquidityAsset,
         rewardToken: rewardToken.id,
         beginBlock: beginBlock,
@@ -97,17 +97,17 @@ const createFarm = async (
         rewardPerBlock: microRewardPerBlock,
         extraAlgoRewardPerBlock: algoMicroRewardPerBlock,
         lockLengthBlocks: 0,
-        stakeFee: 0,
-        unstakeFee: 0,
-        isDevEnv: false,
     };
-    const ctc = account.contract(farmBackend);
-    const contractId = await deployStandardContract(ctc, contractParams);
-    console.log('ContractID', contractId);
-    const res = await deployContractToBackend(contractId, 'farm', stakeToken.name, stakeToken.poolDex);
-    console.log('Backend res', res);
+    const ctc = account.contract(farmBackend as Backend);
+    const contractId = await deployFarm(ctc, contractParams);
+    const status = await deployContractToBackend(Number(contractId), 'farm', stakeToken.name, stakeToken.poolDex);
 
-    notify('Done! Contract id is ' + contractId + '. Please, update the page.', 'success');
+    if (status) {
+        notify(`Done! Contract id is ${contractId}. Please, update the page.`, 'success');
+    } else {
+        notify(`Something went wrong, please contact us!`, 'error');
+    }
+
     return true;
 };
 
@@ -125,13 +125,6 @@ const calculateFarmData = (
     return [beginBlock, endBlock, rewardPerBlock];
 };
 
-// const calculateAPR = (liquidity: number, rewards: number, rewardTokenPrice: Priced<Asset> | null) => {
-//     if (isNaN(rewards) || !rewardTokenPrice) {
-//         return 0;
-//     }
-//     return Math.floor(((rewards * rewardTokenPrice.price) / liquidity) * 100);
-// };
-
 const PoolInfo = ({
     selectedPool,
     beginBlock,
@@ -147,12 +140,6 @@ const PoolInfo = ({
     rewardAmount: number;
     pricedRewardToken: Priced<Asset> | null;
 }) => {
-    // const [minLiquidity, maxLiquidity] = [1000, 10000];
-    // const [minAPR, maxAPR] = [
-    //     calculateAPR(minLiquidity, rewardAmount, pricedRewardToken),
-    //     calculateAPR(maxLiquidity, rewardAmount, pricedRewardToken),
-    // ];
-
     const rewardUnitName = pricedRewardToken ? pricedRewardToken.unitName : '';
     const farmCreationFee = (rewardAmount * Number(FARM_CREATION_FEE)) / 10_000;
 
@@ -189,10 +176,10 @@ const PoolInfo = ({
 };
 
 export const PoolCreateModal = () => {
-    const account = useStore($account);
-    const balances = useStore($balances);
-    const currentBlock = useStore($networkTime);
-    const meanRoundDuration = useStore($meanRoundDuration);
+    const account = useUnit($account);
+    const balances = useUnit($balances);
+    const currentBlock = useUnit($networkTime);
+    const meanRoundDuration = useUnit($meanRoundDuration);
 
     const [PoolCreateModal, openPoolCreateModal, closePoolCreateModal] = useModal('root');
     const [poolOptions, setPoolOptions] = useState<PoolOptionType[]>([]);

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import pacman from '../imgs/loader.gif';
 
 export const FomoContainer = styled.div`
     display: flex;

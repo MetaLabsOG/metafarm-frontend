@@ -1,6 +1,6 @@
 import { PoolInfoMobileContainer, PoolInfoValue, StakeButtonMobile, TimingMobile } from './styled';
 import { algoRewardPerBlock, convertAmountToUSD, numberRound } from './utils';
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { getAPRTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
 import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
 import { APRTypes } from './PoolInfo';

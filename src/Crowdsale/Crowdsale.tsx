@@ -1,5 +1,5 @@
 import { ReactElement, useCallback, useEffect, useState } from 'react';
-import { useStore, useStoreMap } from 'effector-react';
+import { useStoreMap, useUnit } from 'effector-react';
 import { useQuery } from 'react-query';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore TODO: type definitions for contract packages?... damn seems bad...
@@ -11,11 +11,12 @@ import { useContractOptin } from '../common/reachHooks';
 import { InfoHeader } from '../common/styled';
 import { META_TOKEN_ID } from '../AppContext';
 import { $account, Amount, buildContractsStore, Contract } from '../common/store';
-import { Account } from '../types';
+import { Account, Backend } from '../types';
 import { Button } from './styled';
 import { unsafeFromBigint } from '../common/lib';
+import { BigNumberish } from '@ethersproject/bignumber';
 
-const { $contracts, setContractInfos } = buildContractsStore('crowdsale', backend);
+const { $contracts, setContractInfos } = buildContractsStore('crowdsale', backend as Backend);
 
 type CrowdsaleProps = {
     account: Account;
@@ -63,8 +64,8 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
     );
 
     const buy = useCallback(
-        async (tokenAmount: any) => {
-            const res = await ctc.a.purchase([tokenAmount]);
+        async (tokenAmount: BigNumberish) => {
+            const res = await ctc.apis.purchase([tokenAmount]);
             console.log('PURCHASE', res);
         },
         [ctc]
@@ -79,7 +80,9 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <InfoHeader>YOU ARE WHITELISTED!</InfoHeader>
                 <h4 style={{ marginBottom: '20px' }}>Opt into META token and the token sale app to buy META!</h4>
-                <Button onClick={optInAndWhitelist}>OPT IN</Button>
+                <Button onClick={optInAndWhitelist} isActive={true}>
+                    OPT IN
+                </Button>
             </div>
         ) : (
             <Status status="OPTING YOU IN. PLEASE CONFIRM TRANSACTIONS" showLoading={true} />
@@ -97,34 +100,46 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
     // TODO: i dont care about user-friendly price rates and amounts (with correct decimals) for now
     return (
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            {/*<h1>BUY META</h1>*/}
+            <h1>BUY META</h1>
+            <br />
+            <h3 style={{ marginBottom: '20px' }}>
+                <>
+                    microMETA/microALGO rate: {rate[0]}/{rate[1]}
+                </>
+            </h3>
+            <h3 style={{ marginBottom: '50px' }}>
+                <>
+                    Already sold: {sold} microMETA of {totalAmount}
+                </>
+            </h3>
 
-            {/*<h3 style={{ marginBottom: '20px' }}>*/}
-            {/*    microMETA/microALGO rate: {rate[0]}/{rate[1]}*/}
-            {/*</h3>*/}
-            {/*<h3 style={{ marginBottom: '50px' }}>*/}
-            {/*    Already sold: {sold} microMETA of {totalAmount}*/}
-            {/*</h3>*/}
+            <h4>
+                <>SET AMOUNT TO BUY ({individualCap - alreadyBought} more microMETA allowed)</>
+            </h4>
+            <input
+                type="number"
+                className="tokenInput"
+                placeholder={'10'}
+                onChange={(e) => setTokenAmountValidated(BigInt(parseInt(e.target.value)))}
+                // TODO: remove this conversion when adding proper display with decimals
+                value={unsafeFromBigint(tokenAmount)}
+            />
 
-            {/*<h4>SET AMOUNT TO BUY ({individualCap - alreadyBought} more microMETA allowed)</h4>*/}
-            {/*<input*/}
-            {/*    type="number"*/}
-            {/*    className="tokenInput"*/}
-            {/*    placeholder={'10'}*/}
-            {/*    onChange={(e) => setTokenAmountValidated(BigInt(parseInt(e.target.value)))}*/}
-            {/*    // TODO: remove this conversion when adding proper display with decimals*/}
-            {/*    value={unsafeFromBigint(tokenAmount)}*/}
-            {/*/>*/}
-
-            {/*<h4 style={{ marginTop: '30px' }}>microALGOs to pay: {algoPrice(tokenAmount)}</h4>*/}
-            {/*<Button onClick={() => buy(tokenAmount)}>BUY META</Button>*/}
+            <h4 style={{ marginTop: '30px' }}>
+                <>microALGOs to pay: {algoPrice(tokenAmount)}</>
+            </h4>
+            <Button onClick={() => buy(tokenAmount)} isActive={true}>
+                BUY META
+            </Button>
         </div>
     );
 };
 
-export const Crowdsale = () => {
-    const account = useStore($account);
+export const Crowdsale = (): ReactElement => {
+    const account = useUnit($account);
     const { data, isError, isSuccess } = useQuery(['contracts', 'crowdsale'], () => getContracts('crowdsale'));
+
+    const setContractInfosEvent = useUnit(setContractInfos);
 
     useEffect(() => {
         if (isSuccess && data instanceof Array) {
@@ -132,8 +147,7 @@ export const Crowdsale = () => {
             // TODO(flyingleafe) pls fix
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            // eslint-disable-next-line effector/mandatory-useEvent
-            setContractInfos(contracts);
+            setContractInfosEvent(contracts);
         }
     }, [data, isError, isSuccess]);
 

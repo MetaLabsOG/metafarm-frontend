@@ -13,7 +13,7 @@ export const registerAsset = createEvent<AssetId>();
 // =================================================================
 // Balances store which watches updates in accountInfo
 // =================================================================
-function getBalancesFromAccountInfo(accountInfo: any): Record<AssetId, Amount> {
+function getBalancesFromAccountInfo(accountInfo: Record<string, any> | null): Record<AssetId, Amount> {
     if (accountInfo === null) {
         return {};
     }
@@ -46,13 +46,14 @@ const fetchAssetFx = createEffect(
         const { params } = await algod.getAssetByID(id).do();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { name, creator, decimals } = params;
+        const unit_name = params['unit-name'];
 
         return {
             id,
-            name,
-            unitName: params['unit-name'],
-            creator,
-            decimals,
+            name: name as string,
+            unitName: unit_name as string,
+            creator: creator as string,
+            decimals: decimals as number,
         } as Asset;
     })
 );
