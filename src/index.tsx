@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import * as Sentry from '@sentry/react';
@@ -61,7 +61,7 @@ Sentry.init({
 const queryClient = new QueryClient();
 
 // throw events on initialization
-fetchAllPrices();
+void fetchAllPrices();
 
 const App = () => {
     const account = useUnit($account);
@@ -76,7 +76,7 @@ const App = () => {
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
-            const data = farmsFetch.data! as ContractInfo<'farm'>[];
+            const data = farmsFetch.data as ContractInfo<'farm'>[];
             setPoolInfosEvent(data);
         }
     }, [farmsFetch]);
@@ -90,7 +90,7 @@ const App = () => {
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
-            const data = distrFetch.data! as ContractInfo<'distribution'>[];
+            const data = distrFetch.data as ContractInfo<'distribution'>[];
             setDistributionPoolInfosEvent(data);
         }
     }, [distrFetch]);
@@ -124,11 +124,14 @@ const App = () => {
     );
 };
 
-ReactDOM.render(
+const container = document.getElementById('root');
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const root = createRoot(container!);
+
+root.render(
     <BrowserRouter>
         <QueryClientProvider client={queryClient}>
             <App />
         </QueryClientProvider>
-    </BrowserRouter>,
-    document.getElementById('root')
+    </BrowserRouter>
 );
