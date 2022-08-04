@@ -10129,6 +10129,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"husky@npm:^8.0.0":
+  version: 8.0.1
+  resolution: "husky@npm:8.0.1"
+  bin:
+    husky: lib/bin.js
+  checksum: 10a6a7d45981770a995ccb1122771842296e272acda5b7e53e9ad54230c14f3263933c2e76d6868c819e5a961769c48493f3de3697e480e5fc89e47102013942
+  languageName: node
+  linkType: hard
+
 "iconv-lite@npm:0.4.24, iconv-lite@npm:^0.4.24":
   version: 0.4.24
   resolution: "iconv-lite@npm:0.4.24"
@@ -12160,6 +12169,7 @@ __metadata:
     file-loader: "npm:^6.2.0"
     fs-extra: "npm:^10.1.0"
     html-webpack-plugin: "npm:^5.5.0"
+    husky: "npm:^8.0.0"
     identity-obj-proxy: "npm:^3.0.0"
     immutable: "npm:^4.1.0"
     jest: "npm:^28.1.3"
