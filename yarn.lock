@@ -3730,19 +3730,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@perawallet/connect@npm:0.1.0":
-  version: 0.1.0
-  resolution: "@perawallet/connect@npm:0.1.0"
+"@perawallet/connect@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@perawallet/connect@npm:0.2.0"
   dependencies:
     "@json-rpc-tools/utils": "npm:^1.7.6"
     "@walletconnect/client": "npm:^1.7.7"
     buffer: "npm:^6.0.3"
+    lottie-react: "npm:^2.3.1"
     react-qrcode-logo: "npm:^2.7.0"
   peerDependencies:
-    algosdk: ^1.15.0
-    react: ^17.0.2
-    react-dom: ^17.0.2
-  checksum: f36691f97d883060999b1bd73ac905904db66b1f8fa984d3550187d3ae3d235d3e7d1ca41d8131c6e8d42b44ca053a58f68c966521d8fc94fd694d7376b3e47a
+    algosdk: ^1.18.1
+    react: ^18.2.0
+    react-dom: ^18.2.0
+  checksum: 112ad1af85f73c2e0992746711afb6a9742f438fe94e3e816c5d38ceaba5a77963be9859c493e18a1cce171951da6eca0ddbcf3fe679e74c3d26cfb1d5cfa330
   languageName: node
   linkType: hard
 
@@ -12011,6 +12012,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lottie-react@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "lottie-react@npm:2.3.1"
+  dependencies:
+    lottie-web: "npm:^5.9.4"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: d6f607f0908e4fad1be167776c1a7acd4ddfa2812b6e2bdd688ef08ef34d083ff27382cef4029def9a8b009836f6feee59400110b834c38386f9f366b03feb8a
+  languageName: node
+  linkType: hard
+
+"lottie-web@npm:^5.9.4":
+  version: 5.9.6
+  resolution: "lottie-web@npm:5.9.6"
+  checksum: 8b67068c574c316cdf7a84f5a258d5ccede00bef938ac3927c75d8ed4fdb1bcb4218551b7f5d10f72a69db6012b0d598fc07ce2a2b18856ff6395c8b2ee43a07
+  languageName: node
+  linkType: hard
+
 "lower-case@npm:^2.0.2":
   version: 2.0.2
   resolution: "lower-case@npm:2.0.2"
@@ -12313,7 +12333,7 @@ __metadata:
     prompts: "npm:^2.4.2"
     prop-types: "npm:^15.8.1"
     ramda: "npm:^0.28.0"
-    react: "npm:17.0.2"
+    react: "npm:^18.2.0"
     react-app-polyfill: "npm:^3.0.0"
     react-awesome-modal: "npm:^2.0.5"
     react-canvas-confetti: "npm:^1.3.0"
@@ -14940,16 +14960,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:17.0.2":
-  version: 17.0.2
-  resolution: "react-dom@npm:17.0.2"
+"react-dom@npm:^18.2.0":
+  version: 18.2.0
+  resolution: "react-dom@npm:18.2.0"
   dependencies:
     loose-envify: "npm:^1.1.0"
-    object-assign: "npm:^4.1.1"
-    scheduler: "npm:^0.20.2"
+    scheduler: "npm:^0.23.0"
   peerDependencies:
-    react: 17.0.2
-  checksum: 51a70345e6ce512d39789750b46524a2bd0bd8474fabcded2e9cd90dda77ae834fdb8481ca1e64265b91bacf8a1d760f17d6c0382bdfacf455362e617abbe5fa
+    react: ^18.2.0
+  checksum: 7c5b915fb793d63563cec1f721e059e6ff0e2855ac116ab5cb7450b6c59398f5e25f95c960ce5cb93504cc58ab724a75a78e99282354e702a0e667d0d787d028
   languageName: node
   linkType: hard
 
@@ -15089,13 +15108,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:17.0.2":
-  version: 17.0.2
-  resolution: "react@npm:17.0.2"
+"react@npm:^18.2.0":
+  version: 18.2.0
+  resolution: "react@npm:18.2.0"
   dependencies:
     loose-envify: "npm:^1.1.0"
-    object-assign: "npm:^4.1.1"
-  checksum: c21b6ec9641b973afe3974e77d67d20df6e83c7e4de718af85d12389baa1077604560f086ae0e54e3c34ea87c60bd5d26080ba0cbad1c770307f53d6fa495e32
+  checksum: 8434e5782c52b3bf18a80b666348977924ee3827895fa03ec3ffb9faca90c460049f14130428dd1546bab6cf3b2c277f2c243d3c2a856501331d2e69c24b2bb9
   languageName: node
   linkType: hard
 
@@ -15660,13 +15678,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.20.2":
-  version: 0.20.2
-  resolution: "scheduler@npm:0.20.2"
+"scheduler@npm:^0.23.0":
+  version: 0.23.0
+  resolution: "scheduler@npm:0.23.0"
   dependencies:
     loose-envify: "npm:^1.1.0"
-    object-assign: "npm:^4.1.1"
-  checksum: b3ec1f4367776c1e8632d9b6d594fdf0d4fe0aefd738a7f6902f60e9b910142e4997c4ad931f07a553de7bae7bfc2144e9966a9a35e8ef084fe6e48f5dcf94c6
+  checksum: f4022b95cdc282668643da4850f55fe70c899aa956d11819f196e2ca892271bdb253613e53997852094f9351f7c72d057eea8b28d9b4bcb93bcb1c6d09985c82
   languageName: node
   linkType: hard
 
