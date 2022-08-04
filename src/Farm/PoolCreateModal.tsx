@@ -103,7 +103,7 @@ const createFarm = async (
     const status = await deployContractToBackend(Number(contractId), 'farm', stakeToken.name, stakeToken.poolDex);
 
     if (status) {
-        notify(`Done! Contract id is ${contractId}. Please, update the page.`, 'success');
+        notify(`Done! Contract id is ${Number(contractId)}. Please, update the page.`, 'success');
     } else {
         notify(`Something went wrong, please contact us!`, 'error');
     }
@@ -152,7 +152,7 @@ const PoolInfo = ({
             <InfoRow
                 style={{ color: '#676767', marginBottom: '20px' }}
                 title={'Current APR'}
-                value={(selectedPool.dexFeeApr ? (selectedPool.dexFeeApr * 100).toFixed(2) : 0) + '%'}
+                value={`${selectedPool.dexFeeApr ? (selectedPool.dexFeeApr * 100).toFixed(2) : 0}%`}
             />
             {/*<InfoRow*/}
             {/*    title={'Expected liquidity'}*/}
