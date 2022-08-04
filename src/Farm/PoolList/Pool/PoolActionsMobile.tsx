@@ -34,16 +34,18 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     const account = useUnit($account);
     return (
         <PoolActionsMobileContainer>
-            <ButtonBackMobile onClick={() => setIsZapModalOpen(false)} src={arrowBack} alt="BACK" />
-            <TokenInfo>
-                {isLPTokenInfo(stakedToken) && canStake && (
-                    <Button
-                        onClick={getLPTokenAction(stakedToken, openZapModal)}
-                        style={{ color: 'white' }}
-                        buttonText="Get LP Tokens"
-                    />
-                )}
-            </TokenInfo>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
+                <ButtonBackMobile onClick={() => setIsZapModalOpen(false)} src={arrowBack} alt="BACK" />
+                <TokenInfo>
+                    {isLPTokenInfo(stakedToken) && canStake && (
+                        <Button
+                            onClick={getLPTokenAction(stakedToken, openZapModal)}
+                            style={{ color: 'white' }}
+                            buttonText="Get LP Tokens"
+                        />
+                    )}
+                </TokenInfo>
+            </div>
             <TokenInputWithButton
                 style={!canStake ? { visibility: 'hidden' } : {}}
                 token={stakedToken}

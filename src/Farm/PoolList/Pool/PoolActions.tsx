@@ -1,10 +1,10 @@
 import { Dispatch, SetStateAction } from 'react';
-import { useStoreMap, useUnit } from 'effector-react';
+import { useStore, useStoreMap } from 'effector-react';
 import { AllDefined } from '../../../types';
 import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 
-import { isLPTokenInfo, numberRound } from './utils';
+import { isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { notify, ToastTypes, useToasts } from '../../../Components/Notification';
 import { useModal } from 'react-hooks-use-modal';
@@ -69,7 +69,7 @@ export const PoolActions = ({
     contractId: AppId;
     pricedAlgo: Priced<Asset>;
 }) => {
-    const pendingClaim = useUnit(ctc.apis.claim.pending);
+    const pendingClaim = useStore(ctc.apis.claim.pending);
 
     const unlockTime = calculateUnlockTimeinSecs(
         currentBlock,

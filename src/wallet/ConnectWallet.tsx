@@ -156,7 +156,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                         flexDirection: 'column',
                         alignItems: 'center',
                         width: 400,
-                        height: 260,
+                        height: 220,
                         backgroundColor: 'white',
                         borderRadius: 5,
                         transform: `translate3d(0px, ${finishedOpening ? 0 : 100}px, 0px)`,
@@ -174,18 +174,6 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                             Connect to Pera wallet
                         </button>
                     )}
-                    <div
-                        style={{
-                            fontFamily: 'Montserrat',
-                            color: 'black',
-                            textAlign: 'center',
-                            width: '70%',
-                            fontSize: '12px',
-                        }}
-                    >
-                        There are known issues when using Pera on mobile (but not on desktop). <br /> Use at your own
-                        risk.
-                    </div>
                 </div>
             </Modal>
         </>

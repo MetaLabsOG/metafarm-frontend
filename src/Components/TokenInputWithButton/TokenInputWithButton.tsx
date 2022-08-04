@@ -1,8 +1,8 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
 import { LPTokenInfo } from '../../providers/dexesProvider';
-import { useUnit } from 'effector-react';
+import { useStore, useUnit } from 'effector-react';
 import { $account, Asset, Priced } from '../../common/store';
 import { fromSmallestUnits, getSmallestUnits, sleep } from '../../common/lib';
 import { Effect } from 'effector';
@@ -51,8 +51,9 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     hasLock,
 }) => {
     const account = useUnit($account);
-    const isPending = useUnit(actionEffect.pending);
-    const actionEffectEvent = useUnit(actionEffect);
+    const isPending = useStore(actionEffect.pending);
+    // TODO
+    // const actionEffectEvent = useUnit(actionEffect);
 
     const [inputAmount, setInputAmount] = useState<string>('');
     const [isValidInput, setIsValidInput] = useState<boolean>(true);
@@ -65,7 +66,8 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     const balanceField = buttonType === 'stake' ? 'Balance' : 'Staked';
 
     const setNotificationText = useToasts({
-        api: actionEffectEvent,
+        // eslint-disable-next-line effector/mandatory-scope-binding
+        api: actionEffect,
         pendingStatus: isPending,
         action: buttonType === 'stake' ? ToastTypes.stake : ToastTypes.withdraw,
     });
@@ -109,7 +111,8 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 if (account && !isTokenOptIn) {
                     await batchOptIn(reach, account.networkAccount.addr, [Number(optInId)], true);
                 }
-                await actionEffectEvent([microAmount]);
+                // eslint-disable-next-line effector/mandatory-scope-binding
+                await actionEffect([microAmount]);
                 setShowConfetti(true);
             } catch (e) {
                 const error_message = e instanceof Error ? e.message : String(e);

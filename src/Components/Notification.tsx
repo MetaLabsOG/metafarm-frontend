@@ -105,7 +105,7 @@ export const notify = (text: string, type: TypeOptions, link?: string) => {
         isLoading: false,
         autoClose: 5000,
         closeOnClick: true,
-        position: toast.POSITION.TOP_CENTER,
+        position: type === 'success' ? toast.POSITION.BOTTOM_RIGHT : toast.POSITION.TOP_CENTER,
         hideProgressBar: true,
         theme: type === 'success' ? 'colored' : 'light',
     });
