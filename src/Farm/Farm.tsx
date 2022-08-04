@@ -8,7 +8,7 @@ export const Farm = () => {
     return (
         <FarmContainer>
             <Balance />
-            <PoolCreateModal />
+            {/*<PoolCreateModal />*/}
             <PoolList type="farm" pools={$sortedFarmPools} />
         </FarmContainer>
     );

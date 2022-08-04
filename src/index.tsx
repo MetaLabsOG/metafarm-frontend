@@ -31,22 +31,8 @@ import { TestnetModal } from './TestnetModal';
 import { useModal } from 'react-hooks-use-modal';
 import { useStoreMap, useUnit } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
-import { notify } from './Components/Notification';
 import { Footer } from './Menu/Footer';
 import { ALGONET, TESTNET } from './AppContext';
-
-// TODO
-window.open = (function (open) {
-    return function (url, name, features) {
-        name = name || 'default_window_name';
-        const res = open.call(window, url, name, features);
-        if (!res || res.closed || typeof res.closed == 'undefined') {
-            notify('Please, enable popups in your browser.', 'warning');
-            return null;
-        }
-        return res;
-    };
-})(window.open);
 
 Sentry.init({
     dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',

@@ -1,15 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import { useStoreMap, useUnit } from 'effector-react';
 import { AllDefined } from '../../../types';
-import {
-    $balances,
-    ContractState,
-    Priced,
-    Asset,
-    FarmType,
-    Amount,
-    AppId,
-} from '../../../common/store';
+import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 
 import { isLPTokenInfo, numberRound } from './utils';
@@ -47,6 +39,8 @@ export const onClickClaim = async (
         console.log(error_message);
         if (error_message.includes('stake is locked')) {
             notify('Please, wait. Stake is locked.', 'error');
+        } else if (error_message.includes('cancelled')) {
+            notify('Operation is cancelled.', 'warning');
         } else {
             notify(error_message, 'error');
         }
@@ -91,14 +85,12 @@ export const PoolActions = ({
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim && !unlockTimer;
-
+    const hasLock = contractState.local.staked > 0 && contractState.initial.lockLengthBlocks > 0;
     const [Modal, openZapModal, closeZapModal] = useModal('root');
 
     useToasts({
         api: ctc.apis.claim,
-        text: `${numberRound(fromSmallestUnits(rewardTokenInfo, contractState.local.reward))} ${
-            rewardTokenInfo.unitName
-        }`,
+        text: `${fromSmallestUnits(rewardTokenInfo, contractState.local.reward)} ${rewardTokenInfo.unitName}`,
         pendingStatus: pendingClaim,
         action: ToastTypes.claim,
     });
@@ -121,7 +113,7 @@ export const PoolActions = ({
                     setIsZapModalOpen={setIsZapModalOpen}
                     unlockTimer={unlockTimer}
                     contractId={contractId}
-                    hasLock={contractState.initial.lockLengthBlocks > 0}
+                    hasLock={hasLock}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -139,7 +131,7 @@ export const PoolActions = ({
                     setIsZapModalOpen={setIsZapModalOpen}
                     unlockTimer={unlockTimer}
                     contractId={contractId}
-                    hasLock={contractState.initial.lockLengthBlocks > 0}
+                    hasLock={hasLock}
                 />
             )}
             {isLPTokenInfo(stakeTokenInfo) && (
