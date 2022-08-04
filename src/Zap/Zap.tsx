@@ -7,8 +7,8 @@ import { $account, $balances, fetchAsset } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { logEvent, LogName } from '../logEvent';
-import { useStore } from 'effector-react';
+import { logEvent, logFarmActionData, LogName } from '../logEvent';
+import { useUnit } from 'effector-react';
 import { formatNumber, getOptions, QueryType, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
@@ -18,19 +18,19 @@ import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
 import { makeDex, ZapQuote } from '../providers/dexesProvider';
-import { algoexplorerTxLink, fromMicros, getMicros } from '../common/lib';
+import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
 
 const tinyman = makeDex('T2');
 
 function zapQuoteToData(asset1_id: number, quote: ZapQuote): ZapData {
     const assetsAreSwapped = asset1_id !== quote.mint.assetA.id;
-    const amountA = fromMicros(quote.mint.assetA, quote.mint.amountA);
-    const amountB = fromMicros(quote.mint.assetB, quote.mint.amountB);
+    const amountA = fromSmallestUnits(quote.mint.assetA, quote.mint.amountA);
+    const amountB = fromSmallestUnits(quote.mint.assetB, quote.mint.amountB);
 
     const asset1_amount = assetsAreSwapped ? amountB : amountA;
     const asset2_amount = assetsAreSwapped ? amountA : amountB;
-    const lp_amount = fromMicros(quote.mint.lpToken, quote.mint.minimalLiquidityIssued);
+    const lp_amount = fromSmallestUnits(quote.mint.lpToken, quote.mint.minimalLiquidityIssued);
     const pool_lp_id = quote.mint.lpToken.id;
     return { asset1_amount, asset2_amount, lp_amount, pool_lp_id };
 }
@@ -61,7 +61,7 @@ export async function loadZapData(
     try {
         const asset1 = await fetchAsset(Number(asset1_id));
         const asset2 = await fetchAsset(Number(asset2_id));
-        const amountIn = getMicros(asset1, Number(asset1_amount));
+        const amountIn = getSmallestUnits(asset1, Number(asset1_amount));
         const zapQuote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
 
         const zap_data = zapQuoteToData(Number(asset1_id), zapQuote);
@@ -113,13 +113,9 @@ export function ZapResult({
     token2: TokenOptionType;
 }) {
     const lpTokens =
-        formatNumber(zap_data.asset1_amount ?? 0) +
-        ' ' +
-        token1.unitName +
+        `${formatNumber(zap_data.asset1_amount ?? 0)} ${token1.unitName}` +
         ' + ' +
-        formatNumber(zap_data.asset2_amount ?? 0) +
-        ' ' +
-        token2.unitName;
+        `${formatNumber(zap_data.asset2_amount ?? 0)} ${token2.unitName}`;
 
     return (
         <InfoPanel isLoading={isLoading}>
@@ -135,14 +131,14 @@ export function ZapResult({
                 value={formatNumber(zap_data.pool_lp_id ?? 0)}
                 valueStyle={{ fontSize: '14px' }}
             />
-            <InfoRow title="Slippage" value={SLIPPAGE * 100 + '%'} valueStyle={{ fontSize: '14px' }} />
+            <InfoRow title="Slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
         </InfoPanel>
     );
 }
 
 export function Zap() {
-    const account = useStore($account);
-    const balances = useStore($balances);
+    const account = useUnit($account);
+    const balances = useUnit($balances);
 
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
@@ -159,13 +155,17 @@ export function Zap() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        getOptions(account, balances).then((res) => {
-            setOptions(res);
-            setToken1(res[0]);
-        });
+        getOptions(account, balances)
+            .then((res) => {
+                setOptions(res);
+                setToken1(res[0]);
+            })
+            .catch((err) => {
+                logFarmActionData(account, 'ZAP', token1Amount, null, null, `Failed to fetch options: ${String(err)}`);
+            });
     }, [balances]);
 
-    const getZapTimeout = useRef<any>();
+    const getZapTimeout = useRef<NodeJS.Timeout>();
 
     function getZap(token1_id: string, token2_id: string, amount: string) {
         setIsLoading(true);
@@ -183,7 +183,9 @@ export function Zap() {
         if (!token1_id || !token2_id || !amount) {
             return;
         }
-        clearTimeout(getZapTimeout.current);
+        if (getZapTimeout.current) {
+            clearTimeout(getZapTimeout.current);
+        }
         getZapTimeout.current = setTimeout(() => getZap(token1_id, token2_id, amount), delay);
     }
 
@@ -212,8 +214,8 @@ export function Zap() {
         getZapThrottled(token1.value, token2.value, inputValue, 1000);
     };
 
-    const LoadZapButtonOnClick = async () => {
-        return getZap(token1.value, token2.value, token1Amount);
+    const LoadZapButtonOnClick = () => {
+        return Promise.resolve(getZap(token1.value, token2.value, token1Amount));
     };
 
     const ZapButtonOnClick = async () => {

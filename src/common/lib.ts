@@ -105,8 +105,8 @@ export function convertBns(obj: any): any {
 export async function withAlgodEncoding<N extends Algodv2 | Indexer>(
     algod: N,
     encoding: IntDecoding,
-    wrapped: (algod: N) => Promise<any>
-): Promise<any> {
+    wrapped: (algod: N) => Promise<Record<string, any>>
+): Promise<Record<string, any>> {
     const prevEncoding = algod.getIntEncoding();
     algod.setIntEncoding(encoding);
     const res = await wrapped(algod);
@@ -114,7 +114,9 @@ export async function withAlgodEncoding<N extends Algodv2 | Indexer>(
     return res;
 }
 
-export const getAccountInfo = async (account: Account | string): Promise<any> => {
+type AccountInfo = Record<string, any>;
+
+export const getAccountInfo = async (account: Account | string): Promise<AccountInfo> => {
     const provider = await reach.getProvider();
     const addr = typeof account === 'string' ? account : account.networkAccount.addr;
 
@@ -123,7 +125,7 @@ export const getAccountInfo = async (account: Account | string): Promise<any> =>
         return await withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
             return algod.accountInformation(addr).do();
         });
-    } catch (e: any) {
+    } catch (e) {
         const indexer = provider.indexer;
         return withAlgodEncoding(indexer, IntDecoding.DEFAULT, async (indexer) => {
             const res = await indexer.lookupAccountByID(addr).do();
@@ -134,7 +136,7 @@ export const getAccountInfo = async (account: Account | string): Promise<any> =>
 
 // TODO: normal typing for account info (not any)
 export const filterOutOptedIn = (
-    accountInfo: any,
+    accountInfo: AccountInfo,
     appIds: number[],
     tokens: number[]
 ): { appIds: number[]; tokens: number[] } => {
@@ -146,8 +148,8 @@ export const filterOutOptedIn = (
     return { appIds, tokens };
 };
 
-export const getLocalState = (ai: any, contractId: number): any | undefined => {
-    const alss = ai['apps-local-state'] || [];
+export const getLocalState = (ai: AccountInfo, contractId: number): any | undefined => {
+    const alss = ai['apps-local-state'] ?? [];
     const als = alss.find((x: any) => x.id === contractId);
     return als ? als['key-value'] : undefined;
 };
@@ -253,7 +255,7 @@ export const manualBatchOptIn = async (
     return signAndPostTxnGroups(txGroups);
 };
 
-export const fromMicros = (token: Asset, amount: Amount | null): number => {
+export const fromSmallestUnits = (token: Asset, amount: Amount | null): number => {
     if (amount === null) {
         return 0;
     }
@@ -261,7 +263,7 @@ export const fromMicros = (token: Asset, amount: Amount | null): number => {
     return Number(reach.formatWithDecimals(amount.toString(), token.decimals));
 };
 
-export const getMicros = (token: Asset, amount: number | null): Amount => {
+export const getSmallestUnits = (token: Asset, amount: number | null): Amount => {
     if (amount === null || isNaN(amount)) {
         return BigInt(0);
     }

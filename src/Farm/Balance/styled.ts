@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { ColorThemed } from '../../theme';
 
 export const AmountContainer = styled.div`
     display: flex;
@@ -8,12 +9,12 @@ export const AmountContainer = styled.div`
 `;
 
 export const AmountTitle = styled.div`
-    color: ${(props) => props.theme.gray};
+    color: ${(props: ColorThemed<unknown>) => props.theme.gray};
     margin-bottom: 12px;
 `;
 
 export const AmountValue = styled.div`
-    color: ${(props) => props.theme.white};
+    color: ${(props: ColorThemed<unknown>) => props.theme.white};
 `;
 
 export const BalanceList = styled.div`
@@ -21,7 +22,7 @@ export const BalanceList = styled.div`
     min-width: 1114px;
     display: flex;
     justify-content: space-evenly;
-    background-color: ${(props) => props.theme.darkGray};
+    background-color: ${(props: ColorThemed<unknown>) => props.theme.darkGray};
     height: 91px;
     align-items: center;
     font-family: 'Montserrat';

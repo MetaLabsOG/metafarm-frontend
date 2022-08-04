@@ -18,9 +18,7 @@ export default function Confetti({ showConfetti, onFinish }: { showConfetti: boo
         refAnimationInstance.current = instance;
     }, []);
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const makeShot = useCallback((particleRatio, opts) => {
+    const makeShot = useCallback((particleRatio: number, opts: confetti.Options) => {
         refAnimationInstance.current &&
             refAnimationInstance.current({
                 ...opts,

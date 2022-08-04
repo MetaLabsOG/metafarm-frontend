@@ -35,7 +35,7 @@ export const getAssetLogoUrl = (input_asset_id: number) => {
         return 'https://gateway.pinata.cloud/ipfs/QmXhUDU7QNxWg27JipSvLxc3wcsEL23RJW5fjDvEGzbZSb';
     }
     const asset_id = ALGONET === MAINNET ? input_asset_id : TESTNET_TO_MAINNET_ASA_ID[input_asset_id] ?? 0;
-    return 'https://asa-list.tinyman.org/assets/' + asset_id + '/icon.png';
+    return `https://asa-list.tinyman.org/assets/${asset_id}/icon.png`;
 };
 
 export const isLPTokenInfo = (tokenInfo: Priced<Asset> | Priced<LPTokenInfo>): tokenInfo is Priced<LPTokenInfo> => {
@@ -78,7 +78,7 @@ export const getTokenLink = (asset_id: number | undefined): string => {
         return 'https://algoexplorer.io/top-statistics';
     }
     const mainnet_asset_id = ALGONET === MAINNET || !asset_id ? asset_id : TESTNET_TO_MAINNET_ASA_ID[asset_id];
-    return mainnet_asset_id ? 'https://tinychart.org/asset/' + mainnet_asset_id : '';
+    return mainnet_asset_id ? `https://tinychart.org/asset/${mainnet_asset_id}` : '';
 };
 
 // TODO: remove this when pools name it will be not test names

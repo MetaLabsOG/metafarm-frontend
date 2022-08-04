@@ -39,6 +39,9 @@ export async function waitForEvent<T, P, E>(
         let unsubFail = () => {
             return;
         };
+
+        // What happens here: we resolve the promise when the event happens, and unsubscribe.
+        // "event.watch" returns callable "Subscription". "Subscription" unsubscribes when it's called.
         const unsub = event.watch((v) => {
             if (filter === undefined || filter(v)) {
                 unsub();

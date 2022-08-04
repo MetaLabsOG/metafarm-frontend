@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Status } from '../../../Status';
 import { $networkTime, queryTimeUpdate, Contract, FarmType, hasLocalState, $pricedAlgo } from '../../../common/store';
-import { useEvent, useStore, useStoreMap } from 'effector-react';
+import { useStoreMap, useUnit } from 'effector-react';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
@@ -12,14 +12,14 @@ import logo from '../../../imgs/logo.png';
 import { getPoolState } from './utils';
 
 export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) => {
-    const currentBlock = useStore($networkTime);
-    const pricedAlgo = useStore($pricedAlgo);
+    const currentBlock = useUnit($networkTime);
+    const pricedAlgo = useUnit($pricedAlgo);
     const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
     const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null)) ?? stakeTokenInfo;
 
     const [isOpen, setIsOpen] = useState(false);
 
-    const queryTimeUpdateEvent = useEvent(queryTimeUpdate);
+    const queryTimeUpdateEvent = useUnit(queryTimeUpdate);
 
     useEffect(queryTimeUpdateEvent, [contract]);
 
@@ -47,7 +47,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                         backfaceVisibility: 'hidden',
                         transform: window.innerWidth <= 1120 && isOpen && !isSafari ? 'rotateY(180deg)' : '',
                     }}
-                    onClick={() => setIsOpen(!isOpen && contract.ctc)}
+                    onClick={() => setIsOpen(!isOpen && contract.ctc != null)}
                 >
                     <PoolInfo
                         isOpen={isOpen}

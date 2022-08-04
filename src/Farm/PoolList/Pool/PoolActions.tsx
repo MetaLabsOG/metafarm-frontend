@@ -1,5 +1,5 @@
-import React, { Dispatch, SetStateAction } from 'react';
-import { useStore, useStoreMap } from 'effector-react';
+import { Dispatch, SetStateAction } from 'react';
+import { useStoreMap, useUnit } from 'effector-react';
 import { AllDefined } from '../../../types';
 import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
@@ -11,7 +11,7 @@ import { useModal } from 'react-hooks-use-modal';
 import { PoolActionsDesktop } from './PoolActionsDesktop';
 import { PoolActionsMobile } from './PoolActionsMobile';
 import { ZapModal } from '../../../Zap/ZapModal';
-import { fromMicros } from '../../../common/lib';
+import { fromSmallestUnits } from '../../../common/lib';
 import { useTimer } from '../../../common/reachHooks';
 import { calculateUnlockTimeinSecs } from './UnlockTimer';
 import { logFarmActionData } from '../../../logEvent';
@@ -26,7 +26,7 @@ export const onClickClaim = async (
     rewardTokenInfo: Priced<Asset>,
     microAmount: Amount
 ) => {
-    const amount = fromMicros(rewardTokenInfo, microAmount);
+    const amount = fromSmallestUnits(rewardTokenInfo, microAmount);
     logFarmActionData(account, 'CLAIM', amount, stakeTokenInfo, rewardTokenInfo);
     try {
         const isTokenOptIn = await checkOptIn(account?.networkAccount.addr, rewardTokenInfo.id);
@@ -39,6 +39,8 @@ export const onClickClaim = async (
         console.log(error_message);
         if (error_message.includes('stake is locked')) {
             notify('Please, wait. Stake is locked.', 'error');
+        } else if (error_message.includes('cancelled')) {
+            notify('Operation is cancelled.', 'warning');
         } else {
             notify(error_message, 'error');
         }
@@ -67,7 +69,7 @@ export const PoolActions = ({
     contractId: AppId;
     pricedAlgo: Priced<Asset>;
 }) => {
-    const pendingClaim = useStore(ctc.apis.claim.pending);
+    const pendingClaim = useUnit(ctc.apis.claim.pending);
 
     const unlockTime = calculateUnlockTimeinSecs(
         currentBlock,
@@ -83,12 +85,12 @@ export const PoolActions = ({
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim && !unlockTimer;
-
+    const hasLock = contractState.local.staked > 0 && contractState.initial.lockLengthBlocks > 0;
     const [Modal, openZapModal, closeZapModal] = useModal('root');
 
     useToasts({
         api: ctc.apis.claim,
-        text: numberRound(fromMicros(rewardTokenInfo, contractState.local.reward)) + ' ' + rewardTokenInfo.unitName,
+        text: `${fromSmallestUnits(rewardTokenInfo, contractState.local.reward)} ${rewardTokenInfo.unitName}`,
         pendingStatus: pendingClaim,
         action: ToastTypes.claim,
     });
@@ -111,7 +113,7 @@ export const PoolActions = ({
                     setIsZapModalOpen={setIsZapModalOpen}
                     unlockTimer={unlockTimer}
                     contractId={contractId}
-                    hasLock={contractState.initial.lockLengthBlocks > 0}
+                    hasLock={hasLock}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -129,7 +131,7 @@ export const PoolActions = ({
                     setIsZapModalOpen={setIsZapModalOpen}
                     unlockTimer={unlockTimer}
                     contractId={contractId}
-                    hasLock={contractState.initial.lockLengthBlocks > 0}
+                    hasLock={hasLock}
                 />
             )}
             {isLPTokenInfo(stakeTokenInfo) && (

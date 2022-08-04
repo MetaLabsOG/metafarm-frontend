@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { PoolActionsMobileContainer, TokenInfo, RewardsContainer, ButtonBackMobile, PoolInfoValue } from './styled';
 import arrowBack from '../../../imgs/arrow_back.svg';
 
@@ -6,7 +6,7 @@ import { PoolActionsDesktopProps, getLPTokenAction } from './PoolActionsDesktop'
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { isCompoundEnabled, runCompound } from './compound';
-import { useStore } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { $account } from '../../../common/store';
 import { RewardValues, StakeValue } from './PoolInfoDesktop';
 import { UnlockTimer } from './UnlockTimer';
@@ -31,7 +31,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     contractId,
     hasLock,
 }) => {
-    const account = useStore($account);
+    const account = useUnit($account);
     return (
         <PoolActionsMobileContainer>
             <ButtonBackMobile onClick={() => setIsZapModalOpen(false)} src={arrowBack} alt="BACK" />

@@ -1,6 +1,6 @@
 .optionContainer {
     display: flex;
-    vert-align: middle;
+    vertical-align: middle;
 }
 
 .tokenIcon {

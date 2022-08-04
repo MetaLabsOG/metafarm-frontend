@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
+import { Effect } from 'effector';
 import { AllDefined } from '../../types';
 
 export type AssetId = number;
@@ -52,12 +52,15 @@ export function hasLocalState<T extends ContractType, S extends ContractState<T>
     return !!state.local;
 }
 
-export type InnerCtc = any;
+// TODO what does it return?
+export type ReachApiCallType = (payload: BigNumberish[]) => Promise<any>;
+
+export type ReachApiEffectType = Effect<BigNumberish[], any>;
 
 export type Contract<T extends ContractType> = {
     id: AppId;
     info: ContractInfo<T>;
-    ctc: any | null; // fix later (or fucking never)
+    ctc: any | null; // TODO fix later (or fucking never) Is it just ReachContract?????
     state: ContractState<T> | null;
 };
 
@@ -161,11 +164,13 @@ type CrowdsaleLocalInfo = {
 // in Typescript somehow but I'll probably spend several hours more trying to understand
 // how to do it
 // TODO: maybe some sort of codegen exists?...
+/* eslint-disable */
 export function parseView<T extends ContractType, V extends keyof ContractState<T>>(
     contractType: T,
     viewType: V
 ): (obj: any) => AllDefined<ContractState<T>>[V] {
     const parseFarmInitialInfo = (obj: any): FarmInitialInfo => ({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         beneficiary: obj.beneficiary,
         creationFee: obj.creationFee.toBigInt(),
         stakeToken: obj.stakeToken.toNumber(),
@@ -265,3 +270,4 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
         throw new Error('impossible: not matched any type');
     };
 }
+/* eslint-enable */
