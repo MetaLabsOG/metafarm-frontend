@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Bounce, Id, Slide, toast, TypeOptions, Zoom } from 'react-toastify';
+import { Id, toast, TypeOptions } from 'react-toastify';
 import { isNil } from 'ramda';
 import pacman_grey from '../imgs/pacman.gif';
-import { getTokenLink } from '../Farm/PoolList/Pool/utils';
 
 const NOTIFICATION_ICONS: Record<TypeOptions, string> = {
     success: '🚀',
@@ -46,6 +45,7 @@ export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<an
                 <Notification action={action} status={'in progress'} text={notificationText} />,
                 {
                     icon: <img style={{ width: '30px', height: '30px' }} alt="loader" src={pacman_grey} />,
+                    closeButton: true,
                 }
             );
             setToastIds({ ...toastIds, [action]: toastStakeId });
@@ -90,7 +90,7 @@ const Alert = ({ text, link }: { text: string; link?: string }) => {
         <div style={{ marginLeft: '10px', fontFamily: 'Montserrat' }}>
             <div>{text}</div>
             {link && (
-                <a target="_blank" href={link} rel="noreferrer">
+                <a target="_blank" href={link} rel="noreferrer" style={{ color: 'white' }}>
                     Transaction
                 </a>
             )}
@@ -107,6 +107,6 @@ export const notify = (text: string, type: TypeOptions, link?: string) => {
         closeOnClick: true,
         position: toast.POSITION.TOP_CENTER,
         hideProgressBar: true,
-        theme: 'light',
+        theme: type === 'success' ? 'colored' : 'light',
     });
 };

@@ -118,6 +118,8 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                     notify('Not enough ALGOs for opt-in. Please top up ALGO balance.', 'error');
                 } else if (error_message.includes('cancelled')) {
                     notify('Operation is cancelled.', 'warning');
+                } else if (error_message.includes('popup')) {
+                    notify('Popups are blocked. Please, allow popups in your browser.', 'error');
                 } else {
                     notify(error_message, 'error');
                 }
