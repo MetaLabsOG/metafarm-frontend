@@ -29,8 +29,20 @@ const USDC_TOKEN_IDS = {
     MainNet: 31566704,
 };
 
+const USDT_TOKEN_IDS = {
+    TestNet: 94115664,
+    MainNet: 312769,
+};
+
+const GOBTC_TOKEN_IDS = {
+    TestNet: 19386116,
+    MainNet: 386192725,
+};
+
+export const GOBTC_TOKEN_ID = GOBTC_TOKEN_IDS[ALGONET];
 export const META_TOKEN_ID = META_TOKEN_IDS[ALGONET];
 export const USDC_TOKEN_ID = USDC_TOKEN_IDS[ALGONET];
+export const USDT_TOKEN_ID = USDT_TOKEN_IDS[ALGONET];
 
 export const IS_MOBILE = window.innerWidth <= 768;
 console.log('Is mobile:', IS_MOBILE);
