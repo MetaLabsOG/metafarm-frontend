@@ -12,7 +12,8 @@ import { TokenOptionType } from '../Components/Select/types';
 import { TOKEN_OPTION } from '../Components/Select/Select';
 import { notify } from '../Components/Notification';
 import { algoexplorerTxLink } from '../common/lib';
-import { setPoolInfos } from '../Farm/store';
+import { getTokenLink } from '../Farm/PoolList/Pool/utils';
+import { theme } from '../theme';
 
 export function ZapModal({
     asset1_id,
@@ -131,6 +132,14 @@ export function ZapModal({
             <React.Fragment>
                 <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
                 <h3 className="dex_name">on tinyman</h3>
+                <a
+                    target="_blank"
+                    href={'https://app.tinyman.org/#/pool/add-liquidity?asset_1=' + asset1_id + '&asset_2=' + asset2_id}
+                    rel="noreferrer"
+                    style={{ color: theme.lightGray }}
+                >
+                    <h3 className="dex_name">or do it manually</h3>
+                </a>
             </React.Fragment>
         </ModalContainer>
     );
