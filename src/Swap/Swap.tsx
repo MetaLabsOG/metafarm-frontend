@@ -29,6 +29,7 @@ import { TokenOptionType } from '../Components/Select/types';
 import { BestSwapQuote, makeDex, ZapQuote } from '../providers/dexesProvider';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
+import { numberRound } from '../Farm/PoolList/Pool/utils';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';
@@ -40,6 +41,7 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     386192725: 19386116, // goBTC
     31566704: 10458941, // USDC
     463554836: 70283957, // ALGF
+    792313023: 96690352, // xSOL
 };
 
 export const SLIPPAGE = 0.01;
@@ -268,12 +270,12 @@ export async function getOptions(
 
     // TODO hack for glitter
     assets.push({
-        value: '96690352',
-        name: 'goSOL',
-        unitName: 'goSOL',
+        value: ALGONET === MAINNET ? '792313023' : '96690352',
+        name: 'xSOL',
+        unitName: 'xSOL',
         balance: 0,
-        decimals: 8,
-        id: 96690352,
+        decimals: 9,
+        id: ALGONET === MAINNET ? 792313023 : 96690352,
         creator: '',
     });
 
@@ -283,8 +285,8 @@ export async function getOptions(
 
     const reservedAlgoBalance = account ? reach.bigNumberToNumber(await reach.minimumBalanceOf(account)) : 0;
     assets.forEach((asset) => {
-        const asset_balance = Number(balances[asset.id]) / 10 ** asset.decimals;
-        asset.balance = asset_balance ?? 0;
+        const asset_balance = Number(balances[asset.id] ?? 0) / 10 ** asset.decimals;
+        asset.balance = asset_balance;
 
         if (asset.id === 0) {
             asset.balance -= reservedAlgoBalance / 10 ** asset.decimals;
@@ -343,7 +345,7 @@ function BestTokenPrice({
                         {token1.unitName}-{token2.unitName}
                     </div>
                     <h3 className="token_price_value" style={{ color: 'white', padding: '10px' }}>
-                        {formatNumber(bestSwap.direct_swap)} {token2.unitName}
+                        {numberRound(bestSwap.direct_swap)} {token2.unitName}
                     </h3>
                 </div>
             )}
@@ -359,7 +361,7 @@ function BestTokenPrice({
                     className="token_price_value"
                     style={{ backgroundColor: '#00ff00', color: 'black', padding: '7px', fontSize: '18px' }}
                 >
-                    {formatNumber(bestSwap.best_swap)} {token2.unitName}
+                    {numberRound(bestSwap.best_swap)} {token2.unitName}
                 </h3>
             </div>
             {best_algo && (
@@ -373,14 +375,14 @@ function BestTokenPrice({
                 >
                     <div className="token_price_text"> </div>
                     <div className="token_price_delta">
-                        +{formatNumber(bestSwap.best_swap - bestSwap.direct_swap)} {token2.unitName}(
-                        {formatNumber(bestSwap.usdc_diff)}$)
+                        +{numberRound(bestSwap.best_swap - bestSwap.direct_swap)} {token2.unitName}(
+                        {numberRound(bestSwap.usdc_diff)}$)
                     </div>
                 </div>
             )}
             <InfoRow
                 title="Price"
-                value={formatNumber(pricePerToken) + ' ' + token2.unitName + ' per ' + token1.unitName}
+                value={numberRound(pricePerToken) + ' ' + token2.unitName + ' per ' + token1.unitName}
                 valueStyle={{ fontSize: '14px' }}
             />
             <InfoRow title="Slippage" value={SLIPPAGE * 100 + '%'} valueStyle={{ fontSize: '14px' }} />
