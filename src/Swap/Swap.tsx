@@ -231,6 +231,8 @@ export async function runTransactions(
             notify(queryType + ': Not enough available algos.', 'error');
         } else if (error_message.includes('cancelled')) {
             notify('Operation is cancelled.', 'warning');
+        } else if (error_message.includes('exceeds schema integer count')) {
+            notify('Please, redeem all tokens on tinyman.', 'warning');
         } else {
             notify(queryType + ' error. Please, contact us in twitter or discord.', 'error');
         }
