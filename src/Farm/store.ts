@@ -28,7 +28,7 @@ import {
 import { AllDefined, Backend } from '../types';
 import { groupBy, min, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
-import { convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
+import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 
 // TODO: this function is a huge costyl
 export function detectAssetProvider({ name }: { name: string }): DexProvider {
@@ -237,12 +237,21 @@ export const $farmPoolAggregates: Store<PoolAggregates> = combine(
             (s) => s.local?.staked,
             (s) => s.initial.stakeToken
         );
-        const totalPendingReward = sumMoney(
-            states,
-            tokens,
-            (s) => s.local?.reward,
-            (s) => s.initial.rewardToken
-        );
+        const totalPendingReward = states.reduce((sum, state) => {
+            const token = state.initial.rewardToken;
+            const tokenInfo = tokens.get(token, null);
+            const algoInfo = tokens.get(0, null);
+            const tokenReward = state.local?.reward ?? BigInt(0);
+
+            if (!tokenReward || !token || !tokenInfo || !algoInfo) {
+                return sum;
+            }
+
+            const algoReward = calculateAlgoReward(state.initial, tokenReward);
+
+            return sum + convertAmountToUSD(tokenInfo, tokenReward) + convertAmountToUSD(algoInfo, algoReward);
+        }, 0);
+
         return { tvl, totalUserStake, totalPendingReward };
     }
 );
