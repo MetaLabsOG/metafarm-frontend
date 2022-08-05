@@ -117,7 +117,7 @@ export async function tokensaleWhitelist(contractId: number, address: string): P
 type AddContractType = {
     type: ContractType;
     id: number;
-    version: string;
+    VERSION: string;
     description: string;
     metadata: Record<string, string | undefined>;
 };
@@ -137,13 +137,14 @@ export const deployContractToBackend = async (
     const request: AddContractType = {
         type: contractType,
         id: contractId,
-        version: contractVersion,
+        VERSION: contractVersion,
         description: farmName,
         metadata: {
             dex: dex,
         },
     };
     try {
+        console.log('/contract/register', request);
         await instance.post('/contract/register', request);
         return true;
     } catch (error) {

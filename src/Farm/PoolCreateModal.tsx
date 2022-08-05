@@ -28,7 +28,7 @@ import {
     Time,
 } from '../common/store';
 import { useUnit, useStoreMap } from 'effector-react';
-import { DAY, formatDecimalsMeaningful, getSmallestUnits } from '../common/lib';
+import { DAY, formatDecimalsMeaningful, getSmallestUnits, unsafeFromBigint } from '../common/lib';
 import { deployContractToBackend, getTinymanPools } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
@@ -86,18 +86,20 @@ const createFarm = async (
         rewardToken.id,
         beginBlock,
         endBlock,
-        microRewardPerBlock
+        microRewardPerBlock,
+        algoMicroRewardPerBlock
     );
     const contractParams: InitialState = {
-        beneficiary: FARM_BENEFICIARY_ADDR!,
-        creationFee: FARM_CREATION_FEE!,
+        beneficiary: 'XNF7S2PP3IWGJVBFHKZ5QTV6ZSSTDA3WGZCDILQ44EF7PAEFA3XK2NMQME', // FARM_BENEFICIARY_ADDR
+        creationFee: FARM_CREATION_FEE ?? 0,
         stakeToken: stakeToken.liquidityAsset,
         rewardToken: rewardToken.id,
         beginBlock: beginBlock,
         endBlock: endBlock,
-        rewardPerBlock: microRewardPerBlock,
-        extraAlgoRewardPerBlock: algoMicroRewardPerBlock,
+        rewardPerBlock: unsafeFromBigint(microRewardPerBlock),
+        extraAlgoRewardPerBlock: unsafeFromBigint(algoMicroRewardPerBlock),
         lockLengthBlocks: 0,
+        flatAlgoCreationFee: 0,
     };
     const ctc = account.contract(farmBackend as Backend);
     const contractId = await deployFarm(ctc, contractParams);
@@ -147,7 +149,7 @@ const PoolInfo = ({
     pricedRewardToken: Priced<Asset> | null;
 }) => {
     const rewardUnitName = pricedRewardToken ? pricedRewardToken.unitName : '';
-    const farmCreationFee = (rewardAmount * Number(FARM_CREATION_FEE)) / 10_000;
+    const farmCreationFee = (rewardAmount * Number(FARM_CREATION_FEE ?? 0)) / 10_000;
 
     return (
         <InfoPanel isLoading={false}>
@@ -215,7 +217,7 @@ export const PoolCreateModal = () => {
     );
 
     useEffect(() => {
-        getTinymanPools(50).then((pools) => {
+        getTinymanPools(50, 'META').then((pools) => {
             const options: PoolOptionType[] = pools.map((pool) => {
                 return {
                     value: pool.liquidity_asset.id.toString(),
