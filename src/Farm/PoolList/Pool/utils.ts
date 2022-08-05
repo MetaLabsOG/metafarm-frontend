@@ -32,10 +32,7 @@ export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
 
 export const getAssetLogoUrl = (input_asset_id: number) => {
     const asset_id = ALGONET === MAINNET ? input_asset_id : TESTNET_TO_MAINNET_ASA_ID[input_asset_id] ?? 0;
-    // TODO hack for glitter
-    if (input_asset_id === 792313023) {
-        return 'https://gateway.pinata.cloud/ipfs/QmWJ25NBmZLieGrunAEQWnizZAPDK9Nk9kpscPcq9WtoR4';
-    }
+
     return `https://asa-list.tinyman.org/assets/${asset_id}/icon.png`;
 };
 
