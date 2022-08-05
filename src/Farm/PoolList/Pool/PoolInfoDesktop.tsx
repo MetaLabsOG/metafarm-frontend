@@ -77,9 +77,9 @@ export const StakeValue: FC<ValueProps> = ({ contractState, tokenInfo }) => {
 };
 
 export const getAPRTip = (APR: Record<APRTypes, number>, unitname: string) => {
-    const rewards = APR[APRTypes.reward].toFixed(2) + '% ' + unitname;
-    const algoRewards = APR[APRTypes.algoReward] ? ' + ' + APR[APRTypes.algoReward].toFixed(2) + '% ALGO' : '';
-    const fees = APR[APRTypes.fees] ? ' + ' + APR[APRTypes.fees].toFixed(2) + '% trading fees' : '';
+    const rewards = numberRound(APR[APRTypes.reward]) + '% ' + unitname;
+    const algoRewards = APR[APRTypes.algoReward] ? ' + ' + numberRound(APR[APRTypes.algoReward]) + '% ALGO' : '';
+    const fees = APR[APRTypes.fees] ? ' + ' + numberRound(APR[APRTypes.fees]) + '% trading fees' : '';
     return rewards + algoRewards + fees;
 };
 

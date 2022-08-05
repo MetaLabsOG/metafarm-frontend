@@ -53,7 +53,7 @@ export const runCompound = async (
         );
 
         if (zapResult === null) {
-            throw new Error('internal zap error!');
+            throw new Error('Internal zap error!');
         }
 
         const algoRewardAmount = Number(reach.formatWithDecimals(claimedExtraAlgos, 6));
@@ -68,7 +68,7 @@ export const runCompound = async (
             );
 
             if (algoZapResult === null) {
-                throw new Error('internal algo zap error!');
+                throw new Error('Internal algo zap error!');
             }
 
             const algoQuote = algoZapResult.quote as ZapQuote;

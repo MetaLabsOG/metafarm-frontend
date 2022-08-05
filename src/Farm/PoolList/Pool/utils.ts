@@ -27,14 +27,15 @@ export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
     70283957: 463554836, // ALGF
     96690153: 607591690, // XGLI
     27963203: 342889824, // BOARD
+    96690352: 792313023, // xSOL
 };
 
 export const getAssetLogoUrl = (input_asset_id: number) => {
-    // TODO hack for glitter
-    if (input_asset_id === 96690352) {
-        return 'https://gateway.pinata.cloud/ipfs/QmXhUDU7QNxWg27JipSvLxc3wcsEL23RJW5fjDvEGzbZSb';
-    }
     const asset_id = ALGONET === MAINNET ? input_asset_id : TESTNET_TO_MAINNET_ASA_ID[input_asset_id] ?? 0;
+    // TODO hack for glitter
+    if (input_asset_id === 792313023) {
+        return 'https://gateway.pinata.cloud/ipfs/QmWJ25NBmZLieGrunAEQWnizZAPDK9Nk9kpscPcq9WtoR4';
+    }
     return `https://asa-list.tinyman.org/assets/${asset_id}/icon.png`;
 };
 
