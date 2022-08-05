@@ -10,6 +10,9 @@ import { SLIPPAGE } from '../../Swap/Swap';
 
 export const fetchAssetPriceFx = createEffect(
     nonConcurrent(async (asset: Asset): Promise<number> => {
+        if (asset.id === 0) {
+            return 1;
+        }
         const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, BigInt(10 ** asset.decimals), SLIPPAGE);
         return swapQuote.price;
     })
