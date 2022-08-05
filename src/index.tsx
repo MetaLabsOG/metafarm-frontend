@@ -45,6 +45,19 @@ Sentry.init({
     tracesSampleRate: 1.0,
 });
 
+// TODO
+window.open = (function (open) {
+    return function (url, name, features) {
+        name = name || 'default_window_name';
+        const res = open.call(window, url, name, features);
+        if (!res || res.closed || typeof res.closed == 'undefined') {
+            notify('Please, enable popups in your browser.', 'warning');
+            return null;
+        }
+        return res;
+    };
+})(window.open);
+
 const queryClient = new QueryClient();
 
 // throw events on initialization

@@ -80,7 +80,7 @@ const Notification = ({ action, status, text }: { action: ToastTypes; status: st
             <div>
                 {ToastTypes[action].toUpperCase()} {status.toUpperCase()}
             </div>
-            <div>AMOUNT: {text}</div>
+            {text && <div>AMOUNT: {text}</div>}
         </div>
     );
 };
