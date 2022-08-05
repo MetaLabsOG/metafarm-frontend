@@ -20,7 +20,7 @@ export const getLPTokenAction = (lpToken: LPTokenInfo, openModal: () => void) =>
     if (lpToken.poolDex === 'T2') {
         return openModal;
     } else if (lpToken.poolDex === 'PT') {
-        const pactPrefix = ALGONET === TESTNET ? 'testnet.' : '';
+        const pactPrefix = ALGONET === TESTNET ? 'testnet.' : 'app.';
         return () => window.open(`https://${pactPrefix}pact.fi/add-liquidity/${lpToken.poolId}`, '_blank');
     } else {
         return () => notify('Sorry, this is a mock token, you cannot get it', 'error');
