@@ -268,17 +268,6 @@ export async function getOptions(
         }))
         .filter((token) => token.value);
 
-    // TODO hack for glitter
-    assets.push({
-        value: ALGONET === MAINNET ? '792313023' : '96690352',
-        name: 'xSOL',
-        unitName: 'xSOL',
-        balance: 0,
-        decimals: 9,
-        id: ALGONET === MAINNET ? 792313023 : 96690352,
-        creator: '',
-    });
-
     if (!balances) {
         return assets;
     }
