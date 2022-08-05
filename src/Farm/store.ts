@@ -35,7 +35,7 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
     name = name.toLowerCase();
     if (name.indexOf('tinyman') !== -1) {
         return 'T2';
-    } else if (name.indexOf('liquidity') !== -1) {
+    } else if (name.indexOf('liquidity') !== -1 || name.indexOf('pact') !== -1) {
         return 'PT';
     } else {
         return 'MOCK';
