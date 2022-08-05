@@ -4,7 +4,7 @@ import { algod } from '../../AppContext';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
 import { nonConcurrent, fetchStore } from './utils';
-import { getBinanceCoinPrice } from '../../providers/binanceProvider';
+import { getAlgoPrice } from '../../providers/coinPriceProvider';
 import { doEachTick } from './time';
 
 // Main event to add the asset, adds it to all of the relevant stores
@@ -98,7 +98,7 @@ export const fetchAsset = async (id: AssetId): Promise<Asset> => {
 // ALGO price fetching
 // (token prices are in separate file to avoid circular import to/from dexesProvider)
 // =================================================================
-export const fetchAlgoPriceFx = createEffect(nonConcurrent(() => getBinanceCoinPrice('ALGOUSDT')));
+export const fetchAlgoPriceFx = createEffect(nonConcurrent(() => getAlgoPrice()));
 
 export const $algoUsdPrice = restore(fetchAlgoPriceFx.doneData, null);
 
