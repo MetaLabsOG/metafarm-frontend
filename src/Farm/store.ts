@@ -29,6 +29,7 @@ import { AllDefined, Backend } from '../types';
 import { groupBy, min, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
+import { $distributionPools } from '../Stake/store';
 
 // TODO: this function is a huge costyl
 export function detectAssetProvider({ name }: { name: string }): DexProvider {
@@ -196,11 +197,11 @@ export const $farmRewardTokens = combine($pricedAssets, $contractStatesWithCache
 );
 
 // Price aggregation
-const sumMoney = (
-    states: ContractState<'farm'>[],
+const sumMoney = <T extends FarmType>(
+    states: ContractState<T>[],
     tokens: Map<AssetId, Priced<Asset>>,
-    getAmount: (s: ContractState<'farm'>) => Amount | undefined,
-    getToken: (s: ContractState<'farm'>) => AssetId
+    getAmount: (s: ContractState<T>) => Amount | undefined,
+    getToken: (s: ContractState<T>) => AssetId
 ): number =>
     states.reduce((sum, state) => {
         const token = getToken(state);
@@ -220,38 +221,39 @@ export interface PoolAggregates {
     totalPendingReward: number;
 }
 
-export const $farmPoolAggregates: Store<PoolAggregates> = combine(
-    $farmPools.map((contracts) => contracts.map((c) => c.state).filter((s): s is ContractState<'farm'> => s !== null)),
-    $lpTokenInfos,
-    $pricedAssets,
-    (states, lpTokens, tokens) => {
-        const tvl = sumMoney(
-            states,
-            lpTokens,
-            (s) => s.global.totalStaked - BigInt(1), // VIRTUAL STAKE!
-            (s) => s.initial.stakeToken
-        );
-        const totalUserStake = sumMoney(
-            states,
-            lpTokens,
-            (s) => s.local?.staked,
-            (s) => s.initial.stakeToken
-        );
-        const totalPendingReward = states.reduce((sum, state) => {
-            const token = state.initial.rewardToken;
-            const tokenInfo = tokens.get(token, null);
-            const algoInfo = tokens.get(0, null);
-            const tokenReward = state.local?.reward ?? BigInt(0);
+export function createAggregates<T extends FarmType>($pools: Store<Contract<T>[]>) {
+    return combine(
+        $pools.map((contracts) => contracts.map((c) => c.state).filter((s): s is ContractState<T> => s !== null)),
+        $lpTokenInfos,
+        $pricedAssets,
+        (states, lpTokens, tokens) => {
+            const getToken = (s: ContractState<T>) => ('token' in s.initial ? s.initial.token : s.initial.stakeToken);
+            const allTokens = tokens.merge(lpTokens);
+            const tvl = sumMoney(
+                states,
+                allTokens,
+                (s) => s.global.totalStaked - BigInt(1), // VIRTUAL STAKE!
+                getToken
+            );
+            const totalUserStake = sumMoney(states, allTokens, (s) => s.local?.staked, getToken);
+            const totalPendingReward = states.reduce((sum, state) => {
+                const token = 'token' in state.initial ? state.initial.token : state.initial.rewardToken;
+                const tokenInfo = tokens.get(token, null);
+                const algoInfo = tokens.get(0, null);
+                const tokenReward = state.local?.reward ?? BigInt(0);
 
-            if (!tokenReward || !token || !tokenInfo || !algoInfo) {
-                return sum;
-            }
+                if (!tokenReward || !token || !tokenInfo || !algoInfo) {
+                    return sum;
+                }
 
-            const algoReward = calculateAlgoReward(state.initial, tokenReward);
+                const algoReward = calculateAlgoReward(state.initial, tokenReward);
 
-            return sum + convertAmountToUSD(tokenInfo, tokenReward) + convertAmountToUSD(algoInfo, algoReward);
-        }, 0);
+                return sum + convertAmountToUSD(tokenInfo, tokenReward) + convertAmountToUSD(algoInfo, algoReward);
+            }, 0);
 
-        return { tvl, totalUserStake, totalPendingReward };
-    }
-);
+            return { tvl, totalUserStake, totalPendingReward };
+        }
+    );
+}
+
+export const $farmPoolAggregates: Store<PoolAggregates> = createAggregates($farmPools);
