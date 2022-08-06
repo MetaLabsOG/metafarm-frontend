@@ -1,6 +1,7 @@
 // TODO: Remove this provider, use algosdk indexer instead.
 import axios from 'axios';
 import { ALGONET, TESTNET } from '../AppContext';
+import { AppId } from '../common/store';
 
 const prefix = ALGONET === TESTNET ? 'testnet.' : '';
 

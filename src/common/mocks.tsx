@@ -57,6 +57,7 @@ export const ctcMock: Contract<'farm'> = {
                     lastUpdateBlock: BigNumber.from(53565),
                     rewardPerTokenStored: BigNumber.from(34),
                 },
+                creator: '64OYBSUD4D7RCPKS2DEEAXR5JKQI3GIV3A6PDCRMSHPUFQHYISYPODXZ5M',
             },
         },
     },
@@ -90,5 +91,6 @@ export const ctcMock: Contract<'farm'> = {
             lockTimestamp: 0,
             rewardPerTokenPaid: BigInt(0),
         },
+        creator: '64OYBSUD4D7RCPKS2DEEAXR5JKQI3GIV3A6PDCRMSHPUFQHYISYPODXZ5M',
     },
 };

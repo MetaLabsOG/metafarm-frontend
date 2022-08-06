@@ -42,6 +42,7 @@ export type ContractState<T extends ContractType> = {
     initial: InitialInfo[T];
     global: GlobalInfo[T];
     local?: LocalInfo[T];
+    creator: string;
 };
 
 /**

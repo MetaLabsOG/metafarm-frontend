@@ -6,6 +6,7 @@ import { maybeToNullable } from '../lib';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
+import { algod } from '../../AppContext';
 
 // I'm sorry for this mess.... It can be done better I do believe.
 // In the end, it was not particularly necessary (I thought I would need more specific Reach
@@ -173,11 +174,17 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
     const initializeContract = createEvent<AppId>();
     const triggerStateUpdate = createEvent<AppId>();
 
+    const getAppCreator = async (id: AppId) => {
+        const { params } = await algod.getApplicationByID(id).do();
+        return params.creator;
+    };
+
     // Keep it simple stupid without separation between views (for now)
     // Also don't throw but set state to nulls if `None` arrives - it is probably actually more logical?
     const updateContractStateFx = createEffect(
         expBackoff(
             async ({
+                contractId,
                 ctc,
                 account,
             }: {
@@ -189,6 +196,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
                     initial: await (ctc.views.initial as ViewVal)(),
                     global: await (ctc.views.global as ViewVal)(),
                     local: await (ctc.views.local as ViewVal)(account!.networkAccount.addr),
+                    creator: await getAppCreator(contractId),
                 };
             }
         )

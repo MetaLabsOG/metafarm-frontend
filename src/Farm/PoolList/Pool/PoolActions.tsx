@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
-import { useStore, useStoreMap } from 'effector-react';
+import { useStore, useStoreMap, useUnit } from 'effector-react';
 import { AllDefined } from '../../../types';
-import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
+import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId, $account } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 
 import { isLPTokenInfo } from './utils';
@@ -70,6 +70,7 @@ export const PoolActions = ({
     pricedAlgo: Priced<Asset>;
 }) => {
     const pendingClaim = useStore(ctc.apis.claim.pending);
+    const account = useUnit($account);
 
     const unlockTime = calculateUnlockTimeinSecs(
         currentBlock,
@@ -82,7 +83,12 @@ export const PoolActions = ({
     const stakedTokenBalance = useStoreMap($balances, (bs) => bs[stakeTokenInfo.id] || BigInt(0));
     const balanceSuffix = isLPTokenInfo(stakeTokenInfo) ? 'LP' : stakeTokenInfo.unitName;
 
-    const canStake = poolState !== PoolState.Finished;
+    const canStake =
+        poolState !== PoolState.Finished &&
+        // Farm creator should not stake in theory, but we actively prohibit due to
+        // one insignificant smart-contract issue
+        account?.networkAccount.addr !== contractState.creator;
+
     const canClaim = poolState > PoolState.Upcoming;
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim && !unlockTimer;
     const hasLock = contractState.local.staked > 0 && contractState.initial.lockLengthBlocks > 0;
