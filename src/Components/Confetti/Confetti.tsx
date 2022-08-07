@@ -19,12 +19,11 @@ export default function Confetti({ showConfetti, onFinish }: { showConfetti: boo
     }, []);
 
     const makeShot = useCallback((particleRatio: number, options: confetti.Options) => {
-        refAnimationInstance.current &&
-            refAnimationInstance.current({
-                ...options,
-                origin: { y: 0.7 },
-                particleCount: Math.floor(200 * particleRatio),
-            } as confetti.Options);
+        refAnimationInstance.current?.({
+            ...options,
+            origin: { y: 0.7 },
+            particleCount: Math.floor(200 * particleRatio),
+        } as confetti.Options);
     }, []);
 
     const fire = useCallback(() => {

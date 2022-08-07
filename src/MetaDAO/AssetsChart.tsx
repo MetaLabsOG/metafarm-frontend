@@ -16,7 +16,7 @@ export function AssetsChart() {
 
     const data = {
         labels: dataset.map(
-            ({ ticker, amount, price }) => formatNumber(amount) + ' ' + ticker + ' ($' + formatNumber(price.usd) + ')'
+            ({ ticker, amount, price }) => `${formatNumber(amount)} ${ticker} ($$${formatNumber(price.usd)})`
         ),
         datasets: [
             {

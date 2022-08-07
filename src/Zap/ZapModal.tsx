@@ -131,7 +131,7 @@ export function ZapModal({
                 <h3 className="dex_name">on tinyman</h3>
                 <a
                     target="_blank"
-                    href={'https://app.tinyman.org/#/pool/add-liquidity?asset_1=' + asset1_id + '&asset_2=' + asset2_id}
+                    href={`https://app.tinyman.org/#/pool/add-liquidity?asset_1=${asset1_id}&asset_2=${asset2_id}`}
                     rel="noreferrer"
                     style={{ color: theme.lightGray }}
                 >

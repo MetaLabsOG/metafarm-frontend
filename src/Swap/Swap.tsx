@@ -371,10 +371,10 @@ function BestTokenPrice({
             )}
             <InfoRow
                 title="Price"
-                value={numberRound(pricePerToken) + ' ' + token2.unitName + ' per ' + token1.unitName}
+                value={`${numberRound(pricePerToken)} ${token2.unitName} per ${token1.unitName}`}
                 valueStyle={{ fontSize: '14px' }}
             />
-            <InfoRow title="Slippage" value={SLIPPAGE * 100 + '%'} valueStyle={{ fontSize: '14px' }} />
+            <InfoRow title="Slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
         </InfoPanel>
     );
 }
