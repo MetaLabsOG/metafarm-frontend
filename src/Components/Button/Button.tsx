@@ -52,7 +52,7 @@ export const Button = ({
     buttonText,
     style,
 }: {
-    onClick: React.MouseEventHandler<Element> | undefined;
+    onClick: React.MouseEventHandler | undefined;
     buttonText: string;
     style?: React.CSSProperties;
 }) => {

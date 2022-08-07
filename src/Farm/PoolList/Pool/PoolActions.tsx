@@ -35,8 +35,8 @@ export const onClickClaim = async (
             await batchOptIn(reach, account.networkAccount.addr, [Number(rewardTokenInfo.id)], true);
         }
         await ctc.apis.claim();
-    } catch (e) {
-        const error_message = e instanceof Error ? e.message : String(e);
+    } catch (error) {
+        const error_message = error instanceof Error ? error.message : String(error);
         console.log(error_message);
         if (error_message.includes('stake is locked')) {
             notify('Please, wait. Stake is locked.', 'error');

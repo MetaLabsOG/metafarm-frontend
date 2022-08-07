@@ -11,7 +11,7 @@ import './styled.css';
 
 // TODO(DariaYakovleva): please check types, looks very suspicious
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-expect-error
 function TokenOption({ option }: { option: any }) {
     return (
         <div className="TokenOptionContainer">
@@ -23,7 +23,7 @@ function TokenOption({ option }: { option: any }) {
 
 // TODO(DariaYakovleva): please check types, looks very suspicious
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-expect-error
 function renderSelectedOption(valueProps, snapshot) {
     const { option } = snapshot;
 

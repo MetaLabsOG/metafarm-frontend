@@ -32,15 +32,15 @@ import { BestSwap, Token } from './types';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';
-// export const API_PATH = 'http://0.0.0.0:5000/';
+// Export const API_PATH = 'http://0.0.0.0:5000/';
 
 const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     0: 0, // ALGO
-    712012773: 85951079, // META
-    386192725: 19386116, // goBTC
-    31566704: 10458941, // USDC
-    463554836: 70283957, // ALGF
-    792313023: 96690352, // xSOL
+    712_012_773: 85_951_079, // META
+    386_192_725: 19_386_116, // GoBTC
+    31_566_704: 10_458_941, // USDC
+    463_554_836: 70_283_957, // ALGF
+    792_313_023: 96_690_352, // XSOL
 };
 
 export const SLIPPAGE = 0.01;
@@ -100,9 +100,9 @@ async function getBestSwap(
     console.log('[SWAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
-        const asset1 = await fetchAsset(parseInt(asset1_id));
-        const asset2 = await fetchAsset(parseInt(asset2_id));
-        const amountIn = getSmallestUnits(asset1, parseFloat(asset1_amount));
+        const asset1 = await fetchAsset(Number.parseInt(asset1_id));
+        const asset2 = await fetchAsset(Number.parseInt(asset2_id));
+        const amountIn = getSmallestUnits(asset1, Number.parseFloat(asset1_amount));
         const bestSwapQuote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
         const asset2Price = await fetchAssetPriceFx(asset2);
         const best_swap = quoteToBestSwap(bestSwapQuote, asset2Price);
@@ -114,8 +114,8 @@ async function getBestSwap(
             account?.networkAccount.addr,
             {
                 message: '[SWAP] get data',
-                asset1_id: asset1_id,
-                asset2_id: asset2_id,
+                asset1_id,
+                asset2_id,
                 amount: asset1_amount,
                 best_swap: best_swap.best_swap,
                 direct_swap: best_swap.direct_swap,
@@ -126,16 +126,16 @@ async function getBestSwap(
         );
 
         return best_swap;
-    } catch (e) {
-        const error_message = e instanceof Error ? e.message : String(e);
-        console.error(e);
+    } catch (error) {
+        const error_message = error instanceof Error ? error.message : String(error);
+        console.error(error);
         notify('Fail to find the best swap.', 'error');
         logEvent(
             account?.networkAccount.addr,
             {
                 message: '[SWAP ERROR] get data',
-                asset1_id: asset1_id,
-                asset2_id: asset2_id,
+                asset1_id,
+                asset2_id,
                 amount: asset1_amount,
                 error: error_message,
             },
@@ -160,11 +160,10 @@ export async function getTransactions(
         const quote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
         const txns = await tinyman.getBestSwapTxsFromQuote(address, quote);
         return { quote, txns };
-    } else {
-        const quote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
-        const txns = await tinyman.getZapTxsFromQuote(address, quote);
-        return { quote, txns };
     }
+    const quote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
+    const txns = await tinyman.getZapTxsFromQuote(address, quote);
+    return { quote, txns };
 }
 
 export async function runTransactions(
@@ -210,8 +209,8 @@ export async function runTransactions(
         );
 
         return { quote, txIds };
-    } catch (e) {
-        const error_message = e instanceof Error ? e.message : String(e);
+    } catch (error) {
+        const error_message = error instanceof Error ? error.message : String(error);
         const queryType = QueryType[type].toUpperCase();
         if (error_message.includes('underflow')) {
             notify(queryType + ': Not enough tokens.', 'error');
@@ -274,7 +273,7 @@ export async function getOptions(
     }
 
     const reservedAlgoBalance = account ? reach.bigNumberToNumber(await reach.minimumBalanceOf(account)) : 0;
-    assets.forEach((asset) => {
+    for (const asset of assets) {
         const asset_balance = Number(balances[asset.id] ?? 0) / 10 ** asset.decimals;
         asset.balance = asset_balance;
 
@@ -288,7 +287,7 @@ export async function getOptions(
         if (ALGONET === TESTNET && asset.value === META_TOKEN_ID.toString()) {
             asset.balance /= 10 ** 2;
         }
-    });
+    }
     assets.sort((a, b) => (a.balance < b.balance ? 1 : -1));
 
     return assets;
@@ -420,7 +419,7 @@ export function Swap() {
 
     const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error
         setToken1(option);
         setToken1Amount('');
         setShowResult(false);
@@ -429,7 +428,7 @@ export function Swap() {
 
     const select2OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error
         setToken2(option);
         setShowResult(false);
         getBestSwapThrottled(token1.value, option.value, token1Amount, 50);

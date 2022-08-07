@@ -100,7 +100,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
 }) => {
     return (
         <PoolInfoDesktopContainer>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH['POOL']}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH.POOL}>
                 <PoolHeader
                     asset1_id={asset1_id}
                     asset2_id={asset2_id}
@@ -112,10 +112,10 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     algoRewards={algoRewardPerBlock(contractState.initial) > 0}
                 />
             </PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH['TVL']}>{`$${numberRound(
+            <PoolInfoValue width={POOL_COLUMN_WIDTH.TVL}>{`$${numberRound(
                 convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)) // VIRTUAL STAKE!
             )}`}</PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH['APR']}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH.APR}>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                     {numberRound(APR[APRTypes.total])}%
                     <img
@@ -127,14 +127,14 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     />
                     {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
                     {/*
-                     // @ts-ignore */}
+                     // @ts-expect-error */}
                     <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
                 </div>
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH['MY STAKE']}>
                 <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH['REWARD']}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH.REWARD}>
                 <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH['ENDS IN']} style={{ color: 'gray' }}>

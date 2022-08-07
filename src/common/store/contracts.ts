@@ -15,16 +15,12 @@ import { expBackoff, waitForEvent } from './utils';
 // old version of code without this does not work anymore
 
 type ReplacedViewMap<V extends ViewFunMap | ViewVal, T> = V extends ViewFunMap
-    ? {
-          [key: string]: T | ReplacedViewMap<ViewVal, T>;
-      }
-    : {
-          [key: string]: T;
-      };
+    ? Record<string, T | ReplacedViewMap<ViewVal, T>>
+    : Record<string, T>;
 
 type LvlUp<V extends ViewFunMap | ViewVal> = V extends ViewFunMap ? ViewMap : ViewFunMap;
 
-function isViewVal(v: ViewVal | ViewFunMap): v is ViewVal {
+function isViewValue(v: ViewVal | ViewFunMap): v is ViewVal {
     return typeof v === 'function';
 }
 
@@ -33,23 +29,23 @@ function mapViewMap<V extends ViewFunMap | ViewVal, T>(
     fn: (k: string, v: ViewVal) => T
 ): ReplacedViewMap<V, T> {
     return Object.keys(mp).reduce((newMp: ReplacedViewMap<V, T>, k) => {
-        const val = mp[k];
-        if (isViewVal(val)) {
-            newMp[k] = fn(k, val);
+        const value = mp[k];
+        if (isViewValue(value)) {
+            newMp[k] = fn(k, value);
         } else {
-            newMp[k] = mapViewMap<ViewVal, T>(val, fn);
+            newMp[k] = mapViewMap<ViewVal, T>(value, fn);
         }
         return newMp;
     }, {});
 }
 
 // This can be passed to or received from smart-contract
-type ReachVal = string | BigNumberish;
+type ReachValue = string | BigNumberish;
 
 // TODO
 type WrappedContract = {
     views: any;
-    apis: Record<string, Effect<ReachVal[], ReachVal[]>>;
+    apis: Record<string, Effect<ReachValue[], ReachValue[]>>;
 };
 
 /**
@@ -79,7 +75,7 @@ function makeWrappedCtc<T extends ContractType>(
     ctc.views = mapViewMap(
         ctc.views,
         (k, view) =>
-            (...args: any[]) =>
+            async (...args: any[]) =>
                 view(...args)
                     .then(maybeToNullable)
                     .then(parseView(type, k as keyof ContractState<T>))
@@ -95,9 +91,9 @@ function makeWrappedCtc<T extends ContractType>(
                 const res = await api(...args);
                 await onWrite(contractId);
                 return res;
-            } catch (err) {
-                // so that errors inside effect are visible in console
-                throw err;
+            } catch (error) {
+                // So that errors inside effect are visible in console
+                throw error;
             }
         })
     );
@@ -109,23 +105,23 @@ function parseBignumState<T extends ContractType>(
     type: T,
     bignumState: AllBignums<ContractState<T>>
 ): ContractState<T> {
-    return Object.keys(bignumState).reduce((newState: ContractState<T>, k: string) => {
+    return Object.keys(bignumState).reduce<ContractState<T>>((newState: ContractState<T>, k: string) => {
         const key = k as keyof ContractState<T>;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
+        // @ts-expect-error
         newState[key] = parseView(type, key)(bignumState[key]);
         return newState;
-    }, {} as ContractState<T>);
+    }, {});
 }
 
 // Contracts store
 export type ContractsStoreVars<T extends ContractType> = {
-    $contracts: Store<Contract<T>[]>;
-    $contractInfos: Store<ContractInfo<T>[]>;
+    $contracts: Store<Array<Contract<T>>>;
+    $contractInfos: Store<Array<ContractInfo<T>>>;
     $contractCtcs: Store<Map<AppId, any>>;
     $contractStates: Store<Map<AppId, ContractState<T>>>;
     $contractStatesWithCache: Store<Map<AppId, ContractState<T>>>;
-    setContractInfos: Event<ContractInfo<T>[]>;
+    setContractInfos: Event<Array<ContractInfo<T>>>;
     triggerStateUpdate: Event<AppId>;
     contractStateUpdated: Event<{ id: AppId; state: ContractState<T> }>;
 };
@@ -137,7 +133,7 @@ export type ContractsStoreVars<T extends ContractType> = {
  * @returns Relevant stores and events
  */
 export function buildContractsStore<T extends ContractType>(type: T, backend: Backend): ContractsStoreVars<T> {
-    const $contractInfos = createStore<ContractInfo<T>[]>([]);
+    const $contractInfos = createStore<Array<ContractInfo<T>>>([]);
     const $contractStates = createStore(Map<AppId, ContractState<T>>());
     const $contractCtcs = createStore(Map<AppId, any>());
 
@@ -156,19 +152,19 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
     );
 
     const $contracts = combine($contractInfos, $contractCtcs, $contractStatesWithCache, (infos, ctcs, states) => {
-        return infos.reduce((contracts, info) => {
-            const id = info.id;
+        return infos.reduce<Array<Contract<T>>>((contracts, info) => {
+            const { id } = info;
             const contract = {
-                id: id,
-                info: info,
+                id,
+                info,
                 ctc: ctcs.get(id, null),
                 state: states.get(id, null),
             };
             return [...contracts, contract];
-        }, [] as Contract<T>[]);
+        }, []);
     });
 
-    const setContractInfos = createEvent<ContractInfo<T>[]>();
+    const setContractInfos = createEvent<Array<ContractInfo<T>>>();
     $contractInfos.on(setContractInfos, (_, infos) => infos);
 
     const initializeContract = createEvent<AppId>();
@@ -229,7 +225,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
     sample({
         clock: ctcInitialized,
         source: $account,
-        fn: (account, [contractId, ctc]) => {
+        fn(account, [contractId, ctc]) {
             return { contractId, ctc, account };
         },
         target: updateContractStateFx,
@@ -238,13 +234,15 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
     sample({
         clock: triggerStateUpdate,
         source: { account: $account, ctcs: $contractCtcs },
-        fn: ({ account, ctcs }, contractId) => {
+        fn({ account, ctcs }, contractId) {
             return { ctc: ctcs.get(contractId, null), contractId, account };
         },
         target: updateContractStateFx,
     });
 
-    updateContractStateFx.fail.watch((p) => console.log('UPDATE CONTRACT FAILED', p));
+    updateContractStateFx.fail.watch((p) => {
+        console.log('UPDATE CONTRACT FAILED', p);
+    });
 
     const contractStateUpdated = sample({
         source: updateContractStateFx.done,

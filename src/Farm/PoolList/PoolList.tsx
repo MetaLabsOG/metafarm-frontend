@@ -11,7 +11,7 @@ export const POOL_COLUMN_WIDTH: Record<string, string> = {
     'ENDS IN': '120px',
 };
 
-export const PoolList = <T extends FarmType>({ type, pools }: { type: T; pools: Contract<T>[] }) => {
+export const PoolList = <T extends FarmType>({ type, pools }: { type: T; pools: Array<Contract<T>> }) => {
     const poolComponents = pools.map((ctc: Contract<T>) => <Pool type={type} key={ctc.id} contract={ctc} />);
 
     return (

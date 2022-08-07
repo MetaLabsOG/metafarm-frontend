@@ -18,12 +18,14 @@ import { isLPTokenInfo } from './utils';
 export const getLPTokenAction = (lpToken: LPTokenInfo, openModal: () => void) => {
     if (lpToken.poolDex === 'T2') {
         return openModal;
-    } else if (lpToken.poolDex === 'PT') {
+    }
+    if (lpToken.poolDex === 'PT') {
         const pactPrefix = ALGONET === TESTNET ? 'testnet.' : 'app.';
         return () => window.open(`https://${pactPrefix}pact.fi/add-liquidity/${lpToken.poolId}`, '_blank');
-    } else {
-        return () => notify('Sorry, this is a mock token, you cannot get it', 'error');
     }
+    return () => {
+        notify('Sorry, this is a mock token, you cannot get it', 'error');
+    };
 };
 
 export interface PoolActionsDesktopProps {
@@ -99,7 +101,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     style={!canClaim ? { visibility: 'hidden' } : {}}
                     buttonText="Claim"
                     buttonStyle="claim_button"
-                    onClickAction={() =>
+                    onClickAction={async () =>
                         onClickClaim(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
                     }
                     isInactive={!isActiveClaim}
@@ -114,7 +116,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     <PacmanButton
                         buttonText="Compound"
                         buttonStyle="claim_button"
-                        onClickAction={() => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
+                        onClickAction={async () => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
                         isInactive={!isActiveClaim}
                     />
                 )}

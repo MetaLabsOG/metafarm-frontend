@@ -17,13 +17,13 @@ const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
 
 export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
     0: 0, // ALGO
-    85951079: 712012773, // META
-    19386116: 386192725, // goBTC
-    10458941: 31566704, // USDC
-    70283957: 463554836, // ALGF
-    96690153: 607591690, // XGLI
-    27963203: 342889824, // BOARD
-    96690352: 792313023, // xSOL
+    85_951_079: 712_012_773, // META
+    19_386_116: 386_192_725, // GoBTC
+    10_458_941: 31_566_704, // USDC
+    70_283_957: 463_554_836, // ALGF
+    96_690_153: 607_591_690, // XGLI
+    27_963_203: 342_889_824, // BOARD
+    96_690_352: 792_313_023, // XSOL
 };
 
 export const getAssetLogoUrl = (input_asset_id: number) => {
@@ -50,11 +50,11 @@ export const numberRound = (amount: number | Amount) => {
 export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenInfo): string => {
     if (poolDex === 'T2') {
         return `${TINYMAN_URL}/#/pool/add-liquidity?asset_1=${asset1}&asset_2=${asset2}`;
-    } else if (poolDex === 'PT') {
-        return `${PACT_URL}/add-liquidity/${poolId}`;
-    } else {
-        return '#'; // dunno what else to do with dummy LPs
     }
+    if (poolDex === 'PT') {
+        return `${PACT_URL}/add-liquidity/${poolId}`;
+    }
+    return '#'; // Dunno what else to do with dummy LPs
 };
 
 export const getTokenLink = (asset_id: number | undefined): string => {

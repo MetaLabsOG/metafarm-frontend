@@ -16,7 +16,7 @@ import {
 } from './styled';
 
 export const NFTList = () => {
-    const { data } = useQuery(['nftAssets', METAWALLET], () => getWalletNFTs(METAWALLET));
+    const { data } = useQuery(['nftAssets', METAWALLET], async () => getWalletNFTs(METAWALLET));
 
     return (
         <NFTListContainer>

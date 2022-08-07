@@ -15,7 +15,7 @@ export const assetId = (a: AssetId | Asset): number => (typeof a === 'number' ? 
  *    since `unsub` gets fired before it is defined.
  * So better just use a throwaway event which gets GCed later anyway.
  */
-export function fetchStore<T>(store: Store<T>): Promise<T> {
+export async function fetchStore<T>(store: Store<T>): Promise<T> {
     return new Promise<T>((resolve) => {
         sample({ source: store }).watch((v) => {
             resolve(v);
@@ -31,14 +31,12 @@ export function fetchStore<T>(store: Store<T>): Promise<T> {
  */
 export async function waitForEvent<T, P, E>(
     event: Event<T>,
-    failEvent?: Event<{ params: P; error: E }>, // designed to usually be provided effect.fail event
+    failEvent?: Event<{ params: P; error: E }>, // Designed to usually be provided effect.fail event
     filter?: (v: T) => boolean,
     failFilter?: (p: P) => boolean
 ): Promise<T> {
     return new Promise<T>((resolve, reject) => {
-        let unsubFail = () => {
-            return;
-        };
+        let unsubFail = () => {};
 
         // What happens here: we resolve the promise when the event happens, and unsubscribe.
         // "event.watch" returns callable "Subscription". "Subscription" unsubscribes when it's called.
@@ -82,7 +80,7 @@ export function createTimeDeferredStore<V, T>(
     sample({
         clock: update,
         source: $lastTick,
-        filter: (prevMoment: number, _) => Date.now() - prevMoment > period,
+        filter: (previousMoment: number, _) => Date.now() - previousMoment > period,
         fn: (_, v: V) => v,
         target: updateFx,
     });
@@ -96,7 +94,7 @@ export function createTimeDeferredStore<V, T>(
 export function createNonConcurrentEffect<V, T>(callback: (a: V) => Promise<T>): Effect<V, T> {
     const innerFx = createEffect(callback);
     return createEffect(
-        (a: V) =>
+        async (a: V) =>
             new Promise<T>((resolve, reject) => {
                 fetchStore(innerFx.pending)
                     .then((pending) => {
@@ -106,8 +104,8 @@ export function createNonConcurrentEffect<V, T>(callback: (a: V) => Promise<T>):
                         innerFx.doneData.watch(resolve);
                         innerFx.failData.watch(reject);
                     })
-                    .catch((err) => {
-                        console.log('failed to fetch', err);
+                    .catch((error) => {
+                        console.log('failed to fetch', error);
                     });
             })
     );
@@ -129,19 +127,19 @@ export function expBackoff<V, T>(
     { firstDelay, multiplier, maxTries }: ExpBackoffParams = { firstDelay: 500, multiplier: 1.5, maxTries: 5 }
 ): (v: V) => Promise<T> {
     return async (v) => {
-        let numTries = 0;
+        let numberTries = 0;
         let delay = firstDelay;
 
         for (;;) {
             try {
                 return await eff(v);
-            } catch (e) {
-                numTries++;
-                if (numTries > maxTries) {
-                    console.log('END BACKOFF AND THROW', e);
-                    throw e;
+            } catch (error) {
+                numberTries++;
+                if (numberTries > maxTries) {
+                    console.log('END BACKOFF AND THROW', error);
+                    throw error;
                 }
-                console.log(`EXP BACKOFF RETRY (${numTries} ${delay})`, v);
+                console.log(`EXP BACKOFF RETRY (${numberTries} ${delay})`, v);
                 await sleep(delay);
                 delay *= multiplier;
             }
@@ -160,10 +158,9 @@ export function nonConcurrent<A extends any[], V>(f: (...args: A) => Promise<V>)
         const key = hash(args);
         if (key in promiseStorage) {
             return promiseStorage[key];
-        } else {
-            return (promiseStorage[key] = f(...args).finally(() => {
-                delete promiseStorage[key];
-            }));
         }
+        return (promiseStorage[key] = f(...args).finally(() => {
+            delete promiseStorage[key];
+        }));
     };
 }

@@ -88,21 +88,21 @@ const createFarm = async (
         endBlock,
         microRewardPerBlock
     );
-    const contractParams: InitialState = {
+    const contractParameters: InitialState = {
         beneficiary: FARM_BENEFICIARY_ADDR!,
         creationFee: FARM_CREATION_FEE!,
         stakeToken: stakeToken.liquidityAsset,
         rewardToken: rewardToken.id,
-        beginBlock: beginBlock,
-        endBlock: endBlock,
+        beginBlock,
+        endBlock,
         rewardPerBlock: microRewardPerBlock,
         extraAlgoRewardPerBlock: algoMicroRewardPerBlock,
         lockLengthBlocks: 0,
     };
     const ctc = account.contract(farmBackend as Backend);
-    const contractId = await deployFarm(ctc, contractParams);
+    const contractId = await deployFarm(ctc, contractParameters);
 
-    const deployToBackendWithBackoffFun = expBackoff(() =>
+    const deployToBackendWithBackoffFun = expBackoff(async () =>
         deployContractToBackend(Number(contractId), 'farm', stakeToken.name, stakeToken.poolDex)
     );
 
@@ -160,16 +160,16 @@ const PoolInfo = ({
                 title={'Current APR'}
                 value={`${selectedPool.dexFeeApr ? (selectedPool.dexFeeApr * 100).toFixed(2) : 0}%`}
             />
-            {/*<InfoRow*/}
-            {/*    title={'Expected liquidity'}*/}
-            {/*    value={'$' + formatDecimalsMeaningful(minLiquidity) + '-$' + formatDecimalsMeaningful(maxLiquidity)}*/}
-            {/*/>*/}
-            {/*<InfoRow*/}
-            {/*    style={{ color: '#676767', marginBottom: '20px' }}*/}
-            {/*    title={'Expected APR'}*/}
-            {/*    value={minAPR + '%-' + maxAPR + '%'}*/}
-            {/*/>*/}
-            {/*<InfoRow title={'Current pool liquidity'} value={'110,000$'} />*/}
+            {/* <InfoRow */}
+            {/*    title={'Expected liquidity'} */}
+            {/*    value={'$' + formatDecimalsMeaningful(minLiquidity) + '-$' + formatDecimalsMeaningful(maxLiquidity)} */}
+            {/* /> */}
+            {/* <InfoRow */}
+            {/*    style={{ color: '#676767', marginBottom: '20px' }} */}
+            {/*    title={'Expected APR'} */}
+            {/*    value={minAPR + '%-' + maxAPR + '%'} */}
+            {/* /> */}
+            {/* <InfoRow title={'Current pool liquidity'} value={'110,000$'} /> */}
             <InfoRow title={'Start block'} value={!isNaN(beginBlock) ? beginBlock : 0} />
             <InfoRow title={'End block'} value={!isNaN(endBlock) ? endBlock : 0} />
             <InfoRow

@@ -108,7 +108,7 @@ function SelectOption({
 
 // TODO(DariaYakovleva): please check types, looks very suspicious
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-expect-error
 export function renderOption(props, option, selectType: SelectType, showAdditionalInfo = true) {
     return (
         <button {...props} className="search_option" type="button">
@@ -121,7 +121,7 @@ export function renderOption(props, option, selectType: SelectType, showAddition
 
 // TODO(DariaYakovleva): please check types, looks very suspicious
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-expect-error
 function renderSelectedOption(valueProps, snapshot, selectType: SelectType) {
     const { option } = snapshot;
 

@@ -69,7 +69,7 @@ function useInterval(callback: Callback, delay: number) {
 
 export const Fomo = () => {
     const { data } = useQuery(['contracts', 'fomo'], () => getContracts('fomo'));
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+     
     //@ts-ignore
     const id = data && data.length ? data[0].id : undefined;
     const account = useUnit($account);
@@ -683,7 +683,7 @@ export const Fomo = () => {
                                 <img
                                     style={{ maxWidth: '100%', maxHeight: '100%' }}
                                     alt="loader"
-                                    // eslint-disable-next-line @typescript-eslint/no-var-requires
+                                     
                                     src={require('../imgs/loader.gif').default}
                                 />
                             </span>

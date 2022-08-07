@@ -21,7 +21,9 @@ export function PacmanButton({
 
     const onClick = () => {
         setIsLoading(true);
-        onClickAction().finally(() => setIsLoading(false));
+        onClickAction().finally(() => {
+            setIsLoading(false);
+        });
     };
 
     return (

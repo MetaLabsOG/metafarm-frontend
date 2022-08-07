@@ -42,7 +42,7 @@ Sentry.init({
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
     // We recommend adjusting this value in production
-    tracesSampleRate: 1.0,
+    tracesSampleRate: 1,
 });
 
 // TODO
@@ -50,7 +50,7 @@ window.open = (function (open) {
     return function (url, name, features) {
         name = name || 'default_window_name';
         const res = open.call(window, url, name, features);
-        if (!res || res.closed || typeof res.closed == 'undefined') {
+        if (!res || res.closed || typeof res.closed === 'undefined') {
             notify('Please, enable popups in your browser.', 'warning');
             return null;
         }
@@ -60,7 +60,7 @@ window.open = (function (open) {
 
 const queryClient = new QueryClient();
 
-// throw events on initialization
+// Throw events on initialization
 fetchAllPricesFx();
 
 const App = () => {
@@ -68,15 +68,15 @@ const App = () => {
     const algoBalance = useStoreMap($balances, (bs) => Number(bs[0]));
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
-    const farmsFetch = useQuery(['contracts', 'farm'], () => getContracts('farm'));
-    const distrFetch = useQuery(['contracts', 'distribution'], () => getContracts('distribution'));
+    const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm'));
+    const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution'));
 
     const [hasTestnetModalOpened, setHasTestnetModalOpened] = useState(false);
     const [Modal, openTestnetModal] = useModal('root', { preventScroll: true });
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
-            const data = farmsFetch.data! as ContractInfo<'farm'>[];
+            const data = farmsFetch.data! as Array<ContractInfo<'farm'>>;
             setPoolInfosEvent(data);
         }
     }, [farmsFetch]);
@@ -90,7 +90,7 @@ const App = () => {
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
-            const data = distrFetch.data! as ContractInfo<'distribution'>[];
+            const data = distrFetch.data! as Array<ContractInfo<'distribution'>>;
             setDistributionPoolInfosEvent(data);
         }
     }, [distrFetch]);
@@ -130,5 +130,5 @@ ReactDOM.render(
             <App />
         </QueryClientProvider>
     </BrowserRouter>,
-    document.getElementById('root')
+    document.querySelector('#root')
 );

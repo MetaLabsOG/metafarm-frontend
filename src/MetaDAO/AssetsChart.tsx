@@ -10,7 +10,7 @@ import { ChartTitle, AssetsChartStyled } from './styled';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const AssetsChart = () => {
-    const assetsQuery = useQuery(['assets', METAWALLET], () => getAssets(METAWALLET));
+    const assetsQuery = useQuery(['assets', METAWALLET], async () => getAssets(METAWALLET));
     const dataset = assetsQuery.data ?? [];
     console.log('DATASET', dataset);
 

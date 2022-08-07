@@ -1,7 +1,7 @@
 import buffer from 'buffer';
 import algosdk, { IntDecoding, waitForConfirmation } from 'algosdk';
-import { ALGONET, TESTNET } from './AppContext.ts';
-import { withAlgodEncoding } from './common/lib.ts';
+import { ALGONET, TESTNET } from './AppContext';
+import { withAlgodEncoding } from './common/lib';
 
 const { Buffer } = buffer;
 
@@ -13,14 +13,15 @@ const { Buffer } = buffer;
  */
 export async function batchOptIn(reach, addr, asaIds, waitConfirmation = true) {
     if (asaIds.length === 0) {
-        throw Error('Empty opt-in asa id list');
+        throw new Error('Empty opt-in asa id list');
     }
+
     if (asaIds.length > 16) {
-        throw Error(`Too many asa ids in the list. Should be at most 16 but is: ${asaIds}`);
+        throw new Error(`Too many asa ids in the list. Should be at most 16 but is: ${asaIds}`);
     }
 
     const p = await reach.getProvider();
-    const algodClient = p.algodClient;
+    const { algodClient } = p;
     const ps = await algodClient.getTransactionParams().do();
     const revocationTarget = undefined;
     const CloseRemainderTo = undefined;
@@ -50,11 +51,12 @@ export async function batchOptIn(reach, addr, asaIds, waitConfirmation = true) {
         try {
             await p.signAndPostTxns(reachTxns);
             optedIn = true;
-        } catch (e) {
+        } catch {
             console.log('Opt in failed... Trying again.');
         }
     }
-    let txId = txns[0].txID().toString();
+
+    const txId = txns[0].txID().toString();
     if (waitConfirmation) {
         console.log('Waiting for confirmation of opt-in');
         await withAlgodEncoding(algodClient, IntDecoding.DEFAULT, (algodClient) => {
@@ -62,11 +64,12 @@ export async function batchOptIn(reach, addr, asaIds, waitConfirmation = true) {
         });
         console.log('Confirmed');
     }
-    return true; // we don't need this but have to send something to make contract wait
+
+    return true; // We don't need this but have to send something to make contract wait
 }
 
 export async function multiBatchOptIn(addr) {
-    // const { BATCH_IDS: asaIds } = await import('./bigbrains_100');
+    // Const { BATCH_IDS: asaIds } = await import('./bigbrains_100');
     const asaIds = [];
     const BATCH_SIZE = 16;
     const asaIdsCount = asaIds.length;
@@ -86,15 +89,17 @@ export function checkOptIn(addr, asaId) {
             if (!data.account || !data.account.assets) {
                 return false;
             }
-            for (let asset_num in data.account.assets) {
-                if (data.account.assets[asset_num]['asset-id'] === asaId) {
+
+            for (const asset_number in data.account.assets) {
+                if (data.account.assets[asset_number]['asset-id'] === asaId) {
                     return true;
                 }
             }
+
             return false;
         })
-        .catch((err) => {
-            console.log('ERR', err);
+        .catch((error) => {
+            console.log('ERR', error);
             return false;
         });
 }
