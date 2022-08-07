@@ -7241,6 +7241,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"concat-stream@npm:^1.6.0":
+  version: 1.6.2
+  resolution: "concat-stream@npm:1.6.2"
+  dependencies:
+    buffer-from: "npm:^1.0.0"
+    inherits: "npm:^2.0.3"
+    readable-stream: "npm:^2.2.2"
+    typedarray: "npm:^0.0.6"
+  checksum: 4695f901d58390c9f9b3ce39d81d24a3a3d4e05c2d14cdea3d7c0c77d04133670e26e71faa1b94dc4e5adb72cbb14d4ea8bf50b82e94aff974dbf0d40f01dd1a
+  languageName: node
+  linkType: hard
+
 "concat-stream@npm:^2.0.0":
   version: 2.0.0
   resolution: "concat-stream@npm:2.0.0"
@@ -13121,6 +13133,7 @@ __metadata:
     webpack-manifest-plugin: "npm:^5.0.0"
     workbox-webpack-plugin: "npm:^6.5.4"
     xo: "npm:^0.51.0"
+    xo-summary: "npm:^1.0.1"
   languageName: unknown
   linkType: soft
 
@@ -14239,6 +14252,15 @@ __metadata:
   bin:
     pacote: lib/bin.js
   checksum: dedcd863c553284e2a143680bf2f854bd5a5d9044a48b0ed8cde6723d25d889684aba40e4b9e8ca0856992cf4fb37e838f8e4b0bc9bc18be82c18bae7fad7258
+  languageName: node
+  linkType: hard
+
+"pad@npm:^2.0.1":
+  version: 2.3.0
+  resolution: "pad@npm:2.3.0"
+  dependencies:
+    wcwidth: "npm:^1.0.1"
+  checksum: 6b701c24ad31e86415d21560bcdd01777aa6485ff63f0c81ee3f440d3006dd74aab112f0f6af7b572558ca558ea7271f7a33ee4132069593cbc425dd697dad84
   languageName: node
   linkType: hard
 
@@ -16076,7 +16098,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:^2.0.1, readable-stream@npm:~2.3.6":
+"readable-stream@npm:^2.0.1, readable-stream@npm:^2.2.2, readable-stream@npm:~2.3.6":
   version: 2.3.7
   resolution: "readable-stream@npm:2.3.7"
   dependencies:
@@ -19246,6 +19268,19 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: 807217fa26495f179b03c1160bacaee829234b66f4d22b6df00dc335268e92b537add73edb84046827aadd858c997213d1c78743c571339fe25cc6d51d3e5dea
+  languageName: node
+  linkType: hard
+
+"xo-summary@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "xo-summary@npm:1.0.1"
+  dependencies:
+    concat-stream: "npm:^1.6.0"
+    pad: "npm:^2.0.1"
+    strip-ansi: "npm:^5.1.0"
+  bin:
+    xo-summary: index.js
+  checksum: d87448bedcf33e4825bc2a15205438764dccf812e6913b3faac4ce1e1461d6ae6a438eeeaa5e21209a18f8d3eb28637a89e90af40606a6df05d171a3a732ab42
   languageName: node
   linkType: hard
 

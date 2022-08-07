@@ -101,7 +101,9 @@
     "prod": "env-cmd -f .env.prod yarn build",
     "dev": "env-cmd -f .env.dev yarn build",
     "test": "node scripts/test.js",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "lint": "xo src",
+    "lint-summary": "xo src | xo-summary"
   },
   "eslintConfig": {
     "extends": [
@@ -156,7 +158,8 @@
     "stylelint": "^14.9.1",
     "stylelint-config-prettier": "^9.0.3",
     "util": "^0.12.4",
-    "xo": "^0.51.0"
+    "xo": "^0.51.0",
+    "xo-summary": "^1.0.1"
   },
   "engines": {
     "npm": "^8.1.3",
