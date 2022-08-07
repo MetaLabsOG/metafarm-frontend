@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import algosdk, {
     Algodv2,
     assignGroupID,
@@ -10,11 +11,10 @@ import algosdk, {
     decodeUnsignedTransaction,
 } from 'algosdk';
 import { BigNumber } from '@ethersproject/bignumber';
-import { Buffer } from 'buffer';
-import { Account, WalletTransaction, WalletTransactionGroup } from '../types';
-import { Amount, AppId, Asset, AssetId } from './store/types';
-import { ALGONET, MAINNET, reach } from '../AppContext';
 import { uniq } from 'ramda';
+import { Account, WalletTransaction, WalletTransactionGroup } from '../types';
+import { ALGONET, MAINNET, reach } from '../AppContext';
+import { Amount, AppId, Asset, AssetId } from './store/types';
 
 export const MINUTE = 60;
 export const HOUR = 60 * 60;

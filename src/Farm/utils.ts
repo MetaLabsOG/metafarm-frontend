@@ -1,8 +1,8 @@
+import { BigNumberish } from '@ethersproject/bignumber';
 import pact from '../imgs/dexes/pact.png';
 import tinyman from '../imgs/dexes/tinyman.png';
 import humble from '../imgs/dexes/humble.png';
 import algofi from '../imgs/dexes/algofi.png';
-import { BigNumberish } from '@ethersproject/bignumber';
 import { reach } from '../AppContext';
 import { Contract } from '../types';
 import { DexProvider } from '../providers/dexesProvider';

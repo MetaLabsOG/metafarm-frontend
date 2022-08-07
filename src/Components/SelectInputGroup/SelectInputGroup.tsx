@@ -4,9 +4,9 @@ import { renderOption, SelectType } from '../Select/Select';
 import { formatNumber } from '../../common/lib';
 import '../Select/styled.css';
 import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
-import { SelectInputGroupProps } from './types';
 import { theme } from '../../theme';
 import { MaxButton } from '../TokenInputWithButton/styled';
+import { SelectInputGroupProps } from './types';
 import './styled.css';
 
 // TODO(DariaYakovleva): please check types, looks very suspicious

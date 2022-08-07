@@ -31,6 +31,7 @@ module.exports = {
     rules: {
         // Idk how to set resolver properly, and we have very simple config
         'import/no-unresolved': 'off',
+        'import/order': 'error',
         // Allow _ unused vars
         '@typescript-eslint/no-unused-vars': [
             'warn',
