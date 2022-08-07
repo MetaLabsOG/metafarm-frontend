@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import pacman from '../../imgs/loader.gif';
 import pacman_grey from '../../imgs/pacman.gif';
 import './styled.css';
-import classNames from 'classnames';
 
 export function PacmanButton({
     buttonText,

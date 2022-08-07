@@ -1,3 +1,7 @@
+import { Buffer } from 'buffer';
+import algosdk from 'algosdk';
+import { PeraWalletConnect } from '@perawallet/connect';
+import { ALGO_MyAlgoConnect as MyAlgoConnect } from '@reach-sh/stdlib';
 import type {
     ARC11_Wallet,
     EnableOpts,
@@ -11,10 +15,6 @@ import type {
 
 import { makeProviderByEnv } from '../reachRedefinitions';
 import { reach } from '../AppContext';
-import algosdk from 'algosdk';
-import { Buffer } from 'buffer';
-import { ALGO_MyAlgoConnect as MyAlgoConnect } from '@reach-sh/stdlib';
-import { PeraWalletConnect } from '@perawallet/connect';
 
 export type WalletType = 'MyAlgo' | 'WalletConnect';
 export type WalletFallbackOpts = any & ({ MyAlgoConnect: MyAlgoConnect } | { WalletConnect: PeraWalletConnect });

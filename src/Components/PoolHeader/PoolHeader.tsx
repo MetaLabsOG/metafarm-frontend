@@ -1,3 +1,7 @@
+import ReactTooltip from 'react-tooltip';
+import { getAssetLogoUrl, getTokenLink } from '../../Farm/PoolList/Pool/utils';
+import verified from '../../imgs/verified.svg';
+import info from '../../imgs/info.svg';
 import {
     PoolHeaderContainer,
     ContractLockSuffix,
@@ -8,10 +12,6 @@ import {
     PoolTitle,
     PoolSubtitle,
 } from './styled';
-import { getAssetLogoUrl, getTokenLink } from '../../Farm/PoolList/Pool/utils';
-import verified from '../../imgs/verified.svg';
-import ReactTooltip from 'react-tooltip';
-import info from '../../imgs/info.svg';
 
 export const PoolHeader = ({
     asset1_id,

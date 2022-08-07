@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ALGONET, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
-
+import { useUnit } from 'effector-react';
+import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import 'react-select-search/style.css';
+import { Account } from '@reach-sh/stdlib/ALGO';
+import { ALGONET, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
 import '../css/swap.css';
-import { BestSwap, Token } from './types';
 import {
     $account,
     $balances,
@@ -14,10 +15,7 @@ import {
     refreshAccountInfo,
 } from '../common/store';
 
-import { SelectedOption, SelectedOptionValue } from 'react-select-search';
-import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, LogName } from '../logEvent';
-import { useUnit } from 'effector-react';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits, signAndPostTxnGroups } from '../common/lib';
 import { WalletTransactionGroup } from '../types';
@@ -30,6 +28,7 @@ import { BestSwapQuote, makeDex, ZapQuote } from '../providers/dexesProvider';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
+import { BestSwap, Token } from './types';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';

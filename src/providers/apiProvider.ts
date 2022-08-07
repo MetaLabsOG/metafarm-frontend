@@ -1,10 +1,9 @@
 import axios from 'axios';
-import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
 import packages from '../../package.json';
-import { AssetId } from '../common/store';
+import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
+import { AssetId, ContractType } from '../common/store';
 import { ALGONET } from '../AppContext';
 import { nonConcurrent } from '../common/store/utils';
-import { ContractType } from '../common/store';
 import { DexProvider } from './dexesProvider';
 
 const instance = axios.create({

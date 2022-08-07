@@ -1,21 +1,20 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { ChangeEvent, useEffect, useState } from 'react';
 import { useModal } from 'react-hooks-use-modal';
 import { SelectedOptionValue } from 'react-select-search';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-expect-error
+import { backend as farmBackend } from '@metalabsog/farm';
+import { Account } from '@reach-sh/stdlib/ALGO';
+import { useUnit, useStoreMap } from 'effector-react';
 import { getOptions } from '../Swap/Swap';
 import { Button } from '../Components/Button/Button';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, POOL_OPTION, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { PoolOptionType, TokenOptionType } from '../Components/Select/types';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
-import { DateInput, PoolCreateModalContainer } from './styled';
-import { Heading2, ModalContainer, ModalTitle } from '../common/styled';
+
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
-//@ts-ignore
-import { backend as farmBackend } from '@metalabsog/farm';
-
-import { Account } from '@reach-sh/stdlib/ALGO';
 import {
     $account,
     $balances,
@@ -27,15 +26,16 @@ import {
     Priced,
     Time,
 } from '../common/store';
-import { useUnit, useStoreMap } from 'effector-react';
+import { Heading2, ModalContainer, ModalTitle } from '../common/styled';
 import { DAY, formatDecimalsMeaningful, getSmallestUnits } from '../common/lib';
 import { deployContractToBackend, getTinymanPools } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
 import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE } from '../AppContext';
 import { Backend } from '../types';
-import { deployFarm, InitialState } from './utils';
 import { expBackoff } from '../common/store/utils';
+import { DateInput, PoolCreateModalContainer } from './styled';
+import { deployFarm, InitialState } from './utils';
 
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
     return Math.floor(Math.max(5, (endTime - startTime) / 1000) / meanRoundDuration);

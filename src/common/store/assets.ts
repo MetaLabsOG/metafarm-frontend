@@ -1,10 +1,10 @@
 import { Map } from 'immutable';
 import { createEffect, createEvent, createStore, sample, combine, split, Store, restore } from 'effector';
 import { algod } from '../../AppContext';
+import { getAlgoPrice } from '../../providers/coinPriceProvider';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
 import { nonConcurrent, fetchStore } from './utils';
-import { getAlgoPrice } from '../../providers/coinPriceProvider';
 import { doEachTick } from './time';
 
 // Main event to add the asset, adds it to all of the relevant stores

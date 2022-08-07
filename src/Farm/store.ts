@@ -1,8 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+// @ts-expect-error
 import { backend as farmBackend } from '@metalabsog/farm';
 import { Map } from 'immutable';
 import { createEffect, createStore, createEvent, sample, combine, Store } from 'effector';
+import { groupBy, min, values } from 'ramda';
 import {
     Asset,
     AssetId,
@@ -26,10 +27,8 @@ import {
     Time,
 } from '../common/store';
 import { AllDefined, Backend } from '../types';
-import { groupBy, min, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
-import { $distributionPools } from '../Stake/store';
 
 // TODO: this function is a huge costyl
 export function detectAssetProvider({ name }: { name: string }): DexProvider {

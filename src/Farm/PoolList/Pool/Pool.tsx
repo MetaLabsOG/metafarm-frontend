@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Status } from '../../../Status';
-import { $networkTime, queryTimeUpdate, Contract, FarmType, hasLocalState, $pricedAlgo } from '../../../common/store';
 import { useStoreMap, useUnit } from 'effector-react';
+import { Status } from '../../../Status.js';
+import { $networkTime, queryTimeUpdate, Contract, FarmType, hasLocalState, $pricedAlgo } from '../../../common/store';
+import { $stakingTokens } from '../../../Stake/store';
+import logo from '../../../imgs/logo.png';
+import { $farmRewardTokens } from '../../store';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolLoadingAnimation } from './styled';
-import { $farmRewardTokens } from '../../store';
-import { $stakingTokens } from '../../../Stake/store';
-import logo from '../../../imgs/logo.png';
 import { getPoolState } from './utils';
 
 export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) => {

@@ -3,12 +3,12 @@ import { useModal } from 'react-hooks-use-modal';
 import { detect } from 'detect-browser';
 
 import '../css/wallet.css';
+import { useUnit } from 'effector-react';
 import { logEvent, LogName } from '../logEvent';
 import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
-import { customWalletFallback, WalletType } from './customWalletFallback';
 import { notify } from '../Components/Notification';
-import { useUnit } from 'effector-react';
+import { customWalletFallback, WalletType } from './customWalletFallback';
 
 const browser = detect();
 const browserInfoString =

@@ -1,11 +1,11 @@
+import { FC } from 'react';
+import ReactTooltip from 'react-tooltip';
+import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
+import info from '../../../imgs/info.svg';
 import { PoolInfoMobileContainer, PoolInfoValue, StakeButtonMobile, TimingMobile } from './styled';
 import { algoRewardPerBlock, convertAmountToUSD, numberRound } from './utils';
-import { FC } from 'react';
 import { getAPRTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
-import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
 import { APRTypes } from './PoolInfo';
-import info from '../../../imgs/info.svg';
-import ReactTooltip from 'react-tooltip';
 
 export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,

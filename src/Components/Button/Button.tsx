@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { theme } from '../../theme';
 import React from 'react';
+import { theme } from '../../theme';
 
 export const ButtonContainer = styled.button`
     border-radius: 4px;
