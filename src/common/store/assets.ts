@@ -1,11 +1,12 @@
 import { Map } from 'immutable';
 import { createEffect, createEvent, createStore, sample, combine, split, Store, restore } from 'effector';
-import { algod } from '../../AppContext';
-import { getAlgoPrice } from '../../providers/coinPriceProvider';
+import { algod, USDT_TOKEN_ID } from '../../AppContext';
+import { getCoinRateFromBinance } from '../../providers/coinPriceProvider';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
 import { nonConcurrent, fetchStore } from './utils';
 import { doEachTick } from './time';
+import { makeDex, PactDex } from '../../providers/dexesProvider';
 
 // Main event to add the asset, adds it to all of the relevant stores
 export const registerAsset = createEvent<AssetId>();
@@ -98,7 +99,25 @@ export const fetchAsset = async (id: AssetId): Promise<Asset> => {
 // ALGO price fetching
 // (token prices are in separate file to avoid circular import to/from dexesProvider)
 // =================================================================
-export const fetchAlgoPriceFx = createEffect(nonConcurrent(() => getAlgoPrice()));
+export const fetchAlgoPriceFx = createEffect(
+    nonConcurrent(async () => {
+        try {
+            const rate = await getCoinRateFromBinance('ALGOUSDT');
+            if (!rate) {
+                throw new Error(`Failed to fetch ALGO price from Binance`);
+            }
+
+            return Number(rate.price);
+        } catch (error) {
+            console.warn('Failed to get price from Binance, piggybacking on Pact. Error was:', error);
+            const ALGO = 0;
+            const dex = makeDex('PT') as PactDex;
+            const pool = await dex.getMostLiquidPool(ALGO, USDT_TOKEN_ID);
+
+            return pool.calculator.primaryAssetPrice;
+        }
+    })
+);
 
 export const $algoUsdPrice = restore(fetchAlgoPriceFx.doneData, null);
 
