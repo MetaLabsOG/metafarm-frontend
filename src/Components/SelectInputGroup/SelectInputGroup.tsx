@@ -9,9 +9,6 @@ import { MaxButton } from '../TokenInputWithButton/styled';
 import { SelectInputGroupProps } from './types';
 import './styled.css';
 
-// TODO(DariaYakovleva): please check types, looks very suspicious
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
 function TokenOption({ option }: { option: any }) {
     return (
         <div className="TokenOptionContainer">

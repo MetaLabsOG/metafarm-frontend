@@ -405,7 +405,7 @@ export class PactDex extends Dex {
 
         // Repeated code, yes, but we need to filter by lpTokenId here because Pact can have several pools on a pair
         const pools = await this.pact.fetchPoolsByAssets(poolAssets[0], poolAssets[1]);
-        const selectedPool = pools.find((pool: pactsdk.Pool) => pool.liquidityAsset.index === lpTokenId);
+        const selectedPool = pools.find((pool: pactsdk.Pool) => pool.liquidityAsset.index === lpTokenId)!;
         return this.fixPactPoolDefaults(selectedPool, poolAssets[0], poolAssets[1]).then((pool) =>
             this.poolToPoolInfo(pool)
         );
@@ -488,8 +488,8 @@ export class PactDex extends Dex {
  */
 export class TinymanDex extends Dex {
     static readonly VALIDATOR_APP_ID = {
-        [TESTNET]: 62_368_684,
-        [MAINNET]: 552_635_992,
+        [TESTNET]: 62368684,
+        [MAINNET]: 552635992,
     };
 
     algod: algosdk.Algodv2;

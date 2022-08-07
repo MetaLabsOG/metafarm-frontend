@@ -86,8 +86,6 @@ export function ZapModal({
         setToken2(token2Upd);
         setToken1Amount('');
         setShowResult(false);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
         getZapThrottled(option.value, token2Upd.value, token1Amount, 50);
     };
 

@@ -68,9 +68,6 @@ export const PoolHeader = ({
                     )}
                 </div>
             </PoolInfo>
-            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-            {/*
-             // @ts-expect-error */}
             <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
         </PoolHeaderContainer>
     );

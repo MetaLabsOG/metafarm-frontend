@@ -32,7 +32,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
 
     const { ctc, state } = contract;
 
-    const optInAndInclude = useCallback(async () => {
+    const optInAndWhitelist = useCallback(async () => {
         setOptInState('transactions');
         await optIn();
         setOptInState('whitelisting');
@@ -80,7 +80,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <InfoHeader>YOU ARE WHITELISTED!</InfoHeader>
                 <h4 style={{ marginBottom: '20px' }}>Opt into META token and the token sale app to buy META!</h4>
-                <Button onClick={optInAndInclude} isActive={true}>
+                <Button onClick={optInAndWhitelist} isActive={true}>
                     OPT IN
                 </Button>
             </div>

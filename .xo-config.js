@@ -22,7 +22,24 @@ module.exports = {
         // Breaks something, seemingly webpack-related
         'unicorn/prefer-node-protocol': 'off',
         // Too strict
-        '@typescript-eslint/padding-line-between-statements': 'off'
+        '@typescript-eslint/padding-line-between-statements': 'off',
+        // Sometimes do not match other formats
+        'unicorn/numeric-separators-style': 'off',
+        // Woke stuff, sometimes confusing
+        'unicorn/prevent-abbreviations': 'off',
+        // Generally good idea but not 100% of cases
+        'capitalized-comments': [
+            'warn',
+            'always',
+            {
+                'ignoreConsecutiveComments': true,
+                'ignoreInlineComments': true,
+            }
+        ],
+        // TODO: Causes problems with batchOptIn now, enable later
+        'node/file-extension-in-import': 'off',
+        // The rule itself is somewhat incorrect, can break code
+        '@typescript-eslint/prefer-reduce-type-parameter': 'off',
     },
     plugins: ['effector'],
     extends: [
