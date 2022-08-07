@@ -9,14 +9,14 @@ import { MaxButton } from '../TokenInputWithButton/styled';
 import { SelectInputGroupProps } from './types';
 import './styled.css';
 
-function TokenOption({ option }: { option: any }) {
+const TokenOption = ({ option }: { option: any }) => {
     return (
         <div className="TokenOptionContainer">
             <img alt="" className="tokenIcon" width="32" height="32" src={getAssetLogoUrl(option.id)} />
             <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.unitName}</div>
         </div>
     );
-}
+};
 
 // TODO(DariaYakovleva): please check types, looks very suspicious
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -60,20 +60,21 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
     return (
         <div className="SelectInputGroupContainer">
             <SelectSearch
+                search
                 className="select-search"
                 options={options}
                 filterOptions={fuzzySearch}
                 renderOption={(props, option) => renderOption(props, option, SelectType.tokenSelect, false)}
                 renderValue={(props, snapshot) => renderSelectedOption(props, snapshot)}
-                search={true}
                 value={selectedOption.value}
-                onChange={selectOnChange}
                 placeholder=""
+                onChange={selectOnChange}
             />
             <div style={{ width: '100%', position: 'relative' }}>
                 <input
                     className="tokenInput"
-                    placeholder={'Enter amount'}
+                    placeholder="Enter amount"
+                    value={inputData}
                     onChange={(e) => {
                         if (isNaN(Number(e.target.value))) {
                             return;
@@ -86,7 +87,6 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                         setInputData(e.target.value);
                         inputOnChange && inputOnChange(e.target.value);
                     }}
-                    value={inputData}
                 />
 
                 <div className="tokenBalance" style={isValidInput ? {} : { color: theme.red }}>

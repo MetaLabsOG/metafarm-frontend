@@ -3,7 +3,7 @@ import Modal from 'react-awesome-modal';
 import { RulesItems, RulesStrong, RulesItem, Subitems, RulesItemOrdinalNumber, RulesItemText } from './styled';
 
 // eslint-disable-next-line react/prop-types
-export function RulesModal({ isModalOpen, setIsModalOpen }) {
+export const RulesModal = ({ isModalOpen, setIsModalOpen }) => {
     return (
         <Modal
             visible={isModalOpen}
@@ -81,4 +81,4 @@ export function RulesModal({ isModalOpen, setIsModalOpen }) {
             </RulesItems>
         </Modal>
     );
-}
+};

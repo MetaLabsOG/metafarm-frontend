@@ -4,7 +4,7 @@ import pacman from '../../imgs/loader.gif';
 import pacman_grey from '../../imgs/pacman.gif';
 import './styled.css';
 
-export function PacmanButton({
+export const PacmanButton = ({
     buttonText,
     buttonStyle,
     onClickAction,
@@ -16,7 +16,7 @@ export function PacmanButton({
     onClickAction: () => Promise<void>;
     isInactive?: boolean;
     style?: React.CSSProperties;
-}) {
+}) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const onClick = () => {
@@ -47,4 +47,4 @@ export function PacmanButton({
             )}
         </button>
     );
-}
+};

@@ -51,18 +51,18 @@ export const MetaDAO = () => {
                     </div>
                     <a
                         target="_blank"
-                        href={'https://metapunks.world/'}
+                        href="https://metapunks.world/"
                         style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center' }}
                         rel="noreferrer"
                     >
                         <Button
-                            onClick={() => {}}
-                            buttonText={'JOIN METAPUNKS'}
+                            buttonText="JOIN METAPUNKS"
                             style={{
                                 width: '300px',
                                 height: '50px',
                                 fontSize: '20px',
                             }}
+                            onClick={() => {}}
                         />
                     </a>
                     <WalletInfo>

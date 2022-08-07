@@ -6,7 +6,7 @@ type TimerProps = {
     leftSec: number;
 };
 
-export function Timer({ totalSec, leftSec }: TimerProps) {
+export const Timer = ({ totalSec, leftSec }: TimerProps) => {
     const [seconds] = useTimer(leftSec);
 
     return (
@@ -22,4 +22,4 @@ export function Timer({ totalSec, leftSec }: TimerProps) {
             />
         </div>
     );
-}
+};

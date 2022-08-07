@@ -152,12 +152,12 @@ const PoolInfo = ({
     return (
         <InfoPanel isLoading={false}>
             <InfoRow
-                title={'Current liquidity'}
+                title="Current liquidity"
                 value={'$' + formatDecimalsMeaningful(Number(selectedPool.totalLiquidity))}
             />
             <InfoRow
                 style={{ color: '#676767', marginBottom: '20px' }}
-                title={'Current APR'}
+                title="Current APR"
                 value={`${selectedPool.dexFeeApr ? (selectedPool.dexFeeApr * 100).toFixed(2) : 0}%`}
             />
             {/* <InfoRow */}
@@ -170,13 +170,13 @@ const PoolInfo = ({
             {/*    value={minAPR + '%-' + maxAPR + '%'} */}
             {/* /> */}
             {/* <InfoRow title={'Current pool liquidity'} value={'110,000$'} /> */}
-            <InfoRow title={'Start block'} value={!isNaN(beginBlock) ? beginBlock : 0} />
-            <InfoRow title={'End block'} value={!isNaN(endBlock) ? endBlock : 0} />
+            <InfoRow title="Start block" value={!isNaN(beginBlock) ? beginBlock : 0} />
+            <InfoRow title="End block" value={!isNaN(endBlock) ? endBlock : 0} />
             <InfoRow
-                title={'Reward per block'}
+                title="Reward per block"
                 value={!isNaN(rewardPerBlock) ? rewardPerBlock.toPrecision(6) + ' ' + rewardUnitName : 0}
             />
-            <InfoRow title={'Farm creation fee'} value={farmCreationFee} />
+            <InfoRow title="Farm creation fee" value={farmCreationFee} />
         </InfoPanel>
     );
 };
@@ -266,7 +266,7 @@ export const PoolCreateModal = () => {
 
     return (
         <PoolCreateModalContainer>
-            <Button onClick={openPoolCreateModal} buttonText="ADD FARM" />
+            <Button buttonText="ADD FARM" onClick={openPoolCreateModal} />
             <PoolCreateModal>
                 <ModalContainer>
                     <ModalTitle>ADD FARM</ModalTitle>
@@ -288,19 +288,19 @@ export const PoolCreateModal = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                         <Heading2>START</Heading2>
                         <DateInput
-                            placeholder={'Select start time'}
+                            placeholder="Select start time"
                             type="datetime-local"
-                            onChange={dateInputOnChange}
                             value={startTime}
+                            onChange={dateInputOnChange}
                         />
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '20px' }}>
                         <Heading2>DURATION</Heading2>
                         <DateInput
                             style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
-                            placeholder={'1-999'}
-                            onChange={durationInputOnChange}
+                            placeholder="1-999"
                             value={daysDuration}
+                            onChange={durationInputOnChange}
                         />
                         <Heading2>DAYS</Heading2>
                     </div>
@@ -308,9 +308,9 @@ export const PoolCreateModal = () => {
                         <Heading2>LOCK</Heading2>
                         <DateInput
                             style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
-                            placeholder={'1-999'}
-                            onChange={lockInputOnChange}
+                            placeholder="1-999"
                             value={lockPeriod}
+                            onChange={lockInputOnChange}
                         />
                         <Heading2>DAYS</Heading2>
                     </div>

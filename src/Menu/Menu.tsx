@@ -98,12 +98,12 @@ export const Menu = () => {
                         <Logo src={logo} alt="logo" height="40px" />
                     </MenuItem>
                     <Burger
-                        onClick={() => {
-                            setIsBurgerOpen(!isBurgerOpen);
-                        }}
                         src={burger}
                         alt="logo"
                         height="20px"
+                        onClick={() => {
+                            setIsBurgerOpen(!isBurgerOpen);
+                        }}
                     />
                     <MenuItemsContainer>
                         <MenuItems />

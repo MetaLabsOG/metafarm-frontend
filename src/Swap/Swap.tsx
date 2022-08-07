@@ -300,7 +300,7 @@ export function formatNumber(x: number) {
     return x > 100 ? Math.floor(x) : Math.floor(x * 100) / 100;
 }
 
-function BestTokenPrice({
+const BestTokenPrice = ({
     isLoading,
     token1Amount,
     bestSwap,
@@ -312,7 +312,7 @@ function BestTokenPrice({
     bestSwap: BestSwap;
     token1: TokenOptionType;
     token2: TokenOptionType;
-}) {
+}) => {
     const pricePerToken =
         Number.parseFloat(token1Amount) > 0 ? bestSwap.best_swap / Number.parseFloat(token1Amount) : 0;
     const best_algo = bestSwap.best_swap > bestSwap.direct_swap;
@@ -377,9 +377,9 @@ function BestTokenPrice({
             <InfoRow title="Slippage" value={SLIPPAGE * 100 + '%'} valueStyle={{ fontSize: '14px' }} />
         </InfoPanel>
     );
-}
+};
 
-export function Swap() {
+export const Swap = () => {
     const account = useUnit($account);
     const balances = useUnit($balances);
 
@@ -500,11 +500,11 @@ export function Swap() {
                 />
             )}
             {showResult && (
-                <React.Fragment>
+                <>
                     <PacmanButton buttonText="SWAP" buttonStyle="swap_button" onClickAction={SwapButtonOnClick} />
                     <h3 className="dex_name">via tinyman</h3>
-                </React.Fragment>
+                </>
             )}
         </ModalContainer>
     );
-}
+};

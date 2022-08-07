@@ -56,7 +56,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                         height="14px"
                         src={info}
                     />
-                    <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
+                    <ReactTooltip clickable place="top" type="light" effect="solid" />
                 </div>
             </PoolInfoValue>
             <PoolInfoValue>
@@ -71,7 +71,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                     <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
-            {<StakeButtonMobile disabled={!contractState.local}>MANAGE</StakeButtonMobile>}
+            <StakeButtonMobile disabled={!contractState.local}>MANAGE</StakeButtonMobile>
             <TimingMobile>{timing}</TimingMobile>
         </PoolInfoMobileContainer>
     );

@@ -72,7 +72,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
     );
 
     if (!state) {
-        return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
+        return <Status showLoading status="CONNECTING TO THE SMART-CONTRACT" />;
     }
 
     if (!userOptedIn) {
@@ -80,17 +80,17 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <InfoHeader>YOU ARE WHITELISTED!</InfoHeader>
                 <h4 style={{ marginBottom: '20px' }}>Opt into META token and the token sale app to buy META!</h4>
-                <Button onClick={optInAndWhitelist} isActive={true}>
+                <Button isActive onClick={optInAndWhitelist}>
                     OPT IN
                 </Button>
             </div>
         ) : (
-            <Status status="OPTING YOU IN. PLEASE CONFIRM TRANSACTIONS" showLoading={true} />
+            <Status showLoading status="OPTING YOU IN. PLEASE CONFIRM TRANSACTIONS" />
         );
     }
 
     if (optInState === 'whitelisting') {
-        return <Status status="PREPARING THE TOKENSALE FOR YOU" showLoading={true} />;
+        return <Status showLoading status="PREPARING THE TOKENSALE FOR YOU" />;
     }
 
     const { totalAmount, rate, individualCap } = state.initial;
@@ -119,18 +119,18 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
             <input
                 type="number"
                 className="tokenInput"
-                placeholder={'10'}
+                placeholder="10"
+                value={unsafeFromBigint(tokenAmount)}
+                // TODO: remove this conversion when adding proper display with decimals
                 onChange={(e) => {
                     setTokenAmountValidated(BigInt(Number.parseInt(e.target.value)));
                 }}
-                // TODO: remove this conversion when adding proper display with decimals
-                value={unsafeFromBigint(tokenAmount)}
             />
 
             <h4 style={{ marginTop: '30px' }}>
                 <>microALGOs to pay: {algoPrice(tokenAmount)}</>
             </h4>
-            <Button onClick={async () => buy(tokenAmount)} isActive={true}>
+            <Button isActive onClick={async () => buy(tokenAmount)}>
                 BUY META
             </Button>
         </div>

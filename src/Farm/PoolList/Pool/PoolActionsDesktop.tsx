@@ -68,9 +68,9 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
             <TokenInfo>
                 {isLPTokenInfo(stakedToken) && canStake && (
                     <Button
-                        onClick={getLPTokenAction(stakedToken, openZapModal)}
                         style={{ color: 'white' }}
                         buttonText="Get LP Tokens"
+                        onClick={getLPTokenAction(stakedToken, openZapModal)}
                     />
                 )}
                 <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
@@ -101,10 +101,10 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     style={!canClaim ? { visibility: 'hidden' } : {}}
                     buttonText="Claim"
                     buttonStyle="claim_button"
+                    isInactive={!isActiveClaim}
                     onClickAction={async () =>
                         onClickClaim(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
                     }
-                    isInactive={!isActiveClaim}
                 />
                 <UnlockTimer unlockTimer={unlockTimer} />
             </div>
@@ -116,8 +116,8 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     <PacmanButton
                         buttonText="Compound"
                         buttonStyle="claim_button"
-                        onClickAction={async () => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
                         isInactive={!isActiveClaim}
+                        onClickAction={async () => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
                     />
                 )}
         </PoolActionsDesktopContainer>

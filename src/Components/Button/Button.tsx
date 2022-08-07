@@ -57,7 +57,7 @@ export const Button = ({
     style?: React.CSSProperties;
 }) => {
     return (
-        <ButtonContainer onClick={onClick} style={style}>
+        <ButtonContainer style={style} onClick={onClick}>
             <span style={{ position: 'relative' }}>{buttonText}</span>
         </ButtonContainer>
     );

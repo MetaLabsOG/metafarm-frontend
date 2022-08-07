@@ -125,7 +125,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                         height="14px"
                         src={info}
                     />
-                    <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
+                    <ReactTooltip clickable place="top" type="light" effect="solid" />
                 </div>
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH['MY STAKE']}>

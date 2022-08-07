@@ -40,9 +40,16 @@ module.exports = {
         'node/file-extension-in-import': 'off',
         // The rule itself is somewhat incorrect, can break code
         '@typescript-eslint/prefer-reduce-type-parameter': 'off',
+        // We use non-standard way
+        'react/function-component-definition': ['error', {
+            'namedComponents': 'arrow-function',
+            'unnamedComponents': 'arrow-function'
+          }]
     },
     plugins: ['effector'],
     extends: [
+        'xo-react',
+        'plugin:react/jsx-runtime',
         'plugin:effector/recommended',
         'plugin:effector/scope',
         'plugin:effector/react',

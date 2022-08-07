@@ -14,7 +14,7 @@ import { theme } from '../theme';
 import { loadZapData, ZapResult } from './Zap';
 import { ZapData } from './types';
 
-export function ZapModal({
+export const ZapModal = ({
     asset1_id,
     asset2_id,
     closeModal,
@@ -22,7 +22,7 @@ export function ZapModal({
     asset1_id: number;
     asset2_id: number;
     closeModal: () => void;
-}) {
+}) => {
     console.log('ZAP', asset1_id, asset2_id);
     const account = useUnit($account);
     const balances = useUnit($balances);
@@ -126,7 +126,7 @@ export function ZapModal({
                 inputOnChange={inputOnChange}
             />
             <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
-            <React.Fragment>
+            <>
                 <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
                 <h3 className="dex_name">on tinyman</h3>
                 <a
@@ -137,7 +137,7 @@ export function ZapModal({
                 >
                     <h3 className="dex_name">or do it manually</h3>
                 </a>
-            </React.Fragment>
+            </>
         </ModalContainer>
     );
-}
+};

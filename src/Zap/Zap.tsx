@@ -103,7 +103,7 @@ export async function loadZapData(
     }
 }
 
-export function ZapResult({
+export const ZapResult = ({
     isLoading,
     zap_data,
     token1,
@@ -113,7 +113,7 @@ export function ZapResult({
     zap_data: ZapData;
     token1: TokenOptionType;
     token2: TokenOptionType;
-}) {
+}) => {
     const lpTokens =
         `${formatNumber(zap_data.asset1_amount ?? 0)} ${token1.unitName}` +
         ' + ' +
@@ -136,9 +136,9 @@ export function ZapResult({
             <InfoRow title="Slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
         </InfoPanel>
     );
-}
+};
 
-export function Zap() {
+export const Zap = () => {
     const account = useUnit($account);
     const balances = useUnit($balances);
 
@@ -275,11 +275,11 @@ export function Zap() {
                 <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
             )}
             {showResult && (
-                <React.Fragment>
+                <>
                     <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
                     <h3 className="dex_name">on tinyman</h3>
-                </React.Fragment>
+                </>
             )}
         </ModalContainer>
     );
-}
+};

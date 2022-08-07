@@ -42,7 +42,7 @@ export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<an
     useEffect(() => {
         if (pendingStatus && isNil(toastIds[action])) {
             const toastStakeId = toast.loading(
-                <Notification action={action} status={'in progress'} text={notificationText} />,
+                <Notification action={action} status="in progress" text={notificationText} />,
                 {
                     icon: <img style={{ width: '30px', height: '30px' }} alt="loader" src={pacman_grey} />,
                     closeButton: true,

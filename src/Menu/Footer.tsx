@@ -14,7 +14,7 @@ export const Footer = () => {
                 <a
                     target="_blank"
                     rel="noreferrer"
-                    href={'https://cometa.farm/terms-of-use'}
+                    href="https://cometa.farm/terms-of-use"
                     style={{ color: theme.green }}
                 >
                     <FooterItem>Terms of Use</FooterItem>

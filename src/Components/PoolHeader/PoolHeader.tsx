@@ -68,7 +68,7 @@ export const PoolHeader = ({
                     )}
                 </div>
             </PoolInfo>
-            <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
+            <ReactTooltip clickable place="top" type="light" effect="solid" />
         </PoolHeaderContainer>
     );
 };

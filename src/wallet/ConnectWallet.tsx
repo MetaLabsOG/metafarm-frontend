@@ -70,7 +70,7 @@ const disconnectWallet = () => {
     }
 };
 
-export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonClassName?: string }) {
+export const ConnectWallet = ({ buttonClassName = 'connect_wallet' }: { buttonClassName?: string }) => {
     const account = useUnit($account);
     const [finishedOpening, setFinishedOpening] = useState(false);
     const [Modal, open, close, isOpen] = useModal('root', { preventScroll: true });
@@ -145,7 +145,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                             {ALGONET === TESTNET && (
                                 <a
                                     target="_blank"
-                                    href={'https://dispenser.testnet.aws.algodev.network/'}
+                                    href="https://dispenser.testnet.aws.algodev.network/"
                                     rel="noreferrer"
                                     style={{ textDecoration: 'none' }}
                                 >
@@ -198,4 +198,4 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
             </Modal>
         </>
     );
-}
+};

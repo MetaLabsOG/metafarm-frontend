@@ -8,7 +8,7 @@ export const TestnetModal = () => {
             <ModalTitle>WELCOME TO COMETA TESTNET!</ModalTitle>
             <a
                 target="_blank"
-                href={'https://dispenser.testnet.aws.algodev.network/'}
+                href="https://dispenser.testnet.aws.algodev.network/"
                 rel="noreferrer"
                 style={{ textDecorationColor: '#7a7a7a' }}
             >
@@ -17,7 +17,7 @@ export const TestnetModal = () => {
                 </Heading2>
             </a>
             <Heading2 style={{ display: 'flex', justifyContent: 'center', color: theme.lightGray }}>ENJOY!</Heading2>
-            <Confetti showConfetti={true} />
+            <Confetti showConfetti />
         </ModalContainer>
     );
 };

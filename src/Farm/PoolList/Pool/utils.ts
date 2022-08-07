@@ -18,12 +18,12 @@ const PACT_URL = `https://${ALGONET === TESTNET ? 'testnet' : 'app'}.pact.fi`;
 export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
     0: 0, // ALGO
     85951079: 712012773, // META
-    19386116: 386192725, // goBTC
+    19386116: 386192725, // GoBTC
     10458941: 31566704, // USDC
     70283957: 463554836, // ALGF
     96690153: 607591690, // XGLI
     27963203: 342889824, // BOARD
-    96690352: 792313023, // xSOL
+    96690352: 792313023, // XSOL
 };
 
 export const getAssetLogoUrl = (input_asset_id: number) => {
