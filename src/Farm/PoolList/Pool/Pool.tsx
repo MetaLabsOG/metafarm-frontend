@@ -21,7 +21,7 @@ export function Pool({ type, contract }: { type: FarmType; contract: Contract<Fa
 
     const queryTimeUpdateEvent = useUnit(queryTimeUpdate);
 
-    useEffect(queryTimeUpdateEvent, [contract]);
+    useEffect(queryTimeUpdateEvent, [contract, queryTimeUpdateEvent]);
 
     const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
     if (currentBlock === 0 || !contract.state || !is_info_loaded || !pricedAlgo) {

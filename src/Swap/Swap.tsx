@@ -396,7 +396,7 @@ export function Swap() {
             setOptions(res);
             setToken1(res[0]);
         });
-    }, [balances]);
+    }, [balances, account]);
 
     const getSwapTimeout = useRef<any>();
 

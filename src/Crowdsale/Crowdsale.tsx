@@ -151,7 +151,7 @@ export function Crowdsale(): ReactElement {
             // @ts-expect-error
             setContractInfosEvent(contracts);
         }
-    }, [data, isError, isSuccess]);
+    }, [data, isError, isSuccess, setContractInfosEvent]);
 
     const contract = useStoreMap($contracts, (ls: Array<Contract<'crowdsale'>>) => ls[0]);
 

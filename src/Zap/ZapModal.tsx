@@ -54,7 +54,7 @@ export function ZapModal({
             setToken2(filtered_res[1]);
             setIsLoading(false);
         });
-    }, [balances]);
+    }, [balances, asset1_id, asset2_id, account]);
 
     const getZapTimeout = useRef<NodeJS.Timeout | null>(null);
 

@@ -58,9 +58,9 @@ export default function Confetti({ showConfetti, onFinish }: { showConfetti: boo
     useEffect(() => {
         if (showConfetti) {
             fire();
-            typeof onFinish === 'function' && onFinish();
+            onFinish?.();
         }
-    }, [showConfetti]);
+    }, [showConfetti, fire, onFinish]);
 
     return <ReactCanvasConfetti refConfetti={getInstance} style={canvasStyles} />;
 }

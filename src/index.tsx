@@ -79,7 +79,7 @@ function App() {
             const data = farmsFetch.data! as Array<ContractInfo<'farm'>>;
             setPoolInfosEvent(data);
         }
-    }, [farmsFetch]);
+    }, [farmsFetch, setPoolInfosEvent]);
 
     useEffect(() => {
         if (
@@ -92,14 +92,14 @@ function App() {
             openTestnetModal();
             setHasTestnetModalOpened(true);
         }
-    }, [algoBalance, account]);
+    }, [algoBalance, account, hasTestnetModalOpened, openTestnetModal]);
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
             const data = distrFetch.data! as Array<ContractInfo<'distribution'>>;
             setDistributionPoolInfosEvent(data);
         }
-    }, [distrFetch]);
+    }, [distrFetch, setDistributionPoolInfosEvent]);
 
     return (
         <>
