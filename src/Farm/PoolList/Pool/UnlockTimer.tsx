@@ -15,7 +15,7 @@ const formatUnlockTime = (unlockTime: number) => {
     return new Date(unlockTime * 1000).toISOString().slice(11, 19);
 };
 
-export const UnlockTimer = ({ unlockTimer }: { unlockTimer: number }) => {
+export function UnlockTimer({ unlockTimer }: { unlockTimer: number }) {
     if (unlockTimer <= 0) {
         return <></>;
     }
@@ -25,4 +25,4 @@ export const UnlockTimer = ({ unlockTimer }: { unlockTimer: number }) => {
             unlock in {formatUnlockTime(unlockTimer)}
         </div>
     );
-};
+}

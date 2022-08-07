@@ -15,7 +15,7 @@ import {
     NFtPriceValue,
 } from './styled';
 
-export const NFTList = () => {
+export function NFTList() {
     const { data } = useQuery(['nftAssets', METAWALLET], async () => getWalletNFTs(METAWALLET));
 
     return (
@@ -52,4 +52,4 @@ export const NFTList = () => {
                 ))}
         </NFTListContainer>
     );
-};
+}

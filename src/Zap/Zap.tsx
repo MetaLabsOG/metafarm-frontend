@@ -275,10 +275,10 @@ export function Zap() {
                 <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
             )}
             {showResult && (
-                <React.Fragment>
+                <>
                     <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
                     <h3 className="dex_name">on tinyman</h3>
-                </React.Fragment>
+                </>
             )}
         </ModalContainer>
     );

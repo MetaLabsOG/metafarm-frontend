@@ -36,18 +36,18 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
         <PoolActionsMobileContainer>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
                 <ButtonBackMobile
+                    src={arrowBack}
+                    alt="BACK"
                     onClick={() => {
                         setIsZapModalOpen(false);
                     }}
-                    src={arrowBack}
-                    alt="BACK"
                 />
                 <TokenInfo>
                     {isLPTokenInfo(stakedToken) && canStake && (
                         <Button
-                            onClick={getLPTokenAction(stakedToken, openZapModal)}
                             style={{ color: 'white' }}
                             buttonText="Get LP Tokens"
+                            onClick={getLPTokenAction(stakedToken, openZapModal)}
                         />
                     )}
                 </TokenInfo>
@@ -89,10 +89,10 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         style={!canClaim ? { visibility: 'hidden' } : {}}
                         buttonText="CLAIM"
                         buttonStyle="claim_button"
+                        isInactive={!isActiveClaim}
                         onClickAction={async () =>
                             onClickClaim(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
                         }
-                        isInactive={!isActiveClaim}
                     />
                     <UnlockTimer unlockTimer={unlockTimer} />
                 </div>
@@ -104,8 +104,8 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         <PacmanButton
                             buttonText="COMPOUND"
                             buttonStyle="claim_button"
-                            onClickAction={async () => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
                             isInactive={!isActiveClaim}
+                            onClickAction={async () => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
                         />
                     )}
             </RewardsContainer>

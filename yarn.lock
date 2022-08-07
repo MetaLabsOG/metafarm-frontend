@@ -8758,6 +8758,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-config-xo-react@npm:^0.27.0":
+  version: 0.27.0
+  resolution: "eslint-config-xo-react@npm:0.27.0"
+  peerDependencies:
+    eslint: ">=8.6.0"
+    eslint-plugin-react: ">=7.29.0"
+    eslint-plugin-react-hooks: ">=4.3.0"
+  checksum: abd774363f84d5bd466d8b53284e03edda7ce4169a3d045937fe3ae1e8286385eac835e389216930c9ab703d032c98f1031519b2e28530e61ffa3ccca4424057
+  languageName: node
+  linkType: hard
+
 "eslint-config-xo-typescript@npm:*":
   version: 0.52.0
   resolution: "eslint-config-xo-typescript@npm:0.52.0"
@@ -9044,7 +9055,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-react-hooks@npm:^4.3.0":
+"eslint-plugin-react-hooks@npm:^4.3.0, eslint-plugin-react-hooks@npm:^4.6.0":
   version: 4.6.0
   resolution: "eslint-plugin-react-hooks@npm:4.6.0"
   peerDependencies:
@@ -13166,12 +13177,14 @@ __metadata:
     eslint: "npm:^8.20.0"
     eslint-config-prettier: "npm:^8.5.0"
     eslint-config-react-app: "npm:^7.0.1"
+    eslint-config-xo-react: "npm:^0.27.0"
     eslint-detailed-reporter: "npm:^0.9.0"
     eslint-import-resolver-typescript: "npm:^3.4.0"
     eslint-plugin-effector: "npm:^0.8.1"
     eslint-plugin-import: "npm:^2.26.0"
     eslint-plugin-prettier: "npm:^4.2.1"
     eslint-plugin-react: "npm:^7.30.1"
+    eslint-plugin-react-hooks: "npm:^4.6.0"
     eslint-webpack-plugin: "npm:^3.2.0"
     ethers: "npm:^5.6.9"
     file-loader: "npm:^6.2.0"

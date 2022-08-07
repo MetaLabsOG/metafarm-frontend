@@ -49,7 +49,7 @@ export const getPlaceholder = (selectType: SelectType) => {
 
 function TokenOption({ option, showAdditionalInfo }: { option: TokenOptionType; showAdditionalInfo: boolean }) {
     return (
-        <React.Fragment>
+        <>
             <img alt="" className="tokenIcon" src={getAssetLogoUrl(option.id)} />
             <div>
                 <div className="optionTitle">{option.name}</div>
@@ -62,13 +62,13 @@ function TokenOption({ option, showAdditionalInfo }: { option: TokenOptionType; 
                     {formatNumber(option.balance)}
                 </div>
             )}
-        </React.Fragment>
+        </>
     );
 }
 
 function PoolOption({ option }: { option: PoolOptionType }) {
     return (
-        <React.Fragment>
+        <>
             <div className="lpIcons">
                 <img className="lpIcon" alt="" src={getAssetLogoUrl(option.asset1)} />
                 <img className="lpIcon" style={{ left: '16px' }} alt="" src={getAssetLogoUrl(option.asset2)} />
@@ -82,7 +82,7 @@ function PoolOption({ option }: { option: PoolOptionType }) {
                 <br />
                 {option.liquidityAsset}
             </div>
-        </React.Fragment>
+        </>
     );
 }
 
@@ -129,7 +129,7 @@ function renderSelectedOption(valueProps, snapshot, selectType: SelectType) {
         <div style={{ position: 'relative' }}>
             {option && !snapshot.focus && (
                 <div className="TokenOptionContainer">
-                    <SelectOption selectType={selectType} option={option} showAdditionalInfo={true} />
+                    <SelectOption showAdditionalInfo selectType={selectType} option={option} />
                 </div>
             )}
             <input
@@ -145,15 +145,15 @@ function renderSelectedOption(valueProps, snapshot, selectType: SelectType) {
 export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange }) => {
     return (
         <SelectSearch
+            search
             className="select-search select-search-basic"
             options={options}
             value={selectedOption.value}
             renderOption={(props, option) => renderOption(props, option, selectType)}
             renderValue={(props, snapshot) => renderSelectedOption(props, snapshot, selectType)}
             filterOptions={fuzzySearch}
-            search={true}
-            onChange={selectOnChange}
             placeholder={getPlaceholder(selectType)}
+            onChange={selectOnChange}
         />
     );
 };

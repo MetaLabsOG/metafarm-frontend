@@ -43,6 +43,8 @@ module.exports = {
     },
     plugins: ['effector'],
     extends: [
+        'xo-react',
+        'plugin:react/jsx-runtime',
         'plugin:effector/recommended',
         'plugin:effector/scope',
         'plugin:effector/react',

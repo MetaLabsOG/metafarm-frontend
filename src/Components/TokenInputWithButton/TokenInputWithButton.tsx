@@ -146,8 +146,8 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 <PacmanButton
                     buttonText={buttonName}
                     buttonStyle="token_input_button"
-                    onClickAction={async () => onClick()}
                     isInactive={!isValidInput || !isActive}
+                    onClickAction={async () => onClick()}
                 />
                 <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>
             </Action>

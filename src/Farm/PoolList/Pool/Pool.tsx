@@ -11,7 +11,7 @@ import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolLoadingAnimation } from './styled';
 import { getPoolState } from './utils';
 
-export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) => {
+export function Pool({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) {
     const currentBlock = useUnit($networkTime);
     const pricedAlgo = useUnit($pricedAlgo);
     const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
@@ -87,4 +87,4 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
     }
 
     return <Status status="Something is wrong, please contact us" showLoading={false} />;
-};
+}

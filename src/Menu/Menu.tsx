@@ -24,7 +24,7 @@ import {
 
 const formatPrice = (price: number | null): string => (price === null ? '0.00' : price.toFixed(2));
 
-const MenuItems = () => {
+function MenuItems() {
     return (
         <>
             <MenuItem to="/swap">swap</MenuItem>
@@ -36,9 +36,9 @@ const MenuItems = () => {
             {/* <MenuItem to="/tokensale">tokensale</MenuItem> */}
         </>
     );
-};
+}
 
-const ExchangeRates = ({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) => {
+function ExchangeRates({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) {
     return (
         <>
             <a target="_blank" href={getTokenLink(0)} rel="noreferrer">
@@ -51,9 +51,9 @@ const ExchangeRates = ({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; MET
             <ExchangeRate>${formatPrice(METAPrice?.price ?? 0)}</ExchangeRate>
         </>
     );
-};
+}
 
-const BurgerMenu = ({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) => {
+function BurgerMenu({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) {
     return (
         <BurgerMenuContainer>
             <MenuItemsBurger>
@@ -64,9 +64,9 @@ const BurgerMenu = ({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPr
             </ExchangeRatesBurger>
         </BurgerMenuContainer>
     );
-};
+}
 
-export const Menu = () => {
+export function Menu() {
     const ALGOPrice = useUnit($algoUsdPrice);
     const METAPrice = useStoreMap($pricedAssets, (as) => as.get(META_TOKEN_ID, null));
     const [isBurgerOpen, setIsBurgerOpen] = useState(false);
@@ -98,12 +98,12 @@ export const Menu = () => {
                         <Logo src={logo} alt="logo" height="40px" />
                     </MenuItem>
                     <Burger
-                        onClick={() => {
-                            setIsBurgerOpen(!isBurgerOpen);
-                        }}
                         src={burger}
                         alt="logo"
                         height="20px"
+                        onClick={() => {
+                            setIsBurgerOpen(!isBurgerOpen);
+                        }}
                     />
                     <MenuItemsContainer>
                         <MenuItems />
@@ -117,4 +117,4 @@ export const Menu = () => {
             {isBurgerOpen && <BurgerMenu ALGOPrice={ALGOPrice} METAPrice={METAPrice} />}
         </>
     );
-};
+}

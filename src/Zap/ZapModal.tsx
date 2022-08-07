@@ -126,7 +126,7 @@ export function ZapModal({
                 inputOnChange={inputOnChange}
             />
             <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
-            <React.Fragment>
+            <>
                 <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
                 <h3 className="dex_name">on tinyman</h3>
                 <a
@@ -137,7 +137,7 @@ export function ZapModal({
                 >
                     <h3 className="dex_name">or do it manually</h3>
                 </a>
-            </React.Fragment>
+            </>
         </ModalContainer>
     );
 }

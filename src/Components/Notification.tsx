@@ -42,7 +42,7 @@ export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<an
     useEffect(() => {
         if (pendingStatus && isNil(toastIds[action])) {
             const toastStakeId = toast.loading(
-                <Notification action={action} status={'in progress'} text={notificationText} />,
+                <Notification action={action} status="in progress" text={notificationText} />,
                 {
                     icon: <img style={{ width: '30px', height: '30px' }} alt="loader" src={pacman_grey} />,
                     closeButton: true,
@@ -74,7 +74,7 @@ export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<an
     return setNotificationText;
 };
 
-const Notification = ({ action, status, text }: { action: ToastTypes; status: string; text: string }) => {
+function Notification({ action, status, text }: { action: ToastTypes; status: string; text: string }) {
     return (
         <div style={{ marginLeft: '10px', fontFamily: 'Montserrat' }}>
             <div>
@@ -83,9 +83,9 @@ const Notification = ({ action, status, text }: { action: ToastTypes; status: st
             {text && <div>AMOUNT: {text}</div>}
         </div>
     );
-};
+}
 
-const Alert = ({ text, link }: { text: string; link?: string }) => {
+function Alert({ text, link }: { text: string; link?: string }) {
     return (
         <div style={{ marginLeft: '10px', fontFamily: 'Montserrat' }}>
             <div>{text}</div>
@@ -96,7 +96,7 @@ const Alert = ({ text, link }: { text: string; link?: string }) => {
             )}
         </div>
     );
-};
+}
 
 export const notify = (text: string, type: TypeOptions, link?: string) => {
     toast(<Alert text={text} link={link} />, {

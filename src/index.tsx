@@ -63,7 +63,7 @@ const queryClient = new QueryClient();
 // Throw events on initialization
 fetchAllPricesFx();
 
-const App = () => {
+function App() {
     const account = useUnit($account);
     const algoBalance = useStoreMap($balances, (bs) => Number(bs[0]));
     const setPoolInfosEvent = useUnit(setPoolInfos);
@@ -122,7 +122,7 @@ const App = () => {
             </ThemeProvider>
         </>
     );
-};
+}
 
 ReactDOM.render(
     <BrowserRouter>

@@ -500,10 +500,10 @@ export function Swap() {
                 />
             )}
             {showResult && (
-                <React.Fragment>
+                <>
                     <PacmanButton buttonText="SWAP" buttonStyle="swap_button" onClickAction={SwapButtonOnClick} />
                     <h3 className="dex_name">via tinyman</h3>
-                </React.Fragment>
+                </>
             )}
         </ModalContainer>
     );

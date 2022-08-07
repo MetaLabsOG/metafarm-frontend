@@ -47,7 +47,7 @@ export const ButtonContainer = styled.button`
     }
 `;
 
-export const Button = ({
+export function Button({
     onClick,
     buttonText,
     style,
@@ -55,10 +55,10 @@ export const Button = ({
     onClick: React.MouseEventHandler | undefined;
     buttonText: string;
     style?: React.CSSProperties;
-}) => {
+}) {
     return (
-        <ButtonContainer onClick={onClick} style={style}>
+        <ButtonContainer style={style} onClick={onClick}>
             <span style={{ position: 'relative' }}>{buttonText}</span>
         </ButtonContainer>
     );
-};
+}

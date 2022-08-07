@@ -48,7 +48,7 @@ export const onClickClaim = async (
     }
 };
 
-export const PoolActions = ({
+export function PoolActions({
     poolState,
     ctc,
     contractState,
@@ -68,7 +68,7 @@ export const PoolActions = ({
     currentBlock: number;
     contractId: AppId;
     pricedAlgo: Priced<Asset>;
-}) => {
+}) {
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
     const unlockTime = calculateUnlockTimeinSecs(
@@ -145,4 +145,4 @@ export const PoolActions = ({
             )}
         </>
     );
-};
+}

@@ -13,7 +13,7 @@ import {
     PoolSubtitle,
 } from './styled';
 
-export const PoolHeader = ({
+export function PoolHeader({
     asset1_id,
     asset2_id,
     pool_name,
@@ -31,7 +31,7 @@ export const PoolHeader = ({
     lock: string;
     isVerified: boolean;
     algoRewards: boolean;
-}) => {
+}) {
     const asset1_logo = getAssetLogoUrl(asset1_id);
     const asset2_logo = getAssetLogoUrl(asset2_id);
 
@@ -68,7 +68,7 @@ export const PoolHeader = ({
                     )}
                 </div>
             </PoolInfo>
-            <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
+            <ReactTooltip clickable place="top" type="light" effect="solid" />
         </PoolHeaderContainer>
     );
-};
+}

@@ -50,14 +50,21 @@ export type ReachStdlib = Stdlib_User<
     Backend,
     Account
 > & { clearProvider: () => void };
-export type { Provider, Account, Address, Backend, ARC11_Wallet, WalletTransaction };
 
-export { type Contract } from '@reach-sh/stdlib/dist/types/ALGO';
+export {
+    type Contract,
+    type Provider,
+    type Address,
+    type Account,
+    type Backend,
+} from '@reach-sh/stdlib/dist/types/ALGO';
 export {
     type EnableNetworkResult,
     type EnableOpts,
     type EnableAccountsResult,
     type EnableResult,
     type EnableAccountsOpts,
+    type ARC11_Wallet,
+    type WalletTransaction,
 } from '@reach-sh/stdlib/ALGO_ARC11';
 export { type ViewVal, type ViewMap, type ViewFunMap } from '@reach-sh/stdlib/dist/types/shared_impl';

@@ -145,7 +145,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                             {ALGONET === TESTNET && (
                                 <a
                                     target="_blank"
-                                    href={'https://dispenser.testnet.aws.algodev.network/'}
+                                    href="https://dispenser.testnet.aws.algodev.network/"
                                     rel="noreferrer"
                                     style={{ textDecoration: 'none' }}
                                 >

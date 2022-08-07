@@ -13,7 +13,7 @@ import { metaTreasuryChartOptions } from './chartsConfig';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip);
 
-export const MetaTreasuryChart = ({ dataset }: { dataset: TotalCost[] }) => {
+export function MetaTreasuryChart({ dataset }: { dataset: TotalCost[] }) {
     const labels = dataset.map((element) => dayjs(element.timestamp * 1000).format('D.MM'));
     const data = {
         labels,
@@ -36,4 +36,4 @@ export const MetaTreasuryChart = ({ dataset }: { dataset: TotalCost[] }) => {
             <MetaTreasuryChartXTitle>week</MetaTreasuryChartXTitle>
         </MetaTreasuryChartStyled>
     );
-};
+}

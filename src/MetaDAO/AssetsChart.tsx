@@ -9,7 +9,7 @@ import { ChartTitle, AssetsChartStyled } from './styled';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export const AssetsChart = () => {
+export function AssetsChart() {
     const assetsQuery = useQuery(['assets', METAWALLET], async () => getAssets(METAWALLET));
     const dataset = assetsQuery.data ?? [];
     console.log('DATASET', dataset);
@@ -34,4 +34,4 @@ export const AssetsChart = () => {
             <Pie data={data} options={assetsChartOptions} />
         </AssetsChartStyled>
     );
-};
+}

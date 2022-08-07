@@ -102,7 +102,7 @@ const calculateAPR = (
     };
 };
 
-export const PoolInfo = ({
+export function PoolInfo({
     contractState,
     poolState,
     stakeTokenInfo,
@@ -120,7 +120,7 @@ export const PoolInfo = ({
     pricedAlgo: Priced<Asset>;
     isOpen: boolean;
     poolMetadata: any;
-}) => {
+}) {
     const account = useUnit($account);
     const meanRoundDuration = useUnit($meanRoundDuration);
     const ALGOPrice = useUnit($algoUsdPrice);
@@ -180,4 +180,4 @@ export const PoolInfo = ({
             )}
         </>
     );
-};
+}
