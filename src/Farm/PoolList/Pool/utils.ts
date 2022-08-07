@@ -1,8 +1,4 @@
 import { formatDecimalsMeaningful, unsafeFromBigint } from '../../../common/lib';
-import tinyman from '../../../imgs/dexes/tinyman.png';
-import pact from '../../../imgs/dexes/pact.png';
-import humble from '../../../imgs/dexes/humble.png';
-import algofi from '../../../imgs/dexes/algofi.png';
 import {
     Asset,
     Priced,
@@ -61,16 +57,6 @@ export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenI
     }
 };
 
-export const getDexName = (poolDex: string): string => {
-    if (poolDex === 'T2') {
-        return 'tinyman';
-    }
-    if (poolDex === 'PT') {
-        return 'pact';
-    }
-    return poolDex;
-};
-
 export const getTokenLink = (asset_id: number | undefined): string => {
     if (asset_id === 0) {
         return 'https://algoexplorer.io/top-statistics';
@@ -82,16 +68,6 @@ export const getTokenLink = (asset_id: number | undefined): string => {
 // TODO: remove this when pools name it will be not test names
 export const formatLPTokenName = (name: string) => {
     return name.replace('TinymanPool1.1 ', '').replace('liquidity', '').replace('PACT LP Token', '').replace('/', '-');
-};
-
-export const getDexIcon = (poolDex: DexProvider) => {
-    if (poolDex === 'T2') {
-        return tinyman;
-    }
-    if (poolDex === 'PT') {
-        return pact;
-    }
-    return null;
 };
 
 export const algoRewardPerBlock = (initial: ContractState<FarmType>['initial']): Amount => {

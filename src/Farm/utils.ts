@@ -1,6 +1,11 @@
+import pact from '../imgs/dexes/pact.png';
+import tinyman from '../imgs/dexes/tinyman.png';
+import humble from '../imgs/dexes/humble.png';
+import algofi from '../imgs/dexes/algofi.png';
 import { BigNumberish } from '@ethersproject/bignumber';
 import { reach } from '../AppContext';
 import { Contract } from '../types';
+import { DexProvider } from '../providers/dexesProvider';
 
 export type InitialState = {
     beneficiary: string;
@@ -26,3 +31,25 @@ export async function deployFarm(ctc: Contract, initialState: InitialState): Pro
 
     return ctc.getInfo();
 }
+
+export const getDexName = (poolDex: string): string => {
+    if (poolDex === 'T2') {
+        return 'tinyman';
+    }
+    if (poolDex === 'PT') {
+        return 'pact';
+    }
+    return poolDex;
+};
+
+type Image = any;
+
+export const getDexIcon = (poolDex: DexProvider): Image => {
+    if (poolDex === 'T2') {
+        return tinyman;
+    }
+    if (poolDex === 'PT') {
+        return pact;
+    }
+    return null;
+};

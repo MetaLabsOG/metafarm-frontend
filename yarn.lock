@@ -4404,6 +4404,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/fs-extra@npm:^9.0.13":
+  version: 9.0.13
+  resolution: "@types/fs-extra@npm:9.0.13"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: c46cad9514da52203eeed1cd72cb4caef3540edf2f3d64116febb36a5c5028478d5d3247f3894bb967872872b5aaa2c5628802056c05cd3543562d8ee9c182a0
+  languageName: node
+  linkType: hard
+
+"@types/glob@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@types/glob@npm:7.2.0"
+  dependencies:
+    "@types/minimatch": "npm:*"
+    "@types/node": "npm:*"
+  checksum: 28f927f9e0d7f5cecafc843e0c97f79fd3afe5874d71f35ad9343352fe14fd4d6e4136cc07688e46680d1972561751fdf4468762c7de5ac32f8cf902cd1f230f
+  languageName: node
+  linkType: hard
+
 "@types/graceful-fs@npm:^4.1.3":
   version: 4.1.5
   resolution: "@types/graceful-fs@npm:4.1.5"
@@ -4495,7 +4514,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/minimatch@npm:^3.0.3":
+"@types/minimatch@npm:*, @types/minimatch@npm:^3.0.3":
   version: 3.0.5
   resolution: "@types/minimatch@npm:3.0.5"
   checksum: 1e3ad77c3a101452cb52919d33e5f47f13b4fe66a6566409e1b555b975831cf127fb9ee347d6d9d1648784dac816dc955f8766991de9c3de80a80cc15890c5f1
@@ -4717,6 +4736,15 @@ __metadata:
   version: 21.0.0
   resolution: "@types/yargs-parser@npm:21.0.0"
   checksum: 81725f71214a1b174d970177759871e9c87f186cd37fe4638b0ae39ad1ee630fa488525048a9a582cd2e27585c4c253198f2d5756e1a5a161988783e23630f3d
+  languageName: node
+  linkType: hard
+
+"@types/yargs@npm:^17.0.10":
+  version: 17.0.11
+  resolution: "@types/yargs@npm:17.0.11"
+  dependencies:
+    "@types/yargs-parser": "npm:*"
+  checksum: af155547a98c72a942efeda0381347f97f95b52421d872afe2b76655d14bb2c43031f8fce58c9cce17b9a8a7f83215c92061a6bbaf02fa18bbc66221846ca278
   languageName: node
   linkType: hard
 
@@ -8293,6 +8321,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dpdm@npm:^3.10.0":
+  version: 3.10.0
+  resolution: "dpdm@npm:3.10.0"
+  dependencies:
+    "@types/fs-extra": "npm:^9.0.13"
+    "@types/glob": "npm:^7.2.0"
+    "@types/yargs": "npm:^17.0.10"
+    chalk: "npm:^4.1.2"
+    fs-extra: "npm:^10.1.0"
+    glob: "npm:^8.0.3"
+    ora: "npm:^5.4.1"
+    tslib: "npm:^2.4.0"
+    typescript: "npm:^4.7.4"
+    yargs: "npm:^17.5.1"
+  bin:
+    dpdm: lib/bin/dpdm.js
+  checksum: bafcfeaf152b03942c807f0101fa98bbccfee3735bd718d495a4c201e8fb94cb31ac8a6f6825a47b0fed5140748e29b19c2d69db4b4d19093b8b865dcc2656e7
+  languageName: node
+  linkType: hard
+
 "drbg.js@npm:^1.0.1":
   version: 1.0.1
   resolution: "drbg.js@npm:1.0.1"
@@ -10275,7 +10323,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^8.0.1":
+"glob@npm:^8.0.1, glob@npm:^8.0.3":
   version: 8.0.3
   resolution: "glob@npm:8.0.3"
   dependencies:
@@ -13111,6 +13159,7 @@ __metadata:
     detect-browser: "npm:^5.3.0"
     dotenv: "npm:^16.0.1"
     dotenv-expand: "npm:^8.0.3"
+    dpdm: "npm:^3.10.0"
     effector: "npm:^22.3.0"
     effector-react: "npm:^22.1.5"
     env-cmd: "npm:^10.1.0"
@@ -19518,7 +19567,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yargs@npm:^17.3.1, yargs@npm:^17.4.0":
+"yargs@npm:^17.3.1, yargs@npm:^17.4.0, yargs@npm:^17.5.1":
   version: 17.5.1
   resolution: "yargs@npm:17.5.1"
   dependencies:

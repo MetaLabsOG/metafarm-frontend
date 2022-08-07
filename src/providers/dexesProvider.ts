@@ -7,7 +7,7 @@ import { ALGONET, MAINNET, TESTNET, algod } from '../AppContext';
 import { AppId, Asset, AssetId, Amount } from '../common/store/types';
 import { assetId } from '../common/store/utils';
 
-import { ALGO_ASSET, fetchAsset } from '../common/store';
+import { ALGO_ASSET, fetchAsset } from '../common/store/assets';
 import { WalletTransactionGroup } from '../types';
 import { toReachTxn } from '../common/lib';
 import { getTinymanPools } from './apiProvider';
