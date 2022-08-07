@@ -9,7 +9,7 @@ export const setLevelAndValue = (
     lvl: BigNumber,
     reach: ReachStdlib
 ): PricesAndValuesType => {
-    if (!prices.length || !values.length) {
+    if (prices.length === 0 || values.length === 0) {
         return { price: 0, value: 0, nextLvlValue: 0 };
     }
     const numberLevel = reach.bigNumberToNumber(lvl);

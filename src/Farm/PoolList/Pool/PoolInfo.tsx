@@ -81,7 +81,7 @@ const calculateAPR = (
     const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
     const rewardPerBlock = fromSmallestUnits(rewardTokenInfo, contractState.initial.rewardPerBlock);
 
-    const extraAlgoRewardPerBlock = (contractState.initial as FarmInitialInfo).extraAlgoRewardPerBlock;
+    const { extraAlgoRewardPerBlock } = contractState.initial as FarmInitialInfo;
     const algoRewardPerBlock = extraAlgoRewardPerBlock ? fromSmallestUnits(ALGO_ASSET, extraAlgoRewardPerBlock) : 0;
 
     const totalStakedUSD = totalStaked * stakePrice;

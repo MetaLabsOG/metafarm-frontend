@@ -34,7 +34,7 @@ const checkValidInput = (input: string, token: LPTokenInfo | Priced<Asset>, toke
         return false;
     }
 
-    const microAmount = getSmallestUnits(token, parseFloat(input));
+    const microAmount = getSmallestUnits(token, Number.parseFloat(input));
     return microAmount <= tokenMicroBalance;
 };
 
@@ -92,7 +92,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     const onClick = async () => {
-        const microAmount = getSmallestUnits(token, parseFloat(inputAmount));
+        const microAmount = getSmallestUnits(token, Number.parseFloat(inputAmount));
         if (!isLoading && isValidInput && microAmount > 0) {
             logFarmActionData(account, buttonName, inputAmount, token as LPTokenInfo);
             setIsLoading(true);
@@ -114,8 +114,8 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 // eslint-disable-next-line effector/mandatory-scope-binding
                 await actionEffect([microAmount]);
                 setShowConfetti(true);
-            } catch (e) {
-                const error_message = e instanceof Error ? e.message : String(e);
+            } catch (error) {
+                const error_message = error instanceof Error ? error.message : String(error);
                 console.log(error_message);
                 if (error_message.includes('below min')) {
                     notify('Not enough ALGOs for opt-in. Please top up ALGO balance.', 'error');
@@ -146,7 +146,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 <PacmanButton
                     buttonText={buttonName}
                     buttonStyle="token_input_button"
-                    onClickAction={() => onClick()}
+                    onClickAction={async () => onClick()}
                     isInactive={!isValidInput || !isActive}
                 />
                 <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>
@@ -155,7 +155,12 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 {balanceField}: {fromSmallestUnits(token, tokenMicroBalance)} {balanceSuffix}{' '}
                 {isValidInput ? '' : '(Not enough)'}
             </Balance>
-            <Confetti showConfetti={showConfetti} onFinish={() => setShowConfetti(false)} />
+            <Confetti
+                showConfetti={showConfetti}
+                onFinish={() => {
+                    setShowConfetti(false);
+                }}
+            />
         </TokenInputWithButtonContainer>
     );
 };

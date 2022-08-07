@@ -58,7 +58,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                     />
                     {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
                     {/*
-                     // @ts-ignore */}
+                     // @ts-expect-error */}
                     <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
                 </div>
             </PoolInfoValue>

@@ -35,7 +35,13 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     return (
         <PoolActionsMobileContainer>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
-                <ButtonBackMobile onClick={() => setIsZapModalOpen(false)} src={arrowBack} alt="BACK" />
+                <ButtonBackMobile
+                    onClick={() => {
+                        setIsZapModalOpen(false);
+                    }}
+                    src={arrowBack}
+                    alt="BACK"
+                />
                 <TokenInfo>
                     {isLPTokenInfo(stakedToken) && canStake && (
                         <Button
@@ -83,7 +89,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         style={!canClaim ? { visibility: 'hidden' } : {}}
                         buttonText="CLAIM"
                         buttonStyle="claim_button"
-                        onClickAction={() =>
+                        onClickAction={async () =>
                             onClickClaim(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
                         }
                         isInactive={!isActiveClaim}
@@ -98,7 +104,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         <PacmanButton
                             buttonText="COMPOUND"
                             buttonStyle="claim_button"
-                            onClickAction={() => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
+                            onClickAction={async () => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
                             isInactive={!isActiveClaim}
                         />
                     )}

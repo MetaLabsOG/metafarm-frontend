@@ -1,8 +1,8 @@
 import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useStoreMap, useUnit } from 'effector-react';
 import { useQuery } from 'react-query';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore TODO: type definitions for contract packages?... damn seems bad...
+
+// @ts-expect-error TODO: type definitions for contract packages?... damn seems bad...
 import { backend, reach } from '@metalabsog/crowdsale';
 import { BigNumberish } from '@ethersproject/bignumber';
 
@@ -32,7 +32,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
 
     const { ctc, state } = contract;
 
-    const optInAndWhitelist = useCallback(async () => {
+    const optInAndInclude = useCallback(async () => {
         setOptInState('transactions');
         await optIn();
         setOptInState('whitelisting');
@@ -80,7 +80,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <InfoHeader>YOU ARE WHITELISTED!</InfoHeader>
                 <h4 style={{ marginBottom: '20px' }}>Opt into META token and the token sale app to buy META!</h4>
-                <Button onClick={optInAndWhitelist} isActive={true}>
+                <Button onClick={optInAndInclude} isActive={true}>
                     OPT IN
                 </Button>
             </div>
@@ -120,7 +120,9 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
                 type="number"
                 className="tokenInput"
                 placeholder={'10'}
-                onChange={(e) => setTokenAmountValidated(BigInt(parseInt(e.target.value)))}
+                onChange={(e) => {
+                    setTokenAmountValidated(BigInt(Number.parseInt(e.target.value)));
+                }}
                 // TODO: remove this conversion when adding proper display with decimals
                 value={unsafeFromBigint(tokenAmount)}
             />
@@ -128,7 +130,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
             <h4 style={{ marginTop: '30px' }}>
                 <>microALGOs to pay: {algoPrice(tokenAmount)}</>
             </h4>
-            <Button onClick={() => buy(tokenAmount)} isActive={true}>
+            <Button onClick={async () => buy(tokenAmount)} isActive={true}>
                 BUY META
             </Button>
         </div>
@@ -137,31 +139,31 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
 
 export const Crowdsale = (): ReactElement => {
     const account = useUnit($account);
-    const { data, isError, isSuccess } = useQuery(['contracts', 'crowdsale'], () => getContracts('crowdsale'));
+    const { data, isError, isSuccess } = useQuery(['contracts', 'crowdsale'], async () => getContracts('crowdsale'));
 
     const setContractInfosEvent = useUnit(setContractInfos);
 
     useEffect(() => {
-        if (isSuccess && data instanceof Array) {
+        if (isSuccess && Array.isArray(data)) {
             const contracts = data.sort((a: any, b: any) => b.deployed_timestamp - a.deployed_timestamp).slice(0, 1);
             // TODO(flyingleafe) pls fix
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-expect-error
             setContractInfosEvent(contracts);
         }
     }, [data, isError, isSuccess]);
 
-    const contract = useStoreMap($contracts, (ls: Contract<'crowdsale'>[]) => ls[0]);
+    const contract = useStoreMap($contracts, (ls: Array<Contract<'crowdsale'>>) => ls[0]);
 
     if (!account) {
         return <InfoHeader>PLEASE, CONNECT THE WALLET.</InfoHeader>;
-    } else if (contract === undefined) {
+    }
+    if (contract === undefined) {
         return <InfoHeader>SALE NOT STARTED, COMING SOON!</InfoHeader>;
     }
 
     if (!contract.info.metadata.whitelist.includes(account.networkAccount.addr)) {
         return <InfoHeader>SORRY, YOU ARE NOT IN THE WHITELIST</InfoHeader>;
-    } else {
-        return <CrowdsaleInner account={account} contract={contract} />;
     }
+    return <CrowdsaleInner account={account} contract={contract} />;
 };

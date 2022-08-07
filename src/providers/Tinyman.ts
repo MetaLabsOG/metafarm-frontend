@@ -5,7 +5,7 @@ import { max, min } from 'ramda';
 import { AppId, AssetId } from '../common/store';
 import TINYMAN_ASC from './tinyman_asc.json';
 
-// without bothering the backend all the time (which does algoindexer queries anyway).
+// Without bothering the backend all the time (which does algoindexer queries anyway).
 type VariableDef = {
     name: string;
     type: string;
@@ -151,7 +151,7 @@ export function prepareMintTransactions({
     sender,
     suggestedParams,
 }: MintTxArgs): MaybeSignedTx[] {
-    // to ensure that a1 is not algo
+    // To ensure that a1 is not algo
     if (a1 < a2) {
         const a = a2;
         a2 = a1;
@@ -235,7 +235,7 @@ function signWithLogicSig(lsig: algosdk.LogicSigAccount, txns: algosdk.Transacti
 /**
  * Variable encoding used by Tinyman contracts
  */
-function encodeVal(value: number, type: string): Buffer {
+function encodeValue(value: number, type: string): Buffer {
     if (type !== 'int') {
         throw new Error('tinymanEncodeVal: only int variables are supported');
     }
@@ -271,7 +271,7 @@ export function getProgram(definition: ProgramDef, variables: Record<string, num
 
         const name = v.name.slice('TMPL_'.length).toLowerCase();
         const value = variables[name];
-        const encoded = encodeVal(value, v.type);
+        const encoded = encodeValue(value, v.type);
         encoded.copy(buf, bufIx);
         bufIx += encoded.length;
     }

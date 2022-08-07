@@ -31,9 +31,9 @@ const MenuItems = () => {
             <MenuItem to="/zap">zap</MenuItem>
             <MenuItem to="/farm">farm</MenuItem>
             <MenuItem to="/stake">stake</MenuItem>
-            {/*<MenuItem to="/fomo">fomo3d</MenuItem>*/}
+            {/* <MenuItem to="/fomo">fomo3d</MenuItem> */}
             <MenuItem to="/meta-dao">nft</MenuItem>
-            {/*<MenuItem to="/tokensale">tokensale</MenuItem>*/}
+            {/* <MenuItem to="/tokensale">tokensale</MenuItem> */}
         </>
     );
 };
@@ -72,7 +72,13 @@ export const Menu = () => {
     const [isBurgerOpen, setIsBurgerOpen] = useState(false);
 
     useEffect(() => {
-        window.addEventListener('click', () => isBurgerOpen && setIsBurgerOpen(!isBurgerOpen), { once: true });
+        window.addEventListener(
+            'click',
+            () => {
+                isBurgerOpen && setIsBurgerOpen(!isBurgerOpen);
+            },
+            { once: true }
+        );
         window.addEventListener(
             'keydown',
             (e) => {
@@ -91,7 +97,14 @@ export const Menu = () => {
                     <MenuItem to="/">
                         <Logo src={logo} alt="logo" height="40px" />
                     </MenuItem>
-                    <Burger onClick={() => setIsBurgerOpen(!isBurgerOpen)} src={burger} alt="logo" height="20px" />
+                    <Burger
+                        onClick={() => {
+                            setIsBurgerOpen(!isBurgerOpen);
+                        }}
+                        src={burger}
+                        alt="logo"
+                        height="20px"
+                    />
                     <MenuItemsContainer>
                         <MenuItems />
                     </MenuItemsContainer>

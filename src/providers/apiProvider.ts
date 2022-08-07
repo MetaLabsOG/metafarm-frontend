@@ -17,12 +17,12 @@ export type TotalCost = {
     cost: cost;
 };
 
-export function getTotalCost(address: string, weeks = 6): Promise<TotalCost[]> {
+export async function getTotalCost(address: string, weeks = 6): Promise<TotalCost[]> {
     return instance
         .get<TotalCost[]>(`total_cost/${address}`, { params: { weeks_count: weeks } })
         .then(({ data }) => data)
-        .catch((err) => {
-            console.log('ERR', err);
+        .catch((error) => {
+            console.log('ERR', error);
             return [];
         });
 }
@@ -54,12 +54,12 @@ export type TinymanPool = {
     annual_percentage_rate: number;
 };
 
-export function getAssets(address: string): Promise<Asset[]> {
+export async function getAssets(address: string): Promise<Asset[]> {
     return instance
         .get<Asset[]>(`wallet_assets/${address}`)
         .then(({ data }) => data)
-        .catch((err) => {
-            console.log('ERR', err);
+        .catch((error) => {
+            console.log('ERR', error);
             return [];
         });
 }
@@ -80,8 +80,8 @@ export async function getWalletNFTs(wallet: string): Promise<WalletNFT[]> {
     return instance
         .get<WalletNFT[]>(`wallet_nfts/${wallet}`)
         .then(({ data }) => data)
-        .catch((err) => {
-            console.log('ERR', err);
+        .catch((error) => {
+            console.log('ERR', error);
             return [];
         });
 }
@@ -91,8 +91,8 @@ export async function getContracts(type: string): Promise<JsonWithBignum> {
     return instance
         .get<Json>(`/contracts?type=${type}`)
         .then(({ data }) => resolveBignums(data))
-        .catch((err) => {
-            console.log('ERR', err);
+        .catch((error) => {
+            console.log('ERR', error);
             return null;
         });
 }
@@ -128,7 +128,7 @@ export const deployContractToBackend = async (
     dex: DexProvider
 ) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
+    // @ts-expect-error
     const contractVersion = packages.dependencies['@metalabsog/' + contractType] as string;
     if (!contractVersion) {
         throw new Error('Wrong contract type:' + contractType);
@@ -139,7 +139,7 @@ export const deployContractToBackend = async (
         version: contractVersion,
         description: farmName,
         metadata: {
-            dex: dex,
+            dex,
         },
     };
     try {
@@ -147,9 +147,9 @@ export const deployContractToBackend = async (
         return true;
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            console.error('error message: ', error.message);
+            console.error('error message:', error.message);
         } else {
-            console.error('unexpected error: ', error);
+            console.error('unexpected error:', error);
         }
         return false;
     }
@@ -168,5 +168,5 @@ export const getTinymanPools = nonConcurrent(async (limit: number, search = ''):
     }
     const poolsResponse = await fetch(tinymanUrl);
     const pools = await poolsResponse.json();
-    return pools['results'];
+    return pools.results;
 });

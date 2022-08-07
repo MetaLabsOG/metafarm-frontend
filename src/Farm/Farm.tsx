@@ -8,7 +8,7 @@ import { $sortedFarmPools } from './store';
 export const Farm = createComponent($sortedFarmPools, (_props, state) => (
     <FarmContainer>
         <Balance kind={'farm' as FarmType} />
-        {/*<PoolCreateModal />*/}
+        {/* <PoolCreateModal /> */}
         <PoolList type="farm" pools={state} />
     </FarmContainer>
 ));

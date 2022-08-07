@@ -55,11 +55,11 @@ export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<an
     useEffect(() => {
         if (!isNil(toastIds[action])) {
             api.finally.watch(({ status }: { status: string }) => {
-                const toastId = toastIds[action] as Id;
+                const toastId = toastIds[action]!;
                 const type = status === 'done' ? 'success' : 'error';
                 toast.update(toastId, {
                     render: <Notification action={action} status={status} text={notificationText} />,
-                    type: type,
+                    type,
                     icon: NOTIFICATION_ICONS[type],
                     isLoading: false,
                     autoClose: 5000,
@@ -100,7 +100,7 @@ const Alert = ({ text, link }: { text: string; link?: string }) => {
 
 export const notify = (text: string, type: TypeOptions, link?: string) => {
     toast(<Alert text={text} link={link} />, {
-        type: type,
+        type,
         icon: NOTIFICATION_ICONS[type],
         isLoading: false,
         autoClose: 5000,

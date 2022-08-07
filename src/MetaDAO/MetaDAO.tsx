@@ -21,12 +21,12 @@ import { AssetsChart } from './AssetsChart';
 import { MetaTreasuryChart } from './MetaTreasuryChart';
 
 export const MetaDAO = () => {
-    const totalCostsQuery = useQuery(['totalCost', METAWALLET], () => getTotalCost(METAWALLET));
+    const totalCostsQuery = useQuery(['totalCost', METAWALLET], async () => getTotalCost(METAWALLET));
     const dataset = totalCostsQuery.data ?? [];
 
     return (
         <MetaDAOContainer>
-            {dataset.length ? (
+            {dataset.length > 0 ? (
                 <>
                     <img alt="Metapunks" width="100%" src={metapunks_banner} />
                     <div
@@ -56,9 +56,7 @@ export const MetaDAO = () => {
                         rel="noreferrer"
                     >
                         <Button
-                            onClick={() => {
-                                return;
-                            }}
+                            onClick={() => {}}
                             buttonText={'JOIN METAPUNKS'}
                             style={{
                                 width: '300px',

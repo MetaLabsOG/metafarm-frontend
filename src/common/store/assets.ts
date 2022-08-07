@@ -22,7 +22,7 @@ function getBalancesFromAccountInfo(accountInfo: Record<string, any> | null): Re
     const accAssets = accountInfo.assets || [];
     return accAssets.reduce(
         (balances: Record<AssetId, Amount>, asset: any) => {
-            balances[asset['asset-id']] = asset['amount'];
+            balances[asset['asset-id']] = asset.amount;
             return balances;
         },
         { 0: accountInfo.amount }
@@ -77,7 +77,7 @@ split({
     },
 });
 
-// fetch asset info from algod on asset registration
+// Fetch asset info from algod on asset registration
 sample({
     clock: registerAsset,
     target: queryAsset,
@@ -92,7 +92,7 @@ sample({
 export const fetchAsset = async (id: AssetId): Promise<Asset> => {
     const saved = await fetchStore($assets.map((assets) => assets.get(id, null)));
     if (saved) return saved;
-    else return await fetchAssetFx(id);
+    return fetchAssetFx(id);
 };
 
 // =================================================================
@@ -124,14 +124,16 @@ export const $algoUsdPrice = restore(fetchAlgoPriceFx.doneData, null);
 export const fetchAllPricesFx = createEffect(async () => {
     console.log('fetching prices...');
     return fetchAlgoPriceFx()
-        .then(() => console.log('prices fetched'))
+        .then(() => {
+            console.log('prices fetched');
+        })
         .catch(() => {
             console.log('failed to fetch');
         });
 });
 
-// re-fetch prices once in say, 1 minute
-void doEachTick(60000, fetchAllPricesFx);
+// Re-fetch prices once in say, 1 minute
+void doEachTick(60_000, fetchAllPricesFx);
 
 export const $pricedAlgo: Store<Priced<Asset> | null> = combine(
     $assets.map((as) => as.get(0, ALGO_ASSET)),

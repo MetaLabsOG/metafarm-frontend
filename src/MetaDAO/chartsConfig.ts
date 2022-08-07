@@ -45,9 +45,9 @@ export const metaTreasuryChartOptions = {
                 borderColor: 'white',
             },
             ticks: {
-                callback: function (value: string | number) {
-                    if (typeof value == 'string') {
-                        return parseFloat(value);
+                callback(value: string | number) {
+                    if (typeof value === 'string') {
+                        return Number.parseFloat(value);
                     }
                     return Math.floor(value / 1000);
                 },
@@ -83,20 +83,20 @@ export const metaTreasuryChartOptions = {
             footerColor: 'black',
             footerFont: { family: 'Korona One', weight: 'bold', size: 14 },
             callbacks: {
-                title: function (context: any[]) {
-                    const indexPrevPrice = context[0].parsed.x - 1;
-                    if (indexPrevPrice >= 0) {
-                        const prevPrice = context[0].dataset.data[indexPrevPrice];
-                        const currentPrice = context[0].dataset.data[indexPrevPrice + 1];
-                        return `${Math.floor(((currentPrice - prevPrice) / currentPrice) * 100)}%`;
+                title(context: any[]) {
+                    const indexPreviousPrice = context[0].parsed.x - 1;
+                    if (indexPreviousPrice >= 0) {
+                        const previousPrice = context[0].dataset.data[indexPreviousPrice];
+                        const currentPrice = context[0].dataset.data[indexPreviousPrice + 1];
+                        return `${Math.floor(((currentPrice - previousPrice) / currentPrice) * 100)}%`;
                     }
 
                     return `0%`;
                 },
-                footer: function (context: any[]) {
+                footer(context: any[]) {
                     return `${context[0].formattedValue}$`;
                 },
-                label: function () {
+                label() {
                     return '';
                 },
             },

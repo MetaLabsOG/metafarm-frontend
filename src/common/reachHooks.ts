@@ -32,7 +32,7 @@ export const useReachContract = (
 
     // TODO: `initial` view should actually be only fetched once
     const refreshState = useCallback(async (ctc: Contract, account: Account) => {
-        const getView = (name: string, args: string[]) =>
+        const getView = async (name: string, args: string[]) =>
             (ctc.views[name] as ViewVal)(...args)
                 .then(maybeToNullable)
                 .then(convertBns);
@@ -46,7 +46,9 @@ export const useReachContract = (
         setState(state);
     }, []);
 
-    useEffect(() => setCtc(getCtc()), [getCtc]);
+    useEffect(() => {
+        setCtc(getCtc());
+    }, [getCtc]);
 
     useEffect(() => {
         if (ctc !== undefined) {
@@ -57,7 +59,7 @@ export const useReachContract = (
             // which triggers state refresh?)
             if (settings.launchEventMonitors) {
                 for (const eventStream of Object.values(ctc.events)) {
-                    eventStream.monitor((_: any) => refreshState(ctc, account));
+                    eventStream.monitor(async (_: any) => refreshState(ctc, account));
                 }
             }
         }
@@ -66,7 +68,7 @@ export const useReachContract = (
     return {
         ctc,
         state,
-        reload: () => {
+        reload() {
             if (ctc !== undefined) {
                 refreshState(ctc, account);
             }
@@ -84,7 +86,7 @@ export const useContractOptin = (reach: ReachStdlib, account: Account, contractI
         const tokensOptedIn = tokens.map((t: number) => {
             return accAssets.find((asset: any) => t === asset['asset-id']) !== undefined;
         });
-        return appOptedIn && tokensOptedIn.every((v) => v);
+        return appOptedIn && tokensOptedIn.every(Boolean);
     }, [account, contractId, tokens]);
 
     const optIn = useCallback(async () => {
@@ -109,7 +111,9 @@ export const useTimer = (initialSeconds: number) => {
                 setSeconds((seconds) => Math.max(0, seconds - 1));
             }, 1000);
         }
-        return () => clearTimeout(timeout);
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [seconds]);
 
     useEffect(() => {

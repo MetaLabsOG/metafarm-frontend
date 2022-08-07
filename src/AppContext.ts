@@ -9,7 +9,7 @@ export const reach: ReachStdlib = loadStdlibShimmed(process.env);
 export const reachDefaultProvider: Provider = makeProviderByEnv(process.env);
 
 export const algod: algosdk.Algodv2 = reachDefaultProvider.algodClient;
-export const indexer: algosdk.Indexer = reachDefaultProvider.indexer;
+export const { indexer } = reachDefaultProvider;
 
 export const METAWALLET = 'METAWEJ6MAPBIZBKZBX2RTGVEG4SFTB5BRJRKL3UYVXA6TT5YVWUAXV6PU';
 
@@ -20,23 +20,23 @@ export const ALGONET: NetworkName = (process.env.ALGO_NETWORK as NetworkName) ||
 console.log(ALGONET);
 
 const META_TOKEN_IDS = {
-    TestNet: 85951079,
-    MainNet: 712012773,
+    TestNet: 85_951_079,
+    MainNet: 712_012_773,
 };
 
 const USDC_TOKEN_IDS = {
-    TestNet: 10458941,
-    MainNet: 31566704,
+    TestNet: 10_458_941,
+    MainNet: 31_566_704,
 };
 
 const USDT_TOKEN_IDS = {
-    TestNet: 94115664,
-    MainNet: 312769,
+    TestNet: 94_115_664,
+    MainNet: 312_769,
 };
 
 const GOBTC_TOKEN_IDS = {
-    TestNet: 19386116,
-    MainNet: 386192725,
+    TestNet: 19_386_116,
+    MainNet: 386_192_725,
 };
 
 export const GOBTC_TOKEN_ID = GOBTC_TOKEN_IDS[ALGONET];

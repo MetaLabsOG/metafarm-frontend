@@ -25,7 +25,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
 
     const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
     if (currentBlock === 0 || !contract.state || !is_info_loaded || !pricedAlgo) {
-        // console.log('WHY LOADING?', type, currentBlock, contract.state, lpTokenInfo, rewardTokenInfo, stakingTokenInfo);
+        // Console.log('WHY LOADING?', type, currentBlock, contract.state, lpTokenInfo, rewardTokenInfo, stakingTokenInfo);
         return (
             <PoolContainer>
                 <PoolLoadingAnimation src={logo} style={{ opacity: '0.5' }} width="45px" height="45px" />
@@ -35,7 +35,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
 
     const poolState = getPoolState(currentBlock, contract.state.initial);
 
-    const isSafari = navigator.userAgent.toLowerCase().indexOf('safari') !== -1;
+    const isSafari = navigator.userAgent.toLowerCase().includes('safari');
 
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
         return (
@@ -47,7 +47,9 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                         backfaceVisibility: 'hidden',
                         transform: window.innerWidth <= 1120 && isOpen && !isSafari ? 'rotateY(180deg)' : '',
                     }}
-                    onClick={() => setIsOpen(!isOpen && contract.ctc != null)}
+                    onClick={() => {
+                        setIsOpen(!isOpen && contract.ctc != null);
+                    }}
                 >
                     <PoolInfo
                         isOpen={isOpen}
