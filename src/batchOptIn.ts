@@ -1,11 +1,9 @@
-import buffer from 'buffer';
+import { Buffer } from 'buffer';
 import algosdk, { IntDecoding, waitForConfirmation } from 'algosdk';
 import { ALGONET, TESTNET } from './AppContext';
 import { withAlgodEncoding } from './common/lib';
 import { AssetId } from './common/store';
 import { Address, ReachStdlib } from './types';
-
-const { Buffer } = buffer;
 
 /**
  * Opt-ins to a few asaIds in one go.

@@ -20,8 +20,8 @@ export function logFarmActionData(
     rewardAsset: Priced<Asset> | null = null,
     error: string | null = null
 ) {
-    const asset1 = lpTokenInfo != null && 'asset1' in lpTokenInfo ? lpTokenInfo.asset1 : null;
-    const asset2 = lpTokenInfo != null && 'asset2' in lpTokenInfo ? lpTokenInfo.asset2 : null;
+    const asset1 = lpTokenInfo !== null && 'asset1' in lpTokenInfo ? lpTokenInfo.asset1 : null;
+    const asset2 = lpTokenInfo !== null && 'asset2' in lpTokenInfo ? lpTokenInfo.asset2 : null;
 
     const data = {
         message: '[' + action.toUpperCase() + ']',

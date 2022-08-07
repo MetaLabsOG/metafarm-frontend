@@ -1,5 +1,6 @@
 // These are basically rewrites of the Python Tinyman SDK library, so that we can fetch token prices from there
 
+import { Buffer } from 'buffer';
 import algosdk from 'algosdk';
 import { max, min } from 'ramda';
 import { AppId, AssetId } from '../common/store';
@@ -54,7 +55,7 @@ export type MaybeSignedTx = {
 };
 
 function toUint8Array(s: string): Uint8Array {
-    return new Uint8Array(Buffer.from(s, 'utf-8'));
+    return new Uint8Array(Buffer.from(s, 'utf8'));
 }
 
 export function getPoolLogicSig(a1: AssetId, a2: AssetId, validatorAppId: AppId): algosdk.LogicSigAccount {

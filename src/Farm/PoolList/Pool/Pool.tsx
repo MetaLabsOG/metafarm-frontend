@@ -48,7 +48,7 @@ export function Pool({ type, contract }: { type: FarmType; contract: Contract<Fa
                         transform: window.innerWidth <= 1120 && isOpen && !isSafari ? 'rotateY(180deg)' : '',
                     }}
                     onClick={() => {
-                        setIsOpen(!isOpen && contract.ctc != null);
+                        setIsOpen(!isOpen && contract.ctc !== null);
                     }}
                 >
                     <PoolInfo
