@@ -2,6 +2,7 @@ import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Effect } from 'effector';
 import { AllDefined } from '../../types';
 
+// TODO move it to common types, it's not only for store
 export type AssetId = number;
 export type AppId = number;
 

@@ -10,7 +10,7 @@ import { notify, ToastTypes, useToasts } from '../Notification';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
 import { logFarmActionData } from '../../logEvent';
 import Confetti from '../Confetti/Confetti';
-import { batchOptIn, checkOptIn } from '../../batchOptIn.mjs';
+import { batchOptIn, checkOptIn } from '../../batchOptIn';
 import { reach } from '../../AppContext';
 import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
@@ -107,7 +107,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 await sleep(3000);
             }
             try {
-                const isTokenOptIn = await checkOptIn(account?.networkAccount.addr, optInId);
+                const isTokenOptIn = account === null ? false : await checkOptIn(account.networkAccount.addr, optInId);
                 if (account && !isTokenOptIn) {
                     await batchOptIn(reach, account.networkAccount.addr, [Number(optInId)], true);
                 }
