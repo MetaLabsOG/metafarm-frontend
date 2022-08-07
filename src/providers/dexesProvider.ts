@@ -1,7 +1,7 @@
+import { Buffer } from 'buffer';
 import algosdk from 'algosdk';
 import pactsdk from '@pactfi/pactsdk';
 import { max, min } from 'ramda';
-import { Buffer } from 'buffer';
 
 import { ALGONET, MAINNET, TESTNET, algod } from '../AppContext';
 import { AppId, Asset, AssetId, Amount } from '../common/store/types';

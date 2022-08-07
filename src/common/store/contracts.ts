@@ -3,8 +3,8 @@ import { combine, createEffect, createEvent, createStore, sample, Store, Event, 
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
 import { algod } from '../../AppContext';
-import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { maybeToNullable } from '../lib';
+import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
 

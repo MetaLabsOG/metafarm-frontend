@@ -1,18 +1,18 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
-import { LPTokenInfo } from '../../providers/dexesProvider';
 import { useStore, useUnit } from 'effector-react';
+import { Effect } from 'effector';
+import { BigNumberish } from '@ethersproject/bignumber';
+import { LPTokenInfo } from '../../providers/dexesProvider';
 import { $account, Asset, Priced } from '../../common/store';
 import { fromSmallestUnits, getSmallestUnits, sleep } from '../../common/lib';
-import { Effect } from 'effector';
 import { notify, ToastTypes, useToasts } from '../Notification';
-import { BigNumberish } from '@ethersproject/bignumber';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
 import { logFarmActionData } from '../../logEvent';
 import Confetti from '../Confetti/Confetti';
 import { batchOptIn, checkOptIn } from '../../batchOptIn.mjs';
 import { reach } from '../../AppContext';
+import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;

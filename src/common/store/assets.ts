@@ -2,11 +2,11 @@ import { Map } from 'immutable';
 import { createEffect, createEvent, createStore, sample, combine, split, Store, restore } from 'effector';
 import { algod, USDT_TOKEN_ID } from '../../AppContext';
 import { getCoinRateFromBinance } from '../../providers/coinPriceProvider';
+import { makeDex, PactDex } from '../../providers/dexesProvider';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
 import { nonConcurrent, fetchStore } from './utils';
 import { doEachTick } from './time';
-import { makeDex, PactDex } from '../../providers/dexesProvider';
 
 // Main event to add the asset, adds it to all of the relevant stores
 export const registerAsset = createEvent<AssetId>();
