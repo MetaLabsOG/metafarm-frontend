@@ -60,20 +60,20 @@ const createFarm = async (
         notify('Please, choose LP pool.', 'warning');
         return false;
     }
-    if (isNaN(rewardToken.id)) {
+    if (Number.isNaN(rewardToken.id)) {
         notify('Please, choose reward token.', 'warning');
         return false;
     }
-    if (isNaN(beginBlock) || beginBlock >= endBlock) {
+    if (Number.isNaN(beginBlock) || beginBlock >= endBlock) {
         notify('Please, choose start time and farm duration.', 'warning');
         return false;
     }
-    if (isNaN(rewardPerBlock) || rewardPerBlock === 0) {
+    if (Number.isNaN(rewardPerBlock) || rewardPerBlock === 0) {
         notify('Please, enter reward amount.', 'warning');
         return false;
     }
 
-    if (!isNaN(rewardToken.balance) && rewardToken.balance < rewardTokenAmount) {
+    if (!Number.isNaN(rewardToken.balance) && rewardToken.balance < rewardTokenAmount) {
         notify('Reward tokens amount is less than the wallet balance.', 'warning');
         return false;
     }
@@ -170,11 +170,11 @@ function PoolInfo({
             {/*    value={minAPR + '%-' + maxAPR + '%'} */}
             {/* /> */}
             {/* <InfoRow title={'Current pool liquidity'} value={'110,000$'} /> */}
-            <InfoRow title="Start block" value={!isNaN(beginBlock) ? beginBlock : 0} />
-            <InfoRow title="End block" value={!isNaN(endBlock) ? endBlock : 0} />
+            <InfoRow title="Start block" value={!Number.isNaN(beginBlock) ? beginBlock : 0} />
+            <InfoRow title="End block" value={!Number.isNaN(endBlock) ? endBlock : 0} />
             <InfoRow
                 title="Reward per block"
-                value={!isNaN(rewardPerBlock) ? rewardPerBlock.toPrecision(6) + ' ' + rewardUnitName : 0}
+                value={!Number.isNaN(rewardPerBlock) ? rewardPerBlock.toPrecision(6) + ' ' + rewardUnitName : 0}
             />
             <InfoRow title="Farm creation fee" value={farmCreationFee} />
         </InfoPanel>

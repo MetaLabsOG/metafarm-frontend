@@ -82,7 +82,13 @@ function App() {
     }, [farmsFetch]);
 
     useEffect(() => {
-        if (!hasTestnetModalOpened && account && !isNaN(algoBalance) && algoBalance === 0 && ALGONET === TESTNET) {
+        if (
+            !hasTestnetModalOpened &&
+            account &&
+            !Number.isNaN(algoBalance) &&
+            algoBalance === 0 &&
+            ALGONET === TESTNET
+        ) {
             openTestnetModal();
             setHasTestnetModalOpened(true);
         }

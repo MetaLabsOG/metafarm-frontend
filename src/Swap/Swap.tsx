@@ -184,7 +184,7 @@ export async function runTransactions(
         return null;
     }
 
-    if (token1Balance !== undefined && (isNaN(token1Balance) || Number(token1Amount) > token1Balance)) {
+    if (token1Balance !== undefined && (Number.isNaN(token1Balance) || Number(token1Amount) > token1Balance)) {
         notify('Tokens amount below the wallet balance.', 'warning');
         return null;
     }

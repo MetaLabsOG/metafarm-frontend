@@ -51,6 +51,8 @@ module.exports = {
         ],
         // It is deprecated for TypeScript 4+
         '@typescript-eslint/no-implicit-any-catch': 'off',
+        // Very arguable, not sure if everyone will like it
+        'no-negated-condition': 'off',
     },
     plugins: ['effector'],
     extends: [

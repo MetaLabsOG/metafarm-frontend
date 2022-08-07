@@ -267,7 +267,7 @@ export const fromSmallestUnits = (token: Asset, amount: Amount | null): number =
 };
 
 export const getSmallestUnits = (token: Asset, amount: number | null): Amount => {
-    if (amount === null || isNaN(amount)) {
+    if (amount === null || Number.isNaN(amount)) {
         return BigInt(0);
     }
 

@@ -30,7 +30,7 @@ const checkValidInput = (input: string, token: LPTokenInfo | Priced<Asset>, toke
         return true;
     }
 
-    if (isNaN(Number(input))) {
+    if (Number.isNaN(Number(input))) {
         return false;
     }
 
@@ -83,7 +83,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
         if (!isActive) {
             return;
         }
-        if (isNaN(Number(e.currentTarget.value))) {
+        if (Number.isNaN(Number(e.currentTarget.value))) {
             return;
         }
         setIsValidInput(checkValidInput(e.currentTarget.value, token, tokenMicroBalance));

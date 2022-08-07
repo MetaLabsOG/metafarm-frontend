@@ -76,12 +76,12 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                     placeholder="Enter amount"
                     value={inputData}
                     onChange={(e) => {
-                        if (isNaN(Number(e.target.value))) {
+                        if (Number.isNaN(Number(e.target.value))) {
                             return;
                         }
                         const isValidInput =
                             !e.target.value ||
-                            isNaN(selectedOption.balance) ||
+                            Number.isNaN(selectedOption.balance) ||
                             Number(e.target.value) <= selectedOption.balance;
                         setIsValidInput(isValidInput);
                         setInputData(e.target.value);
@@ -90,7 +90,7 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                 />
 
                 <div className="tokenBalance" style={isValidInput ? {} : { color: theme.red }}>
-                    Balance: {formatNumber(!isNaN(selectedOption.balance) ? selectedOption.balance : 0)}
+                    Balance: {formatNumber(!Number.isNaN(selectedOption.balance) ? selectedOption.balance : 0)}
                     {isValidInput ? '' : ' (Not enough)'}
                 </div>
                 {selectedOption.balance > 0 && (
