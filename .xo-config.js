@@ -33,14 +33,22 @@ module.exports = {
             'warn',
             'always',
             {
-                'ignoreConsecutiveComments': true,
-                'ignoreInlineComments': true,
-            }
+                ignoreConsecutiveComments: true,
+                ignoreInlineComments: true,
+            },
         ],
         // TODO: Causes problems with batchOptIn now, enable later
         'node/file-extension-in-import': 'off',
         // The rule itself is somewhat incorrect, can break code
         '@typescript-eslint/prefer-reduce-type-parameter': 'off',
+        // It seems that both have their place or maybe I just don't know how to easily change between them.
+        'react/function-component-definition': [
+            'warn',
+            {
+                namedComponents: ['function-declaration', 'arrow-function'],
+                unnamedComponents: 'arrow-function',
+            },
+        ],
     },
     plugins: ['effector'],
     extends: [
