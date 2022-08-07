@@ -17,7 +17,7 @@ const formatUnlockTime = (unlockTime: number) => {
 
 export function UnlockTimer({ unlockTimer }: { unlockTimer: number }) {
     if (unlockTimer <= 0) {
-        return <></>;
+        return null;
     }
 
     return (

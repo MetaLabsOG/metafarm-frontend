@@ -49,6 +49,8 @@ module.exports = {
                 unnamedComponents: 'arrow-function',
             },
         ],
+        // It is deprecated for TypeScript 4+
+        '@typescript-eslint/no-implicit-any-catch': 'off',
     },
     plugins: ['effector'],
     extends: [
