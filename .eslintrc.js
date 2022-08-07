@@ -1,41 +1,47 @@
 module.exports = {
     env: {
-        "browser": true,
-        "es2021": true
+        browser: true,
+        es2021: true,
     },
     extends: [
-        "eslint:recommended",
-        "plugin:react/recommended",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@typescript-eslint/recommended-requiring-type-checking",
-        "plugin:effector/recommended",
-        "plugin:effector/scope",
-        "plugin:effector/react",
-        "plugin:effector/future",
-        "plugin:react/jsx-runtime",
-        "plugin:prettier/recommended",
+        'eslint:recommended',
+        'plugin:react/recommended',
+        'plugin:@typescript-eslint/recommended',
+        'plugin:@typescript-eslint/recommended-requiring-type-checking',
+        'plugin:effector/recommended',
+        'plugin:effector/scope',
+        'plugin:effector/react',
+        'plugin:effector/future',
+        'plugin:react/jsx-runtime',
+        'plugin:prettier/recommended',
+        'plugin:import/recommended',
+        'plugin:import/typescript',
     ],
-    parser: "@typescript-eslint/parser",
+    parser: '@typescript-eslint/parser',
     parserOptions: {
-        project: ["tsconfig.json"],
+        project: ['tsconfig.json'],
         ecmaFeatures: {
-            jsx: true
+            jsx: true,
         },
-        ecmaVersion: "latest",
-        sourceType: "module"
+        ecmaVersion: 'latest',
+        sourceType: 'module',
     },
-    ignorePatterns: [".eslintrc.js"],
-    plugins: [
-        "react",
-        "@typescript-eslint",
-        "effector"
-    ],
+    ignorePatterns: ['.eslintrc.js'],
+    plugins: ['import', 'react', '@typescript-eslint', 'effector'],
     rules: {
-        "@typescript-eslint/no-unused-vars": ["warn", {
-            "argsIgnorePattern": '^_',
-            "varsIgnorePattern": '^_',
-            "caughtErrorsIgnorePattern": '^_',
-        }],
+        // Idk how to set resolver properly, and we have very simple config
+        'import/no-unresolved': 'off',
+        // Allow _ unused vars
+        '@typescript-eslint/no-unused-vars': [
+            'warn',
+            {
+                argsIgnorePattern: '^_',
+                varsIgnorePattern: '^_',
+                caughtErrorsIgnorePattern: '^_',
+            },
+        ],
+        // Warn, not error
+        '@typescript-eslint/no-empty-function': 'warn',
 
         // Additional useful rules which are not included in recommended
         'react/button-has-type': 'warn',
@@ -59,7 +65,7 @@ module.exports = {
 
         // Show warnings instead of errors because we have too much errors we can't fix right now
         // TODO: not show how it works and if works at all
-        "prettier/prettier": "warn",
+        'prettier/prettier': 'warn',
 
         // Redifine recommended-requiring-type-checking rules to be warnings
         '@typescript-eslint/await-thenable': 'warn',
@@ -79,5 +85,20 @@ module.exports = {
         '@typescript-eslint/restrict-plus-operands': 'warn',
         '@typescript-eslint/restrict-template-expressions': 'warn',
         '@typescript-eslint/unbound-method': 'warn',
-    }
-}
+    },
+    settings: {
+        settings: {
+            'import/parsers': {
+                '@typescript-eslint/parser': ['.ts', '.tsx'],
+            },
+            'import/resolver': {
+                typescript: {
+                    // Always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
+                    alwaysTryTypes: true,
+                    project: 'tsconfig.json',
+                },
+                node: true,
+            },
+        },
+    },
+};

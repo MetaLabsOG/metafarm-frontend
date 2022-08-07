@@ -1,7 +1,7 @@
 import { createEffect, createStore, sample, createEvent, Event, Store, restore, Effect } from 'effector';
+import hash from 'object-hash';
 import { sleep } from '../lib';
 import { AssetId, Asset } from './types';
-import hash from 'object-hash';
 
 export const assetId = (a: AssetId | Asset): number => (typeof a === 'number' ? a : a.id);
 

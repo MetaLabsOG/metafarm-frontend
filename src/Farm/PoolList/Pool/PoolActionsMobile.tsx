@@ -1,18 +1,18 @@
 import { FC } from 'react';
+import { useUnit } from 'effector-react';
+
 import { PoolActionsMobileContainer, TokenInfo, RewardsContainer, ButtonBackMobile, PoolInfoValue } from './styled';
 import arrowBack from '../../../imgs/arrow_back.svg';
-
-import { PoolActionsDesktopProps, getLPTokenAction } from './PoolActionsDesktop';
+import { Button } from '../../../Components/Button/Button';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
-import { isCompoundEnabled, runCompound } from './compound';
-import { useUnit } from 'effector-react';
 import { $account } from '../../../common/store';
+import { isCompoundEnabled, runCompound } from './compound';
 import { RewardValues, StakeValue } from './PoolInfoDesktop';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
 import { isLPTokenInfo } from './utils';
-import { Button } from '../../../Components/Button/Button';
+import { PoolActionsDesktopProps, getLPTokenAction } from './PoolActionsDesktop';
 
 export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     pricedAlgo,

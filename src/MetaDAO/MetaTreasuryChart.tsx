@@ -1,5 +1,7 @@
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip } from 'chart.js';
+import dayjs from 'dayjs';
+import { TotalCost } from '../providers/apiProvider';
 import {
     MetaTreasuryChartStyled,
     ChartTitle,
@@ -7,9 +9,7 @@ import {
     MetaTreasuryChartContainer,
     MetaTreasuryChartYTitle,
 } from './styled';
-import dayjs from 'dayjs';
 import { metaTreasuryChartOptions } from './chartsConfig';
-import { TotalCost } from '../providers/apiProvider';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip);
 

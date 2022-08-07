@@ -1,11 +1,11 @@
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { getAssets } from '../providers/apiProvider';
-import { METAWALLET } from '../AppContext';
 import { useQuery } from 'react-query';
 import { Pie } from 'react-chartjs-2';
+import { getAssets } from '../providers/apiProvider';
+import { METAWALLET } from '../AppContext';
+import { formatNumber } from '../common/lib';
 import { assetsChartOptions } from './chartsConfig';
 import { ChartTitle, AssetsChartStyled } from './styled';
-import { formatNumber } from '../common/lib';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 

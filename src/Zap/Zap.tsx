@@ -2,13 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
-import { ZapData } from './types';
-import { $account, $balances, fetchAsset } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { logEvent, logFarmActionData, LogName } from '../logEvent';
 import { useUnit } from 'effector-react';
+import { logEvent, logFarmActionData, LogName } from '../logEvent';
+import { $account, $balances, fetchAsset } from '../common/store';
 import { formatNumber, getOptions, QueryType, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
@@ -20,6 +19,7 @@ import { TokenOptionType } from '../Components/Select/types';
 import { makeDex, ZapQuote } from '../providers/dexesProvider';
 import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
+import { ZapData } from './types';
 
 const tinyman = makeDex('T2');
 

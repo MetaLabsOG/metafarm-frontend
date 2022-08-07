@@ -1,7 +1,7 @@
-import { FooterContainer, FooterItem, Logo, MenuItem } from './styled';
 import logo from '../imgs/logo.png';
 import { ALGONET } from '../AppContext';
 import { theme } from '../theme';
+import { FooterContainer, FooterItem, Logo, MenuItem } from './styled';
 
 export const Footer = () => {
     return (

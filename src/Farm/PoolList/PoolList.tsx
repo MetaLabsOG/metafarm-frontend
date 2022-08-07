@@ -1,6 +1,6 @@
-import { Pool } from './Pool';
-import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
 import { Contract, FarmType } from '../../common/store';
+import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
+import { Pool } from './Pool';
 
 export const POOL_COLUMN_WIDTH: Record<string, string> = {
     POOL: '300px',

@@ -1,7 +1,7 @@
 import { Event, createEvent, createStore, sample, Unit } from 'effector';
+import { interval } from 'patronum';
 import { indexer } from '../../AppContext';
 import { createTimeDeferredStore, nonConcurrent } from './utils';
-import { interval } from 'patronum';
 
 // Time store
 export const { $store: $networkTime, update: queryTimeUpdate } = createTimeDeferredStore<void, number>(

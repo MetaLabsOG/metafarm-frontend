@@ -1,4 +1,14 @@
+import { FC } from 'react';
+import ReactTooltip from 'react-tooltip';
 import { Asset, AssetId, ContractState, FarmType, Priced } from '../../../common/store';
+import { Arrow } from '../../../imgs/arrow';
+import { LPTokenInfo } from '../../../providers/dexesProvider';
+import pacman from '../../../imgs/pacman.gif';
+import { Account } from '../../../types';
+import { fromSmallestUnits } from '../../../common/lib';
+import info from '../../../imgs/info.svg';
+import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
+import { POOL_COLUMN_WIDTH } from '../PoolList';
 import {
     PoolInfoDesktopContainer,
     ArrowIconsWrapper,
@@ -7,19 +17,8 @@ import {
     RewardUSDValue,
     RewardTokenValue,
 } from './styled';
-import { Arrow } from '../../../imgs/arrow';
-import { algoRewardPerBlock, calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
-import pacman from '../../../imgs/pacman.gif';
-import { Account } from '../../../types';
-import { fromSmallestUnits } from '../../../common/lib';
-import { FC } from 'react';
-
-import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
-import { POOL_COLUMN_WIDTH } from '../PoolList';
 import { APRTypes } from './PoolInfo';
-import ReactTooltip from 'react-tooltip';
-import info from '../../../imgs/info.svg';
+import { algoRewardPerBlock, calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
 
 export interface PoolInfoDesktopProps {
     account: Account | null;

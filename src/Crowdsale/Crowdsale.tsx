@@ -4,17 +4,17 @@ import { useQuery } from 'react-query';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore TODO: type definitions for contract packages?... damn seems bad...
 import { backend, reach } from '@metalabsog/crowdsale';
+import { BigNumberish } from '@ethersproject/bignumber';
 
-import { Status } from '../Status';
+import { Status } from '../Status.js';
 import { getContracts, tokensaleWhitelist } from '../providers/apiProvider';
 import { useContractOptin } from '../common/reachHooks';
 import { InfoHeader } from '../common/styled';
 import { META_TOKEN_ID } from '../AppContext';
 import { $account, Amount, buildContractsStore, Contract } from '../common/store';
 import { Account, Backend } from '../types';
-import { Button } from './styled';
 import { unsafeFromBigint } from '../common/lib';
-import { BigNumberish } from '@ethersproject/bignumber';
+import { Button } from './styled';
 
 const { $contracts, setContractInfos } = buildContractsStore('crowdsale', backend as Backend);
 

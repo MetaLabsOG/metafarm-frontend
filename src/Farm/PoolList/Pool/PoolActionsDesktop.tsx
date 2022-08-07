@@ -1,20 +1,19 @@
 import { Dispatch, FC, SetStateAction } from 'react';
+import { useUnit } from 'effector-react';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
-
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { $account, Amount, AppId, Asset, ContractState, FarmType, Priced } from '../../../common/store';
 import { AllDefined } from '../../../types';
-import { useUnit } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { Button } from '../../../Components/Button/Button';
-import { isCompoundEnabled, runCompound } from './compound';
-import { UnlockTimer } from './UnlockTimer';
-import { onClickClaim } from './PoolActions';
-import { isLPTokenInfo } from './utils';
 import { algoexplorerContractLink } from '../../../common/lib';
 import { ALGONET, TESTNET } from '../../../AppContext';
 import { notify } from '../../../Components/Notification';
+import { isCompoundEnabled, runCompound } from './compound';
+import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
+import { UnlockTimer } from './UnlockTimer';
+import { onClickClaim } from './PoolActions';
+import { isLPTokenInfo } from './utils';
 
 export const getLPTokenAction = (lpToken: LPTokenInfo, openModal: () => void) => {
     if (lpToken.poolDex === 'T2') {

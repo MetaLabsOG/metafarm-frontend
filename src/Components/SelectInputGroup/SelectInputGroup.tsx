@@ -2,12 +2,12 @@ import { FC, useState } from 'react';
 import SelectSearch, { fuzzySearch } from 'react-select-search';
 import { renderOption, SelectType } from '../Select/Select';
 import { formatNumber } from '../../common/lib';
-import { SelectInputGroupProps } from './types';
 import '../Select/styled.css';
-import './styled.css';
 import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
+import { SelectInputGroupProps } from './types';
 import { theme } from '../../theme';
 import { MaxButton } from '../TokenInputWithButton/styled';
+import './styled.css';
 
 // TODO(DariaYakovleva): please check types, looks very suspicious
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

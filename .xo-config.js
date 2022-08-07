@@ -19,6 +19,8 @@ module.exports = {
                 extendDefaults: true,
             },
         ],
+        // Breaks something, seemingly webpack-related
+        'unicorn/prefer-node-protocol': 'off',
     },
     plugins: ['effector'],
     extends: [

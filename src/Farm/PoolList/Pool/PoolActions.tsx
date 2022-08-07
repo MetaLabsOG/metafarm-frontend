@@ -1,23 +1,23 @@
 import { Dispatch, SetStateAction } from 'react';
-import { useStore, useStoreMap } from 'effector-react';
+import { useStore, useStoreMap, useUnit } from 'effector-react';
+import { useModal } from 'react-hooks-use-modal';
+import { Account } from '@reach-sh/stdlib/ALGO';
 import { AllDefined } from '../../../types';
 import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { notify, ToastTypes, useToasts } from '../../../Components/Notification';
+import { ZapModal } from '../../../Zap/ZapModal';
+import { useTimer } from '../../../common/reachHooks';
+import { logFarmActionData } from '../../../logEvent';
+import { batchOptIn, checkOptIn } from '../../../batchOptIn.mjs';
+import { reach } from '../../../AppContext';
+import { fromSmallestUnits } from '../../../common/lib';
 
 import { isLPTokenInfo } from './utils';
 import { PoolState } from './types';
-import { notify, ToastTypes, useToasts } from '../../../Components/Notification';
-import { useModal } from 'react-hooks-use-modal';
 import { PoolActionsDesktop } from './PoolActionsDesktop';
 import { PoolActionsMobile } from './PoolActionsMobile';
-import { ZapModal } from '../../../Zap/ZapModal';
-import { fromSmallestUnits } from '../../../common/lib';
-import { useTimer } from '../../../common/reachHooks';
 import { calculateUnlockTimeinSecs } from './UnlockTimer';
-import { logFarmActionData } from '../../../logEvent';
-import { Account } from '@reach-sh/stdlib/ALGO';
-import { batchOptIn, checkOptIn } from '../../../batchOptIn.mjs';
-import { reach } from '../../../AppContext';
 
 export const onClickClaim = async (
     account: Account | null,

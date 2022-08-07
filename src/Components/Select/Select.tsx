@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 import SelectSearch, { fuzzySearch } from 'react-select-search';
 import { formatNumber } from '../../common/lib';
-import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
 import { getAssetLogoUrl, getDexName } from '../../Farm/PoolList/Pool/utils';
+import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
 import './styled.css';
 
 export enum SelectType {

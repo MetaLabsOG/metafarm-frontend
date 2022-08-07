@@ -1,11 +1,12 @@
 import { Map } from 'immutable';
 import { combine, createEffect, createEvent, createStore, sample, Store, Event, Effect } from 'effector';
-import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
+import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
+import { algod } from '../../AppContext';
+import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { maybeToNullable } from '../lib';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
-import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 
 // I'm sorry for this mess.... It can be done better I do believe.
 // In the end, it was not particularly necessary (I thought I would need more specific Reach

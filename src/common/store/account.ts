@@ -1,5 +1,5 @@
-import { Account } from '../../types';
 import { createEffect, createEvent, restore, sample } from 'effector';
+import { Account } from '../../types';
 import { algod } from '../../AppContext';
 
 export const setAccount = createEvent<Account | null>();

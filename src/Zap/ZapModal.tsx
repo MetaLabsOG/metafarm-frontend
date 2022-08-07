@@ -1,10 +1,8 @@
-import { loadZapData, ZapResult } from './Zap';
 import { useUnit } from 'effector-react';
-import { $account, $balances, refreshAccountInfo } from '../common/store';
 import React, { useEffect, useRef, useState } from 'react';
-import { getOptions, QueryType, runTransactions } from '../Swap/Swap';
-import { ZapData } from './types';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
+import { getOptions, QueryType, runTransactions } from '../Swap/Swap';
+import { $account, $balances, refreshAccountInfo } from '../common/store';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import { Heading2, ModalContainer, ModalTitle } from '../common/styled';
@@ -12,8 +10,9 @@ import { TokenOptionType } from '../Components/Select/types';
 import { TOKEN_OPTION } from '../Components/Select/Select';
 import { notify } from '../Components/Notification';
 import { algoexplorerTxLink } from '../common/lib';
-import { getTokenLink } from '../Farm/PoolList/Pool/utils';
 import { theme } from '../theme';
+import { loadZapData, ZapResult } from './Zap';
+import { ZapData } from './types';
 
 export function ZapModal({
     asset1_id,

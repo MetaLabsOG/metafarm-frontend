@@ -1,12 +1,12 @@
 import { createStore, createEffect, createEvent, combine, sample, Store } from 'effector';
 
-import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
-import { getSwapCostSomewhere } from '../../providers/dexesProvider';
 import { Map } from 'immutable';
-import { Asset, AssetId, Priced } from './types';
+import { getSwapCostSomewhere } from '../../providers/dexesProvider';
 import { META_TOKEN_ID } from '../../AppContext';
-import { nonConcurrent } from './utils';
 import { SLIPPAGE } from '../../Swap/Swap';
+import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
+import { Asset, AssetId, Priced } from './types';
+import { nonConcurrent } from './utils';
 
 export const fetchAssetPriceFx = createEffect(
     nonConcurrent(async (asset: Asset): Promise<number> => {

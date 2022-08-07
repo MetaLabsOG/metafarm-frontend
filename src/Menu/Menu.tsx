@@ -1,8 +1,13 @@
 import { useUnit, useStoreMap } from 'effector-react';
+import { useEffect, useState } from 'react';
 import logo from '../imgs/logo.png';
 import meta_logo from '../imgs/meta_token.svg';
 import algo_logo from '../imgs/algo_token.svg';
 import burger from '../imgs/burger.svg';
+import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
+import { ConnectWallet } from '../wallet/ConnectWallet';
+import { META_TOKEN_ID } from '../AppContext';
+import { getTokenLink } from '../Farm/PoolList/Pool/utils';
 import {
     MenuItem,
     MenuContainer,
@@ -16,11 +21,6 @@ import {
     MenuItemsBurger,
     ExchangeRatesBurger,
 } from './styled';
-import { ConnectWallet } from '../wallet/ConnectWallet';
-import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
-import { useEffect, useState } from 'react';
-import { META_TOKEN_ID } from '../AppContext';
-import { getTokenLink } from '../Farm/PoolList/Pool/utils';
 
 const formatPrice = (price: number | null): string => (price === null ? '0.00' : price.toFixed(2));
 

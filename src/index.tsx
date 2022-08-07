@@ -6,6 +6,10 @@ import { BrowserTracing } from '@sentry/tracing';
 
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
+import { useEffect, useState } from 'react';
+import { useModal } from 'react-hooks-use-modal';
+import { useStoreMap, useUnit } from 'effector-react';
+import { Flip, ToastContainer } from 'react-toastify';
 import GlobalStyle from './common/globalStyles';
 
 import { Menu } from './Menu';
@@ -23,14 +27,10 @@ import { Stake } from './Stake/Stake';
 
 import './css/index.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { useEffect, useState } from 'react';
 import { setPoolInfos } from './Farm/store';
 import { getContracts } from './providers/apiProvider';
 import { setDistributionPoolInfos } from './Stake/store';
 import { TestnetModal } from './TestnetModal';
-import { useModal } from 'react-hooks-use-modal';
-import { useStoreMap, useUnit } from 'effector-react';
-import { Flip, ToastContainer } from 'react-toastify';
 import { Footer } from './Menu/Footer';
 import { ALGONET, TESTNET } from './AppContext';
 import { notify } from './Components/Notification';
