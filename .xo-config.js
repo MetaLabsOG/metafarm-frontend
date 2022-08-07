@@ -1,6 +1,7 @@
 module.exports = {
     space: 'true',
     prettier: 'true',
+    webpack: 'true',
     rules: {
         // maybe good idea but don't want to bother
         'unicorn/filename-case': 'off',
