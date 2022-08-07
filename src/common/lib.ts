@@ -12,7 +12,7 @@ import algosdk, {
 import { BigNumber } from '@ethersproject/bignumber';
 import { Buffer } from 'buffer';
 import { Account, WalletTransaction, WalletTransactionGroup } from '../types';
-import { Amount, AppId, Asset, AssetId } from './store';
+import { Amount, AppId, Asset, AssetId } from './store/types';
 import { ALGONET, MAINNET, reach } from '../AppContext';
 import { uniq } from 'ramda';
 

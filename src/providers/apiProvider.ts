@@ -1,7 +1,7 @@
 import axios from 'axios';
 import packages from '../../package.json';
 import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
-import { AssetId, ContractType } from '../common/store';
+import { AssetId, ContractType } from '../common/store/types';
 import { ALGONET } from '../AppContext';
 import { nonConcurrent } from '../common/store/utils';
 import { DexProvider } from './dexesProvider';

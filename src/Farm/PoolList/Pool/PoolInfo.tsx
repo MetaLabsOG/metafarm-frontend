@@ -13,10 +13,11 @@ import {
 } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { DAY, fromSmallestUnits, HOUR, MINUTE, unsafeFromBigint } from '../../../common/lib';
-import { formatLPTokenName, getDexIcon, isLPTokenInfo } from './utils';
+import { formatLPTokenName, isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
 import { PoolInfoMobile } from './PoolInfoMobile';
+import { getDexIcon } from '../../utils';
 
 const blocksToText = (blocks: number, meanRoundDuration: number) => {
     const diffSecs = Math.abs(blocks) * meanRoundDuration;

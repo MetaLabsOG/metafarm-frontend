@@ -1,7 +1,8 @@
 import React, { FC } from 'react';
 import SelectSearch, { fuzzySearch } from 'react-select-search';
 import { formatNumber } from '../../common/lib';
-import { getAssetLogoUrl, getDexName } from '../../Farm/PoolList/Pool/utils';
+import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
+import { getDexName } from '../../Farm/utils';
 import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
 import './styled.css';
 

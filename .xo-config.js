@@ -21,6 +21,8 @@ module.exports = {
         ],
         // Breaks something, seemingly webpack-related
         'unicorn/prefer-node-protocol': 'off',
+        // Too strict
+        '@typescript-eslint/padding-line-between-statements': 'off'
     },
     plugins: ['effector'],
     extends: [
