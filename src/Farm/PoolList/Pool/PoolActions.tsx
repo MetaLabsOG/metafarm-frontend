@@ -9,7 +9,7 @@ import { notify, ToastTypes, useToasts } from '../../../Components/Notification'
 import { ZapModal } from '../../../Zap/ZapModal';
 import { useTimer } from '../../../common/reachHooks';
 import { logFarmActionData } from '../../../logEvent';
-import { batchOptIn, checkOptIn } from '../../../batchOptIn.mjs';
+import { batchOptIn, checkOptIn } from '../../../batchOptIn';
 import { reach } from '../../../AppContext';
 import { fromSmallestUnits } from '../../../common/lib';
 
@@ -29,7 +29,8 @@ export const onClickClaim = async (
     const amount = fromSmallestUnits(rewardTokenInfo, microAmount);
     logFarmActionData(account, 'CLAIM', amount, stakeTokenInfo, rewardTokenInfo);
     try {
-        const isTokenOptIn = await checkOptIn(account?.networkAccount.addr, rewardTokenInfo.id);
+        const isTokenOptIn =
+            account === null ? false : await checkOptIn(account.networkAccount.addr, rewardTokenInfo.id);
         if (account && !isTokenOptIn) {
             await batchOptIn(reach, account.networkAccount.addr, [Number(rewardTokenInfo.id)], true);
         }
