@@ -36,11 +36,11 @@ export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'http
 
 const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     0: 0, // ALGO
-    712_012_773: 85_951_079, // META
-    386_192_725: 19_386_116, // GoBTC
-    31_566_704: 10_458_941, // USDC
-    463_554_836: 70_283_957, // ALGF
-    792_313_023: 96_690_352, // XSOL
+    712012773: 85951079, // META
+    386192725: 19386116, // GoBTC
+    31566704: 10458941, // USDC
+    463554836: 70283957, // ALGF
+    792313023: 96690352, // XSOL
 };
 
 export const SLIPPAGE = 0.01;

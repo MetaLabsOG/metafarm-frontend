@@ -105,13 +105,13 @@ function parseBignumState<T extends ContractType>(
     type: T,
     bignumState: AllBignums<ContractState<T>>
 ): ContractState<T> {
-    return Object.keys(bignumState).reduce<ContractState<T>>((newState: ContractState<T>, k: string) => {
+    return Object.keys(bignumState).reduce((newState: ContractState<T>, k: string) => {
         const key = k as keyof ContractState<T>;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         newState[key] = parseView(type, key)(bignumState[key]);
         return newState;
-    }, {});
+    }, {} as ContractState<T>);
 }
 
 // Contracts store

@@ -44,6 +44,9 @@ module.exports = {
         // Warn, not error
         '@typescript-eslint/no-empty-function': 'warn',
 
+        // Enable
+        '@typescript-eslint/no-unnecessary-type-arguments': 'warn',
+
         // Additional useful rules which are not included in recommended
         'react/button-has-type': 'warn',
         'react/destructuring-assignment': 'warn',

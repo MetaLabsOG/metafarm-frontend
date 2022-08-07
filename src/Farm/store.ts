@@ -177,8 +177,10 @@ sample({
     target: getLPTokenInfoFx,
 });
 
+// TODO: change to effector.split or patronum.something
 $farmPools.watch((farms) => {
-    for (const s of farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null)) {
+    const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
+    for (const s of farmStates) {
         markTokenAsLP(s.initial.stakeToken);
         registerAsset(s.initial.stakeToken);
         registerPricedAsset(s.initial.rewardToken);
@@ -186,7 +188,8 @@ $farmPools.watch((farms) => {
 });
 
 $stakePools.watch((farms) => {
-    for (const s of farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null)) {
+    const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
+    for (const s of farmStates) {
         registerPricedAsset(s.initial.stakeToken);
         registerPricedAsset(s.initial.rewardToken);
     }

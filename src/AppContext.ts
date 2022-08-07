@@ -20,23 +20,23 @@ export const ALGONET: NetworkName = (process.env.ALGO_NETWORK as NetworkName) ||
 console.log(ALGONET);
 
 const META_TOKEN_IDS = {
-    TestNet: 85_951_079,
-    MainNet: 712_012_773,
+    TestNet: 85951079,
+    MainNet: 712012773,
 };
 
 const USDC_TOKEN_IDS = {
-    TestNet: 10_458_941,
-    MainNet: 31_566_704,
+    TestNet: 10458941,
+    MainNet: 31566704,
 };
 
 const USDT_TOKEN_IDS = {
-    TestNet: 94_115_664,
-    MainNet: 312_769,
+    TestNet: 94115664,
+    MainNet: 312769,
 };
 
 const GOBTC_TOKEN_IDS = {
-    TestNet: 19_386_116,
-    MainNet: 386_192_725,
+    TestNet: 19386116,
+    MainNet: 386192725,
 };
 
 export const GOBTC_TOKEN_ID = GOBTC_TOKEN_IDS[ALGONET];
