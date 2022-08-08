@@ -12,7 +12,13 @@ export const WalletInfo = styled.div`
 `;
 
 export const Header = styled.div`
-    font-size: 20px;
+    color: var(--green);
+    font-family: 'Montserrat';
+    font-size: 30px;
+
+    @media (max-width: 640px) {
+        font-size: 20px;
+    }
 `;
 
 export const Wallet = styled.a`
@@ -151,4 +157,25 @@ export const NFtPriceValue = styled.div`
 export const Fail = styled.div`
     margin: 0 auto;
     font-size: 20px;
+`;
+
+export const Subtext = styled.div`
+    color: var(--gray);
+    font-size: 16px;
+`;
+
+export const Features = styled.div`
+    display: flex;
+    flex-direction: row;
+    @media (max-width: 640px) {
+        flex-direction: column;
+    }
+`;
+
+export const FeatureBlock = styled.div`
+    width: 40%;
+    margin-right: 50px;
+    @media (max-width: 640px) {
+        width: 100%;
+    }
 `;
