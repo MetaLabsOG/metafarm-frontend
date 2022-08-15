@@ -712,6 +712,49 @@ export class TinymanDex extends Dex {
         return [group];
     }
 
+    async getAllRedeemTxs(sender: string | any): Promise<WalletTransactionGroup[]> {
+        const suggestedParams = await this.algod.getTransactionParams().do();
+
+        if (typeof sender === 'string') {
+            sender = await this.algod.accountInformation(sender).do();
+        }
+
+        const validatorLocalState = sender['apps-local-state'].filter((app: any) => app.id === this.validatorAppId);
+        if (validatorLocalState.length === 0) {
+            console.warn('No validator local state found!');
+            return [];
+        }
+
+        const st = validatorLocalState[0]['key-value'];
+        let txGroups: WalletTransactionGroup[] = [];
+
+        for (const { key, value } of st) {
+            const decoded = Buffer.from(key, 'base64');
+            const poolAddress = algosdk.encodeAddress(decoded.subarray(0, 32));
+            const assetId = decoded.readUint32BE(decoded.length - 4);
+            const assetAmount = value.uint;
+
+            const pool = await this.getPoolInfoByAddress(poolAddress);
+            const maybeTxs = Tinyman.prepareRedeemTransactions({
+                validatorAppId: this.validatorAppId,
+                a1: pool.asset1,
+                a2: pool.asset2,
+                lpTokenId: pool.liquidityAsset,
+                assetOutId: assetId,
+                assetOutAmount: assetAmount,
+                sender: sender.address,
+                suggestedParams,
+            });
+
+            const group = this.encodeMaybeTxs(maybeTxs);
+            group.usedApps = [this.validatorAppId];
+            group.usedAssets = [assetId];
+            txGroups = [...txGroups, group];
+        }
+
+        return txGroups;
+    }
+
     private encodeMaybeTxs(txs: Tinyman.MaybeSignedTx[]): WalletTransactionGroup {
         const firstTxID = txs[0].txn.txID();
         return {

@@ -24,7 +24,7 @@ import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGrou
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
-import { BestSwapQuote, makeDex, ZapQuote } from '../providers/dexesProvider';
+import { BestSwapQuote, makeDex, TinymanDex, ZapQuote } from '../providers/dexesProvider';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
@@ -45,7 +45,7 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
 
 export const SLIPPAGE = 0.01;
 
-const tinyman = makeDex('T2');
+const tinyman = makeDex('T2') as TinymanDex;
 
 export enum QueryType {
     swap,
@@ -193,7 +193,12 @@ export async function runTransactions(
         const address = account.networkAccount.addr;
         const { quote, txns } = await getTransactions(type, address, token1Id, token2Id, token1Amount);
         const txIds = await signAndPostTxnGroups(txns);
-        console.log('OK', txIds);
+        console.log('SWAP/ZAP OK', txIds);
+
+        // TODO: abstract post-redeems only for Tinyman in swap/zap functionality in dexesProvider
+        const redeemTxns = await tinyman.getAllRedeemTxs(address);
+        const redeemTxIds = await signAndPostTxnGroups(redeemTxns);
+
         refreshAccountInfo();
 
         logEvent(
@@ -203,7 +208,7 @@ export async function runTransactions(
                 asset1_id: token1Id,
                 asset2_id: token2Id,
                 amount: token1Amount,
-                txns: txIds.map(algoexplorerTxLink).join('\n'),
+                txns: [...txIds, ...redeemTxIds].map(algoexplorerTxLink).join('\n'),
             },
             type === QueryType.swap ? LogName.SWAP : LogName.ZAP
         );
