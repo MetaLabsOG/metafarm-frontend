@@ -10,13 +10,17 @@ import { $farmRewardTokens } from '../../store';
 import { $stakingTokens } from '../../../Stake/store';
 import logo from '../../../imgs/logo.png';
 import { getPoolState } from './utils';
+import { useModal } from '.store/react-hooks-use-modal-virtual-c2664bb5e8/package';
+import { ConnectWalletModal } from '../../../wallet/ConnectWalletModal';
 
 export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) => {
     const currentBlock = useUnit($networkTime);
     const pricedAlgo = useUnit($pricedAlgo);
     const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
     const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null)) ?? stakeTokenInfo;
-
+    const [ConnectWallet, openConnectWallet, closeConnectWallet, isConnectWalletOpen] = useModal('root', {
+        preventScroll: true,
+    });
     const [isOpen, setIsOpen] = useState(false);
 
     const queryTimeUpdateEvent = useUnit(queryTimeUpdate);
@@ -37,6 +41,14 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
 
     const isSafari = navigator.userAgent.toLowerCase().indexOf('safari') !== -1;
 
+    const onPoolClick = () => {
+        if (contract.ctc === null) {
+            openConnectWallet();
+            return;
+        }
+        setIsOpen(!isOpen);
+    };
+
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
         return (
             <PoolContainer
@@ -47,7 +59,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                         backfaceVisibility: 'hidden',
                         transform: window.innerWidth <= 1120 && isOpen && !isSafari ? 'rotateY(180deg)' : '',
                     }}
-                    onClick={() => setIsOpen(!isOpen && contract.ctc != null)}
+                    onClick={onPoolClick}
                 >
                     <PoolInfo
                         isOpen={isOpen}
@@ -80,6 +92,9 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
                         />
                     </div>
                 )}
+                <ConnectWallet>
+                    <ConnectWalletModal closeModal={closeConnectWallet} isModalOpen={isConnectWalletOpen} />
+                </ConnectWallet>
             </PoolContainer>
         );
     }

@@ -255,7 +255,7 @@ export const manualBatchOptIn = async (
     return signAndPostTxnGroups(txGroups);
 };
 
-export const fromSmallestUnits = (token: Asset, amount: Amount | null): number => {
+export const fromSmallestUnits = (token: { decimals: number }, amount: Amount | null): number => {
     if (amount === null) {
         return 0;
     }

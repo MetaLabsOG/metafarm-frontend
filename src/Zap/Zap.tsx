@@ -3,12 +3,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import 'react-select-search/style.css';
 import '../css/swap.css';
 import { ZapData } from './types';
-import { $account, $balances, fetchAsset } from '../common/store';
+import { $account, $balances, $pricedAssets, fetchAsset, registerPricedAsset } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { logEvent, logFarmActionData, LogName } from '../logEvent';
-import { useUnit } from 'effector-react';
+import { useStoreMap, useUnit } from 'effector-react';
 import { formatNumber, getOptions, QueryType, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
@@ -32,7 +32,8 @@ function zapQuoteToData(asset1_id: number, quote: ZapQuote): ZapData {
     const asset2_amount = assetsAreSwapped ? amountA : amountB;
     const lp_amount = fromSmallestUnits(quote.mint.lpToken, quote.mint.minimalLiquidityIssued);
     const pool_lp_id = quote.mint.lpToken.id;
-    return { asset1_amount, asset2_amount, lp_amount, pool_lp_id };
+    const pool_lp_decimals = quote.mint.lpToken.decimals;
+    return { asset1_amount, asset2_amount, lp_amount, pool_lp_id, pool_lp_decimals };
 }
 
 export async function loadZapData(
@@ -108,11 +109,13 @@ export function ZapResult({
     zap_data,
     token1,
     token2,
+    lpMicroBalance,
 }: {
     isLoading: boolean;
     zap_data: ZapData;
     token1: TokenOptionType;
     token2: TokenOptionType;
+    lpMicroBalance: bigint;
 }) {
     const lpTokens =
         `${formatNumber(zap_data.asset1_amount ?? 0)} ${token1.unitName}` +
@@ -128,6 +131,11 @@ export function ZapResult({
                 style={{ marginBottom: '5px' }}
             />
             <InfoRow title=" " value={lpTokens} valueStyle={{ fontSize: '14px' }} />
+            <InfoRow
+                title="Current LP balance"
+                value={fromSmallestUnits({ decimals: zap_data.pool_lp_decimals }, lpMicroBalance)}
+                valueStyle={{ fontSize: '14px' }}
+            />
             <InfoRow
                 title="LP ASA ID"
                 value={formatNumber(zap_data.pool_lp_id ?? 0)}
@@ -150,6 +158,7 @@ export function Zap() {
         asset2_amount: 0,
         lp_amount: 0,
         pool_lp_id: 0,
+        pool_lp_decimals: 0,
     });
 
     const [options, setOptions] = useState<TokenOptionType[]>([]);
@@ -263,7 +272,13 @@ export function Zap() {
                 />
             )}
             {(isLoading || showResult) && (
-                <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
+                <ZapResult
+                    isLoading={isLoading}
+                    zap_data={zapData}
+                    token1={token1}
+                    token2={token2}
+                    lpMicroBalance={zapData.pool_lp_id ? balances[zapData.pool_lp_id] : BigInt(0)}
+                />
             )}
             {showResult && (
                 <React.Fragment>

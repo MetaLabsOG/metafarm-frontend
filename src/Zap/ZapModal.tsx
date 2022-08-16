@@ -37,6 +37,7 @@ export function ZapModal({
         asset2_amount: 0,
         lp_amount: 0,
         pool_lp_id: 0,
+        pool_lp_decimals: 0,
     });
 
     const [options, setOptions] = useState<TokenOptionType[]>([]);
@@ -128,7 +129,13 @@ export function ZapModal({
                 selectOnChange={select1OnChange}
                 inputOnChange={inputOnChange}
             />
-            <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
+            <ZapResult
+                isLoading={isLoading}
+                zap_data={zapData}
+                token1={token1}
+                token2={token2}
+                lpMicroBalance={zapData.pool_lp_id ? balances[zapData.pool_lp_id] : BigInt(0)}
+            />
             <React.Fragment>
                 <PacmanButton
                     buttonText={'CONVERT ' + token1.unitName + ' TO LP'}
