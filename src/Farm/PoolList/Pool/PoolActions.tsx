@@ -39,7 +39,7 @@ export const onClickClaim = async (
         console.log(error_message);
         if (error_message.includes('stake is locked')) {
             notify('Please, wait. Stake is locked.', 'error');
-        } else if (error_message.includes('cancelled')) {
+        } else if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
             notify('Operation is cancelled.', 'warning');
         } else {
             notify(error_message, 'error');
@@ -85,7 +85,7 @@ export const PoolActions = ({
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim && !unlockTimer;
-    const hasLock = contractState.local.staked > 0 && contractState.initial.lockLengthBlocks > 0;
+    const hasLock = contractState.initial.lockLengthBlocks > 0;
     const [Modal, openZapModal, closeZapModal] = useModal('root');
 
     useToasts({

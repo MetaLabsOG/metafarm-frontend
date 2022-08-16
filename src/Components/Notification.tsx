@@ -75,10 +75,11 @@ export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<an
 };
 
 const Notification = ({ action, status, text }: { action: ToastTypes; status: string; text: string }) => {
+    const autoClaim = action == ToastTypes.withdraw || action == ToastTypes.stake ? 'AND AUTO-CLAIM ' : '';
     return (
         <div style={{ marginLeft: '10px', fontFamily: 'Montserrat' }}>
             <div>
-                {ToastTypes[action].toUpperCase()} {status.toUpperCase()}
+                {ToastTypes[action].toUpperCase()} {autoClaim} {status.toUpperCase()}
             </div>
             {text && <div>AMOUNT: {text}</div>}
         </div>

@@ -94,7 +94,7 @@ export const runCompound = async (
         logFarmActionData(account, 'COMPOUND ERROR', 0, lpTokenInfo, rewardAsset, error_message);
         if (error_message.includes('underflow')) {
             notify('Not enough LP tokens.', 'error');
-        } else if (error_message.includes('cancelled')) {
+        } else if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
             notify('Operation is cancelled.', 'warning');
         } else if (error_message.includes('stake is locked')) {
             notify('Please, wait. Stake is locked.', 'error');

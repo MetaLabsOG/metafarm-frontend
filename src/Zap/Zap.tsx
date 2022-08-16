@@ -81,7 +81,7 @@ export async function loadZapData(
         return zap_data;
     } catch (e) {
         const error_message = e instanceof Error ? e.message : String(e);
-        if (error_message.includes('cancelled')) {
+        if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
             notify('Operation is cancelled.', 'warning');
         } else if (error_message.includes('pool for address')) {
             notify('There is no pool for tokens pair.', 'warning');
@@ -133,7 +133,7 @@ export function ZapResult({
                 value={formatNumber(zap_data.pool_lp_id ?? 0)}
                 valueStyle={{ fontSize: '14px' }}
             />
-            <InfoRow title="Slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
+            <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
         </InfoPanel>
     );
 }
@@ -267,8 +267,12 @@ export function Zap() {
             )}
             {showResult && (
                 <React.Fragment>
-                    <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
-                    <h3 className="dex_name">on tinyman</h3>
+                    <PacmanButton
+                        buttonText={'CONVERT ' + token1.unitName + ' TO LP'}
+                        buttonStyle="swap_button"
+                        onClickAction={ZapButtonOnClick}
+                    />
+                    <h3 className="dex_name">via tinyman</h3>
                 </React.Fragment>
             )}
         </ModalContainer>

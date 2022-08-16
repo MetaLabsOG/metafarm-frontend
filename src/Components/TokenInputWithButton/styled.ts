@@ -60,20 +60,20 @@ export const Input = styled.input<{ isActive: boolean }>`
 
 type MaxButtonProps = ColorThemed<unknown>;
 
-export const MaxButton = styled.div`
+export const MaxButton = styled.div<{ isActive: boolean }>`
     position: absolute;
     left: 35%;
     top: 4px;
     padding: 6px;
-    color: ${({ theme }: MaxButtonProps) => theme.gray};
+    color: ${({ theme, isActive }: InputProps) => (isActive ? theme.lightGray : theme.gray)};
     cursor: pointer;
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: normal;
     font-size: 12px;
     line-height: 15px;
-    background-color: ${({ theme }: MaxButtonProps) => theme.darkGray};
+    background-color: var(--darkGray);
     :hover {
-        color: inherit;
+        color: ${({ theme, isActive }: InputProps) => (isActive ? theme.white : theme.gray)};
     }
 `;

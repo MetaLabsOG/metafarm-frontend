@@ -100,11 +100,11 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
             if (hasLock) {
                 notify(
                     buttonName === 'Stake'
-                        ? 'Your lock period will be reset.'
+                        ? "Attention! It's locked pool. You can claim rewards only after lock period. If you stake again your lock period will be reset."
                         : 'Your rewards and lock period will be reset.',
                     'warning'
                 );
-                await sleep(3000);
+                await sleep(5000);
             }
             try {
                 const isTokenOptIn = await checkOptIn(account?.networkAccount.addr, optInId);
@@ -119,7 +119,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 console.log(error_message);
                 if (error_message.includes('below min')) {
                     notify('Not enough ALGOs for opt-in. Please top up ALGO balance.', 'error');
-                } else if (error_message.includes('cancelled')) {
+                } else if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
                     notify('Operation is cancelled.', 'warning');
                 } else if (error_message.includes('popup')) {
                     notify('Popups are blocked. Please, allow popups in your browser.', 'error');
@@ -149,7 +149,9 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                     onClickAction={() => onClick()}
                     isInactive={!isValidInput || !isActive}
                 />
-                <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>
+                <MaxButton isActive={isActive} onClick={setInputMaxAmount}>
+                    MAX
+                </MaxButton>
             </Action>
             <Balance isValid={isValidInput}>
                 {balanceField}: {fromSmallestUnits(token, tokenMicroBalance)} {balanceSuffix}{' '}

@@ -73,9 +73,6 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
     const [accDropdownOpen, setAccDropdownOpen] = useState(false);
     const prefix = ALGONET === TESTNET ? 'testnet.' : '';
 
-    // TODO(DariaYakovleva): test Pera on ios.
-    const isIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent);
-
     // check local state once when the element is rendered first
     useEffect(() => {
         const connectedWallet = localStorage.getItem(WALLET_TYPE_KEY);
@@ -169,11 +166,9 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                     <button className="wallet-button" onClick={() => walletClick('MyAlgo')}>
                         Connect to MyAlgo
                     </button>
-                    {!isIOS && (
-                        <button className="wallet-button" onClick={() => walletClick('WalletConnect')}>
-                            Connect to Pera wallet
-                        </button>
-                    )}
+                    <button className="wallet-button" onClick={() => walletClick('WalletConnect')}>
+                        Connect to Pera wallet
+                    </button>
                 </div>
             </Modal>
         </>

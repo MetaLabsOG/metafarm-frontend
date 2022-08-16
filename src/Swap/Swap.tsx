@@ -229,7 +229,7 @@ export async function runTransactions(
             );
         } else if (error_message.includes('below min') || error_message.includes('overspend')) {
             notify(queryType + ': Not enough available algos.', 'error');
-        } else if (error_message.includes('cancelled')) {
+        } else if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
             notify('Operation is cancelled.', 'warning');
         } else if (error_message.includes('exceeds schema integer count')) {
             notify('Please, redeem all tokens on tinyman.', 'warning');
@@ -376,7 +376,7 @@ function BestTokenPrice({
                 value={numberRound(pricePerToken) + ' ' + token2.unitName + ' per ' + token1.unitName}
                 valueStyle={{ fontSize: '14px' }}
             />
-            <InfoRow title="Slippage" value={SLIPPAGE * 100 + '%'} valueStyle={{ fontSize: '14px' }} />
+            <InfoRow title="Max slippage" value={SLIPPAGE * 100 + '%'} valueStyle={{ fontSize: '14px' }} />
         </InfoPanel>
     );
 }
