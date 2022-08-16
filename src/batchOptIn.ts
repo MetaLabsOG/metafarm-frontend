@@ -86,7 +86,7 @@ export async function multiBatchOptIn(reach: ReachStdlib, addr: Address) {
 export async function checkOptIn(addr: Address, asaId: AssetId) {
     const preffix = ALGONET === TESTNET ? 'testnet.' : '';
     return fetch('https://algoindexer.' + preffix + 'algoexplorerapi.io/v2/accounts/' + addr, { method: 'GET' })
-        .then(({ json }: { json: () => any }) => json())
+        .then(async (res) => res.json())
         .then((data) => {
             if (!data.account || !data.account.assets) {
                 return false;
