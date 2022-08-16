@@ -11,7 +11,13 @@ import { Address, ReachStdlib } from './types';
  * @param asaIds ids to opt-in. Should be not empty and not more that 16.
  * @returns always true. It's a hack for reach smart contracts. TODO
  */
-export async function batchOptIn(reach: ReachStdlib, addr: Address, asaIds: AssetId[], waitConfirmation = true) {
+export async function batchOptIn(
+    reach: ReachStdlib,
+    addr: Address,
+    asaIds: AssetId[],
+    waitConfirmation = true,
+    retry = false
+) {
     if (asaIds.length === 0) {
         throw new Error('Empty opt-in asa id list');
     }
@@ -46,19 +52,18 @@ export async function batchOptIn(reach: ReachStdlib, addr: Address, asaIds: Asse
         txn: Buffer.from(txn.toByte()).toString('base64'),
     }));
 
-    let optedIn = false;
-    while (!optedIn) {
+    do {
         try {
             // eslint-disable-next-line no-await-in-loop -- we want to wait for confirmation
             await p.signAndPostTxns(reachTxns);
-            optedIn = true;
+            retry = false;
         } catch {
-            console.log('Opt in failed... Trying again.');
+            console.log(`Opt in failed...${retry ? ' retrying' : ''}`);
         }
-    }
+    } while (retry);
 
-    const txId = txns[0].txID().toString();
     if (waitConfirmation) {
+        const txId = txns[0].txID().toString();
         console.log('Waiting for confirmation of opt-in');
         await withAlgodEncoding(algodClient, IntDecoding.DEFAULT, async (algodClient) => {
             return waitForConfirmation(algodClient, txId, 4);
