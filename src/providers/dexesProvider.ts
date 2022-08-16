@@ -582,7 +582,8 @@ export class TinymanDex extends Dex {
 
         // We assume that amount is in microalgos
         const amountAfterFees = (amountIn * BigInt(997)) / BigInt(1000);
-        const amountOut = outputSupply - k / (inputSupply + amountAfterFees);
+        const newAmountAfterFees = amountAfterFees > BigInt(0) ? amountAfterFees : BigInt(1);
+        const amountOut = outputSupply - k / (inputSupply + newAmountAfterFees);
 
         const decRatio = 10 ** (assetIn.decimals - assetOut.decimals);
         const bignumSlippage = BigInt(slippage * 1000);
@@ -595,7 +596,7 @@ export class TinymanDex extends Dex {
             amountOut,
             minimalAmountOut,
             price: (Number(minimalAmountOut) / Number(amountIn)) * decRatio,
-            fee: BigInt(amountIn - amountAfterFees),
+            fee: BigInt(amountIn - newAmountAfterFees),
             slippage,
         };
     }
