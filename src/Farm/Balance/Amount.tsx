@@ -6,9 +6,11 @@ type AmountPropsType = {
     value: number;
 };
 
-export const Amount = ({ title, value }: AmountPropsType) => (
-    <AmountContainer>
-        <AmountTitle>{title}</AmountTitle>
-        <AmountValue>{`$${numberRound(value)}`}</AmountValue>
-    </AmountContainer>
-);
+export function Amount({ title, value }: AmountPropsType) {
+    return (
+        <AmountContainer>
+            <AmountTitle>{title}</AmountTitle>
+            <AmountValue>{`$${numberRound(value)}`}</AmountValue>
+        </AmountContainer>
+    );
+}

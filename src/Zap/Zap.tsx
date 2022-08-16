@@ -2,13 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import 'react-select-search/style.css';
 import '../css/swap.css';
-import { ZapData } from './types';
-import { $account, $balances, fetchAsset } from '../common/store';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { logEvent, logFarmActionData, LogName } from '../logEvent';
 import { useUnit } from 'effector-react';
+import { logEvent, logFarmActionData, LogName } from '../logEvent';
+import { $account, $balances, fetchAsset } from '../common/store';
 import { formatNumber, getOptions, QueryType, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
@@ -20,6 +19,7 @@ import { TokenOptionType } from '../Components/Select/types';
 import { makeDex, ZapQuote } from '../providers/dexesProvider';
 import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
+import { ZapData } from './types';
 
 const tinyman = makeDex('T2');
 
@@ -70,8 +70,8 @@ export async function loadZapData(
             account?.networkAccount.addr,
             {
                 message: '[ZAP] get data',
-                asset1_id: asset1_id,
-                asset2_id: asset2_id,
+                asset1_id,
+                asset2_id,
                 amount: asset1_amount,
                 ...zap_data,
             },
@@ -79,8 +79,8 @@ export async function loadZapData(
         );
 
         return zap_data;
-    } catch (e) {
-        const error_message = e instanceof Error ? e.message : String(e);
+    } catch (error) {
+        const error_message = error instanceof Error ? error.message : String(error);
         if (error_message.includes('cancelled')) {
             notify('Operation is cancelled.', 'warning');
         } else if (error_message.includes('pool for address')) {
@@ -92,8 +92,8 @@ export async function loadZapData(
             account?.networkAccount.addr,
             {
                 message: '[ZAP ERROR]',
-                asset1_id: asset1_id,
-                asset2_id: asset2_id,
+                asset1_id,
+                asset2_id,
                 amount: asset1_amount,
                 error: error_message,
             },
@@ -162,8 +162,15 @@ export function Zap() {
                 setOptions(res);
                 setToken1(res[0]);
             })
-            .catch((err) => {
-                logFarmActionData(account, 'ZAP', token1Amount, null, null, `Failed to fetch options: ${String(err)}`);
+            .catch((error) => {
+                logFarmActionData(
+                    account,
+                    'ZAP',
+                    token1Amount,
+                    null,
+                    null,
+                    `Failed to fetch options: ${String(error)}`
+                );
             });
     }, [balances]);
 
@@ -188,13 +195,15 @@ export function Zap() {
         if (getZapTimeout.current) {
             clearTimeout(getZapTimeout.current);
         }
-        getZapTimeout.current = setTimeout(() => getZap(token1_id, token2_id, amount), delay);
+        getZapTimeout.current = setTimeout(() => {
+            getZap(token1_id, token2_id, amount);
+        }, delay);
     }
 
     const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
         // FIXME
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error
         setToken1(option);
         setToken1Amount('');
         setShowResult(false);
@@ -204,7 +213,7 @@ export function Zap() {
     const select2OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
         // FIXME
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error
         setToken2(option);
         setShowResult(false);
 
@@ -216,8 +225,8 @@ export function Zap() {
         getZapThrottled(token1.value, token2.value, inputValue, 1000);
     };
 
-    const LoadZapButtonOnClick = () => {
-        return Promise.resolve(getZap(token1.value, token2.value, token1Amount));
+    const LoadZapButtonOnClick = async () => {
+        getZap(token1.value, token2.value, token1Amount);
     };
 
     const ZapButtonOnClick = async () => {
@@ -266,10 +275,10 @@ export function Zap() {
                 <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
             )}
             {showResult && (
-                <React.Fragment>
+                <>
                     <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
                     <h3 className="dex_name">on tinyman</h3>
-                </React.Fragment>
+                </>
             )}
         </ModalContainer>
     );

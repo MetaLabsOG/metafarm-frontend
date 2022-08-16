@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import algosdk, {
     Algodv2,
     assignGroupID,
@@ -10,11 +11,10 @@ import algosdk, {
     decodeUnsignedTransaction,
 } from 'algosdk';
 import { BigNumber } from '@ethersproject/bignumber';
-import { Buffer } from 'buffer';
-import { Account, WalletTransaction, WalletTransactionGroup } from '../types';
-import { Amount, AppId, Asset, AssetId } from './store';
-import { ALGONET, MAINNET, reach } from '../AppContext';
 import { uniq } from 'ramda';
+import { Account, WalletTransaction, WalletTransactionGroup } from '../types';
+import { ALGONET, MAINNET, reach } from '../AppContext';
+import { Amount, AppId, Asset, AssetId } from './store/types';
 
 export const MINUTE = 60;
 export const HOUR = 60 * 60;
@@ -31,21 +31,21 @@ export type JsonWithBignum =
     | JsonWithBignum[]
     | { [key: string]: JsonWithBignum };
 
-export function resolveBignums(obj: Json): JsonWithBignum {
-    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean' || obj === null) {
-        return obj;
-    } else if (obj instanceof Array) {
-        return obj.map(resolveBignums);
+export function resolveBignums(object: Json): JsonWithBignum {
+    if (typeof object === 'string' || typeof object === 'number' || typeof object === 'boolean' || object === null) {
+        return object;
+    }
+    if (Array.isArray(object)) {
+        return object.map(resolveBignums);
     }
 
-    if (obj.type === 'BigNumber' && obj.hex !== undefined) {
-        return BigNumber.from(obj.hex);
-    } else {
-        return Object.keys(obj).reduce((newObj, key) => {
-            newObj[key] = resolveBignums(obj[key]);
-            return newObj;
-        }, {} as { [key: string]: JsonWithBignum });
+    if (object.type === 'BigNumber' && object.hex !== undefined) {
+        return BigNumber.from(object.hex);
     }
+    return Object.keys(object).reduce<Record<string, JsonWithBignum>>((newObject, key) => {
+        newObject[key] = resolveBignums(object[key]);
+        return newObject;
+    }, {});
 }
 
 export const unsafeFromBigint = (n: bigint): number => {
@@ -57,7 +57,7 @@ export const unsafeFromBigint = (n: bigint): number => {
     return Number(n);
 };
 
-export const sleep = (ms: number): Promise<void> => {
+export const sleep = async (ms: number): Promise<void> => {
     return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
@@ -85,21 +85,23 @@ export const maybeToNullable = <T>(mb: [string, T]): T | null => {
 
 export const isBigNumber = (n: any): n is BigNumber => Object.prototype.hasOwnProperty.call(n, '_isBigNumber');
 
-export function convertBns(obj: any): any {
-    if (obj === null) {
+export function convertBns(object: any): any {
+    if (object === null) {
         return null;
-    } else if (isBigNumber(obj)) {
-        return obj.toBigInt();
-    } else if (obj instanceof Array) {
-        return obj.map((e) => convertBns(e));
-    } else if (obj instanceof Object) {
-        return Object.keys(obj).reduce((o: any, k) => {
-            o[k] = convertBns(obj[k]);
+    }
+    if (isBigNumber(object)) {
+        return object.toBigInt();
+    }
+    if (Array.isArray(object)) {
+        return object.map((e) => convertBns(e));
+    }
+    if (object instanceof Object) {
+        return Object.keys(object).reduce((o: any, k) => {
+            o[k] = convertBns(object[k]);
             return o;
         }, {});
-    } else {
-        return obj;
     }
+    return object;
 }
 
 export async function withAlgodEncoding<N extends Algodv2 | Indexer>(
@@ -107,10 +109,10 @@ export async function withAlgodEncoding<N extends Algodv2 | Indexer>(
     encoding: IntDecoding,
     wrapped: (algod: N) => Promise<Record<string, any>>
 ): Promise<Record<string, any>> {
-    const prevEncoding = algod.getIntEncoding();
+    const previousEncoding = algod.getIntEncoding();
     algod.setIntEncoding(encoding);
     const res = await wrapped(algod);
-    algod.setIntEncoding(prevEncoding);
+    algod.setIntEncoding(previousEncoding);
     return res;
 }
 
@@ -122,11 +124,11 @@ export const getAccountInfo = async (account: Account | string): Promise<Account
 
     try {
         const algod = provider.algodClient;
-        return await withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
+        return await withAlgodEncoding(algod, IntDecoding.DEFAULT, async (algod) => {
             return algod.accountInformation(addr).do();
         });
-    } catch (e) {
-        const indexer = provider.indexer;
+    } catch {
+        const { indexer } = provider;
         return withAlgodEncoding(indexer, IntDecoding.DEFAULT, async (indexer) => {
             const res = await indexer.lookupAccountByID(addr).do();
             return res.account;
@@ -140,11 +142,11 @@ export const filterOutOptedIn = (
     appIds: number[],
     tokens: number[]
 ): { appIds: number[]; tokens: number[] } => {
-    const optedInAppIds = (accountInfo['apps-local-state'] ?? []).map((x: any) => x.id);
-    const optedInTokens = (accountInfo['assets'] ?? []).map((x: any) => x['asset-id']);
+    const optedInAppIds = new Set((accountInfo['apps-local-state'] ?? []).map((x: any) => x.id));
+    const optedInTokens = new Set((accountInfo.assets ?? []).map((x: any) => x['asset-id']));
 
-    appIds = appIds.filter((id) => !optedInAppIds.includes(id));
-    tokens = tokens.filter((id) => !optedInTokens.includes(id));
+    appIds = appIds.filter((id) => !optedInAppIds.has(id));
+    tokens = tokens.filter((id) => !optedInTokens.has(id));
     return { appIds, tokens };
 };
 
@@ -171,7 +173,7 @@ export const signAndPostTxnGroups = async (groups: WalletTransactionGroup[]): Pr
         throw new Error('window.algorand is not defined, apparently wallet is not connected!');
     }
 
-    // optin aggregation
+    // Optin aggregation
     const appIds = uniq(groups.flatMap(({ usedApps }) => usedApps ?? []));
     const tokens = uniq(groups.flatMap(({ usedAssets }) => usedAssets ?? [])).filter((id) => id !== 0);
 
@@ -179,8 +181,8 @@ export const signAndPostTxnGroups = async (groups: WalletTransactionGroup[]): Pr
     // it is disentangled from the effector app state. It should work without issue but it becomes entangled.
     const walletAddress = await provider.getDefaultAddress();
     const accountInfo = await getAccountInfo(walletAddress);
-    const optinParams = filterOutOptedIn(accountInfo, appIds, tokens);
-    const optinTxs = prepareOptinTxs(walletAddress, ps, optinParams);
+    const optinParameters = filterOutOptedIn(accountInfo, appIds, tokens);
+    const optinTxs = prepareOptinTxs(walletAddress, ps, optinParameters);
 
     groups = [...optinTxs, ...groups];
     const signedTxns = await window.algorand.signTxns(groups.flatMap((g) => g.txns));
@@ -190,7 +192,7 @@ export const signAndPostTxnGroups = async (groups: WalletTransactionGroup[]): Pr
     for (const group of groups) {
         const toPost = signedTxns.slice(offset, offset + group.txns.length);
         await window.algorand.postTxns(toPost);
-        const success = await withAlgodEncoding(algod, IntDecoding.DEFAULT, (algod) => {
+        const success = await withAlgodEncoding(algod, IntDecoding.DEFAULT, async (algod) => {
             return waitForConfirmation(algod, group.firstTxID, 3);
         });
 
@@ -232,7 +234,8 @@ export const prepareOptinTxs = (
 
     if (txns.length === 0) {
         return [];
-    } else if (txns.length > 1) {
+    }
+    if (txns.length > 1) {
         txns = assignGroupID(txns);
     }
 
@@ -264,7 +267,7 @@ export const fromSmallestUnits = (token: Asset, amount: Amount | null): number =
 };
 
 export const getSmallestUnits = (token: Asset, amount: number | null): Amount => {
-    if (amount === null || isNaN(amount)) {
+    if (amount === null || Number.isNaN(amount)) {
         return BigInt(0);
     }
 

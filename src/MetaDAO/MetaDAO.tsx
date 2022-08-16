@@ -1,5 +1,10 @@
 import { useQuery } from 'react-query';
 import { last, path } from 'ramda';
+import { getTotalCost } from '../providers/apiProvider';
+import metapunks_banner from '../imgs/metapunks_banner.png';
+import { Button } from '../Components/Button/Button';
+import { METAWALLET } from '../AppContext';
+import { theme } from '../theme';
 import {
     MetaTreasury,
     MetaTreasuryBalance,
@@ -15,22 +20,17 @@ import {
     FeatureBlock,
 } from './styled';
 
-import { getTotalCost } from '../providers/apiProvider';
-import { METAWALLET } from '../AppContext';
 import { NFTList } from './NFTList';
 import { AssetsChart } from './AssetsChart';
 import { MetaTreasuryChart } from './MetaTreasuryChart';
-import metapunks_banner from '../imgs/metapunks_banner.png';
-import { Button } from '../Components/Button/Button';
-import { theme } from '../theme';
 
-export const MetaDAO = () => {
-    const totalCostsQuery = useQuery(['totalCost', METAWALLET], () => getTotalCost(METAWALLET));
+export function MetaDAO() {
+    const totalCostsQuery = useQuery(['totalCost', METAWALLET], async () => getTotalCost(METAWALLET));
     const dataset = totalCostsQuery.data ?? [];
 
     return (
         <MetaDAOContainer>
-            {dataset.length ? (
+            {dataset.length > 0 ? (
                 <>
                     <img alt="Metapunks" width="100%" src={metapunks_banner} />
                     <div
@@ -122,14 +122,14 @@ export const MetaDAO = () => {
                         rel="noreferrer"
                     >
                         <Button
-                            onClick={() => {
-                                return;
-                            }}
-                            buttonText={'BUY METAPUNKS'}
+                            buttonText="BUY METAPUNKS"
                             style={{
                                 width: '300px',
                                 height: '50px',
                                 fontSize: '20px',
+                            }}
+                            onClick={() => {
+                                // do nothing
                             }}
                         />
                     </a>
@@ -163,4 +163,4 @@ export const MetaDAO = () => {
             )}
         </MetaDAOContainer>
     );
-};
+}

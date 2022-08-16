@@ -58,7 +58,7 @@ export function indexerFromEnv(env: any): [algosdk.BaseHTTPClient, algosdk.Index
 
     const utbc = new NonRedundantHTTPClient(token, ALGO_INDEXER_SERVER, port, REACH_GET_REQUEST_CACHE_PERIOD);
     const rhc = new RHC.ReachHTTPClient(utbc, 'indexer', async (e) => {
-        // do nothing
+        // Do nothing
     });
     return [rhc, new algosdk.Indexer(rhc)];
 }
@@ -70,7 +70,7 @@ export function algodClientFromEnv(env: any): [algosdk.BaseHTTPClient, algosdk.A
 
     const utbc = new NonRedundantHTTPClient(token, ALGO_SERVER, port, REACH_GET_REQUEST_CACHE_PERIOD);
     const rhc = new RHC.ReachHTTPClient(utbc, 'algodv2', async (e) => {
-        // do nothing
+        // Do nothing
     });
     return [rhc, new algosdk.Algodv2(rhc)];
 }
@@ -92,8 +92,8 @@ export function makeProviderByEnv(env: any): Provider {
         throw new Error(errmsg(`do not have default addresses`));
     };
 
-    const signAndPostTxns = async (txns: WalletTransaction[], opts?: object) => {
-        void opts;
+    const signAndPostTxns = async (txns: WalletTransaction[], options?: object) => {
+        void options;
         const stxns = txns.map((txn) => {
             if (txn.stxn) {
                 return txn.stxn;
@@ -124,12 +124,12 @@ export function makeProviderByEnv(env: any): Provider {
  * @returns
  */
 export const makeProviderByWallet = async (wallet: ARC11_Wallet, env: any): Promise<Provider> => {
-    const defaults = { REACH_ISOLATED_NETWORK: 'no', ALGO_NODE_WRITE_ONLY: 'yes' }; // pessimistic
+    const defaults = { REACH_ISOLATED_NETWORK: 'no', ALGO_NODE_WRITE_ONLY: 'yes' }; // Pessimistic
 
-    const allEnv = { ...defaults, ...env, ...(wallet._env || {}) }; // rightmost is preferred
+    const allEnv = { ...defaults, ...env, ...wallet._env }; // Rightmost is preferred
     const { ALGO_GENESIS_ID, ALGO_GENESIS_HASH, ALGO_ACCOUNT } = env;
     const { REACH_ISOLATED_NETWORK, ALGO_NODE_WRITE_ONLY } = allEnv;
-    const walletOpts: EnableOpts = {
+    const walletOptions: EnableOpts = {
         genesisID: ALGO_GENESIS_ID || undefined,
         genesisHash: ALGO_GENESIS_HASH || undefined,
         accounts: ALGO_ACCOUNT ? [ALGO_ACCOUNT] : undefined,
@@ -139,13 +139,13 @@ export const makeProviderByWallet = async (wallet: ARC11_Wallet, env: any): Prom
     let enabledNetwork: EnableNetworkResult | undefined;
     let enabledAccounts: EnableAccountsResult | undefined;
     if (wallet.enableNetwork === undefined && wallet.enableAccounts === undefined) {
-        const enabled = await wallet.enable(walletOpts);
+        const enabled = await wallet.enable(walletOptions);
         enabledNetwork = enabled;
         enabledAccounts = enabled;
     } else if (wallet.enableNetwork === undefined || wallet.enableAccounts === undefined) {
         throw new Error('must have enableNetwork AND enableAccounts OR neither');
     } else {
-        enabledNetwork = await wallet.enableNetwork(walletOpts);
+        enabledNetwork = await wallet.enableNetwork(walletOptions);
     }
     void enabledNetwork;
     const algod_bc = await wallet.getAlgodv2Client();
@@ -157,14 +157,14 @@ export const makeProviderByWallet = async (wallet: ARC11_Wallet, env: any): Prom
             if (wallet.enableAccounts === undefined) {
                 throw new Error('impossible: no wallet.enableAccounts');
             }
-            enabledAccounts = await wallet.enableAccounts(walletOpts);
+            enabledAccounts = await wallet.enableAccounts(walletOptions);
             if (enabledAccounts === undefined) {
                 throw new Error('Could not enable accounts');
             }
         }
         return enabledAccounts.accounts[0];
     };
-    const signAndPostTxns = wallet.signAndPostTxns;
+    const { signAndPostTxns } = wallet;
     return {
         algod_bc,
         indexer_bc,
@@ -180,7 +180,7 @@ export const makeProviderByWallet = async (wallet: ARC11_Wallet, env: any): Prom
 /**
  * This redefinition allows us to RESET the provider, enabling LOTS OF STUFF
  */
-function actuallyReplaceableThunk<T>(thunk: () => T): [() => T, (val: T) => void, () => void] {
+function actuallyReplaceableThunk<T>(thunk: () => T): [() => T, (value: T) => void, () => void] {
     let called = false;
     let res: T | null = null;
     function get(): T {
@@ -190,9 +190,9 @@ function actuallyReplaceableThunk<T>(thunk: () => T): [() => T, (val: T) => void
         }
         return res as T;
     }
-    function set(val: T): void {
+    function set(value: T): void {
         // Do NOT throw is res is already set!
-        res = val;
+        res = value;
         called = true;
     }
     function clear(): void {
@@ -204,10 +204,9 @@ function actuallyReplaceableThunk<T>(thunk: () => T): [() => T, (val: T) => void
 
 const [getProvider, setProvider, clearProvider] = actuallyReplaceableThunk(async () => {
     if (window.algorand) {
-        return await makeProviderByWallet(window.algorand as ARC11_Wallet, process.env);
-    } else {
-        return makeProviderByEnv(process.env);
+        return makeProviderByWallet(window.algorand as ARC11_Wallet, process.env);
     }
+    return makeProviderByEnv(process.env);
 });
 
 export function loadStdlibShimmed(env: any): ReachStdlib {

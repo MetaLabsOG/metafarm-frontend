@@ -3,12 +3,12 @@ import { useModal } from 'react-hooks-use-modal';
 import { detect } from 'detect-browser';
 
 import '../css/wallet.css';
+import { useUnit } from 'effector-react';
 import { logEvent, LogName } from '../logEvent';
 import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
-import { customWalletFallback, WalletType } from './customWalletFallback';
 import { notify } from '../Components/Notification';
-import { useUnit } from 'effector-react';
+import { customWalletFallback, WalletType } from './customWalletFallback';
 
 const browser = detect();
 const browserInfoString =
@@ -41,13 +41,17 @@ const connectWallet = (walletType: WalletType) => {
 
             return acc;
         })
-        .catch((e) => {
-            if (e instanceof Error) {
-                console.log('ERROR. ConnectWallet: ', e);
-                logEvent('', { message: `ERROR. ConnectWallet: ${e.name}: ${e.message}` }, LogName.ERRORS);
+        .catch((error) => {
+            if (error instanceof Error) {
+                console.log('ERROR. ConnectWallet:', error);
+                logEvent('', { message: `ERROR. ConnectWallet: ${error.name}: ${error.message}` }, LogName.ERRORS);
             } else {
-                console.log('ERROR (of unexpected type!). ConnectWallet: ', e);
-                logEvent('', { message: `ERROR (of unexpected type!). ConnectWallet: ${String(e)}` }, LogName.ERRORS);
+                console.log('ERROR (of unexpected type!). ConnectWallet:', error);
+                logEvent(
+                    '',
+                    { message: `ERROR (of unexpected type!). ConnectWallet: ${String(error)}` },
+                    LogName.ERRORS
+                );
             }
         });
 };
@@ -58,7 +62,7 @@ const disconnectWallet = () => {
         window.location.reload();
     };
 
-    const algorand = window.algorand;
+    const { algorand } = window;
     if (algorand && 'disconnect' in algorand) {
         void algorand.disconnect().then(finalDisconnect);
     } else {
@@ -74,7 +78,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
     const prefix = ALGONET === TESTNET ? 'testnet.' : '';
 
     // TODO(DariaYakovleva): test Pera on ios.
-    const isIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isIOS = false; /// iPad|iPhone|iPod/.test(navigator.userAgent);
 
     // check local state once when the element is rendered first
     useEffect(() => {
@@ -86,7 +90,13 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
 
     useEffect(() => {
         setFinishedOpening(isOpen);
-        window.addEventListener('click', () => accDropdownOpen && setAccDropdownOpen(!accDropdownOpen), { once: true });
+        window.addEventListener(
+            'click',
+            () => {
+                accDropdownOpen && setAccDropdownOpen(!accDropdownOpen);
+            },
+            { once: true }
+        );
     }, [isOpen, accDropdownOpen]);
 
     const walletClick = (walletType: WalletType) => {
@@ -135,7 +145,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                             {ALGONET === TESTNET && (
                                 <a
                                     target="_blank"
-                                    href={'https://dispenser.testnet.aws.algodev.network/'}
+                                    href="https://dispenser.testnet.aws.algodev.network/"
                                     rel="noreferrer"
                                     style={{ textDecoration: 'none' }}
                                 >
@@ -166,11 +176,21 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                     }}
                 >
                     <h3 className="wallet_header">Choose wallet</h3>
-                    <button className="wallet-button" onClick={() => walletClick('MyAlgo')}>
+                    <button
+                        className="wallet-button"
+                        onClick={() => {
+                            walletClick('MyAlgo');
+                        }}
+                    >
                         Connect to MyAlgo
                     </button>
                     {!isIOS && (
-                        <button className="wallet-button" onClick={() => walletClick('WalletConnect')}>
+                        <button
+                            className="wallet-button"
+                            onClick={() => {
+                                walletClick('WalletConnect');
+                            }}
+                        >
                             Connect to Pera wallet
                         </button>
                     )}

@@ -29,7 +29,7 @@ export const runCompound = async (
     const firstAsset = asset1Id === rewardAssetId ? asset1Id : asset2Id;
     const secondAsset = asset1Id === rewardAssetId ? asset2Id : asset1Id;
 
-    // is logging 0 ok? it's still useful to see how many rewards a person sees on the screen in logs right?
+    // Is logging 0 ok? it's still useful to see how many rewards a person sees on the screen in logs right?
     logFarmActionData(account, 'COMPOUND', 0, lpTokenInfo, rewardAsset);
 
     try {
@@ -78,7 +78,7 @@ export const runCompound = async (
 
         const quote = zapResult.quote as ZapQuote;
         refreshAccountInfo();
-        console.log('COMPOUND ZAP ', quote, zapResult.txIds);
+        console.log('COMPOUND ZAP', quote, zapResult.txIds);
 
         // If mint transaction passed, tinyman could not return less than that (since txs are deterministic).
         // TODO: we should check
@@ -88,8 +88,8 @@ export const runCompound = async (
         await (ctc.apis.stake as ViewVal)([microLpAmount]);
 
         notify('Compound done!', 'success');
-    } catch (e) {
-        const error_message = e instanceof Error ? e.message : String(e);
+    } catch (error) {
+        const error_message = error instanceof Error ? error.message : String(error);
         console.log(error_message);
         logFarmActionData(account, 'COMPOUND ERROR', 0, lpTokenInfo, rewardAsset, error_message);
         if (error_message.includes('underflow')) {

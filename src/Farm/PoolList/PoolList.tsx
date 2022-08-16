@@ -1,6 +1,6 @@
-import { Pool } from './Pool';
-import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
 import { Contract, FarmType } from '../../common/store';
+import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
+import { Pool } from './Pool';
 
 export const POOL_COLUMN_WIDTH: Record<string, string> = {
     POOL: '300px',
@@ -11,14 +11,14 @@ export const POOL_COLUMN_WIDTH: Record<string, string> = {
     'ENDS IN': '120px',
 };
 
-export const PoolList = <T extends FarmType>({ type, pools }: { type: T; pools: Contract<T>[] }) => {
-    const poolComponents = pools.map((ctc: Contract<T>) => <Pool type={type} key={ctc.id} contract={ctc} />);
+export function PoolList<T extends FarmType>({ type, pools }: { type: T; pools: Array<Contract<T>> }) {
+    const poolComponents = pools.map((ctc: Contract<T>) => <Pool key={ctc.id} type={type} contract={ctc} />);
 
     return (
         <PoolListContainer>
             <PoolListHeader>
                 {Object.keys(POOL_COLUMN_WIDTH).map((key, i) => (
-                    <PoolListHeaderElement width={POOL_COLUMN_WIDTH[key]} key={i}>
+                    <PoolListHeaderElement key={i} width={POOL_COLUMN_WIDTH[key]}>
                         {key}
                     </PoolListHeaderElement>
                 ))}
@@ -27,4 +27,4 @@ export const PoolList = <T extends FarmType>({ type, pools }: { type: T; pools: 
             {poolComponents}
         </PoolListContainer>
     );
-};
+}

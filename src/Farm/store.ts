@@ -1,8 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+// @ts-expect-error
 import { backend as farmBackend } from '@metalabsog/farm';
 import { Map } from 'immutable';
 import { createEffect, createStore, createEvent, sample, combine, Store } from 'effector';
+import { groupBy, min, values } from 'ramda';
 import {
     Asset,
     AssetId,
@@ -26,21 +27,19 @@ import {
     Time,
 } from '../common/store';
 import { AllDefined, Backend } from '../types';
-import { groupBy, min, values } from 'ramda';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
-import { $distributionPools } from '../Stake/store';
 
 // TODO: this function is a huge costyl
 export function detectAssetProvider({ name }: { name: string }): DexProvider {
     name = name.toLowerCase();
-    if (name.indexOf('tinyman') !== -1) {
+    if (name.includes('tinyman')) {
         return 'T2';
-    } else if (name.indexOf('liquidity') !== -1 || name.indexOf('pact') !== -1) {
-        return 'PT';
-    } else {
-        return 'MOCK';
     }
+    if (name.includes('liquidity') || name.includes('pact')) {
+        return 'PT';
+    }
+    return 'MOCK';
 }
 
 export async function getLPTokenInfo(
@@ -104,7 +103,10 @@ export const projectState = <T extends FarmType>(
     return { ...contractState, local: { ...contractState.local, reward: projectedReward } };
 };
 
-export const projectContracts = <T extends FarmType>(contracts: Contract<T>[], currentBlock: Time): Contract<T>[] => {
+export const projectContracts = <T extends FarmType>(
+    contracts: Array<Contract<T>>,
+    currentBlock: Time
+): Array<Contract<T>> => {
     return contracts.map((contract) =>
         contract.state === null ? contract : { ...contract, state: projectState(contract.state, currentBlock) }
     );
@@ -116,16 +118,22 @@ const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpda
 );
 
 export const $pools = combine($contracts, $networkTime, projectContracts);
-export const $farmPools = $pools.map((pools) => pools.filter((pool) => !!pool.info.metadata.dex));
+export const $farmPools = $pools.map((pools) => pools.filter((pool) => Boolean(pool.info.metadata.dex)));
 export const $stakePools = $pools.map((pools) => pools.filter((pool) => !pool.info.metadata.dex));
 export const setPoolInfos = setContractInfos;
 export const triggerPoolUpdate = triggerStateUpdate;
 
-//TODO NEED REFACTOR (quick solution)
-export const sortPoolsOnStatus = ({ networkTime, pools }: { networkTime: number; pools: Contract<FarmType>[] }) => {
+// TODO NEED REFACTOR (quick solution)
+export const sortPoolsOnStatus = ({
+    networkTime,
+    pools,
+}: {
+    networkTime: number;
+    pools: Array<Contract<FarmType>>;
+}) => {
     const groupedByStatus = groupBy(function (pool: Contract<FarmType>) {
         if (pool.state) {
-            const initial = pool.state.initial;
+            const { initial } = pool.state;
             return networkTime < initial.beginBlock ? '2' : networkTime > initial.endBlock ? '3' : '1';
         }
         return 'null';
@@ -143,8 +151,15 @@ type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
 export const $lpTokenInfos = createStore<LPTokenStore>(Map());
 
 export const getLPTokenInfoFx = createEffect(
-    ({ asset, provider, algoPrice }: { asset: Asset; provider: DexProvider | undefined; algoPrice: number | null }) =>
-        getLPTokenInfo(asset, algoPrice, provider)
+    async ({
+        asset,
+        provider,
+        algoPrice,
+    }: {
+        asset: Asset;
+        provider: DexProvider | undefined;
+        algoPrice: number | null;
+    }) => getLPTokenInfo(asset, algoPrice, provider)
 );
 
 $lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
@@ -153,7 +168,7 @@ $lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set
 const markTokenAsLP = createEvent<AssetId>();
 const $isLPToken = createStore(Map<AssetId, boolean>()).on(markTokenAsLP, (state, token) => state.set(token, true));
 
-// automatically fetch LP token infos when general info about them gets fetched the first time
+// Automatically fetch LP token infos when general info about them gets fetched the first time
 sample({
     clock: assetLoaded,
     source: { isLP: $isLPToken, algoPrice: $algoUsdPrice },
@@ -162,26 +177,23 @@ sample({
     target: getLPTokenInfoFx,
 });
 
-$farmPools.watch((farms) =>
-    farms
-        .map((farm) => farm.state)
-        .filter((s): s is ContractState<'farm'> => s !== null)
-        .forEach((s) => {
-            markTokenAsLP(s.initial.stakeToken);
-            registerAsset(s.initial.stakeToken);
-            registerPricedAsset(s.initial.rewardToken);
-        })
-);
+// TODO: change to effector.split or patronum.something
+$farmPools.watch((farms) => {
+    const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
+    for (const s of farmStates) {
+        markTokenAsLP(s.initial.stakeToken);
+        registerAsset(s.initial.stakeToken);
+        registerPricedAsset(s.initial.rewardToken);
+    }
+});
 
-$stakePools.watch((farms) =>
-    farms
-        .map((farm) => farm.state)
-        .filter((s): s is ContractState<'farm'> => s !== null)
-        .forEach((s) => {
-            registerPricedAsset(s.initial.stakeToken);
-            registerPricedAsset(s.initial.rewardToken);
-        })
-);
+$stakePools.watch((farms) => {
+    const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
+    for (const s of farmStates) {
+        registerPricedAsset(s.initial.stakeToken);
+        registerPricedAsset(s.initial.rewardToken);
+    }
+});
 
 export const $lpAndSimpleTokens = combine($lpTokenInfos, $pricedAssets, (lpTokens, tokens) => tokens.merge(lpTokens));
 
@@ -198,7 +210,7 @@ export const $farmRewardTokens = combine($pricedAssets, $contractStatesWithCache
 
 // Price aggregation
 const sumMoney = <T extends FarmType>(
-    states: ContractState<T>[],
+    states: Array<ContractState<T>>,
     tokens: Map<AssetId, Priced<Asset>>,
     getAmount: (s: ContractState<T>) => Amount | undefined,
     getToken: (s: ContractState<T>) => AssetId
@@ -221,7 +233,7 @@ export interface PoolAggregates {
     totalPendingReward: number;
 }
 
-export function createAggregates<T extends FarmType>($pools: Store<Contract<T>[]>) {
+export function createAggregates<T extends FarmType>($pools: Store<Array<Contract<T>>>) {
     return combine(
         $pools.map((contracts) => contracts.map((c) => c.state).filter((s): s is ContractState<T> => s !== null)),
         $lpTokenInfos,

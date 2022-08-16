@@ -1,4 +1,6 @@
 # Cometa
+[![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/xojs/xo)
+
 This is a monorepo for Cometa, yield farm and intelligent yield optimizer.
 
 It contains both frontend and smart contracts. The reason is that they share some dependencies (especially Reach) and Reach backend files.
