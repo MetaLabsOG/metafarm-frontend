@@ -60,6 +60,7 @@ module.exports = {
                 capIsNewExceptions: ['Map', 'Set'],
             },
         ],
+        '@typescript-eslint/no-explicit-any': 'warn',
     },
     plugins: ['effector', 'sonarjs'],
     extends: [

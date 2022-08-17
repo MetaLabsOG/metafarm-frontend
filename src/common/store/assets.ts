@@ -1,10 +1,11 @@
 import { Map } from 'immutable';
 import { createEffect, createEvent, createStore, sample, combine, split, Store, restore } from 'effector';
-import { algod, USDT_TOKEN_ID } from '../../AppContext';
+import { USDT_TOKEN_ID } from '../../AppContext';
 import { getCoinRateFromBinance } from '../../providers/coinPriceProvider';
 import { makeDex, PactDex } from '../../providers/dexesProvider';
+import { AlgodAccountInfo, AssetHolding, getAssetByID } from '../../providers/typedAlgod';
 import { $accountInfo } from './account';
-import { Asset, AssetId, Amount, Priced } from './types';
+import { AssetId, Amount, Priced, Asset } from './types';
 import { nonConcurrent, fetchStore } from './utils';
 import { doEachTick } from './time';
 
@@ -14,22 +15,22 @@ export const registerAsset = createEvent<AssetId>();
 // =================================================================
 // Balances store which watches updates in accountInfo
 // =================================================================
-function getBalancesFromAccountInfo(accountInfo: Record<string, any> | null): Record<AssetId, Amount> {
+function getBalancesFromAccountInfo(accountInfo: AlgodAccountInfo | null): Record<AssetId, Amount> {
     if (accountInfo === null) {
         return {};
     }
 
     const accAssets = accountInfo.assets || [];
     return accAssets.reduce(
-        (balances: Record<AssetId, Amount>, asset: any) => {
+        (balances: Record<AssetId, Amount>, asset: AssetHolding) => {
             balances[asset['asset-id']] = asset.amount;
             return balances;
         },
-        { 0: accountInfo.amount }
+        { 0: BigInt(accountInfo.amount) }
     );
 }
 
-export const $balances = $accountInfo.map(getBalancesFromAccountInfo);
+export const $balances = $accountInfo.map((info) => getBalancesFromAccountInfo(info));
 
 // =================================================================
 // Asset info store with one-time fetching from algod
@@ -44,18 +45,17 @@ export const ALGO_ASSET: Asset = {
 
 const fetchAssetFx = createEffect(
     nonConcurrent(async (id: AssetId): Promise<Asset> => {
-        const { params } = await algod.getAssetByID(id).do();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const { params } = await getAssetByID(id);
         const { name, creator, decimals } = params;
         const unit_name = params['unit-name'];
 
         return {
             id,
-            name: name as string,
-            unitName: unit_name as string,
-            creator: creator as string,
-            decimals: decimals as number,
-        } as Asset;
+            name,
+            unitName: unit_name,
+            creator,
+            decimals,
+        };
     })
 );
 

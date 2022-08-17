@@ -12,8 +12,11 @@ import algosdk, {
 } from 'algosdk';
 import { BigNumber } from '@ethersproject/bignumber';
 import { uniq } from 'ramda';
+import { TealKeyValue } from 'algosdk/dist/types/src/client/v2/algod/models/types';
 import { Account, WalletTransaction, WalletTransactionGroup } from '../types';
 import { ALGONET, MAINNET, reach } from '../AppContext';
+import { AlgodAccountInfo, getAccountInformation } from '../providers/typedAlgod';
+import { lookupAccountByID } from '../providers/typedIndexer';
 import { Amount, AppId, Asset, AssetId } from './store/types';
 
 export const MINUTE = 60;
@@ -38,7 +41,7 @@ export function resolveBignums(object: Json): JsonWithBignum {
         return object;
     }
     if (Array.isArray(object)) {
-        return object.map(resolveBignums);
+        return object.map((array) => resolveBignums(array));
     }
 
     if (object.type === 'BigNumber' && object.hex !== undefined) {
@@ -60,7 +63,9 @@ export const unsafeFromBigint = (n: bigint): number => {
 };
 
 export const sleep = async (ms: number): Promise<void> => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
 };
 
 export const formatDecimalsMeaningful = (value: number, precision = 2): string => {
@@ -106,11 +111,11 @@ export function convertBns(object: any): any {
     return object;
 }
 
-export async function withAlgodEncoding<N extends Algodv2 | Indexer>(
+export async function withAlgodEncoding<N extends Algodv2 | Indexer, T extends AlgodAccountInfo | Record<string, any>>(
     algod: N,
     encoding: IntDecoding,
-    wrapped: (algod: N) => Promise<Record<string, any>>
-): Promise<Record<string, any>> {
+    wrapped: (algod: N) => Promise<T>
+): Promise<T> {
     const previousEncoding = algod.getIntEncoding();
     algod.setIntEncoding(encoding);
     const res = await wrapped(algod);
@@ -118,21 +123,19 @@ export async function withAlgodEncoding<N extends Algodv2 | Indexer>(
     return res;
 }
 
-type AccountInfo = Record<string, any>;
-
-export const getAccountInfo = async (account: Account | string): Promise<AccountInfo> => {
+export const getAccountInfo = async (account: Account | string): Promise<AlgodAccountInfo> => {
     const provider = await reach.getProvider();
     const addr = typeof account === 'string' ? account : account.networkAccount.addr;
 
     try {
         const algod = provider.algodClient;
         return await withAlgodEncoding(algod, IntDecoding.DEFAULT, async (algod) => {
-            return algod.accountInformation(addr).do();
+            return getAccountInformation(addr, algod);
         });
     } catch {
         const { indexer } = provider;
         return withAlgodEncoding(indexer, IntDecoding.DEFAULT, async (indexer) => {
-            const res = await indexer.lookupAccountByID(addr).do();
+            const res = await lookupAccountByID(addr, indexer);
             return res.account;
         });
     }
@@ -140,21 +143,21 @@ export const getAccountInfo = async (account: Account | string): Promise<Account
 
 // TODO: normal typing for account info (not any)
 export const filterOutOptedIn = (
-    accountInfo: AccountInfo,
+    accountInfo: AlgodAccountInfo,
     appIds: number[],
     tokens: number[]
 ): { appIds: number[]; tokens: number[] } => {
-    const optedInAppIds = new Set((accountInfo['apps-local-state'] ?? []).map((x: any) => x.id));
-    const optedInTokens = new Set((accountInfo.assets ?? []).map((x: any) => x['asset-id']));
+    const optedInAppIds = new Set((accountInfo['apps-local-state'] ?? []).map((x) => x.id));
+    const optedInTokens = new Set((accountInfo.assets ?? []).map((x) => x['asset-id']));
 
     appIds = appIds.filter((id) => !optedInAppIds.has(id));
     tokens = tokens.filter((id) => !optedInTokens.has(id));
     return { appIds, tokens };
 };
 
-export const getLocalState = (ai: AccountInfo, contractId: number): any | undefined => {
+export const getLocalState = (ai: AlgodAccountInfo, contractId: number): TealKeyValue | undefined => {
     const alss = ai['apps-local-state'] ?? [];
-    const als = alss.find((x: any) => x.id === contractId);
+    const als = alss.find((x) => x.id === contractId);
     return als ? als['key-value'] : undefined;
 };
 
@@ -243,7 +246,7 @@ export const prepareOptinTxs = (
 
     const group = {
         firstTxID: txns[0].txID(),
-        txns: txns.map(toReachTxn),
+        txns: txns.map((txn) => toReachTxn(txn)),
     };
 
     return [group];
