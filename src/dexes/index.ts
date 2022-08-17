@@ -1,8 +1,8 @@
 import { algod, ALGONET, TESTNET } from '../AppContext';
-import { AppId, Asset, AssetId, Amount, fetchAsset } from '../common/store';
+import { AppId, Asset, AssetId, Amount, fetchAsset, ALGO_ASSET } from '../common/store';
 import { WalletTransactionGroup } from '../types';
 
-import { Dex, PoolInfo, SwapQuote, MintQuote, DexProvider } from './common';
+import { Dex, PoolInfo, SwapQuote, MintQuote, DexProvider, DexPool } from './common';
 import { PactDex } from './pact';
 import { TinymanDex } from './tinyman';
 
@@ -10,7 +10,7 @@ import { TinymanDex } from './tinyman';
  * Mock API for dexes (yields data with arbitrary numbers)
  */
 export class MockDex extends Dex {
-    async getPoolInfo(_: AppId): Promise<PoolInfo> {
+    async getPool(_: AppId): Promise<DexPool> {
         return {
             poolId: 0,
             poolDex: 'MOCK',
@@ -21,65 +21,46 @@ export class MockDex extends Dex {
             asset2Reserve: BigInt(200_000_000),
             totalLiquidity: BigInt(100_000_000),
             dexFeeApr: 0, // TODO
+
+            getSwap: async (assetIn: AssetId | Asset, amountIn: Amount, slippage: number) => {
+                assetIn = typeof assetIn === 'number' ? await fetchAsset(assetIn) : assetIn;
+                const assetOut = ALGO_ASSET;
+                const price = 0.01;
+                const fee = BigInt(100);
+
+                return {
+                    assetIn,
+                    assetOut,
+                    amountIn: amountIn,
+                    amountOut: BigInt(Number(amountIn) * price),
+                    minimalAmountOut: BigInt(Number(amountIn) * price * (1 - slippage)),
+                    price,
+                    fee,
+                    slippage,
+
+                    prepareTxs: (_: string) => {
+                        throw new Error('not implemented');
+                    },
+                };
+            },
+
+            getMint: (...args: any) => {
+                throw new Error('not implemented');
+            },
+
+            getZap: (...args: any) => {
+                throw new Error('not implemented');
+            },
         };
     }
 
-    async getPoolInfoByAddress(_: string): Promise<PoolInfo> {
-        return this.getPoolInfo(0);
+    async getPoolByAddress(_: string): Promise<DexPool> {
+        return this.getPool(0);
     }
 
-    async getPoolInfoByAssets(_1: AssetId | Asset, _2: AssetId | Asset): Promise<PoolInfo> {
-        return this.getPoolInfo(0);
+    async getPoolByAssets(_1: AssetId | Asset, _2: AssetId | Asset): Promise<DexPool> {
+        return this.getPool(0);
     }
-
-    async getSwapQuote(a1: AssetId | Asset, a2: AssetId | Asset, amount: Amount, slippage: number): Promise<SwapQuote> {
-        const price = 0.01;
-        const fee = BigInt(100);
-        const assetIn = typeof a1 === 'number' ? await fetchAsset(a1) : a1;
-        const assetOut = typeof a2 === 'number' ? await fetchAsset(a2) : a2;
-        return {
-            assetIn,
-            assetOut,
-            amountIn: BigInt(amount),
-            amountOut: BigInt(Number(amount) * price),
-            minimalAmountOut: BigInt(Number(amount) * price * (1 - slippage)),
-            price,
-            fee,
-            slippage,
-        };
-    }
-
-    /* eslint-disable */
-    async getSwapTxs(
-        sender: string,
-        fromAsset: AssetId | Asset,
-        toAsset: AssetId | Asset,
-        amountIn: Amount,
-        amountOut: Amount
-    ): Promise<WalletTransactionGroup[]> {
-        throw new Error('getSwapTxs not implemented for MOCK dex');
-    }
-
-    async getMintQuote(
-        assetA: number | Asset,
-        assetB: number | Asset,
-        amountA: bigint,
-        slippage: number
-    ): Promise<MintQuote> {
-        throw new Error('getMintQuote not implemented for MOCK dex');
-    }
-
-    async getMintTxs(
-        sender: string,
-        assetA: number | Asset,
-        assetB: number | Asset,
-        amountA: bigint,
-        amountB: bigint,
-        lpAmount: Amount
-    ): Promise<WalletTransactionGroup[]> {
-        throw new Error('getMintTxs not implemented for MOCK dex');
-    }
-    /* eslint-enable */
 }
 
 export const tinymanDex = new TinymanDex(algod);

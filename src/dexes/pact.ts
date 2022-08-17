@@ -4,7 +4,99 @@ import pactsdk from '@pactfi/pactsdk';
 import { ALGONET, TESTNET, algod } from '../AppContext';
 import { Asset, AssetId, assetId, fetchAsset, AppId, Amount } from '../common/store';
 import { WalletTransactionGroup } from '../types';
-import { Dex, PoolInfo, SwapQuote, MintQuote } from './common';
+import { toReachTxn } from '../common/lib';
+import { Dex, PoolInfo, SwapQuote, MintQuote, DexPool, DexProvider, Swap, Mint, Zap } from './common';
+
+/**
+ * Wrapper for `pactsdk.Pool`.
+ */
+export class PactPool implements DexPool {
+    poolDex: DexProvider = 'PT';
+    dexFeeApr = 0; // TODO
+
+    private _dex: PactDex;
+    private _pool: pactsdk.Pool;
+
+    constructor(dex: PactDex, pool: pactsdk.Pool) {
+        this._dex = dex;
+        this._pool = pool;
+    }
+
+    get poolId(): AppId {
+        return this._pool.appId;
+    }
+
+    get asset1(): AssetId {
+        return this._pool.primaryAsset.index;
+    }
+
+    get asset2(): AssetId {
+        return this._pool.secondaryAsset.index;
+    }
+
+    get liquidityAsset(): AssetId {
+        return this._pool.liquidityAsset.index;
+    }
+
+    get asset1Reserve(): Amount {
+        return BigInt(this._pool.state.totalPrimary);
+    }
+
+    get asset2Reserve(): Amount {
+        return BigInt(this._pool.state.totalSecondary);
+    }
+
+    get totalLiquidity(): Amount {
+        return BigInt(this._pool.state.totalLiquidity);
+    }
+
+    async getSwap(assetIn: AssetId | Asset, amountIn: Amount, slippage: number): Promise<Swap> {
+        if (typeof assetIn === 'number') {
+            assetIn = await fetchAsset(assetIn);
+        }
+
+        const swap = this._pool.prepareSwap({
+            asset: this._dex.makePactAsset(assetIn),
+            amount: Number(amountIn), // Pact SDK assumes that input amounts fit into Number
+            slippagePct: slippage * 100,
+        });
+
+        const assetOut = await fetchAsset(swap.assetReceived.index);
+        const appId = this._pool.appId;
+
+        return {
+            assetIn,
+            assetOut,
+            amountIn: BigInt(swap.effect.amountDeposited),
+            amountOut: BigInt(swap.effect.amountReceived),
+            minimalAmountOut: BigInt(swap.effect.minimumAmountReceived),
+            price: swap.effect.price,
+            fee: BigInt(swap.effect.fee),
+            slippage,
+
+            prepareTxs: async (sender: string): Promise<WalletTransactionGroup[]> => {
+                const pactTxs = await swap.prepareTxGroup(sender);
+                const firstTxID = pactTxs.transactions[0].txID();
+                const txns = pactTxs.transactions.map(toReachTxn);
+                const usedApps = [appId];
+                const usedAssets = [assetId(assetIn), assetId(assetOut)];
+                return [{ firstTxID, txns, usedApps, usedAssets }];
+            },
+        };
+    }
+
+    async getMint(assetIn: AssetId | Asset, amountIn: Amount, slippage: number): Promise<Mint> {
+        if (typeof assetIn === 'number') {
+            assetIn = await fetchAsset(assetIn);
+        }
+
+        const mint = this._pool.prepareAddLiquidity();
+    }
+
+    getZap(assetIn: AssetId | Asset, amountIn: Amount, slippage: number): Promise<Zap> {
+        throw new Error('Method not implemented.');
+    }
+}
 
 /*
  * Subset of Pact API implementation
@@ -70,13 +162,13 @@ export class PactDex extends Dex {
         return this.fixPactPoolDefaults(pool, a1, a2);
     }
 
-    async getPoolInfo(poolId: AppId): Promise<PoolInfo> {
+    async getPool(poolId: AppId): Promise<PoolInfo> {
         // TODO: how to fix stupid 0/0 pact pool defaults here?
         return this.poolToPoolInfo(await this.pact.fetchPoolById(poolId));
     }
 
     // TODO: No easier way to figure out the Pact pool from its address
-    async getPoolInfoByAddress(poolAddress: string): Promise<PoolInfo> {
+    async getPoolByAddress(poolAddress: string): Promise<PoolInfo> {
         const accountInfo = await algod.accountInformation(poolAddress).do();
         const lpTokenId = accountInfo['created-assets'][0].index;
         let poolAssets: AssetId[] = accountInfo.assets
