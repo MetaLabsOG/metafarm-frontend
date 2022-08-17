@@ -15,7 +15,7 @@ const instance = axios.create({
 });
 
 export async function getCoinRateFromBinance(pair: Pair): Promise<Rate | null> {
-    const response = await instance
+    return instance
         .get<Rate>(`ticker/price`, {
             params: {
                 symbol: pair,
@@ -26,5 +26,4 @@ export async function getCoinRateFromBinance(pair: Pair): Promise<Rate | null> {
             console.error(`Failed to fetch coin price: ${error}`);
             return null;
         });
-    return response;
 }
