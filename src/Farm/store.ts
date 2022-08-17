@@ -30,7 +30,7 @@ import {
 } from '../common/store';
 import { AllDefined, Backend } from '../types';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
-import { fromSmallestUnits } from '../common/lib';
+import { fromSmallestUnits, MINUTE, YEAR } from '../common/lib';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 import { PoolState } from './PoolList/Pool/types';
 
@@ -334,7 +334,7 @@ export function createAprs<T extends FarmType>(
                         };
                     }
 
-                    const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
+                    const blocksInAYear = YEAR / meanRoundDuration;
                     const stakePrice = stakeTokenInfo.price;
                     const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
                     const rewardPerBlock = fromSmallestUnits(rewardTokenInfo, contractState.initial.rewardPerBlock);
@@ -366,10 +366,4 @@ export function createAprs<T extends FarmType>(
     );
 }
 
-export const $farmAprs = createAprs($farmPools, $farmStakeTokens);
-
-$farmAprs.watch((aprs) => {
-    for (const apr of aprs) {
-        console.log(`APR ${JSON.stringify(apr)}`);
-    }
-});
+export const $farmAprs = createAprs($sortedFarmPools, $farmStakeTokens);

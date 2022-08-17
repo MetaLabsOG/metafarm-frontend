@@ -12,6 +12,7 @@ import {
     createAggregates,
     PoolDollarInfo,
     createDollarInfos,
+    createAprs,
 } from '../Farm/store';
 
 const { $contracts, $contractStatesWithCache, setContractInfos } = buildContractsStore(
@@ -43,3 +44,5 @@ export const $stakingTokens = combine($distributedTokens, $farmStakeTokens, (dis
 
 export const $distributionPoolDollarInfos: Store<PoolDollarInfo[]> = createDollarInfos($sortedStakingPools);
 export const $distributionPoolAggregates: Store<PoolAggregates> = createAggregates($distributionPoolDollarInfos);
+
+export const $stakeAprs = createAprs($sortedStakingPools, $stakingTokens);

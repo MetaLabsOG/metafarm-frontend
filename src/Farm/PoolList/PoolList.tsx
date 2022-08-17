@@ -12,13 +12,15 @@ export const POOL_COLUMN_WIDTH: Record<string, string> = {
 };
 
 export function PoolList<T extends FarmType>({ type, pools }: { type: T; pools: Array<Contract<T>> }) {
-    const poolComponents = pools.map((ctc: Contract<T>) => <Pool key={ctc.id} type={type} contract={ctc} />);
+    const poolComponents = pools.map((ctc: Contract<T>, index) => (
+        <Pool key={ctc.id} index={index} type={type} contract={ctc} />
+    ));
 
     return (
         <PoolListContainer>
             <PoolListHeader>
-                {Object.keys(POOL_COLUMN_WIDTH).map((key, i) => (
-                    <PoolListHeaderElement key={i} width={POOL_COLUMN_WIDTH[key]}>
+                {Object.keys(POOL_COLUMN_WIDTH).map((key) => (
+                    <PoolListHeaderElement key={key} width={POOL_COLUMN_WIDTH[key]}>
                         {key}
                     </PoolListHeaderElement>
                 ))}
