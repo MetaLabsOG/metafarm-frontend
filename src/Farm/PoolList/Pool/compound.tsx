@@ -1,4 +1,4 @@
-import { LPTokenInfo, ZapQuote } from '../../../providers/dexesProvider';
+import { LPTokenInfo, ZapQuote } from '../../../dexes';
 import { Asset, Priced, refreshAccountInfo } from '../../../common/store';
 import { fromSmallestUnits } from '../../../common/lib';
 import { QueryType, runTransactions } from '../../../Swap/Swap';

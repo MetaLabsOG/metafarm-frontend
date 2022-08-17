@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction } from 'react';
 import { useUnit } from 'effector-react';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { LPTokenInfo } from '../../../dexes';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { $account, Amount, AppId, Asset, ContractState, FarmType, Priced } from '../../../common/store';
 import { AllDefined } from '../../../types';

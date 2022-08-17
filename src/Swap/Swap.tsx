@@ -24,7 +24,7 @@ import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGrou
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
-import { BestSwapQuote, makeDex, TinymanDex, ZapQuote } from '../providers/dexesProvider';
+import { BestSwapQuote, tinymanDex, ZapQuote } from '../dexes';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
@@ -44,8 +44,6 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
 };
 
 export const SLIPPAGE = 0.01;
-
-const tinyman = makeDex('T2') as TinymanDex;
 
 export enum QueryType {
     swap,
@@ -103,7 +101,7 @@ async function getBestSwap(
         const asset1 = await fetchAsset(Number.parseInt(asset1_id));
         const asset2 = await fetchAsset(Number.parseInt(asset2_id));
         const amountIn = getSmallestUnits(asset1, Number.parseFloat(asset1_amount));
-        const bestSwapQuote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
+        const bestSwapQuote = await tinymanDex.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
         const asset2Price = await fetchAssetPriceFx(asset2);
         const best_swap = quoteToBestSwap(bestSwapQuote, asset2Price);
 
@@ -157,12 +155,12 @@ export async function getTransactions(
     const amountIn = getSmallestUnits(asset1, Number(asset1_amount));
 
     if (type === QueryType.swap) {
-        const quote = await tinyman.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
-        const txns = await tinyman.getBestSwapTxsFromQuote(address, quote);
+        const quote = await tinymanDex.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
+        const txns = await tinymanDex.getBestSwapTxsFromQuote(address, quote);
         return { quote, txns };
     }
-    const quote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
-    const txns = await tinyman.getZapTxsFromQuote(address, quote);
+    const quote = await tinymanDex.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
+    const txns = await tinymanDex.getZapTxsFromQuote(address, quote);
     return { quote, txns };
 }
 
@@ -196,7 +194,7 @@ export async function runTransactions(
         console.log('SWAP/ZAP OK', txIds);
 
         // TODO: abstract post-redeems only for Tinyman in swap/zap functionality in dexesProvider
-        const redeemTxns = await tinyman.getAllRedeemTxs(address);
+        const redeemTxns = await tinymanDex.getAllRedeemTxs(address);
         const redeemTxIds = await signAndPostTxnGroups(redeemTxns);
 
         refreshAccountInfo();

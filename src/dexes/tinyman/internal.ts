@@ -3,7 +3,7 @@
 import { Buffer } from 'buffer';
 import algosdk from 'algosdk';
 import { max, min } from 'ramda';
-import { AppId, AssetId } from '../common/store';
+import { AppId, AssetId } from '../../common/store/types';
 import TINYMAN_ASC from './tinyman_asc.json';
 
 // Without bothering the backend all the time (which does algoindexer queries anyway).

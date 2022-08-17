@@ -4,7 +4,7 @@ import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
 import { AssetId, ContractType } from '../common/store/types';
 import { ALGONET } from '../AppContext';
 import { nonConcurrent } from '../common/store/utils';
-import { DexProvider } from './dexesProvider';
+import { DexProvider } from '../dexes/common';
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,

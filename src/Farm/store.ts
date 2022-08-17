@@ -27,7 +27,7 @@ import {
     Time,
 } from '../common/store';
 import { AllDefined, Backend } from '../types';
-import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
+import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 
 // TODO: this function is a huge costyl

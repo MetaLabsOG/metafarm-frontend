@@ -16,7 +16,7 @@ import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/s
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
-import { makeDex, ZapQuote } from '../providers/dexesProvider';
+import { makeDex, ZapQuote } from '../dexes';
 import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
 import { ZapData } from './types';
