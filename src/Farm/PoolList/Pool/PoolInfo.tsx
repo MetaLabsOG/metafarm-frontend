@@ -14,6 +14,7 @@ import {
 import { LPTokenInfo } from '../../../dexes';
 import { DAY, fromSmallestUnits, HOUR, MINUTE, unsafeFromBigint } from '../../../common/lib';
 import { getDexIcon } from '../../utils';
+import { $farmAprs } from '../../store';
 import { formatLPTokenName, isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
@@ -52,56 +53,6 @@ const calculateTiming = (
     return timingPrefix + diffText;
 };
 
-export enum APRTypes {
-    reward,
-    algoReward,
-    fees,
-    total,
-}
-
-const calculateAPR = (
-    meanRoundDuration: number,
-    poolState: PoolState,
-    contractState: ContractState<FarmType>,
-    stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>,
-    rewardTokenInfo: Priced<Asset>,
-    ALGOPrice: number | null
-): Record<APRTypes, number> => {
-    if (poolState === PoolState.Finished) {
-        return {
-            [APRTypes.reward]: 0,
-            [APRTypes.algoReward]: 0,
-            [APRTypes.fees]: 0,
-            [APRTypes.total]: 0,
-        };
-    }
-
-    const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
-    const stakePrice = stakeTokenInfo.price;
-    const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
-    const rewardPerBlock = fromSmallestUnits(rewardTokenInfo, contractState.initial.rewardPerBlock);
-
-    const { extraAlgoRewardPerBlock } = contractState.initial as FarmInitialInfo;
-    const algoRewardPerBlock = extraAlgoRewardPerBlock ? fromSmallestUnits(ALGO_ASSET, extraAlgoRewardPerBlock) : 0;
-
-    const totalStakedUSD = totalStaked * stakePrice;
-    const rewardAPR = totalStakedUSD
-        ? ((rewardPerBlock * rewardTokenInfo.price * blocksInAYear) / totalStakedUSD) * 100
-        : 0;
-
-    const algoRewardAPR =
-        totalStakedUSD && ALGOPrice ? ((algoRewardPerBlock * ALGOPrice * blocksInAYear) / totalStakedUSD) * 100 : 0;
-
-    const feesAPR = ((stakeTokenInfo as Priced<LPTokenInfo>).dexFeeApr ?? 0) * 100;
-
-    return {
-        [APRTypes.reward]: rewardAPR,
-        [APRTypes.algoReward]: algoRewardAPR,
-        [APRTypes.fees]: feesAPR,
-        [APRTypes.total]: rewardAPR + algoRewardAPR + feesAPR,
-    };
-};
-
 export function PoolInfo({
     contractState,
     poolState,
@@ -125,7 +76,9 @@ export function PoolInfo({
     const meanRoundDuration = useUnit($meanRoundDuration);
     const ALGOPrice = useUnit($algoUsdPrice);
     const { endBlock, beginBlock } = contractState.initial;
-    const APR = calculateAPR(meanRoundDuration, poolState, contractState, stakeTokenInfo, rewardTokenInfo, ALGOPrice);
+    // TODO may be not APRS
+    // TODO should not be [0]
+    const APR = useUnit($farmAprs)[0];
 
     const timing = calculateTiming(poolState, currentBlock, beginBlock, endBlock, meanRoundDuration);
 
@@ -141,43 +94,39 @@ export function PoolInfo({
 
     const dexIcon = isLPTokenInfo(stakeTokenInfo) ? getDexIcon(stakeTokenInfo.poolDex) : null;
 
-    return (
-        <>
-            {window.innerWidth <= 1120 ? (
-                <PoolInfoMobile
-                    account={account}
-                    pricedAlgo={pricedAlgo}
-                    contractState={contractState}
-                    stakeTokenInfo={stakeTokenInfo}
-                    rewardTokenInfo={rewardTokenInfo}
-                    asset1_id={asset1_id}
-                    asset2_id={asset2_id}
-                    pool_name={pool_name}
-                    APR={APR}
-                    timing={timing}
-                    contractLockSuffix={contractLockSuffix}
-                    isOpen={isOpen}
-                    dexIcon={dexIcon}
-                    isVerified={poolMetadata.verified ?? false}
-                />
-            ) : (
-                <PoolInfoDesktop
-                    account={account}
-                    pricedAlgo={pricedAlgo}
-                    contractState={contractState}
-                    stakeTokenInfo={stakeTokenInfo}
-                    rewardTokenInfo={rewardTokenInfo}
-                    asset1_id={asset1_id}
-                    asset2_id={asset2_id}
-                    pool_name={pool_name}
-                    APR={APR}
-                    timing={timing}
-                    contractLockSuffix={contractLockSuffix}
-                    isOpen={isOpen}
-                    dexIcon={dexIcon}
-                    isVerified={poolMetadata.verified ?? false}
-                />
-            )}
-        </>
+    return window.innerWidth <= 1120 ? (
+        <PoolInfoMobile
+            account={account}
+            pricedAlgo={pricedAlgo}
+            contractState={contractState}
+            stakeTokenInfo={stakeTokenInfo}
+            rewardTokenInfo={rewardTokenInfo}
+            asset1_id={asset1_id}
+            asset2_id={asset2_id}
+            pool_name={pool_name}
+            APR={APR}
+            timing={timing}
+            contractLockSuffix={contractLockSuffix}
+            isOpen={isOpen}
+            dexIcon={dexIcon}
+            isVerified={poolMetadata.verified ?? false}
+        />
+    ) : (
+        <PoolInfoDesktop
+            account={account}
+            pricedAlgo={pricedAlgo}
+            contractState={contractState}
+            stakeTokenInfo={stakeTokenInfo}
+            rewardTokenInfo={rewardTokenInfo}
+            asset1_id={asset1_id}
+            asset2_id={asset2_id}
+            pool_name={pool_name}
+            APR={APR}
+            timing={timing}
+            contractLockSuffix={contractLockSuffix}
+            isOpen={isOpen}
+            dexIcon={dexIcon}
+            isVerified={poolMetadata.verified ?? false}
+        />
     );
 }

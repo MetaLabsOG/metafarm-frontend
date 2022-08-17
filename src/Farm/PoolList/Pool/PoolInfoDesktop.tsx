@@ -9,6 +9,8 @@ import { fromSmallestUnits } from '../../../common/lib';
 import info from '../../../imgs/info.svg';
 import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
 import { POOL_COLUMN_WIDTH } from '../PoolList';
+import { Image } from '../../utils';
+import { AprType } from '../../store';
 import {
     PoolInfoDesktopContainer,
     ArrowIconsWrapper,
@@ -17,7 +19,6 @@ import {
     RewardUSDValue,
     RewardTokenValue,
 } from './styled';
-import { APRTypes } from './PoolInfo';
 import { algoRewardPerBlock, calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
 
 export interface PoolInfoDesktopProps {
@@ -29,11 +30,11 @@ export interface PoolInfoDesktopProps {
     asset1_id: AssetId;
     asset2_id: AssetId;
     pool_name: string;
-    APR: Record<APRTypes, number>;
+    APR: AprType;
     timing: string;
     contractLockSuffix: string;
     isOpen: boolean;
-    dexIcon: any;
+    dexIcon: Image | null;
     isVerified: boolean;
 }
 
@@ -75,10 +76,10 @@ export const StakeValue: FC<ValueProps> = ({ contractState, tokenInfo }) => {
     return <>${numberRound(convertAmountToUSD(tokenInfo, contractState.local.staked))}</>;
 };
 
-export const getAPRTip = (APR: Record<APRTypes, number>, unitname: string) => {
-    const rewards = `${numberRound(APR[APRTypes.reward])}%${unitname}`;
-    const algoRewards = APR[APRTypes.algoReward] ? ` + ${numberRound(APR[APRTypes.algoReward])}% ALGO` : '';
-    const fees = APR[APRTypes.fees] ? ` + ${numberRound(APR[APRTypes.fees])}% trading fees` : '';
+export const getAPRTip = (APR: AprType, unitname: string) => {
+    const rewards = `${numberRound(APR.reward)}%${unitname}`;
+    const algoRewards = APR.algoReward ? ` + ${numberRound(APR.algoReward)}% ALGO` : '';
+    const fees = APR.fees ? ` + ${numberRound(APR.fees)}% trading fees` : '';
     return rewards + algoRewards + fees;
 };
 
@@ -117,7 +118,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             )}`}</PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH.APR}>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-                    {numberRound(APR[APRTypes.total])}%
+                    {numberRound(APR.total)}%
                     <img
                         data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
                         style={{ marginLeft: '3px' }}
