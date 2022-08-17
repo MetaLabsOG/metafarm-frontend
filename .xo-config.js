@@ -57,7 +57,7 @@ module.exports = {
         'new-cap': [
             'error',
             {
-                capIsNewExceptions: ['Map'],
+                capIsNewExceptions: ['Map', 'Set'],
             },
         ],
     },

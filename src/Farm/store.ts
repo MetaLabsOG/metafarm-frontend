@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
 import { backend as farmBackend } from '@metalabsog/farm';
-import { Map } from 'immutable';
+import { Map, Set } from 'immutable';
 import { createEffect, createStore, createEvent, sample, combine, Store } from 'effector';
 import { groupBy, min, values } from 'ramda';
 import {
@@ -164,24 +164,23 @@ export const getLPTokenInfoFx = createEffect(
 
 $lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
 
-// Fetching LP token infos similarly to how asset prices are fetched
-const markTokenAsLP = createEvent<AssetId>();
-const $isLPToken = createStore(Map<AssetId, boolean>()).on(markTokenAsLP, (state, token) => state.set(token, true));
+const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) => {
+    const newIds = Set(pools.filter((pool) => pool.state !== null).map((pool) => pool.state!.initial.stakeToken));
+    return state.union(newIds);
+});
 
 // Automatically fetch LP token infos when general info about them gets fetched the first time
 sample({
     clock: assetLoaded,
-    source: { isLP: $isLPToken, algoPrice: $algoUsdPrice },
-    filter: ({ isLP }, asset) => isLP.get(asset.id, false),
+    source: { lpTokens: $lpTokenIds, algoPrice: $algoUsdPrice },
+    filter: ({ lpTokens }, asset) => lpTokens.has(asset.id),
     fn: ({ algoPrice }, asset) => ({ asset, algoPrice, provider: undefined }),
     target: getLPTokenInfoFx,
 });
 
-// TODO: change to effector.split or patronum.something
 $farmPools.watch((farms) => {
     const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
     for (const s of farmStates) {
-        markTokenAsLP(s.initial.stakeToken);
         registerAsset(s.initial.stakeToken);
         registerPricedAsset(s.initial.rewardToken);
     }
