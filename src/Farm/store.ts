@@ -25,10 +25,14 @@ import {
     FarmType,
     hasLocalState,
     Time,
+    FarmInitialInfo,
+    $meanRoundDuration,
 } from '../common/store';
 import { AllDefined, Backend } from '../types';
 import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
+import { fromSmallestUnits } from '../common/lib';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
+import { PoolState } from './PoolList/Pool/types';
 
 // TODO: this function is a huge costyl
 export function detectAssetProvider({ name }: { name: string }): DexProvider {
@@ -292,3 +296,80 @@ export function createAggregates($dollarInfos: Store<PoolDollarInfo[]>) {
 }
 
 export const $farmPoolAggregates: Store<PoolAggregates> = createAggregates($farmPoolDollarInfos);
+
+type AprType = {
+    reward: number;
+    algoReward: number;
+    fees: number;
+    total: number;
+};
+
+export function createAprs<T extends FarmType>(
+    $pools: Store<Array<Contract<T>>>,
+    $stakeTokens: Store<Map<AssetId, Priced<LPTokenInfo> | Priced<Asset> | null>>
+): Store<AprType[]> {
+    return combine(
+        $pools,
+        $networkTime,
+        $meanRoundDuration,
+        $algoUsdPrice,
+        $stakeTokens,
+        $farmRewardTokens,
+        (pools, time, meanRoundDuration, algoPrice, stakingTokens, farmRewardTokens) =>
+            pools
+                // TODO: we should never have null pools tbh
+                .filter((pool) => pool.state !== null)
+                .map((pool) => {
+                    const stakeTokenInfo = stakingTokens.get(pool.id, null);
+                    const rewardTokenInfo = farmRewardTokens.get(pool.id, null) ?? stakeTokenInfo;
+                    const contractState = pool.state!;
+                    const period = getPoolState(time, pool.state!.initial);
+
+                    if (stakeTokenInfo === null || rewardTokenInfo === null || period === PoolState.Finished) {
+                        return {
+                            reward: 0,
+                            algoReward: 0,
+                            fees: 0,
+                            total: 0,
+                        };
+                    }
+
+                    const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
+                    const stakePrice = stakeTokenInfo.price;
+                    const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
+                    const rewardPerBlock = fromSmallestUnits(rewardTokenInfo, contractState.initial.rewardPerBlock);
+
+                    const { extraAlgoRewardPerBlock } = contractState.initial as FarmInitialInfo;
+                    const algoRewardPerBlock = extraAlgoRewardPerBlock
+                        ? fromSmallestUnits(ALGO_ASSET, extraAlgoRewardPerBlock)
+                        : 0;
+
+                    const totalStakedUSD = totalStaked * stakePrice;
+                    const rewardAPR = totalStakedUSD
+                        ? ((rewardPerBlock * rewardTokenInfo.price * blocksInAYear) / totalStakedUSD) * 100
+                        : 0;
+
+                    const algoRewardAPR =
+                        totalStakedUSD && algoPrice
+                            ? ((algoRewardPerBlock * algoPrice * blocksInAYear) / totalStakedUSD) * 100
+                            : 0;
+
+                    const feesAPR = ((stakeTokenInfo as Priced<LPTokenInfo>).dexFeeApr ?? 0) * 100;
+
+                    return {
+                        reward: rewardAPR,
+                        algoReward: algoRewardAPR,
+                        fees: feesAPR,
+                        total: rewardAPR + algoRewardAPR + feesAPR,
+                    };
+                })
+    );
+}
+
+export const $farmAprs = createAprs($farmPools, $farmStakeTokens);
+
+$farmAprs.watch((aprs) => {
+    for (const apr of aprs) {
+        console.log(`APR ${JSON.stringify(apr)}`);
+    }
+});
