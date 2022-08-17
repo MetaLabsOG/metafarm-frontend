@@ -297,7 +297,7 @@ export function createAggregates($dollarInfos: Store<PoolDollarInfo[]>) {
 
 export const $farmPoolAggregates: Store<PoolAggregates> = createAggregates($farmPoolDollarInfos);
 
-type AprType = {
+export type AprType = {
     reward: number;
     algoReward: number;
     fees: number;

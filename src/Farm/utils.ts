@@ -42,9 +42,9 @@ export const getDexName = (poolDex: string): string => {
     return poolDex;
 };
 
-type Image = any;
+export type Image = string;
 
-export const getDexIcon = (poolDex: DexProvider): Image => {
+export const getDexIcon = (poolDex: DexProvider): Image | null => {
     if (poolDex === 'T2') {
         return tinyman;
     }

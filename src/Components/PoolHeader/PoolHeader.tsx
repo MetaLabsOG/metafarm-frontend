@@ -2,6 +2,8 @@ import ReactTooltip from 'react-tooltip';
 import { getAssetLogoUrl, getTokenLink } from '../../Farm/PoolList/Pool/utils';
 import verified from '../../imgs/verified.svg';
 import info from '../../imgs/info.svg';
+import { Image } from '../../Farm/utils';
+
 import {
     PoolHeaderContainer,
     ContractLockSuffix,
@@ -27,7 +29,7 @@ export function PoolHeader({
     asset2_id: number;
     pool_name: string;
     rewardTokenName: string;
-    dexIcon: string;
+    dexIcon: Image | null;
     lock: string;
     isVerified: boolean;
     algoRewards: boolean;

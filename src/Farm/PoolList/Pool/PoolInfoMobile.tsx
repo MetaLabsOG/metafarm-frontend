@@ -5,7 +5,6 @@ import info from '../../../imgs/info.svg';
 import { PoolInfoMobileContainer, PoolInfoValue, StakeButtonMobile, TimingMobile } from './styled';
 import { algoRewardPerBlock, convertAmountToUSD, numberRound } from './utils';
 import { getAPRTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
-import { APRTypes } from './PoolInfo';
 
 export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,
@@ -24,7 +23,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     isVerified,
 }) => {
     if (contractState.local && isOpen) {
-        return <></>;
+        return null;
     }
 
     return (
@@ -48,7 +47,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
             <PoolInfoValue style={{ marginBottom: '30px' }}>
                 <div>APR</div>{' '}
                 <div style={{ color: 'white', display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-                    {numberRound(APR[APRTypes.total])}%
+                    {numberRound(APR.total)}%
                     <img
                         data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
                         style={{ marginLeft: '3px' }}
