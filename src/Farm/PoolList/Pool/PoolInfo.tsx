@@ -1,20 +1,10 @@
 import { useUnit } from 'effector-react';
-import {
-    $account,
-    $algoUsdPrice,
-    $meanRoundDuration,
-    ALGO_ASSET,
-    Asset,
-    ContractState,
-    FarmInitialInfo,
-    FarmType,
-    Priced,
-    Time,
-} from '../../../common/store';
+import { $account, $meanRoundDuration, Asset, ContractState, FarmType, Priced, Time } from '../../../common/store';
 import { LPTokenInfo } from '../../../dexes';
-import { DAY, fromSmallestUnits, HOUR, MINUTE, unsafeFromBigint } from '../../../common/lib';
+import { DAY, HOUR, MINUTE } from '../../../common/lib';
 import { getDexIcon } from '../../utils';
 import { $farmAprs } from '../../store';
+import { $stakeAprs } from '../../../Stake/store';
 import { formatLPTokenName, isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
@@ -54,6 +44,7 @@ const calculateTiming = (
 };
 
 export function PoolInfo({
+    index,
     contractState,
     poolState,
     stakeTokenInfo,
@@ -63,6 +54,7 @@ export function PoolInfo({
     isOpen,
     poolMetadata,
 }: {
+    index: number;
     contractState: ContractState<FarmType>;
     poolState: PoolState;
     stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>;
@@ -70,29 +62,26 @@ export function PoolInfo({
     currentBlock: Time;
     pricedAlgo: Priced<Asset>;
     isOpen: boolean;
+    // TODO something is fishy with the type here
     poolMetadata: any;
 }) {
+    const isFarm = isLPTokenInfo(stakeTokenInfo);
     const account = useUnit($account);
     const meanRoundDuration = useUnit($meanRoundDuration);
-    const ALGOPrice = useUnit($algoUsdPrice);
     const { endBlock, beginBlock } = contractState.initial;
-    // TODO may be not APRS
-    // TODO should not be [0]
-    const APR = useUnit($farmAprs)[0];
+    const APR = useUnit(isFarm ? $farmAprs : $stakeAprs)[index];
 
     const timing = calculateTiming(poolState, currentBlock, beginBlock, endBlock, meanRoundDuration);
 
-    const asset1_id = isLPTokenInfo(stakeTokenInfo) ? stakeTokenInfo.asset1 : stakeTokenInfo.id;
-    const asset2_id = isLPTokenInfo(stakeTokenInfo) ? stakeTokenInfo.asset2 : rewardTokenInfo.id;
-    const pool_name = isLPTokenInfo(stakeTokenInfo)
-        ? formatLPTokenName(stakeTokenInfo.name) + ' LP'
-        : 'STAKE ' + stakeTokenInfo.unitName;
+    const asset1_id = isFarm ? stakeTokenInfo.asset1 : stakeTokenInfo.id;
+    const asset2_id = isFarm ? stakeTokenInfo.asset2 : rewardTokenInfo.id;
+    const pool_name = isFarm ? formatLPTokenName(stakeTokenInfo.name) + ' LP' : 'STAKE ' + stakeTokenInfo.unitName;
     // TODO: separate 0 from undefined in lpTokenInfo.asset
     const contractLockSuffix = contractState.initial.lockLengthBlocks
         ? 'with ' + blocksToText(Number(contractState.initial.lockLengthBlocks), meanRoundDuration) + ' lock'
         : '';
 
-    const dexIcon = isLPTokenInfo(stakeTokenInfo) ? getDexIcon(stakeTokenInfo.poolDex) : null;
+    const dexIcon = isFarm ? getDexIcon(stakeTokenInfo.poolDex) : null;
 
     return window.innerWidth <= 1120 ? (
         <PoolInfoMobile

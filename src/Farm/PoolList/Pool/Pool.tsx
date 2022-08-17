@@ -13,7 +13,7 @@ import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolLoadingAnimation } from './styled';
 import { getPoolState } from './utils';
 
-export function Pool({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) {
+export function Pool({ type, contract, index }: { type: FarmType; contract: Contract<FarmType>; index: number }) {
     const currentBlock = useUnit($networkTime);
     const pricedAlgo = useUnit($pricedAlgo);
     const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
@@ -62,6 +62,7 @@ export function Pool({ type, contract }: { type: FarmType; contract: Contract<Fa
                     onClick={onPoolClick}
                 >
                     <PoolInfo
+                        index={index}
                         isOpen={isOpen}
                         contractState={contract.state}
                         poolState={poolState}
