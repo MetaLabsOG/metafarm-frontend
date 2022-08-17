@@ -2,8 +2,8 @@
 // @ts-expect-error
 import { backend as farmBackend } from '@metalabsog/farm';
 import { Map, Set } from 'immutable';
-import { createEffect, createStore, createEvent, sample, combine, Store } from 'effector';
-import { groupBy, min, values } from 'ramda';
+import { createEffect, createStore, sample, combine, Store } from 'effector';
+import { groupBy, min, values, zip, zipWith } from 'ramda';
 import {
     Asset,
     AssetId,
@@ -208,31 +208,31 @@ export const $farmRewardTokens = combine($pricedAssets, $contractStatesWithCache
 );
 
 // Price aggregation
-const sumMoney = <T extends FarmType>(
+const getDollarInfo = <T extends FarmType>(
     states: Array<ContractState<T>>,
     tokens: Map<AssetId, Priced<Asset>>,
     getAmount: (s: ContractState<T>) => Amount | undefined,
     getToken: (s: ContractState<T>) => AssetId
-): number =>
-    states.reduce((sum, state) => {
+): number[] =>
+    states.map((state) => {
         const token = getToken(state);
         const amount = getAmount(state);
         const tokenInfo = tokens.get(token, null);
 
         if (!amount || !token || !tokenInfo) {
-            return sum;
+            return 0;
         }
 
-        return sum + convertAmountToUSD(tokenInfo, amount);
-    }, 0);
+        return convertAmountToUSD(tokenInfo, amount);
+    });
 
-export interface PoolAggregates {
+export interface PoolDollarInfo {
     tvl: number;
-    totalUserStake: number;
-    totalPendingReward: number;
+    userStake: number;
+    pendingReward: number;
 }
 
-export function createAggregates<T extends FarmType>($pools: Store<Array<Contract<T>>>) {
+export function createDollarInfos<T extends FarmType>($pools: Store<Array<Contract<T>>>): Store<PoolDollarInfo[]> {
     return combine(
         $pools.map((contracts) => contracts.map((c) => c.state).filter((s): s is ContractState<T> => s !== null)),
         $lpTokenInfos,
@@ -240,31 +240,56 @@ export function createAggregates<T extends FarmType>($pools: Store<Array<Contrac
         (states, lpTokens, tokens) => {
             const getToken = (s: ContractState<T>) => ('token' in s.initial ? s.initial.token : s.initial.stakeToken);
             const allTokens = tokens.merge(lpTokens);
-            const tvl = sumMoney(
+            const tvls = getDollarInfo(
                 states,
                 allTokens,
                 (s) => s.global.totalStaked - BigInt(1), // VIRTUAL STAKE!
                 getToken
             );
-            const totalUserStake = sumMoney(states, allTokens, (s) => s.local?.staked, getToken);
-            const totalPendingReward = states.reduce((sum, state) => {
+            const userStakes: number[] = getDollarInfo(states, allTokens, (s) => s.local?.staked, getToken);
+            const pendingRewards = states.map((state) => {
                 const token = 'token' in state.initial ? state.initial.token : state.initial.rewardToken;
                 const tokenInfo = tokens.get(token, null);
                 const algoInfo = tokens.get(0, null);
                 const tokenReward = state.local?.reward ?? BigInt(0);
 
                 if (!tokenReward || !token || !tokenInfo || !algoInfo) {
-                    return sum;
+                    return 0;
                 }
 
                 const algoReward = calculateAlgoReward(state.initial, tokenReward);
 
-                return sum + convertAmountToUSD(tokenInfo, tokenReward) + convertAmountToUSD(algoInfo, algoReward);
-            }, 0);
+                return convertAmountToUSD(tokenInfo, tokenReward) + convertAmountToUSD(algoInfo, algoReward);
+            });
 
-            return { tvl, totalUserStake, totalPendingReward };
+            return zipWith(
+                (a, b: number[]) => ({
+                    tvl: a,
+                    userStake: b[0],
+                    pendingReward: b[1],
+                }),
+                tvls,
+                zip(userStakes, pendingRewards)
+            );
         }
     );
 }
 
-export const $farmPoolAggregates: Store<PoolAggregates> = createAggregates($farmPools);
+export const $farmPoolDollarInfos = createDollarInfos($farmPools);
+
+export interface PoolAggregates {
+    tvl: number;
+    totalUserStake: number;
+    totalPendingReward: number;
+}
+
+export function createAggregates($dollarInfos: Store<PoolDollarInfo[]>) {
+    return $dollarInfos.map((infos) => {
+        const tvl = infos.reduce((acc, info) => acc + info.tvl, 0);
+        const totalUserStake = infos.reduce((acc, info) => acc + info.userStake, 0);
+        const totalPendingReward = infos.reduce((acc, info) => acc + info.pendingReward, 0);
+        return { tvl, totalUserStake, totalPendingReward };
+    });
+}
+
+export const $farmPoolAggregates: Store<PoolAggregates> = createAggregates($farmPoolDollarInfos);
