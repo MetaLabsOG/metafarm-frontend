@@ -140,7 +140,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                 ))}
             </PoolInfoValue>
             <ArrowIconsWrapper>
-                {contractState.local ? <Arrow rotate={isOpen} /> : account !== null ? <Pacman src={pacman} /> : ''}
+                {contractState.local || account === null ? <Arrow rotate={isOpen} /> : <Pacman src={pacman} />}
             </ArrowIconsWrapper>
         </PoolInfoDesktopContainer>
     );

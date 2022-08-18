@@ -5,7 +5,7 @@ import '../css/swap.css';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { useUnit } from 'effector-react';
+import { useUnit, useStoreMap } from 'effector-react';
 import { logEvent, logFarmActionData, LogName } from '../logEvent';
 import { $account, $balances, fetchAsset } from '../common/store';
 import { formatNumber, getOptions, QueryType, runTransactions, SLIPPAGE } from '../Swap/Swap';
@@ -32,7 +32,8 @@ function zapQuoteToData(asset1_id: number, quote: ZapQuote): ZapData {
     const asset2_amount = assetsAreSwapped ? amountA : amountB;
     const lp_amount = fromSmallestUnits(quote.mint.lpToken, quote.mint.minimalLiquidityIssued);
     const pool_lp_id = quote.mint.lpToken.id;
-    return { asset1_amount, asset2_amount, lp_amount, pool_lp_id };
+    const pool_lp_decimals = quote.mint.lpToken.decimals;
+    return { asset1_amount, asset2_amount, lp_amount, pool_lp_id, pool_lp_decimals };
 }
 
 export async function loadZapData(
@@ -81,7 +82,7 @@ export async function loadZapData(
         return zap_data;
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
-        if (error_message.includes('cancelled')) {
+        if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
             notify('Operation is cancelled.', 'warning');
         } else if (error_message.includes('pool for address')) {
             notify('There is no pool for tokens pair.', 'warning');
@@ -108,11 +109,13 @@ export function ZapResult({
     zap_data,
     token1,
     token2,
+    lpMicroBalance,
 }: {
     isLoading: boolean;
     zap_data: ZapData;
     token1: TokenOptionType;
     token2: TokenOptionType;
+    lpMicroBalance: bigint;
 }) {
     const lpTokens =
         `${formatNumber(zap_data.asset1_amount ?? 0)} ${token1.unitName}` +
@@ -129,11 +132,16 @@ export function ZapResult({
             />
             <InfoRow title=" " value={lpTokens} valueStyle={{ fontSize: '14px' }} />
             <InfoRow
+                title="Current LP balance"
+                value={fromSmallestUnits({ decimals: zap_data.pool_lp_decimals }, lpMicroBalance)}
+                valueStyle={{ fontSize: '14px' }}
+            />
+            <InfoRow
                 title="LP ASA ID"
                 value={formatNumber(zap_data.pool_lp_id ?? 0)}
                 valueStyle={{ fontSize: '14px' }}
             />
-            <InfoRow title="Slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
+            <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
         </InfoPanel>
     );
 }
@@ -150,6 +158,7 @@ export function Zap() {
         asset2_amount: 0,
         lp_amount: 0,
         pool_lp_id: 0,
+        pool_lp_decimals: 0,
     });
 
     const [options, setOptions] = useState<TokenOptionType[]>([]);
@@ -272,12 +281,22 @@ export function Zap() {
                 />
             )}
             {(isLoading || showResult) && (
-                <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
+                <ZapResult
+                    isLoading={isLoading}
+                    zap_data={zapData}
+                    token1={token1}
+                    token2={token2}
+                    lpMicroBalance={zapData.pool_lp_id ? balances[zapData.pool_lp_id] : BigInt(0)}
+                />
             )}
             {showResult && (
                 <>
-                    <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
-                    <h3 className="dex_name">on tinyman</h3>
+                    <PacmanButton
+                        buttonText={'CONVERT ' + token1.unitName + ' TO LP'}
+                        buttonStyle="swap_button"
+                        onClickAction={ZapButtonOnClick}
+                    />
+                    <h3 className="dex_name">via tinyman</h3>
                 </>
             )}
         </ModalContainer>

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useStoreMap, useUnit } from 'effector-react';
+import { useModal } from '.store/react-hooks-use-modal-virtual-c2664bb5e8/package';
 import { Status } from '../../../Status.js';
 import { $networkTime, queryTimeUpdate, Contract, FarmType, hasLocalState, $pricedAlgo } from '../../../common/store';
 import { $stakingTokens } from '../../../Stake/store';
 import logo from '../../../imgs/logo.png';
 import { $farmRewardTokens } from '../../store';
+import { ConnectWalletModal } from '../../../wallet/ConnectWalletModal';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
@@ -16,7 +18,9 @@ export function Pool({ type, contract }: { type: FarmType; contract: Contract<Fa
     const pricedAlgo = useUnit($pricedAlgo);
     const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
     const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null)) ?? stakeTokenInfo;
-
+    const [ConnectWallet, openConnectWallet, closeConnectWallet, isConnectWalletOpen] = useModal('root', {
+        preventScroll: true,
+    });
     const [isOpen, setIsOpen] = useState(false);
 
     const queryTimeUpdateEvent = useUnit(queryTimeUpdate);
@@ -37,6 +41,14 @@ export function Pool({ type, contract }: { type: FarmType; contract: Contract<Fa
 
     const isSafari = navigator.userAgent.toLowerCase().includes('safari');
 
+    const onPoolClick = () => {
+        if (contract.ctc === null) {
+            openConnectWallet();
+            return;
+        }
+        setIsOpen(!isOpen);
+    };
+
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
         return (
             <PoolContainer
@@ -47,9 +59,7 @@ export function Pool({ type, contract }: { type: FarmType; contract: Contract<Fa
                         backfaceVisibility: 'hidden',
                         transform: window.innerWidth <= 1120 && isOpen && !isSafari ? 'rotateY(180deg)' : '',
                     }}
-                    onClick={() => {
-                        setIsOpen(!isOpen && contract.ctc !== null);
-                    }}
+                    onClick={onPoolClick}
                 >
                     <PoolInfo
                         isOpen={isOpen}
@@ -82,6 +92,9 @@ export function Pool({ type, contract }: { type: FarmType; contract: Contract<Fa
                         />
                     </div>
                 )}
+                <ConnectWallet>
+                    <ConnectWalletModal closeModal={closeConnectWallet} isModalOpen={isConnectWalletOpen} />
+                </ConnectWallet>
             </PoolContainer>
         );
     }

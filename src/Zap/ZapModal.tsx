@@ -36,6 +36,7 @@ export function ZapModal({
         asset2_amount: 0,
         lp_amount: 0,
         pool_lp_id: 0,
+        pool_lp_decimals: 0,
     });
 
     const [options, setOptions] = useState<TokenOptionType[]>([]);
@@ -125,10 +126,20 @@ export function ZapModal({
                 selectOnChange={select1OnChange}
                 inputOnChange={inputOnChange}
             />
-            <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
+            <ZapResult
+                isLoading={isLoading}
+                zap_data={zapData}
+                token1={token1}
+                token2={token2}
+                lpMicroBalance={zapData.pool_lp_id ? balances[zapData.pool_lp_id] : BigInt(0)}
+            />
             <>
-                <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
-                <h3 className="dex_name">on tinyman</h3>
+                <PacmanButton
+                    buttonText={'CONVERT ' + token1.unitName + ' TO LP'}
+                    buttonStyle="swap_button"
+                    onClickAction={ZapButtonOnClick}
+                />
+                <h3 className="dex_name">via tinyman</h3>
                 <a
                     target="_blank"
                     href={`https://app.tinyman.org/#/pool/add-liquidity?asset_1=${asset1_id}&asset_2=${asset2_id}`}
