@@ -1,4 +1,4 @@
-export const Arrow = ({ rotate }: { rotate?: boolean }) => {
+export function Arrow({ rotate }: { rotate?: boolean }) {
     return (
         <svg
             width="19"
@@ -14,4 +14,4 @@ export const Arrow = ({ rotate }: { rotate?: boolean }) => {
             />
         </svg>
     );
-};
+}

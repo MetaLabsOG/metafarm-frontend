@@ -3,6 +3,7 @@ import { METAWALLET } from '../AppContext';
 import { getWalletNFTs, WalletNFT } from '../providers/apiProvider';
 import { ArrowUp } from '../imgs/arrowUp';
 
+import { formatNumber } from '../Swap/Swap';
 import {
     NFTListContainer,
     NFTCard,
@@ -13,10 +14,9 @@ import {
     NftWeekPriceChange,
     NFtPriceValue,
 } from './styled';
-import { formatNumber } from '../Swap/Swap';
 
-export const NFTList = () => {
-    const { data } = useQuery(['nftAssets', METAWALLET], () => getWalletNFTs(METAWALLET));
+export function NFTList() {
+    const { data } = useQuery(['nftAssets', METAWALLET], async () => getWalletNFTs(METAWALLET));
 
     return (
         <NFTListContainer>
@@ -52,4 +52,4 @@ export const NFTList = () => {
                 ))}
         </NFTListContainer>
     );
-};
+}

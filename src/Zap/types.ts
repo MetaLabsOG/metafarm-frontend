@@ -3,4 +3,5 @@ export interface ZapData {
     asset2_amount: number;
     lp_amount: number;
     pool_lp_id: number;
+    pool_lp_decimals: number;
 }

@@ -12,8 +12,8 @@ export async function getAssetInfo(assetId: number): Promise<any> {
     return instance
         .get(`assets/${assetId}`)
         .then(({ data }) => data.asset)
-        .catch((err) => {
-            console.log('ERR', err);
+        .catch((error) => {
+            console.log('ERR', error);
             return '';
         });
 }

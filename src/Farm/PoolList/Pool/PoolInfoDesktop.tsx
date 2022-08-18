@@ -1,4 +1,14 @@
+import { FC } from 'react';
+import ReactTooltip from 'react-tooltip';
 import { Asset, AssetId, ContractState, FarmType, Priced } from '../../../common/store';
+import { Arrow } from '../../../imgs/arrow';
+import { LPTokenInfo } from '../../../providers/dexesProvider';
+import pacman from '../../../imgs/pacman.gif';
+import { Account } from '../../../types';
+import { fromSmallestUnits } from '../../../common/lib';
+import info from '../../../imgs/info.svg';
+import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
+import { POOL_COLUMN_WIDTH } from '../PoolList';
 import {
     PoolInfoDesktopContainer,
     ArrowIconsWrapper,
@@ -7,19 +17,8 @@ import {
     RewardUSDValue,
     RewardTokenValue,
 } from './styled';
-import { Arrow } from '../../../imgs/arrow';
-import { algoRewardPerBlock, calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
-import pacman from '../../../imgs/pacman.gif';
-import { Account } from '../../../types';
-import { fromSmallestUnits } from '../../../common/lib';
-import { FC } from 'react';
-
-import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
-import { POOL_COLUMN_WIDTH } from '../PoolList';
 import { APRTypes } from './PoolInfo';
-import ReactTooltip from 'react-tooltip';
-import info from '../../../imgs/info.svg';
+import { algoRewardPerBlock, calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
 
 export interface PoolInfoDesktopProps {
     account: Account | null;
@@ -77,9 +76,9 @@ export const StakeValue: FC<ValueProps> = ({ contractState, tokenInfo }) => {
 };
 
 export const getAPRTip = (APR: Record<APRTypes, number>, unitname: string) => {
-    const rewards = numberRound(APR[APRTypes.reward]) + '% ' + unitname;
-    const algoRewards = APR[APRTypes.algoReward] ? ' + ' + numberRound(APR[APRTypes.algoReward]) + '% ALGO' : '';
-    const fees = APR[APRTypes.fees] ? ' + ' + numberRound(APR[APRTypes.fees]) + '% trading fees' : '';
+    const rewards = `${numberRound(APR[APRTypes.reward])}%${unitname}`;
+    const algoRewards = APR[APRTypes.algoReward] ? ` ${numberRound(APR[APRTypes.algoReward])}% ALGO` : '';
+    const fees = APR[APRTypes.fees] ? ` ${numberRound(APR[APRTypes.fees])}% trading fees` : '';
     return rewards + algoRewards + fees;
 };
 
@@ -101,7 +100,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
 }) => {
     return (
         <PoolInfoDesktopContainer>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH['POOL']}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH.POOL}>
                 <PoolHeader
                     asset1_id={asset1_id}
                     asset2_id={asset2_id}
@@ -113,10 +112,10 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     algoRewards={algoRewardPerBlock(contractState.initial) > 0}
                 />
             </PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH['TVL']}>{`$${numberRound(
+            <PoolInfoValue width={POOL_COLUMN_WIDTH.TVL}>{`$${numberRound(
                 convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)) // VIRTUAL STAKE!
             )}`}</PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH['APR']}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH.APR}>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                     {numberRound(APR[APRTypes.total])}%
                     <img
@@ -126,16 +125,13 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                         height="14px"
                         src={info}
                     />
-                    {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-                    {/*
-                     // @ts-ignore */}
-                    <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
+                    <ReactTooltip clickable place="top" type="light" effect="solid" />
                 </div>
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH['MY STAKE']}>
                 <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH['REWARD']}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH.REWARD}>
                 <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH['ENDS IN']} style={{ color: 'gray' }}>
@@ -144,7 +140,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                 ))}
             </PoolInfoValue>
             <ArrowIconsWrapper>
-                {contractState.local ? <Arrow rotate={isOpen} /> : account !== null ? <Pacman src={pacman} /> : ''}
+                {contractState.local || account === null ? <Arrow rotate={isOpen} /> : <Pacman src={pacman} />}
             </ArrowIconsWrapper>
         </PoolInfoDesktopContainer>
     );

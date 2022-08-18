@@ -2,16 +2,13 @@ import { FC, useState } from 'react';
 import SelectSearch, { fuzzySearch } from 'react-select-search';
 import { renderOption, SelectType } from '../Select/Select';
 import { formatNumber } from '../../common/lib';
-import { SelectInputGroupProps } from './types';
 import '../Select/styled.css';
-import './styled.css';
 import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
 import { theme } from '../../theme';
 import { MaxButton } from '../TokenInputWithButton/styled';
+import { SelectInputGroupProps } from './types';
+import './styled.css';
 
-// TODO(DariaYakovleva): please check types, looks very suspicious
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 function TokenOption({ option }: { option: any }) {
     return (
         <div className="TokenOptionContainer">
@@ -23,7 +20,7 @@ function TokenOption({ option }: { option: any }) {
 
 // TODO(DariaYakovleva): please check types, looks very suspicious
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-expect-error
 function renderSelectedOption(valueProps, snapshot) {
     const { option } = snapshot;
 
@@ -56,48 +53,49 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
         const changed = newInputData !== inputData;
         setInputData(newInputData);
         if (changed) {
-            inputOnChange && inputOnChange(newInputData);
+            inputOnChange?.(newInputData);
         }
     };
 
     return (
         <div className="SelectInputGroupContainer">
             <SelectSearch
+                search
                 className="select-search"
                 options={options}
                 filterOptions={fuzzySearch}
                 renderOption={(props, option) => renderOption(props, option, SelectType.tokenSelect, false)}
                 renderValue={(props, snapshot) => renderSelectedOption(props, snapshot)}
-                search={true}
                 value={selectedOption.value}
-                onChange={selectOnChange}
                 placeholder=""
+                onChange={selectOnChange}
             />
             <div style={{ width: '100%', position: 'relative' }}>
                 <input
                     className="tokenInput"
-                    placeholder={'Enter amount'}
+                    placeholder="Enter amount"
+                    value={inputData}
                     onChange={(e) => {
-                        if (isNaN(Number(e.target.value))) {
+                        if (Number.isNaN(Number(e.target.value))) {
                             return;
                         }
                         const isValidInput =
                             !e.target.value ||
-                            isNaN(selectedOption.balance) ||
+                            Number.isNaN(selectedOption.balance) ||
                             Number(e.target.value) <= selectedOption.balance;
                         setIsValidInput(isValidInput);
                         setInputData(e.target.value);
                         inputOnChange && inputOnChange(e.target.value);
                     }}
-                    value={inputData}
                 />
 
                 <div className="tokenBalance" style={isValidInput ? {} : { color: theme.red }}>
-                    Balance: {formatNumber(!isNaN(selectedOption.balance) ? selectedOption.balance : 0)}
+                    Balance: {formatNumber(!Number.isNaN(selectedOption.balance) ? selectedOption.balance : 0)}
                     {isValidInput ? '' : ' (Not enough)'}
                 </div>
                 {selectedOption.balance > 0 && (
                     <MaxButton
+                        isActive
                         style={{
                             fontSize: '16px',
                             background: '#272727',

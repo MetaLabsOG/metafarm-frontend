@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { theme } from '../../theme';
 import React from 'react';
+import { theme } from '../../theme';
 
 export const ButtonContainer = styled.button`
     border-radius: 4px;
@@ -47,18 +47,18 @@ export const ButtonContainer = styled.button`
     }
 `;
 
-export const Button = ({
+export function Button({
     onClick,
     buttonText,
     style,
 }: {
-    onClick: React.MouseEventHandler<Element> | undefined;
+    onClick: React.MouseEventHandler | undefined;
     buttonText: string;
     style?: React.CSSProperties;
-}) => {
+}) {
     return (
-        <ButtonContainer onClick={onClick} style={style}>
+        <ButtonContainer style={style} onClick={onClick}>
             <span style={{ position: 'relative' }}>{buttonText}</span>
         </ButtonContainer>
     );
-};
+}

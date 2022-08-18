@@ -4,7 +4,7 @@ export const calculateUnlockTimeinSecs = (currentBlock: number, lockTimestamp: n
     if (!lockLengthBlocks || !lockTimestamp) {
         return 0;
     }
-    return Math.floor(Math.max(0, lockLengthBlocks - (currentBlock - lockTimestamp)) * 4.35); // in seconds
+    return Math.floor(Math.max(0, lockLengthBlocks - (currentBlock - lockTimestamp)) * 4.35); // In seconds
 };
 
 const formatUnlockTime = (unlockTime: number) => {
@@ -12,12 +12,12 @@ const formatUnlockTime = (unlockTime: number) => {
         return `${Math.floor(unlockTime / DAY)} days`;
     }
 
-    return new Date(unlockTime * 1000).toISOString().substring(11, 19);
+    return new Date(unlockTime * 1000).toISOString().slice(11, 19);
 };
 
-export const UnlockTimer = ({ unlockTimer }: { unlockTimer: number }) => {
+export function UnlockTimer({ unlockTimer }: { unlockTimer: number }) {
     if (unlockTimer <= 0) {
-        return <></>;
+        return null;
     }
 
     return (
@@ -25,4 +25,4 @@ export const UnlockTimer = ({ unlockTimer }: { unlockTimer: number }) => {
             unlock in {formatUnlockTime(unlockTimer)}
         </div>
     );
-};
+}

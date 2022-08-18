@@ -42,7 +42,7 @@ export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<an
     useEffect(() => {
         if (pendingStatus && isNil(toastIds[action])) {
             const toastStakeId = toast.loading(
-                <Notification action={action} status={'in progress'} text={notificationText} />,
+                <Notification action={action} status="in progress" text={notificationText} />,
                 {
                     icon: <img style={{ width: '30px', height: '30px' }} alt="loader" src={pacman_grey} />,
                     closeButton: true,
@@ -55,11 +55,11 @@ export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<an
     useEffect(() => {
         if (!isNil(toastIds[action])) {
             api.finally.watch(({ status }: { status: string }) => {
-                const toastId = toastIds[action] as Id;
+                const toastId = toastIds[action]!;
                 const type = status === 'done' ? 'success' : 'error';
                 toast.update(toastId, {
                     render: <Notification action={action} status={status} text={notificationText} />,
-                    type: type,
+                    type,
                     icon: NOTIFICATION_ICONS[type],
                     isLoading: false,
                     autoClose: 5000,
@@ -74,18 +74,19 @@ export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<an
     return setNotificationText;
 };
 
-const Notification = ({ action, status, text }: { action: ToastTypes; status: string; text: string }) => {
+function Notification({ action, status, text }: { action: ToastTypes; status: string; text: string }) {
+    const autoClaim = action == ToastTypes.withdraw || action == ToastTypes.stake ? 'AND AUTO-CLAIM ' : '';
     return (
         <div style={{ marginLeft: '10px', fontFamily: 'Montserrat' }}>
             <div>
-                {ToastTypes[action].toUpperCase()} {status.toUpperCase()}
+                {ToastTypes[action].toUpperCase()} {autoClaim} {status.toUpperCase()}
             </div>
             {text && <div>AMOUNT: {text}</div>}
         </div>
     );
-};
+}
 
-const Alert = ({ text, link }: { text: string; link?: string }) => {
+function Alert({ text, link }: { text: string; link?: string }) {
     return (
         <div style={{ marginLeft: '10px', fontFamily: 'Montserrat' }}>
             <div>{text}</div>
@@ -96,11 +97,11 @@ const Alert = ({ text, link }: { text: string; link?: string }) => {
             )}
         </div>
     );
-};
+}
 
 export const notify = (text: string, type: TypeOptions, link?: string) => {
     toast(<Alert text={text} link={link} />, {
-        type: type,
+        type,
         icon: NOTIFICATION_ICONS[type],
         isLoading: false,
         autoClose: 5000,

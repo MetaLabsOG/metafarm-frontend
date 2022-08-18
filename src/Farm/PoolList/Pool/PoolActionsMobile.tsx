@@ -1,18 +1,18 @@
 import { FC } from 'react';
-import { PoolActionsMobileContainer, TokenInfo, RewardsContainer, ButtonBackMobile, PoolInfoValue } from './styled';
-import arrowBack from '../../../imgs/arrow_back.svg';
+import { useUnit } from 'effector-react';
 
-import { PoolActionsDesktopProps, getLPTokenAction } from './PoolActionsDesktop';
+import arrowBack from '../../../imgs/arrow_back.svg';
+import { Button } from '../../../Components/Button/Button';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
-import { isCompoundEnabled, runCompound } from './compound';
-import { useUnit } from 'effector-react';
 import { $account } from '../../../common/store';
+import { PoolActionsMobileContainer, TokenInfo, RewardsContainer, ButtonBackMobile, PoolInfoValue } from './styled';
+import { isCompoundEnabled, runCompound } from './compound';
 import { RewardValues, StakeValue } from './PoolInfoDesktop';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
 import { isLPTokenInfo } from './utils';
-import { Button } from '../../../Components/Button/Button';
+import { PoolActionsDesktopProps, getLPTokenAction } from './PoolActionsDesktop';
 
 export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     pricedAlgo,
@@ -35,13 +35,19 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     return (
         <PoolActionsMobileContainer>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
-                <ButtonBackMobile onClick={() => setIsZapModalOpen(false)} src={arrowBack} alt="BACK" />
+                <ButtonBackMobile
+                    src={arrowBack}
+                    alt="BACK"
+                    onClick={() => {
+                        setIsZapModalOpen(false);
+                    }}
+                />
                 <TokenInfo>
                     {isLPTokenInfo(stakedToken) && canStake && (
                         <Button
-                            onClick={getLPTokenAction(stakedToken, openZapModal)}
                             style={{ color: 'white' }}
                             buttonText="Get LP Tokens"
+                            onClick={getLPTokenAction(stakedToken, openZapModal)}
                         />
                     )}
                 </TokenInfo>
@@ -83,10 +89,10 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         style={!canClaim ? { visibility: 'hidden' } : {}}
                         buttonText="CLAIM"
                         buttonStyle="claim_button"
-                        onClickAction={() =>
+                        isInactive={!isActiveClaim}
+                        onClickAction={async () =>
                             onClickClaim(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
                         }
-                        isInactive={!isActiveClaim}
                     />
                     <UnlockTimer unlockTimer={unlockTimer} />
                 </div>
@@ -98,8 +104,8 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         <PacmanButton
                             buttonText="COMPOUND"
                             buttonStyle="claim_button"
-                            onClickAction={() => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
                             isInactive={!isActiveClaim}
+                            onClickAction={async () => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
                         />
                     )}
             </RewardsContainer>

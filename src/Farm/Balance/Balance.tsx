@@ -15,7 +15,7 @@ type BalanceProps = {
     kind: FarmType;
 };
 
-export const Balance = ({ kind }: BalanceProps) => {
+export function Balance({ kind }: BalanceProps) {
     const aggregates = useUnit(kindToAggregates[kind]);
     return (
         <BalanceList>
@@ -24,4 +24,4 @@ export const Balance = ({ kind }: BalanceProps) => {
             <Amount title="Total Reward" value={aggregates.totalPendingReward} />
         </BalanceList>
     );
-};
+}

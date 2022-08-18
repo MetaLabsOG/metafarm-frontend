@@ -6,6 +6,10 @@ import { BrowserTracing } from '@sentry/tracing';
 
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
+import { useEffect, useState } from 'react';
+import { useModal } from 'react-hooks-use-modal';
+import { useStoreMap, useUnit } from 'effector-react';
+import { Flip, ToastContainer } from 'react-toastify';
 import GlobalStyle from './common/globalStyles';
 
 import { Menu } from './Menu';
@@ -23,14 +27,10 @@ import { Stake } from './Stake/Stake';
 
 import './css/index.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { useEffect, useState } from 'react';
 import { setPoolInfos } from './Farm/store';
 import { getContracts } from './providers/apiProvider';
 import { setDistributionPoolInfos } from './Stake/store';
 import { TestnetModal } from './TestnetModal';
-import { useModal } from 'react-hooks-use-modal';
-import { useStoreMap, useUnit } from 'effector-react';
-import { Flip, ToastContainer } from 'react-toastify';
 import { Footer } from './Menu/Footer';
 import { ALGONET, TESTNET } from './AppContext';
 import { notify } from './Components/Notification';
@@ -42,7 +42,7 @@ Sentry.init({
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
     // We recommend adjusting this value in production
-    tracesSampleRate: 1.0,
+    tracesSampleRate: 1,
 });
 
 // TODO
@@ -50,7 +50,7 @@ window.open = (function (open) {
     return function (url, name, features) {
         name = name || 'default_window_name';
         const res = open.call(window, url, name, features);
-        if (!res || res.closed || typeof res.closed == 'undefined') {
+        if (!res || res.closed || typeof res.closed === 'undefined') {
             notify('Please, enable popups in your browser.', 'warning');
             return null;
         }
@@ -60,40 +60,46 @@ window.open = (function (open) {
 
 const queryClient = new QueryClient();
 
-// throw events on initialization
+// Throw events on initialization
 fetchAllPricesFx();
 
-const App = () => {
+function App() {
     const account = useUnit($account);
     const algoBalance = useStoreMap($balances, (bs) => Number(bs[0]));
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
-    const farmsFetch = useQuery(['contracts', 'farm'], () => getContracts('farm'));
-    const distrFetch = useQuery(['contracts', 'distribution'], () => getContracts('distribution'));
+    const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm'));
+    const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution'));
 
     const [hasTestnetModalOpened, setHasTestnetModalOpened] = useState(false);
     const [Modal, openTestnetModal] = useModal('root', { preventScroll: true });
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
-            const data = farmsFetch.data! as ContractInfo<'farm'>[];
+            const data = farmsFetch.data! as Array<ContractInfo<'farm'>>;
             setPoolInfosEvent(data);
         }
-    }, [farmsFetch]);
+    }, [farmsFetch, setPoolInfosEvent]);
 
     useEffect(() => {
-        if (!hasTestnetModalOpened && account && !isNaN(algoBalance) && algoBalance === 0 && ALGONET === TESTNET) {
+        if (
+            !hasTestnetModalOpened &&
+            account &&
+            !Number.isNaN(algoBalance) &&
+            algoBalance === 0 &&
+            ALGONET === TESTNET
+        ) {
             openTestnetModal();
             setHasTestnetModalOpened(true);
         }
-    }, [algoBalance, account]);
+    }, [algoBalance, account, hasTestnetModalOpened, openTestnetModal]);
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
-            const data = distrFetch.data! as ContractInfo<'distribution'>[];
+            const data = distrFetch.data! as Array<ContractInfo<'distribution'>>;
             setDistributionPoolInfosEvent(data);
         }
-    }, [distrFetch]);
+    }, [distrFetch, setDistributionPoolInfosEvent]);
 
     return (
         <>
@@ -122,7 +128,7 @@ const App = () => {
             </ThemeProvider>
         </>
     );
-};
+}
 
 ReactDOM.render(
     <BrowserRouter>
@@ -130,5 +136,5 @@ ReactDOM.render(
             <App />
         </QueryClientProvider>
     </BrowserRouter>,
-    document.getElementById('root')
+    document.querySelector('#root')
 );

@@ -1,8 +1,13 @@
 import { useUnit, useStoreMap } from 'effector-react';
+import { useEffect, useState } from 'react';
 import logo from '../imgs/logo.png';
 import meta_logo from '../imgs/meta_token.svg';
 import algo_logo from '../imgs/algo_token.svg';
 import burger from '../imgs/burger.svg';
+import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
+import { ConnectWallet } from '../wallet/ConnectWallet';
+import { META_TOKEN_ID } from '../AppContext';
+import { getTokenLink } from '../Farm/PoolList/Pool/utils';
 import {
     MenuItem,
     MenuContainer,
@@ -16,29 +21,24 @@ import {
     MenuItemsBurger,
     ExchangeRatesBurger,
 } from './styled';
-import { ConnectWallet } from '../wallet/ConnectWallet';
-import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
-import { useEffect, useState } from 'react';
-import { META_TOKEN_ID } from '../AppContext';
-import { getTokenLink } from '../Farm/PoolList/Pool/utils';
 
 const formatPrice = (price: number | null): string => (price === null ? '0.00' : price.toFixed(2));
 
-const MenuItems = () => {
+function MenuItems() {
     return (
         <>
             <MenuItem to="/swap">swap</MenuItem>
             <MenuItem to="/zap">zap</MenuItem>
             <MenuItem to="/farm">farm</MenuItem>
             <MenuItem to="/stake">stake</MenuItem>
-            {/*<MenuItem to="/fomo">fomo3d</MenuItem>*/}
+            {/* <MenuItem to="/fomo">fomo3d</MenuItem> */}
             <MenuItem to="/meta-dao">nft</MenuItem>
-            {/*<MenuItem to="/tokensale">tokensale</MenuItem>*/}
+            {/* <MenuItem to="/tokensale">tokensale</MenuItem> */}
         </>
     );
-};
+}
 
-const ExchangeRates = ({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) => {
+function ExchangeRates({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) {
     return (
         <>
             <a target="_blank" href={getTokenLink(0)} rel="noreferrer">
@@ -51,9 +51,9 @@ const ExchangeRates = ({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; MET
             <ExchangeRate>${formatPrice(METAPrice?.price ?? 0)}</ExchangeRate>
         </>
     );
-};
+}
 
-const BurgerMenu = ({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) => {
+function BurgerMenu({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) {
     return (
         <BurgerMenuContainer>
             <MenuItemsBurger>
@@ -64,15 +64,21 @@ const BurgerMenu = ({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPr
             </ExchangeRatesBurger>
         </BurgerMenuContainer>
     );
-};
+}
 
-export const Menu = () => {
+export function Menu() {
     const ALGOPrice = useUnit($algoUsdPrice);
     const METAPrice = useStoreMap($pricedAssets, (as) => as.get(META_TOKEN_ID, null));
     const [isBurgerOpen, setIsBurgerOpen] = useState(false);
 
     useEffect(() => {
-        window.addEventListener('click', () => isBurgerOpen && setIsBurgerOpen(!isBurgerOpen), { once: true });
+        window.addEventListener(
+            'click',
+            () => {
+                isBurgerOpen && setIsBurgerOpen(!isBurgerOpen);
+            },
+            { once: true }
+        );
         window.addEventListener(
             'keydown',
             (e) => {
@@ -91,7 +97,14 @@ export const Menu = () => {
                     <MenuItem to="/">
                         <Logo src={logo} alt="logo" height="40px" />
                     </MenuItem>
-                    <Burger onClick={() => setIsBurgerOpen(!isBurgerOpen)} src={burger} alt="logo" height="20px" />
+                    <Burger
+                        src={burger}
+                        alt="logo"
+                        height="20px"
+                        onClick={() => {
+                            setIsBurgerOpen(!isBurgerOpen);
+                        }}
+                    />
                     <MenuItemsContainer>
                         <MenuItems />
                     </MenuItemsContainer>
@@ -104,4 +117,4 @@ export const Menu = () => {
             {isBurgerOpen && <BurgerMenu ALGOPrice={ALGOPrice} METAPrice={METAPrice} />}
         </>
     );
-};
+}

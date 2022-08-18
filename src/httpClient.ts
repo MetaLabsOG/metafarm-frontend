@@ -5,7 +5,7 @@ import type { Query } from 'algosdk/dist/types/src/client/baseHTTPClient';
 
 export class NonRedundantHTTPClient extends URLTokenBaseHTTPClient {
     private pendingGetPromises: Record<string, Promise<BaseHTTPClientResponse>>;
-    private promiseCleanupDelay: number;
+    private readonly promiseCleanupDelay: number;
 
     constructor(
         tokenHeader: TokenHeader,
@@ -27,17 +27,16 @@ export class NonRedundantHTTPClient extends URLTokenBaseHTTPClient {
         const key = hash({ relativePath, query, requestHeaders });
         if (key in this.pendingGetPromises) {
             return this.pendingGetPromises[key];
-        } else {
-            return (this.pendingGetPromises[key] = super.get(relativePath, query, requestHeaders).finally(() => {
-                if (this.promiseCleanupDelay > 0) {
-                    setTimeout(() => {
-                        delete this.pendingGetPromises[key];
-                    }, this.promiseCleanupDelay);
-                } else {
-                    delete this.pendingGetPromises[key];
-                }
-            }));
         }
+        return (this.pendingGetPromises[key] = super.get(relativePath, query, requestHeaders).finally(() => {
+            if (this.promiseCleanupDelay > 0) {
+                setTimeout(() => {
+                    delete this.pendingGetPromises[key];
+                }, this.promiseCleanupDelay);
+            } else {
+                delete this.pendingGetPromises[key];
+            }
+        }));
     }
 
     // We do not do many POST/DELETE requests, but we need to make sure that after those

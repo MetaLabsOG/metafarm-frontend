@@ -2,10 +2,11 @@ import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Effect } from 'effector';
 import { AllDefined } from '../../types';
 
+// TODO move it to common types, it's not only for store
 export type AssetId = number;
 export type AppId = number;
 
-// better do this now if we have problems with conversion from bignums later
+// Better do this now if we have problems with conversion from bignums later
 export type Time = number;
 export type Amount = bigint;
 
@@ -49,7 +50,7 @@ export type ContractState<T extends ContractType> = {
  * @param state
  */
 export function hasLocalState<T extends ContractType, S extends ContractState<T>>(state: S): state is AllDefined<S> {
-    return !!state.local;
+    return Boolean(state.local);
 }
 
 // TODO what does it return?
@@ -80,7 +81,7 @@ export type ContractInfo<T extends ContractType> = {
 export type ContractMetadata = {
     farm: { dex?: string };
     distribution: unknown;
-    crowdsale: { whitelist: Array<string> };
+    crowdsale: { whitelist: string[] };
     fomo: unknown;
 };
 
@@ -136,7 +137,7 @@ export type FarmGlobalInfo = {
 export type FarmLocalInfo = {
     reward: Amount;
     staked: Amount;
-    lockTimestamp: Time; // lock BEGINS from this block
+    lockTimestamp: Time; // Lock BEGINS from this block
     rewardPerTokenPaid: Amount;
 };
 
@@ -170,7 +171,7 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
     viewType: V
 ): (obj: any) => AllDefined<ContractState<T>>[V] {
     const parseFarmInitialInfo = (obj: any): FarmInitialInfo => ({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         
         beneficiary: obj.beneficiary,
         creationFee: obj.creationFee.toBigInt(),
         stakeToken: obj.stakeToken.toNumber(),
