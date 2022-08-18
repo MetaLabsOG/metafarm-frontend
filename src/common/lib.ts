@@ -256,7 +256,7 @@ export const manualBatchOptIn = async (
 };
 
 export const fromSmallestUnits = (token: { decimals: number }, amount: Amount | null): number => {
-    if (amount === null) {
+    if (amount === null || amount === undefined) {
         return 0;
     }
 
