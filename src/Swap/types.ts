@@ -15,6 +15,7 @@ export interface BestSwap {
         unit_name: string;
     }>;
     usdc_diff: number;
+    priceImpact: number;
 }
 
 export interface Transaction {

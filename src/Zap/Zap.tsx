@@ -6,40 +6,45 @@ import '../css/swap.css';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit } from 'effector-react';
+import Switch from 'react-switch';
 import { logEvent, logFarmActionData, LogName } from '../logEvent';
 import { $account, $balances, fetchAsset } from '../common/store';
-import { formatNumber, getOptions, QueryType, runTransactions, SLIPPAGE } from '../Swap/Swap';
+import { formatNumber, getTokens, QueryType, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
+import { TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
-import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
+import { ModalContainer, ModalSubtitle, ModalTitle, Plus, SwitchContainer, SwitchText } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
-import { makeDex, ZapQuote } from '../providers/dexesProvider';
+import { makeDex, MintQuote } from '../providers/dexesProvider';
 import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
+import plus from '../imgs/plus.svg';
+import { theme } from '../theme';
 import { ZapData } from './types';
 
 const tinyman = makeDex('T2');
 
-function zapQuoteToData(asset1_id: number, quote: ZapQuote): ZapData {
-    const assetsAreSwapped = asset1_id !== quote.mint.assetA.id;
-    const amountA = fromSmallestUnits(quote.mint.assetA, quote.mint.amountA);
-    const amountB = fromSmallestUnits(quote.mint.assetB, quote.mint.amountB);
-
+function mintQuoteToData(asset1_id: number, quote: MintQuote): ZapData {
+    const assetsAreSwapped = asset1_id !== quote.assetA.id;
+    const amountA = fromSmallestUnits(quote.assetA, quote.amountA);
+    const amountB = fromSmallestUnits(quote.assetB, quote.amountB);
+    const asset2_id = assetsAreSwapped ? quote.assetA.id : quote.assetB.id;
     const asset1_amount = assetsAreSwapped ? amountB : amountA;
     const asset2_amount = assetsAreSwapped ? amountA : amountB;
-    const lp_amount = fromSmallestUnits(quote.mint.lpToken, quote.mint.minimalLiquidityIssued);
-    const pool_lp_id = quote.mint.lpToken.id;
-    return { asset1_amount, asset2_amount, lp_amount, pool_lp_id };
+
+    const lp_amount = fromSmallestUnits(quote.lpToken, quote.minimalLiquidityIssued);
+    const pool_lp_id = quote.lpToken.id;
+    return { asset1_id, asset1_amount, asset2_id, asset2_amount, lp_amount, pool_lp_id };
 }
 
 export async function loadZapData(
     account: Account | null,
     asset1_id: string | undefined,
     asset2_id: string | undefined,
-    asset1_amount: string
+    asset1_amount: string,
+    swapHalf: boolean
 ): Promise<ZapData | null> {
     if (!asset1_id || !asset2_id) {
         notify('Please, choose tokens.', 'warning');
@@ -62,18 +67,27 @@ export async function loadZapData(
         const asset1 = await fetchAsset(Number(asset1_id));
         const asset2 = await fetchAsset(Number(asset2_id));
         const amountIn = getSmallestUnits(asset1, Number(asset1_amount));
-        const zapQuote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
-
-        const zap_data = zapQuoteToData(Number(asset1_id), zapQuote);
+        let mintQuote;
+        if (swapHalf) {
+            const zapQuote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
+            mintQuote = zapQuote.mint;
+        } else {
+            mintQuote = await tinyman.getMintQuote(asset1, asset2, amountIn, SLIPPAGE);
+        }
+        const zap_data: ZapData = mintQuoteToData(Number(asset1_id), mintQuote);
 
         logEvent(
             account?.networkAccount.addr,
             {
                 message: '[ZAP] get data',
-                asset1_id,
-                asset2_id,
-                amount: asset1_amount,
-                ...zap_data,
+                asset1_id: zap_data.asset1_id.toString(), // FIXME: airtable has string
+                asset1_amount: zap_data.asset1_amount,
+                asset2_id: zap_data.asset2_id.toString(), // FIXME: airtable has string
+                asset2_amount: zap_data.asset2_amount,
+                lp_amount: zap_data.lp_amount,
+                pool_lp_id: zap_data.pool_lp_id,
+                // ...zap_data,
+                swapHalf: Number(swapHalf),
             },
             LogName.ZAP
         );
@@ -95,6 +109,7 @@ export async function loadZapData(
                 asset1_id,
                 asset2_id,
                 amount: asset1_amount,
+                swapHalf: Number(swapHalf),
                 error: error_message,
             },
             LogName.ZAP
@@ -114,13 +129,17 @@ export function ZapResult({
     token1: TokenOptionType;
     token2: TokenOptionType;
 }) {
+    const [token1Amount, token2Amount] =
+        token1.id === zap_data.asset1_id
+            ? [zap_data.asset1_amount, zap_data.asset2_amount]
+            : [zap_data.asset2_amount, zap_data.asset1_amount];
     const lpTokens =
-        `${formatNumber(zap_data.asset1_amount ?? 0)} ${token1.unitName}` +
+        `${formatNumber(token1Amount ?? 0)} ${token1.unitName}` +
         ' + ' +
-        `${formatNumber(zap_data.asset2_amount ?? 0)} ${token2.unitName}`;
+        `${formatNumber(token2Amount ?? 0)} ${token2.unitName}`;
 
     return (
-        <InfoPanel isLoading={isLoading}>
+        <InfoPanel isLoading={isLoading} minHeight={148}>
             <InfoRow
                 title={token1.unitName + '-' + token2.unitName + ' LP'}
                 value={formatNumber(zap_data.lp_amount ?? 0)}
@@ -138,29 +157,43 @@ export function ZapResult({
     );
 }
 
-export function Zap() {
+export function Zap({
+    filteredOptions,
+    closeModal,
+}: {
+    title?: string;
+    filteredOptions?: number[];
+    closeModal?: () => void;
+}) {
     const account = useUnit($account);
     const balances = useUnit($balances);
 
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
+    const [token2Amount, setToken2Amount] = useState<string>('');
     const [zapData, setZapData] = useState<ZapData>({
+        asset1_id: 0,
         asset1_amount: 0,
+        asset2_id: 0,
         asset2_amount: 0,
         lp_amount: 0,
         pool_lp_id: 0,
     });
 
     const [options, setOptions] = useState<TokenOptionType[]>([]);
-    const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
+    const [halfSwap, setHalfSwap] = useState(false);
+    const zapButtonText = !halfSwap ? 'GET LP' : 'CONVERT ' + token1.unitName + ' TO LP';
+
     useEffect(() => {
-        getOptions(account, balances)
+        getTokens(account, balances)
             .then((res) => {
-                setOptions(res);
-                setToken1(res[0]);
+                const filteredRes = res.filter((token) => !filteredOptions || filteredOptions.includes(token.id));
+                setOptions(filteredRes);
+                setToken1(filteredRes[0]);
+                setToken2(filteredRes[1]);
             })
             .catch((error) => {
                 logFarmActionData(
@@ -176,13 +209,19 @@ export function Zap() {
 
     const getZapTimeout = useRef<NodeJS.Timeout>();
 
-    function getZap(token1_id: string, token2_id: string, amount: string) {
+    function getZap(token1_id: string, token2_id: string, amount: string, swapHalf: boolean) {
         setIsLoading(true);
-        loadZapData(account, token1_id, token2_id, amount).then((res) => {
+        loadZapData(account, token1_id, token2_id, amount, swapHalf).then((res) => {
             if (res !== null) {
                 setZapData(res);
+                if (!swapHalf) {
+                    if (token1.id === Number(token1_id)) {
+                        setToken2Amount(res.asset2_amount.toString());
+                    } else {
+                        setToken1Amount(res.asset2_amount.toString());
+                    }
+                }
                 console.log('[ZAP] res', res);
-                setShowResult(true);
             }
             setIsLoading(false);
         });
@@ -196,7 +235,7 @@ export function Zap() {
             clearTimeout(getZapTimeout.current);
         }
         getZapTimeout.current = setTimeout(() => {
-            getZap(token1_id, token2_id, amount);
+            getZap(token1_id, token2_id, amount, halfSwap);
         }, delay);
     }
 
@@ -206,7 +245,6 @@ export function Zap() {
         // @ts-expect-error
         setToken1(option);
         setToken1Amount('');
-        setShowResult(false);
         getZapThrottled(option.value, token2.value, token1Amount, 50);
     };
 
@@ -215,23 +253,32 @@ export function Zap() {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         setToken2(option);
-        setShowResult(false);
 
         getZapThrottled(token1.value, option.value, token1Amount, 50);
     };
 
-    const inputOnChange = (inputValue: string) => {
-        setShowResult(false);
+    const input1OnChange = (inputValue: string) => {
         getZapThrottled(token1.value, token2.value, inputValue, 1000);
     };
 
-    const LoadZapButtonOnClick = async () => {
-        getZap(token1.value, token2.value, token1Amount);
+    const input2OnChange = (inputValue: string) => {
+        getZapThrottled(token2.value, token1.value, inputValue, 1000);
+    };
+
+    const handleChangeHalfSwap = (newHalfSwap: boolean) => {
+        setToken2Amount('');
+        setHalfSwap(newHalfSwap);
+        getZap(token1.value, token2.value, token1Amount, newHalfSwap);
     };
 
     const ZapButtonOnClick = async () => {
+        if (token2.balance !== undefined && (Number.isNaN(token2.balance) || Number(token2Amount) > token2.balance)) {
+            console.log(Number(token2Amount), token2.balance);
+            notify(token2.unitName + ' amount is higher than the wallet balance.', 'warning');
+            return;
+        }
         const res = await runTransactions(
-            QueryType.zap,
+            halfSwap ? QueryType.zap : QueryType.mint,
             account,
             token1.value,
             token2.value,
@@ -241,6 +288,7 @@ export function Zap() {
         if (res !== null) {
             const { txIds } = res;
             notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
+            closeModal && closeModal();
         }
     };
 
@@ -248,38 +296,55 @@ export function Zap() {
         <ModalContainer>
             <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>ZAP</ModalTitle>
             <ModalSubtitle>Add liquidity and get LP tokens in one click</ModalSubtitle>
-            <Heading2>FIRST TOKEN</Heading2>
             <SelectInputGroup
                 options={options}
                 selectedOption={token1}
                 inputData={token1Amount}
                 setInputData={setToken1Amount}
                 selectOnChange={select1OnChange}
-                inputOnChange={inputOnChange}
+                inputOnChange={input1OnChange}
             />
-            <Heading2>SECOND TOKEN</Heading2>
-            <Select
-                selectType={SelectType.tokenSelect}
+            <div style={{ marginBottom: '10px' }}>
+                <Plus alt="plus" src={plus} />
+            </div>
+            <SelectInputGroup
                 options={options}
                 selectedOption={token2}
+                inputData={token2Amount}
+                setInputData={setToken2Amount}
                 selectOnChange={select2OnChange}
+                inputOnChange={input2OnChange}
+                inputDisabled={halfSwap}
             />
-            {!isLoading && !showResult && (
-                <PacmanButton
-                    buttonText="FIND LIQUIDITY POOL"
-                    buttonStyle="price_button"
-                    onClickAction={LoadZapButtonOnClick}
+            <SwitchContainer>
+                <Switch
+                    onChange={handleChangeHalfSwap}
+                    checked={halfSwap}
+                    className="react-switch"
+                    onColor={theme.green}
+                    offColor={theme.lightGray}
+                    onHandleColor={theme.darkGray}
+                    offHandleColor={theme.gray}
+                    uncheckedIcon={false}
+                    checkedIcon={false}
+                    height={20}
+                    width={40}
                 />
-            )}
-            {(isLoading || showResult) && (
-                <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
-            )}
-            {showResult && (
-                <>
-                    <PacmanButton buttonText="GET LP" buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
-                    <h3 className="dex_name">on tinyman</h3>
-                </>
-            )}
+                <SwitchText style={halfSwap ? { color: theme.lightGray } : {}}>
+                    auto-convert half {token1.unitName} to {token2.unitName}
+                </SwitchText>
+            </SwitchContainer>
+            <ZapResult isLoading={isLoading} zap_data={zapData} token1={token1} token2={token2} />
+            <PacmanButton buttonText={zapButtonText} buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
+            <h3 className="dex_name">on tinyman</h3>
+            <a
+                target="_blank"
+                href={`https://app.tinyman.org/#/pool/add-liquidity?asset_1=${token1.id}&asset_2=${token2.id}`}
+                rel="noreferrer"
+                style={{ color: theme.lightGray }}
+            >
+                <h3 className="dex_name">or do it manually</h3>
+            </a>
         </ModalContainer>
     );
 }

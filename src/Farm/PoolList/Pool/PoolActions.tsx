@@ -6,13 +6,12 @@ import { AllDefined } from '../../../types';
 import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
 import { notify, ToastTypes, useToasts } from '../../../Components/Notification';
-import { ZapModal } from '../../../Zap/ZapModal';
 import { useTimer } from '../../../common/reachHooks';
 import { logFarmActionData } from '../../../logEvent';
 import { batchOptIn, checkOptIn } from '../../../batchOptIn';
 import { reach } from '../../../AppContext';
 import { fromSmallestUnits } from '../../../common/lib';
-
+import { Zap } from '../../../Zap';
 import { isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { PoolActionsDesktop } from './PoolActionsDesktop';
@@ -137,11 +136,7 @@ export function PoolActions({
             )}
             {isLPTokenInfo(stakeTokenInfo) && (
                 <Modal>
-                    <ZapModal
-                        asset1_id={stakeTokenInfo.asset1}
-                        asset2_id={stakeTokenInfo.asset2}
-                        closeModal={closeZapModal}
-                    />
+                    <Zap filteredOptions={[stakeTokenInfo.asset1, stakeTokenInfo.asset2]} closeModal={closeZapModal} />
                 </Modal>
             )}
         </>

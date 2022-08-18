@@ -42,6 +42,7 @@ export type SwapQuote = {
     price: number; // But price is calculated in FULL TOKENS (considering the DECIMALS of assets), following the Pact interface
     fee: Amount; // Yet the fee is still in MICROROKENS
     slippage: number;
+    priceImpact: number;
 };
 
 export type MintQuote = {
@@ -155,6 +156,7 @@ export abstract class Dex {
                 price: (Number(fromAlgo.minimalAmountOut) / Number(toAlgo.amountIn)) * decRatio,
                 fee: toAlgo.fee + fromAlgo.fee,
                 slippage,
+                priceImpact: Math.max(toAlgo.priceImpact, fromAlgo.priceImpact),
             };
 
             if (!direct || direct.price < throughAlgo.price) {
@@ -286,6 +288,7 @@ export class MockDex extends Dex {
             price,
             fee,
             slippage,
+            priceImpact: 0,
         };
     }
 
@@ -447,6 +450,7 @@ export class PactDex extends Dex {
             price: effect.price,
             fee: BigInt(effect.fee),
             slippage,
+            priceImpact: 0, // FIXME: calculate priceImpact
         };
     }
 
@@ -589,6 +593,10 @@ export class TinymanDex extends Dex {
         const bignumSlippage = BigInt(slippage * 1000);
         const minimalAmountOut = amountOut - (amountOut * bignumSlippage) / BigInt(1000);
 
+        const swapPrice = Number(amountOut) / Number(amountIn);
+        const poolPrice = Number(outputSupply) / Number(inputSupply);
+        const priceImpact = Math.abs(swapPrice / poolPrice - 1);
+
         return {
             assetIn,
             assetOut,
@@ -598,6 +606,7 @@ export class TinymanDex extends Dex {
             price: (Number(minimalAmountOut) / Number(amountIn)) * decRatio,
             fee: BigInt(amountIn - newAmountAfterFees),
             slippage,
+            priceImpact,
         };
     }
 

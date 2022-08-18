@@ -24,7 +24,7 @@ import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGrou
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
-import { BestSwapQuote, makeDex, ZapQuote } from '../providers/dexesProvider';
+import { BestSwapQuote, makeDex, MintQuote, ZapQuote } from '../providers/dexesProvider';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
@@ -50,6 +50,7 @@ const tinyman = makeDex('T2');
 export enum QueryType {
     swap,
     zap,
+    mint,
 }
 
 export const getNetworkAssetId = (asset_id: number) => {
@@ -68,11 +69,14 @@ function quoteToBestSwap(q: BestSwapQuote, outTokenPrice: number): BestSwap {
     const best_path = q.path.map((q) => ({ unit_name: q.assetIn.unitName }));
     best_path.push({ unit_name: q.path[q.path.length - 1].assetOut.unitName });
 
+    const priceImpact = q.best.priceImpact;
+
     return {
         best_swap,
         direct_swap,
         best_path,
         usdc_diff,
+        priceImpact,
     };
 }
 
@@ -151,7 +155,7 @@ export async function getTransactions(
     asset1_id: string,
     asset2_id: string,
     asset1_amount: string
-): Promise<{ quote: BestSwapQuote | ZapQuote; txns: WalletTransactionGroup[] }> {
+): Promise<{ quote: BestSwapQuote | ZapQuote | MintQuote; txns: WalletTransactionGroup[] }> {
     const asset1 = await fetchAsset(Number(asset1_id));
     const asset2 = await fetchAsset(Number(asset2_id));
     const amountIn = getSmallestUnits(asset1, Number(asset1_amount));
@@ -161,6 +165,13 @@ export async function getTransactions(
         const txns = await tinyman.getBestSwapTxsFromQuote(address, quote);
         return { quote, txns };
     }
+
+    if (type === QueryType.mint) {
+        const quote = await tinyman.getMintQuote(asset1, asset2, amountIn, SLIPPAGE);
+        const txns = await tinyman.getMintTxsFromQuote(address, quote);
+        return { quote, txns };
+    }
+
     const quote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
     const txns = await tinyman.getZapTxsFromQuote(address, quote);
     return { quote, txns };
@@ -173,7 +184,7 @@ export async function runTransactions(
     token2Id: string,
     token1Amount: string,
     token1Balance?: number
-): Promise<{ quote: BestSwapQuote | ZapQuote; txIds: string[] } | null> {
+): Promise<{ quote: BestSwapQuote | ZapQuote | MintQuote; txIds: string[] } | null> {
     if (!account) {
         notify('Please, connect the wallet.', 'warning');
         return null;
@@ -185,7 +196,7 @@ export async function runTransactions(
     }
 
     if (token1Balance !== undefined && (Number.isNaN(token1Balance) || Number(token1Amount) > token1Balance)) {
-        notify('Tokens amount below the wallet balance.', 'warning');
+        notify('Tokens amount is higher than the wallet balance.', 'warning');
         return null;
     }
 
@@ -250,7 +261,7 @@ export async function runTransactions(
     }
 }
 
-export async function getOptions(
+export async function getTokens(
     account: Account | null,
     balances: Record<AssetId, Amount> | null = null
 ): Promise<TokenOptionType[]> {
@@ -259,14 +270,15 @@ export async function getOptions(
     const assets: TokenOptionType[] = Object.values(assets_res)
         .map((token) => ({
             value: ALGONET === MAINNET ? `${token.id}` : `${MAINNET_TO_TESTNET_ASA_ID[token.id] ?? ''}`,
-            id: ALGONET === MAINNET ? token.id : MAINNET_TO_TESTNET_ASA_ID[token.id],
+            id: ALGONET === MAINNET ? Number(token.id) : MAINNET_TO_TESTNET_ASA_ID[token.id],
             name: token.name,
             unitName: token.unit_name,
             balance: 0,
             decimals: token.decimals,
             creator: '',
         }))
-        .filter((token) => token.value);
+        .filter((token) => token.value)
+        .sort((a, b) => (a.id === 0 ? -1 : a.id === META_TOKEN_ID && b.id !== 0 ? -1 : 0));
 
     if (!balances) {
         return assets;
@@ -288,7 +300,9 @@ export async function getOptions(
             asset.balance /= 10 ** 2;
         }
     }
-    assets.sort((a, b) => (a.balance < b.balance ? 1 : -1));
+    assets
+        .sort((a, b) => (a.balance < b.balance ? 1 : -1))
+        .sort((a, b) => (a.id === 0 ? -1 : a.id === META_TOKEN_ID && b.id !== 0 ? -1 : 0));
 
     return assets;
 }
@@ -375,6 +389,11 @@ function BestTokenPrice({
                 valueStyle={{ fontSize: '14px' }}
             />
             <InfoRow title="Slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
+            <InfoRow
+                title="Price impact"
+                value={`${numberRound(bestSwap.priceImpact * 100)}%`}
+                valueStyle={{ fontSize: '14px' }}
+            />
         </InfoPanel>
     );
 }
@@ -386,13 +405,19 @@ export function Swap() {
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
-    const [bestSwap, setBestSwap] = useState<BestSwap>({ best_swap: 0, direct_swap: 0, best_path: [], usdc_diff: 0 });
+    const [bestSwap, setBestSwap] = useState<BestSwap>({
+        best_swap: 0,
+        direct_swap: 0,
+        best_path: [],
+        usdc_diff: 0,
+        priceImpact: 0,
+    });
     const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        getOptions(account, balances).then((res) => {
+        getTokens(account, balances).then((res) => {
             setOptions(res);
             setToken1(res[0]);
         });
