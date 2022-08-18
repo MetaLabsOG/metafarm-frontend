@@ -16,12 +16,10 @@ import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/s
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
-import { makeDex, ZapQuote } from '../dexes';
+import { tinymanDex, ZapQuote } from '../dexes';
 import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
 import { ZapData } from './types';
-
-const tinyman = makeDex('T2');
 
 function zapQuoteToData(asset1_id: number, quote: ZapQuote): ZapData {
     const assetsAreSwapped = asset1_id !== quote.mint.assetA.id;
@@ -63,7 +61,8 @@ export async function loadZapData(
         const asset1 = await fetchAsset(Number(asset1_id));
         const asset2 = await fetchAsset(Number(asset2_id));
         const amountIn = getSmallestUnits(asset1, Number(asset1_amount));
-        const zapQuote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
+        const pool = await tinymanDex.getPoolByAssets(asset1, asset2);
+        const zapQuote = await pool.getZap(asset1, amountIn, SLIPPAGE);
 
         const zap_data = zapQuoteToData(Number(asset1_id), zapQuote);
 

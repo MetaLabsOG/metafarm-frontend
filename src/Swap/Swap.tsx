@@ -156,11 +156,12 @@ export async function getTransactions(
 
     if (type === QueryType.swap) {
         const quote = await tinymanDex.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
-        const txns = await tinymanDex.getBestSwapTxsFromQuote(address, quote);
+        const txns = await quote.prepareTxs(address);
         return { quote, txns };
     }
-    const quote = await tinymanDex.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
-    const txns = await tinymanDex.getZapTxsFromQuote(address, quote);
+    const pool = await tinymanDex.getPoolByAssets(asset1, asset2);
+    const quote = await pool.getZap(asset1, amountIn, SLIPPAGE);
+    const txns = await quote.prepareTxs(address);
     return { quote, txns };
 }
 

@@ -84,7 +84,8 @@ export async function getSwapCostSomewhere(
     let error = null;
     for (const provider of DEX_TRY_ORDER) {
         try {
-            return await makeDex(provider).getSwapQuote(assetIn, assetOut, amountIn, slippage);
+            const pool = await makeDex(provider).getPoolByAssets(assetIn, assetOut);
+            return await pool.getSwap(assetIn, amountIn, slippage);
         } catch (error_) {
             error = error_;
         }
