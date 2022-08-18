@@ -1,10 +1,8 @@
-import { loadZapData, ZapResult } from './Zap';
 import { useUnit } from 'effector-react';
-import { $account, $balances, refreshAccountInfo } from '../common/store';
 import React, { useEffect, useRef, useState } from 'react';
-import { getOptions, QueryType, runTransactions } from '../Swap/Swap';
-import { ZapData } from './types';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
+import { getOptions, QueryType, runTransactions } from '../Swap/Swap';
+import { $account, $balances, refreshAccountInfo } from '../common/store';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import { Heading2, ModalContainer, ModalTitle } from '../common/styled';
@@ -12,8 +10,9 @@ import { TokenOptionType } from '../Components/Select/types';
 import { TOKEN_OPTION } from '../Components/Select/Select';
 import { notify } from '../Components/Notification';
 import { algoexplorerTxLink } from '../common/lib';
-import { getTokenLink } from '../Farm/PoolList/Pool/utils';
 import { theme } from '../theme';
+import { loadZapData, ZapResult } from './Zap';
+import { ZapData } from './types';
 
 export function ZapModal({
     asset1_id,
@@ -56,7 +55,7 @@ export function ZapModal({
             setToken2(filtered_res[1]);
             setIsLoading(false);
         });
-    }, [balances]);
+    }, [balances, asset1_id, asset2_id, account]);
 
     const getZapTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -82,14 +81,12 @@ export function ZapModal({
 
     const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error
         setToken1(option);
         const token2Upd = options[0].value === option.value ? options[1] : options[0];
         setToken2(token2Upd);
         setToken1Amount('');
         setShowResult(false);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         getZapThrottled(option.value, token2Upd.value, token1Amount, 50);
     };
 
@@ -136,7 +133,7 @@ export function ZapModal({
                 token2={token2}
                 lpMicroBalance={zapData.pool_lp_id ? balances[zapData.pool_lp_id] : BigInt(0)}
             />
-            <React.Fragment>
+            <>
                 <PacmanButton
                     buttonText={'CONVERT ' + token1.unitName + ' TO LP'}
                     buttonStyle="swap_button"
@@ -145,13 +142,13 @@ export function ZapModal({
                 <h3 className="dex_name">via tinyman</h3>
                 <a
                     target="_blank"
-                    href={'https://app.tinyman.org/#/pool/add-liquidity?asset_1=' + asset1_id + '&asset_2=' + asset2_id}
+                    href={`https://app.tinyman.org/#/pool/add-liquidity?asset_1=${asset1_id}&asset_2=${asset2_id}`}
                     rel="noreferrer"
                     style={{ color: theme.lightGray }}
                 >
                     <h3 className="dex_name">or do it manually</h3>
                 </a>
-            </React.Fragment>
+            </>
         </ModalContainer>
     );
 }

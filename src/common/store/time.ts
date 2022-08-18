@@ -1,13 +1,13 @@
 import { Event, createEvent, createStore, sample, Unit } from 'effector';
+import { interval } from 'patronum';
 import { indexer } from '../../AppContext';
 import { createTimeDeferredStore, nonConcurrent } from './utils';
-import { interval } from 'patronum';
 
 // Time store
 export const { $store: $networkTime, update: queryTimeUpdate } = createTimeDeferredStore<void, number>(
     0,
-    1000, // update once in a second max
-    nonConcurrent(() =>
+    1000, // Update once in a second max
+    nonConcurrent(async () =>
         indexer
             .makeHealthCheck()
             .do()
@@ -38,5 +38,5 @@ export const doEachTick = (period: number, unit: Unit<any>): Event<void> => {
     return stopCounter;
 };
 
-// updating network time once in 5 secs - seems like an okay trade-off
+// Updating network time once in 5 secs - seems like an okay trade-off
 void doEachTick(5000, queryTimeUpdate);

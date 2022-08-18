@@ -1,20 +1,20 @@
 import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useStoreMap, useUnit } from 'effector-react';
 import { useQuery } from 'react-query';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore TODO: type definitions for contract packages?... damn seems bad...
-import { backend, reach } from '@metalabsog/crowdsale';
 
-import { Status } from '../Status';
+// @ts-expect-error TODO: type definitions for contract packages?... damn seems bad...
+import { backend, reach } from '@metalabsog/crowdsale';
+import { BigNumberish } from '@ethersproject/bignumber';
+
+import { Status } from '../Status.js';
 import { getContracts, tokensaleWhitelist } from '../providers/apiProvider';
 import { useContractOptin } from '../common/reachHooks';
 import { InfoHeader } from '../common/styled';
 import { META_TOKEN_ID } from '../AppContext';
 import { $account, Amount, buildContractsStore, Contract } from '../common/store';
 import { Account, Backend } from '../types';
-import { Button } from './styled';
 import { unsafeFromBigint } from '../common/lib';
-import { BigNumberish } from '@ethersproject/bignumber';
+import { Button } from './styled';
 
 const { $contracts, setContractInfos } = buildContractsStore('crowdsale', backend as Backend);
 
@@ -25,7 +25,7 @@ type CrowdsaleProps = {
 
 type OptinState = 'before' | 'transactions' | 'whitelisting' | 'done';
 
-const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
+function CrowdsaleInner({ account, contract }: CrowdsaleProps) {
     const { userOptedIn, optIn } = useContractOptin(reach, account, contract.id, [META_TOKEN_ID]);
     const [optInState, setOptInState] = useState<OptinState>('before');
     const [tokenAmount, setTokenAmount] = useState<Amount>(BigInt(0));
@@ -72,7 +72,7 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
     );
 
     if (!state) {
-        return <Status status="CONNECTING TO THE SMART-CONTRACT" showLoading={true} />;
+        return <Status showLoading status="CONNECTING TO THE SMART-CONTRACT" />;
     }
 
     if (!userOptedIn) {
@@ -80,17 +80,17 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <InfoHeader>YOU ARE WHITELISTED!</InfoHeader>
                 <h4 style={{ marginBottom: '20px' }}>Opt into META token and the token sale app to buy META!</h4>
-                <Button onClick={optInAndWhitelist} isActive={true}>
+                <Button isActive onClick={optInAndWhitelist}>
                     OPT IN
                 </Button>
             </div>
         ) : (
-            <Status status="OPTING YOU IN. PLEASE CONFIRM TRANSACTIONS" showLoading={true} />
+            <Status showLoading status="OPTING YOU IN. PLEASE CONFIRM TRANSACTIONS" />
         );
     }
 
     if (optInState === 'whitelisting') {
-        return <Status status="PREPARING THE TOKENSALE FOR YOU" showLoading={true} />;
+        return <Status showLoading status="PREPARING THE TOKENSALE FOR YOU" />;
     }
 
     const { totalAmount, rate, individualCap } = state.initial;
@@ -119,49 +119,51 @@ const CrowdsaleInner = ({ account, contract }: CrowdsaleProps) => {
             <input
                 type="number"
                 className="tokenInput"
-                placeholder={'10'}
-                onChange={(e) => setTokenAmountValidated(BigInt(parseInt(e.target.value)))}
-                // TODO: remove this conversion when adding proper display with decimals
+                placeholder="10"
                 value={unsafeFromBigint(tokenAmount)}
+                // TODO: remove this conversion when adding proper display with decimals
+                onChange={(e) => {
+                    setTokenAmountValidated(BigInt(Number.parseInt(e.target.value)));
+                }}
             />
 
             <h4 style={{ marginTop: '30px' }}>
                 <>microALGOs to pay: {algoPrice(tokenAmount)}</>
             </h4>
-            <Button onClick={() => buy(tokenAmount)} isActive={true}>
+            <Button isActive onClick={async () => buy(tokenAmount)}>
                 BUY META
             </Button>
         </div>
     );
-};
+}
 
-export const Crowdsale = (): ReactElement => {
+export function Crowdsale(): ReactElement {
     const account = useUnit($account);
-    const { data, isError, isSuccess } = useQuery(['contracts', 'crowdsale'], () => getContracts('crowdsale'));
+    const { data, isError, isSuccess } = useQuery(['contracts', 'crowdsale'], async () => getContracts('crowdsale'));
 
     const setContractInfosEvent = useUnit(setContractInfos);
 
     useEffect(() => {
-        if (isSuccess && data instanceof Array) {
+        if (isSuccess && Array.isArray(data)) {
             const contracts = data.sort((a: any, b: any) => b.deployed_timestamp - a.deployed_timestamp).slice(0, 1);
             // TODO(flyingleafe) pls fix
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-expect-error
             setContractInfosEvent(contracts);
         }
-    }, [data, isError, isSuccess]);
+    }, [data, isError, isSuccess, setContractInfosEvent]);
 
-    const contract = useStoreMap($contracts, (ls: Contract<'crowdsale'>[]) => ls[0]);
+    const contract = useStoreMap($contracts, (ls: Array<Contract<'crowdsale'>>) => ls[0]);
 
     if (!account) {
         return <InfoHeader>PLEASE, CONNECT THE WALLET.</InfoHeader>;
-    } else if (contract === undefined) {
+    }
+    if (contract === undefined) {
         return <InfoHeader>SALE NOT STARTED, COMING SOON!</InfoHeader>;
     }
 
     if (!contract.info.metadata.whitelist.includes(account.networkAccount.addr)) {
         return <InfoHeader>SORRY, YOU ARE NOT IN THE WHITELIST</InfoHeader>;
-    } else {
-        return <CrowdsaleInner account={account} contract={contract} />;
     }
-};
+    return <CrowdsaleInner account={account} contract={contract} />;
+}

@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Status } from '../../../Status';
-import { $networkTime, queryTimeUpdate, Contract, FarmType, hasLocalState, $pricedAlgo } from '../../../common/store';
 import { useStoreMap, useUnit } from 'effector-react';
+import { useModal } from '.store/react-hooks-use-modal-virtual-c2664bb5e8/package';
+import { Status } from '../../../Status.js';
+import { $networkTime, queryTimeUpdate, Contract, FarmType, hasLocalState, $pricedAlgo } from '../../../common/store';
+import { $stakingTokens } from '../../../Stake/store';
+import logo from '../../../imgs/logo.png';
+import { $farmRewardTokens } from '../../store';
+import { ConnectWalletModal } from '../../../wallet/ConnectWalletModal';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolLoadingAnimation } from './styled';
-import { $farmRewardTokens } from '../../store';
-import { $stakingTokens } from '../../../Stake/store';
-import logo from '../../../imgs/logo.png';
 import { getPoolState } from './utils';
-import { useModal } from '.store/react-hooks-use-modal-virtual-c2664bb5e8/package';
-import { ConnectWalletModal } from '../../../wallet/ConnectWalletModal';
 
-export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) => {
+export function Pool({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) {
     const currentBlock = useUnit($networkTime);
     const pricedAlgo = useUnit($pricedAlgo);
     const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
@@ -25,11 +25,11 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
 
     const queryTimeUpdateEvent = useUnit(queryTimeUpdate);
 
-    useEffect(queryTimeUpdateEvent, [contract]);
+    useEffect(queryTimeUpdateEvent, [contract, queryTimeUpdateEvent]);
 
     const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
     if (currentBlock === 0 || !contract.state || !is_info_loaded || !pricedAlgo) {
-        // console.log('WHY LOADING?', type, currentBlock, contract.state, lpTokenInfo, rewardTokenInfo, stakingTokenInfo);
+        // Console.log('WHY LOADING?', type, currentBlock, contract.state, lpTokenInfo, rewardTokenInfo, stakingTokenInfo);
         return (
             <PoolContainer>
                 <PoolLoadingAnimation src={logo} style={{ opacity: '0.5' }} width="45px" height="45px" />
@@ -39,7 +39,7 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
 
     const poolState = getPoolState(currentBlock, contract.state.initial);
 
-    const isSafari = navigator.userAgent.toLowerCase().indexOf('safari') !== -1;
+    const isSafari = navigator.userAgent.toLowerCase().includes('safari');
 
     const onPoolClick = () => {
         if (contract.ctc === null) {
@@ -100,4 +100,4 @@ export const Pool = ({ type, contract }: { type: FarmType; contract: Contract<Fa
     }
 
     return <Status status="Something is wrong, please contact us" showLoading={false} />;
-};
+}

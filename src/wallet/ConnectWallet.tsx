@@ -3,12 +3,12 @@ import { useModal } from 'react-hooks-use-modal';
 import { detect } from 'detect-browser';
 
 import '../css/wallet.css';
+import { useUnit } from 'effector-react';
 import { logEvent, LogName } from '../logEvent';
 import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
-import { customWalletFallback, WalletType } from './customWalletFallback';
 import { notify } from '../Components/Notification';
-import { useUnit } from 'effector-react';
+import { customWalletFallback, WalletType } from './customWalletFallback';
 import { ConnectWalletModal } from './ConnectWalletModal';
 
 const browser = detect();
@@ -42,13 +42,17 @@ export const connectWallet = (walletType: WalletType) => {
 
             return acc;
         })
-        .catch((e) => {
-            if (e instanceof Error) {
-                console.log('ERROR. ConnectWallet: ', e);
-                logEvent('', { message: `ERROR. ConnectWallet: ${e.name}: ${e.message}` }, LogName.ERRORS);
+        .catch((error) => {
+            if (error instanceof Error) {
+                console.log('ERROR. ConnectWallet:', error);
+                logEvent('', { message: `ERROR. ConnectWallet: ${error.name}: ${error.message}` }, LogName.ERRORS);
             } else {
-                console.log('ERROR (of unexpected type!). ConnectWallet: ', e);
-                logEvent('', { message: `ERROR (of unexpected type!). ConnectWallet: ${String(e)}` }, LogName.ERRORS);
+                console.log('ERROR (of unexpected type!). ConnectWallet:', error);
+                logEvent(
+                    '',
+                    { message: `ERROR (of unexpected type!). ConnectWallet: ${String(error)}` },
+                    LogName.ERRORS
+                );
             }
         });
 };
@@ -59,7 +63,7 @@ const disconnectWallet = () => {
         window.location.reload();
     };
 
-    const algorand = window.algorand;
+    const { algorand } = window;
     if (algorand && 'disconnect' in algorand) {
         void algorand.disconnect().then(finalDisconnect);
     } else {
@@ -82,7 +86,13 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
     }, []);
 
     useEffect(() => {
-        window.addEventListener('click', () => accDropdownOpen && setAccDropdownOpen(!accDropdownOpen), { once: true });
+        window.addEventListener(
+            'click',
+            () => {
+                accDropdownOpen && setAccDropdownOpen(!accDropdownOpen);
+            },
+            { once: true }
+        );
     }, [accDropdownOpen]);
 
     const toggleDropdown: MouseEventHandler<HTMLAnchorElement> = (e) => {
@@ -126,7 +136,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                             {ALGONET === TESTNET && (
                                 <a
                                     target="_blank"
-                                    href={'https://dispenser.testnet.aws.algodev.network/'}
+                                    href="https://dispenser.testnet.aws.algodev.network/"
                                     rel="noreferrer"
                                     style={{ textDecoration: 'none' }}
                                 >

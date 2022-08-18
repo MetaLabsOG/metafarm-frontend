@@ -1,4 +1,4 @@
-export const ArrowUp = ({ rotate }: { rotate?: boolean }) => {
+export function ArrowUp({ rotate }: { rotate?: boolean }) {
     return (
         <svg width="22" height="21" viewBox="0 0 22 21" transform={`translate(0) rotate(${rotate ? 180 : 0} 0 0)`}>
             <path
@@ -7,4 +7,4 @@ export const ArrowUp = ({ rotate }: { rotate?: boolean }) => {
             />
         </svg>
     );
-};
+}

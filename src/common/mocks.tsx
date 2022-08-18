@@ -1,6 +1,6 @@
-import { Asset, Contract, Priced } from './store';
-import { LPTokenInfo } from '../providers/dexesProvider';
 import { BigNumber } from '@ethersproject/bignumber';
+import { LPTokenInfo } from '../providers/dexesProvider';
+import { Asset, Contract, Priced } from './store';
 
 export const rewardTokenInfoMock: Priced<Asset> = {
     id: 123,
@@ -54,7 +54,7 @@ export const ctcMock: Contract<'farm'> = {
                 },
                 global: {
                     totalStaked: BigNumber.from(123),
-                    lastUpdateBlock: BigNumber.from(53565),
+                    lastUpdateBlock: BigNumber.from(53_565),
                     rewardPerTokenStored: BigNumber.from(34),
                 },
             },
@@ -81,7 +81,7 @@ export const ctcMock: Contract<'farm'> = {
         },
         global: {
             totalStaked: BigInt(123),
-            lastUpdateBlock: 53565,
+            lastUpdateBlock: 53_565,
             rewardPerTokenStored: BigInt(34),
         },
         local: {
