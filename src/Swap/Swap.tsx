@@ -21,13 +21,14 @@ import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits, signAndPostTxn
 import { WalletTransactionGroup } from '../types';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
-import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
+import { Heading2, ModalContainer, ModalTitle, ModalSubtitle, Plus, SwapArrow } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
 import { BestSwapQuote, makeDex, MintQuote, ZapQuote } from '../providers/dexesProvider';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
+import swapArrow from '../imgs/swapArrow.svg';
 import { BestSwap, Token } from './types';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
@@ -329,71 +330,18 @@ function BestTokenPrice({
 }) {
     const pricePerToken =
         Number.parseFloat(token1Amount) > 0 ? bestSwap.best_swap / Number.parseFloat(token1Amount) : 0;
-    const best_algo = bestSwap.best_swap > bestSwap.direct_swap;
 
     return (
-        <InfoPanel isLoading={isLoading}>
-            {best_algo && (
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '10px',
-                        whiteSpace: 'nowrap',
-                    }}
-                >
-                    <div className="token_price_text">
-                        Direct swap:
-                        <br />
-                        {token1.unitName}-{token2.unitName}
-                    </div>
-                    <h3 className="token_price_value" style={{ color: 'white', padding: '10px' }}>
-                        {numberRound(bestSwap.direct_swap)} {token2.unitName}
-                    </h3>
-                </div>
-            )}
-            <div
-                style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', whiteSpace: 'nowrap' }}
-            >
-                <div className="token_price_text">
-                    Best swap:
-                    <br />
-                    {bestSwap.best_path.map((t: { unit_name: any }) => t.unit_name).join('-')}
-                </div>
-                <h3
-                    className="token_price_value"
-                    style={{ backgroundColor: '#00ff00', color: 'black', padding: '7px', fontSize: '18px' }}
-                >
-                    {numberRound(bestSwap.best_swap)} {token2.unitName}
-                </h3>
-            </div>
-            {best_algo && (
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '15px',
-                        whiteSpace: 'nowrap',
-                    }}
-                >
-                    <div className="token_price_text"> </div>
-                    <div className="token_price_delta">
-                        +{numberRound(bestSwap.best_swap - bestSwap.direct_swap)} {token2.unitName}(
-                        {numberRound(bestSwap.usdc_diff)}$)
-                    </div>
-                </div>
-            )}
+        <InfoPanel isLoading={isLoading} minHeight={180}>
             <InfoRow
-                title="Price"
-                value={`${numberRound(pricePerToken)} ${token2.unitName} per ${token1.unitName}`}
-                valueStyle={{ fontSize: '14px' }}
+                title="Minimum received"
+                value={numberRound(bestSwap.best_swap) + ' ' + token2.unitName}
+                valueStyle={{ fontSize: '18px', color: 'white', fontWeight: 'bold' }}
             />
+            <InfoRow title="Route" value={bestSwap.best_path.map((t: { unit_name: any }) => t.unit_name).join('-')} />
+            <InfoRow title="Price" value={`${numberRound(pricePerToken)} ${token2.unitName} per ${token1.unitName}`} />
             <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
-            <InfoRow
-                title="Price impact"
-                value={`${numberRound(bestSwap.priceImpact * 100)}%`}
-                valueStyle={{ fontSize: '14px' }}
-            />
+            <InfoRow title="Price impact" value={`${numberRound(bestSwap.priceImpact * 100)}%`} />
         </InfoPanel>
     );
 }
@@ -405,6 +353,7 @@ export function Swap() {
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
+    const [token2Amount, setToken2Amount] = useState<string>('');
     const [bestSwap, setBestSwap] = useState<BestSwap>({
         best_swap: 0,
         direct_swap: 0,
@@ -413,13 +362,13 @@ export function Swap() {
         priceImpact: 0,
     });
     const [options, setOptions] = useState<TokenOptionType[]>([]);
-    const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
         getTokens(account, balances).then((res) => {
             setOptions(res);
             setToken1(res[0]);
+            setToken2(res[1]);
         });
     }, [balances, account]);
 
@@ -427,6 +376,7 @@ export function Swap() {
 
     function getBestSwapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
         if (!token1_id || !token2_id || !amount) {
+            setToken2Amount('');
             return;
         }
         clearTimeout(getSwapTimeout.current);
@@ -435,7 +385,7 @@ export function Swap() {
             getBestSwap(account, token1_id, token2_id, amount).then((res) => {
                 if (res !== null) {
                     setBestSwap(res);
-                    setShowResult(true);
+                    setToken2Amount(res.best_swap.toString());
                 }
                 setIsLoading(false);
             });
@@ -447,7 +397,6 @@ export function Swap() {
         // @ts-expect-error
         setToken1(option);
         setToken1Amount('');
-        setShowResult(false);
         getBestSwapThrottled(option.value, token2.value, token1Amount, 50);
     };
 
@@ -455,22 +404,20 @@ export function Swap() {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         setToken2(option);
-        setShowResult(false);
         getBestSwapThrottled(token1.value, option.value, token1Amount, 50);
     };
 
-    const inputOnChange = (inputValue: string) => {
-        setShowResult(false);
+    const input1OnChange = (inputValue: string) => {
         getBestSwapThrottled(token1.value, token2.value, inputValue, 1000);
     };
 
-    const FindPriceButtonOnClick = async () => {
-        return getBestSwap(account, token1?.value, token2?.value, token1Amount).then((res) => {
-            if (res !== null) {
-                setBestSwap(res);
-                setShowResult(true);
-            }
-        });
+    const swapTokens = () => {
+        const newToken2 = token1;
+        setToken1(token2);
+        setToken2(newToken2);
+        setToken1Amount(token2Amount);
+        setToken2Amount('');
+        getBestSwapThrottled(token2.value, token1.value, token2Amount, 50);
     };
 
     const SwapButtonOnClick = async () => {
@@ -491,45 +438,36 @@ export function Swap() {
     return (
         <ModalContainer>
             <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>OPTIMAL SWAP</ModalTitle>
-            <ModalSubtitle>we find the optimal path to swap your token</ModalSubtitle>
-            <Heading2>FROM</Heading2>
+            <ModalSubtitle>we find the optimal route to swap your token</ModalSubtitle>
             <SelectInputGroup
                 options={options}
                 selectedOption={token1}
                 inputData={token1Amount}
                 setInputData={setToken1Amount}
                 selectOnChange={select1OnChange}
-                inputOnChange={inputOnChange}
+                inputOnChange={input1OnChange}
             />
-            <Heading2>TO</Heading2>
-            <Select
-                selectType={SelectType.tokenSelect}
+            <div style={{ marginBottom: '15px' }}>
+                <SwapArrow alt="arrow" src={swapArrow} onClick={swapTokens} />
+            </div>
+            <SelectInputGroup
                 options={options}
                 selectedOption={token2}
+                inputData={token2Amount}
+                setInputData={setToken2Amount}
                 selectOnChange={select2OnChange}
+                inputOnChange={() => {}}
+                inputDisabled={true}
             />
-            {!isLoading && !showResult && (
-                <PacmanButton
-                    buttonText="FIND BEST PRICE"
-                    buttonStyle="price_button"
-                    onClickAction={FindPriceButtonOnClick}
-                />
-            )}
-            {(isLoading || showResult) && (
-                <BestTokenPrice
-                    isLoading={isLoading}
-                    token1Amount={token1Amount}
-                    bestSwap={bestSwap}
-                    token1={token1}
-                    token2={token2}
-                />
-            )}
-            {showResult && (
-                <>
-                    <PacmanButton buttonText="SWAP" buttonStyle="swap_button" onClickAction={SwapButtonOnClick} />
-                    <h3 className="dex_name">via tinyman</h3>
-                </>
-            )}
+            <BestTokenPrice
+                isLoading={isLoading}
+                token1Amount={token1Amount}
+                bestSwap={bestSwap}
+                token1={token1}
+                token2={token2}
+            />
+            <PacmanButton buttonText="SWAP" buttonStyle="swap_button" onClickAction={SwapButtonOnClick} />
+            <h3 className="dex_name">via tinyman</h3>
         </ModalContainer>
     );
 }

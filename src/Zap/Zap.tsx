@@ -5,7 +5,7 @@ import '../css/swap.css';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { useUnit, useStoreMap } from 'effector-react';
+import { useUnit } from 'effector-react';
 import Switch from 'react-switch';
 import { logEvent, logFarmActionData, LogName } from '../logEvent';
 import { $account, $balances, fetchAsset } from '../common/store';
@@ -36,7 +36,7 @@ function mintQuoteToData(asset1_id: number, quote: MintQuote): ZapData {
 
     const lp_amount = fromSmallestUnits(quote.lpToken, quote.minimalLiquidityIssued);
     const pool_lp_id = quote.lpToken.id;
-    const pool_lp_decimals = quote.mint.lpToken.decimals;
+    const pool_lp_decimals = quote.lpToken.decimals;
     return { asset1_id, asset1_amount, asset2_id, asset2_amount, lp_amount, pool_lp_id, pool_lp_decimals };
 }
 
@@ -153,14 +153,9 @@ export function ZapResult({
             <InfoRow
                 title="Current LP balance"
                 value={fromSmallestUnits({ decimals: zap_data.pool_lp_decimals }, lpMicroBalance)}
-                valueStyle={{ fontSize: '14px' }}
             />
-            <InfoRow
-                title="LP ASA ID"
-                value={formatNumber(zap_data.pool_lp_id ?? 0)}
-                valueStyle={{ fontSize: '14px' }}
-            />
-            <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
+            <InfoRow title="LP ASA ID" value={formatNumber(zap_data.pool_lp_id ?? 0)} />
+            <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} />
         </InfoPanel>
     );
 }

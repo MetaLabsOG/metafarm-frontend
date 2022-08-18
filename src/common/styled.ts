@@ -102,7 +102,7 @@ export const ModalSubtitle = styled.h3`
     font-size: 14px;
     font-weight: normal;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
 `;
 
 export const Plus = styled.img`
@@ -110,8 +110,22 @@ export const Plus = styled.img`
     height: 15px;
     position: absolute;
     left: 48px;
-    top: 162px;
-    z-index: 2;
+    top: 172px;
+    z-index: 1;
+`;
+
+export const SwapArrow = styled.img`
+    width: 17px;
+    position: absolute;
+    left: 48px;
+    top: 172px;
+    z-index: 1;
+    transition: transform 0.2s ease;
+
+    :hover {
+        transform: translate(0) rotate(180deg);
+        cursor: pointer;
+    }
 `;
 
 export const SwitchContainer = styled.div`

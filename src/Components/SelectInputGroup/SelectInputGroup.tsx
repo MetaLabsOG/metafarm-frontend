@@ -65,7 +65,7 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                 className="select-search"
                 options={options}
                 filterOptions={fuzzySearch}
-                renderOption={(props, option) => renderOption(props, option, SelectType.tokenSelect, false)}
+                renderOption={(props, option) => renderOption(props, option, SelectType.tokenSelect)}
                 renderValue={(props, snapshot) => renderSelectedOption(props, snapshot)}
                 value={selectedOption.value}
                 placeholder=""
