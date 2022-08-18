@@ -39,6 +39,7 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
     if (name.includes('liquidity') || name.includes('pact')) {
         return 'PT';
     }
+
     return 'MOCK';
 }
 

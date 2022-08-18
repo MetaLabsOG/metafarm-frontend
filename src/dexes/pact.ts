@@ -23,6 +23,7 @@ async function fromPactSwap(swap: pactsdk.Swap): Promise<Swap> {
     const appId = swap.pool.appId;
 
     return {
+        dex: 'PT',
         assetIn,
         assetOut,
         amountIn: BigInt(swap.effect.amountDeposited),
@@ -46,13 +47,14 @@ async function fromPactMint(mint: pactsdk.LiquidityAddition, slippage: number): 
     const appId = mint.pool.appId;
 
     return {
+        dex: 'PT',
         assetA,
         assetB,
         lpToken,
         amountA: BigInt(mint.primaryAssetAmount),
         amountB: BigInt(mint.secondaryAssetAmount),
         liquidityIssued: BigInt(mint.effect.mintedLiquidityTokens),
-        minimalLiquidityIssued: BigInt(mint.effect.mintedLiquidityTokens * (1 - slippage)),
+        minimalLiquidityIssued: BigInt(Math.floor(mint.effect.mintedLiquidityTokens * (1 - slippage))),
         slippage,
 
         prepareTxs: async (sender) => {
@@ -68,6 +70,7 @@ async function fromPactZap(zap: pactsdk.Zap): Promise<Zap> {
     const { appId, primaryAsset, secondaryAsset, liquidityAsset } = zap.pool;
 
     return {
+        dex: 'PT',
         swap,
         mint,
         prepareTxs: async (sender) => {
@@ -87,37 +90,26 @@ export class PactPool implements DexPool {
     private _dex: PactDex;
     private _pool: pactsdk.Pool;
 
+    readonly poolId: AppId;
+    readonly asset1: AssetId;
+    readonly asset2: AssetId;
+    readonly liquidityAsset: AssetId;
+
+    asset1Reserve: Amount;
+    asset2Reserve: Amount;
+    totalLiquidity: Amount;
+
     constructor(dex: PactDex, pool: pactsdk.Pool) {
         this._dex = dex;
         this._pool = pool;
-    }
+        this.poolId = pool.appId;
+        this.asset1 = pool.primaryAsset.index;
+        this.asset2 = pool.secondaryAsset.index;
+        this.liquidityAsset = pool.liquidityAsset.index;
 
-    get poolId(): AppId {
-        return this._pool.appId;
-    }
-
-    get asset1(): AssetId {
-        return this._pool.primaryAsset.index;
-    }
-
-    get asset2(): AssetId {
-        return this._pool.secondaryAsset.index;
-    }
-
-    get liquidityAsset(): AssetId {
-        return this._pool.liquidityAsset.index;
-    }
-
-    get asset1Reserve(): Amount {
-        return BigInt(this._pool.state.totalPrimary);
-    }
-
-    get asset2Reserve(): Amount {
-        return BigInt(this._pool.state.totalSecondary);
-    }
-
-    get totalLiquidity(): Amount {
-        return BigInt(this._pool.state.totalLiquidity);
+        this.asset1Reserve = BigInt(pool.state.totalPrimary);
+        this.asset2Reserve = BigInt(pool.state.totalSecondary);
+        this.totalLiquidity = BigInt(pool.state.totalLiquidity);
     }
 
     async getSwap(assetIn: AssetId | Asset, amountIn: Amount, slippage: number): Promise<Swap> {

@@ -1,6 +1,5 @@
 import { Buffer } from 'buffer';
 import algosdk from 'algosdk';
-import { min, max } from 'ramda';
 
 import { TESTNET, MAINNET, ALGONET } from '../../AppContext';
 import { toReachTxn } from '../../common/lib';
@@ -208,6 +207,7 @@ export class TinymanPool implements DexPool {
         return {
             swap,
             mint,
+            dex: 'T2',
             prepareTxs: async (sender: string) => {
                 const swapTxs = await swap.prepareTxs(sender);
                 const mintTxs = await mint.prepareTxs(sender);
@@ -222,6 +222,7 @@ export class TinymanPool implements DexPool {
  */
 export class TinymanSwap implements Swap {
     private pool: TinymanPool;
+    dex: DexProvider = 'T2';
 
     assetIn: Asset;
     assetOut: Asset;
@@ -269,6 +270,7 @@ export class TinymanSwap implements Swap {
 
 export class TinymanMint implements Mint {
     private pool: TinymanPool;
+    dex: DexProvider = 'T2';
 
     assetA: Asset;
     assetB: Asset;

@@ -29,6 +29,7 @@ export class MockDex extends Dex {
                 const fee = BigInt(100);
 
                 return {
+                    dex: 'MOCK',
                     assetIn,
                     assetOut,
                     amountIn: amountIn,

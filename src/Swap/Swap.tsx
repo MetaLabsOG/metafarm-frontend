@@ -17,18 +17,18 @@ import {
 
 import { logEvent, LogName } from '../logEvent';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits, signAndPostTxnGroups } from '../common/lib';
+import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits, parseTxs, signAndPostTxnGroups } from '../common/lib';
 import { WalletTransactionGroup } from '../types';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
-import { BestSwapQuote, tinymanDex, ZapQuote } from '../dexes';
+import { BestSwap, tinymanDex, Zap } from '../dexes';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
-import { BestSwap, Token } from './types';
+import { BestSwapInfo, Token } from './types';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';
@@ -41,6 +41,7 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     31566704: 10458941, // USDC
     463554836: 70283957, // ALGF
     792313023: 96690352, // XSOL
+    342889824: 27963203, // BOARD
 };
 
 export const SLIPPAGE = 0.01;
@@ -58,10 +59,21 @@ export const getNetworkAssetId = (asset_id: number) => {
     return MAINNET_TO_TESTNET_ASA_ID[asset_id] ?? -1;
 };
 
-function quoteToBestSwap(q: BestSwapQuote, outTokenPrice: number): BestSwap {
+type BestSwapPriced = BestSwap & { outTokenPrice: number };
+
+function quoteToBestSwap(q: BestSwapPriced | null): BestSwapInfo {
+    if (q === null) {
+        return {
+            best_swap: 0,
+            direct_swap: 0,
+            best_path: [],
+            usdc_diff: 0,
+        };
+    }
+
     const best_swap = fromSmallestUnits(q.best.assetOut, q.best.minimalAmountOut);
     const direct_swap = q.direct ? fromSmallestUnits(q.direct.assetOut, q.direct.minimalAmountOut) : best_swap;
-    const usdc_diff = outTokenPrice * (best_swap - direct_swap);
+    const usdc_diff = q.outTokenPrice * (best_swap - direct_swap);
 
     const best_path = q.path.map((q) => ({ unit_name: q.assetIn.unitName }));
     best_path.push({ unit_name: q.path[q.path.length - 1].assetOut.unitName });
@@ -79,7 +91,7 @@ async function getBestSwap(
     asset1_id: string | undefined,
     asset2_id: string | undefined,
     asset1_amount: string
-): Promise<BestSwap | null> {
+): Promise<BestSwapPriced | null> {
     if (!asset1_id || !asset2_id) {
         notify('Please, choose tokens.', 'warning');
         return null;
@@ -101,12 +113,12 @@ async function getBestSwap(
         const asset1 = await fetchAsset(Number.parseInt(asset1_id));
         const asset2 = await fetchAsset(Number.parseInt(asset2_id));
         const amountIn = getSmallestUnits(asset1, Number.parseFloat(asset1_amount));
-        const bestSwapQuote = await tinymanDex.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
-        const asset2Price = await fetchAssetPriceFx(asset2);
-        const best_swap = quoteToBestSwap(bestSwapQuote, asset2Price);
+        const bestSwap = (await tinymanDex.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE)) as BestSwapPriced;
+        bestSwap.outTokenPrice = await fetchAssetPriceFx(asset2);
+        const swapInfo = quoteToBestSwap(bestSwap);
 
-        console.log(bestSwapQuote);
-        console.log(best_swap);
+        console.log(bestSwap);
+        console.log(swapInfo);
 
         logEvent(
             account?.networkAccount.addr,
@@ -115,15 +127,15 @@ async function getBestSwap(
                 asset1_id,
                 asset2_id,
                 amount: asset1_amount,
-                best_swap: best_swap.best_swap,
-                direct_swap: best_swap.direct_swap,
-                best_path: best_swap.best_path.map((t: { unit_name: any }) => t.unit_name).join('-'),
-                usdc_diff: best_swap.usdc_diff,
+                best_swap: swapInfo.best_swap,
+                direct_swap: swapInfo.direct_swap,
+                best_path: swapInfo.best_path.map((t: { unit_name: any }) => t.unit_name).join('-'),
+                usdc_diff: swapInfo.usdc_diff,
             },
             LogName.SWAP
         );
 
-        return best_swap;
+        return bestSwap;
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
         console.error(error);
@@ -143,60 +155,49 @@ async function getBestSwap(
     }
 }
 
-export async function getTransactions(
-    type: QueryType,
-    address: string,
-    asset1_id: string,
-    asset2_id: string,
-    asset1_amount: string
-): Promise<{ quote: BestSwapQuote | ZapQuote; txns: WalletTransactionGroup[] }> {
-    const asset1 = await fetchAsset(Number(asset1_id));
-    const asset2 = await fetchAsset(Number(asset2_id));
-    const amountIn = getSmallestUnits(asset1, Number(asset1_amount));
-
-    if (type === QueryType.swap) {
-        const quote = await tinymanDex.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
-        const txns = await quote.prepareTxs(address);
-        return { quote, txns };
-    }
-    const pool = await tinymanDex.getPoolByAssets(asset1, asset2);
-    const quote = await pool.getZap(asset1, amountIn, SLIPPAGE);
-    const txns = await quote.prepareTxs(address);
-    return { quote, txns };
-}
-
 export async function runTransactions(
-    type: QueryType,
     account: Account | null,
-    token1Id: string,
-    token2Id: string,
-    token1Amount: string,
+    operation: BestSwap | Zap,
     token1Balance?: number
-): Promise<{ quote: BestSwapQuote | ZapQuote; txIds: string[] } | null> {
+): Promise<string[] | null> {
     if (!account) {
         notify('Please, connect the wallet.', 'warning');
         return null;
     }
 
-    if (!token1Amount) {
-        notify('Please, enter the token amount.', 'warning');
-        return null;
-    }
+    // this is kostyli basically only to not change the logging
+    const [type, token1, token2, token1AmountBig] =
+        'best' in operation
+            ? [QueryType.swap, operation.best.assetIn, operation.best.assetOut, operation.best.amountIn]
+            : [
+                  QueryType.zap,
+                  operation.swap.assetIn,
+                  operation.swap.assetOut,
+                  operation.swap.amountIn +
+                      (operation.mint.assetA.id === operation.swap.assetIn.id
+                          ? operation.mint.amountA
+                          : operation.mint.amountB),
+              ];
 
-    if (token1Balance !== undefined && (Number.isNaN(token1Balance) || Number(token1Amount) > token1Balance)) {
+    const token1Amount = fromSmallestUnits(token1, token1AmountBig);
+
+    if (token1Balance !== undefined && (Number.isNaN(token1Balance) || token1Amount > token1Balance)) {
         notify('Tokens amount below the wallet balance.', 'warning');
         return null;
     }
 
     try {
         const address = account.networkAccount.addr;
-        const { quote, txns } = await getTransactions(type, address, token1Id, token2Id, token1Amount);
-        const txIds = await signAndPostTxnGroups(txns);
+        const txns = await operation.prepareTxs(address);
+        console.log(parseTxs(txns));
+        let txIds = await signAndPostTxnGroups(txns);
         console.log('SWAP/ZAP OK', txIds);
 
-        // TODO: abstract post-redeems only for Tinyman in swap/zap functionality in dexesProvider
-        const redeemTxns = await tinymanDex.getAllRedeemTxs(address);
-        const redeemTxIds = await signAndPostTxnGroups(redeemTxns);
+        if (operation.dex == 'T2') {
+            const redeemTxns = await tinymanDex.getAllRedeemTxs(address);
+            const redeemTxIds = await signAndPostTxnGroups(redeemTxns);
+            txIds = [...txIds, ...redeemTxIds];
+        }
 
         refreshAccountInfo();
 
@@ -204,15 +205,15 @@ export async function runTransactions(
             account.networkAccount.addr,
             {
                 message: '[' + QueryType[type].toUpperCase() + ' OK]',
-                asset1_id: token1Id,
-                asset2_id: token2Id,
+                asset1_id: token1.id,
+                asset2_id: token2.id,
                 amount: token1Amount,
-                txns: [...txIds, ...redeemTxIds].map(algoexplorerTxLink).join('\n'),
+                txns: txIds.map(algoexplorerTxLink).join('\n'),
             },
             type === QueryType.swap ? LogName.SWAP : LogName.ZAP
         );
 
-        return { quote, txIds };
+        return txIds;
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
         const queryType = QueryType[type].toUpperCase();
@@ -243,8 +244,8 @@ export async function runTransactions(
             account.networkAccount.addr,
             {
                 message: '[' + QueryType[type].toUpperCase() + ' ERROR]',
-                asset1_id: token1Id,
-                asset2_id: token2Id,
+                asset1_id: token1.id,
+                asset2_id: token2.id,
                 amount: token1Amount,
                 error: error_message,
             },
@@ -313,7 +314,7 @@ function BestTokenPrice({
 }: {
     isLoading: boolean;
     token1Amount: string;
-    bestSwap: BestSwap;
+    bestSwap: BestSwapInfo;
     token1: TokenOptionType;
     token2: TokenOptionType;
 }) {
@@ -390,7 +391,7 @@ export function Swap() {
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
-    const [bestSwap, setBestSwap] = useState<BestSwap>({ best_swap: 0, direct_swap: 0, best_path: [], usdc_diff: 0 });
+    const [bestSwap, setBestSwap] = useState<BestSwapPriced | null>(null);
     const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -453,17 +454,12 @@ export function Swap() {
     };
 
     const SwapButtonOnClick = async () => {
-        const res = await runTransactions(
-            QueryType.swap,
-            account,
-            token1.value,
-            token2.value,
-            token1Amount,
-            token1.balance
-        );
-        if (res !== null) {
-            const { txIds } = res;
-            notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
+        if (bestSwap !== null) {
+            const res = await runTransactions(account, bestSwap, token1.balance);
+            if (res !== null) {
+                const txIds = res;
+                notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
+            }
         }
     };
 
@@ -498,15 +494,15 @@ export function Swap() {
                 <BestTokenPrice
                     isLoading={isLoading}
                     token1Amount={token1Amount}
-                    bestSwap={bestSwap}
+                    bestSwap={quoteToBestSwap(bestSwap)}
                     token1={token1}
                     token2={token2}
                 />
             )}
-            {showResult && (
+            {showResult && bestSwap && (
                 <>
                     <PacmanButton buttonText="SWAP" buttonStyle="swap_button" onClickAction={SwapButtonOnClick} />
-                    <h3 className="dex_name">via tinyman</h3>
+                    <h3 className="dex_name">via {bestSwap.dex == 'PT' ? 'pact' : 'tinyman'}</h3>
                 </>
             )}
         </ModalContainer>
