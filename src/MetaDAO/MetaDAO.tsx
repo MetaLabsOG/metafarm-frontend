@@ -107,11 +107,8 @@ export function MetaDAO() {
                         </Features>
                         <br />
                         <br />
-                        With the Metapunks project, our goal is to build a succesfull organization, and owning 1 of our
-                        2589 NFTs is like your share in this organization.
-                        <br />
-                        <br />
-                        So if you want to change the game... JOIN US!
+                        With the Metapunks project, our goal is to build a succesfull organization. So if you want to
+                        change the game... JOIN US!
                         <br />
                         <br />
                     </div>

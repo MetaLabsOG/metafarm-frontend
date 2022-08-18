@@ -62,7 +62,7 @@ export const getTokenLink = (asset_id: number | undefined): string => {
         return 'https://algoexplorer.io/top-statistics';
     }
     const mainnet_asset_id = ALGONET === MAINNET || !asset_id ? asset_id : TESTNET_TO_MAINNET_ASA_ID[asset_id];
-    return mainnet_asset_id ? `https://tinychart.org/asset/${mainnet_asset_id}` : '';
+    return mainnet_asset_id ? `https://vestige.fi/asset/${mainnet_asset_id}` : '';
 };
 
 // TODO: remove this when pools name it will be not test names

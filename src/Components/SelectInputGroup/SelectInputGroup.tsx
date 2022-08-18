@@ -97,6 +97,7 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                 </div>
                 {selectedOption.balance > 0 && !inputDisabled && (
                     <MaxButton
+                        isActive
                         style={{
                             fontSize: '16px',
                             background: '#272727',
