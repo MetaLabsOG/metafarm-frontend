@@ -5,7 +5,7 @@ import { ALGONET, TESTNET, algod } from '../AppContext';
 import { Asset, AssetId, assetId, fetchAsset, AppId, Amount } from '../common/store';
 import { WalletTransactionGroup } from '../types';
 import { toReachTxn } from '../common/lib';
-import { Dex, PoolInfo, SwapQuote, MintQuote, DexPool, DexProvider, Swap, Mint, Zap } from './common';
+import { Dex, DexPool, DexProvider, Swap, Mint, Zap } from './common';
 
 function fromPactTxGroup(
     pactTxs: pactsdk.TransactionGroup,
@@ -20,7 +20,6 @@ function fromPactTxGroup(
 async function fromPactSwap(swap: pactsdk.Swap): Promise<Swap> {
     const assetIn = await fetchAsset(swap.assetDeposited.index);
     const assetOut = await fetchAsset(swap.assetReceived.index);
-    const appId = swap.pool.appId;
 
     return {
         dex: 'PT',
@@ -35,7 +34,7 @@ async function fromPactSwap(swap: pactsdk.Swap): Promise<Swap> {
 
         prepareTxs: async (sender) => {
             const pactTxs = await swap.prepareTxGroup(sender);
-            return fromPactTxGroup(pactTxs, [appId], [assetId(assetIn), assetId(assetOut)]);
+            return fromPactTxGroup(pactTxs, [], [assetId(assetIn), assetId(assetOut)]);
         },
     };
 }
@@ -44,7 +43,6 @@ async function fromPactMint(mint: pactsdk.LiquidityAddition, slippage: number): 
     const assetA = await fetchAsset(mint.pool.primaryAsset.index);
     const assetB = await fetchAsset(mint.pool.secondaryAsset.index);
     const lpToken = await fetchAsset(mint.pool.liquidityAsset.index);
-    const appId = mint.pool.appId;
 
     return {
         dex: 'PT',
@@ -59,7 +57,7 @@ async function fromPactMint(mint: pactsdk.LiquidityAddition, slippage: number): 
 
         prepareTxs: async (sender) => {
             const pactTxs = await mint.prepareTxGroup(sender);
-            return fromPactTxGroup(pactTxs, [appId], [assetA, assetB, lpToken].map(assetId));
+            return fromPactTxGroup(pactTxs, [], [assetA, assetB, lpToken].map(assetId));
         },
     };
 }
@@ -67,7 +65,7 @@ async function fromPactMint(mint: pactsdk.LiquidityAddition, slippage: number): 
 async function fromPactZap(zap: pactsdk.Zap): Promise<Zap> {
     const swap = await fromPactSwap(zap.swap);
     const mint = await fromPactMint(zap.liquidityAddition, zap.slippagePct / 100);
-    const { appId, primaryAsset, secondaryAsset, liquidityAsset } = zap.pool;
+    const { primaryAsset, secondaryAsset, liquidityAsset } = zap.pool;
 
     return {
         dex: 'PT',
@@ -75,7 +73,7 @@ async function fromPactZap(zap: pactsdk.Zap): Promise<Zap> {
         mint,
         prepareTxs: async (sender) => {
             const pactTxs = await zap.prepareTxGroup(sender);
-            return fromPactTxGroup(pactTxs, [appId], [primaryAsset.index, secondaryAsset.index, liquidityAsset.index]);
+            return fromPactTxGroup(pactTxs, [], [primaryAsset.index, secondaryAsset.index, liquidityAsset.index]);
         },
     };
 }
@@ -186,6 +184,10 @@ export class PactDex extends Dex {
     async fixPactPoolDefaults(pool: pactsdk.Pool, a1: AssetId | Asset, a2: AssetId | Asset): Promise<pactsdk.Pool> {
         // Weird shit with incompleteness of Pact's pool state info
         if (pool.primaryAsset.index === 0 && pool.secondaryAsset.index === 0) {
+            if (assetId(a2) < assetId(a1)) {
+                [a2, a1] = [a1, a2];
+            }
+
             const primary = typeof a1 === 'number' ? await fetchAsset(a1) : a1;
             const secondary = typeof a2 === 'number' ? await fetchAsset(a2) : a2;
             pool.primaryAsset = this.makePactAsset(primary);

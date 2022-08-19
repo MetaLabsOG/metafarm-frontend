@@ -77,6 +77,7 @@ export async function loadZapData(
         const pool = await dex.getPoolByAssets(asset1, asset2);
         const zap = await pool.getZap(asset1, amountIn, SLIPPAGE);
 
+        console.log(pool);
         const zap_data = zapQuoteToData(zap);
 
         logEvent(
