@@ -142,12 +142,13 @@ function renderSelectedOption(valueProps, snapshot, selectType: SelectType) {
     );
 }
 
-export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange }) => {
+export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange, getOptions }) => {
     return (
         <SelectSearch
             search
             className="select-search select-search-basic"
             options={options}
+            getOptions={getOptions}
             value={selectedOption.value}
             renderOption={(props, option) => renderOption(props, option, selectType)}
             renderValue={(props, snapshot) => renderSelectedOption(props, snapshot, selectType)}

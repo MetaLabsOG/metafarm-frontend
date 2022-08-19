@@ -116,7 +116,7 @@ export async function tokensaleWhitelist(contractId: number, address: string): P
 type AddContractType = {
     type: ContractType;
     id: number;
-    VERSION: string;
+    version: string;
     description: string;
     metadata: Record<string, string | undefined>;
 };
@@ -136,24 +136,14 @@ export const deployContractToBackend = async (
     const request: AddContractType = {
         type: contractType,
         id: contractId,
-        VERSION: contractVersion,
+        version: contractVersion,
         description: farmName,
         metadata: {
             dex,
         },
     };
-    try {
-        console.log('/contract/register', request);
-        await instance.post('/contract/register', request);
-        return true;
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error('error message:', error.message);
-        } else {
-            console.error('unexpected error:', error);
-        }
-        return false;
-    }
+    console.log('/contract/register', request);
+    await instance.post('/contract/register', request);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types

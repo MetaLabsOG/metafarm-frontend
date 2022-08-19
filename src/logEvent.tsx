@@ -10,6 +10,7 @@ export enum LogName {
     SWAP,
     ZAP,
     FARM,
+    ADDFARM,
 }
 
 export function logFarmActionData(
