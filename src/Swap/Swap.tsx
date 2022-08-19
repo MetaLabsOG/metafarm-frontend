@@ -205,9 +205,9 @@ export async function runTransactions(
             account.networkAccount.addr,
             {
                 message: '[' + QueryType[type].toUpperCase() + ' OK]',
-                asset1_id: token1.id,
-                asset2_id: token2.id,
-                amount: token1Amount,
+                asset1_id: token1.id.toString(),
+                asset2_id: token2.id.toString(),
+                amount: token1Amount.toString(),
                 txns: txIds.map(algoexplorerTxLink).join('\n'),
             },
             type === QueryType.swap ? LogName.SWAP : LogName.ZAP
@@ -244,9 +244,9 @@ export async function runTransactions(
             account.networkAccount.addr,
             {
                 message: '[' + QueryType[type].toUpperCase() + ' ERROR]',
-                asset1_id: token1.id,
-                asset2_id: token2.id,
-                amount: token1Amount,
+                asset1_id: token1.id.toString(),
+                asset2_id: token2.id.toString(),
+                amount: token1Amount.toString(),
                 error: error_message,
             },
             type === QueryType.swap ? LogName.SWAP : LogName.ZAP

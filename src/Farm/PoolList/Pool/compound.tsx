@@ -8,7 +8,7 @@ import { notify } from '../../../Components/Notification';
 import { reach } from '../../../AppContext';
 
 export const isCompoundEnabled = (lpTokenInfo: LPTokenInfo, reward_asset_id: number) => {
-    if (lpTokenInfo.poolDex !== 'T2') {
+    if (lpTokenInfo.poolDex !== 'T2' && lpTokenInfo.poolDex !== 'PT') {
         return false;
     }
     return reward_asset_id === lpTokenInfo.asset1 || reward_asset_id === lpTokenInfo.asset2;
