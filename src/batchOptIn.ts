@@ -1,9 +1,9 @@
+import { Buffer } from 'buffer';
 import algosdk, { IntDecoding, waitForConfirmation } from 'algosdk';
-import buffer from 'buffer';
-import { ALGONET, TESTNET } from './AppContext.ts';
-import { withAlgodEncoding } from './common/lib.ts';
-
-const { Buffer } = buffer;
+import { ALGONET, TESTNET } from './AppContext';
+import { withAlgodEncoding } from './common/lib';
+import { AssetId } from './common/store';
+import { Address, ReachStdlib } from './types';
 
 /**
  * Opt-ins to a few asaIds in one go.
@@ -11,16 +11,23 @@ const { Buffer } = buffer;
  * @param asaIds ids to opt-in. Should be not empty and not more that 16.
  * @returns always true. It's a hack for reach smart contracts. TODO
  */
-export async function batchOptIn(reach, addr, asaIds, waitConfirmation = true) {
+export async function batchOptIn(
+    reach: ReachStdlib,
+    addr: Address,
+    asaIds: AssetId[],
+    waitConfirmation = true,
+    retry = false
+) {
     if (asaIds.length === 0) {
-        throw Error('Empty opt-in asa id list');
+        throw new Error('Empty opt-in asa id list');
     }
+
     if (asaIds.length > 16) {
-        throw Error(`Too many asa ids in the list. Should be at most 16 but is: ${asaIds}`);
+        throw new Error(`Too many asa ids in the list. Should be at most 16 but is: [${asaIds.join(', ')}]`);
     }
 
     const p = await reach.getProvider();
-    const algodClient = p.algodClient;
+    const { algodClient } = p;
     const ps = await algodClient.getTransactionParams().do();
     const revocationTarget = undefined;
     const CloseRemainderTo = undefined;
@@ -45,56 +52,61 @@ export async function batchOptIn(reach, addr, asaIds, waitConfirmation = true) {
         txn: Buffer.from(txn.toByte()).toString('base64'),
     }));
 
-    let optedIn = false;
-    while (!optedIn) {
+    do {
         try {
+            // eslint-disable-next-line no-await-in-loop -- we want to wait for confirmation
             await p.signAndPostTxns(reachTxns);
-            optedIn = true;
-        } catch (e) {
-            console.log('Opt in failed... Trying again.');
+            retry = false;
+        } catch {
+            console.log(`Opt in failed...${retry ? ' retrying' : ''}`);
         }
-    }
-    let txId = txns[0].txID().toString();
+    } while (retry);
+
     if (waitConfirmation) {
+        const txId = txns[0].txID().toString();
         console.log('Waiting for confirmation of opt-in');
-        await withAlgodEncoding(algodClient, IntDecoding.DEFAULT, (algodClient) => {
+        await withAlgodEncoding(algodClient, IntDecoding.DEFAULT, async (algodClient) => {
             return waitForConfirmation(algodClient, txId, 4);
         });
         console.log('Confirmed');
     }
-    return true; // we don't need this but have to send something to make contract wait
+
+    return true; // We don't need this but have to send something to make contract wait
 }
 
-export async function multiBatchOptIn(addr) {
-    // const { BATCH_IDS: asaIds } = await import('./bigbrains_100');
-    const asaIds = [];
+export async function multiBatchOptIn(reach: ReachStdlib, addr: Address) {
+    // Const { BATCH_IDS: asaIds } = await import('./bigbrains_100');
+    const asaIds: AssetId[] = [];
     const BATCH_SIZE = 16;
     const asaIdsCount = asaIds.length;
     console.log(asaIdsCount);
     for (let i = 0; i < asaIdsCount; i += BATCH_SIZE) {
         const batch = asaIds.slice(i, Math.min(asaIdsCount, i + BATCH_SIZE));
         console.log(i, Math.min(asaIdsCount, i + BATCH_SIZE));
-        await batchOptIn(addr, batch, false);
+        // eslint-disable-next-line no-await-in-loop -- we want to wait for confirmation
+        await batchOptIn(reach, addr, batch, false);
     }
 }
 
-export function checkOptIn(addr, asaId) {
+export async function checkOptIn(addr: Address, asaId: AssetId) {
     const preffix = ALGONET === TESTNET ? 'testnet.' : '';
     return fetch('https://algoindexer.' + preffix + 'algoexplorerapi.io/v2/accounts/' + addr, { method: 'GET' })
-        .then((res) => res.json())
+        .then(async (res) => res.json())
         .then((data) => {
             if (!data.account || !data.account.assets) {
                 return false;
             }
-            for (let asset_num in data.account.assets) {
-                if (data.account.assets[asset_num]['asset-id'] === asaId) {
+
+            for (const asset_number in data.account.assets) {
+                if (data.account.assets[asset_number]['asset-id'] === asaId) {
                     return true;
                 }
             }
+
             return false;
         })
-        .catch((err) => {
-            console.log('ERR', err);
+        .catch((error) => {
+            console.log('ERR', error);
             return false;
         });
 }

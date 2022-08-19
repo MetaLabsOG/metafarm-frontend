@@ -1,18 +1,18 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
-import { LPTokenInfo } from '../../providers/dexesProvider';
 import { useStore, useUnit } from 'effector-react';
+import { Effect } from 'effector';
+import { BigNumberish } from '@ethersproject/bignumber';
+import { LPTokenInfo } from '../../providers/dexesProvider';
 import { $account, Asset, Priced } from '../../common/store';
 import { fromSmallestUnits, getSmallestUnits, sleep } from '../../common/lib';
-import { Effect } from 'effector';
 import { notify, ToastTypes, useToasts } from '../Notification';
-import { BigNumberish } from '@ethersproject/bignumber';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
 import { logFarmActionData } from '../../logEvent';
 import Confetti from '../Confetti/Confetti';
-import { batchOptIn, checkOptIn } from '../../batchOptIn.mjs';
+import { batchOptIn, checkOptIn } from '../../batchOptIn';
 import { reach } from '../../AppContext';
+import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;
@@ -30,11 +30,11 @@ const checkValidInput = (input: string, token: LPTokenInfo | Priced<Asset>, toke
         return true;
     }
 
-    if (isNaN(Number(input))) {
+    if (Number.isNaN(Number(input))) {
         return false;
     }
 
-    const microAmount = getSmallestUnits(token, parseFloat(input));
+    const microAmount = getSmallestUnits(token, Number.parseFloat(input));
     return microAmount <= tokenMicroBalance;
 };
 
@@ -83,7 +83,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
         if (!isActive) {
             return;
         }
-        if (isNaN(Number(e.currentTarget.value))) {
+        if (Number.isNaN(Number(e.currentTarget.value))) {
             return;
         }
         setIsValidInput(checkValidInput(e.currentTarget.value, token, tokenMicroBalance));
@@ -92,7 +92,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     };
 
     const onClick = async () => {
-        const microAmount = getSmallestUnits(token, parseFloat(inputAmount));
+        const microAmount = getSmallestUnits(token, Number.parseFloat(inputAmount));
         if (!isLoading && isValidInput && microAmount > 0) {
             logFarmActionData(account, buttonName, inputAmount, token as LPTokenInfo);
             setIsLoading(true);
@@ -100,26 +100,26 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
             if (hasLock) {
                 notify(
                     buttonName === 'Stake'
-                        ? 'Your lock period will be reset.'
+                        ? "Attention! It's locked pool. You can claim rewards only after lock period. If you stake again your lock period will be reset."
                         : 'Your rewards and lock period will be reset.',
                     'warning'
                 );
-                await sleep(3000);
+                await sleep(5000);
             }
             try {
-                const isTokenOptIn = await checkOptIn(account?.networkAccount.addr, optInId);
+                const isTokenOptIn = account === null ? false : await checkOptIn(account.networkAccount.addr, optInId);
                 if (account && !isTokenOptIn) {
                     await batchOptIn(reach, account.networkAccount.addr, [Number(optInId)], true);
                 }
                 // eslint-disable-next-line effector/mandatory-scope-binding
                 await actionEffect([microAmount]);
                 setShowConfetti(true);
-            } catch (e) {
-                const error_message = e instanceof Error ? e.message : String(e);
+            } catch (error) {
+                const error_message = error instanceof Error ? error.message : String(error);
                 console.log(error_message);
                 if (error_message.includes('below min')) {
                     notify('Not enough ALGOs for opt-in. Please top up ALGO balance.', 'error');
-                } else if (error_message.includes('cancelled')) {
+                } else if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
                     notify('Operation is cancelled.', 'warning');
                 } else if (error_message.includes('popup')) {
                     notify('Popups are blocked. Please, allow popups in your browser.', 'error');
@@ -146,16 +146,23 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                 <PacmanButton
                     buttonText={buttonName}
                     buttonStyle="token_input_button"
-                    onClickAction={() => onClick()}
                     isInactive={!isValidInput || !isActive}
+                    onClickAction={async () => onClick()}
                 />
-                <MaxButton onClick={setInputMaxAmount}>MAX</MaxButton>
+                <MaxButton isActive={isActive} onClick={setInputMaxAmount}>
+                    MAX
+                </MaxButton>
             </Action>
             <Balance isValid={isValidInput}>
                 {balanceField}: {fromSmallestUnits(token, tokenMicroBalance)} {balanceSuffix}{' '}
                 {isValidInput ? '' : '(Not enough)'}
             </Balance>
-            <Confetti showConfetti={showConfetti} onFinish={() => setShowConfetti(false)} />
+            <Confetti
+                showConfetti={showConfetti}
+                onFinish={() => {
+                    setShowConfetti(false);
+                }}
+            />
         </TokenInputWithButtonContainer>
     );
 };

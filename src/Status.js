@@ -17,6 +17,7 @@ export class Status extends React.Component {
             this.setState({ dots: '' });
             return;
         }
+
         this.setState({ dots: this.state.dots + '.' });
     }
 

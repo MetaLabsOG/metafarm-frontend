@@ -1,10 +1,11 @@
 import { Map } from 'immutable';
 import { createEffect, createEvent, createStore, sample, combine, split, Store, restore } from 'effector';
-import { algod } from '../../AppContext';
+import { algod, USDT_TOKEN_ID } from '../../AppContext';
+import { getCoinRateFromBinance } from '../../providers/coinPriceProvider';
+import { makeDex, PactDex } from '../../providers/dexesProvider';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
 import { nonConcurrent, fetchStore } from './utils';
-import { getBinanceCoinPrice } from '../../providers/binanceProvider';
 import { doEachTick } from './time';
 
 // Main event to add the asset, adds it to all of the relevant stores
@@ -21,7 +22,7 @@ function getBalancesFromAccountInfo(accountInfo: Record<string, any> | null): Re
     const accAssets = accountInfo.assets || [];
     return accAssets.reduce(
         (balances: Record<AssetId, Amount>, asset: any) => {
-            balances[asset['asset-id']] = asset['amount'];
+            balances[asset['asset-id']] = asset.amount;
             return balances;
         },
         { 0: accountInfo.amount }
@@ -76,7 +77,7 @@ split({
     },
 });
 
-// fetch asset info from algod on asset registration
+// Fetch asset info from algod on asset registration
 sample({
     clock: registerAsset,
     target: queryAsset,
@@ -91,28 +92,48 @@ sample({
 export const fetchAsset = async (id: AssetId): Promise<Asset> => {
     const saved = await fetchStore($assets.map((assets) => assets.get(id, null)));
     if (saved) return saved;
-    else return await fetchAssetFx(id);
+    return fetchAssetFx(id);
 };
 
 // =================================================================
 // ALGO price fetching
 // (token prices are in separate file to avoid circular import to/from dexesProvider)
 // =================================================================
-export const fetchAlgoPriceFx = createEffect(nonConcurrent(() => getBinanceCoinPrice('ALGOUSDT')));
+export const fetchAlgoPriceFx = createEffect(
+    nonConcurrent(async () => {
+        try {
+            const rate = await getCoinRateFromBinance('ALGOUSDT');
+            if (!rate) {
+                throw new Error(`Failed to fetch ALGO price from Binance`);
+            }
+
+            return Number(rate.price);
+        } catch (error) {
+            console.warn('Failed to get price from Binance, piggybacking on Pact. Error was:', error);
+            const ALGO = 0;
+            const dex = makeDex('PT') as PactDex;
+            const pool = await dex.getMostLiquidPool(ALGO, USDT_TOKEN_ID);
+
+            return pool.calculator.primaryAssetPrice;
+        }
+    })
+);
 
 export const $algoUsdPrice = restore(fetchAlgoPriceFx.doneData, null);
 
 export const fetchAllPricesFx = createEffect(async () => {
     console.log('fetching prices...');
     return fetchAlgoPriceFx()
-        .then(() => console.log('prices fetched'))
+        .then(() => {
+            console.log('prices fetched');
+        })
         .catch(() => {
             console.log('failed to fetch');
         });
 });
 
-// re-fetch prices once in say, 1 minute
-void doEachTick(60000, fetchAllPricesFx);
+// Re-fetch prices once in say, 1 minute
+void doEachTick(60_000, fetchAllPricesFx);
 
 export const $pricedAlgo: Store<Priced<Asset> | null> = combine(
     $assets.map((as) => as.get(0, ALGO_ASSET)),

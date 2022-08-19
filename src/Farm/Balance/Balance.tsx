@@ -1,10 +1,22 @@
+import { Store } from 'effector';
 import { useUnit } from 'effector-react';
-import { $farmPoolAggregates } from '../store';
+import { FarmType } from '../../common/store';
+import { $distributionPoolAggregates } from '../../Stake/store';
+import { $farmPoolAggregates, PoolAggregates } from '../store';
 import { Amount } from './Amount';
 import { BalanceList } from './styled';
 
-export const Balance = () => {
-    const aggregates = useUnit($farmPoolAggregates);
+const kindToAggregates: Record<FarmType, Store<PoolAggregates>> = {
+    farm: $farmPoolAggregates,
+    distribution: $distributionPoolAggregates,
+};
+
+type BalanceProps = {
+    kind: FarmType;
+};
+
+export function Balance({ kind }: BalanceProps) {
+    const aggregates = useUnit(kindToAggregates[kind]);
     return (
         <BalanceList>
             <Amount title="TVL" value={aggregates.tvl} />
@@ -12,4 +24,4 @@ export const Balance = () => {
             <Amount title="Total Reward" value={aggregates.totalPendingReward} />
         </BalanceList>
     );
-};
+}

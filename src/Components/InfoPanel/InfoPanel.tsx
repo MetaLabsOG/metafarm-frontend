@@ -1,6 +1,6 @@
 import { FC } from 'react';
-import { InfoPanelContainer } from './styled';
 import pacman from '../../imgs/loader.gif';
+import { InfoPanelContainer } from './styled';
 
 type InfoPanelProps = {
     children: any[];

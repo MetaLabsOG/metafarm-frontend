@@ -1,9 +1,16 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+// @ts-expect-error
 import { backend as distributionBackend } from '@metalabsog/distribution';
-import { combine } from 'effector';
+import { combine, Store } from 'effector';
 import { buildContractsStore, registerPricedAsset, $networkTime, $pricedAssets } from '../common/store';
-import { sortPoolsOnStatus, $stakePools, $farmStakeTokens, projectContracts } from '../Farm/store';
+import {
+    sortPoolsOnStatus,
+    $stakePools,
+    $farmStakeTokens,
+    projectContracts,
+    PoolAggregates,
+    createAggregates,
+} from '../Farm/store';
 
 const { $contracts, $contractStatesWithCache, setContractInfos } = buildContractsStore(
     'distribution',
@@ -31,3 +38,5 @@ export const $distributedTokens = combine($pricedAssets, $contractStatesWithCach
 );
 
 export const $stakingTokens = combine($distributedTokens, $farmStakeTokens, (distr, farm) => distr.merge(farm));
+
+export const $distributionPoolAggregates: Store<PoolAggregates> = createAggregates($sortedStakingPools);

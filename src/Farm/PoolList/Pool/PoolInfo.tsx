@@ -1,3 +1,4 @@
+import { useUnit } from 'effector-react';
 import {
     $account,
     $algoUsdPrice,
@@ -10,13 +11,13 @@ import {
     Priced,
     Time,
 } from '../../../common/store';
-import { formatLPTokenName, getDexIcon, isLPTokenInfo } from './utils';
-import { PoolState } from './types';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { DAY, fromSmallestUnits, HOUR, MINUTE, unsafeFromBigint } from '../../../common/lib';
+import { getDexIcon } from '../../utils';
+import { formatLPTokenName, isLPTokenInfo } from './utils';
+import { PoolState } from './types';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
 import { PoolInfoMobile } from './PoolInfoMobile';
-import { DAY, fromSmallestUnits, HOUR, MINUTE, unsafeFromBigint } from '../../../common/lib';
-import { useUnit } from 'effector-react';
 
 const blocksToText = (blocks: number, meanRoundDuration: number) => {
     const diffSecs = Math.abs(blocks) * meanRoundDuration;
@@ -28,7 +29,7 @@ const blocksToText = (blocks: number, meanRoundDuration: number) => {
     }
 
     const resTimeSuffix = resTimeUnit === DAY ? 'day' : resTimeUnit === HOUR ? 'hour' : 'minute';
-    const timeUnits = Math.floor(diffSecs / resTimeUnit);
+    const timeUnits = Math.round(diffSecs / resTimeUnit);
     const suffix = timeUnits > 1 ? 's' : '';
     return `${timeUnits} ${resTimeSuffix}${suffix}`;
 };
@@ -80,7 +81,7 @@ const calculateAPR = (
     const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
     const rewardPerBlock = fromSmallestUnits(rewardTokenInfo, contractState.initial.rewardPerBlock);
 
-    const extraAlgoRewardPerBlock = (contractState.initial as FarmInitialInfo).extraAlgoRewardPerBlock;
+    const { extraAlgoRewardPerBlock } = contractState.initial as FarmInitialInfo;
     const algoRewardPerBlock = extraAlgoRewardPerBlock ? fromSmallestUnits(ALGO_ASSET, extraAlgoRewardPerBlock) : 0;
 
     const totalStakedUSD = totalStaked * stakePrice;
@@ -101,7 +102,7 @@ const calculateAPR = (
     };
 };
 
-export const PoolInfo = ({
+export function PoolInfo({
     contractState,
     poolState,
     stakeTokenInfo,
@@ -119,7 +120,7 @@ export const PoolInfo = ({
     pricedAlgo: Priced<Asset>;
     isOpen: boolean;
     poolMetadata: any;
-}) => {
+}) {
     const account = useUnit($account);
     const meanRoundDuration = useUnit($meanRoundDuration);
     const ALGOPrice = useUnit($algoUsdPrice);
@@ -179,4 +180,4 @@ export const PoolInfo = ({
             )}
         </>
     );
-};
+}

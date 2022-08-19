@@ -1,23 +1,23 @@
 import { Dispatch, SetStateAction } from 'react';
-import { useStore, useStoreMap } from 'effector-react';
+import { useStore, useStoreMap, useUnit } from 'effector-react';
+import { useModal } from 'react-hooks-use-modal';
+import { Account } from '@reach-sh/stdlib/ALGO';
 import { AllDefined } from '../../../types';
 import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
 import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { notify, ToastTypes, useToasts } from '../../../Components/Notification';
+import { ZapModal } from '../../../Zap/ZapModal';
+import { useTimer } from '../../../common/reachHooks';
+import { logFarmActionData } from '../../../logEvent';
+import { batchOptIn, checkOptIn } from '../../../batchOptIn';
+import { reach } from '../../../AppContext';
+import { fromSmallestUnits } from '../../../common/lib';
 
 import { isLPTokenInfo } from './utils';
 import { PoolState } from './types';
-import { notify, ToastTypes, useToasts } from '../../../Components/Notification';
-import { useModal } from 'react-hooks-use-modal';
 import { PoolActionsDesktop } from './PoolActionsDesktop';
 import { PoolActionsMobile } from './PoolActionsMobile';
-import { ZapModal } from '../../../Zap/ZapModal';
-import { fromSmallestUnits } from '../../../common/lib';
-import { useTimer } from '../../../common/reachHooks';
 import { calculateUnlockTimeinSecs } from './UnlockTimer';
-import { logFarmActionData } from '../../../logEvent';
-import { Account } from '@reach-sh/stdlib/ALGO';
-import { batchOptIn, checkOptIn } from '../../../batchOptIn.mjs';
-import { reach } from '../../../AppContext';
 
 export const onClickClaim = async (
     account: Account | null,
@@ -29,17 +29,18 @@ export const onClickClaim = async (
     const amount = fromSmallestUnits(rewardTokenInfo, microAmount);
     logFarmActionData(account, 'CLAIM', amount, stakeTokenInfo, rewardTokenInfo);
     try {
-        const isTokenOptIn = await checkOptIn(account?.networkAccount.addr, rewardTokenInfo.id);
+        const isTokenOptIn =
+            account === null ? false : await checkOptIn(account.networkAccount.addr, rewardTokenInfo.id);
         if (account && !isTokenOptIn) {
             await batchOptIn(reach, account.networkAccount.addr, [Number(rewardTokenInfo.id)], true);
         }
         await ctc.apis.claim();
-    } catch (e) {
-        const error_message = e instanceof Error ? e.message : String(e);
+    } catch (error) {
+        const error_message = error instanceof Error ? error.message : String(error);
         console.log(error_message);
         if (error_message.includes('stake is locked')) {
             notify('Please, wait. Stake is locked.', 'error');
-        } else if (error_message.includes('cancelled')) {
+        } else if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
             notify('Operation is cancelled.', 'warning');
         } else {
             notify(error_message, 'error');
@@ -48,7 +49,7 @@ export const onClickClaim = async (
     }
 };
 
-export const PoolActions = ({
+export function PoolActions({
     poolState,
     ctc,
     contractState,
@@ -68,7 +69,7 @@ export const PoolActions = ({
     currentBlock: number;
     contractId: AppId;
     pricedAlgo: Priced<Asset>;
-}) => {
+}) {
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
     const unlockTime = calculateUnlockTimeinSecs(
@@ -85,7 +86,7 @@ export const PoolActions = ({
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim && !unlockTimer;
-    const hasLock = contractState.local.staked > 0 && contractState.initial.lockLengthBlocks > 0;
+    const hasLock = contractState.initial.lockLengthBlocks > 0;
     const [Modal, openZapModal, closeZapModal] = useModal('root');
 
     useToasts({
@@ -145,4 +146,4 @@ export const PoolActions = ({
             )}
         </>
     );
-};
+}

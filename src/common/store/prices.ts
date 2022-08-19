@@ -1,15 +1,18 @@
 import { createStore, createEffect, createEvent, combine, sample, Store } from 'effector';
 
-import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
-import { getSwapCostSomewhere } from '../../providers/dexesProvider';
 import { Map } from 'immutable';
-import { Asset, AssetId, Priced } from './types';
+import { getSwapCostSomewhere } from '../../providers/dexesProvider';
 import { META_TOKEN_ID } from '../../AppContext';
-import { nonConcurrent } from './utils';
 import { SLIPPAGE } from '../../Swap/Swap';
+import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
+import { Asset, AssetId, Priced } from './types';
+import { nonConcurrent } from './utils';
 
 export const fetchAssetPriceFx = createEffect(
     nonConcurrent(async (asset: Asset): Promise<number> => {
+        if (asset.id === 0) {
+            return 1;
+        }
         const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, BigInt(10 ** asset.decimals), SLIPPAGE);
         return swapQuote.price;
     })
@@ -20,7 +23,7 @@ export const $assetAlgoPrices = createStore(Map<AssetId, number>()).on(
     (prices, { params, result }) => prices.set(params.id, result)
 );
 
-// bool flags needed to not fetch swap prices of LP tokens for example
+// Bool flags needed to not fetch swap prices of LP tokens for example
 export const requireAssetPrice = createEvent<AssetId>();
 export const $assetIsPriced = createStore(Map<AssetId, boolean>()).on(requireAssetPrice, (as, id) => as.set(id, true));
 
@@ -32,7 +35,7 @@ sample({
 
 registerPricedAsset(META_TOKEN_ID);
 
-// automatically fetch necessary assets prices when info about them is getting loaded first time
+// Automatically fetch necessary assets prices when info about them is getting loaded first time
 sample({
     clock: assetLoaded,
     source: $assetIsPriced,
@@ -41,7 +44,9 @@ sample({
     target: fetchAssetPriceFx,
 });
 
-fetchAssetPriceFx.fail.watch((v) => console.log('ASSET PRICE FETCHING FAILED', v));
+fetchAssetPriceFx.fail.watch((v) => {
+    console.log('ASSET PRICE FETCHING FAILED', v);
+});
 
 export const $pricedAssets: Store<Map<AssetId, Priced<Asset>>> = combine(
     $pricedAlgo,
@@ -49,7 +54,7 @@ export const $pricedAssets: Store<Map<AssetId, Priced<Asset>>> = combine(
     $assets,
     (pricedAlgo: Priced<Asset> | null, assetAlgoPrices: Map<AssetId, number>, assets: Map<AssetId, Asset>) => {
         if (pricedAlgo === null) {
-            return Map<AssetId, Priced<Asset>>(); // empty map, because cannot price anything without algo price
+            return Map<AssetId, Priced<Asset>>(); // Empty map, because cannot price anything without algo price
         }
 
         return assetAlgoPrices

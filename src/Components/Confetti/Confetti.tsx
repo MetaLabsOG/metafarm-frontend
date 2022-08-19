@@ -18,13 +18,12 @@ export default function Confetti({ showConfetti, onFinish }: { showConfetti: boo
         refAnimationInstance.current = instance;
     }, []);
 
-    const makeShot = useCallback((particleRatio: number, opts: confetti.Options) => {
-        refAnimationInstance.current &&
-            refAnimationInstance.current({
-                ...opts,
-                origin: { y: 0.7 },
-                particleCount: Math.floor(200 * particleRatio),
-            } as confetti.Options);
+    const makeShot = useCallback((particleRatio: number, options: confetti.Options) => {
+        refAnimationInstance.current?.({
+            ...options,
+            origin: { y: 0.7 },
+            particleCount: Math.floor(200 * particleRatio),
+        } as confetti.Options);
     }, []);
 
     const fire = useCallback(() => {
@@ -59,9 +58,9 @@ export default function Confetti({ showConfetti, onFinish }: { showConfetti: boo
     useEffect(() => {
         if (showConfetti) {
             fire();
-            typeof onFinish === 'function' && onFinish();
+            onFinish?.();
         }
-    }, [showConfetti]);
+    }, [showConfetti, fire, onFinish]);
 
     return <ReactCanvasConfetti refConfetti={getInstance} style={canvasStyles} />;
 }
