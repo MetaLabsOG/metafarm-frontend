@@ -7,7 +7,6 @@ import { backend as farmBackend } from '@metalabsog/farm';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit, useStoreMap } from 'effector-react';
 import { getOptions } from '../Swap/Swap';
-import { Button } from '../Components/Button/Button';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, POOL_OPTION, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { PoolOptionType, TokenOptionType } from '../Components/Select/types';
@@ -34,7 +33,7 @@ import { notify } from '../Components/Notification';
 import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE } from '../AppContext';
 import { Backend } from '../types';
 import { expBackoff } from '../common/store/utils';
-import { DateInput, PoolCreateModalContainer } from './styled';
+import { DateInput } from './styled';
 import { deployFarm, InitialState } from './utils';
 
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
@@ -183,13 +182,12 @@ function PoolInfo({
     );
 }
 
-export function PoolCreateModal() {
+export function AddFarm() {
     const account = useUnit($account);
     const balances = useUnit($balances);
     const currentBlock = useUnit($networkTime);
     const meanRoundDuration = useUnit($meanRoundDuration);
 
-    const [PoolCreateModal, openPoolCreateModal, closePoolCreateModal] = useModal('root');
     const [poolOptions, setPoolOptions] = useState<PoolOptionType[]>([]);
     const [selectedPool, setSelectedPool] = useState<PoolOptionType>(POOL_OPTION);
 
@@ -267,87 +265,81 @@ export function PoolCreateModal() {
     };
 
     return (
-        <PoolCreateModalContainer>
-            <Button buttonText="ADD FARM" onClick={openPoolCreateModal} />
-            <PoolCreateModal>
-                <ModalContainer>
-                    <ModalTitle>ADD FARM</ModalTitle>
-                    <Heading2>LP POOL</Heading2>
-                    <Select
-                        selectType={SelectType.poolSelect}
-                        options={poolOptions}
-                        selectedOption={selectedPool}
-                        selectOnChange={selectPoolOnChange}
-                    />
-                    <Heading2>REWARDS</Heading2>
-                    <SelectInputGroup
-                        options={rewardTokenOptions}
-                        selectedOption={selectedRewardToken}
-                        inputData={rewardTokenAmount}
-                        setInputData={setRewardTokenAmount}
-                        selectOnChange={selectRewardTokenOnChange}
-                    />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                        <Heading2>START</Heading2>
-                        <DateInput
-                            placeholder="Select start time"
-                            type="datetime-local"
-                            value={startTime}
-                            onChange={dateInputOnChange}
-                        />
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '20px' }}>
-                        <Heading2>DURATION</Heading2>
-                        <DateInput
-                            style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
-                            placeholder="1-999"
-                            value={daysDuration}
-                            onChange={durationInputOnChange}
-                        />
-                        <Heading2>DAYS</Heading2>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '20px' }}>
-                        <Heading2>LOCK</Heading2>
-                        <DateInput
-                            style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
-                            placeholder="1-999"
-                            value={lockPeriod}
-                            onChange={lockInputOnChange}
-                        />
-                        <Heading2>DAYS</Heading2>
-                    </div>
-                    <PoolInfo
-                        selectedPool={selectedPool}
-                        beginBlock={beginBlock}
-                        endBlock={endBlock}
-                        rewardPerBlock={rewardPerBlock}
-                        rewardAmount={Number(rewardTokenAmount)}
-                        pricedRewardToken={pricedRewardToken}
-                    />
-                    {!account ? (
-                        <ConnectWallet buttonClassName="swap_button" />
-                    ) : (
-                        <PacmanButton
-                            buttonText="CREATE FARM"
-                            buttonStyle="swap_button"
-                            onClickAction={async () => {
-                                const res = await createFarm(
-                                    account,
-                                    selectedPool,
-                                    selectedRewardToken,
-                                    beginBlock,
-                                    endBlock,
-                                    rewardPerBlock,
-                                    Number(rewardTokenAmount),
-                                    0, // TODO: add extra algo rewards to the interface!!
-                                    daysToBlocks(Number(lockPeriod), meanRoundDuration)
-                                );
-                                res && closePoolCreateModal();
-                            }}
-                        />
-                    )}
-                </ModalContainer>
-            </PoolCreateModal>
-        </PoolCreateModalContainer>
+        <ModalContainer>
+            <ModalTitle>ADD FARM</ModalTitle>
+            <Heading2>LP POOL</Heading2>
+            <Select
+                selectType={SelectType.poolSelect}
+                options={poolOptions}
+                selectedOption={selectedPool}
+                selectOnChange={selectPoolOnChange}
+            />
+            <Heading2>REWARDS</Heading2>
+            <SelectInputGroup
+                options={rewardTokenOptions}
+                selectedOption={selectedRewardToken}
+                inputData={rewardTokenAmount}
+                setInputData={setRewardTokenAmount}
+                selectOnChange={selectRewardTokenOnChange}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                <Heading2>START</Heading2>
+                <DateInput
+                    placeholder="Select start time"
+                    type="datetime-local"
+                    value={startTime}
+                    onChange={dateInputOnChange}
+                />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '20px' }}>
+                <Heading2>DURATION</Heading2>
+                <DateInput
+                    style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
+                    placeholder="1-999"
+                    value={daysDuration}
+                    onChange={durationInputOnChange}
+                />
+                <Heading2>DAYS</Heading2>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '20px' }}>
+                <Heading2>LOCK</Heading2>
+                <DateInput
+                    style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
+                    placeholder="1-999"
+                    value={lockPeriod}
+                    onChange={lockInputOnChange}
+                />
+                <Heading2>DAYS</Heading2>
+            </div>
+            <PoolInfo
+                selectedPool={selectedPool}
+                beginBlock={beginBlock}
+                endBlock={endBlock}
+                rewardPerBlock={rewardPerBlock}
+                rewardAmount={Number(rewardTokenAmount)}
+                pricedRewardToken={pricedRewardToken}
+            />
+            {!account ? (
+                <ConnectWallet buttonClassName="swap_button" />
+            ) : (
+                <PacmanButton
+                    buttonText="CREATE FARM"
+                    buttonStyle="swap_button"
+                    onClickAction={async () => {
+                        const res = await createFarm(
+                            account,
+                            selectedPool,
+                            selectedRewardToken,
+                            beginBlock,
+                            endBlock,
+                            rewardPerBlock,
+                            Number(rewardTokenAmount),
+                            0, // TODO: add extra algo rewards to the interface!!
+                            daysToBlocks(Number(lockPeriod), meanRoundDuration)
+                        );
+                    }}
+                />
+            )}
+        </ModalContainer>
     );
 }
