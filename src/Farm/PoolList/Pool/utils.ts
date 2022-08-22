@@ -8,7 +8,7 @@ import {
     FarmInitialInfo,
     DistributionInitialInfo,
 } from '../../../common/store/types';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { LPTokenInfo } from '../../../dexes';
 import { ALGONET, MAINNET, TESTNET } from '../../../AppContext';
 import { PoolState } from './types';
 

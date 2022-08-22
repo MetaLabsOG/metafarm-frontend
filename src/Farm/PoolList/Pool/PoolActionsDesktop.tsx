@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction } from 'react';
 import { useUnit } from 'effector-react';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { LPTokenInfo } from '../../../dexes';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { $account, Amount, AppId, Asset, ContractState, FarmType, Priced } from '../../../common/store';
 import { AllDefined } from '../../../types';
@@ -15,13 +15,11 @@ import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
 import { isLPTokenInfo } from './utils';
 
+// NOTE: I will leave this function here in case we add more dexes and want to have fallback functionality
+// before zap support
 export const getLPTokenAction = (lpToken: LPTokenInfo, openModal: () => void) => {
-    if (lpToken.poolDex === 'T2') {
+    if (lpToken.poolDex === 'T2' || lpToken.poolDex === 'PT') {
         return openModal;
-    }
-    if (lpToken.poolDex === 'PT') {
-        const pactPrefix = ALGONET === TESTNET ? 'testnet.' : 'app.';
-        return () => window.open(`https://${pactPrefix}pact.fi/add-liquidity/${lpToken.poolId}`, '_blank');
     }
     return () => {
         notify('Sorry, this is a mock token, you cannot get it', 'error');

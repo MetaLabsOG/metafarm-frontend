@@ -1,7 +1,7 @@
 import { createStore, createEffect, createEvent, combine, sample, Store } from 'effector';
 
 import { Map } from 'immutable';
-import { getSwapCostSomewhere } from '../../providers/dexesProvider';
+import { getSwapCostSomewhere } from '../../dexes';
 import { META_TOKEN_ID } from '../../AppContext';
 import { SLIPPAGE } from '../../Swap/Swap';
 import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';

@@ -2,7 +2,7 @@ import { FC } from 'react';
 import ReactTooltip from 'react-tooltip';
 import { Asset, AssetId, ContractState, FarmType, Priced } from '../../../common/store';
 import { Arrow } from '../../../imgs/arrow';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { LPTokenInfo } from '../../../dexes';
 import pacman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
 import { fromSmallestUnits } from '../../../common/lib';

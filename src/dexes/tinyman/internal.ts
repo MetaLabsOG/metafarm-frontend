@@ -3,7 +3,7 @@
 import { Buffer } from 'buffer';
 import algosdk from 'algosdk';
 import { max, min } from 'ramda';
-import { AppId, AssetId } from '../common/store';
+import { AppId, AssetId } from '../../common/store/types';
 import TINYMAN_ASC from './tinyman_asc.json';
 
 // Without bothering the backend all the time (which does algoindexer queries anyway).
@@ -29,7 +29,6 @@ type CommonPoolArgs = {
     a1: AssetId;
     a2: AssetId;
     lpTokenId: AssetId;
-    assetInAmount: number;
     assetOutAmount: number;
     sender: string;
     suggestedParams: algosdk.SuggestedParams;
@@ -38,10 +37,16 @@ type CommonPoolArgs = {
 type SwapTxArgs = CommonPoolArgs & {
     assetInId: AssetId;
     swapType: SwapType;
+    assetInAmount: number;
 };
 
 type MintTxArgs = CommonPoolArgs & {
     lpAmount: number;
+    assetInAmount: number;
+};
+
+type RedeemTxArgs = CommonPoolArgs & {
+    assetOutId: AssetId;
 };
 
 type SignedTxn = {
@@ -217,6 +222,58 @@ export function prepareMintTransactions({
             lpTokenId,
             suggestedParams
         ),
+    ];
+
+    txns = algosdk.assignGroupID(txns);
+    return signWithLogicSig(poolLogicSig, txns);
+}
+
+export function prepareRedeemTransactions({
+    validatorAppId,
+    a1,
+    a2,
+    lpTokenId,
+    assetOutId,
+    assetOutAmount,
+    sender,
+    suggestedParams,
+}: RedeemTxArgs): MaybeSignedTx[] {
+    const poolLogicSig = getPoolLogicSig(a1, a2, validatorAppId);
+    const poolAddress = poolLogicSig.address();
+    const feeNote = toUint8Array('fee');
+    const validatorArgs = ['redeem'].map(toUint8Array);
+    const foreignAssets = [a1, a2, lpTokenId].filter((id) => id !== 0);
+
+    let txns = [
+        algosdk.makePaymentTxnWithSuggestedParams(sender, poolAddress, 2000, undefined, feeNote, suggestedParams),
+        algosdk.makeApplicationNoOpTxn(
+            poolAddress,
+            suggestedParams,
+            validatorAppId,
+            validatorArgs,
+            [sender],
+            undefined,
+            foreignAssets
+        ),
+        assetOutId === 0
+            ? algosdk.makePaymentTxnWithSuggestedParams(
+                  poolAddress,
+                  sender,
+                  assetOutAmount,
+                  undefined,
+                  undefined,
+                  suggestedParams
+              )
+            : algosdk.makeAssetTransferTxnWithSuggestedParams(
+                  poolAddress,
+                  sender,
+                  undefined,
+                  undefined,
+                  assetOutAmount,
+                  undefined,
+                  assetOutId,
+                  suggestedParams
+              ),
     ];
 
     txns = algosdk.assignGroupID(txns);
