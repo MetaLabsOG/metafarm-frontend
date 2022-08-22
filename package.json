@@ -10,7 +10,7 @@
     "@metalabsog/distribution": "^17.0.4",
     "@metalabsog/farm": "^17.2.4",
     "@metalabsog/metafomo": "17.0.0",
-    "@pactfi/pactsdk": "^0.4.0",
+    "@pactfi/pactsdk": "^0.5.0",
     "@perawallet/connect": "^0.2.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
     "@ramonak/react-progress-bar": "^5.0.2",

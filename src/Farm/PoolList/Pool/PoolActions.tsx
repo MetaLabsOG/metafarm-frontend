@@ -4,7 +4,7 @@ import { useModal } from 'react-hooks-use-modal';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { AllDefined } from '../../../types';
 import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { LPTokenInfo } from '../../../dexes';
 import { notify, ToastTypes, useToasts } from '../../../Components/Notification';
 import { useTimer } from '../../../common/reachHooks';
 import { logFarmActionData } from '../../../logEvent';

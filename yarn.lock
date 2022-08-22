@@ -3719,14 +3719,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pactfi/pactsdk@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@pactfi/pactsdk@npm:0.4.0"
+"@pactfi/pactsdk@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@pactfi/pactsdk@npm:0.5.0"
   dependencies:
     algosdk: "npm:^1.14.0"
     buffer: "npm:^6.0.3"
     decimal.js: "npm:^10.3.1"
-  checksum: bf677ed27bdff2ab8cc22afb02f0572dba9a792d4f6a2bd1dc79ac36388b9a963a1bdf2d96d5baa9521266ffb0d37a3d1ffb3f0f9b37a943ee9269e48f5d4d88
+  checksum: eb07846c07385956118e91a0a38270a82ab6899d76ee01acd094051e5d23331fd306a96007f829c357835ae44c0970c62d26ecb09179b691bc4f306c41ad6e1c
   languageName: node
   linkType: hard
 
@@ -12199,7 +12199,7 @@ __metadata:
     secp256k1: "npm:^3.7.1"
     superagent: "npm:^5.1.0"
     websocket: "npm:^1.0.31"
-  checksum: 2c1590ba0ca952b3685232ca5bacec2b53f90b8612695795866ea625603aff811920da7fcbf4dcd1fda4589b087134d0ec4b6519a0620b54ef86615af922f1af
+  checksum: 3056bbb9db7747f9b5b00aaf0f58d37b4dd2c624fb53b0f25ea24ba2a9d6244cae13496ab70f8a5579ad1b6e509b0912fd41c9ba3c63ef4cd9fadf092c983fda
   languageName: node
   linkType: hard
 
@@ -13126,7 +13126,7 @@ __metadata:
     "@metalabsog/distribution": "npm:^17.0.4"
     "@metalabsog/farm": "npm:^17.2.4"
     "@metalabsog/metafomo": "npm:17.0.0"
-    "@pactfi/pactsdk": "npm:^0.4.0"
+    "@pactfi/pactsdk": "npm:^0.5.0"
     "@perawallet/connect": "npm:^0.2.0"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.7"
     "@ramonak/react-progress-bar": "npm:^5.0.2"
@@ -13228,7 +13228,6 @@ __metadata:
     react-refresh: "npm:^0.14.0"
     react-router-dom: "npm:^6.3.0"
     react-select-search: "npm:^3.0.10"
-    react-switch: "npm:^7.0.0"
     react-toastify: "npm:^9.0.7"
     react-tooltip: "npm:^4.2.21"
     resolve: "npm:^1.22.1"
@@ -16055,18 +16054,6 @@ __metadata:
     fuse.js:
       optional: true
   checksum: 647e94afe84884273d6714b6a523ebcf532b987051a2ae610254c5853ef4d41b712cc6e3c4f63a732c720921a6fdb17ea84bfae9bb440bbff5b06335324dfcef
-  languageName: node
-  linkType: hard
-
-"react-switch@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "react-switch@npm:7.0.0"
-  dependencies:
-    prop-types: "npm:^15.7.2"
-  peerDependencies:
-    react: ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 567a7a848beb7033f1650341e32fd26a0734f0eddb5d2f9fef82354cafbc374e4cfe0474c0bc684cb68db48bf1e28b954fccb0118c376847d62a1d7d713f4a69
   languageName: node
   linkType: hard
 

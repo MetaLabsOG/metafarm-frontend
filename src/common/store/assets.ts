@@ -2,7 +2,7 @@ import { Map } from 'immutable';
 import { createEffect, createEvent, createStore, sample, combine, split, Store, restore } from 'effector';
 import { algod, USDT_TOKEN_ID } from '../../AppContext';
 import { getCoinRateFromBinance } from '../../providers/coinPriceProvider';
-import { makeDex, PactDex } from '../../providers/dexesProvider';
+import { pactDex } from '../../dexes';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
 import { nonConcurrent, fetchStore } from './utils';
@@ -111,8 +111,7 @@ export const fetchAlgoPriceFx = createEffect(
         } catch (error) {
             console.warn('Failed to get price from Binance, piggybacking on Pact. Error was:', error);
             const ALGO = 0;
-            const dex = makeDex('PT') as PactDex;
-            const pool = await dex.getMostLiquidPool(ALGO, USDT_TOKEN_ID);
+            const pool = await pactDex.getMostLiquidPool(ALGO, USDT_TOKEN_ID);
 
             return pool.calculator.primaryAssetPrice;
         }
