@@ -11,18 +11,26 @@ import { TOKEN_OPTION } from '../Components/Select/Select';
 import { notify } from '../Components/Notification';
 import { algoexplorerTxLink } from '../common/lib';
 import { theme } from '../theme';
-import { loadZapData, ZapResult } from './Zap';
-import { ZapData } from './types';
+import { LPTokenInfo, Zap } from '../dexes';
+import { ALGONET, TESTNET } from '../AppContext';
+import { loadZapData, zapQuoteToData, ZapResult } from './Zap';
 
-export function ZapModal({
-    asset1_id,
-    asset2_id,
-    closeModal,
-}: {
-    asset1_id: number;
-    asset2_id: number;
-    closeModal: () => void;
-}) {
+const getManualLPLink = ({ poolDex, asset1, asset2, poolId }: LPTokenInfo) => {
+    const prefix = ALGONET === TESTNET ? 'testnet.' : 'app.';
+    if (poolDex === 'T2') {
+        return `https://${prefix}tinyman.org/#/pool/add-liquidity?asset_1=${asset1}&asset_2=${asset2}`;
+    } else if (poolDex === 'PT') {
+        return `https://${prefix}pact.fi/add-liquidity/${poolId}`;
+    } else {
+        return '#';
+    }
+};
+
+export function ZapModal({ lpTokenInfo, closeModal }: { lpTokenInfo: LPTokenInfo; closeModal: () => void }) {
+    const asset1_id = lpTokenInfo.asset1;
+    const asset2_id = lpTokenInfo.asset2;
+    const dexProvider = lpTokenInfo.poolDex;
+
     console.log('ZAP', asset1_id, asset2_id);
     const account = useUnit($account);
     const balances = useUnit($balances);
@@ -31,13 +39,7 @@ export function ZapModal({
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
-    const [zapData, setZapData] = useState<ZapData>({
-        asset1_amount: 0,
-        asset2_amount: 0,
-        lp_amount: 0,
-        pool_lp_id: 0,
-        pool_lp_decimals: 0,
-    });
+    const [zapOp, setZapOp] = useState<Zap | null>(null);
 
     const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
@@ -68,9 +70,9 @@ export function ZapModal({
         }
         getZapTimeout.current = setTimeout(() => {
             setIsLoading(true);
-            loadZapData(account, token1_id, token2_id, amount).then((res) => {
+            loadZapData(account, dexProvider, token1_id, token2_id, amount).then((res) => {
                 if (res !== null) {
-                    setZapData(res);
+                    setZapOp(res);
                     console.log('[ZAP] res', res);
                     setShowResult(true);
                 }
@@ -96,21 +98,18 @@ export function ZapModal({
     };
 
     const ZapButtonOnClick = async () => {
-        const res = await runTransactions(
-            QueryType.zap,
-            account,
-            token1.value,
-            token2.value,
-            token1Amount,
-            token1.balance
-        );
-        if (res !== null) {
-            const { txIds } = res;
-            notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
-            refreshAccountInfoEvent();
-            closeModal();
+        if (zapOp !== null) {
+            const res = await runTransactions(account, zapOp, token1.balance);
+            if (res !== null) {
+                const txIds = res;
+                notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
+                refreshAccountInfoEvent();
+                closeModal();
+            }
         }
     };
+
+    const zapData = zapQuoteToData(zapOp);
 
     return (
         <ModalContainer>
@@ -139,10 +138,10 @@ export function ZapModal({
                     buttonStyle="swap_button"
                     onClickAction={ZapButtonOnClick}
                 />
-                <h3 className="dex_name">via tinyman</h3>
+                <h3 className="dex_name">via {dexProvider == 'T2' ? 'tinyman' : 'pact'}</h3>
                 <a
                     target="_blank"
-                    href={`https://app.tinyman.org/#/pool/add-liquidity?asset_1=${asset1_id}&asset_2=${asset2_id}`}
+                    href={getManualLPLink(lpTokenInfo)}
                     rel="noreferrer"
                     style={{ color: theme.lightGray }}
                 >

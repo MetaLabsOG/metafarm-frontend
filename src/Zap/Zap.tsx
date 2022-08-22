@@ -16,15 +16,23 @@ import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/s
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
-import { makeDex, ZapQuote } from '../providers/dexesProvider';
+import { ZapQuote, Zap as ZapOperation, DexProvider, makeDex } from '../dexes';
 import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
 import { ZapData } from './types';
 
-const tinyman = makeDex('T2');
+export function zapQuoteToData(quote: ZapQuote | null): ZapData {
+    if (quote === null) {
+        return {
+            asset1_amount: 0,
+            asset2_amount: 0,
+            lp_amount: 0,
+            pool_lp_id: 0,
+            pool_lp_decimals: 0,
+        };
+    }
 
-function zapQuoteToData(asset1_id: number, quote: ZapQuote): ZapData {
-    const assetsAreSwapped = asset1_id !== quote.mint.assetA.id;
+    const assetsAreSwapped = quote.swap.assetIn.id !== quote.mint.assetA.id;
     const amountA = fromSmallestUnits(quote.mint.assetA, quote.mint.amountA);
     const amountB = fromSmallestUnits(quote.mint.assetB, quote.mint.amountB);
 
@@ -38,10 +46,11 @@ function zapQuoteToData(asset1_id: number, quote: ZapQuote): ZapData {
 
 export async function loadZapData(
     account: Account | null,
+    dexProvider: DexProvider,
     asset1_id: string | undefined,
     asset2_id: string | undefined,
     asset1_amount: string
-): Promise<ZapData | null> {
+): Promise<ZapOperation | null> {
     if (!asset1_id || !asset2_id) {
         notify('Please, choose tokens.', 'warning');
         return null;
@@ -59,13 +68,17 @@ export async function loadZapData(
 
     console.log('[ZAP] get data:', asset1_id, asset2_id, asset1_amount);
 
+    const dex = makeDex(dexProvider);
+
     try {
         const asset1 = await fetchAsset(Number(asset1_id));
         const asset2 = await fetchAsset(Number(asset2_id));
         const amountIn = getSmallestUnits(asset1, Number(asset1_amount));
-        const zapQuote = await tinyman.getZapQuote(asset1, asset2, amountIn, SLIPPAGE);
+        const pool = await dex.getPoolByAssets(asset1, asset2);
+        const zap = await pool.getZap(asset1, amountIn, SLIPPAGE);
 
-        const zap_data = zapQuoteToData(Number(asset1_id), zapQuote);
+        console.log(pool);
+        const zap_data = zapQuoteToData(zap);
 
         logEvent(
             account?.networkAccount.addr,
@@ -79,7 +92,7 @@ export async function loadZapData(
             LogName.ZAP
         );
 
-        return zap_data;
+        return zap;
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
         if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
@@ -153,13 +166,7 @@ export function Zap() {
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
-    const [zapData, setZapData] = useState<ZapData>({
-        asset1_amount: 0,
-        asset2_amount: 0,
-        lp_amount: 0,
-        pool_lp_id: 0,
-        pool_lp_decimals: 0,
-    });
+    const [zapOp, setZapOp] = useState<ZapOperation | null>(null);
 
     const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [showResult, setShowResult] = useState<boolean>(false);
@@ -187,9 +194,11 @@ export function Zap() {
 
     function getZap(token1_id: string, token2_id: string, amount: string) {
         setIsLoading(true);
-        loadZapData(account, token1_id, token2_id, amount).then((res) => {
+
+        // TODO: We need additional UI to support zap on Pact in the standalone zap page (dex selection?)
+        loadZapData(account, 'T2', token1_id, token2_id, amount).then((res) => {
             if (res !== null) {
-                setZapData(res);
+                setZapOp(res);
                 console.log('[ZAP] res', res);
                 setShowResult(true);
             }
@@ -239,19 +248,16 @@ export function Zap() {
     };
 
     const ZapButtonOnClick = async () => {
-        const res = await runTransactions(
-            QueryType.zap,
-            account,
-            token1.value,
-            token2.value,
-            token1Amount,
-            token1.balance
-        );
-        if (res !== null) {
-            const { txIds } = res;
-            notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
+        if (zapOp !== null) {
+            const res = await runTransactions(account, zapOp, token1.balance);
+            if (res !== null) {
+                const txIds = res;
+                notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
+            }
         }
     };
+
+    const zapData = zapQuoteToData(zapOp);
 
     return (
         <ModalContainer>

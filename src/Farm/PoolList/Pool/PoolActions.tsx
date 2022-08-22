@@ -4,7 +4,7 @@ import { useModal } from 'react-hooks-use-modal';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { AllDefined } from '../../../types';
 import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { LPTokenInfo } from '../../../dexes';
 import { notify, ToastTypes, useToasts } from '../../../Components/Notification';
 import { ZapModal } from '../../../Zap/ZapModal';
 import { useTimer } from '../../../common/reachHooks';
@@ -137,11 +137,7 @@ export function PoolActions({
             )}
             {isLPTokenInfo(stakeTokenInfo) && (
                 <Modal>
-                    <ZapModal
-                        asset1_id={stakeTokenInfo.asset1}
-                        asset2_id={stakeTokenInfo.asset2}
-                        closeModal={closeZapModal}
-                    />
+                    <ZapModal lpTokenInfo={stakeTokenInfo} closeModal={closeZapModal} />
                 </Modal>
             )}
         </>

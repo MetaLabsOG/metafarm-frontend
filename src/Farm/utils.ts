@@ -5,7 +5,7 @@ import humble from '../imgs/dexes/humble.png';
 import algofi from '../imgs/dexes/algofi.png';
 import { reach } from '../AppContext';
 import { Contract } from '../types';
-import { DexProvider } from '../providers/dexesProvider';
+import { DexProvider } from '../dexes';
 
 export type InitialState = {
     beneficiary: string;

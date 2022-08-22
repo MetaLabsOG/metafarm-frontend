@@ -1,14 +1,14 @@
-import { LPTokenInfo, ZapQuote } from '../../../providers/dexesProvider';
-import { Asset, Priced, refreshAccountInfo } from '../../../common/store';
+import { LPTokenInfo, makeDex, ZapQuote } from '../../../dexes';
+import { ALGO_ASSET, Asset, Priced, refreshAccountInfo } from '../../../common/store';
 import { fromSmallestUnits } from '../../../common/lib';
-import { QueryType, runTransactions } from '../../../Swap/Swap';
+import { QueryType, runTransactions, SLIPPAGE } from '../../../Swap/Swap';
 import { Account, Contract, ViewVal } from '../../../types';
 import { logFarmActionData } from '../../../logEvent';
 import { notify } from '../../../Components/Notification';
 import { reach } from '../../../AppContext';
 
 export const isCompoundEnabled = (lpTokenInfo: LPTokenInfo, reward_asset_id: number) => {
-    if (lpTokenInfo.poolDex !== 'T2') {
+    if (lpTokenInfo.poolDex !== 'T2' && lpTokenInfo.poolDex !== 'PT') {
         return false;
     }
     return reward_asset_id === lpTokenInfo.asset1 || reward_asset_id === lpTokenInfo.asset2;
@@ -45,47 +45,34 @@ export const runCompound = async (
         console.log('CLAIMED', reward_amount, claimedAmount, claimedExtraAlgos);
 
         console.log('start zap');
-        // TODO: this toString/fromString shenanigans should be gone. Overall, the methods in `Swap`
-        // would benefit from some refactoring...
-        const zapResult = await runTransactions(
-            QueryType.zap,
-            account,
-            firstAsset.toString(),
-            secondAsset.toString(),
-            reward_amount.toString()
-        );
+        const dex = makeDex(lpTokenInfo.poolDex);
+        const pool = await dex.getPoolByAssets(lpTokenInfo.asset1, lpTokenInfo.asset2);
+        const zapOp = await pool.getZap(rewardAsset, claimedAmount, SLIPPAGE);
+        const zapTxIds = await runTransactions(account, zapOp);
 
-        if (zapResult === null) {
+        if (zapTxIds === null) {
             throw new Error('Internal zap error!');
         }
 
-        const algoRewardAmount = Number(reach.formatWithDecimals(claimedExtraAlgos, 6));
         let microAlgoLpAmount = BigInt(0);
-        if (secondAsset === 0 && algoRewardAmount > 0) {
-            const algoZapResult = await runTransactions(
-                QueryType.zap,
-                account,
-                secondAsset.toString(),
-                firstAsset.toString(),
-                algoRewardAmount.toString()
-            );
+        if (secondAsset === 0 && claimedExtraAlgos > BigInt(0)) {
+            const algoZap = await pool.getZap(ALGO_ASSET, claimedExtraAlgos, SLIPPAGE);
+            const algoZapResult = await runTransactions(account, algoZap);
 
             if (algoZapResult === null) {
                 throw new Error('Internal algo zap error!');
             }
 
-            const algoQuote = algoZapResult.quote as ZapQuote;
-            microAlgoLpAmount = algoQuote.mint.minimalLiquidityIssued;
+            microAlgoLpAmount = algoZap.mint.minimalLiquidityIssued;
             console.log('Algo zap res lp amount', microAlgoLpAmount);
         }
 
-        const quote = zapResult.quote as ZapQuote;
         refreshAccountInfo();
-        console.log('COMPOUND ZAP', quote, zapResult.txIds);
+        console.log('COMPOUND ZAP', zapOp, zapTxIds);
 
         // If mint transaction passed, tinyman could not return less than that (since txs are deterministic).
         // TODO: we should check
-        const microLpAmount = quote.mint.minimalLiquidityIssued + microAlgoLpAmount;
+        const microLpAmount = zapOp.mint.minimalLiquidityIssued + microAlgoLpAmount;
         console.log('start stake', fromSmallestUnits(lpTokenInfo, microLpAmount), microLpAmount);
 
         await (ctc.apis.stake as ViewVal)([microLpAmount]);
