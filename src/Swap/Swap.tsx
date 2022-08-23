@@ -9,6 +9,7 @@ import {
     $account,
     $balances,
     Amount,
+    Asset,
     AssetId,
     fetchAsset,
     fetchAssetPriceFx,
@@ -17,14 +18,20 @@ import {
 
 import { logEvent, LogName } from '../logEvent';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits, parseTxs, signAndPostTxnGroups } from '../common/lib';
-import { WalletTransactionGroup } from '../types';
-import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
+import {
+    algoexplorerTxLink,
+    fromSmallestUnits,
+    getSmallestUnits,
+    parseTxs,
+    signAndPostTxnGroups,
+    unsafeFromBigint,
+} from '../common/lib';
+import { TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
-import { Heading2, ModalContainer, ModalTitle, ModalSubtitle, Plus, SwapArrow } from '../common/styled';
+import { ModalContainer, ModalSubtitle, ModalTitle, SwapArrow } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
-import { BestSwap, tinymanDex, Zap, MintQuote } from '../dexes';
+import { BestSwap, Mint, tinymanDex, Zap } from '../dexes';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
@@ -32,8 +39,6 @@ import swapArrow from '../imgs/swapArrow.svg';
 import { BestSwapInfo, Token } from './types';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
-export const API_PATH = ALGONET === MAINNET ? 'https://api.cometa.farm/' : 'https://api.testnet.cometa.farm/';
-// Export const API_PATH = 'http://0.0.0.0:5000/';
 
 const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     0: 0, // ALGO
@@ -70,6 +75,7 @@ function quoteToBestSwap(q: BestSwapPriced | null): BestSwapInfo {
             direct_swap: 0,
             best_path: [],
             usdc_diff: 0,
+            priceImpact: 0,
         };
     }
 
@@ -91,24 +97,39 @@ function quoteToBestSwap(q: BestSwapPriced | null): BestSwapInfo {
     };
 }
 
+export function isSwapZapDataValid(
+    asset1_id: string | undefined,
+    asset2_id: string | undefined,
+    asset1_amount: string
+) {
+    if (!asset1_id || !asset2_id) {
+        notify('Please, choose tokens.', 'warning');
+        return false;
+    }
+
+    if (!asset1_amount) {
+        notify('Please, enter the token amount.', 'warning');
+        return false;
+    }
+
+    if (asset1_id === asset2_id) {
+        notify('Please, choose different tokens.', 'warning');
+        return false;
+    }
+    return true;
+}
+
 async function getBestSwap(
     account: Account | null,
     asset1_id: string | undefined,
     asset2_id: string | undefined,
     asset1_amount: string
 ): Promise<BestSwapPriced | null> {
+    if (!isSwapZapDataValid(asset1_id, asset2_id, asset1_amount)) {
+        return null;
+    }
+
     if (!asset1_id || !asset2_id) {
-        notify('Please, choose tokens.', 'warning');
-        return null;
-    }
-
-    if (!asset1_amount) {
-        notify('Please, enter the token amount.', 'warning');
-        return null;
-    }
-
-    if (asset1_id === asset2_id) {
-        notify('Please, choose different tokens.', 'warning');
         return null;
     }
 
@@ -162,7 +183,7 @@ async function getBestSwap(
 
 export async function runTransactions(
     account: Account | null,
-    operation: BestSwap | Zap,
+    operation: BestSwap | Zap | Mint,
     token1Balance?: number
 ): Promise<string[] | null> {
     if (!account) {
@@ -170,19 +191,32 @@ export async function runTransactions(
         return null;
     }
 
-    // this is kostyli basically only to not change the logging
-    const [type, token1, token2, token1AmountBig] =
-        'best' in operation
-            ? [QueryType.swap, operation.best.assetIn, operation.best.assetOut, operation.best.amountIn]
-            : [
-                  QueryType.zap,
-                  operation.swap.assetIn,
-                  operation.swap.assetOut,
-                  operation.swap.amountIn +
-                      (operation.mint.assetA.id === operation.swap.assetIn.id
-                          ? operation.mint.amountA
-                          : operation.mint.amountB),
-              ];
+    let type: QueryType, token1: Asset, token2: Asset, token1AmountBig: Amount;
+    if ('best' in operation) {
+        [type, token1, token2, token1AmountBig] = [
+            QueryType.swap,
+            operation.best.assetIn,
+            operation.best.assetOut,
+            operation.best.amountIn,
+        ];
+    } else if ('swap' in operation) {
+        const curToken1AmountBig =
+            operation.swap.amountIn +
+            (operation.mint.assetA.id === operation.swap.assetIn.id ? operation.mint.amountA : operation.mint.amountB);
+        [type, token1, token2, token1AmountBig] = [
+            QueryType.zap,
+            operation.swap.assetIn,
+            operation.swap.assetOut,
+            curToken1AmountBig,
+        ];
+    } else {
+        [type, token1, token2, token1AmountBig] = [
+            QueryType.mint,
+            operation.assetA,
+            operation.assetB,
+            operation.amountA,
+        ];
+    }
 
     const token1Amount = fromSmallestUnits(token1, token1AmountBig);
 
@@ -201,7 +235,7 @@ export async function runTransactions(
         const txns = await operation.prepareTxs(address);
         console.log(parseTxs(txns));
         let txIds = await signAndPostTxnGroups(txns);
-        console.log('SWAP/ZAP OK', txIds);
+        console.log(QueryType[type].toUpperCase() + ' OK', txIds);
 
         if (operation.dex == 'T2') {
             const redeemTxns = await tinymanDex.getAllRedeemTxs(address);
@@ -357,13 +391,6 @@ export function Swap() {
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [token2Amount, setToken2Amount] = useState<string>('');
-    const [bestSwap, setBestSwap] = useState<BestSwap>({
-        best_swap: 0,
-        direct_swap: 0,
-        best_path: [],
-        usdc_diff: 0,
-        priceImpact: 0,
-    });
     const [bestSwap, setBestSwap] = useState<BestSwapPriced | null>(null);
     const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -381,16 +408,16 @@ export function Swap() {
     function getBestSwapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
         if (!token1_id || !token2_id || !amount) {
             setToken2Amount('');
+            setBestSwap(null);
             return;
         }
         clearTimeout(getSwapTimeout.current);
         getSwapTimeout.current = setTimeout(() => {
             setIsLoading(true);
             getBestSwap(account, token1_id, token2_id, amount).then((res) => {
-                if (res !== null) {
-                    setBestSwap(res);
-                    setToken2Amount(res.best_swap.toString());
-                }
+                setBestSwap(res);
+                const swapData = quoteToBestSwap(res);
+                setToken2Amount(swapData.best_swap.toString());
                 setIsLoading(false);
             });
         }, delay);
@@ -425,11 +452,13 @@ export function Swap() {
     };
 
     const SwapButtonOnClick = async () => {
+        if (!isSwapZapDataValid(token1.value, token2.value, token1Amount)) {
+            return;
+        }
         if (bestSwap !== null) {
             const res = await runTransactions(account, bestSwap, token1.balance);
             if (res !== null) {
-                const txIds = res;
-                notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
+                notify('Done!', 'success', algoexplorerTxLink(res[0]));
             }
         }
     };
@@ -461,7 +490,7 @@ export function Swap() {
             <BestTokenPrice
                 isLoading={isLoading}
                 token1Amount={token1Amount}
-                bestSwap={bestSwap}
+                bestSwap={quoteToBestSwap(bestSwap)}
                 token1={token1}
                 token2={token2}
             />

@@ -136,7 +136,11 @@ export function PoolActions({
             )}
             {isLPTokenInfo(stakeTokenInfo) && (
                 <Modal>
-                    <Zap filteredOptions={[stakeTokenInfo.asset1, stakeTokenInfo.asset2]} closeModal={closeZapModal} />
+                    <Zap
+                        inputDexProvider={stakeTokenInfo.poolDex}
+                        filteredOptions={[stakeTokenInfo.asset1, stakeTokenInfo.asset2]}
+                        closeModal={closeZapModal}
+                    />
                 </Modal>
             )}
         </>
