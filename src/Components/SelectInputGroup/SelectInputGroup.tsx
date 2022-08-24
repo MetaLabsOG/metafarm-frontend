@@ -44,7 +44,8 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
     setInputData,
     selectOnChange,
     inputOnChange,
-    inputDisabled,
+    inputDisabled = false,
+    selectDisabled = false,
 }) => {
     const [isValidInput, setIsValidInput] = useState<boolean>(true);
 
@@ -70,6 +71,7 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                 value={selectedOption.value}
                 placeholder=""
                 onChange={selectOnChange}
+                disabled={selectDisabled}
             />
             <div style={{ width: '100%', position: 'relative' }}>
                 <input

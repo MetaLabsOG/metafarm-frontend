@@ -175,6 +175,8 @@ export function Zap({
     const account = useUnit($account);
     const balances = useUnit($balances);
 
+    const isModal = closeModal !== undefined;
+
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
@@ -302,7 +304,7 @@ export function Zap({
             <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>ZAP</ModalTitle>
             <ModalSubtitle>Add liquidity and get LP tokens in one click</ModalSubtitle>
             <SelectInputGroup
-                options={options}
+                options={isModal ? [token1] : options}
                 selectedOption={token1}
                 inputData={token1Amount}
                 setInputData={setToken1Amount}
@@ -313,7 +315,7 @@ export function Zap({
                 <Plus alt="plus" src={plus} />
             </div>
             <SelectInputGroup
-                options={options}
+                options={isModal ? [token2] : options}
                 selectedOption={token2}
                 inputData={token2Amount}
                 setInputData={setToken2Amount}

@@ -9,4 +9,5 @@ export interface SelectInputGroupProps {
     selectOnChange: any;
     inputOnChange?: any;
     inputDisabled?: boolean;
+    selectDisabled?: boolean;
 }
