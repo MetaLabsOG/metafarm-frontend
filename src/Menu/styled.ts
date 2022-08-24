@@ -1,21 +1,28 @@
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
-export const MenuItem = styled(Link)`
-    color: #05ff00;
+export const MenuItem = styled(NavLink)`
+    color: var(--white);
     cursor: pointer;
     position: relative;
-    font-size: 14px;
+    //font-size: 14px;
     text-decoration: none;
     text-transform: uppercase;
     font-family: 'Korona One';
     font-style: normal;
     font-weight: 400;
+    font-size: 13px;
     line-height: 12px;
-    letter-spacing: 0em;
+    letter-spacing: 0.08em;
     text-align: center;
     :hover {
-        color: white;
+        color: var(--lightGreen);
+        text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
+    }
+
+    &.active {
+        color: var(--lightGreen);
+        text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
     }
 `;
 
@@ -23,7 +30,7 @@ export const MenuItemsContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 500px;
+    width: 400px;
     margin-left: 20px;
     margin-top: 3px;
     @media (max-width: 979px) {
@@ -84,7 +91,7 @@ export const MenuContainer = styled.div`
     justify-content: space-between;
     flex-direction: column;
     z-index: 10;
-    background: #1d1f23;
+    background: var(--newDarkGray); //#1d1f23;
 `;
 
 export const ExchangeRatesContainer = styled.div`
@@ -114,7 +121,7 @@ export const ExchangeRate = styled.div`
     text-align: left;
     margin: auto;
     padding-left: 10px;
-    color: #009427;
+    color: var(--white); //#009427;
 `;
 
 export const BurgerMenuContainer = styled.div`
@@ -122,7 +129,7 @@ export const BurgerMenuContainer = styled.div`
     width: 100%;
     position: fixed;
     left: 0;
-    background: #1d1f23;
+    background: var(--newDarkGray);
     padding-left: 20px;
     z-index: 10;
     padding-bottom: 20px;
@@ -134,7 +141,7 @@ export const FooterContainer = styled.div`
     display: flex;
     margin-top: 100px;
     justify-content: space-between;
-    background: #1d1f23;
+    background: var(--newDarkGray);
     padding: 15px 30px 15px 30px;
 `;
 
@@ -143,6 +150,7 @@ export const FooterItem = styled.div`
     margin-top: auto;
     margin-bottom: auto;
     text-align: center;
+    color: var(--lightGreen);
 
     @media (max-width: 640px) {
         font-size: 10px;

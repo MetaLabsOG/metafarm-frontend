@@ -7,12 +7,16 @@ export const PoolContainer = styled.div`
     justify-content: space-between;
     height: auto;
     margin-bottom: 16px;
-    color: ${(props: ColorThemed<unknown>) => props.theme.gray};
-    background-color: ${(props: ColorThemed<unknown>) => props.theme.darkGray};
+    color: var(--gray);
+    background-color: var(--newGray);
     width: 95%;
     font-size: 14px;
     padding: 20px 0 20px 0;
     border-radius: 10px;
+
+    :hover {
+        background: linear-gradient(270deg, rgba(92, 252, 60, 0.03) 0%, rgba(24, 24, 24, 0.03) 30.46%), #1c1c1c;
+    }
 
     @media (max-width: 1120px) {
         width: 320px;
@@ -69,6 +73,12 @@ export const PoolInfoValue = styled.div<{ width?: string }>`
     padding-right: 20px;
     width: ${({ width }) => width};
     white-space: nowrap;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 22px;
+    color: var(--lightGray);
 
     @media (max-width: 1120px) {
         flex-direction: row;
