@@ -31,7 +31,6 @@ async function fromPactSwap(swap: pactsdk.Swap): Promise<Swap> {
         price: swap.effect.price,
         fee: BigInt(swap.effect.fee),
         slippage: swap.slippagePct / 100,
-        priceImpact: 0, // FIXME: calculate priceImpact
 
         prepareTxs: async (sender) => {
             const pactTxs = await swap.prepareTxGroup(sender);

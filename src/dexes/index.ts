@@ -27,7 +27,6 @@ export class MockDex extends Dex {
                 const assetOut = ALGO_ASSET;
                 const price = 0.01;
                 const fee = BigInt(100);
-                const priceImpact = 0;
 
                 return {
                     dex: 'MOCK',
@@ -39,7 +38,6 @@ export class MockDex extends Dex {
                     price,
                     fee,
                     slippage,
-                    priceImpact,
 
                     prepareTxs: (_: string) => {
                         throw new Error('not implemented');

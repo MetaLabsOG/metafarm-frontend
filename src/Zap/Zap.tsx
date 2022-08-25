@@ -5,31 +5,26 @@ import '../css/swap.css';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { useUnit } from 'effector-react';
-import Switch from 'react-switch';
+import { useUnit, useStoreMap } from 'effector-react';
 import { logEvent, logFarmActionData, LogName } from '../logEvent';
 import { $account, $balances, fetchAsset } from '../common/store';
-import { formatNumber, getTokens, isSwapZapDataValid, runTransactions, SLIPPAGE } from '../Swap/Swap';
+import { formatNumber, getOptions, QueryType, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
-import { TOKEN_OPTION } from '../Components/Select/Select';
+import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
-import { ModalContainer, ModalSubtitle, ModalTitle, Plus, SwitchContainer, SwitchText } from '../common/styled';
+import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
-import { Zap as ZapOperation, DexProvider, makeDex, Mint, MintQuote } from '../dexes';
+import { ZapQuote, Zap as ZapOperation, DexProvider, makeDex } from '../dexes';
 import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
-import plus from '../imgs/plus.svg';
-import { theme } from '../theme';
 import { ZapData } from './types';
 
-export function quoteToZapData(asset1Id: number, inputQuote: ZapOperation | MintQuote | null): ZapData {
-    if (inputQuote === null) {
+export function zapQuoteToData(quote: ZapQuote | null): ZapData {
+    if (quote === null) {
         return {
-            asset1_id: 0,
             asset1_amount: 0,
-            asset2_id: 0,
             asset2_amount: 0,
             lp_amount: 0,
             pool_lp_id: 0,
@@ -37,20 +32,16 @@ export function quoteToZapData(asset1Id: number, inputQuote: ZapOperation | Mint
         };
     }
 
-    const quote = 'mint' in inputQuote ? inputQuote.mint : inputQuote;
+    const assetsAreSwapped = quote.swap.assetIn.id !== quote.mint.assetA.id;
+    const amountA = fromSmallestUnits(quote.mint.assetA, quote.mint.amountA);
+    const amountB = fromSmallestUnits(quote.mint.assetB, quote.mint.amountB);
 
-    const assetsAreSwapped = asset1Id !== quote.assetA.id;
-    const amountA = fromSmallestUnits(quote.assetA, quote.amountA);
-    const amountB = fromSmallestUnits(quote.assetB, quote.amountB);
-    const asset1_id = assetsAreSwapped ? quote.assetB.id : quote.assetA.id;
-    const asset2_id = assetsAreSwapped ? quote.assetA.id : quote.assetB.id;
     const asset1_amount = assetsAreSwapped ? amountB : amountA;
     const asset2_amount = assetsAreSwapped ? amountA : amountB;
-
-    const lp_amount = fromSmallestUnits(quote.lpToken, quote.minimalLiquidityIssued);
-    const pool_lp_id = quote.lpToken.id;
-    const pool_lp_decimals = quote.lpToken.decimals;
-    return { asset1_id, asset1_amount, asset2_id, asset2_amount, lp_amount, pool_lp_id, pool_lp_decimals };
+    const lp_amount = fromSmallestUnits(quote.mint.lpToken, quote.mint.minimalLiquidityIssued);
+    const pool_lp_id = quote.mint.lpToken.id;
+    const pool_lp_decimals = quote.mint.lpToken.decimals;
+    return { asset1_amount, asset2_amount, lp_amount, pool_lp_id, pool_lp_decimals };
 }
 
 export async function loadZapData(
@@ -58,10 +49,20 @@ export async function loadZapData(
     dexProvider: DexProvider,
     asset1_id: string | undefined,
     asset2_id: string | undefined,
-    asset1_amount: string,
-    swapHalf: boolean
-): Promise<ZapOperation | Mint | null> {
-    if (!isSwapZapDataValid(asset1_id, asset2_id, asset1_amount)) {
+    asset1_amount: string
+): Promise<ZapOperation | null> {
+    if (!asset1_id || !asset2_id) {
+        notify('Please, choose tokens.', 'warning');
+        return null;
+    }
+
+    if (!asset1_amount) {
+        notify('Please, enter the token amount.', 'warning');
+        return null;
+    }
+
+    if (asset1_id === asset2_id) {
+        notify('Please, choose different tokens.', 'warning');
         return null;
     }
 
@@ -74,24 +75,19 @@ export async function loadZapData(
         const asset2 = await fetchAsset(Number(asset2_id));
         const amountIn = getSmallestUnits(asset1, Number(asset1_amount));
         const pool = await dex.getPoolByAssets(asset1, asset2);
-        const zap = swapHalf
-            ? await pool.getZap(asset1, amountIn, SLIPPAGE)
-            : await pool.getMint(asset1, amountIn, SLIPPAGE);
+        const zap = await pool.getZap(asset1, amountIn, SLIPPAGE);
 
-        const zapData = quoteToZapData(Number(asset1_id), zap);
+        console.log(pool);
+        const zap_data = zapQuoteToData(zap);
 
         logEvent(
             account?.networkAccount.addr,
             {
                 message: '[ZAP] get data',
-                asset1_id: zapData.asset1_id.toString(), // FIXME: airtable has string
-                asset1_amount: zapData.asset1_amount,
-                asset2_id: zapData.asset2_id.toString(), // FIXME: airtable has string
-                asset2_amount: zapData.asset2_amount,
-                lp_amount: zapData.lp_amount,
-                pool_lp_id: zapData.pool_lp_id,
-                // ...zap_data,
-                swapHalf: Number(swapHalf),
+                asset1_id,
+                asset2_id,
+                amount: asset1_amount,
+                ...zap_data,
             },
             LogName.ZAP
         );
@@ -113,7 +109,6 @@ export async function loadZapData(
                 asset1_id,
                 asset2_id,
                 amount: asset1_amount,
-                swapHalf: Number(swapHalf),
                 error: error_message,
             },
             LogName.ZAP
@@ -135,17 +130,13 @@ export function ZapResult({
     token2: TokenOptionType;
     lpMicroBalance: bigint;
 }) {
-    const [token1Amount, token2Amount] =
-        token1.id === zap_data.asset1_id
-            ? [zap_data.asset1_amount, zap_data.asset2_amount]
-            : [zap_data.asset2_amount, zap_data.asset1_amount];
     const lpTokens =
-        `${formatNumber(token1Amount ?? 0)} ${token1.unitName}` +
+        `${formatNumber(zap_data.asset1_amount ?? 0)} ${token1.unitName}` +
         ' + ' +
-        `${formatNumber(token2Amount ?? 0)} ${token2.unitName}`;
+        `${formatNumber(zap_data.asset2_amount ?? 0)} ${token2.unitName}`;
 
     return (
-        <InfoPanel isLoading={isLoading} minHeight={175}>
+        <InfoPanel isLoading={isLoading}>
             <InfoRow
                 title={token1.unitName + '-' + token2.unitName + ' LP'}
                 value={formatNumber(zap_data.lp_amount ?? 0)}
@@ -156,49 +147,36 @@ export function ZapResult({
             <InfoRow
                 title="Current LP balance"
                 value={fromSmallestUnits({ decimals: zap_data.pool_lp_decimals }, lpMicroBalance)}
+                valueStyle={{ fontSize: '14px' }}
             />
-            <InfoRow title="LP ASA ID" value={formatNumber(zap_data.pool_lp_id ?? 0)} />
-            <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} />
+            <InfoRow
+                title="LP ASA ID"
+                value={formatNumber(zap_data.pool_lp_id ?? 0)}
+                valueStyle={{ fontSize: '14px' }}
+            />
+            <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
         </InfoPanel>
     );
 }
 
-export function Zap({
-    inputDexProvider,
-    filteredOptions,
-    closeModal,
-}: {
-    inputDexProvider: DexProvider;
-    filteredOptions?: number[];
-    closeModal?: () => void;
-}) {
+export function Zap() {
     const account = useUnit($account);
     const balances = useUnit($balances);
-
-    const isModal = closeModal !== undefined;
 
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
-    const [token2Amount, setToken2Amount] = useState<string>('');
-    const [zapOp, setZapOp] = useState<ZapOperation | Mint | null>(null);
+    const [zapOp, setZapOp] = useState<ZapOperation | null>(null);
 
     const [options, setOptions] = useState<TokenOptionType[]>([]);
+    const [showResult, setShowResult] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const [halfSwap, setHalfSwap] = useState(false);
-    const zapButtonText = !halfSwap ? 'GET LP' : 'CONVERT ' + token1.unitName + ' TO LP';
-
-    // TODO: We need additional UI to support zap on Pact in the standalone zap page (dex selection?)
-    const [dexProvider, setDexProvider] = useState<DexProvider>(inputDexProvider);
-
     useEffect(() => {
-        getTokens(account, balances)
+        getOptions(account, balances)
             .then((res) => {
-                const filteredRes = res.filter((token) => !filteredOptions || filteredOptions.includes(token.id));
-                setOptions(filteredRes);
-                setToken1(filteredRes[0]);
-                setToken2(filteredRes[1]);
+                setOptions(res);
+                setToken1(res[0]);
             })
             .catch((error) => {
                 logFarmActionData(
@@ -214,34 +192,29 @@ export function Zap({
 
     const getZapTimeout = useRef<NodeJS.Timeout>();
 
-    function getZap(token1_id: string, token2_id: string, amount: string, swapHalf: boolean) {
+    function getZap(token1_id: string, token2_id: string, amount: string) {
         setIsLoading(true);
 
-        loadZapData(account, dexProvider, token1_id, token2_id, amount, swapHalf).then((res) => {
-            setZapOp(res);
-            if (!swapHalf) {
-                const zapData = quoteToZapData(Number(token1_id), res);
-                if (token1.id === Number(token1_id)) {
-                    setToken2Amount(zapData.asset2_amount.toString());
-                } else {
-                    setToken1Amount(zapData.asset2_amount.toString());
-                }
+        // TODO: We need additional UI to support zap on Pact in the standalone zap page (dex selection?)
+        loadZapData(account, 'T2', token1_id, token2_id, amount).then((res) => {
+            if (res !== null) {
+                setZapOp(res);
+                console.log('[ZAP] res', res);
+                setShowResult(true);
             }
-            console.log('[ZAP] res', res);
             setIsLoading(false);
         });
     }
 
-    function getZapThrottled(token1_id: string, token2_id: string, amount: string, swapHalf: boolean, delay: number) {
+    function getZapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
         if (!token1_id || !token2_id || !amount) {
-            setZapOp(null);
             return;
         }
         if (getZapTimeout.current) {
             clearTimeout(getZapTimeout.current);
         }
         getZapTimeout.current = setTimeout(() => {
-            getZap(token1_id, token2_id, amount, swapHalf);
+            getZap(token1_id, token2_id, amount);
         }, delay);
     }
 
@@ -251,7 +224,8 @@ export function Zap({
         // @ts-expect-error
         setToken1(option);
         setToken1Amount('');
-        getZapThrottled(option.value, token2.value, token1Amount, halfSwap, 50);
+        setShowResult(false);
+        getZapThrottled(option.value, token2.value, token1Amount, 50);
     };
 
     const select2OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
@@ -259,105 +233,78 @@ export function Zap({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         setToken2(option);
+        setShowResult(false);
 
-        getZapThrottled(token1.value, option.value, token1Amount, halfSwap, 50);
+        getZapThrottled(token1.value, option.value, token1Amount, 50);
     };
 
-    const input1OnChange = (inputValue: string) => {
-        getZapThrottled(token1.value, token2.value, inputValue, halfSwap, 1000);
+    const inputOnChange = (inputValue: string) => {
+        setShowResult(false);
+        getZapThrottled(token1.value, token2.value, inputValue, 1000);
     };
 
-    const input2OnChange = (inputValue: string) => {
-        getZapThrottled(token2.value, token1.value, inputValue, halfSwap, 1000);
-    };
-
-    const handleChangeHalfSwap = (newHalfSwap: boolean) => {
-        setToken2Amount('');
-        setHalfSwap(newHalfSwap);
-        getZapThrottled(token1.value, token2.value, token1Amount, newHalfSwap, 50);
+    const LoadZapButtonOnClick = async () => {
+        getZap(token1.value, token2.value, token1Amount);
     };
 
     const ZapButtonOnClick = async () => {
-        if (!isSwapZapDataValid(token1.value, token2.value, token1Amount)) {
-            return;
-        }
-        if (token2.balance !== undefined && (Number.isNaN(token2.balance) || Number(token2Amount) > token2.balance)) {
-            console.log(Number(token2Amount), token2.balance);
-            notify(token2.unitName + ' amount is higher than the wallet balance.', 'warning');
-            return;
-        }
-
         if (zapOp !== null) {
             const res = await runTransactions(account, zapOp, token1.balance);
             if (res !== null) {
                 const txIds = res;
                 notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
-                closeModal && closeModal();
             }
         }
     };
 
-    const zapData = quoteToZapData(token1.id, zapOp);
+    const zapData = zapQuoteToData(zapOp);
 
     return (
         <ModalContainer>
             <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>ZAP</ModalTitle>
             <ModalSubtitle>Add liquidity and get LP tokens in one click</ModalSubtitle>
+            <Heading2>FIRST TOKEN</Heading2>
             <SelectInputGroup
-                options={isModal ? [token1] : options}
+                options={options}
                 selectedOption={token1}
                 inputData={token1Amount}
                 setInputData={setToken1Amount}
                 selectOnChange={select1OnChange}
-                inputOnChange={input1OnChange}
+                inputOnChange={inputOnChange}
             />
-            <div style={{ marginBottom: '10px' }}>
-                <Plus alt="plus" src={plus} />
-            </div>
-            <SelectInputGroup
-                options={isModal ? [token2] : options}
+            <Heading2>SECOND TOKEN</Heading2>
+            <Select
+                selectType={SelectType.tokenSelect}
+                options={options}
                 selectedOption={token2}
-                inputData={token2Amount}
-                setInputData={setToken2Amount}
                 selectOnChange={select2OnChange}
-                inputOnChange={input2OnChange}
-                inputDisabled={halfSwap}
             />
-            <SwitchContainer>
-                <Switch
-                    onChange={handleChangeHalfSwap}
-                    checked={halfSwap}
-                    className="react-switch"
-                    onColor={theme.green}
-                    offColor={theme.lightGray}
-                    onHandleColor={theme.darkGray}
-                    offHandleColor={theme.gray}
-                    uncheckedIcon={false}
-                    checkedIcon={false}
-                    height={20}
-                    width={40}
+            {!isLoading && !showResult && (
+                <PacmanButton
+                    buttonText="FIND LIQUIDITY POOL"
+                    buttonStyle="price_button"
+                    onClickAction={LoadZapButtonOnClick}
                 />
-                <SwitchText style={halfSwap ? { color: theme.lightGray } : {}}>
-                    auto-convert half {token1.unitName} to {token2.unitName}
-                </SwitchText>
-            </SwitchContainer>
-            <ZapResult
-                isLoading={isLoading}
-                zap_data={zapData}
-                token1={token1}
-                token2={token2}
-                lpMicroBalance={zapData.pool_lp_id ? balances[zapData.pool_lp_id] : BigInt(0)}
-            />
-            <PacmanButton buttonText={zapButtonText} buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
-            <h3 className="dex_name">via {dexProvider == 'T2' ? 'tinyman' : 'pact'}</h3>
-            <a
-                target="_blank"
-                href={`https://app.tinyman.org/#/pool/add-liquidity?asset_1=${token1.id}&asset_2=${token2.id}`}
-                rel="noreferrer"
-                style={{ color: theme.lightGray }}
-            >
-                <h3 className="dex_name">or do it manually</h3>
-            </a>
+            )}
+            {(isLoading || showResult) && (
+                <ZapResult
+                    isLoading={isLoading}
+                    zap_data={zapData}
+                    token1={token1}
+                    token2={token2}
+                    lpMicroBalance={zapData.pool_lp_id ? balances[zapData.pool_lp_id] : BigInt(0)}
+                />
+            )}
+            {showResult && (
+                <>
+                    <PacmanButton
+                        buttonText={'CONVERT ' + token1.unitName + ' TO LP'}
+                        buttonStyle="swap_button"
+                        onClickAction={ZapButtonOnClick}
+                    />
+                    <h3 className="dex_name">via tinyman</h3>
+                </>
+            )}
         </ModalContainer>
     );
 }

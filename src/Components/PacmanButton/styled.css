@@ -2,9 +2,9 @@
     height: 50px;
     width: 350px;
     border-radius: 8px;
-    border: 1px solid #009427;
-    color: black;
-    background: linear-gradient(270deg, #06A903 1.29%, #00FF29 100%);
+    border: 1px solid #5cfc3c;
+    color: #5cfc3c;
+    background-color: #000;
     margin-top: 20px;
 
     font-family: 'Korona One';
@@ -14,19 +14,18 @@
 }
 
 .swap_button:hover {
-    color: var(--green);
-    border: 1px solid var(--green);
-    background: black;
+    color: black;
+    background-color: #5cfc3c;
+    border: 0;
 }
 
 .swap_button.loading {
     height: 50px;
     position: relative;
-    border: 1px solid var(--green);
 }
 
 .swap_button.loading:hover {
-    border: 1px solid var(--green);
+    border: 1px solid #5cfc3c;
     background-color: transparent;
     cursor: default;
 }
