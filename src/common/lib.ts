@@ -164,7 +164,14 @@ export const parseTxs = (txs: WalletTransactionGroup[]): Transaction[][] => {
     return txs.map(({ txns }) => txns.map(({ txn }) => decodeUnsignedTransaction(Buffer.from(txn, 'base64'))));
 };
 
-export const signAndPostTxnGroups = async (groups: WalletTransactionGroup[]): Promise<string[]> => {
+export type TxnGroupsPostOptions = {
+    inParallel?: boolean;
+};
+
+export const signAndPostTxnGroups = async (
+    groups: WalletTransactionGroup[],
+    opts: TxnGroupsPostOptions = {}
+): Promise<string[]> => {
     const provider = await reach.getProvider();
     const algod = provider.algodClient;
     const ps = await algod.getTransactionParams().do();
@@ -187,24 +194,37 @@ export const signAndPostTxnGroups = async (groups: WalletTransactionGroup[]): Pr
     groups = [...optinTxs, ...groups];
     const signedTxns = await window.algorand.signTxns(groups.flatMap((g) => g.txns));
 
-    const sentTxIds = [];
     let offset = 0;
+    const signedGroups = [];
     for (const group of groups) {
-        const toPost = signedTxns.slice(offset, offset + group.txns.length);
-        await window.algorand.postTxns(toPost);
-        const success = await withAlgodEncoding(algod, IntDecoding.DEFAULT, async (algod) => {
-            return waitForConfirmation(algod, group.firstTxID, 3);
+        signedGroups.push({
+            id: group.firstTxID,
+            stxns: signedTxns.slice(offset, offset + group.txns.length),
         });
-
-        if (!success) {
-            throw new Error(`Could not wait for confirmation of transaction ${group.firstTxID}`);
-        }
-
-        sentTxIds.push(group.firstTxID);
         offset += group.txns.length;
     }
 
-    return sentTxIds;
+    const postAndWait = async ({ id, stxns }: { id: string; stxns: string[] }) => {
+        await window.algorand.postTxns(stxns);
+        const success = await withAlgodEncoding(algod, IntDecoding.DEFAULT, async (algod) => {
+            return waitForConfirmation(algod, id, 3);
+        });
+
+        if (!success) {
+            throw new Error(`Could not wait for confirmation of transaction ${id}`);
+        }
+        return id;
+    };
+
+    if (opts.inParallel) {
+        return await Promise.all(signedGroups.map(postAndWait));
+    } else {
+        const sentTxIds = [];
+        for (const sgroup of signedGroups) {
+            sentTxIds.push(await postAndWait(sgroup));
+        }
+        return sentTxIds;
+    }
 };
 
 export const prepareOptinTxs = (
