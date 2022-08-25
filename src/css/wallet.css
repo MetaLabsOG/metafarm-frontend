@@ -94,13 +94,13 @@
     position: relative;
     font-family: Montserrat;
     font-size: 14px;
-    color: #00ff00;
+    color: var(--lightGreen);
     width: 180px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     text-decoration: underline;
-    text-decoration-color: #00ff00;
+    text-decoration-color: var(--lightGreen);
     z-index: 3;
 }
 

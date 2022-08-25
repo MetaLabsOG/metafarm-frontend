@@ -38,6 +38,10 @@
     --darkGray: #1F1F1F;
     --red: #d0373a;
     --toastify-color-error: #FF394A !important;
+
+    --newDarkGray: #0F0F0F;
+    --lightGreen: #A1FF8E;
+    --newGray: #181818;
 }
 
 .mobile {

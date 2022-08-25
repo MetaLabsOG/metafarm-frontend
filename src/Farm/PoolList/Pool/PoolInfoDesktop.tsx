@@ -77,8 +77,8 @@ export const StakeValue: FC<ValueProps> = ({ contractState, tokenInfo }) => {
 
 export const getAPRTip = (APR: Record<APRTypes, number>, unitname: string) => {
     const rewards = `${numberRound(APR[APRTypes.reward])}%${unitname}`;
-    const algoRewards = APR[APRTypes.algoReward] ? ` ${numberRound(APR[APRTypes.algoReward])}% ALGO` : '';
-    const fees = APR[APRTypes.fees] ? ` ${numberRound(APR[APRTypes.fees])}% trading fees` : '';
+    const algoRewards = APR[APRTypes.algoReward] ? ` + ${numberRound(APR[APRTypes.algoReward])}% ALGO` : '';
+    const fees = APR[APRTypes.fees] ? ` + ${numberRound(APR[APRTypes.fees])}% trading fees` : '';
     return rewards + algoRewards + fees;
 };
 
@@ -134,7 +134,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             <PoolInfoValue width={POOL_COLUMN_WIDTH.REWARD}>
                 <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH['ENDS IN']} style={{ color: 'gray' }}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH['ENDS IN']} style={{ color: 'gray', fontSize: '16px' }}>
                 {timing.split('\n').map((x) => (
                     <div key={x}>{x}</div>
                 ))}
