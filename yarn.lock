@@ -13228,6 +13228,7 @@ __metadata:
     react-refresh: "npm:^0.14.0"
     react-router-dom: "npm:^6.3.0"
     react-select-search: "npm:^3.0.10"
+    react-switch: "npm:^7.0.0"
     react-toastify: "npm:^9.0.7"
     react-tooltip: "npm:^4.2.21"
     resolve: "npm:^1.22.1"
@@ -16054,6 +16055,18 @@ __metadata:
     fuse.js:
       optional: true
   checksum: 647e94afe84884273d6714b6a523ebcf532b987051a2ae610254c5853ef4d41b712cc6e3c4f63a732c720921a6fdb17ea84bfae9bb440bbff5b06335324dfcef
+  languageName: node
+  linkType: hard
+
+"react-switch@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "react-switch@npm:7.0.0"
+  dependencies:
+    prop-types: "npm:^15.7.2"
+  peerDependencies:
+    react: ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: 567a7a848beb7033f1650341e32fd26a0734f0eddb5d2f9fef82354cafbc374e4cfe0474c0bc684cb68db48bf1e28b954fccb0118c376847d62a1d7d713f4a69
   languageName: node
   linkType: hard
 
