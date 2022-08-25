@@ -21,5 +21,5 @@ export const InfoValue = styled.h3`
     color: inherit;
     font-family: 'Montserrat';
     font-weight: 400;
-    font-size: 14px;
+    font-size: 16px;
 `;

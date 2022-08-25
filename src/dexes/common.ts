@@ -33,7 +33,6 @@ export interface SwapQuote {
     price: number; // But price is calculated in FULL TOKENS (considering the DECIMALS of assets), following the Pact interface
     fee: Amount; // Yet the fee is still in MICROROKENS
     slippage: number;
-    priceImpact: number;
 }
 
 export interface MintQuote {
@@ -149,7 +148,6 @@ export abstract class Dex {
                 price: (Number(fromAlgo.minimalAmountOut) / Number(toAlgo.amountIn)) * decRatio,
                 fee: toAlgo.fee + fromAlgo.fee,
                 slippage,
-                priceImpact: Math.max(toAlgo.priceImpact, fromAlgo.priceImpact),
             };
 
             if (!direct || direct.price < throughAlgo.price) {

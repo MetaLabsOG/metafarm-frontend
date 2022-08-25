@@ -6,7 +6,7 @@ import { SelectedOptionValue } from 'react-select-search';
 import { backend as farmBackend } from '@metalabsog/farm';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit, useStoreMap } from 'effector-react';
-import { getTokens } from '../Swap/Swap';
+import { getOptions } from '../Swap/Swap';
 import { Button } from '../Components/Button/Button';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, POOL_OPTION, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
@@ -234,7 +234,7 @@ export function PoolCreateModal() {
             setPoolOptions(options);
         });
 
-        getTokens(account, balances).then((res) => {
+        getOptions(account, balances).then((res) => {
             const filteredAssets = res.filter((asset) => asset.id !== 0);
             setRewardTokenOptions(filteredAssets);
             setSelectedRewardToken(filteredAssets[0]);
