@@ -155,7 +155,7 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
             search
             className="select-search select-search-basic"
             options={options}
-            getOptions={getOptions}
+            getOptions={getOptions ? getOptions(selectedOption) : undefined}
             value={selectedOption.value}
             renderOption={(props, option) => renderOption(props, option, selectType)}
             renderValue={(props, snapshot) => renderSelectedOption(props, snapshot, selectType)}

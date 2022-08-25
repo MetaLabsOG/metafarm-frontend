@@ -10,7 +10,7 @@ import { getTokens } from '../Swap/Swap';
 import { Button } from '../Components/Button/Button';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { POOL_OPTION, Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
-import { PoolOptionType, TokenOptionType } from '../Components/Select/types';
+import { PoolOptionType, SelectOptionType, TokenOptionType } from '../Components/Select/types';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
@@ -46,16 +46,13 @@ const daysToBlocks = (days: number, meanRoundDuration: number) => {
     return Math.floor((days * DAY) / meanRoundDuration);
 };
 
-const createFarm = async (
-    account: Account,
+const checkFarmParams = (
     stakeToken: PoolOptionType,
     rewardToken: TokenOptionType,
     beginBlock: number,
     endBlock: number,
     rewardPerBlock: number,
-    rewardTokenAmount: number,
-    extraAlgoRewardPerBlock: number,
-    lockPeriodBlocks: number
+    rewardTokenAmount: number
 ) => {
     if (!stakeToken.liquidityAsset) {
         notify('Please, choose LP pool.', 'warning');
@@ -84,6 +81,24 @@ const createFarm = async (
         return false;
     }
 
+    return true;
+};
+
+const createFarm = async (
+    account: Account,
+    stakeToken: PoolOptionType,
+    rewardToken: TokenOptionType,
+    beginBlock: number,
+    endBlock: number,
+    rewardPerBlock: number,
+    rewardTokenAmount: number,
+    extraAlgoRewardPerBlock: number,
+    lockPeriodBlocks: number
+) => {
+    if (!checkFarmParams(stakeToken, rewardToken, beginBlock, endBlock, rewardPerBlock, rewardTokenAmount)) {
+        return false;
+    }
+
     const microRewardPerBlock = getSmallestUnits(rewardToken, rewardPerBlock);
     const algoMicroRewardPerBlock = getSmallestUnits(ALGO_ASSET, extraAlgoRewardPerBlock);
     console.log(
@@ -96,7 +111,7 @@ const createFarm = async (
         algoMicroRewardPerBlock
     );
     const contractParameters: InitialState = {
-        beneficiary: FARM_BENEFICIARY_ADDR,
+        beneficiary: FARM_BENEFICIARY_ADDR ?? '',
         creationFee: FARM_CREATION_FEE ?? 0,
         stakeToken: stakeToken.liquidityAsset,
         rewardToken: rewardToken.id,
@@ -125,7 +140,7 @@ const createFarm = async (
         notify(`Done! Contract id is ${Number(contractId)}. Please, update the page.`, 'success');
         logEvent(
             account.networkAccount.addr,
-            { status: '[ADDFARM OK]', contractId: contractId, params: JSON.stringify(contractParameters) },
+            { status: '[ADDFARM OK]', contractId: Number(contractId), params: JSON.stringify(contractParameters) },
             LogName.ADDFARM
         );
     } catch (error) {
@@ -184,7 +199,6 @@ function PoolInfo({
         <InfoPanel isLoading={false}>
             <InfoRow title="FARM POOL" value={selectedPool.name} />
             <InfoRow title="LP ASA ID" value={selectedPool.liquidityAsset} />
-            <InfoRow title="Reward token" value={rewardToken.unitName} />
             <InfoRow
                 title="Current pool liquidity"
                 value={'$' + formatDecimalsMeaningful(Number(selectedPool.totalLiquidity))}
@@ -192,8 +206,8 @@ function PoolInfo({
             <InfoRow
                 title="Current fees APR"
                 value={`${selectedPool.dexFeeApr ? (selectedPool.dexFeeApr * 100).toFixed(2) : 0}%`}
-                style={{ marginBottom: '20px' }}
             />
+            <InfoRow title="Reward token" value={rewardToken.unitName} style={{ marginBottom: '20px' }} />
             <InfoRow title="Start block" value={!Number.isNaN(beginBlock) ? beginBlock : 0} />
             <InfoRow title="End block" value={!Number.isNaN(endBlock) ? endBlock : 0} />
             <InfoRow
@@ -205,26 +219,32 @@ function PoolInfo({
     );
 }
 
-function getPoolOptions(query: string) {
-    return getTinymanPools(50, query).then((pools) => {
-        const options: PoolOptionType[] = pools.map((pool) => {
-            return {
-                value: pool.liquidity_asset.id.toString(),
-                name: pool.asset_1.unit_name + '-' + pool.asset_2.unit_name + ' LP',
-                poolId: 0,
-                poolDex: 'T2',
-                asset1: pool.asset_1.id,
-                asset2: pool.asset_2.id,
-                liquidityAsset: pool.liquidity_asset.id,
-                asset1Reserve: BigInt(0),
-                asset2Reserve: BigInt(0),
-                totalLiquidity: BigInt(Math.round(pool.liquidity_in_usd)),
-                dexFeeApr: pool.annual_percentage_rate,
-            };
-        });
+function getPoolOptions(selectedOption?: SelectOptionType) {
+    return (query: string) => {
+        return getTinymanPools(50, query).then((pools) => {
+            const options: PoolOptionType[] = pools.map((pool) => {
+                return {
+                    value: pool.liquidity_asset.id.toString(),
+                    name: pool.asset_1.unit_name + '-' + pool.asset_2.unit_name + ' LP',
+                    poolId: 0,
+                    poolDex: 'T2',
+                    asset1: pool.asset_1.id,
+                    asset2: pool.asset_2.id,
+                    liquidityAsset: pool.liquidity_asset.id,
+                    asset1Reserve: BigInt(0),
+                    asset2Reserve: BigInt(0),
+                    totalLiquidity: BigInt(Math.round(pool.liquidity_in_usd)),
+                    dexFeeApr: pool.annual_percentage_rate,
+                };
+            });
 
-        return options;
-    });
+            if (selectedOption && selectedOption.value && !options.includes(selectedOption as PoolOptionType)) {
+                options.push(selectedOption as PoolOptionType);
+            }
+
+            return options;
+        });
+    };
 }
 
 export function AddFarm() {
@@ -256,7 +276,7 @@ export function AddFarm() {
     );
 
     useEffect(() => {
-        getPoolOptions('').then((options) => setPoolOptions(options));
+        getPoolOptions()('').then((options) => setPoolOptions(options));
     }, []);
 
     useEffect(() => {
@@ -345,7 +365,18 @@ export function AddFarm() {
                     buttonText="CREATE FARM"
                     buttonStyle="swap_button"
                     onClickAction={async () => {
-                        openAddFarmModal();
+                        if (
+                            checkFarmParams(
+                                selectedPool,
+                                selectedRewardToken,
+                                beginBlock,
+                                endBlock,
+                                rewardPerBlock,
+                                Number(rewardTokenAmount)
+                            )
+                        ) {
+                            openAddFarmModal();
+                        }
                     }}
                 />
             )}
