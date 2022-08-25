@@ -443,12 +443,13 @@ export function Swap() {
     };
 
     const swapTokens = () => {
+        const newToken1 = token2;
         const newToken2 = token1;
-        setToken1(token2);
+        setToken1(newToken1);
         setToken2(newToken2);
         setToken1Amount(token2Amount);
         setToken2Amount('');
-        getBestSwapThrottled(token2.value, token1.value, token2Amount, 50);
+        getBestSwapThrottled(newToken1.value, newToken2.value, token2Amount, 50);
     };
 
     const SwapButtonOnClick = async () => {
