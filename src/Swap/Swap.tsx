@@ -239,7 +239,7 @@ export async function runTransactions(
 
         if (operation.dex == 'T2') {
             const redeemTxns = await tinymanDex.getAllRedeemTxs(address);
-            const redeemTxIds = await signAndPostTxnGroups(redeemTxns);
+            const redeemTxIds = await signAndPostTxnGroups(redeemTxns, { inParallel: true });
             txIds = [...txIds, ...redeemTxIds];
         }
 
