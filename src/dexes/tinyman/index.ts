@@ -99,6 +99,10 @@ export class TinymanPool implements DexPool {
         const bignumSlippage = BigInt(slippage * 1000);
         const minimalAmountOut = amountOut - (amountOut * bignumSlippage) / BigInt(1000);
 
+        const swapPrice = Number(amountOut) / Number(amountIn);
+        const poolPrice = Number(outputSupply) / Number(inputSupply);
+        const priceImpact = Math.abs(swapPrice / poolPrice - 1);
+
         return new TinymanSwap(this, {
             assetIn,
             assetOut,
@@ -108,6 +112,7 @@ export class TinymanPool implements DexPool {
             price: (Number(minimalAmountOut) / Number(amountIn)) * decRatio,
             fee: BigInt(amountIn - newAmountAfterFees),
             slippage,
+            priceImpact,
         });
     }
 
@@ -232,6 +237,7 @@ export class TinymanSwap implements Swap {
     price: number;
     fee: Amount;
     slippage: number;
+    priceImpact: number;
 
     constructor(pool: TinymanPool, params: SwapQuote) {
         this.pool = pool;
@@ -244,6 +250,7 @@ export class TinymanSwap implements Swap {
         this.price = params.price;
         this.fee = params.fee;
         this.slippage = params.slippage;
+        this.priceImpact = params.priceImpact;
     }
 
     async prepareTxs(sender: string): Promise<WalletTransactionGroup[]> {
