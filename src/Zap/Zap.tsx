@@ -175,8 +175,6 @@ export function Zap({
     const account = useUnit($account);
     const balances = useUnit($balances);
 
-    const isModal = closeModal !== undefined;
-
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
@@ -251,7 +249,14 @@ export function Zap({
         // @ts-expect-error
         setToken1(option);
         setToken1Amount('');
-        getZapThrottled(option.value, token2.value, token1Amount, halfSwap, 50);
+
+        if (closeModal !== undefined) {
+            const anotherOption = options.filter((o) => o.value !== option.value)[0];
+            setToken2(anotherOption);
+            getZapThrottled(option.value, anotherOption.value, token1Amount, halfSwap, 50);
+        } else {
+            getZapThrottled(option.value, token2.value, token1Amount, halfSwap, 50);
+        }
     };
 
     const select2OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
@@ -260,7 +265,13 @@ export function Zap({
         // @ts-expect-error
         setToken2(option);
 
-        getZapThrottled(token1.value, option.value, token1Amount, halfSwap, 50);
+        if (closeModal !== undefined) {
+            const anotherOption = options.filter((o) => o.value !== option.value)[0];
+            setToken1(anotherOption);
+            getZapThrottled(anotherOption.value, option.value, token1Amount, halfSwap, 50);
+        } else {
+            getZapThrottled(token1.value, option.value, token1Amount, halfSwap, 50);
+        }
     };
 
     const input1OnChange = (inputValue: string) => {
@@ -304,7 +315,7 @@ export function Zap({
             <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>ZAP</ModalTitle>
             <ModalSubtitle>Add liquidity and get LP tokens in one click</ModalSubtitle>
             <SelectInputGroup
-                options={isModal ? [token1] : options}
+                options={options}
                 selectedOption={token1}
                 inputData={token1Amount}
                 setInputData={setToken1Amount}
@@ -315,7 +326,7 @@ export function Zap({
                 <Plus alt="plus" src={plus} />
             </div>
             <SelectInputGroup
-                options={isModal ? [token2] : options}
+                options={options}
                 selectedOption={token2}
                 inputData={token2Amount}
                 setInputData={setToken2Amount}
