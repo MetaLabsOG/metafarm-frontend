@@ -44,6 +44,8 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
     setInputData,
     selectOnChange,
     inputOnChange,
+    inputDisabled = false,
+    selectDisabled = false,
 }) => {
     const [isValidInput, setIsValidInput] = useState<boolean>(true);
 
@@ -64,16 +66,18 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                 className="select-search"
                 options={options}
                 filterOptions={fuzzySearch}
-                renderOption={(props, option) => renderOption(props, option, SelectType.tokenSelect, false)}
+                renderOption={(props, option) => renderOption(props, option, SelectType.tokenSelect)}
                 renderValue={(props, snapshot) => renderSelectedOption(props, snapshot)}
                 value={selectedOption.value}
                 placeholder=""
                 onChange={selectOnChange}
+                disabled={selectDisabled}
             />
             <div style={{ width: '100%', position: 'relative' }}>
                 <input
+                    disabled={inputDisabled}
                     className="tokenInput"
-                    placeholder="Enter amount"
+                    placeholder={!inputDisabled ? 'Enter amount' : '0'}
                     value={inputData}
                     onChange={(e) => {
                         if (Number.isNaN(Number(e.target.value))) {
@@ -93,7 +97,7 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                     Balance: {formatNumber(!Number.isNaN(selectedOption.balance) ? selectedOption.balance : 0)}
                     {isValidInput ? '' : ' (Not enough)'}
                 </div>
-                {selectedOption.balance > 0 && (
+                {selectedOption.balance > 0 && !inputDisabled && (
                     <MaxButton
                         isActive
                         style={{
