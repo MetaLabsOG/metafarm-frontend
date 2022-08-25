@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const InfoCardContainer = styled.div`
     width: 520px;
-    height: 150px;
+    height: 170px;
     //background: var(--newDarkGray);
     background: linear-gradient(270deg, rgba(92, 252, 60, 0.03) 0%, rgba(24, 24, 24, 0.03) 30.46%), #1c1c1c;
     border-radius: 20px;
