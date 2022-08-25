@@ -16,8 +16,13 @@ export const AmountContainer = styled.div`
 `;
 
 export const AmountTitle = styled.div`
-    color: ${(props: ColorThemed<unknown>) => props.theme.gray};
+    color: var(--gray);
     margin-bottom: 12px;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 20px;
+    text-align: center;
+    letter-spacing: 0.02em;
 
     @media (max-width: 1120px) {
         font-size: 14px;
@@ -25,14 +30,20 @@ export const AmountTitle = styled.div`
 `;
 
 export const AmountValue = styled.div`
-    color: ${(props: ColorThemed<unknown>) => props.theme.white};
+    color: var(--white);
+    font-style: normal;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 22px;
+    text-align: center;
+    letter-spacing: 0.08em;
 `;
 
 export const BalanceList = styled.div`
     width: 100%;
     display: flex;
     justify-content: space-evenly;
-    background-color: ${(props: ColorThemed<unknown>) => props.theme.darkGray};
+    background-color: var(--newDarkGray);
     height: 91px;
     align-items: center;
     font-family: 'Montserrat';
@@ -42,7 +53,7 @@ export const BalanceList = styled.div`
     line-height: 22px;
     text-align: center;
     border-radius: 10px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 
     &:first-child {
     }
