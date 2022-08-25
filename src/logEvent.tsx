@@ -1,4 +1,4 @@
-import { LPTokenInfo } from './providers/dexesProvider';
+import { LPTokenInfo } from './dexes';
 import { Asset, Priced } from './common/store';
 import { Account } from './types';
 import { ALGONET } from './AppContext';

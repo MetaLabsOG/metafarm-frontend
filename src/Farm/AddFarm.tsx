@@ -4,9 +4,10 @@ import { SelectedOptionValue } from 'react-select-search';
 // @ts-expect-error
 import { backend as farmBackend } from '@metalabsog/farm';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { useStoreMap, useUnit } from 'effector-react';
+import { useUnit, useStoreMap } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
-import { getOptions } from '../Swap/Swap';
+import { getTokens } from '../Swap/Swap';
+import { Button } from '../Components/Button/Button';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { POOL_OPTION, Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { PoolOptionType, TokenOptionType } from '../Components/Select/types';
@@ -259,7 +260,7 @@ export function AddFarm() {
     }, []);
 
     useEffect(() => {
-        getOptions(account, balances).then((res) => {
+        getTokens(account, balances).then((res) => {
             const filteredAssets = res.filter((asset) => asset.id !== 0);
             setRewardTokenOptions(filteredAssets);
             setSelectedRewardToken(filteredAssets[0]);

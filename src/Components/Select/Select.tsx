@@ -112,7 +112,14 @@ function SelectOption({
 export function renderOption(props, option, selectType: SelectType, showAdditionalInfo = true) {
     return (
         <button {...props} className="search_option" type="button">
-            <div style={{ display: 'flex', alignItems: 'center', fontFamily: 'Montserrat', whiteSpace: 'nowrap' }}>
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    fontFamily: 'Montserrat',
+                    whiteSpace: 'nowrap',
+                }}
+            >
                 <SelectOption selectType={selectType} option={option} showAdditionalInfo={showAdditionalInfo} />
             </div>
         </button>

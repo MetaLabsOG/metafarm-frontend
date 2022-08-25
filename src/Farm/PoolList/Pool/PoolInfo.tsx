@@ -11,7 +11,7 @@ import {
     Priced,
     Time,
 } from '../../../common/store';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
+import { LPTokenInfo } from '../../../dexes';
 import { DAY, fromSmallestUnits, HOUR, MINUTE, unsafeFromBigint } from '../../../common/lib';
 import { getDexIcon } from '../../utils';
 import { formatLPTokenName, isLPTokenInfo } from './utils';

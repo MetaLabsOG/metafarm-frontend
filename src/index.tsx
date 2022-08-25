@@ -116,7 +116,7 @@ function App() {
                             <Route path="/farm" element={<Farm />} />
                             <Route path="/stake" element={<Stake />} />
                             <Route path="/swap" element={<Swap />} />
-                            <Route path="/zap" element={<Zap />} />
+                            <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
                             <Route path="/meta-dao" element={<MetaDAO />} />
                             {/*<Route path="/tokensale" element={<Crowdsale />} />*/}
                             <Route path="/addfarm" element={<AddFarm />} />

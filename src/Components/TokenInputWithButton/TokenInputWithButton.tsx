@@ -3,7 +3,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { useStore, useUnit } from 'effector-react';
 import { Effect } from 'effector';
 import { BigNumberish } from '@ethersproject/bignumber';
-import { LPTokenInfo } from '../../providers/dexesProvider';
+import { LPTokenInfo } from '../../dexes';
 import { $account, Asset, Priced } from '../../common/store';
 import { fromSmallestUnits, getSmallestUnits, sleep } from '../../common/lib';
 import { notify, ToastTypes, useToasts } from '../Notification';

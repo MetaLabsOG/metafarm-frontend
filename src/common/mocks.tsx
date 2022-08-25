@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { LPTokenInfo } from '../providers/dexesProvider';
+import { LPTokenInfo } from '../dexes';
 import { Asset, Contract, Priced } from './store';
 
 export const rewardTokenInfoMock: Priced<Asset> = {

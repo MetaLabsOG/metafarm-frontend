@@ -15,7 +15,7 @@ export function Footer() {
                     target="_blank"
                     rel="noreferrer"
                     href="https://cometa.farm/terms-of-use"
-                    style={{ color: theme.green }}
+                    style={{ color: theme.lightGreen }}
                 >
                     <FooterItem>Terms of Use</FooterItem>
                 </a>

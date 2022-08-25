@@ -27,7 +27,7 @@ import {
     Time,
 } from '../common/store';
 import { AllDefined, Backend } from '../types';
-import { LPTokenInfo, DexProvider, makeDex } from '../providers/dexesProvider';
+import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 
 // TODO: this function is a huge costyl
@@ -39,6 +39,7 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
     if (name.includes('liquidity') || name.includes('pact')) {
         return 'PT';
     }
+
     return 'MOCK';
 }
 
@@ -55,15 +56,15 @@ export async function getLPTokenInfo(
     }
 
     const dex = makeDex(provider);
-    const poolInfo = await dex.getPoolInfoByAddress(asset.creator);
+    const poolInfo = await dex.getPoolByAddress(asset.creator);
 
     let fstAssetPrice;
     if (poolInfo.asset1 === 0) {
         fstAssetPrice = algoPrice;
     } else {
         const firstAsset = await fetchAsset(poolInfo.asset1);
-        const priceInAlgo = (await dex.getSwapQuote(firstAsset, ALGO_ASSET, BigInt(10 ** firstAsset.decimals), 0.01))
-            .price;
+        const algoPool = await dex.getPoolByAssets(firstAsset, ALGO_ASSET);
+        const priceInAlgo = (await algoPool.getSwap(firstAsset, BigInt(10 ** firstAsset.decimals), 0.01)).price;
         fstAssetPrice = algoPrice * priceInAlgo;
     }
 

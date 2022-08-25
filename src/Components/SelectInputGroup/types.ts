@@ -8,4 +8,6 @@ export interface SelectInputGroupProps {
     setInputData: React.Dispatch<React.SetStateAction<string>>;
     selectOnChange: any;
     inputOnChange?: any;
+    inputDisabled?: boolean;
+    selectDisabled?: boolean;
 }

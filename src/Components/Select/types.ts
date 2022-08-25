@@ -1,5 +1,5 @@
 import { Asset } from '../../common/store';
-import { PoolInfo } from '../../providers/dexesProvider';
+import { PoolInfo } from '../../dexes';
 import { SelectType } from './Select';
 
 export type PoolOptionType = PoolInfo & { value: string; name: string };

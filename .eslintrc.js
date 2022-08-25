@@ -91,6 +91,9 @@ module.exports = {
         '@typescript-eslint/unbound-method': 'warn',
     },
     settings: {
+        react: {
+            version: 'detect',
+        },
         settings: {
             'import/parsers': {
                 '@typescript-eslint/parser': ['.ts', '.tsx'],
