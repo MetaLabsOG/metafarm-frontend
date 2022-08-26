@@ -17,7 +17,7 @@ export type InitialState = {
     rewardPerBlock: BigNumberish;
     extraAlgoRewardPerBlock: BigNumberish;
     lockLengthBlocks: number;
-    flatAlgoCreationFee: number;
+    flatAlgoCreationFee: BigNumberish;
 };
 
 export async function deployFarm(ctc: Contract, initialState: InitialState): Promise<BigNumberish> {

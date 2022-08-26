@@ -1,13 +1,12 @@
-import { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { SelectedOptionValue } from 'react-select-search';
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-expect-error
 import { backend as farmBackend } from '@metalabsog/farm';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { useUnit, useStoreMap } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
 import { getTokens } from '../Swap/Swap';
-import { Button } from '../Components/Button/Button';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { POOL_OPTION, Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { PoolOptionType, SelectOptionType, TokenOptionType } from '../Components/Select/types';
@@ -15,27 +14,18 @@ import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGrou
 
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
-import {
-    $account,
-    $balances,
-    $meanRoundDuration,
-    $networkTime,
-    $pricedAssets,
-    ALGO_ASSET,
-    Asset,
-    Priced,
-    Time,
-} from '../common/store';
+import { $account, $balances, $meanRoundDuration, $networkTime, ALGO_ASSET, Time } from '../common/store';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { DAY, formatDecimalsMeaningful, getSmallestUnits, unsafeFromBigint } from '../common/lib';
 import { deployContractToBackend, getTinymanPools } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
-import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE } from '../AppContext';
+import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE, FARM_FLAT_ALGO_CREATION_FEE } from '../AppContext';
+import { SwitchSelect } from '../Components/SwitchSelect/SwitchSelect';
 import { Backend } from '../types';
 import { expBackoff } from '../common/store/utils';
 import { logEvent, LogName } from '../logEvent';
-import { DateInput } from './styled';
+import { AddFarmRow, DateInput } from './styled';
 import { deployFarm, InitialState } from './utils';
 
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
@@ -83,6 +73,13 @@ const checkFarmParams = (
         return false;
     }
 
+    // TODO: remove it?
+    const microRewardTokenAmount = getSmallestUnits(rewardToken, rewardTokenAmount);
+    if (microRewardTokenAmount < (endBlock - beginBlock) * 10) {
+        notify('Not enough farm rewards', 'warning');
+        return false;
+    }
+
     if (!FARM_BENEFICIARY_ADDR) {
         console.log('No FARM_BENEFICIARY_ADDR');
         return false;
@@ -127,7 +124,7 @@ const createFarm = async (
         rewardPerBlock: unsafeFromBigint(microRewardPerBlock),
         extraAlgoRewardPerBlock: unsafeFromBigint(algoMicroRewardPerBlock),
         lockLengthBlocks: lockPeriodBlocks,
-        flatAlgoCreationFee: 0,
+        flatAlgoCreationFee: FARM_FLAT_ALGO_CREATION_FEE ?? 0,
     };
     logEvent(
         account.networkAccount.addr,
@@ -208,9 +205,16 @@ function PoolInfo({
 
     return (
         <InfoPanel isLoading={false}>
-            <InfoRow title="FARM POOL" value={selectedPool.name} />
-            <InfoRow title="LP ASA ID" value={selectedPool.liquidityAsset} />
-            <InfoRow title="DEX" value="tinyman" />
+            <InfoRow
+                title="FARM POOL"
+                value={selectedPool.name}
+                valueLink={'https://algoscan.app/asset/' + selectedPool.liquidityAsset}
+            />
+            <InfoRow
+                title="LP ASA ID"
+                value={selectedPool.liquidityAsset + ' (tinyman)'}
+                style={{ marginBottom: '20px' }}
+            />
             <InfoRow
                 title="Current pool liquidity"
                 value={'$' + formatDecimalsMeaningful(Number(selectedPool.totalLiquidity))}
@@ -221,11 +225,20 @@ function PoolInfo({
                 style={{ marginBottom: '20px' }}
             />
             <InfoRow title="Start block" value={beginBlock} />
-            <InfoRow title="End block" value={endBlock} />
-            <InfoRow title="Reward token" value={rewardToken.unitName} />
+            <InfoRow title="End block" value={endBlock} style={{ marginBottom: '20px' }} />
+            <InfoRow
+                title="Total reward"
+                value={rewardAmount + ' ' + rewardToken.unitName}
+                valueLink={'https://algoscan.app/asset/' + rewardToken.id}
+            />
             <InfoRow title="Reward per block" value={rewardPerBlock.toPrecision(6) + ' ' + rewardToken.unitName} />
-            <InfoRow title="Lock period blocks" value={lockPeriodBlocks} />
-            <InfoRow title="Farm creation fee" value={farmCreationFee} />
+            <InfoRow title="Lock period blocks" value={lockPeriodBlocks} style={{ marginBottom: '20px' }} />
+            <InfoRow
+                title="Creation fee"
+                value={
+                    farmCreationFee + ' ' + rewardToken.unitName + '  + ' + (FARM_FLAT_ALGO_CREATION_FEE ?? 0) + ' ALGO'
+                }
+            />
         </InfoPanel>
     );
 }
@@ -341,7 +354,7 @@ export function AddFarm() {
                 setInputData={setRewardTokenAmount}
                 selectOnChange={selectRewardTokenOnChange}
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+            <AddFarmRow>
                 <Heading2>START</Heading2>
                 <DateInput
                     placeholder="Select start time"
@@ -349,9 +362,9 @@ export function AddFarm() {
                     value={startTime}
                     onChange={dateInputOnChange}
                 />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '20px' }}>
-                <Heading2>DURATION</Heading2>
+            </AddFarmRow>
+            <AddFarmRow>
+                <Heading2 style={{ minWidth: '130px' }}>DURATION</Heading2>
                 <DateInput
                     style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
                     placeholder="1-999"
@@ -359,9 +372,9 @@ export function AddFarm() {
                     onChange={durationInputOnChange}
                 />
                 <Heading2>DAYS</Heading2>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '20px' }}>
-                <Heading2>LOCK</Heading2>
+            </AddFarmRow>
+            <AddFarmRow>
+                <Heading2 style={{ minWidth: '130px' }}>LOCK</Heading2>
                 <DateInput
                     style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
                     placeholder="1-999"
@@ -369,7 +382,7 @@ export function AddFarm() {
                     onChange={lockInputOnChange}
                 />
                 <Heading2>DAYS</Heading2>
-            </div>
+            </AddFarmRow>
             {!account ? (
                 <ConnectWallet buttonClassName="swap_button" />
             ) : (
@@ -395,7 +408,7 @@ export function AddFarm() {
             <AddFarmModal>
                 <ModalContainer>
                     <ModalSubtitle style={{ fontSize: '16px' }}>
-                        Please, verify carefully the farm creation parameters.
+                        Please, carefully verify the farm creation parameters.
                     </ModalSubtitle>
                     <PoolInfo
                         selectedPool={selectedPool}

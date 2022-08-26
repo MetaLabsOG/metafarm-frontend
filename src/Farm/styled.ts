@@ -25,3 +25,11 @@ export const DateInput = styled.input`
     border: 1px solid rgba(125, 125, 125, 0.66);
     border-radius: 8px;
 `;
+
+export const AddFarmRow = styled.div`
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+    align-items: center;
+`;
