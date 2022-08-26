@@ -176,13 +176,15 @@ const calculateFarmData = (
     rewardAmount: number,
     startTimestamp: Time,
     daysDuration: number,
-    meanRoundDuration: number
+    meanRoundDuration: number,
+    lockPeriod: number
 ) => {
     const beginBlock: number = currentBlock + deltaBlocks(Date.now(), startTimestamp, meanRoundDuration);
     const endBlock: number = beginBlock + daysToBlocks(daysDuration, meanRoundDuration);
     const rewardPerBlock: number = endBlock - beginBlock ? rewardAmount / (endBlock - beginBlock) : 0;
+    const lockPeriodBlocks = daysToBlocks(lockPeriod, meanRoundDuration);
 
-    return [beginBlock, endBlock, rewardPerBlock];
+    return [beginBlock, endBlock, rewardPerBlock, lockPeriodBlocks];
 };
 
 function PoolInfo({
@@ -192,6 +194,7 @@ function PoolInfo({
     rewardPerBlock,
     rewardAmount,
     rewardToken,
+    lockPeriodBlocks,
 }: {
     selectedPool: PoolOptionType;
     beginBlock: number;
@@ -199,6 +202,7 @@ function PoolInfo({
     rewardPerBlock: number;
     rewardAmount: number;
     rewardToken: TokenOptionType;
+    lockPeriodBlocks: number;
 }) {
     const farmCreationFee = (rewardAmount * Number(FARM_CREATION_FEE ?? 0)) / 10_000;
 
@@ -214,14 +218,13 @@ function PoolInfo({
             <InfoRow
                 title="Current fees APR"
                 value={`${selectedPool.dexFeeApr ? (selectedPool.dexFeeApr * 100).toFixed(2) : 0}%`}
+                style={{ marginBottom: '20px' }}
             />
-            <InfoRow title="Reward token" value={rewardToken.unitName} style={{ marginBottom: '20px' }} />
-            <InfoRow title="Start block" value={!Number.isNaN(beginBlock) ? beginBlock : 0} />
-            <InfoRow title="End block" value={!Number.isNaN(endBlock) ? endBlock : 0} />
-            <InfoRow
-                title="Reward per block"
-                value={!Number.isNaN(rewardPerBlock) ? rewardPerBlock.toPrecision(6) + ' ' + rewardToken.unitName : 0}
-            />
+            <InfoRow title="Start block" value={beginBlock} />
+            <InfoRow title="End block" value={endBlock} />
+            <InfoRow title="Reward token" value={rewardToken.unitName} />
+            <InfoRow title="Reward per block" value={rewardPerBlock.toPrecision(6) + ' ' + rewardToken.unitName} />
+            <InfoRow title="Lock period blocks" value={lockPeriodBlocks} />
             <InfoRow title="Farm creation fee" value={farmCreationFee} />
         </InfoPanel>
     );
@@ -275,12 +278,13 @@ export function AddFarm() {
     const [AddFarmModal, openAddFarmModal, closeAddFarmModal] = useModal('root', { preventScroll: true });
 
     const startTimestamp = Date.parse(startTime);
-    const [beginBlock, endBlock, rewardPerBlock] = calculateFarmData(
+    const [beginBlock, endBlock, rewardPerBlock, lockPeriodBlocks] = calculateFarmData(
         currentBlock,
         Number(rewardTokenAmount),
         startTimestamp,
         Number(daysDuration),
-        meanRoundDuration
+        meanRoundDuration,
+        Number(lockPeriod)
     );
 
     useEffect(() => {
@@ -400,6 +404,7 @@ export function AddFarm() {
                         rewardPerBlock={rewardPerBlock}
                         rewardAmount={Number(rewardTokenAmount)}
                         rewardToken={selectedRewardToken}
+                        lockPeriodBlocks={lockPeriodBlocks}
                     />
                     {account && (
                         <PacmanButton
@@ -415,7 +420,7 @@ export function AddFarm() {
                                     rewardPerBlock,
                                     Number(rewardTokenAmount),
                                     0, // TODO: add extra algo rewards to the interface!!
-                                    daysToBlocks(Number(lockPeriod), meanRoundDuration)
+                                    lockPeriodBlocks
                                 );
                                 res && closeAddFarmModal();
                             }}
