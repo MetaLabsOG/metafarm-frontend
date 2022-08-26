@@ -22,6 +22,7 @@ import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../comm
 import { notify } from '../Components/Notification';
 import plus from '../imgs/plus.svg';
 import { theme } from '../theme';
+import { SwitchSelect } from '../Components/SwitchSelect/SwitchSelect';
 import { ZapData } from './types';
 
 export function quoteToZapData(asset1Id: number, inputQuote: ZapOperation | MintQuote | null): ZapData {
@@ -334,24 +335,11 @@ export function Zap({
                 inputOnChange={input2OnChange}
                 inputDisabled={halfSwap}
             />
-            <SwitchContainer>
-                <Switch
-                    onChange={handleChangeHalfSwap}
-                    checked={halfSwap}
-                    className="react-switch"
-                    onColor={theme.green}
-                    offColor={theme.lightGray}
-                    onHandleColor={theme.darkGray}
-                    offHandleColor={theme.gray}
-                    uncheckedIcon={false}
-                    checkedIcon={false}
-                    height={20}
-                    width={40}
-                />
-                <SwitchText style={halfSwap ? { color: theme.lightGray } : {}}>
-                    auto-convert half {token1.unitName} to {token2.unitName}
-                </SwitchText>
-            </SwitchContainer>
+            <SwitchSelect
+                switchStatus={halfSwap}
+                onChange={handleChangeHalfSwap}
+                switchText={'auto-convert half ' + token1.unitName + ' to ' + token2.unitName}
+            />
             <ZapResult
                 isLoading={isLoading}
                 zap_data={zapData}

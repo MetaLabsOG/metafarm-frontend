@@ -142,17 +142,8 @@ export const deployContractToBackend = async (
             dex,
         },
     };
-    try {
-        await instance.post('/contract/register', request);
-        return true;
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error('error message:', error.message);
-        } else {
-            console.error('unexpected error:', error);
-        }
-        return false;
-    }
+    console.log('/contract/register', request);
+    await instance.post('/contract/register', request);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types

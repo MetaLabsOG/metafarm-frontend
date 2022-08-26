@@ -34,6 +34,7 @@ import { TestnetModal } from './TestnetModal';
 import { Footer } from './Menu/Footer';
 import { ALGONET, TESTNET } from './AppContext';
 import { notify } from './Components/Notification';
+import { AddFarm } from './Farm/AddFarm';
 
 Sentry.init({
     dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',
@@ -111,13 +112,14 @@ function App() {
                     <ContentContainer>
                         <Routes>
                             <Route path="/" element={<Farm />} />
-                            <Route path="/fomo" element={<Fomo />} />
+                            {/*<Route path="/fomo" element={<Fomo />} />*/}
                             <Route path="/farm" element={<Farm />} />
                             <Route path="/stake" element={<Stake />} />
                             <Route path="/swap" element={<Swap />} />
                             <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
                             <Route path="/meta-dao" element={<MetaDAO />} />
-                            <Route path="/tokensale" element={<Crowdsale />} />
+                            {/*<Route path="/tokensale" element={<Crowdsale />} />*/}
+                            <Route path="/addfarm" element={<AddFarm />} />
                         </Routes>
                     </ContentContainer>
                     <Modal>
