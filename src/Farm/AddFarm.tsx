@@ -21,7 +21,6 @@ import { deployContractToBackend, getTinymanPools } from '../providers/apiProvid
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
 import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE, FARM_FLAT_ALGO_CREATION_FEE } from '../AppContext';
-import { SwitchSelect } from '../Components/SwitchSelect/SwitchSelect';
 import { Backend } from '../types';
 import { expBackoff } from '../common/store/utils';
 import { logEvent, LogName } from '../logEvent';
@@ -184,24 +183,42 @@ const calculateFarmData = (
     return [beginBlock, endBlock, rewardPerBlock, lockPeriodBlocks];
 };
 
+const calculateTimeByBlock = (currentBlock: number, block: number, meanRoundDuration: number) => {
+    const timestamp = Date.now() + (block - currentBlock) * meanRoundDuration * 1000;
+    return new Date(timestamp).toLocaleString('en-US', {
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+    });
+};
+
 function PoolInfo({
     selectedPool,
+    currentBlock,
     beginBlock,
     endBlock,
     rewardPerBlock,
     rewardAmount,
     rewardToken,
     lockPeriodBlocks,
+    meanRoundDuration,
 }: {
     selectedPool: PoolOptionType;
+    currentBlock: number;
     beginBlock: number;
     endBlock: number;
     rewardPerBlock: number;
     rewardAmount: number;
     rewardToken: TokenOptionType;
     lockPeriodBlocks: number;
+    meanRoundDuration: number;
 }) {
     const farmCreationFee = (rewardAmount * Number(FARM_CREATION_FEE ?? 0)) / 10_000;
+    const startTime = calculateTimeByBlock(currentBlock, beginBlock, meanRoundDuration);
+    const endTime = calculateTimeByBlock(currentBlock, endBlock, meanRoundDuration);
 
     return (
         <InfoPanel isLoading={false}>
@@ -224,8 +241,9 @@ function PoolInfo({
                 value={`${selectedPool.dexFeeApr ? (selectedPool.dexFeeApr * 100).toFixed(2) : 0}%`}
                 style={{ marginBottom: '20px' }}
             />
-            <InfoRow title="Start block" value={beginBlock} />
-            <InfoRow title="End block" value={endBlock} style={{ marginBottom: '20px' }} />
+            <InfoRow title="Start time" value={startTime} />
+            <InfoRow title="End time" value={endTime} />
+            <InfoRow title="Start-end blocks" value={beginBlock + '-' + endBlock} style={{ marginBottom: '20px' }} />
             <InfoRow
                 title="Total reward"
                 value={rewardAmount + ' ' + rewardToken.unitName}
@@ -412,12 +430,14 @@ export function AddFarm() {
                     </ModalSubtitle>
                     <PoolInfo
                         selectedPool={selectedPool}
+                        currentBlock={currentBlock}
                         beginBlock={beginBlock}
                         endBlock={endBlock}
                         rewardPerBlock={rewardPerBlock}
                         rewardAmount={Number(rewardTokenAmount)}
                         rewardToken={selectedRewardToken}
                         lockPeriodBlocks={lockPeriodBlocks}
+                        meanRoundDuration={meanRoundDuration}
                     />
                     {account && (
                         <PacmanButton
