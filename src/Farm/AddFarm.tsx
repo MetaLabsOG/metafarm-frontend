@@ -2,7 +2,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import { SelectedOptionValue } from 'react-select-search';
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-expect-error
-import { backend as farmBackend } from '@metalabsog/farm';
+import { backend as farmBackend } from 'metalabs-farm-17_2_5';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
@@ -27,6 +27,11 @@ import { logEvent, LogName } from '../logEvent';
 import { AddFarmRow, DateInput } from './styled';
 import { deployFarm, InitialState } from './utils';
 
+// TODO: Using aliases for different package versions prevents us from automatically determining
+// the version of given contract type from package.json. So we have to hard-code it.
+// Is there a better option?
+const CURRENT_FARM_VERSION = '17.2.5';
+
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
     return Math.floor(Math.max(5, (endTime - startTime) / 1000) / meanRoundDuration);
 };
@@ -40,8 +45,7 @@ const checkFarmParams = (
     rewardToken: TokenOptionType,
     beginBlock: number,
     endBlock: number,
-    rewardPerBlock: number,
-    rewardTokenAmount: number
+    rewardAmount: number
 ) => {
     if (!stakeToken.liquidityAsset) {
         notify('Please, choose LP pool.', 'warning');
@@ -62,20 +66,13 @@ const checkFarmParams = (
         notify('Please, choose start time and farm duration.', 'warning');
         return false;
     }
-    if (Number.isNaN(rewardPerBlock) || rewardPerBlock === 0) {
+    if (Number.isNaN(rewardAmount) || rewardAmount === 0) {
         notify('Please, enter reward amount.', 'warning');
         return false;
     }
 
-    if (!Number.isNaN(rewardToken.balance) && rewardToken.balance < rewardTokenAmount) {
+    if (!Number.isNaN(rewardToken.balance) && rewardToken.balance < rewardAmount) {
         notify('Reward tokens amount is less than the wallet balance.', 'warning');
-        return false;
-    }
-
-    // TODO: remove it?
-    const microRewardTokenAmount = getSmallestUnits(rewardToken, rewardTokenAmount);
-    if (microRewardTokenAmount < (endBlock - beginBlock) * 10) {
-        notify('Not enough farm rewards', 'warning');
         return false;
     }
 
@@ -93,25 +90,26 @@ const createFarm = async (
     rewardToken: TokenOptionType,
     beginBlock: number,
     endBlock: number,
-    rewardPerBlock: number,
-    rewardTokenAmount: number,
-    extraAlgoRewardPerBlock: number,
-    lockPeriodBlocks: number
+    rewardAmount: number,
+    extraAlgoRewardAmount: number,
+    lockLengthBlocks: number
 ) => {
-    if (!checkFarmParams(stakeToken, rewardToken, beginBlock, endBlock, rewardPerBlock, rewardTokenAmount)) {
+    if (!checkFarmParams(stakeToken, rewardToken, beginBlock, endBlock, rewardAmount)) {
         return false;
     }
 
-    const microRewardPerBlock = getSmallestUnits(rewardToken, rewardPerBlock);
-    const algoMicroRewardPerBlock = getSmallestUnits(ALGO_ASSET, extraAlgoRewardPerBlock);
+    const totalRewardAmount = unsafeFromBigint(getSmallestUnits(rewardToken, rewardAmount));
+    const totalAlgoRewardAmount = unsafeFromBigint(getSmallestUnits(ALGO_ASSET, extraAlgoRewardAmount));
+    const flatAlgoCreationFee = unsafeFromBigint(getSmallestUnits(ALGO_ASSET, Number(FARM_FLAT_ALGO_CREATION_FEE)));
+
     console.log(
         'Start create farm',
         stakeToken.liquidityAsset,
         rewardToken.id,
         beginBlock,
         endBlock,
-        microRewardPerBlock,
-        algoMicroRewardPerBlock
+        totalRewardAmount,
+        totalAlgoRewardAmount
     );
     const contractParameters: InitialState = {
         beneficiary: FARM_BENEFICIARY_ADDR ?? '',
@@ -120,10 +118,10 @@ const createFarm = async (
         rewardToken: rewardToken.id,
         beginBlock,
         endBlock,
-        rewardPerBlock: unsafeFromBigint(microRewardPerBlock),
-        extraAlgoRewardPerBlock: unsafeFromBigint(algoMicroRewardPerBlock),
-        lockLengthBlocks: lockPeriodBlocks,
-        flatAlgoCreationFee: unsafeFromBigint(getSmallestUnits(ALGO_ASSET, Number(FARM_FLAT_ALGO_CREATION_FEE))),
+        totalRewardAmount,
+        totalAlgoRewardAmount,
+        lockLengthBlocks,
+        flatAlgoCreationFee,
     };
     logEvent(
         account.networkAccount.addr,
@@ -136,7 +134,13 @@ const createFarm = async (
         const contractId = await deployFarm(ctc, contractParameters);
 
         const deployToBackendWithBackoffFun = expBackoff(async () =>
-            deployContractToBackend(Number(contractId), 'farm', stakeToken.name, stakeToken.poolDex)
+            deployContractToBackend(
+                Number(contractId),
+                'farm',
+                stakeToken.name,
+                stakeToken.poolDex,
+                CURRENT_FARM_VERSION
+            )
         );
 
         await deployToBackendWithBackoffFun(null);
@@ -416,7 +420,6 @@ export function AddFarm() {
                                 selectedRewardToken,
                                 beginBlock,
                                 endBlock,
-                                rewardPerBlock,
                                 Number(rewardTokenAmount)
                             )
                         ) {
@@ -452,7 +455,6 @@ export function AddFarm() {
                                     selectedRewardToken,
                                     beginBlock,
                                     endBlock,
-                                    rewardPerBlock,
                                     Number(rewardTokenAmount),
                                     0, // TODO: add extra algo rewards to the interface!!
                                     lockPeriodBlocks
