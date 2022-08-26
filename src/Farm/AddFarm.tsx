@@ -124,7 +124,7 @@ const createFarm = async (
         rewardPerBlock: unsafeFromBigint(microRewardPerBlock),
         extraAlgoRewardPerBlock: unsafeFromBigint(algoMicroRewardPerBlock),
         lockLengthBlocks: lockPeriodBlocks,
-        flatAlgoCreationFee: FARM_FLAT_ALGO_CREATION_FEE ?? 0,
+        flatAlgoCreationFee: getSmallestUnits(ALGO_ASSET, Number(FARM_FLAT_ALGO_CREATION_FEE)),
     };
     logEvent(
         account.networkAccount.addr,
