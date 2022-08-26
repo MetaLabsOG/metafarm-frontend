@@ -62,6 +62,13 @@ const checkFarmParams = (
         notify('Please, choose reward token.', 'warning');
         return false;
     }
+
+    // TODO: remove it
+    if (rewardToken.decimals === 0) {
+        notify("We'll support reward tokens with 0 decimals next week.", 'warning');
+        return false;
+    }
+
     if (Number.isNaN(beginBlock) || beginBlock >= endBlock) {
         notify('Please, choose start time and farm duration.', 'warning');
         return false;
@@ -199,6 +206,7 @@ function PoolInfo({
         <InfoPanel isLoading={false}>
             <InfoRow title="FARM POOL" value={selectedPool.name} />
             <InfoRow title="LP ASA ID" value={selectedPool.liquidityAsset} />
+            <InfoRow title="DEX" value="tinyman" />
             <InfoRow
                 title="Current pool liquidity"
                 value={'$' + formatDecimalsMeaningful(Number(selectedPool.totalLiquidity))}
