@@ -123,7 +123,7 @@ const createFarm = async (
         rewardPerBlock: unsafeFromBigint(microRewardPerBlock),
         extraAlgoRewardPerBlock: unsafeFromBigint(algoMicroRewardPerBlock),
         lockLengthBlocks: lockPeriodBlocks,
-        flatAlgoCreationFee: getSmallestUnits(ALGO_ASSET, Number(FARM_FLAT_ALGO_CREATION_FEE)),
+        flatAlgoCreationFee: unsafeFromBigint(getSmallestUnits(ALGO_ASSET, Number(FARM_FLAT_ALGO_CREATION_FEE))),
     };
     logEvent(
         account.networkAccount.addr,
@@ -153,6 +153,8 @@ const createFarm = async (
             notify('Operation is cancelled.', 'warning');
         } else if (error_message.includes('popup')) {
             notify('Popups are blocked. Please, allow popups in your browser.', 'error');
+        } else if (error_message.includes('below min')) {
+            notify('Not enough ALGOs in the wallet.', 'error');
         } else {
             notify(`Something went wrong, please contact us on twitter or discord!`, 'error');
         }
