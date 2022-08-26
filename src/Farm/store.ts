@@ -1,6 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import { backend as farmBackend } from '@metalabsog/farm';
+// @ts-expect-error No provided type bindings in contracts package
+import { backend as farmBackend_17_2_4 } from 'metalabs-farm-17_2_4';
+// @ts-expect-error No provided type bindings in contracts package
+import { backend as farmBackend_17_2_5 } from 'metalabs-farm-17_2_5';
+
 import { Map } from 'immutable';
 import { createEffect, createStore, createEvent, sample, combine, Store } from 'effector';
 import { groupBy, min, values } from 'ramda';
@@ -29,6 +31,11 @@ import {
 import { AllDefined, Backend } from '../types';
 import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
+
+const FARM_BACKENDS = {
+    '17.2.4': farmBackend_17_2_4 as Backend,
+    '17.2.5': farmBackend_17_2_5 as Backend,
+};
 
 // TODO: this function is a huge costyl
 export function detectAssetProvider({ name }: { name: string }): DexProvider {
@@ -75,9 +82,10 @@ export async function getLPTokenInfo(
 const BIG_NUM = BigInt('1000000000000000000');
 
 export const recalculatedReward = (contractState: AllDefined<ContractState<FarmType>>, currentBlock: Time): Amount => {
-    const { endBlock, rewardPerBlock } = contractState.initial;
+    const { beginBlock, endBlock, totalRewardAmount } = contractState.initial;
     const { totalStaked, lastUpdateBlock, rewardPerTokenStored } = contractState.global;
     const { staked, reward, rewardPerTokenPaid } = contractState.local;
+    const rewardPerBlock = (totalRewardAmount * BIG_NUM) / BigInt(endBlock - beginBlock);
 
     if (lastUpdateBlock >= currentBlock || totalStaked === BigInt(0) || staked === BigInt(0)) {
         return reward;
@@ -85,8 +93,7 @@ export const recalculatedReward = (contractState: AllDefined<ContractState<FarmT
 
     const lastBlockWithRewards = min(currentBlock, endBlock);
     const rewardBlocksPassed = lastBlockWithRewards - lastUpdateBlock;
-    const rewardPerTokenStoredNew =
-        rewardPerTokenStored + (BigInt(rewardBlocksPassed) * rewardPerBlock * BIG_NUM) / totalStaked;
+    const rewardPerTokenStoredNew = rewardPerTokenStored + (BigInt(rewardBlocksPassed) * rewardPerBlock) / totalStaked;
 
     const rewardToPayNow = (staked * (rewardPerTokenStoredNew - rewardPerTokenPaid)) / BIG_NUM;
     return reward + rewardToPayNow;
@@ -115,7 +122,7 @@ export const projectContracts = <T extends FarmType>(
 
 const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpdate } = buildContractsStore(
     'farm',
-    farmBackend as Backend
+    FARM_BACKENDS
 );
 
 export const $pools = combine($contracts, $networkTime, projectContracts);
@@ -242,12 +249,7 @@ export function createAggregates<T extends FarmType>($pools: Store<Array<Contrac
         (states, lpTokens, tokens) => {
             const getToken = (s: ContractState<T>) => ('token' in s.initial ? s.initial.token : s.initial.stakeToken);
             const allTokens = tokens.merge(lpTokens);
-            const tvl = sumMoney(
-                states,
-                allTokens,
-                (s) => s.global.totalStaked - BigInt(1), // VIRTUAL STAKE!
-                getToken
-            );
+            const tvl = sumMoney(states, allTokens, (s) => s.global.totalStaked, getToken);
             const totalUserStake = sumMoney(states, allTokens, (s) => s.local?.staked, getToken);
             const totalPendingReward = states.reduce((sum, state) => {
                 const token = 'token' in state.initial ? state.initial.token : state.initial.rewardToken;

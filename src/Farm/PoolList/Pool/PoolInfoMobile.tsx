@@ -3,7 +3,7 @@ import ReactTooltip from 'react-tooltip';
 import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
 import info from '../../../imgs/info.svg';
 import { PoolInfoMobileContainer, PoolInfoValue, StakeButtonMobile, TimingMobile } from './styled';
-import { algoRewardPerBlock, convertAmountToUSD, numberRound } from './utils';
+import { convertAmountToUSD, numberRound } from './utils';
 import { getAPRTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
 import { APRTypes } from './PoolInfo';
 
@@ -37,7 +37,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 dexIcon={dexIcon}
                 lock={contractLockSuffix}
                 isVerified={isVerified}
-                algoRewards={algoRewardPerBlock(contractState.initial) > 0}
+                algoRewards={contractState.initial.totalAlgoRewardAmount > 0}
             />
             <PoolInfoValue style={{ marginTop: '30px' }}>
                 <div>TVL</div>

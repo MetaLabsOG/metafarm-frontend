@@ -13200,6 +13200,8 @@ __metadata:
     lerna: "npm:^5.3.0"
     lint-staged: "npm:^13.0.3"
     loader: "npm:^2.1.1"
+    metalabs-farm-17_2_4: "npm:@metalabsog/farm@17.2.4"
+    metalabs-farm-17_2_5: "npm:@metalabsog/farm@17.2.5"
     mini-css-extract-plugin: "npm:^2.6.1"
     object-hash: "npm:^3.0.0"
     path-browserify: "npm:^1.0.1"
@@ -13255,6 +13257,32 @@ __metadata:
     xo-summary: "npm:^1.0.1"
   languageName: unknown
   linkType: soft
+
+"metalabs-farm-17_2_4@npm:@metalabsog/farm@17.2.4":
+  version: 17.2.4
+  resolution: "@metalabsog/farm@npm:17.2.4::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40MetaLabsOG%2Ffarm%2F17.2.4%2F589bab54db25afd0dc351c9ecd78865b4457b3a1"
+  dependencies:
+    "@metalabsog/common": "npm:^17.0.0"
+    "@reach-sh/stdlib": "npm:0.1.11-rc.0"
+    bent: "npm:^7.3.12"
+    inquirer: "npm:^8.2.1"
+    loglevel: "npm:^1.8.0"
+  checksum: 28101655baf739854362a17f3c447f247d0b5e06c058ce8674e6bf6fa6705e4b17dba5b09b634b04823b982f6d89e25522388bccb54cceee642f8fbf50fb5905
+  languageName: node
+  linkType: hard
+
+"metalabs-farm-17_2_5@npm:@metalabsog/farm@17.2.5":
+  version: 17.2.5
+  resolution: "@metalabsog/farm@npm:17.2.5::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40MetaLabsOG%2Ffarm%2F17.2.5%2F411ca89df1060be74b63805f01e443c00b40670c"
+  dependencies:
+    "@metalabsog/common": "npm:^17.0.0"
+    "@reach-sh/stdlib": "npm:0.1.11-rc.0"
+    bent: "npm:^7.3.12"
+    inquirer: "npm:^8.2.1"
+    loglevel: "npm:^1.8.0"
+  checksum: 5a25f74618f38e97d4967dcf47f53eb98cb682903eef4c3d26a5fd48f5ade0e0efce2de750f9164601d9e1eb80eb7bcb23de41d89c2dc85caa326989937a8e4f
+  languageName: node
+  linkType: hard
 
 "methods@npm:^1.1.2, methods@npm:~1.1.2":
   version: 1.1.2

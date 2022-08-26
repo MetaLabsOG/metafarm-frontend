@@ -70,18 +70,9 @@ export const formatLPTokenName = (name: string) => {
     return name.replace('TinymanPool1.1 ', '').replace('liquidity', '').replace('PACT LP Token', '').replace('/', '-');
 };
 
-export const algoRewardPerBlock = (initial: ContractState<FarmType>['initial']): Amount => {
-    if ('extraAlgoRewardPerBlock' in initial) {
-        return initial.extraAlgoRewardPerBlock;
-    }
-    return BigInt(0);
-};
-
 export const calculateAlgoReward = (initial: ContractState<FarmType>['initial'], tokenReward: Amount): Amount => {
-    const duration = BigInt(initial.endBlock - initial.beginBlock);
-    const totalTokenReward = initial.rewardPerBlock * duration;
-    const totalAlgoReward = algoRewardPerBlock(initial) * duration;
-    return (tokenReward * totalAlgoReward) / totalTokenReward;
+    const { totalRewardAmount, totalAlgoRewardAmount } = initial;
+    return (tokenReward * totalAlgoRewardAmount) / totalRewardAmount;
 };
 
 export const getPoolState = (currentBlock: number, initial: FarmInitialInfo | DistributionInitialInfo): PoolState => {
