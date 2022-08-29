@@ -18,7 +18,7 @@ import {
     RewardTokenValue,
 } from './styled';
 import { APRTypes } from './PoolInfo';
-import { algoRewardPerBlock, calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
+import { calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
 
 export interface PoolInfoDesktopProps {
     account: Account | null;
@@ -61,7 +61,7 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedA
             <RewardTokenValue>
                 {numberRound(fromSmallestUnits(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
             </RewardTokenValue>
-            {algoRewardPerBlock(contractState.initial) && (
+            {contractState.initial.totalAlgoRewardAmount && (
                 <RewardTokenValue>{numberRound(fromSmallestUnits(pricedAlgo, algoReward))} ALGO</RewardTokenValue>
             )}
         </>
@@ -109,11 +109,11 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     dexIcon={dexIcon}
                     lock={contractLockSuffix}
                     isVerified={isVerified}
-                    algoRewards={algoRewardPerBlock(contractState.initial) > 0}
+                    algoRewards={contractState.initial.totalAlgoRewardAmount > 0}
                 />
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH.TVL}>{`$${numberRound(
-                convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)) // VIRTUAL STAKE!
+                convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked)
             )}`}</PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH.APR}>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>

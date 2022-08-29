@@ -3,6 +3,7 @@ import SelectSearch, { fuzzySearch } from 'react-select-search';
 import { formatNumber } from '../../common/lib';
 import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
 import { getDexName } from '../../Farm/utils';
+import tokenPlaceholder from '../../imgs/tokenPlaceholder.svg';
 import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
 import './styled.css';
 
@@ -70,8 +71,25 @@ function PoolOption({ option }: { option: PoolOptionType }) {
     return (
         <>
             <div className="lpIcons">
-                <img className="lpIcon" alt="" src={getAssetLogoUrl(option.asset1)} />
-                <img className="lpIcon" style={{ left: '16px' }} alt="" src={getAssetLogoUrl(option.asset2)} />
+                <img
+                    className="lpIcon"
+                    alt=""
+                    src={getAssetLogoUrl(option.asset1)}
+                    onError={({ currentTarget }) => {
+                        currentTarget.onerror = null; // prevents looping
+                        currentTarget.src = tokenPlaceholder;
+                    }}
+                />
+                <img
+                    className="lpIcon"
+                    style={{ left: '16px' }}
+                    alt=""
+                    src={getAssetLogoUrl(option.asset2)}
+                    onError={({ currentTarget }) => {
+                        currentTarget.onerror = null; // prevents looping
+                        currentTarget.src = tokenPlaceholder;
+                    }}
+                />
             </div>
             <div>
                 <div className="optionTitle">{option.name}</div>
@@ -149,12 +167,13 @@ function renderSelectedOption(valueProps, snapshot, selectType: SelectType) {
     );
 }
 
-export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange }) => {
+export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange, getOptions }) => {
     return (
         <SelectSearch
             search
             className="select-search select-search-basic"
             options={options}
+            getOptions={getOptions ? getOptions(selectedOption) : undefined}
             value={selectedOption.value}
             renderOption={(props, option) => renderOption(props, option, selectType)}
             renderValue={(props, snapshot) => renderSelectedOption(props, snapshot, selectType)}

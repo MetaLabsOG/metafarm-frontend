@@ -26,12 +26,10 @@ export const DateInput = styled.input`
     border-radius: 8px;
 `;
 
-export const PoolCreateModalContainer = styled.div`
+export const AddFarmRow = styled.div`
     display: flex;
-    margin-right: auto;
-
-    @media (max-width: 1120px) {
-        margin-right: 0;
-        margin-bottom: 20px;
-    }
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+    align-items: center;
 `;

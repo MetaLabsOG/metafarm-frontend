@@ -11,4 +11,5 @@ export interface SelectProps {
     options: SelectOptionType[];
     selectedOption: SelectOptionType;
     selectOnChange: any;
+    getOptions?: (selectedOption: SelectOptionType) => (query: string) => Promise<SelectOptionType[]>;
 }

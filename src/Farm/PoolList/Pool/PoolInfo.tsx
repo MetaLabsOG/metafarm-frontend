@@ -78,11 +78,12 @@ const calculateAPR = (
 
     const blocksInAYear = (60 * 60 * 24 * 365) / meanRoundDuration;
     const stakePrice = stakeTokenInfo.price;
-    const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
-    const rewardPerBlock = fromSmallestUnits(rewardTokenInfo, contractState.initial.rewardPerBlock);
+    const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked);
 
-    const { extraAlgoRewardPerBlock } = contractState.initial as FarmInitialInfo;
-    const algoRewardPerBlock = extraAlgoRewardPerBlock ? fromSmallestUnits(ALGO_ASSET, extraAlgoRewardPerBlock) : 0;
+    const { beginBlock, endBlock, totalRewardAmount, totalAlgoRewardAmount } = contractState.initial;
+
+    const rewardPerBlock = fromSmallestUnits(rewardTokenInfo, totalRewardAmount) / (endBlock - beginBlock);
+    const algoRewardPerBlock = fromSmallestUnits(ALGO_ASSET, totalAlgoRewardAmount) / (endBlock - beginBlock);
 
     const totalStakedUSD = totalStaked * stakePrice;
     const rewardAPR = totalStakedUSD

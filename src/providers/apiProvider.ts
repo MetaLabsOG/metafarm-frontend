@@ -125,14 +125,19 @@ export const deployContractToBackend = async (
     contractId: number,
     contractType: ContractType,
     farmName: string,
-    dex: DexProvider
+    dex: DexProvider,
+    contractVersion?: string
 ) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    const contractVersion = packages.dependencies['@metalabsog/' + contractType] as string;
+    if (!contractVersion) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        contractVersion = packages.dependencies['@metalabsog/' + contractType] as string;
+    }
+
     if (!contractVersion) {
         throw new Error('Wrong contract type:' + contractType);
     }
+
     const request: AddContractType = {
         type: contractType,
         id: contractId,
@@ -142,17 +147,8 @@ export const deployContractToBackend = async (
             dex,
         },
     };
-    try {
-        await instance.post('/contract/register', request);
-        return true;
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error('error message:', error.message);
-        } else {
-            console.error('unexpected error:', error);
-        }
-        return false;
-    }
+    console.log('/contract/register', request);
+    await instance.post('/contract/register', request);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types
