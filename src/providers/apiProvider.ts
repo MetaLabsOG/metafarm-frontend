@@ -125,14 +125,19 @@ export const deployContractToBackend = async (
     contractId: number,
     contractType: ContractType,
     farmName: string,
-    dex: DexProvider
+    dex: DexProvider,
+    contractVersion?: string
 ) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    const contractVersion = packages.dependencies['@metalabsog/' + contractType] as string;
+    if (!contractVersion) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        contractVersion = packages.dependencies['@metalabsog/' + contractType] as string;
+    }
+
     if (!contractVersion) {
         throw new Error('Wrong contract type:' + contractType);
     }
+
     const request: AddContractType = {
         type: contractType,
         id: contractId,
