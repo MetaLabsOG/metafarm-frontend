@@ -5,6 +5,7 @@ import { AssetId, ContractType } from '../common/store/types';
 import { ALGONET } from '../AppContext';
 import { nonConcurrent } from '../common/store/utils';
 import { DexProvider } from '../dexes/common';
+import { logEvent, LogName } from '../logEvent';
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -122,6 +123,7 @@ type AddContractType = {
 };
 
 export const deployContractToBackend = async (
+    accountAddress: string,
     contractId: number,
     contractType: ContractType,
     farmName: string,
@@ -148,6 +150,12 @@ export const deployContractToBackend = async (
         },
     };
     console.log('/contract/register', request);
+    logEvent(
+        accountAddress,
+        { status: '[ADDFARM DEPLOY]', contractId: Number(contractId), params: JSON.stringify(request) },
+        LogName.ADDFARM
+    );
+
     await instance.post('/contract/register', request);
 };
 

@@ -56,12 +56,6 @@ const checkFarmParams = (
         return false;
     }
 
-    // TODO: remove it
-    if (rewardToken.decimals === 0) {
-        notify("We'll support reward tokens with 0 decimals next week.", 'warning');
-        return false;
-    }
-
     if (Number.isNaN(beginBlock) || beginBlock >= endBlock) {
         notify('Please, choose start time and farm duration.', 'warning');
         return false;
@@ -135,6 +129,7 @@ const createFarm = async (
 
         const deployToBackendWithBackoffFun = expBackoff(async () =>
             deployContractToBackend(
+                account.networkAccount.addr,
                 Number(contractId),
                 'farm',
                 stakeToken.name,
