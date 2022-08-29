@@ -2,9 +2,8 @@
 // @ts-expect-error
 import { backend as distributionBackend } from '@metalabsog/distribution';
 import { combine, Store } from 'effector';
-import { buildContractsStore, registerPricedAsset, $networkTime, $pricedAssets } from '../common/store';
+import { buildContractsStore, registerPricedAsset, $networkTime, $pricedAssets, Contract } from '../common/store';
 import {
-    sortPoolsOnStatus,
     $stakePools,
     $farmStakeTokens,
     projectContracts,
@@ -13,6 +12,8 @@ import {
     PoolDollarInfo,
     createDollarInfos,
     createAprs,
+    PoolWithStats,
+    createSortedPoolsWithStats,
 } from '../Farm/store';
 
 const { $contracts, $contractStatesWithCache, setContractInfos } = buildContractsStore(
@@ -23,11 +24,10 @@ const { $contracts, $contractStatesWithCache, setContractInfos } = buildContract
 export const $distributionPools = combine($contracts, $networkTime, projectContracts);
 export const setDistributionPoolInfos = setContractInfos;
 
-export const $sortedStakingPools = combine(
-    $networkTime,
-    $stakePools,
-    $distributionPools,
-    (networkTime, stakePools, distrPools) => sortPoolsOnStatus({ networkTime, pools: [...stakePools, ...distrPools] })
+export const $allStakePools = combine(
+    { stakePools: $stakePools, distributionPools: $distributionPools },
+    ({ stakePools, distributionPools }) =>
+        [...stakePools, ...distributionPools] as Array<Contract<'farm' | 'distribution'>>
 );
 
 $contractStatesWithCache.watch((states) =>
@@ -42,7 +42,31 @@ export const $distributedTokens = combine($pricedAssets, $contractStatesWithCach
 
 export const $stakingTokens = combine($distributedTokens, $farmStakeTokens, (distr, farm) => distr.merge(farm));
 
-export const $distributionPoolDollarInfos: Store<PoolDollarInfo[]> = createDollarInfos($sortedStakingPools);
+export const $distributionPoolDollarInfos: Store<PoolDollarInfo[]> = createDollarInfos($allStakePools);
 export const $distributionPoolAggregates: Store<PoolAggregates> = createAggregates($distributionPoolDollarInfos);
 
-export const $stakeAprs = createAprs($sortedStakingPools, $stakingTokens);
+export const $stakeAprs = createAprs($allStakePools, $stakingTokens);
+
+export const $stakePoolsWithStats = combine(
+    {
+        pools: $allStakePools,
+        aprs: $stakeAprs,
+        dollarInfos: $distributionPoolDollarInfos,
+    },
+    ({ pools, aprs, dollarInfos }) => {
+        if (pools.length !== aprs.length || pools.length !== dollarInfos.length) {
+            return [];
+        }
+        return [...Array(pools.length).keys()].map((i) => {
+            const element: PoolWithStats = {
+                pool: pools[i],
+                apr: aprs[i],
+                dollarInfo: dollarInfos[i],
+            };
+            return element;
+        });
+    }
+);
+
+export const { sortPoolBy: sortStakePoolBy, $sortedPoolsWithStats: $sortedStakePoolsWithStats } =
+    createSortedPoolsWithStats($stakePoolsWithStats);

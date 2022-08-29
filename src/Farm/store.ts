@@ -2,8 +2,9 @@
 // @ts-expect-error
 import { backend as farmBackend } from '@metalabsog/farm';
 import { Map, Set } from 'immutable';
-import { createEffect, createStore, sample, combine, Store } from 'effector';
-import { groupBy, min, values, zip, zipWith } from 'ramda';
+import { createEffect, createStore, sample, combine, Store, createEvent } from 'effector';
+import { groupBy, KeyValuePair, min, sortBy, sortWith, values, zip, zipWith } from 'ramda';
+import * as R from 'ramda';
 import {
     Asset,
     AssetId,
@@ -122,33 +123,20 @@ const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpda
     farmBackend as Backend
 );
 
+enum SortBy {
+    Name,
+    Tvl,
+    Apr,
+    Stake,
+    Reward,
+    Ends,
+}
+
 export const $pools = combine($contracts, $networkTime, projectContracts);
 export const $farmPools = $pools.map((pools) => pools.filter((pool) => Boolean(pool.info.metadata.dex)));
 export const $stakePools = $pools.map((pools) => pools.filter((pool) => !pool.info.metadata.dex));
 export const setPoolInfos = setContractInfos;
 export const triggerPoolUpdate = triggerStateUpdate;
-
-// TODO NEED REFACTOR (quick solution)
-export const sortPoolsOnStatus = ({
-    networkTime,
-    pools,
-}: {
-    networkTime: number;
-    pools: Array<Contract<FarmType>>;
-}) => {
-    const groupedByStatus = groupBy(function (pool: Contract<FarmType>) {
-        if (pool.state) {
-            const { initial } = pool.state;
-            return networkTime < initial.beginBlock ? '2' : networkTime > initial.endBlock ? '3' : '1';
-        }
-        return 'null';
-    });
-    return values(groupedByStatus(pools)).flat();
-};
-
-export const $sortedFarmPools = combine($networkTime, $farmPools, (networkTime, pools) =>
-    sortPoolsOnStatus({ networkTime, pools })
-);
 
 // LP token info store
 type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
@@ -368,4 +356,78 @@ export function createAprs<T extends FarmType>(
     );
 }
 
-export const $farmAprs = createAprs($sortedFarmPools, $farmStakeTokens);
+export const $farmAprs = createAprs($farmPools, $farmStakeTokens);
+
+export type PoolWithStats = {
+    pool: Contract<FarmType>;
+    apr: AprType;
+    dollarInfo: PoolDollarInfo;
+};
+
+export const $farmsWithStats = combine(
+    {
+        pools: $farmPools,
+        aprs: $farmAprs,
+        dollarInfos: $farmPoolDollarInfos,
+    },
+    ({ pools, aprs, dollarInfos }) => {
+        if (pools.length !== aprs.length || pools.length !== dollarInfos.length) {
+            return [];
+        }
+        return [...Array(pools.length).keys()].map((i) => {
+            const element: PoolWithStats = {
+                pool: pools[i],
+                apr: aprs[i],
+                dollarInfo: dollarInfos[i],
+            };
+            return element;
+        });
+    }
+);
+
+export const createSortedPoolsWithStats = ($source: Store<PoolWithStats[]>, defaultSorting = SortBy.Apr) => {
+    const sortPoolBy = createEvent<SortBy>();
+    const $sortedPoolsWithStats = createStore<PoolWithStats[]>([]);
+
+    sample({
+        clock: sortPoolBy,
+        source: $source,
+        fn(farmsWithStats, sortType) {
+            console.log('sorting from', $source.shortName);
+            let orderBy: (p: PoolWithStats) => any;
+            switch (sortType) {
+                case SortBy.Name:
+                    orderBy = (p) => p.pool.info.description ?? '';
+                    break;
+                case SortBy.Ends:
+                    orderBy = (p) => p.pool.state?.initial?.endBlock ?? 1e9;
+                    break;
+                case SortBy.Tvl:
+                    orderBy = (p) => p.dollarInfo.tvl;
+                    break;
+                case SortBy.Reward:
+                    orderBy = (p) => p.dollarInfo.pendingReward;
+                    break;
+                case SortBy.Stake:
+                    orderBy = (p) => p.dollarInfo.userStake;
+                    break;
+                case SortBy.Apr:
+                    orderBy = (p) => p.apr.total;
+                    break;
+                default:
+                    throw new Error(`Unsupported sort type, please make 'switch' exhaustive`);
+            }
+            return sortBy(orderBy, farmsWithStats);
+        },
+        target: $sortedPoolsWithStats,
+    });
+
+    sortPoolBy(defaultSorting);
+
+    return {
+        sortPoolBy,
+        $sortedPoolsWithStats,
+    };
+};
+
+export const { sortPoolBy, $sortedPoolsWithStats } = createSortedPoolsWithStats($farmsWithStats);
