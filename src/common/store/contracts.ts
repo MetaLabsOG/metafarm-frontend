@@ -2,7 +2,6 @@ import { Map } from 'immutable';
 import { combine, createEffect, createEvent, createStore, sample, Store, Event, Effect } from 'effector';
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
-import { algod } from '../../AppContext';
 import { maybeToNullable } from '../lib';
 import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
@@ -127,12 +126,38 @@ export type ContractsStoreVars<T extends ContractType> = {
 };
 
 /**
+ * Type guard to see if object is really a Backend
+ * @param backend Backend to check
+ */
+function isBackend(backend: Backend | any): backend is Backend {
+    return '_Connectors' in backend;
+}
+
+/**
  * Creates a store for the array of contracts of a given type.
  * @param type Contract type
  * @param backend Reach contract backend
  * @returns Relevant stores and events
  */
-export function buildContractsStore<T extends ContractType>(type: T, backend: Backend): ContractsStoreVars<T> {
+export function buildContractsStore<T extends ContractType>(
+    type: T,
+    backend: Backend | Record<string, Backend>
+): ContractsStoreVars<T> {
+    const getBackendVersion = (v: string): Backend => {
+        // fix stupid bug around version number in add farm previously
+        if (v.startsWith('^')) {
+            v = v.substring(1);
+        }
+
+        if (isBackend(backend)) {
+            return backend;
+        } else if (v in backend) {
+            return backend[v];
+        } else {
+            throw new Error(`Unknown backend version ${v} for ${type} contract`);
+        }
+    };
+
     const $contractInfos = createStore<Array<ContractInfo<T>>>([]);
     const $contractStates = createStore(Map<AppId, ContractState<T>>());
     const $contractCtcs = createStore(Map<AppId, any>());
@@ -167,7 +192,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
     const setContractInfos = createEvent<Array<ContractInfo<T>>>();
     $contractInfos.on(setContractInfos, (_, infos) => infos);
 
-    const initializeContract = createEvent<AppId>();
+    const initializeContract = createEvent<{ id: AppId; version: string }>();
     const triggerStateUpdate = createEvent<AppId>();
 
     // Keep it simple stupid without separation between views (for now)
@@ -195,9 +220,9 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
         clock: initializeContract,
         source: $account,
         filter: (account, _) => account !== null,
-        fn: (account, contractId): [AppId, ReachContract] => [
-            contractId,
-            makeWrappedCtc(type, account, backend, contractId, async (id) => {
+        fn: (account, { id, version }): [AppId, ReachContract] => [
+            id,
+            makeWrappedCtc(type, account, getBackendVersion(version), id, async (id) => {
                 triggerStateUpdate(id);
                 refreshAccountInfo();
 
@@ -244,11 +269,16 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
 
     $contractStates.on(contractStateUpdated, (states, { id, state }) => states.set(id, state));
 
-    const $contractIds = $contractInfos.map((infos) => infos.map((i) => i.id));
+    const $contractIdsAndVersions = $contractInfos.map((infos) =>
+        infos.map(({ id, version }) => ({
+            id,
+            version,
+        }))
+    );
 
-    combine({ account: $account, ids: $contractIds }).watch(({ ids }) => {
-        for (const id of ids) {
-            initializeContract(id);
+    combine({ account: $account, idsAndVersions: $contractIdsAndVersions }).watch(({ idsAndVersions }) => {
+        for (const idVersion of idsAndVersions) {
+            initializeContract(idVersion);
         }
     });
 

@@ -1,6 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import { backend as distributionBackend } from '@metalabsog/distribution';
+// @ts-expect-error No provided type bindings in contracts package
+import { backend as distribution_17_0_4 } from 'metalabs-distribution-17_0_4';
+// @ts-expect-error No provided type bindings in contracts package
+import { backend as distribution_17_0_5 } from 'metalabs-distribution-17_0_5';
+
 import { combine, Store } from 'effector';
 import { buildContractsStore, registerPricedAsset, $networkTime, $pricedAssets, Contract } from '../common/store';
 import {
@@ -16,9 +18,14 @@ import {
     createSortedPoolsWithStats,
 } from '../Farm/store';
 
+const DISTRIBUTION_BACKENDS = {
+    '17.0.4': distribution_17_0_4,
+    '17.0.5': distribution_17_0_5,
+};
+
 const { $contracts, $contractStatesWithCache, setContractInfos } = buildContractsStore(
     'distribution',
-    distributionBackend
+    DISTRIBUTION_BACKENDS
 );
 
 export const $distributionPools = combine($contracts, $networkTime, projectContracts);

@@ -22,6 +22,15 @@ export type AllDefined<T> = {
     [Property in keyof T]-?: T[Property];
 };
 
+/**
+ * Substitutes one type for another recursively in T
+ */
+export type SubstituteType<T, A, B> = T extends A
+    ? B
+    : T extends Record<string, unknown>
+    ? { [K in keyof T]: SubstituteType<T[K], A, B> }
+    : T;
+
 export type WalletTransactionGroup = {
     firstTxID: string;
     txns: WalletTransaction[];

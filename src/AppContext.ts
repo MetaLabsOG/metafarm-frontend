@@ -50,3 +50,4 @@ console.log('Is mobile:', IS_MOBILE);
 export const FOMO_APP_ID = process.env.REACT_APP_FOMO_ID;
 export const FARM_BENEFICIARY_ADDR = process.env.REACT_APP_BENEFICIARY_ADDR;
 export const FARM_CREATION_FEE = process.env.REACT_APP_FARM_CREATION_FEE;
+export const FARM_FLAT_ALGO_CREATION_FEE = process.env.REACT_APP_FARM_FLAT_ALGO_CREATION_FEE;

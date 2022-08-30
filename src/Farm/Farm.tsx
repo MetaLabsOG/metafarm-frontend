@@ -32,7 +32,6 @@ export const InfoCards = () => {
 export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
         <Balance kind={'farm' as FarmType} />
-        {/* <PoolCreateModal /> */}
         <PoolList pools={state} />
         <InfoCards />
     </FarmContainer>
