@@ -13,7 +13,7 @@ import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolLoadingAnimation } from './styled';
 import { getPoolState } from './utils';
 
-export function Pool({ pws, index }: { pws: PoolWithStats; index: number }) {
+export function Pool({ pws }: { pws: PoolWithStats }) {
     const contract = pws.pool;
     const currentBlock = useUnit($networkTime);
     const pricedAlgo = useUnit($pricedAlgo);
@@ -63,7 +63,6 @@ export function Pool({ pws, index }: { pws: PoolWithStats; index: number }) {
                     onClick={onPoolClick}
                 >
                     <PoolInfo
-                        index={index}
                         isOpen={isOpen}
                         contractState={contract.state}
                         poolState={poolState}
@@ -72,6 +71,7 @@ export function Pool({ pws, index }: { pws: PoolWithStats; index: number }) {
                         currentBlock={currentBlock}
                         pricedAlgo={pricedAlgo}
                         poolMetadata={contract.info.metadata}
+                        apr={pws.apr}
                     />
                 </div>
                 {contract.ctc !== null && hasLocalState(contract.state) && isOpen && (

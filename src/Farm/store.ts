@@ -3,9 +3,8 @@ import { backend as farmBackend_17_2_4 } from 'metalabs-farm-17_2_4';
 // @ts-expect-error No provided type bindings in contracts package
 import { backend as farmBackend_17_2_5 } from 'metalabs-farm-17_2_5';
 import { Map, Set } from 'immutable';
-import { createEffect, createStore, sample, combine, Store, createEvent } from 'effector';
-import { groupBy, KeyValuePair, min, sortBy, sortWith, values, zip, zipWith } from 'ramda';
-import * as R from 'ramda';
+import { createEffect, createStore, sample, combine, Store, createEvent, restore } from 'effector';
+import { ascend, descend, min, Ord, sort, zip, zipWith } from 'ramda';
 import {
     Asset,
     AssetId,
@@ -27,7 +26,6 @@ import {
     FarmType,
     hasLocalState,
     Time,
-    FarmInitialInfo,
     $meanRoundDuration,
 } from '../common/store';
 import { AllDefined, Backend } from '../types';
@@ -129,7 +127,7 @@ const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpda
     FARM_BACKENDS
 );
 
-enum SortBy {
+export enum SortType {
     Name,
     Tvl,
     Apr,
@@ -137,6 +135,11 @@ enum SortBy {
     Reward,
     Ends,
 }
+
+export type SortBy = {
+    type: SortType;
+    asc: boolean;
+};
 
 export const $pools = combine($contracts, $networkTime, projectContracts);
 export const $farmPools = $pools.map((pools) => pools.filter((pool) => Boolean(pool.info.metadata.dex)));
@@ -239,12 +242,7 @@ export function createDollarInfos<T extends FarmType>($pools: Store<Array<Contra
         (states, lpTokens, tokens) => {
             const getToken = (s: ContractState<T>) => ('token' in s.initial ? s.initial.token : s.initial.stakeToken);
             const allTokens = tokens.merge(lpTokens);
-            const tvls = getDollarInfo(
-                states,
-                allTokens,
-                (s) => s.global.totalStaked,
-                getToken
-            );
+            const tvls = getDollarInfo(states, allTokens, (s) => s.global.totalStaked, getToken);
             const userStakes: number[] = getDollarInfo(states, allTokens, (s) => s.local?.staked, getToken);
             const pendingRewards = states.map((state) => {
                 const token = 'token' in state.initial ? state.initial.token : state.initial.rewardToken;
@@ -333,9 +331,11 @@ export function createAprs<T extends FarmType>(
                     const blocksInAYear = YEAR / meanRoundDuration;
                     const stakePrice = stakeTokenInfo.price;
                     const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
-                    const rewardPerBlock = fromSmallestUnits(rewardTokenInfo, contractState.initial.rewardPerBlock);
+                    const { totalRewardAmount, totalAlgoRewardAmount, beginBlock, endBlock } = contractState.initial;
+                    const totalBlocks = BigInt(endBlock - beginBlock);
+                    const rewardPerBlock = fromSmallestUnits(rewardTokenInfo, totalRewardAmount / totalBlocks);
 
-                    const { extraAlgoRewardPerBlock } = contractState.initial as FarmInitialInfo;
+                    const extraAlgoRewardPerBlock = totalAlgoRewardAmount / totalBlocks;
                     const algoRewardPerBlock = extraAlgoRewardPerBlock
                         ? fromSmallestUnits(ALGO_ASSET, extraAlgoRewardPerBlock)
                         : 0;
@@ -370,13 +370,12 @@ export type PoolWithStats = {
     dollarInfo: PoolDollarInfo;
 };
 
-export const $farmsWithStats = combine(
-    {
-        pools: $farmPools,
-        aprs: $farmAprs,
-        dollarInfos: $farmPoolDollarInfos,
-    },
-    ({ pools, aprs, dollarInfos }) => {
+export const combinePoolsWithInfo = <T extends FarmType>(
+    pools: Store<Array<Contract<T>>>,
+    aprs: Store<AprType[]>,
+    dollarInfos: Store<PoolDollarInfo[]>
+) =>
+    combine({ pools, aprs, dollarInfos }, ({ pools, aprs, dollarInfos }) => {
         if (pools.length !== aprs.length || pools.length !== dollarInfos.length) {
             return [];
         }
@@ -388,52 +387,42 @@ export const $farmsWithStats = combine(
             };
             return element;
         });
-    }
-);
-
-export const createSortedPoolsWithStats = ($source: Store<PoolWithStats[]>, defaultSorting = SortBy.Apr) => {
-    const sortPoolBy = createEvent<SortBy>();
-    const $sortedPoolsWithStats = createStore<PoolWithStats[]>([]);
-
-    sample({
-        clock: sortPoolBy,
-        source: $source,
-        fn(farmsWithStats, sortType) {
-            console.log('sorting from', $source.shortName);
-            let orderBy: (p: PoolWithStats) => any;
-            switch (sortType) {
-                case SortBy.Name:
-                    orderBy = (p) => p.pool.info.description ?? '';
-                    break;
-                case SortBy.Ends:
-                    orderBy = (p) => p.pool.state?.initial?.endBlock ?? 1e9;
-                    break;
-                case SortBy.Tvl:
-                    orderBy = (p) => p.dollarInfo.tvl;
-                    break;
-                case SortBy.Reward:
-                    orderBy = (p) => p.dollarInfo.pendingReward;
-                    break;
-                case SortBy.Stake:
-                    orderBy = (p) => p.dollarInfo.userStake;
-                    break;
-                case SortBy.Apr:
-                    orderBy = (p) => p.apr.total;
-                    break;
-                default:
-                    throw new Error(`Unsupported sort type, please make 'switch' exhaustive`);
-            }
-            return sortBy(orderBy, farmsWithStats);
-        },
-        target: $sortedPoolsWithStats,
     });
 
-    sortPoolBy(defaultSorting);
+export const $farmsWithStats = combinePoolsWithInfo($farmPools, $farmAprs, $farmPoolDollarInfos);
 
-    return {
-        sortPoolBy,
-        $sortedPoolsWithStats,
-    };
+export const sortPools = createEvent<SortBy>();
+const $sortOrder = restore(sortPools, { type: SortType.Tvl, asc: false });
+
+export const createSortedPoolsWithStats = ($source: Store<PoolWithStats[]>) => {
+    return combine($source, $sortOrder, (farmsWithStats, sortType) => {
+        let orderBy: (p: PoolWithStats) => Ord;
+        switch (sortType.type) {
+            case SortType.Name:
+                orderBy = (p) => p.pool.info.description ?? '';
+                break;
+            case SortType.Ends:
+                orderBy = (p) => p.pool.state?.initial?.endBlock ?? 1e9;
+                break;
+            case SortType.Tvl:
+                orderBy = (p) => p.dollarInfo.tvl;
+                break;
+            case SortType.Reward:
+                orderBy = (p) => p.dollarInfo.pendingReward;
+                break;
+            case SortType.Stake:
+                orderBy = (p) => p.dollarInfo.userStake;
+                break;
+            case SortType.Apr:
+                orderBy = (p) => Math.floor(p.apr.total);
+                break;
+            default:
+                throw new Error(`Unsupported sort type, please make 'switch' exhaustive`);
+        }
+
+        const ord = sortType.asc ? ascend : descend;
+        return sort(ord(orderBy), farmsWithStats);
+    });
 };
 
-export const { sortPoolBy, $sortedPoolsWithStats } = createSortedPoolsWithStats($farmsWithStats);
+export const $sortedPoolsWithStats = createSortedPoolsWithStats($farmsWithStats);

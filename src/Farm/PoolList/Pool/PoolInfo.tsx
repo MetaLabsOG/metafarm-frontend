@@ -3,7 +3,7 @@ import { $account, $meanRoundDuration, Asset, ContractState, FarmType, Priced, T
 import { LPTokenInfo } from '../../../dexes';
 import { DAY, HOUR, MINUTE } from '../../../common/lib';
 import { getDexIcon } from '../../utils';
-import { $farmAprs } from '../../store';
+import { $farmAprs, AprType } from '../../store';
 import { $stakeAprs } from '../../../Stake/store';
 import { formatLPTokenName, isLPTokenInfo } from './utils';
 import { PoolState } from './types';
@@ -44,7 +44,6 @@ const calculateTiming = (
 };
 
 export function PoolInfo({
-    index,
     contractState,
     poolState,
     stakeTokenInfo,
@@ -53,8 +52,8 @@ export function PoolInfo({
     pricedAlgo,
     isOpen,
     poolMetadata,
+    apr,
 }: {
-    index: number;
     contractState: ContractState<FarmType>;
     poolState: PoolState;
     stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>;
@@ -64,12 +63,12 @@ export function PoolInfo({
     isOpen: boolean;
     // TODO something is fishy with the type here
     poolMetadata: any;
+    apr: AprType;
 }) {
     const isFarm = isLPTokenInfo(stakeTokenInfo);
     const account = useUnit($account);
     const meanRoundDuration = useUnit($meanRoundDuration);
     const { endBlock, beginBlock } = contractState.initial;
-    const APR = useUnit(isFarm ? $farmAprs : $stakeAprs)[index];
 
     const timing = calculateTiming(poolState, currentBlock, beginBlock, endBlock, meanRoundDuration);
 
@@ -93,7 +92,7 @@ export function PoolInfo({
             asset1_id={asset1_id}
             asset2_id={asset2_id}
             pool_name={pool_name}
-            APR={APR}
+            APR={apr}
             timing={timing}
             contractLockSuffix={contractLockSuffix}
             isOpen={isOpen}
@@ -110,7 +109,7 @@ export function PoolInfo({
             asset1_id={asset1_id}
             asset2_id={asset2_id}
             pool_name={pool_name}
-            APR={APR}
+            APR={apr}
             timing={timing}
             contractLockSuffix={contractLockSuffix}
             isOpen={isOpen}

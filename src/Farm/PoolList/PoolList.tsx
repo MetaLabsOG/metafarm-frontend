@@ -1,5 +1,6 @@
+import { useUnit } from 'effector-react';
 import { Contract, FarmType } from '../../common/store';
-import { PoolWithStats } from '../store';
+import { PoolWithStats, SortBy, sortPools, SortType } from '../store';
 import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
 import { Pool } from './Pool';
 
@@ -12,8 +13,9 @@ export const POOL_COLUMN_WIDTH: Record<string, string> = {
     'ENDS IN': '120px',
 };
 
-export function PoolList<T extends FarmType>({ pools }: { pools: PoolWithStats[] }) {
-    const poolComponents = pools.map((pws: PoolWithStats, index) => <Pool key={pws.pool.id} index={index} pws={pws} />);
+export function PoolList({ pools }: { pools: PoolWithStats[] }) {
+    const poolComponents = pools.map((pws: PoolWithStats) => <Pool key={pws.pool.id} pws={pws} />);
+    const sortEvent = useUnit(sortPools);
 
     return (
         <PoolListContainer>

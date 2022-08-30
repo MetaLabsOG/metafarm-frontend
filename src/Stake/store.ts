@@ -16,6 +16,7 @@ import {
     createAprs,
     PoolWithStats,
     createSortedPoolsWithStats,
+    combinePoolsWithInfo,
 } from '../Farm/store';
 
 const DISTRIBUTION_BACKENDS = {
@@ -54,26 +55,6 @@ export const $distributionPoolAggregates: Store<PoolAggregates> = createAggregat
 
 export const $stakeAprs = createAprs($allStakePools, $stakingTokens);
 
-export const $stakePoolsWithStats = combine(
-    {
-        pools: $allStakePools,
-        aprs: $stakeAprs,
-        dollarInfos: $distributionPoolDollarInfos,
-    },
-    ({ pools, aprs, dollarInfos }) => {
-        if (pools.length !== aprs.length || pools.length !== dollarInfos.length) {
-            return [];
-        }
-        return [...Array(pools.length).keys()].map((i) => {
-            const element: PoolWithStats = {
-                pool: pools[i],
-                apr: aprs[i],
-                dollarInfo: dollarInfos[i],
-            };
-            return element;
-        });
-    }
-);
+export const $stakePoolsWithStats = combinePoolsWithInfo($allStakePools, $stakeAprs, $distributionPoolDollarInfos);
 
-export const { sortPoolBy: sortStakePoolBy, $sortedPoolsWithStats: $sortedStakePoolsWithStats } =
-    createSortedPoolsWithStats($stakePoolsWithStats);
+export const $sortedStakePoolsWithStats = createSortedPoolsWithStats($stakePoolsWithStats);

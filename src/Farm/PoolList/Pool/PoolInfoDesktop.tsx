@@ -19,7 +19,7 @@ import {
     RewardUSDValue,
     RewardTokenValue,
 } from './styled';
-import { algoRewardPerBlock, calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
+import { calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
 export interface PoolInfoDesktopProps {
     account: Account | null;
     pricedAlgo: Priced<Asset>;
