@@ -1,11 +1,12 @@
 import { LPTokenInfo, makeDex, ZapQuote } from '../../../dexes';
-import { ALGO_ASSET, Asset, Priced, refreshAccountInfo } from '../../../common/store';
+import { ALGO_ASSET, Amount, Asset, Priced, refreshAccountInfo } from '../../../common/store';
 import { fromSmallestUnits } from '../../../common/lib';
 import { QueryType, runTransactions, SLIPPAGE } from '../../../Swap/Swap';
 import { Account, Contract, ViewVal } from '../../../types';
 import { logFarmActionData } from '../../../logEvent';
 import { notify } from '../../../Components/Notification';
 import { reach } from '../../../AppContext';
+import { convertAmountToUSD } from './utils';
 
 export const isCompoundEnabled = (lpTokenInfo: LPTokenInfo, reward_asset_id: number) => {
     if (lpTokenInfo.poolDex !== 'T2' && lpTokenInfo.poolDex !== 'PT') {
@@ -18,7 +19,8 @@ export const runCompound = async (
     account: Account,
     ctc: Contract,
     lpTokenInfo: LPTokenInfo,
-    rewardAsset: Priced<Asset>
+    rewardAsset: Priced<Asset>,
+    claimRewards: Amount
 ) => {
     const rewardAssetId = rewardAsset.id;
     const asset1Id = lpTokenInfo.asset1;
@@ -27,6 +29,10 @@ export const runCompound = async (
     console.log('COMPOUND', asset1Id, asset2Id, rewardAssetId);
     if (!isCompoundEnabled(lpTokenInfo, rewardAssetId)) {
         notify('Different assets for compound.', 'error');
+        return;
+    }
+    if (convertAmountToUSD(rewardAsset, claimRewards) < 0.01) {
+        notify('The compound is available for more than 0.01$ rewards.', 'error');
         return;
     }
     const firstAsset = asset1Id === rewardAssetId ? asset1Id : asset2Id;

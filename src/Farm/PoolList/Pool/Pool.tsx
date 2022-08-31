@@ -88,6 +88,7 @@ export function Pool({ type, contract }: { type: FarmType; contract: Contract<Fa
                             setIsZapModalOpen={setIsOpen}
                             currentBlock={currentBlock}
                             contractId={contract.id}
+                            contractVersion={contract.info.version}
                             pricedAlgo={pricedAlgo}
                         />
                     </div>

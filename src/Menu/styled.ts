@@ -138,11 +138,11 @@ export const BurgerMenuContainer = styled.div`
 export const FooterContainer = styled.div`
     width: 100% !important;
     height: 70px;
-    display: flex;
     margin-top: 100px;
-    justify-content: space-between;
     background: var(--newDarkGray);
     padding: 15px 30px 15px 30px;
+    font-family: 'Montserrat', serif;
+    color: var(--lightGreen);
 `;
 
 export const FooterItem = styled.div`
@@ -154,5 +154,14 @@ export const FooterItem = styled.div`
 
     @media (max-width: 640px) {
         font-size: 10px;
+    }
+`;
+
+export const FooterLink = styled.a`
+    color: var(--lightGreen);
+    text-decoration: none;
+    :hover {
+        cursor: pointer;
+        color: var(--green);
     }
 `;

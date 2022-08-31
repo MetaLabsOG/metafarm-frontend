@@ -13,7 +13,7 @@ import { isCompoundEnabled, runCompound } from './compound';
 import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
-import { isLPTokenInfo } from './utils';
+import { convertAmountToUSD, isLPTokenInfo } from './utils';
 
 // NOTE: I will leave this function here in case we add more dexes and want to have fallback functionality
 // before zap support
@@ -42,6 +42,7 @@ export interface PoolActionsDesktopProps {
     unlockTimer: number;
     contractId: AppId;
     hasLock: boolean;
+    contractVersion: string;
 }
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
@@ -58,6 +59,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     unlockTimer,
     contractId,
     hasLock,
+    contractVersion,
 }) => {
     const account = useUnit($account);
 
@@ -70,6 +72,15 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                         buttonText="Get LP Tokens"
                         onClick={getLPTokenAction(stakedToken, openZapModal)}
                     />
+                )}
+                {!isLPTokenInfo(stakedToken) && canStake && (
+                    <a target="_blank" href={'https://app.cometa.farm/swap'} rel="noreferrer">
+                        <Button
+                            style={{ color: 'white' }}
+                            buttonText={'Get ' + stakedToken.unitName}
+                            onClick={() => {}}
+                        />
+                    </a>
                 )}
                 <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
                     <ContractLink>Сontract</ContractLink>
@@ -84,6 +95,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.stake}
                 hasLock={hasLock}
+                isAutoClaim={contractVersion.replace('^', '') === '17.2.4'}
             />
             <TokenInputWithButton
                 token={stakedToken}
@@ -93,6 +105,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.unstake}
                 hasLock={hasLock}
+                isAutoClaim={contractVersion.replace('^', '') === '17.2.4'}
             />
             <div>
                 <PacmanButton
@@ -115,7 +128,9 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                         buttonText="Compound"
                         buttonStyle="claim_button"
                         isInactive={!isActiveClaim}
-                        onClickAction={async () => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
+                        onClickAction={async () =>
+                            runCompound(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
+                        }
                     />
                 )}
         </PoolActionsDesktopContainer>

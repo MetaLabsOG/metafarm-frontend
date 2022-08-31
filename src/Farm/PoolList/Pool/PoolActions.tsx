@@ -57,6 +57,7 @@ export function PoolActions({
     setIsZapModalOpen,
     currentBlock,
     contractId,
+    contractVersion,
     pricedAlgo,
 }: {
     poolState: PoolState;
@@ -67,6 +68,7 @@ export function PoolActions({
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
     currentBlock: number;
     contractId: AppId;
+    contractVersion: string;
     pricedAlgo: Priced<Asset>;
 }) {
     const pendingClaim = useStore(ctc.apis.claim.pending);
@@ -114,6 +116,7 @@ export function PoolActions({
                     unlockTimer={unlockTimer}
                     contractId={contractId}
                     hasLock={hasLock}
+                    contractVersion={contractVersion}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -132,6 +135,7 @@ export function PoolActions({
                     unlockTimer={unlockTimer}
                     contractId={contractId}
                     hasLock={hasLock}
+                    contractVersion={contractVersion}
                 />
             )}
             {isLPTokenInfo(stakeTokenInfo) && (

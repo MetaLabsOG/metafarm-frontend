@@ -22,6 +22,7 @@ type useToastProps<ApiType> = {
     pendingStatus: boolean | unknown;
     action: ToastTypes;
     text?: string;
+    isAutoClaim?: boolean;
 };
 
 type ToastIds = {
@@ -30,7 +31,7 @@ type ToastIds = {
     [ToastTypes.claim]: Id | null;
 };
 
-export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<any>) => {
+export const useToasts = ({ api, pendingStatus, action, text, isAutoClaim }: useToastProps<any>) => {
     const [notificationText, setNotificationText] = useState(text ?? '');
 
     const [toastIds, setToastIds] = useState<ToastIds>({
@@ -42,7 +43,7 @@ export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<an
     useEffect(() => {
         if (pendingStatus && isNil(toastIds[action])) {
             const toastStakeId = toast.loading(
-                <Notification action={action} status="in progress" text={notificationText} />,
+                <Notification action={action} status="in progress" text={notificationText} isAutoClaim={isAutoClaim} />,
                 {
                     icon: <img style={{ width: '30px', height: '30px' }} alt="loader" src={pacman_grey} />,
                     closeButton: true,
@@ -74,8 +75,18 @@ export const useToasts = ({ api, pendingStatus, action, text }: useToastProps<an
     return setNotificationText;
 };
 
-function Notification({ action, status, text }: { action: ToastTypes; status: string; text: string }) {
-    const autoClaim = action == ToastTypes.withdraw || action == ToastTypes.stake ? 'AND AUTO-CLAIM ' : '';
+function Notification({
+    action,
+    status,
+    text,
+    isAutoClaim,
+}: {
+    action: ToastTypes;
+    status: string;
+    text: string;
+    isAutoClaim?: boolean;
+}) {
+    const autoClaim = isAutoClaim ? 'AND AUTO-CLAIM ' : '';
     return (
         <div style={{ marginLeft: '10px', fontFamily: 'Montserrat' }}>
             <div>
@@ -106,7 +117,7 @@ export const notify = (text: string, type: TypeOptions, link?: string) => {
         isLoading: false,
         autoClose: 5000,
         closeOnClick: true,
-        position: type === 'success' ? toast.POSITION.BOTTOM_RIGHT : toast.POSITION.TOP_CENTER,
+        position: type === 'success' || type == 'info' ? toast.POSITION.BOTTOM_RIGHT : toast.POSITION.TOP_CENTER,
         hideProgressBar: true,
         theme: type === 'success' ? 'colored' : 'light',
     });
