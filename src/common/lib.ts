@@ -205,7 +205,7 @@ export const signAndPostTxnGroups = async (
     }
 
     const postAndWait = async ({ id, stxns }: { id: string; stxns: string[] }) => {
-        await window.algorand.postTxns(stxns);
+        await window.algorand!.postTxns(stxns);
         const success = await withAlgodEncoding(algod, IntDecoding.DEFAULT, async (algod) => {
             return waitForConfirmation(algod, id, 3);
         });
