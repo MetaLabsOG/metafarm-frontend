@@ -41,8 +41,7 @@ export const doCustomWalletFallback = (
     const enableNetwork = async (eopts?: EnableOpts): Promise<EnableNetworkResult> => {
         p = makeProviderByEnv(_env);
         const { genesisID, genesisHash } = await p.algodClient.getTransactionParams().do();
-        const returnValue = { genesisID, genesisHash };
-        return returnValue;
+        return { genesisID, genesisHash };
     };
     const enableAccounts = async (eopts?: EnableAccountsOpts): Promise<EnableAccountsResult> => {
         const addr = await getAddr();

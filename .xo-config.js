@@ -53,8 +53,15 @@ module.exports = {
         '@typescript-eslint/no-implicit-any-catch': 'off',
         // Very arguable, not sure if everyone will like it
         'no-negated-condition': 'off',
+        // Because we use Immutable.js
+        'new-cap': [
+            'error',
+            {
+                capIsNewExceptions: ['Map', 'Set'],
+            },
+        ],
     },
-    plugins: ['effector'],
+    plugins: ['effector', 'sonarjs'],
     extends: [
         'xo-react',
         'plugin:react/jsx-runtime',
@@ -62,5 +69,6 @@ module.exports = {
         'plugin:effector/scope',
         'plugin:effector/react',
         'plugin:effector/future',
+        'plugin:sonarjs/recommended',
     ],
 };

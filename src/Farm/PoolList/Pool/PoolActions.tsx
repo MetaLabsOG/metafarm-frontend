@@ -71,6 +71,8 @@ export function PoolActions({
     contractVersion: string;
     pricedAlgo: Priced<Asset>;
 }) {
+    const isFarm = isLPTokenInfo(stakeTokenInfo);
+
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
     const unlockTime = calculateUnlockTimeinSecs(
@@ -82,7 +84,7 @@ export function PoolActions({
     const [unlockTimer] = useTimer(unlockTime);
 
     const stakedTokenBalance = useStoreMap($balances, (bs) => bs[stakeTokenInfo.id] || BigInt(0));
-    const balanceSuffix = isLPTokenInfo(stakeTokenInfo) ? 'LP' : stakeTokenInfo.unitName;
+    const balanceSuffix = isFarm ? 'LP' : stakeTokenInfo.unitName;
 
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;
@@ -138,7 +140,7 @@ export function PoolActions({
                     contractVersion={contractVersion}
                 />
             )}
-            {isLPTokenInfo(stakeTokenInfo) && (
+            {isFarm && (
                 <Modal>
                     <Zap
                         inputDexProvider={stakeTokenInfo.poolDex}

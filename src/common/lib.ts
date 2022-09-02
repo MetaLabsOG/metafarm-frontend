@@ -19,6 +19,8 @@ import { Amount, AppId, Asset, AssetId } from './store/types';
 export const MINUTE = 60;
 export const HOUR = 60 * 60;
 export const DAY = HOUR * 24;
+// Average year length is 365.25 days
+export const YEAR = DAY * 365 + HOUR * 6;
 
 // BigNumbers from JSON decoding
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
@@ -205,7 +207,7 @@ export const signAndPostTxnGroups = async (
     }
 
     const postAndWait = async ({ id, stxns }: { id: string; stxns: string[] }) => {
-        await window.algorand.postTxns(stxns);
+        await window.algorand!.postTxns(stxns);
         const success = await withAlgodEncoding(algod, IntDecoding.DEFAULT, async (algod) => {
             return waitForConfirmation(algod, id, 3);
         });

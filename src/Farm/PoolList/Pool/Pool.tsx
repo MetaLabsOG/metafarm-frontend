@@ -5,7 +5,7 @@ import { Status } from '../../../Status.js';
 import { $networkTime, queryTimeUpdate, Contract, FarmType, hasLocalState, $pricedAlgo } from '../../../common/store';
 import { $stakingTokens } from '../../../Stake/store';
 import logo from '../../../imgs/logo.png';
-import { $farmRewardTokens } from '../../store';
+import { $farmRewardTokens, PoolWithStats } from '../../store';
 import { ConnectWalletModal } from '../../../wallet/ConnectWalletModal';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
@@ -13,7 +13,8 @@ import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolLoadingAnimation } from './styled';
 import { getPoolState } from './utils';
 
-export function Pool({ type, contract }: { type: FarmType; contract: Contract<FarmType> }) {
+export function Pool({ pws }: { pws: PoolWithStats }) {
+    const contract = pws.pool;
     const currentBlock = useUnit($networkTime);
     const pricedAlgo = useUnit($pricedAlgo);
     const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
@@ -70,6 +71,7 @@ export function Pool({ type, contract }: { type: FarmType; contract: Contract<Fa
                         currentBlock={currentBlock}
                         pricedAlgo={pricedAlgo}
                         poolMetadata={contract.info.metadata}
+                        apr={pws.apr}
                     />
                 </div>
                 {contract.ctc !== null && hasLocalState(contract.state) && isOpen && (

@@ -4,12 +4,12 @@ import { Balance } from '../Farm/Balance';
 import { PoolList } from '../Farm/PoolList';
 import { FarmContainer } from '../Farm/styled';
 import { InfoCards } from '../Farm/Farm';
-import { $sortedStakingPools } from './store';
+import { $sortedStakePoolsWithStats } from './store';
 
-export const Stake = createComponent($sortedStakingPools, (_props, state) => (
+export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state) => (
     <FarmContainer>
         <Balance kind={'distribution' as FarmType} />
-        <PoolList type="distribution" pools={state} />
+        <PoolList pools={state} />
         <InfoCards />
     </FarmContainer>
 ));

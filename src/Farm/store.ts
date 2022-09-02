@@ -2,10 +2,9 @@
 import { backend as farmBackend_17_2_4 } from 'metalabs-farm-17_2_4';
 // @ts-expect-error No provided type bindings in contracts package
 import { backend as farmBackend_17_2_5 } from 'metalabs-farm-17_2_5';
-
-import { Map } from 'immutable';
-import { createEffect, createStore, createEvent, sample, combine, Store } from 'effector';
-import { groupBy, min, values } from 'ramda';
+import { Map, Set } from 'immutable';
+import { createEffect, createStore, sample, combine, Store, createEvent, restore } from 'effector';
+import { ascend, descend, min, Ord, sort, zip, zipWith } from 'ramda';
 import {
     Asset,
     AssetId,
@@ -27,10 +26,13 @@ import {
     FarmType,
     hasLocalState,
     Time,
+    $meanRoundDuration,
 } from '../common/store';
 import { AllDefined, Backend } from '../types';
 import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
+import { fromSmallestUnits, YEAR } from '../common/lib';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
+import { PoolState } from './PoolList/Pool/types';
 
 const FARM_BACKENDS = {
     '17.2.4': farmBackend_17_2_4 as Backend,
@@ -125,33 +127,25 @@ const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpda
     FARM_BACKENDS
 );
 
+export enum SortType {
+    Name,
+    Tvl,
+    Apr,
+    Stake,
+    Reward,
+    Ends,
+}
+
+export type SortBy = {
+    type: SortType;
+    asc: boolean;
+};
+
 export const $pools = combine($contracts, $networkTime, projectContracts);
 export const $farmPools = $pools.map((pools) => pools.filter((pool) => Boolean(pool.info.metadata.dex)));
 export const $stakePools = $pools.map((pools) => pools.filter((pool) => !pool.info.metadata.dex));
 export const setPoolInfos = setContractInfos;
 export const triggerPoolUpdate = triggerStateUpdate;
-
-// TODO NEED REFACTOR (quick solution)
-export const sortPoolsOnStatus = ({
-    networkTime,
-    pools,
-}: {
-    networkTime: number;
-    pools: Array<Contract<FarmType>>;
-}) => {
-    const groupedByStatus = groupBy(function (pool: Contract<FarmType>) {
-        if (pool.state) {
-            const { initial } = pool.state;
-            return networkTime < initial.beginBlock ? '2' : networkTime > initial.endBlock ? '3' : '1';
-        }
-        return 'null';
-    });
-    return values(groupedByStatus(pools)).flat();
-};
-
-export const $sortedFarmPools = combine($networkTime, $farmPools, (networkTime, pools) =>
-    sortPoolsOnStatus({ networkTime, pools })
-);
 
 // LP token info store
 type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
@@ -172,24 +166,23 @@ export const getLPTokenInfoFx = createEffect(
 
 $lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
 
-// Fetching LP token infos similarly to how asset prices are fetched
-const markTokenAsLP = createEvent<AssetId>();
-const $isLPToken = createStore(Map<AssetId, boolean>()).on(markTokenAsLP, (state, token) => state.set(token, true));
+const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) => {
+    const newIds = Set(pools.filter((pool) => pool.state !== null).map((pool) => pool.state!.initial.stakeToken));
+    return state.union(newIds);
+});
 
 // Automatically fetch LP token infos when general info about them gets fetched the first time
 sample({
     clock: assetLoaded,
-    source: { isLP: $isLPToken, algoPrice: $algoUsdPrice },
-    filter: ({ isLP }, asset) => isLP.get(asset.id, false),
+    source: { lpTokens: $lpTokenIds, algoPrice: $algoUsdPrice },
+    filter: ({ lpTokens }, asset) => lpTokens.has(asset.id),
     fn: ({ algoPrice }, asset) => ({ asset, algoPrice, provider: undefined }),
     target: getLPTokenInfoFx,
 });
 
-// TODO: change to effector.split or patronum.something
 $farmPools.watch((farms) => {
     const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
     for (const s of farmStates) {
-        markTokenAsLP(s.initial.stakeToken);
         registerAsset(s.initial.stakeToken);
         registerPricedAsset(s.initial.rewardToken);
     }
@@ -217,31 +210,31 @@ export const $farmRewardTokens = combine($pricedAssets, $contractStatesWithCache
 );
 
 // Price aggregation
-const sumMoney = <T extends FarmType>(
+const getDollarInfo = <T extends FarmType>(
     states: Array<ContractState<T>>,
     tokens: Map<AssetId, Priced<Asset>>,
     getAmount: (s: ContractState<T>) => Amount | undefined,
     getToken: (s: ContractState<T>) => AssetId
-): number =>
-    states.reduce((sum, state) => {
+): number[] =>
+    states.map((state) => {
         const token = getToken(state);
         const amount = getAmount(state);
         const tokenInfo = tokens.get(token, null);
 
         if (!amount || !token || !tokenInfo) {
-            return sum;
+            return 0;
         }
 
-        return sum + convertAmountToUSD(tokenInfo, amount);
-    }, 0);
+        return convertAmountToUSD(tokenInfo, amount);
+    });
 
-export interface PoolAggregates {
+export interface PoolDollarInfo {
     tvl: number;
-    totalUserStake: number;
-    totalPendingReward: number;
+    userStake: number;
+    pendingReward: number;
 }
 
-export function createAggregates<T extends FarmType>($pools: Store<Array<Contract<T>>>) {
+export function createDollarInfos<T extends FarmType>($pools: Store<Array<Contract<T>>>): Store<PoolDollarInfo[]> {
     return combine(
         $pools.map((contracts) => contracts.map((c) => c.state).filter((s): s is ContractState<T> => s !== null)),
         $lpTokenInfos,
@@ -249,26 +242,187 @@ export function createAggregates<T extends FarmType>($pools: Store<Array<Contrac
         (states, lpTokens, tokens) => {
             const getToken = (s: ContractState<T>) => ('token' in s.initial ? s.initial.token : s.initial.stakeToken);
             const allTokens = tokens.merge(lpTokens);
-            const tvl = sumMoney(states, allTokens, (s) => s.global.totalStaked, getToken);
-            const totalUserStake = sumMoney(states, allTokens, (s) => s.local?.staked, getToken);
-            const totalPendingReward = states.reduce((sum, state) => {
+            const tvls = getDollarInfo(states, allTokens, (s) => s.global.totalStaked, getToken);
+            const userStakes: number[] = getDollarInfo(states, allTokens, (s) => s.local?.staked, getToken);
+            const pendingRewards = states.map((state) => {
                 const token = 'token' in state.initial ? state.initial.token : state.initial.rewardToken;
                 const tokenInfo = tokens.get(token, null);
                 const algoInfo = tokens.get(0, null);
                 const tokenReward = state.local?.reward ?? BigInt(0);
 
                 if (!tokenReward || !token || !tokenInfo || !algoInfo) {
-                    return sum;
+                    return 0;
                 }
 
                 const algoReward = calculateAlgoReward(state.initial, tokenReward);
 
-                return sum + convertAmountToUSD(tokenInfo, tokenReward) + convertAmountToUSD(algoInfo, algoReward);
-            }, 0);
+                return convertAmountToUSD(tokenInfo, tokenReward) + convertAmountToUSD(algoInfo, algoReward);
+            });
 
-            return { tvl, totalUserStake, totalPendingReward };
+            return zipWith(
+                (a, b: number[]) => ({
+                    tvl: a,
+                    userStake: b[0],
+                    pendingReward: b[1],
+                }),
+                tvls,
+                zip(userStakes, pendingRewards)
+            );
         }
     );
 }
 
-export const $farmPoolAggregates: Store<PoolAggregates> = createAggregates($farmPools);
+export const $farmPoolDollarInfos = createDollarInfos($farmPools);
+
+export interface PoolAggregates {
+    tvl: number;
+    totalUserStake: number;
+    totalPendingReward: number;
+}
+
+export function createAggregates($dollarInfos: Store<PoolDollarInfo[]>) {
+    return $dollarInfos.map((infos) => {
+        const tvl = infos.reduce((acc, info) => acc + info.tvl, 0);
+        const totalUserStake = infos.reduce((acc, info) => acc + info.userStake, 0);
+        const totalPendingReward = infos.reduce((acc, info) => acc + info.pendingReward, 0);
+        return { tvl, totalUserStake, totalPendingReward };
+    });
+}
+
+export const $farmPoolAggregates: Store<PoolAggregates> = createAggregates($farmPoolDollarInfos);
+
+export type AprType = {
+    reward: number;
+    algoReward: number;
+    fees: number;
+    total: number;
+};
+
+export function createAprs<T extends FarmType>(
+    $pools: Store<Array<Contract<T>>>,
+    $stakeTokens: Store<Map<AssetId, Priced<LPTokenInfo> | Priced<Asset> | null>>
+): Store<AprType[]> {
+    return combine(
+        $pools,
+        $networkTime,
+        $meanRoundDuration,
+        $algoUsdPrice,
+        $stakeTokens,
+        $farmRewardTokens,
+        (pools, time, meanRoundDuration, algoPrice, stakingTokens, farmRewardTokens) =>
+            pools
+                // TODO: we should never have null pools tbh
+                .filter((pool) => pool.state !== null)
+                .map((pool) => {
+                    const stakeTokenInfo = stakingTokens.get(pool.id, null);
+                    const rewardTokenInfo = farmRewardTokens.get(pool.id, null) ?? stakeTokenInfo;
+                    const contractState = pool.state!;
+                    const period = getPoolState(time, pool.state!.initial);
+
+                    if (stakeTokenInfo === null || rewardTokenInfo === null || period === PoolState.Finished) {
+                        return {
+                            reward: 0,
+                            algoReward: 0,
+                            fees: 0,
+                            total: 0,
+                        };
+                    }
+
+                    const blocksInAYear = YEAR / meanRoundDuration;
+                    const stakePrice = stakeTokenInfo.price;
+                    const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
+                    const { totalRewardAmount, totalAlgoRewardAmount, beginBlock, endBlock } = contractState.initial;
+                    const totalBlocks = BigInt(endBlock - beginBlock);
+                    const rewardPerBlock = fromSmallestUnits(rewardTokenInfo, totalRewardAmount / totalBlocks);
+
+                    const extraAlgoRewardPerBlock = totalAlgoRewardAmount / totalBlocks;
+                    const algoRewardPerBlock = extraAlgoRewardPerBlock
+                        ? fromSmallestUnits(ALGO_ASSET, extraAlgoRewardPerBlock)
+                        : 0;
+
+                    const totalStakedUSD = totalStaked * stakePrice;
+                    const rewardAPR = totalStakedUSD
+                        ? ((rewardPerBlock * rewardTokenInfo.price * blocksInAYear) / totalStakedUSD) * 100
+                        : 0;
+
+                    const algoRewardAPR =
+                        totalStakedUSD && algoPrice
+                            ? ((algoRewardPerBlock * algoPrice * blocksInAYear) / totalStakedUSD) * 100
+                            : 0;
+
+                    const feesAPR = ((stakeTokenInfo as Priced<LPTokenInfo>).dexFeeApr ?? 0) * 100;
+
+                    return {
+                        reward: rewardAPR,
+                        algoReward: algoRewardAPR,
+                        fees: feesAPR,
+                        total: rewardAPR + algoRewardAPR + feesAPR,
+                    };
+                })
+    );
+}
+
+export const $farmAprs = createAprs($farmPools, $farmStakeTokens);
+
+export type PoolWithStats = {
+    pool: Contract<FarmType>;
+    apr: AprType;
+    dollarInfo: PoolDollarInfo;
+};
+
+export const combinePoolsWithInfo = <T extends FarmType>(
+    pools: Store<Array<Contract<T>>>,
+    aprs: Store<AprType[]>,
+    dollarInfos: Store<PoolDollarInfo[]>
+) =>
+    combine({ pools, aprs, dollarInfos }, ({ pools, aprs, dollarInfos }) => {
+        if (pools.length !== aprs.length || pools.length !== dollarInfos.length) {
+            return [];
+        }
+        return [...Array(pools.length).keys()].map((i) => {
+            const element: PoolWithStats = {
+                pool: pools[i],
+                apr: aprs[i],
+                dollarInfo: dollarInfos[i],
+            };
+            return element;
+        });
+    });
+
+export const $farmsWithStats = combinePoolsWithInfo($farmPools, $farmAprs, $farmPoolDollarInfos);
+
+export const sortPools = createEvent<SortBy>();
+const $sortOrder = restore(sortPools, { type: SortType.Tvl, asc: false });
+
+export const createSortedPoolsWithStats = ($source: Store<PoolWithStats[]>) => {
+    return combine($source, $sortOrder, (farmsWithStats, sortType) => {
+        let orderBy: (p: PoolWithStats) => Ord;
+        switch (sortType.type) {
+            case SortType.Name:
+                orderBy = (p) => p.pool.info.description ?? '';
+                break;
+            case SortType.Ends:
+                orderBy = (p) => p.pool.state?.initial?.endBlock ?? 1e9;
+                break;
+            case SortType.Tvl:
+                orderBy = (p) => p.dollarInfo.tvl;
+                break;
+            case SortType.Reward:
+                orderBy = (p) => p.dollarInfo.pendingReward;
+                break;
+            case SortType.Stake:
+                orderBy = (p) => p.dollarInfo.userStake;
+                break;
+            case SortType.Apr:
+                orderBy = (p) => Math.floor(p.apr.total);
+                break;
+            default:
+                throw new Error(`Unsupported sort type, please make 'switch' exhaustive`);
+        }
+
+        const ord = sortType.asc ? ascend : descend;
+        return sort(ord(orderBy), farmsWithStats);
+    });
+};
+
+export const $sortedPoolsWithStats = createSortedPoolsWithStats($farmsWithStats);

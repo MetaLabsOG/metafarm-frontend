@@ -20,6 +20,9 @@ const browserInfoString =
 const WALLET_TYPE_KEY = 'connectedWalletType';
 
 export const connectWallet = (walletType: WalletType) => {
+    reach.clearProvider();
+    delete window.algorand;
+
     reach.setWalletFallback(customWalletFallback({ providerEnv: ALGONET, walletType }));
     if (walletType === 'WalletConnect' && ALGONET === TESTNET) {
         notify('Please, switch you Pera wallet to testnet.', 'info');
