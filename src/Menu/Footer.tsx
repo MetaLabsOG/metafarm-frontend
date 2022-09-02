@@ -23,7 +23,7 @@ export function Footer() {
                 </div>
                 <FooterItem>{ALGONET}</FooterItem>
             </div>
-            <div style={{ display: 'flex-end', gap: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                 <FooterLink target="_blank" href="https://twitter.com/CometaHub" rel="noreferrer">
                     Twitter
                 </FooterLink>
