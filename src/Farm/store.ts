@@ -33,6 +33,7 @@ import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
 import { fromSmallestUnits, YEAR } from '../common/lib';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 import { PoolState } from './PoolList/Pool/types';
+import { ColumnType } from './PoolList/PoolList';
 
 const FARM_BACKENDS = {
     '17.2.4': farmBackend_17_2_4 as Backend,
@@ -127,17 +128,8 @@ const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpda
     FARM_BACKENDS
 );
 
-export enum SortType {
-    Name,
-    Tvl,
-    Apr,
-    Stake,
-    Reward,
-    Ends,
-}
-
 export type SortBy = {
-    type: SortType;
+    type: ColumnType;
     asc: boolean;
 };
 
@@ -392,28 +384,28 @@ export const combinePoolsWithInfo = <T extends FarmType>(
 export const $farmsWithStats = combinePoolsWithInfo($farmPools, $farmAprs, $farmPoolDollarInfos);
 
 export const sortPools = createEvent<SortBy>();
-const $sortOrder = restore(sortPools, { type: SortType.Tvl, asc: false });
+const $sortOrder = restore(sortPools, { type: ColumnType.Tvl, asc: false });
 
 export const createSortedPoolsWithStats = ($source: Store<PoolWithStats[]>) => {
     return combine($source, $sortOrder, (farmsWithStats, sortType) => {
         let orderBy: (p: PoolWithStats) => Ord;
         switch (sortType.type) {
-            case SortType.Name:
+            case ColumnType.Name:
                 orderBy = (p) => p.pool.info.description ?? '';
                 break;
-            case SortType.Ends:
+            case ColumnType.Ends:
                 orderBy = (p) => p.pool.state?.initial?.endBlock ?? 1e9;
                 break;
-            case SortType.Tvl:
+            case ColumnType.Tvl:
                 orderBy = (p) => p.dollarInfo.tvl;
                 break;
-            case SortType.Reward:
+            case ColumnType.Reward:
                 orderBy = (p) => p.dollarInfo.pendingReward;
                 break;
-            case SortType.Stake:
+            case ColumnType.Stake:
                 orderBy = (p) => p.dollarInfo.userStake;
                 break;
-            case SortType.Apr:
+            case ColumnType.Apr:
                 orderBy = (p) => Math.floor(p.apr.total);
                 break;
             default:

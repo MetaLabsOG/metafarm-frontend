@@ -127,7 +127,7 @@ export const deployContractToBackend = async (
     contractId: number,
     contractType: ContractType,
     farmName: string,
-    dex: DexProvider,
+    dex?: DexProvider,
     contractVersion?: string
 ) => {
     if (!contractVersion) {

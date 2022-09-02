@@ -14,7 +14,7 @@ import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGrou
 
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
-import { $account, $balances, $meanRoundDuration, $networkTime, ALGO_ASSET, Time } from '../common/store';
+import { $account, $balances, $meanRoundDuration, $networkTime, ALGO_ASSET, AssetId, Time } from '../common/store';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { DAY, formatDecimalsMeaningful, getSmallestUnits, unsafeFromBigint } from '../common/lib';
 import { deployContractToBackend, getTinymanPools } from '../providers/apiProvider';
@@ -24,6 +24,7 @@ import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE, FARM_FLAT_ALGO_CREATION_FEE }
 import { Backend } from '../types';
 import { expBackoff } from '../common/store/utils';
 import { logEvent, LogName } from '../logEvent';
+import { DexProvider } from '../dexes';
 import { AddFarmRow, DateInput } from './styled';
 import { deployFarm, InitialState } from './utils';
 
@@ -34,6 +35,13 @@ const CURRENT_FARM_VERSION = '17.2.5';
 
 const MIN_ALLOWED_ALGO_BALANCE = 5;
 
+export type AddFarmType = 'farm' | 'stake';
+export type StakingAsset = {
+    id: AssetId;
+    name: string;
+    dex?: DexProvider;
+};
+
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
     return Math.floor(Math.max(5, (endTime - startTime) / 1000) / meanRoundDuration);
 };
@@ -43,7 +51,7 @@ const daysToBlocks = (days: number, meanRoundDuration: number) => {
 };
 
 const checkFarmParams = (
-    stakeToken: PoolOptionType,
+    stakeToken: StakingAsset,
     rewardToken: TokenOptionType,
     beginBlock: number,
     endBlock: number,
@@ -51,7 +59,7 @@ const checkFarmParams = (
     algoToken: TokenOptionType,
     extraAlgoRewardAmount: number
 ) => {
-    if (!stakeToken.liquidityAsset) {
+    if (!stakeToken.id) {
         notify('Please, choose LP pool.', 'warning');
         return false;
     }
@@ -99,7 +107,7 @@ const checkFarmParams = (
 
 const createFarm = async (
     account: Account,
-    stakeToken: PoolOptionType,
+    stakeToken: StakingAsset,
     rewardToken: TokenOptionType,
     beginBlock: number,
     endBlock: number,
@@ -120,7 +128,7 @@ const createFarm = async (
 
     console.log(
         'Start create farm',
-        stakeToken.liquidityAsset,
+        stakeToken.id,
         rewardToken.id,
         beginBlock,
         endBlock,
@@ -130,7 +138,7 @@ const createFarm = async (
     const contractParameters: InitialState = {
         beneficiary: FARM_BENEFICIARY_ADDR ?? '',
         creationFee: FARM_CREATION_FEE ?? 0,
-        stakeToken: stakeToken.liquidityAsset,
+        stakeToken: stakeToken.id,
         rewardToken: rewardToken.id,
         beginBlock,
         endBlock,
@@ -153,9 +161,9 @@ const createFarm = async (
             deployContractToBackend(
                 account.networkAccount.addr,
                 Number(contractId),
-                'farm',
+                stakeToken.id === rewardToken.id ? 'distribution' : 'farm',
                 stakeToken.name,
-                stakeToken.poolDex,
+                stakeToken.dex,
                 CURRENT_FARM_VERSION
             )
         );
@@ -219,7 +227,8 @@ const calculateTimeByBlock = (currentBlock: number, block: number, meanRoundDura
 };
 
 function PoolInfo({
-    selectedPool,
+    type,
+    stakingAsset,
     currentBlock,
     beginBlock,
     endBlock,
@@ -229,8 +238,10 @@ function PoolInfo({
     lockPeriodBlocks,
     meanRoundDuration,
     algoTokenRewards,
+    selectedPool,
 }: {
-    selectedPool: PoolOptionType;
+    type: AddFarmType;
+    stakingAsset: StakingAsset;
     currentBlock: number;
     beginBlock: number;
     endBlock: number;
@@ -240,6 +251,7 @@ function PoolInfo({
     lockPeriodBlocks: number;
     meanRoundDuration: number;
     algoTokenRewards: number;
+    selectedPool: PoolOptionType;
 }) {
     const farmCreationFee = (rewardAmount * Number(FARM_CREATION_FEE ?? 0)) / 10_000;
     const startTime = calculateTimeByBlock(currentBlock, beginBlock, meanRoundDuration);
@@ -248,24 +260,24 @@ function PoolInfo({
     return (
         <InfoPanel isLoading={false}>
             <InfoRow
-                title="FARM POOL"
-                value={selectedPool.name}
-                valueLink={'https://algoscan.app/asset/' + selectedPool.liquidityAsset}
+                title={type === 'farm' ? 'FARM POOL' : 'STAKING TOKEN'}
+                value={stakingAsset.name}
+                valueLink={'https://algoscan.app/asset/' + stakingAsset.id}
             />
-            <InfoRow
-                title="LP ASA ID"
-                value={selectedPool.liquidityAsset + ' (tinyman)'}
-                style={{ marginBottom: '20px' }}
-            />
-            <InfoRow
-                title="Current pool liquidity"
-                value={'$' + formatDecimalsMeaningful(Number(selectedPool.totalLiquidity))}
-            />
-            <InfoRow
-                title="Current fees APR"
-                value={`${selectedPool.dexFeeApr ? (selectedPool.dexFeeApr * 100).toFixed(2) : 0}%`}
-                style={{ marginBottom: '20px' }}
-            />
+            <InfoRow title="ASA ID" value={stakingAsset.id + ' (tinyman)'} style={{ marginBottom: '20px' }} />
+            {type === 'farm' && (
+                <InfoRow
+                    title="Current pool liquidity"
+                    value={'$' + formatDecimalsMeaningful(Number(selectedPool.totalLiquidity))}
+                />
+            )}
+            {type === 'farm' && (
+                <InfoRow
+                    title="Current fees APR"
+                    value={`${selectedPool.dexFeeApr ? (selectedPool.dexFeeApr * 100).toFixed(2) : 0}%`}
+                    style={{ marginBottom: '20px' }}
+                />
+            )}
             <InfoRow title="Start time" value={startTime} />
             <InfoRow title="End time" value={endTime} />
             <InfoRow title="Start-end blocks" value={beginBlock + '-' + endBlock} style={{ marginBottom: '20px' }} />
@@ -315,7 +327,25 @@ function getPoolOptions(selectedOption?: SelectOptionType) {
     };
 }
 
-export function AddFarm() {
+function getStakingAsset(
+    type: AddFarmType,
+    selectedToken: TokenOptionType,
+    selectedPool: PoolOptionType
+): StakingAsset {
+    if (type === 'stake') {
+        return {
+            id: selectedToken.id,
+            name: selectedToken.unitName,
+        };
+    }
+    return {
+        id: selectedPool.liquidityAsset,
+        name: selectedPool.name,
+        dex: selectedPool.poolDex,
+    };
+}
+
+export function AddFarm({ type }: { type: AddFarmType }) {
     const account = useUnit($account);
     const balances = useUnit($balances);
     const currentBlock = useUnit($networkTime);
@@ -323,6 +353,7 @@ export function AddFarm() {
 
     const [poolOptions, setPoolOptions] = useState<PoolOptionType[]>([]);
     const [selectedPool, setSelectedPool] = useState<PoolOptionType>(POOL_OPTION);
+    const [selectedToken, setSelectedToken] = useState<TokenOptionType>(TOKEN_OPTION);
 
     const [rewardTokenOptions, setRewardTokenOptions] = useState<TokenOptionType[]>([]);
     const [selectedRewardToken, setSelectedRewardToken] = useState<TokenOptionType>(TOKEN_OPTION);
@@ -366,6 +397,10 @@ export function AddFarm() {
         setSelectedPool(option);
     };
 
+    const selectTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
+        setSelectedToken(option);
+    };
+
     const selectRewardTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
         setSelectedRewardToken(option);
     };
@@ -387,15 +422,30 @@ export function AddFarm() {
 
     return (
         <ModalContainer>
-            <ModalTitle>ADD FARM</ModalTitle>
-            <Heading2>LP POOL</Heading2>
-            <Select
-                selectType={SelectType.poolSelect}
-                options={poolOptions}
-                selectedOption={selectedPool}
-                selectOnChange={selectPoolOnChange}
-                getOptions={getPoolOptions}
-            />
+            <ModalTitle>ADD {type.toString().toUpperCase()}</ModalTitle>
+            {type === 'farm' && (
+                <>
+                    <Heading2>LP POOL</Heading2>
+                    <Select
+                        selectType={SelectType.poolSelect}
+                        options={poolOptions}
+                        selectedOption={selectedPool}
+                        selectOnChange={selectPoolOnChange}
+                        getOptions={getPoolOptions}
+                    />
+                </>
+            )}
+            {type === 'stake' && (
+                <>
+                    <Heading2>STAKING TOKEN</Heading2>
+                    <Select
+                        selectType={SelectType.tokenSelect}
+                        options={rewardTokenOptions}
+                        selectedOption={selectedToken}
+                        selectOnChange={selectTokenOnChange}
+                    />
+                </>
+            )}
             <Heading2>REWARDS</Heading2>
             <SelectInputGroup
                 options={rewardTokenOptions}
@@ -450,7 +500,7 @@ export function AddFarm() {
                     onClickAction={async () => {
                         if (
                             checkFarmParams(
-                                selectedPool,
+                                getStakingAsset(type, selectedToken, selectedPool),
                                 selectedRewardToken,
                                 beginBlock,
                                 endBlock,
@@ -470,7 +520,8 @@ export function AddFarm() {
                         Please, carefully verify the farm creation parameters.
                     </ModalSubtitle>
                     <PoolInfo
-                        selectedPool={selectedPool}
+                        type={type}
+                        stakingAsset={getStakingAsset(type, selectedToken, selectedPool)}
                         currentBlock={currentBlock}
                         beginBlock={beginBlock}
                         endBlock={endBlock}
@@ -480,6 +531,7 @@ export function AddFarm() {
                         lockPeriodBlocks={lockPeriodBlocks}
                         meanRoundDuration={meanRoundDuration}
                         algoTokenRewards={Number(algoTokenAmount)}
+                        selectedPool={selectedPool}
                     />
                     {account && (
                         <PacmanButton
@@ -488,7 +540,7 @@ export function AddFarm() {
                             onClickAction={async () => {
                                 const res = await createFarm(
                                     account,
-                                    selectedPool,
+                                    getStakingAsset(type, selectedToken, selectedPool),
                                     selectedRewardToken,
                                     beginBlock,
                                     endBlock,

@@ -8,7 +8,7 @@ import { Account } from '../../../types';
 import { fromSmallestUnits } from '../../../common/lib';
 import info from '../../../imgs/info.svg';
 import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
-import { POOL_COLUMN_WIDTH } from '../PoolList';
+import { ColumnType, POOL_COLUMN_WIDTH } from '../PoolList';
 import { Image } from '../../utils';
 import { AprType } from '../../store';
 import {
@@ -100,7 +100,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
 }) => {
     return (
         <PoolInfoDesktopContainer>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH.POOL}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Name]}>
                 <PoolHeader
                     asset1_id={asset1_id}
                     asset2_id={asset2_id}
@@ -112,10 +112,10 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     algoRewards={contractState.initial.totalAlgoRewardAmount > 0}
                 />
             </PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH.TVL}>{`$${numberRound(
+            <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Tvl]}>{`$${numberRound(
                 convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked)
             )}`}</PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH.APR}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Apr]}>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                     {numberRound(APR.total)}%
                     <img
@@ -128,13 +128,13 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     <ReactTooltip clickable place="top" type="light" effect="solid" />
                 </div>
             </PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH['MY STAKE']}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Stake]}>
                 <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH.REWARD}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Reward]}>
                 <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH['ENDS IN']} style={{ color: 'gray', fontSize: '16px' }}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Ends]} style={{ color: 'gray', fontSize: '16px' }}>
                 {timing.split('\n').map((x) => (
                     <div key={x}>{x}</div>
                 ))}

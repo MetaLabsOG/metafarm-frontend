@@ -133,6 +133,7 @@ export const SwitchContainer = styled.div`
     align-items: center;
     margin-top: 10px;
     margin-bottom: 10px;
+    user-select: none;
 `;
 
 export const SwitchText = styled.h3`
