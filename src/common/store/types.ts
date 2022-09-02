@@ -2,10 +2,11 @@ import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Effect } from 'effector';
 import { AllDefined } from '../../types';
 
+// TODO move it to common types, it's not only for store
 export type AssetId = number;
 export type AppId = number;
 
-// better do this now if we have problems with conversion from bignums later
+// Better do this now if we have problems with conversion from bignums later
 export type Time = number;
 export type Amount = bigint;
 
@@ -49,7 +50,7 @@ export type ContractState<T extends ContractType> = {
  * @param state
  */
 export function hasLocalState<T extends ContractType, S extends ContractState<T>>(state: S): state is AllDefined<S> {
-    return !!state.local;
+    return Boolean(state.local);
 }
 
 // TODO what does it return?
@@ -80,7 +81,7 @@ export type ContractInfo<T extends ContractType> = {
 export type ContractMetadata = {
     farm: { dex?: string };
     distribution: unknown;
-    crowdsale: { whitelist: Array<string> };
+    crowdsale: { whitelist: string[] };
     fomo: unknown;
 };
 
@@ -107,23 +108,25 @@ type LocalInfo = {
 export type FarmInitialInfo = {
     beneficiary: string;
     creationFee: Amount;
+    flatAlgoCreationFee: Amount;
     stakeToken: AssetId;
     rewardToken: AssetId;
     endBlock: Time;
     beginBlock: Time;
-    rewardPerBlock: Amount;
-    extraAlgoRewardPerBlock: Amount;
+    totalRewardAmount: Amount;
+    totalAlgoRewardAmount: Amount;
     lockLengthBlocks: Amount; // > 0 if lock
 };
 
 export type DistributionInitialInfo = {
     beneficiary: string;
     creationFee: Amount;
+    flatAlgoCreationFee: Amount;
     token: AssetId;
     endBlock: Time;
     beginBlock: Time;
-    rewardPerBlock: Amount;
-    extraAlgoRewardPerBlock: Amount;
+    totalRewardAmount: Amount;
+    totalAlgoRewardAmount: Amount;
     lockLengthBlocks: Amount; // > 0 if lock
 };
 
@@ -136,7 +139,7 @@ export type FarmGlobalInfo = {
 export type FarmLocalInfo = {
     reward: Amount;
     staked: Amount;
-    lockTimestamp: Time; // lock BEGINS from this block
+    lockTimestamp: Time; // Lock BEGINS from this block
     rewardPerTokenPaid: Amount;
 };
 
@@ -169,24 +172,44 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
     contractType: T,
     viewType: V
 ): (obj: any) => AllDefined<ContractState<T>>[V] {
-    const parseFarmInitialInfo = (obj: any): FarmInitialInfo => ({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        beneficiary: obj.beneficiary,
-        creationFee: obj.creationFee.toBigInt(),
-        stakeToken: obj.stakeToken.toNumber(),
-        rewardToken: obj.rewardToken.toNumber(),
-        endBlock: obj.endBlock.toNumber(),
-        beginBlock: obj.beginBlock.toNumber(),
-        rewardPerBlock: obj.rewardPerBlock.toBigInt(),
-        extraAlgoRewardPerBlock: obj.extraAlgoRewardPerBlock.toBigInt(),
-        lockLengthBlocks: obj.lockLengthBlocks.toBigInt(),
-    });
+    const parseFarmInitialInfo = (obj: any): FarmInitialInfo => {
+        const isOldContract = 'rewardPerBlock' in obj;
+        const endBlock = obj.endBlock.toNumber();
+        const beginBlock = obj.beginBlock.toNumber();
 
-    const parseFarmGlobalInfo = (obj: any): FarmGlobalInfo => ({
-        totalStaked: obj.totalStaked.toBigInt(),
-        lastUpdateBlock: obj.lastUpdateBlock.toNumber(),
-        rewardPerTokenStored: obj.rewardPerTokenStored.toBigInt(),
-    });
+        return {
+            beneficiary: obj.beneficiary,
+            creationFee: obj.creationFee.toBigInt(),
+            flatAlgoCreationFee: obj.flatAlgoCreationFee.toBigInt(),
+            stakeToken: obj.stakeToken.toNumber(),
+            rewardToken: obj.rewardToken.toNumber(),
+            endBlock,
+            beginBlock,
+            totalRewardAmount: isOldContract
+                ? obj.rewardPerBlock.toBigInt() * BigInt(endBlock - beginBlock)
+                : obj.totalRewardAmount.toBigInt(),
+            totalAlgoRewardAmount: isOldContract
+                ? obj.extraAlgoRewardPerBlock.toBigInt() * BigInt(endBlock - beginBlock)
+                : obj.totalAlgoRewardAmount.toBigInt(),
+            lockLengthBlocks: obj.lockLengthBlocks.toBigInt(),
+        };
+    };
+
+    const parseFarmGlobalInfo = (obj: any): FarmGlobalInfo => {
+        let totalStaked = obj.totalStaked.toBigInt();
+
+        // WARNING FIXME: ну это полная хуйня если честно
+        if (totalStaked === BigInt(1)) {
+            // it is like 99.99% a virtual stake
+            totalStaked = BigInt(0);
+        }
+
+        return {
+            totalStaked,
+            lastUpdateBlock: obj.lastUpdateBlock.toNumber(),
+            rewardPerTokenStored: obj.rewardPerTokenStored.toBigInt(),
+        };
+    };
 
     const parseFarmLocalInfo = (obj: any): FarmLocalInfo => ({
         reward: obj.reward.toBigInt(),
@@ -195,16 +218,27 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
         rewardPerTokenPaid: obj.rewardPerTokenPaid.toBigInt(),
     });
 
-    const parseDistributionInitialInfo = (obj: any): DistributionInitialInfo => ({
-        beneficiary: obj.beneficiary,
-        creationFee: obj.creationFee.toBigInt(),
-        token: obj.token.toNumber(),
-        endBlock: obj.endBlock.toNumber(),
-        beginBlock: obj.beginBlock.toNumber(),
-        rewardPerBlock: obj.rewardPerBlock.toBigInt(),
-        extraAlgoRewardPerBlock: obj.extraAlgoRewardPerBlock.toBigInt(),
-        lockLengthBlocks: obj.lockLengthBlocks.toBigInt(),
-    });
+    const parseDistributionInitialInfo = (obj: any): DistributionInitialInfo => {
+        const isOldContract = 'rewardPerBlock' in obj;
+        const endBlock = obj.endBlock.toNumber();
+        const beginBlock = obj.beginBlock.toNumber();
+
+        return {
+            beneficiary: obj.beneficiary,
+            creationFee: obj.creationFee.toBigInt(),
+            flatAlgoCreationFee: obj.flatAlgoCreationFee.toBigInt(),
+            token: obj.token.toNumber(),
+            endBlock,
+            beginBlock,
+            totalRewardAmount: isOldContract
+                ? obj.rewardPerBlock.toBigInt() * BigInt(endBlock - beginBlock)
+                : obj.totalRewardAmount.toBigInt(),
+            totalAlgoRewardAmount: isOldContract
+                ? obj.extraAlgoRewardPerBlock.toBigInt() * BigInt(endBlock - beginBlock)
+                : obj.totalAlgoRewardAmount.toBigInt(),
+            lockLengthBlocks: obj.lockLengthBlocks.toBigInt(),
+        };
+    };
 
     const parseCrowdsaleInitialInfo = (obj: any): CrowdsaleInitialInfo => ({
         soldToken: obj.soldToken.toNumber(),

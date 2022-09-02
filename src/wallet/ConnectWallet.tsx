@@ -3,12 +3,13 @@ import { useModal } from 'react-hooks-use-modal';
 import { detect } from 'detect-browser';
 
 import '../css/wallet.css';
+import { useUnit } from 'effector-react';
 import { logEvent, LogName } from '../logEvent';
 import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
-import { customWalletFallback, WalletType } from './customWalletFallback';
 import { notify } from '../Components/Notification';
-import { useUnit } from 'effector-react';
+import { customWalletFallback, WalletType } from './customWalletFallback';
+import { ConnectWalletModal } from './ConnectWalletModal';
 
 const browser = detect();
 const browserInfoString =
@@ -18,7 +19,10 @@ const browserInfoString =
 
 const WALLET_TYPE_KEY = 'connectedWalletType';
 
-const connectWallet = (walletType: WalletType) => {
+export const connectWallet = (walletType: WalletType) => {
+    reach.clearProvider();
+    delete window.algorand;
+
     reach.setWalletFallback(customWalletFallback({ providerEnv: ALGONET, walletType }));
     if (walletType === 'WalletConnect' && ALGONET === TESTNET) {
         notify('Please, switch you Pera wallet to testnet.', 'info');
@@ -41,13 +45,17 @@ const connectWallet = (walletType: WalletType) => {
 
             return acc;
         })
-        .catch((e) => {
-            if (e instanceof Error) {
-                console.log('ERROR. ConnectWallet: ', e);
-                logEvent('', { message: `ERROR. ConnectWallet: ${e.name}: ${e.message}` }, LogName.ERRORS);
+        .catch((error) => {
+            if (error instanceof Error) {
+                console.log('ERROR. ConnectWallet:', error);
+                logEvent('', { message: `ERROR. ConnectWallet: ${error.name}: ${error.message}` }, LogName.ERRORS);
             } else {
-                console.log('ERROR (of unexpected type!). ConnectWallet: ', e);
-                logEvent('', { message: `ERROR (of unexpected type!). ConnectWallet: ${String(e)}` }, LogName.ERRORS);
+                console.log('ERROR (of unexpected type!). ConnectWallet:', error);
+                logEvent(
+                    '',
+                    { message: `ERROR (of unexpected type!). ConnectWallet: ${String(error)}` },
+                    LogName.ERRORS
+                );
             }
         });
 };
@@ -58,7 +66,7 @@ const disconnectWallet = () => {
         window.location.reload();
     };
 
-    const algorand = window.algorand;
+    const { algorand } = window;
     if (algorand && 'disconnect' in algorand) {
         void algorand.disconnect().then(finalDisconnect);
     } else {
@@ -68,13 +76,9 @@ const disconnectWallet = () => {
 
 export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonClassName?: string }) {
     const account = useUnit($account);
-    const [finishedOpening, setFinishedOpening] = useState(false);
     const [Modal, open, close, isOpen] = useModal('root', { preventScroll: true });
     const [accDropdownOpen, setAccDropdownOpen] = useState(false);
     const prefix = ALGONET === TESTNET ? 'testnet.' : '';
-
-    // TODO(DariaYakovleva): test Pera on ios.
-    const isIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent);
 
     // check local state once when the element is rendered first
     useEffect(() => {
@@ -85,14 +89,14 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
     }, []);
 
     useEffect(() => {
-        setFinishedOpening(isOpen);
-        window.addEventListener('click', () => accDropdownOpen && setAccDropdownOpen(!accDropdownOpen), { once: true });
-    }, [isOpen, accDropdownOpen]);
-
-    const walletClick = (walletType: WalletType) => {
-        connectWallet(walletType);
-        close();
-    };
+        window.addEventListener(
+            'click',
+            () => {
+                accDropdownOpen && setAccDropdownOpen(!accDropdownOpen);
+            },
+            { once: true }
+        );
+    }, [accDropdownOpen]);
 
     const toggleDropdown: MouseEventHandler<HTMLAnchorElement> = (e) => {
         e.preventDefault();
@@ -135,7 +139,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                             {ALGONET === TESTNET && (
                                 <a
                                     target="_blank"
-                                    href={'https://dispenser.testnet.aws.algodev.network/'}
+                                    href="https://dispenser.testnet.aws.algodev.network/"
                                     rel="noreferrer"
                                     style={{ textDecoration: 'none' }}
                                 >
@@ -150,43 +154,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
                 )}
             </div>
             <Modal>
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        width: 400,
-                        height: 260,
-                        backgroundColor: 'white',
-                        borderRadius: 5,
-                        transform: `translate3d(0px, ${finishedOpening ? 0 : 100}px, 0px)`,
-                        opacity: finishedOpening ? 100 : 0,
-                        transition:
-                            'transform 500ms cubic-bezier(0, 0, 0.25, 1) 0s, opacity 500ms cubic-bezier(0, 0, 0.25, 1) 0s',
-                    }}
-                >
-                    <h3 className="wallet_header">Choose wallet</h3>
-                    <button className="wallet-button" onClick={() => walletClick('MyAlgo')}>
-                        Connect to MyAlgo
-                    </button>
-                    {!isIOS && (
-                        <button className="wallet-button" onClick={() => walletClick('WalletConnect')}>
-                            Connect to Pera wallet
-                        </button>
-                    )}
-                    <div
-                        style={{
-                            fontFamily: 'Montserrat',
-                            color: 'black',
-                            textAlign: 'center',
-                            width: '70%',
-                            fontSize: '12px',
-                        }}
-                    >
-                        There are known issues when using Pera on mobile (but not on desktop). <br /> Use at your own
-                        risk.
-                    </div>
-                </div>
+                <ConnectWalletModal closeModal={close} isModalOpen={isOpen} />
             </Modal>
         </>
     );

@@ -11,7 +11,7 @@ export function Timer({ totalSec, leftSec }: TimerProps) {
 
     return (
         <div>
-            <h1 className="fomo_phrase">{new Date(seconds * 1000).toISOString().substring(11, 19)}</h1>
+            <h1 className="fomo_phrase">{new Date(seconds * 1000).toISOString().slice(11, 19)}</h1>
             <ProgressBar
                 completed={Math.floor((1 - leftSec / totalSec) * 100)}
                 className="fomo_bar_wrapper"

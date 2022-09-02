@@ -1,9 +1,9 @@
-import { FooterContainer, FooterItem, Logo, MenuItem } from './styled';
 import logo from '../imgs/logo.png';
 import { ALGONET } from '../AppContext';
 import { theme } from '../theme';
+import { FooterContainer, FooterItem, Logo, MenuItem } from './styled';
 
-export const Footer = () => {
+export function Footer() {
     return (
         <FooterContainer>
             <MenuItem to="/">
@@ -14,8 +14,8 @@ export const Footer = () => {
                 <a
                     target="_blank"
                     rel="noreferrer"
-                    href={'https://cometa.farm/terms-of-use'}
-                    style={{ color: theme.green }}
+                    href="https://cometa.farm/terms-of-use"
+                    style={{ color: theme.lightGreen }}
                 >
                     <FooterItem>Terms of Use</FooterItem>
                 </a>
@@ -23,4 +23,4 @@ export const Footer = () => {
             <FooterItem>{ALGONET}</FooterItem>
         </FooterContainer>
     );
-};
+}

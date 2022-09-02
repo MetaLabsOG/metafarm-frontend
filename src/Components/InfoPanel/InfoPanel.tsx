@@ -1,16 +1,19 @@
-import { FC, ReactNode } from 'react';
-import { InfoPanelContainer } from './styled';
+import { FC } from 'react';
 import pacman from '../../imgs/loader.gif';
+import { InfoPanelContainer } from './styled';
 
 type InfoPanelProps = {
     children: any[];
     isLoading: boolean;
+    minHeight?: number;
 };
 
-export const InfoPanel: FC<InfoPanelProps> = ({ children, isLoading }: InfoPanelProps) => {
+export const InfoPanel: FC<InfoPanelProps> = ({ children, isLoading, minHeight }: InfoPanelProps) => {
     if (isLoading) {
         return (
-            <InfoPanelContainer style={{ display: 'flex', justifyContent: 'center' }}>
+            <InfoPanelContainer
+                style={{ display: 'flex', justifyContent: 'center', minHeight: minHeight ? minHeight + 'px' : '' }}
+            >
                 <img style={{ width: '50px', height: '50px', margin: 'auto' }} alt="loader" src={pacman} />
             </InfoPanelContainer>
         );

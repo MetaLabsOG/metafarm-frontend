@@ -8,20 +8,21 @@ export interface Token {
     decimals: number;
 }
 
-export interface BestSwap {
+export interface BestSwapInfo {
     best_swap: number;
     direct_swap: number;
-    best_path: {
+    best_path: Array<{
         unit_name: string;
-    }[];
+    }>;
     usdc_diff: number;
+    priceImpact: number;
 }
 
 export interface Transaction {
-    transactions: {
+    transactions: Array<{
         txns: string[];
-        signed_txns: (string | any[])[];
+        signed_txns: Array<string | any[]>;
         tx_id?: string;
-    }[];
+    }>;
     tx_id: string;
 }

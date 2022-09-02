@@ -1,30 +1,29 @@
 import { Dispatch, FC, SetStateAction } from 'react';
-import { LPTokenInfo } from '../../../providers/dexesProvider';
-import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
-
+import { useUnit } from 'effector-react';
+import { LPTokenInfo } from '../../../dexes';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { $account, Amount, AppId, Asset, ContractState, FarmType, Priced } from '../../../common/store';
 import { AllDefined } from '../../../types';
-import { useUnit } from 'effector-react';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { Button } from '../../../Components/Button/Button';
-import { isCompoundEnabled, runCompound } from './compound';
-import { UnlockTimer } from './UnlockTimer';
-import { onClickClaim } from './PoolActions';
-import { isLPTokenInfo } from './utils';
 import { algoexplorerContractLink } from '../../../common/lib';
 import { ALGONET, TESTNET } from '../../../AppContext';
 import { notify } from '../../../Components/Notification';
+import { isCompoundEnabled, runCompound } from './compound';
+import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
+import { UnlockTimer } from './UnlockTimer';
+import { onClickClaim } from './PoolActions';
+import { isLPTokenInfo } from './utils';
 
+// NOTE: I will leave this function here in case we add more dexes and want to have fallback functionality
+// before zap support
 export const getLPTokenAction = (lpToken: LPTokenInfo, openModal: () => void) => {
-    if (lpToken.poolDex === 'T2') {
+    if (lpToken.poolDex === 'T2' || lpToken.poolDex === 'PT') {
         return openModal;
-    } else if (lpToken.poolDex === 'PT') {
-        const pactPrefix = ALGONET === TESTNET ? 'testnet.' : '';
-        return () => window.open(`https://${pactPrefix}pact.fi/add-liquidity/${lpToken.poolId}`, '_blank');
-    } else {
-        return () => notify('Sorry, this is a mock token, you cannot get it', 'error');
     }
+    return () => {
+        notify('Sorry, this is a mock token, you cannot get it', 'error');
+    };
 };
 
 export interface PoolActionsDesktopProps {
@@ -67,9 +66,9 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
             <TokenInfo>
                 {isLPTokenInfo(stakedToken) && canStake && (
                     <Button
-                        onClick={getLPTokenAction(stakedToken, openZapModal)}
                         style={{ color: 'white' }}
                         buttonText="Get LP Tokens"
+                        onClick={getLPTokenAction(stakedToken, openZapModal)}
                     />
                 )}
                 <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
@@ -100,10 +99,10 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     style={!canClaim ? { visibility: 'hidden' } : {}}
                     buttonText="Claim"
                     buttonStyle="claim_button"
-                    onClickAction={() =>
+                    isInactive={!isActiveClaim}
+                    onClickAction={async () =>
                         onClickClaim(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
                     }
-                    isInactive={!isActiveClaim}
                 />
                 <UnlockTimer unlockTimer={unlockTimer} />
             </div>
@@ -115,8 +114,8 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     <PacmanButton
                         buttonText="Compound"
                         buttonStyle="claim_button"
-                        onClickAction={() => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
                         isInactive={!isActiveClaim}
+                        onClickAction={async () => runCompound(account, ctc, stakedToken, rewardTokenInfo)}
                     />
                 )}
         </PoolActionsDesktopContainer>

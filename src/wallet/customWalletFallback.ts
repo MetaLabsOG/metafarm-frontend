@@ -1,3 +1,7 @@
+import { Buffer } from 'buffer';
+import algosdk from 'algosdk';
+import { PeraWalletConnect } from '@perawallet/connect';
+import { ALGO_MyAlgoConnect as MyAlgoConnect } from '@reach-sh/stdlib';
 import type {
     ARC11_Wallet,
     EnableOpts,
@@ -11,10 +15,6 @@ import type {
 
 import { makeProviderByEnv } from '../reachRedefinitions';
 import { reach } from '../AppContext';
-import algosdk from 'algosdk';
-import { Buffer } from 'buffer';
-import { ALGO_MyAlgoConnect as MyAlgoConnect } from '@reach-sh/stdlib';
-import { PeraWalletConnect } from '@perawallet/connect';
 
 export type WalletType = 'MyAlgo' | 'WalletConnect';
 export type WalletFallbackOpts = any & ({ MyAlgoConnect: MyAlgoConnect } | { WalletConnect: PeraWalletConnect });
@@ -29,22 +29,19 @@ export type ARC11_Wallet_Exposed = ARC11_Wallet_Disconnectable & { _impl: MyAlgo
  * @returns
  */
 export const doCustomWalletFallback = (
-    opts: any,
+    options: any,
     getAddr: () => Promise<string>,
     signTxns_: (txns: WalletTransaction[]) => Promise<string[]>,
-    // eslint-disable-next-line @typescript-eslint/require-await
-    disconnect: () => Promise<void> = async () => {
-        return;
-    }
+
+    disconnect: () => Promise<void> = async () => {}
 ): ARC11_Wallet_Disconnectable => {
-    let p: Provider | undefined = undefined;
-    const base = opts['providerEnv'] || 'LocalHost';
+    let p: Provider | undefined;
+    const base = options.providerEnv || 'LocalHost';
     const _env = typeof base === 'string' ? reach.providerEnvByName(base) : base;
     const enableNetwork = async (eopts?: EnableOpts): Promise<EnableNetworkResult> => {
         p = makeProviderByEnv(_env);
         const { genesisID, genesisHash } = await p.algodClient.getTransactionParams().do();
-        const ret = { genesisID, genesisHash };
-        return ret;
+        return { genesisID, genesisHash };
     };
     const enableAccounts = async (eopts?: EnableAccountsOpts): Promise<EnableAccountsResult> => {
         const addr = await getAddr();
@@ -69,7 +66,7 @@ export const doCustomWalletFallback = (
     };
     const signTxns = async (txns: WalletTransaction[], sopts?: object) => {
         void sopts;
-        return await signTxns_(txns);
+        return signTxns_(txns);
     };
     const postTxns = async (stxns: string[], popts?: object) => {
         if (!p) {
@@ -82,7 +79,7 @@ export const doCustomWalletFallback = (
     };
     const signAndPostTxns = async (txns: WalletTransaction[], spopts?: object) => {
         const stxns = await signTxns(txns, spopts);
-        return await postTxns(stxns, spopts);
+        return postTxns(stxns, spopts);
     };
     return {
         _env,
@@ -98,17 +95,18 @@ export const doCustomWalletFallback = (
     };
 };
 
-export const customWalletFallback = (opts: any & { walletType: WalletType }) => {
-    if (opts.walletType === 'MyAlgo') {
-        return walletFallback_MyAlgoWallet(opts);
-    } else if (opts.walletType === 'WalletConnect') {
-        return walletFallback_WalletConnect(opts);
+export const customWalletFallback = (options: any & { walletType: WalletType }) => {
+    if (options.walletType === 'MyAlgo') {
+        return walletFallback_MyAlgoWallet(options);
+    }
+    if (options.walletType === 'WalletConnect') {
+        return walletFallback_WalletConnect(options);
     }
 
-    throw new TypeError(`Invalid wallet type: ${opts.walletType}`);
+    throw new TypeError(`Invalid wallet type: ${options.walletType}`);
 };
 
-const walletFallback_MyAlgoWallet = (opts: object) => (): ARC11_Wallet_Exposed => {
+const walletFallback_MyAlgoWallet = (options: object) => (): ARC11_Wallet_Exposed => {
     if (!window.Buffer) window.Buffer = Buffer;
 
     const LOCAL_STORAGE_KEY = 'MyAlgoConnect_addr';
@@ -135,13 +133,13 @@ const walletFallback_MyAlgoWallet = (opts: object) => (): ARC11_Wallet_Exposed =
             return allStxns;
         }, []);
     };
-    const wallet = doCustomWalletFallback(opts, getAddr, signTxns, async () => {
+    const wallet = doCustomWalletFallback(options, getAddr, signTxns, async () => {
         localStorage.removeItem(LOCAL_STORAGE_KEY);
     });
     return { ...wallet, _impl: mac };
 };
 
-const walletFallback_WalletConnect = (opts: object) => (): ARC11_Wallet_Exposed => {
+const walletFallback_WalletConnect = (options: object) => (): ARC11_Wallet_Exposed => {
     const peraWallet = new PeraWalletConnect();
 
     const getAddr = async (): Promise<string> => {
@@ -151,7 +149,7 @@ const walletFallback_WalletConnect = (opts: object) => (): ARC11_Wallet_Exposed 
             if (addrs.length === 0) {
                 throw new Error('could not reconnect');
             }
-        } catch (err) {
+        } catch {
             addrs = await peraWallet.connect();
         }
         return addrs[0];
@@ -168,12 +166,12 @@ const walletFallback_WalletConnect = (opts: object) => (): ARC11_Wallet_Exposed 
             .then((stxns) => stxns.map((stxn) => Buffer.from(stxn).toString('base64')));
 
         return txns.reduce((allStxns: string[], { stxn }) => {
-            allStxns.push(stxn ? stxn : (signedTxns.shift() as string));
+            allStxns.push(stxn ? stxn : signedTxns.shift()!);
             return allStxns;
         }, []);
     };
 
-    const wallet = doCustomWalletFallback(opts, getAddr, signTxns, async () => {
+    const wallet = doCustomWalletFallback(options, getAddr, signTxns, async () => {
         const dc = peraWallet.disconnect();
         if (dc) {
             await dc;

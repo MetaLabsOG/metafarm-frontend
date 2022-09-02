@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
 import packages from '../../package.json';
-import { AssetId } from '../common/store';
+import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
+import { AssetId, ContractType } from '../common/store/types';
 import { ALGONET } from '../AppContext';
 import { nonConcurrent } from '../common/store/utils';
-import { ContractType } from '../common/store';
-import { DexProvider } from './dexesProvider';
+import { DexProvider } from '../dexes/common';
+import { logEvent, LogName } from '../logEvent';
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -18,12 +18,12 @@ export type TotalCost = {
     cost: cost;
 };
 
-export function getTotalCost(address: string, weeks = 6): Promise<TotalCost[]> {
+export async function getTotalCost(address: string, weeks = 6): Promise<TotalCost[]> {
     return instance
         .get<TotalCost[]>(`total_cost/${address}`, { params: { weeks_count: weeks } })
         .then(({ data }) => data)
-        .catch((err) => {
-            console.log('ERR', err);
+        .catch((error) => {
+            console.log('ERR', error);
             return [];
         });
 }
@@ -55,12 +55,12 @@ export type TinymanPool = {
     annual_percentage_rate: number;
 };
 
-export function getAssets(address: string): Promise<Asset[]> {
+export async function getAssets(address: string): Promise<Asset[]> {
     return instance
         .get<Asset[]>(`wallet_assets/${address}`)
         .then(({ data }) => data)
-        .catch((err) => {
-            console.log('ERR', err);
+        .catch((error) => {
+            console.log('ERR', error);
             return [];
         });
 }
@@ -81,8 +81,8 @@ export async function getWalletNFTs(wallet: string): Promise<WalletNFT[]> {
     return instance
         .get<WalletNFT[]>(`wallet_nfts/${wallet}`)
         .then(({ data }) => data)
-        .catch((err) => {
-            console.log('ERR', err);
+        .catch((error) => {
+            console.log('ERR', error);
             return [];
         });
 }
@@ -92,8 +92,8 @@ export async function getContracts(type: string): Promise<JsonWithBignum> {
     return instance
         .get<Json>(`/contracts?type=${type}`)
         .then(({ data }) => resolveBignums(data))
-        .catch((err) => {
-            console.log('ERR', err);
+        .catch((error) => {
+            console.log('ERR', error);
             return null;
         });
 }
@@ -123,51 +123,50 @@ type AddContractType = {
 };
 
 export const deployContractToBackend = async (
+    accountAddress: string,
     contractId: number,
     contractType: ContractType,
     farmName: string,
-    dex: DexProvider
+    dex: DexProvider,
+    contractVersion?: string
 ) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
-    const contractVersion = packages.dependencies['@metalabsog/' + contractType] as string;
+    if (!contractVersion) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        contractVersion = packages.dependencies['@metalabsog/' + contractType] as string;
+    }
+
     if (!contractVersion) {
         throw new Error('Wrong contract type:' + contractType);
     }
+
     const request: AddContractType = {
         type: contractType,
         id: contractId,
         version: contractVersion,
         description: farmName,
         metadata: {
-            dex: dex,
+            dex,
         },
     };
-    try {
-        await instance.post('/contract/register', request);
-        return true;
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error('error message: ', error.message);
-        } else {
-            console.error('unexpected error: ', error);
-        }
-        return false;
-    }
+    console.log('/contract/register', request);
+    logEvent(
+        accountAddress,
+        { status: '[ADDFARM DEPLOY]', contractId: Number(contractId), params: JSON.stringify(request) },
+        LogName.ADDFARM
+    );
+
+    await instance.post('/contract/register', request);
 };
 
-export const getTinymanPools = nonConcurrent(async (limit: number, search = ''): Promise<TinymanPool[]> => {
+// eslint-disable-next-line @typescript-eslint/no-inferrable-types
+export const getTinymanPools = nonConcurrent(async (limit: number, search: string = ''): Promise<TinymanPool[]> => {
     const prefix = ALGONET.toLowerCase();
-    let tinymanUrl =
-        'https://' +
-        prefix +
-        '.analytics.tinyman.org/api/v1/pools/?limit=' +
-        limit +
-        '&with_statistics=false&verified_only=false&ordering=-liquidity';
+    let tinymanUrl = `https://${prefix}.analytics.tinyman.org/api/v1/pools/?limit=${limit}&with_statistics=false&verified_only=false&ordering=-liquidity'`;
     if (search) {
-        tinymanUrl += '&search=' + search;
+        tinymanUrl += `&search=${search}`;
     }
     const poolsResponse = await fetch(tinymanUrl);
     const pools = await poolsResponse.json();
-    return pools['results'];
+    return pools.results;
 });

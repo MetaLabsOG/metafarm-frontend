@@ -1,11 +1,10 @@
-import { PoolInfoMobileContainer, PoolInfoValue, StakeButtonMobile, TimingMobile } from './styled';
-import { algoRewardPerBlock, convertAmountToUSD, numberRound } from './utils';
 import { FC } from 'react';
-import { getAPRTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
-import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
-import { APRTypes } from './PoolInfo';
-import info from '../../../imgs/info.svg';
 import ReactTooltip from 'react-tooltip';
+import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
+import info from '../../../imgs/info.svg';
+import { PoolInfoMobileContainer, PoolInfoValue, StakeButtonMobile, TimingMobile } from './styled';
+import { convertAmountToUSD, numberRound } from './utils';
+import { getAPRTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
 
 export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,
@@ -24,7 +23,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     isVerified,
 }) => {
     if (contractState.local && isOpen) {
-        return <></>;
+        return null;
     }
 
     return (
@@ -37,7 +36,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 dexIcon={dexIcon}
                 lock={contractLockSuffix}
                 isVerified={isVerified}
-                algoRewards={algoRewardPerBlock(contractState.initial) > 0}
+                algoRewards={contractState.initial.totalAlgoRewardAmount > 0}
             />
             <PoolInfoValue style={{ marginTop: '30px' }}>
                 <div>TVL</div>
@@ -48,7 +47,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
             <PoolInfoValue style={{ marginBottom: '30px' }}>
                 <div>APR</div>{' '}
                 <div style={{ color: 'white', display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-                    {numberRound(APR[APRTypes.total])}%
+                    {numberRound(APR.total)}%
                     <img
                         data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
                         style={{ marginLeft: '3px' }}
@@ -56,10 +55,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                         height="14px"
                         src={info}
                     />
-                    {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-                    {/*
-                     // @ts-ignore */}
-                    <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
+                    <ReactTooltip clickable place="top" type="light" effect="solid" />
                 </div>
             </PoolInfoValue>
             <PoolInfoValue>
@@ -74,7 +70,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                     <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
-            {<StakeButtonMobile disabled={!contractState.local}>MANAGE</StakeButtonMobile>}
+            <StakeButtonMobile disabled={!contractState.local}>MANAGE</StakeButtonMobile>
             <TimingMobile>{timing}</TimingMobile>
         </PoolInfoMobileContainer>
     );

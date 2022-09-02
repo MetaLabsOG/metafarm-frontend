@@ -1,11 +1,12 @@
 // These are basically rewrites of the Python Tinyman SDK library, so that we can fetch token prices from there
 
+import { Buffer } from 'buffer';
 import algosdk from 'algosdk';
 import { max, min } from 'ramda';
-import { AppId, AssetId } from '../common/store';
+import { AppId, AssetId } from '../../common/store/types';
 import TINYMAN_ASC from './tinyman_asc.json';
 
-// without bothering the backend all the time (which does algoindexer queries anyway).
+// Without bothering the backend all the time (which does algoindexer queries anyway).
 type VariableDef = {
     name: string;
     type: string;
@@ -28,7 +29,6 @@ type CommonPoolArgs = {
     a1: AssetId;
     a2: AssetId;
     lpTokenId: AssetId;
-    assetInAmount: number;
     assetOutAmount: number;
     sender: string;
     suggestedParams: algosdk.SuggestedParams;
@@ -37,10 +37,16 @@ type CommonPoolArgs = {
 type SwapTxArgs = CommonPoolArgs & {
     assetInId: AssetId;
     swapType: SwapType;
+    assetInAmount: number;
 };
 
 type MintTxArgs = CommonPoolArgs & {
     lpAmount: number;
+    assetInAmount: number;
+};
+
+type RedeemTxArgs = CommonPoolArgs & {
+    assetOutId: AssetId;
 };
 
 type SignedTxn = {
@@ -54,7 +60,7 @@ export type MaybeSignedTx = {
 };
 
 function toUint8Array(s: string): Uint8Array {
-    return new Uint8Array(Buffer.from(s, 'utf-8'));
+    return new Uint8Array(Buffer.from(s, 'utf8'));
 }
 
 export function getPoolLogicSig(a1: AssetId, a2: AssetId, validatorAppId: AppId): algosdk.LogicSigAccount {
@@ -151,7 +157,7 @@ export function prepareMintTransactions({
     sender,
     suggestedParams,
 }: MintTxArgs): MaybeSignedTx[] {
-    // to ensure that a1 is not algo
+    // To ensure that a1 is not algo
     if (a1 < a2) {
         const a = a2;
         a2 = a1;
@@ -222,6 +228,58 @@ export function prepareMintTransactions({
     return signWithLogicSig(poolLogicSig, txns);
 }
 
+export function prepareRedeemTransactions({
+    validatorAppId,
+    a1,
+    a2,
+    lpTokenId,
+    assetOutId,
+    assetOutAmount,
+    sender,
+    suggestedParams,
+}: RedeemTxArgs): MaybeSignedTx[] {
+    const poolLogicSig = getPoolLogicSig(a1, a2, validatorAppId);
+    const poolAddress = poolLogicSig.address();
+    const feeNote = toUint8Array('fee');
+    const validatorArgs = ['redeem'].map(toUint8Array);
+    const foreignAssets = [a1, a2, lpTokenId].filter((id) => id !== 0);
+
+    let txns = [
+        algosdk.makePaymentTxnWithSuggestedParams(sender, poolAddress, 2000, undefined, feeNote, suggestedParams),
+        algosdk.makeApplicationNoOpTxn(
+            poolAddress,
+            suggestedParams,
+            validatorAppId,
+            validatorArgs,
+            [sender],
+            undefined,
+            foreignAssets
+        ),
+        assetOutId === 0
+            ? algosdk.makePaymentTxnWithSuggestedParams(
+                  poolAddress,
+                  sender,
+                  assetOutAmount,
+                  undefined,
+                  undefined,
+                  suggestedParams
+              )
+            : algosdk.makeAssetTransferTxnWithSuggestedParams(
+                  poolAddress,
+                  sender,
+                  undefined,
+                  undefined,
+                  assetOutAmount,
+                  undefined,
+                  assetOutId,
+                  suggestedParams
+              ),
+    ];
+
+    txns = algosdk.assignGroupID(txns);
+    return signWithLogicSig(poolLogicSig, txns);
+}
+
 function signWithLogicSig(lsig: algosdk.LogicSigAccount, txns: algosdk.Transaction[]): MaybeSignedTx[] {
     return txns.map((txn) => {
         const signedTxn =
@@ -235,7 +293,7 @@ function signWithLogicSig(lsig: algosdk.LogicSigAccount, txns: algosdk.Transacti
 /**
  * Variable encoding used by Tinyman contracts
  */
-function encodeVal(value: number, type: string): Buffer {
+function encodeValue(value: number, type: string): Buffer {
     if (type !== 'int') {
         throw new Error('tinymanEncodeVal: only int variables are supported');
     }
@@ -271,7 +329,7 @@ export function getProgram(definition: ProgramDef, variables: Record<string, num
 
         const name = v.name.slice('TMPL_'.length).toLowerCase();
         const value = variables[name];
-        const encoded = encodeVal(value, v.type);
+        const encoded = encodeValue(value, v.type);
         encoded.copy(buf, bufIx);
         bufIx += encoded.length;
     }

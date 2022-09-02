@@ -1,6 +1,6 @@
-import { SelectType } from './Select';
 import { Asset } from '../../common/store';
-import { PoolInfo } from '../../providers/dexesProvider';
+import { PoolInfo } from '../../dexes';
+import { SelectType } from './Select';
 
 export type PoolOptionType = PoolInfo & { value: string; name: string };
 export type TokenOptionType = Asset & { value: string; balance: number };
@@ -11,4 +11,5 @@ export interface SelectProps {
     options: SelectOptionType[];
     selectedOption: SelectOptionType;
     selectOnChange: any;
+    getOptions?: (selectedOption: SelectOptionType) => (query: string) => Promise<SelectOptionType[]>;
 }

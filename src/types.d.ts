@@ -4,23 +4,14 @@ import type {
     ProviderName,
     Token,
     ContractInfo,
-    Contract,
     Address,
     NetworkAccount,
     Ty,
     Backend,
     Account,
 } from '@reach-sh/stdlib/dist/types/ALGO';
-import type {
-    ARC11_Wallet,
-    WalletTransaction,
-    EnableNetworkResult,
-    EnableAccountsResult,
-    EnableOpts,
-    EnableResult,
-    EnableAccountsOpts,
-} from '@reach-sh/stdlib/ALGO_ARC11';
-import type { ViewVal, ViewMap, ViewFunMap } from '@reach-sh/stdlib/dist/types/shared_impl';
+import type { ARC11_Wallet, WalletTransaction } from '@reach-sh/stdlib/ALGO_ARC11';
+
 import type { Stdlib_User } from '@reach-sh/stdlib/dist/types/interfaces';
 
 /**
@@ -31,6 +22,15 @@ export type AllDefined<T> = {
     [Property in keyof T]-?: T[Property];
 };
 
+/**
+ * Substitutes one type for another recursively in T
+ */
+export type SubstituteType<T, A, B> = T extends A
+    ? B
+    : T extends Record<string, unknown>
+    ? { [K in keyof T]: SubstituteType<T[K], A, B> }
+    : T;
+
 export type WalletTransactionGroup = {
     firstTxID: string;
     txns: WalletTransaction[];
@@ -40,8 +40,8 @@ export type WalletTransactionGroup = {
 
 declare global {
     interface Window {
-        algorand: Omit<AllDefined<ARC11_Wallet>, 'signTxns'> & {
-            signTxns: (txns: WalletTransaction[], opts?: any) => Promise<string[]>;
+        algorand?: Omit<AllDefined<ARC11_Wallet>, 'signTxns'> & {
+            signTxns: (txns: WalletTransaction[], options?: any) => Promise<string[]>;
             disconnect: () => Promise<void>;
         };
     }
@@ -59,20 +59,21 @@ export type ReachStdlib = Stdlib_User<
     Backend,
     Account
 > & { clearProvider: () => void };
-export type {
-    Provider,
-    Account,
-    Address,
-    Backend,
-    ViewVal,
-    ViewMap,
-    ViewFunMap,
-    Contract,
-    ARC11_Wallet,
-    WalletTransaction,
-    EnableNetworkResult,
-    EnableAccountsResult,
-    EnableOpts,
-    EnableResult,
-    EnableAccountsOpts,
-};
+
+export {
+    type Contract,
+    type Provider,
+    type Address,
+    type Account,
+    type Backend,
+} from '@reach-sh/stdlib/dist/types/ALGO';
+export {
+    type EnableNetworkResult,
+    type EnableOpts,
+    type EnableAccountsResult,
+    type EnableResult,
+    type EnableAccountsOpts,
+    type ARC11_Wallet,
+    type WalletTransaction,
+} from '@reach-sh/stdlib/ALGO_ARC11';
+export { type ViewVal, type ViewMap, type ViewFunMap } from '@reach-sh/stdlib/dist/types/shared_impl';

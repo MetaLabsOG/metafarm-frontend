@@ -76,6 +76,7 @@ export const ModalContainer = styled.div`
     border-radius: 10px;
     padding: 30px;
     margin-top: 30px;
+    position: relative;
 
     input {
         outline: none;
@@ -101,5 +102,44 @@ export const ModalSubtitle = styled.h3`
     font-size: 14px;
     font-weight: normal;
     text-align: center;
+    margin-bottom: 30px;
+`;
+
+export const Plus = styled.img`
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    left: 48px;
+    top: 172px;
+    z-index: 1;
+`;
+
+export const SwapArrow = styled.img`
+    width: 17px;
+    position: absolute;
+    left: 48px;
+    top: 172px;
+    z-index: 1;
+    transition: transform 0.2s ease;
+
+    :hover {
+        transform: translate(0) rotate(180deg);
+        cursor: pointer;
+    }
+`;
+
+export const SwitchContainer = styled.div`
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
     margin-bottom: 10px;
+`;
+
+export const SwitchText = styled.h3`
+    color: var(--gray);
+    font-family: 'Montserrat';
+    font-size: 16px;
+    font-weight: normal;
+    text-align: center;
+    margin-left: 10px;
 `;

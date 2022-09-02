@@ -1,12 +1,15 @@
+import { createComponent } from 'effector-react';
+import { FarmType } from '../common/store';
+import { Balance } from '../Farm/Balance';
 import { PoolList } from '../Farm/PoolList';
 import { FarmContainer } from '../Farm/styled';
-import { $sortedStakingPools } from './store';
+import { InfoCards } from '../Farm/Farm';
+import { $sortedStakePoolsWithStats } from './store';
 
-export const Stake = () => {
-    return (
-        <FarmContainer>
-            <h1>Staking Pools</h1>
-            <PoolList type="distribution" pools={$sortedStakingPools} />
-        </FarmContainer>
-    );
-};
+export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state) => (
+    <FarmContainer>
+        <Balance kind={'distribution' as FarmType} />
+        <PoolList pools={state} />
+        <InfoCards />
+    </FarmContainer>
+));

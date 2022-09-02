@@ -1,3 +1,9 @@
+import ReactTooltip from 'react-tooltip';
+import { getAssetLogoUrl, getTokenLink } from '../../Farm/PoolList/Pool/utils';
+import verified from '../../imgs/verified.svg';
+import info from '../../imgs/info.svg';
+import { Image } from '../../Farm/utils';
+
 import {
     PoolHeaderContainer,
     ContractLockSuffix,
@@ -8,13 +14,8 @@ import {
     PoolTitle,
     PoolSubtitle,
 } from './styled';
-import { getAssetLogoUrl, getTokenLink } from '../../Farm/PoolList/Pool/utils';
-import verified from '../../imgs/verified.svg';
-import React from 'react';
-import ReactTooltip from 'react-tooltip';
-import info from '../../imgs/info.svg';
 
-export const PoolHeader = ({
+export function PoolHeader({
     asset1_id,
     asset2_id,
     pool_name,
@@ -28,11 +29,11 @@ export const PoolHeader = ({
     asset2_id: number;
     pool_name: string;
     rewardTokenName: string;
-    dexIcon: string;
+    dexIcon: Image | null;
     lock: string;
     isVerified: boolean;
     algoRewards: boolean;
-}) => {
+}) {
     const asset1_logo = getAssetLogoUrl(asset1_id);
     const asset2_logo = getAssetLogoUrl(asset2_id);
 
@@ -69,10 +70,7 @@ export const PoolHeader = ({
                     )}
                 </div>
             </PoolInfo>
-            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-            {/*
-             // @ts-ignore */}
-            <ReactTooltip place="top" type="light" effect="solid" clickable={true} />
+            <ReactTooltip clickable place="top" type="light" effect="solid" />
         </PoolHeaderContainer>
     );
-};
+}

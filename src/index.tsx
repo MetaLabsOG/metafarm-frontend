@@ -6,6 +6,10 @@ import { BrowserTracing } from '@sentry/tracing';
 
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
+import { useEffect, useState } from 'react';
+import { useModal } from 'react-hooks-use-modal';
+import { useStoreMap, useUnit } from 'effector-react';
+import { Flip, ToastContainer } from 'react-toastify';
 import GlobalStyle from './common/globalStyles';
 
 import { Menu } from './Menu';
@@ -18,35 +22,19 @@ import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
 import { Crowdsale } from './Crowdsale';
-import { $account, $balances, ContractInfo, fetchAllPrices } from './common/store';
+import { $account, $balances, ContractInfo, fetchAllPricesFx } from './common/store';
 import { Stake } from './Stake/Stake';
 
 import './css/index.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { useEffect, useState } from 'react';
 import { setPoolInfos } from './Farm/store';
 import { getContracts } from './providers/apiProvider';
 import { setDistributionPoolInfos } from './Stake/store';
 import { TestnetModal } from './TestnetModal';
-import { useModal } from 'react-hooks-use-modal';
-import { useStoreMap, useUnit } from 'effector-react';
-import { Flip, ToastContainer } from 'react-toastify';
-import { notify } from './Components/Notification';
 import { Footer } from './Menu/Footer';
 import { ALGONET, TESTNET } from './AppContext';
-
-// TODO
-window.open = (function (open) {
-    return function (url, name, features) {
-        name = name || 'default_window_name';
-        const res = open.call(window, url, name, features);
-        if (!res || res.closed || typeof res.closed == 'undefined') {
-            notify('Please, enable popups in your browser.', 'warning');
-            return null;
-        }
-        return res;
-    };
-})(window.open);
+import { notify } from './Components/Notification';
+import { AddFarm } from './Farm/AddFarm';
 
 Sentry.init({
     dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',
@@ -55,45 +43,63 @@ Sentry.init({
     // Set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
     // We recommend adjusting this value in production
-    tracesSampleRate: 1.0,
+    tracesSampleRate: 1,
 });
+
+// TODO
+window.open = (function (open) {
+    return function (url, name, features) {
+        name = name || 'default_window_name';
+        const res = open.call(window, url, name, features);
+        if (!res || res.closed || typeof res.closed === 'undefined') {
+            notify('Please, enable popups in your browser.', 'warning');
+            return null;
+        }
+        return res;
+    };
+})(window.open);
 
 const queryClient = new QueryClient();
 
-// throw events on initialization
-void fetchAllPrices();
+void fetchAllPricesFx();
 
-const App = () => {
+function App() {
     const account = useUnit($account);
     const algoBalance = useStoreMap($balances, (bs) => Number(bs[0]));
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
-    const farmsFetch = useQuery(['contracts', 'farm'], () => getContracts('farm'));
-    const distrFetch = useQuery(['contracts', 'distribution'], () => getContracts('distribution'));
+    const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm'));
+    const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution'));
 
     const [hasTestnetModalOpened, setHasTestnetModalOpened] = useState(false);
     const [Modal, openTestnetModal] = useModal('root', { preventScroll: true });
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
-            const data = farmsFetch.data as ContractInfo<'farm'>[];
+            const data = farmsFetch.data! as Array<ContractInfo<'farm'>>;
             setPoolInfosEvent(data);
         }
-    }, [farmsFetch]);
+    }, [farmsFetch, setPoolInfosEvent]);
 
     useEffect(() => {
-        if (!hasTestnetModalOpened && account && !isNaN(algoBalance) && algoBalance === 0 && ALGONET === TESTNET) {
+        if (
+            !hasTestnetModalOpened &&
+            account &&
+            !Number.isNaN(algoBalance) &&
+            algoBalance === 0 &&
+            ALGONET === TESTNET
+        ) {
             openTestnetModal();
             setHasTestnetModalOpened(true);
         }
-    }, [algoBalance, account]);
+    }, [algoBalance, account, hasTestnetModalOpened, openTestnetModal]);
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
-            const data = distrFetch.data as ContractInfo<'distribution'>[];
+            const data = distrFetch.data! as Array<ContractInfo<'distribution'>>;
             setDistributionPoolInfosEvent(data);
         }
-    }, [distrFetch]);
+    }, [distrFetch, setDistributionPoolInfosEvent]);
 
     return (
         <>
@@ -105,13 +111,14 @@ const App = () => {
                     <ContentContainer>
                         <Routes>
                             <Route path="/" element={<Farm />} />
-                            <Route path="/fomo" element={<Fomo />} />
+                            {/*<Route path="/fomo" element={<Fomo />} />*/}
                             <Route path="/farm" element={<Farm />} />
                             <Route path="/stake" element={<Stake />} />
                             <Route path="/swap" element={<Swap />} />
-                            <Route path="/zap" element={<Zap />} />
+                            <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
                             <Route path="/meta-dao" element={<MetaDAO />} />
-                            <Route path="/tokensale" element={<Crowdsale />} />
+                            {/*<Route path="/tokensale" element={<Crowdsale />} />*/}
+                            <Route path="/addfarm" element={<AddFarm />} />
                         </Routes>
                     </ContentContainer>
                     <Modal>
@@ -122,7 +129,7 @@ const App = () => {
             </ThemeProvider>
         </>
     );
-};
+}
 
 const container = document.getElementById('root');
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

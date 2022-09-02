@@ -1,6 +1,6 @@
-import { Asset, Contract, Priced } from './store';
-import { LPTokenInfo } from '../providers/dexesProvider';
 import { BigNumber } from '@ethersproject/bignumber';
+import { LPTokenInfo } from '../dexes';
+import { Asset, Contract, Priced } from './store';
 
 export const rewardTokenInfoMock: Priced<Asset> = {
     id: 123,
@@ -44,17 +44,18 @@ export const ctcMock: Contract<'farm'> = {
                 initial: {
                     beneficiary: 'sdfafasdasd',
                     creationFee: BigNumber.from(100),
+                    flatAlgoCreationFee: BigNumber.from(0),
                     stakeToken: BigNumber.from(123),
                     rewardToken: BigNumber.from(123),
                     endBlock: BigNumber.from(2345),
                     beginBlock: BigNumber.from(3),
-                    rewardPerBlock: BigNumber.from(3456),
-                    extraAlgoRewardPerBlock: BigNumber.from(0),
+                    totalRewardAmount: BigNumber.from(3456000),
+                    totalAlgoRewardAmount: BigNumber.from(0),
                     lockLengthBlocks: BigNumber.from(10),
                 },
                 global: {
                     totalStaked: BigNumber.from(123),
-                    lastUpdateBlock: BigNumber.from(53565),
+                    lastUpdateBlock: BigNumber.from(53_565),
                     rewardPerTokenStored: BigNumber.from(34),
                 },
             },
@@ -71,17 +72,18 @@ export const ctcMock: Contract<'farm'> = {
         initial: {
             beneficiary: 'sdfafasdasd',
             creationFee: BigInt(100),
+            flatAlgoCreationFee: BigInt(0),
             stakeToken: 123,
             rewardToken: 123,
             endBlock: 2345,
             beginBlock: 3,
-            rewardPerBlock: BigInt(3456),
-            extraAlgoRewardPerBlock: BigInt(0),
+            totalRewardAmount: BigInt(3456000),
+            totalAlgoRewardAmount: BigInt(0),
             lockLengthBlocks: BigInt(10),
         },
         global: {
             totalStaked: BigInt(123),
-            lastUpdateBlock: 53565,
+            lastUpdateBlock: 53_565,
             rewardPerTokenStored: BigInt(34),
         },
         local: {

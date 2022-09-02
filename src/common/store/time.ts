@@ -1,12 +1,13 @@
-import { Event, createEvent, createStore } from 'effector';
+import { Event, createEvent, createStore, sample, Unit } from 'effector';
+import { interval } from 'patronum';
 import { indexer } from '../../AppContext';
 import { createTimeDeferredStore, nonConcurrent } from './utils';
 
 // Time store
 export const { $store: $networkTime, update: queryTimeUpdate } = createTimeDeferredStore<void, number>(
     0,
-    1000, // update once in a second max
-    nonConcurrent(() =>
+    1000, // Update once in a second max
+    nonConcurrent(async () =>
         indexer
             .makeHealthCheck()
             .do()
@@ -18,12 +19,24 @@ export const { $store: $networkTime, update: queryTimeUpdate } = createTimeDefer
 export const $meanRoundDuration = createStore<number>(4.35);
 
 // Simple clock events
-export const makeClock = (period: number): Event<number> => {
-    const clock = createEvent<number>();
-    setInterval(() => clock(Date.now()), period);
-    return clock;
+// Returns event which can be called to stop ticking
+export const doEachTick = (period: number, unit: Unit<any>): Event<void> => {
+    const startCounter = createEvent();
+    const stopCounter = createEvent();
+    const { tick } = interval({
+        timeout: 5000,
+        start: startCounter,
+        stop: stopCounter,
+    });
+
+    sample({
+        clock: tick,
+        target: unit,
+    });
+
+    startCounter();
+    return stopCounter;
 };
 
-// updating network time once in 5 secs - seems like an okay trade-off
-queryTimeUpdate();
-makeClock(5000).watch(() => queryTimeUpdate());
+// Updating network time once in 5 secs - seems like an okay trade-off
+void doEachTick(5000, queryTimeUpdate);

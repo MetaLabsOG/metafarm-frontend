@@ -1,22 +1,22 @@
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { getAssets } from '../providers/apiProvider';
-import { METAWALLET } from '../AppContext';
 import { useQuery } from 'react-query';
 import { Pie } from 'react-chartjs-2';
+import { getAssets } from '../providers/apiProvider';
+import { METAWALLET } from '../AppContext';
+import { formatNumber } from '../common/lib';
 import { assetsChartOptions } from './chartsConfig';
 import { ChartTitle, AssetsChartStyled } from './styled';
-import { formatNumber } from '../common/lib';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export const AssetsChart = () => {
-    const assetsQuery = useQuery(['assets', METAWALLET], () => getAssets(METAWALLET));
+export function AssetsChart() {
+    const assetsQuery = useQuery(['assets', METAWALLET], async () => getAssets(METAWALLET));
     const dataset = assetsQuery.data ?? [];
     console.log('DATASET', dataset);
 
     const data = {
         labels: dataset.map(
-            ({ ticker, amount, price }) => formatNumber(amount) + ' ' + ticker + ' ($' + formatNumber(price.usd) + ')'
+            ({ ticker, amount, price }) => `${formatNumber(amount)} ${ticker} ($${formatNumber(price.usd * amount)})`
         ),
         datasets: [
             {
@@ -34,4 +34,4 @@ export const AssetsChart = () => {
             <Pie data={data} options={assetsChartOptions} />
         </AssetsChartStyled>
     );
-};
+}

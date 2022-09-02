@@ -1,11 +1,11 @@
 import { Map } from 'immutable';
-import { combine, createEffect, createEvent, createStore, sample, Store, Event } from 'effector';
-import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
+import { combine, createEffect, createEvent, createStore, sample, Store, Event, Effect } from 'effector';
+import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
 import { maybeToNullable } from '../lib';
+import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
-import { BigNumber } from '@ethersproject/bignumber';
 
 // I'm sorry for this mess.... It can be done better I do believe.
 // In the end, it was not particularly necessary (I thought I would need more specific Reach
@@ -14,16 +14,12 @@ import { BigNumber } from '@ethersproject/bignumber';
 // old version of code without this does not work anymore
 
 type ReplacedViewMap<V extends ViewFunMap | ViewVal, T> = V extends ViewFunMap
-    ? {
-          [key: string]: T | ReplacedViewMap<ViewVal, T>;
-      }
-    : {
-          [key: string]: T;
-      };
+    ? Record<string, T | ReplacedViewMap<ViewVal, T>>
+    : Record<string, T>;
 
 type LvlUp<V extends ViewFunMap | ViewVal> = V extends ViewFunMap ? ViewMap : ViewFunMap;
 
-function isViewVal(v: ViewVal | ViewFunMap): v is ViewVal {
+function isViewValue(v: ViewVal | ViewFunMap): v is ViewVal {
     return typeof v === 'function';
 }
 
@@ -32,15 +28,24 @@ function mapViewMap<V extends ViewFunMap | ViewVal, T>(
     fn: (k: string, v: ViewVal) => T
 ): ReplacedViewMap<V, T> {
     return Object.keys(mp).reduce((newMp: ReplacedViewMap<V, T>, k) => {
-        const val = mp[k];
-        if (isViewVal(val)) {
-            newMp[k] = fn(k, val);
+        const value = mp[k];
+        if (isViewValue(value)) {
+            newMp[k] = fn(k, value);
         } else {
-            newMp[k] = mapViewMap<ViewVal, T>(val, fn);
+            newMp[k] = mapViewMap<ViewVal, T>(value, fn);
         }
         return newMp;
     }, {});
 }
+
+// This can be passed to or received from smart-contract
+type ReachValue = string | BigNumberish;
+
+// TODO
+type WrappedContract = {
+    views: any;
+    apis: Record<string, Effect<ReachValue[], ReachValue[]>>;
+};
 
 /**
  * Wrap the methods of ctc with bignum parsing and callback on api calls.
@@ -60,10 +65,16 @@ function makeWrappedCtc<T extends ContractType>(
 ): ReachContract {
     // TODO: make read-only ctc when account is null
     const ctc = account!.contract(backend, Promise.resolve(BigNumber.from(contractId)));
+
+    // TODO: proper typing for wrapped contracts
+    // const wCtc: WrappedContract = {
+    //     views: Object.keys(ctc.views).map((k: string) => k)
+    // }
+
     ctc.views = mapViewMap(
         ctc.views,
         (k, view) =>
-            (...args: any[]) =>
+            async (...args: any[]) =>
                 view(...args)
                     .then(maybeToNullable)
                     .then(parseView(type, k as keyof ContractState<T>))
@@ -79,9 +90,9 @@ function makeWrappedCtc<T extends ContractType>(
                 const res = await api(...args);
                 await onWrite(contractId);
                 return res;
-            } catch (err) {
-                // so that errors inside effect are visible in console
-                throw err;
+            } catch (error) {
+                // So that errors inside effect are visible in console
+                throw error;
             }
         })
     );
@@ -96,7 +107,7 @@ function parseBignumState<T extends ContractType>(
     return Object.keys(bignumState).reduce((newState: ContractState<T>, k: string) => {
         const key = k as keyof ContractState<T>;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
+        // @ts-expect-error
         newState[key] = parseView(type, key)(bignumState[key]);
         return newState;
     }, {} as ContractState<T>);
@@ -104,15 +115,23 @@ function parseBignumState<T extends ContractType>(
 
 // Contracts store
 export type ContractsStoreVars<T extends ContractType> = {
-    $contracts: Store<Contract<T>[]>;
-    $contractInfos: Store<ContractInfo<T>[]>;
+    $contracts: Store<Array<Contract<T>>>;
+    $contractInfos: Store<Array<ContractInfo<T>>>;
     $contractCtcs: Store<Map<AppId, any>>;
     $contractStates: Store<Map<AppId, ContractState<T>>>;
     $contractStatesWithCache: Store<Map<AppId, ContractState<T>>>;
-    setContractInfos: Event<ContractInfo<T>[]>;
+    setContractInfos: Event<Array<ContractInfo<T>>>;
     triggerStateUpdate: Event<AppId>;
     contractStateUpdated: Event<{ id: AppId; state: ContractState<T> }>;
 };
+
+/**
+ * Type guard to see if object is really a Backend
+ * @param backend Backend to check
+ */
+function isBackend(backend: Backend | any): backend is Backend {
+    return '_Connectors' in backend;
+}
 
 /**
  * Creates a store for the array of contracts of a given type.
@@ -120,8 +139,26 @@ export type ContractsStoreVars<T extends ContractType> = {
  * @param backend Reach contract backend
  * @returns Relevant stores and events
  */
-export function buildContractsStore<T extends ContractType>(type: T, backend: Backend): ContractsStoreVars<T> {
-    const $contractInfos = createStore<ContractInfo<T>[]>([]);
+export function buildContractsStore<T extends ContractType>(
+    type: T,
+    backend: Backend | Record<string, Backend>
+): ContractsStoreVars<T> {
+    const getBackendVersion = (v: string): Backend => {
+        // fix stupid bug around version number in add farm previously
+        if (v.startsWith('^')) {
+            v = v.substring(1);
+        }
+
+        if (isBackend(backend)) {
+            return backend;
+        } else if (v in backend) {
+            return backend[v];
+        } else {
+            throw new Error(`Unknown backend version ${v} for ${type} contract`);
+        }
+    };
+
+    const $contractInfos = createStore<Array<ContractInfo<T>>>([]);
     const $contractStates = createStore(Map<AppId, ContractState<T>>());
     const $contractCtcs = createStore(Map<AppId, any>());
 
@@ -140,22 +177,22 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
     );
 
     const $contracts = combine($contractInfos, $contractCtcs, $contractStatesWithCache, (infos, ctcs, states) => {
-        return infos.reduce((contracts, info) => {
-            const id = info.id;
+        return infos.reduce<Array<Contract<T>>>((contracts, info) => {
+            const { id } = info;
             const contract = {
-                id: id,
-                info: info,
+                id,
+                info,
                 ctc: ctcs.get(id, null),
                 state: states.get(id, null),
             };
             return [...contracts, contract];
-        }, [] as Contract<T>[]);
+        }, []);
     });
 
-    const setContractInfos = createEvent<ContractInfo<T>[]>();
+    const setContractInfos = createEvent<Array<ContractInfo<T>>>();
     $contractInfos.on(setContractInfos, (_, infos) => infos);
 
-    const initializeContract = createEvent<AppId>();
+    const initializeContract = createEvent<{ id: AppId; version: string }>();
     const triggerStateUpdate = createEvent<AppId>();
 
     // Keep it simple stupid without separation between views (for now)
@@ -183,9 +220,9 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
         clock: initializeContract,
         source: $account,
         filter: (account, _) => account !== null,
-        fn: (account, contractId): [AppId, ReachContract] => [
-            contractId,
-            makeWrappedCtc(type, account, backend, contractId, async (id) => {
+        fn: (account, { id, version }): [AppId, ReachContract] => [
+            id,
+            makeWrappedCtc(type, account, getBackendVersion(version), id, async (id) => {
                 triggerStateUpdate(id);
                 refreshAccountInfo();
 
@@ -206,7 +243,7 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
     sample({
         clock: ctcInitialized,
         source: $account,
-        fn: (account, [contractId, ctc]) => {
+        fn(account, [contractId, ctc]) {
             return { contractId, ctc, account };
         },
         target: updateContractStateFx,
@@ -215,13 +252,15 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
     sample({
         clock: triggerStateUpdate,
         source: { account: $account, ctcs: $contractCtcs },
-        fn: ({ account, ctcs }, contractId) => {
+        fn({ account, ctcs }, contractId) {
             return { ctc: ctcs.get(contractId, null), contractId, account };
         },
         target: updateContractStateFx,
     });
 
-    updateContractStateFx.fail.watch((p) => console.log('UPDATE CONTRACT FAILED', p));
+    updateContractStateFx.fail.watch((p) => {
+        console.log('UPDATE CONTRACT FAILED', p);
+    });
 
     const contractStateUpdated = sample({
         source: updateContractStateFx.done,
@@ -230,11 +269,16 @@ export function buildContractsStore<T extends ContractType>(type: T, backend: Ba
 
     $contractStates.on(contractStateUpdated, (states, { id, state }) => states.set(id, state));
 
-    const $contractIds = $contractInfos.map((infos) => infos.map((i) => i.id));
+    const $contractIdsAndVersions = $contractInfos.map((infos) =>
+        infos.map(({ id, version }) => ({
+            id,
+            version,
+        }))
+    );
 
-    combine({ account: $account, ids: $contractIds }).watch(({ ids }) => {
-        for (const id of ids) {
-            initializeContract(id);
+    combine({ account: $account, idsAndVersions: $contractIdsAndVersions }).watch(({ idsAndVersions }) => {
+        for (const idVersion of idsAndVersions) {
+            initializeContract(idVersion);
         }
     });
 

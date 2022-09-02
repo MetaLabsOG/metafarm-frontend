@@ -1,8 +1,8 @@
-import { Pool } from './Pool';
-import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
-import { useList } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { Contract, FarmType } from '../../common/store';
-import { Store } from 'effector';
+import { PoolWithStats, SortBy, sortPools, SortType } from '../store';
+import { PoolListContainer, PoolListHeader, PoolListHeaderElement } from './styled';
+import { Pool } from './Pool';
 
 export const POOL_COLUMN_WIDTH: Record<string, string> = {
     POOL: '300px',
@@ -13,16 +13,15 @@ export const POOL_COLUMN_WIDTH: Record<string, string> = {
     'ENDS IN': '120px',
 };
 
-export const PoolList = <T extends FarmType>({ type, pools }: { type: T; pools: Store<Contract<T>[]> }) => {
-    const poolComponents = useList(pools, (ctc: Contract<T>, index: number) => (
-        <Pool type={type} key={index} contract={ctc} />
-    ));
+export function PoolList({ pools }: { pools: PoolWithStats[] }) {
+    const poolComponents = pools.map((pws: PoolWithStats) => <Pool key={pws.pool.id} pws={pws} />);
+    const sortEvent = useUnit(sortPools);
 
     return (
         <PoolListContainer>
             <PoolListHeader>
-                {Object.keys(POOL_COLUMN_WIDTH).map((key, i) => (
-                    <PoolListHeaderElement width={POOL_COLUMN_WIDTH[key]} key={i}>
+                {Object.keys(POOL_COLUMN_WIDTH).map((key) => (
+                    <PoolListHeaderElement key={key} width={POOL_COLUMN_WIDTH[key]}>
                         {key}
                     </PoolListHeaderElement>
                 ))}
@@ -31,4 +30,4 @@ export const PoolList = <T extends FarmType>({ type, pools }: { type: T; pools: 
             {poolComponents}
         </PoolListContainer>
     );
-};
+}
