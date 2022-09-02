@@ -21,6 +21,7 @@ export interface InputWithButtonProps {
     buttonName: string;
     actionEffect: Effect<BigNumberish[], any>;
     optInId: number;
+    isAutoClaim: boolean;
     style?: React.CSSProperties;
     hasLock?: boolean;
 }
@@ -47,6 +48,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     // eslint-disable-next-line effector/mandatory-scope-binding
     actionEffect,
     optInId,
+    isAutoClaim,
     style,
     hasLock,
 }) => {
@@ -70,6 +72,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
         api: actionEffect,
         pendingStatus: isPending,
         action: buttonType === 'stake' ? ToastTypes.stake : ToastTypes.withdraw,
+        isAutoClaim,
     });
 
     const setInputMaxAmount = () => {

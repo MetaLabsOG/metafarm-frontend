@@ -40,7 +40,7 @@ export type WalletTransactionGroup = {
 
 declare global {
     interface Window {
-        algorand: Omit<AllDefined<ARC11_Wallet>, 'signTxns'> & {
+        algorand?: Omit<AllDefined<ARC11_Wallet>, 'signTxns'> & {
             signTxns: (txns: WalletTransaction[], options?: any) => Promise<string[]>;
             disconnect: () => Promise<void>;
         };

@@ -57,6 +57,7 @@ export function PoolActions({
     setIsZapModalOpen,
     currentBlock,
     contractId,
+    contractVersion,
     pricedAlgo,
 }: {
     poolState: PoolState;
@@ -67,8 +68,11 @@ export function PoolActions({
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
     currentBlock: number;
     contractId: AppId;
+    contractVersion: string;
     pricedAlgo: Priced<Asset>;
 }) {
+    const isFarm = isLPTokenInfo(stakeTokenInfo);
+
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
     const unlockTime = calculateUnlockTimeinSecs(
@@ -80,13 +84,15 @@ export function PoolActions({
     const [unlockTimer] = useTimer(unlockTime);
 
     const stakedTokenBalance = useStoreMap($balances, (bs) => bs[stakeTokenInfo.id] || BigInt(0));
-    const balanceSuffix = isLPTokenInfo(stakeTokenInfo) ? 'LP' : stakeTokenInfo.unitName;
+    const balanceSuffix = isFarm ? 'LP' : stakeTokenInfo.unitName;
 
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim && !unlockTimer;
     const hasLock = contractState.initial.lockLengthBlocks > 0;
     const [Modal, openZapModal, closeZapModal] = useModal('root');
+
+    const isAutoClaim = contractVersion.replace('^', '') === '17.2.4';
 
     useToasts({
         api: ctc.apis.claim,
@@ -114,6 +120,7 @@ export function PoolActions({
                     unlockTimer={unlockTimer}
                     contractId={contractId}
                     hasLock={hasLock}
+                    isAutoClaim={isAutoClaim}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -132,9 +139,10 @@ export function PoolActions({
                     unlockTimer={unlockTimer}
                     contractId={contractId}
                     hasLock={hasLock}
+                    isAutoClaim={isAutoClaim}
                 />
             )}
-            {isLPTokenInfo(stakeTokenInfo) && (
+            {isFarm && (
                 <Modal>
                     <Zap
                         inputDexProvider={stakeTokenInfo.poolDex}
