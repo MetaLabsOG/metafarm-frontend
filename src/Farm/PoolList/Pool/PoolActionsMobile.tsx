@@ -30,7 +30,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     unlockTimer,
     contractId,
     hasLock,
-    contractVersion,
+    isAutoClaim,
 }) => {
     const account = useUnit($account);
     return (
@@ -62,7 +62,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.stake}
                 hasLock={hasLock}
-                isAutoClaim={contractVersion > '17.2.4'}
+                isAutoClaim={isAutoClaim}
             />
             <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
                 <div>MY STAKE</div>
@@ -78,7 +78,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.unstake}
                 hasLock={hasLock}
-                isAutoClaim={contractVersion > '17.2.4'}
+                isAutoClaim={isAutoClaim}
             />
             <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
                 <div>REWARD</div>

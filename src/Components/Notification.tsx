@@ -31,7 +31,7 @@ type ToastIds = {
     [ToastTypes.claim]: Id | null;
 };
 
-export const useToasts = ({ api, pendingStatus, action, text, isAutoClaim }: useToastProps<any>) => {
+export const useToasts = ({ api, pendingStatus, action, text, isAutoClaim = false }: useToastProps<any>) => {
     const [notificationText, setNotificationText] = useState(text ?? '');
 
     const [toastIds, setToastIds] = useState<ToastIds>({
@@ -79,7 +79,7 @@ function Notification({
     action,
     status,
     text,
-    isAutoClaim,
+    isAutoClaim = false,
 }: {
     action: ToastTypes;
     status: string;

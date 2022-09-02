@@ -32,7 +32,7 @@ export const runCompound = async (
         return;
     }
     if (convertAmountToUSD(rewardAsset, claimRewards) < 0.01) {
-        notify('The compound is available for more than 0.01$ rewards.', 'error');
+        notify('The compound is available only if rewards are worth more than 1 cent.', 'error');
         return;
     }
     const firstAsset = asset1Id === rewardAssetId ? asset1Id : asset2Id;

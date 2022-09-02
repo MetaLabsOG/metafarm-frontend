@@ -42,7 +42,7 @@ export interface PoolActionsDesktopProps {
     unlockTimer: number;
     contractId: AppId;
     hasLock: boolean;
-    contractVersion: string;
+    isAutoClaim: boolean;
 }
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
@@ -59,7 +59,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     unlockTimer,
     contractId,
     hasLock,
-    contractVersion,
+    isAutoClaim,
 }) => {
     const account = useUnit($account);
 
@@ -95,7 +95,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.stake}
                 hasLock={hasLock}
-                isAutoClaim={contractVersion.replace('^', '') === '17.2.4'}
+                isAutoClaim={isAutoClaim}
             />
             <TokenInputWithButton
                 token={stakedToken}
@@ -105,7 +105,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.unstake}
                 hasLock={hasLock}
-                isAutoClaim={contractVersion.replace('^', '') === '17.2.4'}
+                isAutoClaim={isAutoClaim}
             />
             <div>
                 <PacmanButton

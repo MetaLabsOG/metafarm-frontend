@@ -32,6 +32,8 @@ import { deployFarm, InitialState } from './utils';
 // Is there a better option?
 const CURRENT_FARM_VERSION = '17.2.5';
 
+const MIN_ALLOWED_ALGO_BALANCE = 5;
+
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
     return Math.floor(Math.max(5, (endTime - startTime) / 1000) / meanRoundDuration);
 };
@@ -74,16 +76,14 @@ const checkFarmParams = (
 
     if (
         !Number.isNaN(algoToken.balance) &&
-        algoToken.balance < Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + 5
+        algoToken.balance < Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE
     ) {
-        const needAlgo = Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + 5 - algoToken.balance;
+        const needAlgo =
+            Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE - algoToken.balance;
         notify(
-            'Not enough ALGOs in the wallet. Please, add at least ' +
-                Math.round(needAlgo) +
-                ' ALGOs. ' +
-                'The creation fee is ' +
-                FARM_FLAT_ALGO_CREATION_FEE +
-                ' ALGOs.',
+            `Not enough ALGOs in the wallet. Please, add at least ${Math.round(
+                needAlgo
+            )} ALGOs. The creation fee is ${FARM_FLAT_ALGO_CREATION_FEE} ALGOs.`,
             'warning'
         );
         return false;

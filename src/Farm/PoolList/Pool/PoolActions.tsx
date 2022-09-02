@@ -92,6 +92,8 @@ export function PoolActions({
     const hasLock = contractState.initial.lockLengthBlocks > 0;
     const [Modal, openZapModal, closeZapModal] = useModal('root');
 
+    const isAutoClaim = contractVersion.replace('^', '') === '17.2.4';
+
     useToasts({
         api: ctc.apis.claim,
         text: `${fromSmallestUnits(rewardTokenInfo, contractState.local.reward)} ${rewardTokenInfo.unitName}`,
@@ -118,7 +120,7 @@ export function PoolActions({
                     unlockTimer={unlockTimer}
                     contractId={contractId}
                     hasLock={hasLock}
-                    contractVersion={contractVersion}
+                    isAutoClaim={isAutoClaim}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -137,7 +139,7 @@ export function PoolActions({
                     unlockTimer={unlockTimer}
                     contractId={contractId}
                     hasLock={hasLock}
-                    contractVersion={contractVersion}
+                    isAutoClaim={isAutoClaim}
                 />
             )}
             {isFarm && (
