@@ -32,6 +32,8 @@ import { deployFarm, InitialState } from './utils';
 // Is there a better option?
 const CURRENT_FARM_VERSION = '17.2.5';
 
+const MIN_ALLOWED_ALGO_BALANCE = 5;
+
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
     return Math.floor(Math.max(5, (endTime - startTime) / 1000) / meanRoundDuration);
 };
@@ -45,7 +47,9 @@ const checkFarmParams = (
     rewardToken: TokenOptionType,
     beginBlock: number,
     endBlock: number,
-    rewardAmount: number
+    rewardAmount: number,
+    algoToken: TokenOptionType,
+    extraAlgoRewardAmount: number
 ) => {
     if (!stakeToken.liquidityAsset) {
         notify('Please, choose LP pool.', 'warning');
@@ -70,6 +74,21 @@ const checkFarmParams = (
         return false;
     }
 
+    if (
+        !Number.isNaN(algoToken.balance) &&
+        algoToken.balance < Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE
+    ) {
+        const needAlgo =
+            Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE - algoToken.balance;
+        notify(
+            `Not enough ALGOs in the wallet. Please, add at least ${Math.round(
+                needAlgo
+            )} ALGOs. The creation fee is ${FARM_FLAT_ALGO_CREATION_FEE} ALGOs.`,
+            'warning'
+        );
+        return false;
+    }
+
     if (!FARM_BENEFICIARY_ADDR) {
         console.log('No FARM_BENEFICIARY_ADDR');
         return false;
@@ -85,10 +104,13 @@ const createFarm = async (
     beginBlock: number,
     endBlock: number,
     rewardAmount: number,
+    algoToken: TokenOptionType,
     extraAlgoRewardAmount: number,
     lockLengthBlocks: number
 ) => {
-    if (!checkFarmParams(stakeToken, rewardToken, beginBlock, endBlock, rewardAmount)) {
+    if (
+        !checkFarmParams(stakeToken, rewardToken, beginBlock, endBlock, rewardAmount, algoToken, extraAlgoRewardAmount)
+    ) {
         return false;
     }
 
@@ -206,6 +228,7 @@ function PoolInfo({
     rewardToken,
     lockPeriodBlocks,
     meanRoundDuration,
+    algoTokenRewards,
 }: {
     selectedPool: PoolOptionType;
     currentBlock: number;
@@ -216,6 +239,7 @@ function PoolInfo({
     rewardToken: TokenOptionType;
     lockPeriodBlocks: number;
     meanRoundDuration: number;
+    algoTokenRewards: number;
 }) {
     const farmCreationFee = (rewardAmount * Number(FARM_CREATION_FEE ?? 0)) / 10_000;
     const startTime = calculateTimeByBlock(currentBlock, beginBlock, meanRoundDuration);
@@ -251,6 +275,7 @@ function PoolInfo({
                 valueLink={'https://algoscan.app/asset/' + rewardToken.id}
             />
             <InfoRow title="Reward per block" value={rewardPerBlock.toPrecision(6) + ' ' + rewardToken.unitName} />
+            {algoTokenRewards > 0 && <InfoRow title="Extra rewards" value={algoTokenRewards + ' ALGO'} />}
             <InfoRow title="Lock period blocks" value={lockPeriodBlocks} style={{ marginBottom: '20px' }} />
             <InfoRow
                 title="Creation fee"
@@ -303,6 +328,9 @@ export function AddFarm() {
     const [selectedRewardToken, setSelectedRewardToken] = useState<TokenOptionType>(TOKEN_OPTION);
     const [rewardTokenAmount, setRewardTokenAmount] = useState<string>('');
 
+    const [algoToken, setAlgoToken] = useState<TokenOptionType>(TOKEN_OPTION);
+    const [algoTokenAmount, setAlgoTokenAmount] = useState<string>('');
+
     const [startTime, setStartTime] = useState<string>('');
     const [daysDuration, setDaysDuration] = useState<string>('');
     const [lockPeriod, setLockPeriod] = useState<string>('0');
@@ -328,6 +356,9 @@ export function AddFarm() {
             const filteredAssets = res.filter((asset) => asset.id !== 0);
             setRewardTokenOptions(filteredAssets);
             setSelectedRewardToken(filteredAssets[0]);
+
+            const filteredAlgoAsset = res.filter((asset) => asset.id === 0);
+            setAlgoToken(filteredAlgoAsset[0]);
         });
     }, [account, balances]);
 
@@ -373,6 +404,14 @@ export function AddFarm() {
                 setInputData={setRewardTokenAmount}
                 selectOnChange={selectRewardTokenOnChange}
             />
+            <Heading2>ALGO REWARDS [OPTIONAL]</Heading2>
+            <SelectInputGroup
+                options={[algoToken]}
+                selectedOption={algoToken}
+                inputData={algoTokenAmount}
+                setInputData={setAlgoTokenAmount}
+                selectOnChange={() => {}}
+            />
             <AddFarmRow>
                 <Heading2>START</Heading2>
                 <DateInput
@@ -406,7 +445,7 @@ export function AddFarm() {
                 <ConnectWallet buttonClassName="swap_button" />
             ) : (
                 <PacmanButton
-                    buttonText="CREATE FARM"
+                    buttonText="VERIFY DETAILS"
                     buttonStyle="swap_button"
                     onClickAction={async () => {
                         if (
@@ -415,7 +454,9 @@ export function AddFarm() {
                                 selectedRewardToken,
                                 beginBlock,
                                 endBlock,
-                                Number(rewardTokenAmount)
+                                Number(rewardTokenAmount),
+                                algoToken,
+                                Number(algoTokenAmount)
                             )
                         ) {
                             openAddFarmModal();
@@ -438,6 +479,7 @@ export function AddFarm() {
                         rewardToken={selectedRewardToken}
                         lockPeriodBlocks={lockPeriodBlocks}
                         meanRoundDuration={meanRoundDuration}
+                        algoTokenRewards={Number(algoTokenAmount)}
                     />
                     {account && (
                         <PacmanButton
@@ -451,7 +493,8 @@ export function AddFarm() {
                                     beginBlock,
                                     endBlock,
                                     Number(rewardTokenAmount),
-                                    0, // TODO: add extra algo rewards to the interface!!
+                                    algoToken,
+                                    Number(algoTokenAmount),
                                     lockPeriodBlocks
                                 );
                                 res && closeAddFarmModal();

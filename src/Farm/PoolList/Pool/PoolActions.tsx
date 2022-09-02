@@ -57,6 +57,7 @@ export function PoolActions({
     setIsZapModalOpen,
     currentBlock,
     contractId,
+    contractVersion,
     pricedAlgo,
 }: {
     poolState: PoolState;
@@ -67,6 +68,7 @@ export function PoolActions({
     setIsZapModalOpen: Dispatch<SetStateAction<boolean>>;
     currentBlock: number;
     contractId: AppId;
+    contractVersion: string;
     pricedAlgo: Priced<Asset>;
 }) {
     const isFarm = isLPTokenInfo(stakeTokenInfo);
@@ -89,6 +91,8 @@ export function PoolActions({
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim && !unlockTimer;
     const hasLock = contractState.initial.lockLengthBlocks > 0;
     const [Modal, openZapModal, closeZapModal] = useModal('root');
+
+    const isAutoClaim = contractVersion.replace('^', '') === '17.2.4';
 
     useToasts({
         api: ctc.apis.claim,
@@ -116,6 +120,7 @@ export function PoolActions({
                     unlockTimer={unlockTimer}
                     contractId={contractId}
                     hasLock={hasLock}
+                    isAutoClaim={isAutoClaim}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -134,6 +139,7 @@ export function PoolActions({
                     unlockTimer={unlockTimer}
                     contractId={contractId}
                     hasLock={hasLock}
+                    isAutoClaim={isAutoClaim}
                 />
             )}
             {isFarm && (

@@ -90,6 +90,7 @@ export function Pool({ pws }: { pws: PoolWithStats }) {
                             setIsZapModalOpen={setIsOpen}
                             currentBlock={currentBlock}
                             contractId={contract.id}
+                            contractVersion={contract.info.version}
                             pricedAlgo={pricedAlgo}
                         />
                     </div>

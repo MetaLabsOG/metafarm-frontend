@@ -93,6 +93,7 @@ export async function loadZapData(
                 pool_lp_id: zapData.pool_lp_id,
                 // ...zap_data,
                 swapHalf: Number(swapHalf),
+                dex: dexProvider,
             },
             LogName.ZAP
         );
@@ -116,6 +117,7 @@ export async function loadZapData(
                 amount: asset1_amount,
                 swapHalf: Number(swapHalf),
                 error: error_message,
+                dex: dexProvider,
             },
             LogName.ZAP
         );

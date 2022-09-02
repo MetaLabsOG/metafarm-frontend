@@ -238,6 +238,7 @@ export async function runTransactions(
         console.log(QueryType[type].toUpperCase() + ' OK', txIds);
 
         if (operation.dex == 'T2') {
+            notify('Redeeming excess amounts on Tinyman...', 'info');
             const redeemTxns = await tinymanDex.getAllRedeemTxs(address);
             const redeemTxIds = await signAndPostTxnGroups(redeemTxns, { inParallel: true });
             txIds = [...txIds, ...redeemTxIds];
