@@ -3,7 +3,7 @@ import { getAssetLogoUrl, getTokenLink } from '../../Farm/PoolList/Pool/utils';
 import verified from '../../imgs/verified.svg';
 import info from '../../imgs/info.svg';
 import { Image } from '../../Farm/utils';
-
+import tokenPlaceholder from '../../imgs/tokenPlaceholder.svg';
 import {
     PoolHeaderContainer,
     ContractLockSuffix,
@@ -43,12 +43,34 @@ export function PoolHeader({
                 <LpTokensIconsWrapper>
                     <a target="_blank" href={getTokenLink(asset1_id)} rel="noreferrer">
                         <LPTokensIcon first>
-                            {asset1_logo && <img alt="" width="40px" height="40px" src={asset1_logo} />}
+                            {asset1_logo && (
+                                <img
+                                    alt=""
+                                    width="40px"
+                                    height="40px"
+                                    src={asset1_logo}
+                                    onError={({ currentTarget }) => {
+                                        currentTarget.onerror = null; // prevents looping
+                                        currentTarget.src = tokenPlaceholder;
+                                    }}
+                                />
+                            )}
                         </LPTokensIcon>
                     </a>
                     <a target="_blank" href={getTokenLink(asset2_id)} rel="noreferrer">
                         <LPTokensIcon>
-                            {asset2_logo && <img alt="" width="40px" height="40px" src={asset2_logo} />}
+                            {asset2_logo && (
+                                <img
+                                    alt=""
+                                    width="40px"
+                                    height="40px"
+                                    src={asset2_logo}
+                                    onError={({ currentTarget }) => {
+                                        currentTarget.onerror = null; // prevents looping
+                                        currentTarget.src = tokenPlaceholder;
+                                    }}
+                                />
+                            )}
                         </LPTokensIcon>
                     </a>
                     {dexIcon && <DexIcon alt="" src={dexIcon} />}

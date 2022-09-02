@@ -27,7 +27,7 @@ export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
 };
 
 export const getAssetLogoUrl = (input_asset_id: number) => {
-    const asset_id = ALGONET === MAINNET ? input_asset_id : TESTNET_TO_MAINNET_ASA_ID[input_asset_id] ?? 0;
+    const asset_id = ALGONET === MAINNET ? input_asset_id : TESTNET_TO_MAINNET_ASA_ID[input_asset_id];
 
     return `https://asa-list.tinyman.org/assets/${asset_id}/icon.png`;
 };

@@ -51,7 +51,15 @@ export const getPlaceholder = (selectType: SelectType) => {
 function TokenOption({ option, showAdditionalInfo }: { option: TokenOptionType; showAdditionalInfo: boolean }) {
     return (
         <>
-            <img alt="" className="tokenIcon" src={getAssetLogoUrl(option.id)} />
+            <img
+                alt=""
+                className="tokenIcon"
+                src={getAssetLogoUrl(option.id)}
+                onError={({ currentTarget }) => {
+                    currentTarget.onerror = null; // prevents looping
+                    currentTarget.src = tokenPlaceholder;
+                }}
+            />
             <div>
                 <div className="optionTitle">{option.name}</div>
                 <div className="optionSubTitle">{option.unitName}</div>

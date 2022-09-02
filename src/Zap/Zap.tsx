@@ -195,11 +195,18 @@ export function Zap({
 
     useEffect(() => {
         getTokens(account, balances)
-            .then((res) => {
+            .then(async (res) => {
                 const filteredRes = res.filter((token) => !filteredOptions || filteredOptions.includes(token.id));
+                for (const assetId of filteredOptions ?? []) {
+                    if (!filteredRes.filter((option) => option.id === assetId).length) {
+                        const asset = await fetchAsset(assetId);
+                        filteredRes.push({ ...asset, value: asset.id.toString(), balance: 0 });
+                    }
+                }
                 setOptions(filteredRes);
-                setToken1(filteredRes[0]);
-                setToken2(filteredRes[1]);
+                console.log(filteredRes);
+                filteredRes[0] && setToken1(filteredRes[0]);
+                filteredRes[1] && setToken2(filteredRes[1]);
             })
             .catch((error) => {
                 logFarmActionData(

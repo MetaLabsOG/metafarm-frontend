@@ -6,13 +6,24 @@ import '../Select/styled.css';
 import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
 import { theme } from '../../theme';
 import { MaxButton } from '../TokenInputWithButton/styled';
+import tokenPlaceholder from '../../imgs/tokenPlaceholder.svg';
 import { SelectInputGroupProps } from './types';
 import './styled.css';
 
 function TokenOption({ option }: { option: any }) {
     return (
         <div className="TokenOptionContainer">
-            <img alt="" className="tokenIcon" width="32" height="32" src={getAssetLogoUrl(option.id)} />
+            <img
+                alt=""
+                className="tokenIcon"
+                width="32"
+                height="32"
+                src={getAssetLogoUrl(option.id)}
+                onError={({ currentTarget }) => {
+                    currentTarget.onerror = null; // prevents looping
+                    currentTarget.src = tokenPlaceholder;
+                }}
+            />
             <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.unitName}</div>
         </div>
     );
