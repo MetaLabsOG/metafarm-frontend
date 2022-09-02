@@ -114,7 +114,7 @@ export function MetaDAO() {
                     </div>
                     <a
                         target="_blank"
-                        href={'https://www.nftexplorer.app/sellers/metapunks'}
+                        href="https://www.nftexplorer.app/sellers/metapunks"
                         style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center' }}
                         rel="noreferrer"
                     >
@@ -126,7 +126,7 @@ export function MetaDAO() {
                                 fontSize: '20px',
                             }}
                             onClick={() => {
-                                // do nothing
+                                // Do nothing
                             }}
                         />
                     </a>

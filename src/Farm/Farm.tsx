@@ -3,8 +3,8 @@ import { FarmType } from '../common/store';
 import { InfoCard } from '../Components/InfoCard/InfoCard';
 import { Balance } from './Balance';
 import { PoolList } from './PoolList';
+import { $sortedPoolsWithStats } from './store';
 import { FarmContainer } from './styled';
-import { $sortedFarmPools } from './store';
 
 export const InfoCards = () => {
     if (window.innerWidth <= 1120) {
@@ -29,10 +29,10 @@ export const InfoCards = () => {
     );
 };
 
-export const Farm = createComponent($sortedFarmPools, (_props, state) => (
+export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
         <Balance kind={'farm' as FarmType} />
-        <PoolList type="farm" pools={state} />
+        <PoolList pools={state} />
         <InfoCards />
     </FarmContainer>
 ));
