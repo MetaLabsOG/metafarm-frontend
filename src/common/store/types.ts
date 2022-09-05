@@ -79,8 +79,8 @@ export type ContractInfo<T extends ContractType> = {
 };
 
 export type ContractMetadata = {
-    farm: { dex?: string };
-    distribution: unknown;
+    farm: { dex?: string; verified?: boolean };
+    distribution: { verified?: boolean };
     crowdsale: { whitelist: string[] };
     fomo: unknown;
 };
