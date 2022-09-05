@@ -42,7 +42,10 @@ import { deployFarm, InitialDistributionState, InitialFarmState } from './utils'
 // TODO: Using aliases for different package versions prevents us from automatically determining
 // the version of given contract type from package.json. So we have to hard-code it.
 // Is there a better option?
-const CURRENT_FARM_VERSION = '17.2.5';
+const CURRENT_CONTRACT_VERSION = {
+    farm: '17.2.5',
+    distribution: '17.0.5',
+};
 
 const MIN_ALLOWED_ALGO_BALANCE = 5;
 
@@ -221,7 +224,7 @@ const createFarm = async (
                 contractType,
                 stakeToken.name,
                 stakeToken.dex,
-                CURRENT_FARM_VERSION
+                CURRENT_CONTRACT_VERSION[contractType]
             )
         );
 
