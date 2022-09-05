@@ -45,7 +45,7 @@ export function PoolHeader({
             <div>
                 <LpTokensIconsWrapper>
                     <a target="_blank" href={getTokenLink(asset1_id)} rel="noreferrer">
-                        <LPTokensIcon first isWhite={asset1_id == GARD_ID}>
+                        <LPTokensIcon first isWhite={asset1_id === GARD_ID}>
                             {asset1_logo && (
                                 <img
                                     alt=""
@@ -61,7 +61,7 @@ export function PoolHeader({
                         </LPTokensIcon>
                     </a>
                     <a target="_blank" href={getTokenLink(asset2_id)} rel="noreferrer">
-                        <LPTokensIcon isWhite={asset2_id == GARD_ID}>
+                        <LPTokensIcon isWhite={asset2_id === GARD_ID}>
                             {asset2_logo && (
                                 <img
                                     alt=""
