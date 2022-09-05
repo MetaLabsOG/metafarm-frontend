@@ -73,7 +73,7 @@ export const humbleDex = new HumbleDex(algod);
 export const mockDex = new MockDex();
 
 export function makeDex(provider: DexProvider): Dex {
-    return provider === 'PT' ? pactDex : provider === 'T2' ? tinymanDex : mockDex;
+    return provider === 'PT' ? pactDex : provider === 'T2' ? tinymanDex : provider === 'HM' ? humbleDex : mockDex;
 }
 
 // In which order to call dexes for the swap price for each token.

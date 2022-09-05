@@ -91,7 +91,7 @@ export class HumblePool implements DexPool {
             minimalAmountOut: BigInt(swap.amountB), // humbleSDK does not separate those two concepts, I see...
             price: Number(swap.amountB) / Number(swap.amountA),
             priceImpact: 0, // TODO: calculate
-            fee: BigInt(0), // TODO: how to fucking get it???
+            fee: BigInt(0), // TODO: how to fucking get it??? ok seems to be 0.25%
             slippage,
 
             prepareTxs: async (sender) => {
@@ -128,10 +128,6 @@ export class HumbleDex extends Dex {
                 onPoolReceived: (info: any) => poolAvailable(info.map(Number)),
             });
         });
-
-        this.$existingPools.watch((pools) => {
-            console.log('humble pools', pools.toJS());
-        });
     }
 
     async getPool(poolId: number | string): Promise<HumblePool> {
@@ -142,10 +138,14 @@ export class HumbleDex extends Dex {
             account = await humbleReach.createAccount();
         }
 
+        console.log('HUMBLE: account used', account.networkAccount.addr);
+
         const { succeeded, data, contract, message } = await humble.fetchLiquidityPool(account, {
             n2nn: true, // TODO: wtf to do about this fucking flag?
             poolAddress: poolId,
         });
+
+        console.log('HUMBLE POOL FETCHED!', data);
 
         if (succeeded && data.pool !== null) {
             return new HumblePool(data.pool, contract);
@@ -172,20 +172,24 @@ export class HumbleDex extends Dex {
 
     async getPoolByAssets(asset1: number | Asset, asset2: number | Asset): Promise<HumblePool> {
         const poolId = await this.waitForPoolByAssets(assetId(asset1), assetId(asset2));
+        console.log('HUMBLE: poolId', poolId);
         return this.getPool(poolId);
     }
 
-    private waitForPoolByAssets(assetA: AssetId, assetB: AssetId): Promise<AppId> {
+    private async waitForPoolByAssets(assetA: AssetId, assetB: AssetId): Promise<AppId> {
         // TODO: Look at this. Isn't it пиздец какой-то?
         const TIMEOUT = 5000; // arbitraty timeout
 
         return new Promise<AppId>((resolve, reject) => {
             const unsub = sample({ source: this.$existingPools }).watch((pools) => {
-                const res = pools.get([assetA, assetB], pools.get([assetB, assetA], null));
+                const key = `${assetA},${assetB}`;
+                // const res = pools.get([assetA, assetB], pools.get([assetB, assetA], null));
+                const res = (pools.toJS()[key] as AppId) ?? null;
+
                 if (res !== null) {
-                    if (unsub) {
-                        unsub();
-                    }
+                    // if (unsub) {
+                    //     unsub();
+                    // }
                     resolve(res);
                 }
             });

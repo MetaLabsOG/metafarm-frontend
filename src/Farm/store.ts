@@ -51,7 +51,7 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
     if (name.includes('liquidity') || name.includes('pact')) {
         return 'PT';
     }
-    if (name.includes('hm')) {
+    if (name.includes('humble')) {
         return 'HM';
     }
 
@@ -63,6 +63,7 @@ export async function getLPTokenInfo(
     algoPrice: number | null,
     provider?: DexProvider
 ): Promise<Priced<LPTokenInfo>> {
+    // console.log('getLPTokenInfo', asset);
     if (provider === undefined) {
         provider = detectAssetProvider(asset);
     }
