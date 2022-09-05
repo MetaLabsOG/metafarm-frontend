@@ -17,12 +17,13 @@ import { ModalContainer, ModalSubtitle, ModalTitle, Plus, SwitchContainer, Switc
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
-import { Zap as ZapOperation, DexProvider, makeDex, Mint, MintQuote } from '../dexes';
+import { Zap as ZapOperation, DexProvider, makeDex, Mint, MintQuote, DexPool } from '../dexes';
 import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
 import plus from '../imgs/plus.svg';
 import { theme } from '../theme';
 import { SwitchSelect } from '../Components/SwitchSelect/SwitchSelect';
+import { getLPTokenPoolLink } from '../Farm/PoolList/Pool/utils';
 import { ZapData } from './types';
 
 export function quoteToZapData(asset1Id: number, inputQuote: ZapOperation | MintQuote | null): ZapData {
@@ -192,6 +193,13 @@ export function Zap({
 
     // TODO: We need additional UI to support zap on Pact in the standalone zap page (dex selection?)
     const [dexProvider, setDexProvider] = useState<DexProvider>(inputDexProvider);
+    const [pool, setPool] = useState<DexPool | null>(null);
+
+    useEffect(() => {
+        makeDex(dexProvider)
+            .getPoolByAssets(token1.id, token2.id)
+            .then((pool) => setPool(pool));
+    }, [dexProvider, token1, token2]);
 
     useEffect(() => {
         getTokens(account, balances)
@@ -358,14 +366,16 @@ export function Zap({
             />
             <PacmanButton buttonText={zapButtonText} buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
             <h3 className="dex_name">via {dexProvider == 'T2' ? 'tinyman' : 'pact'}</h3>
-            <a
-                target="_blank"
-                href={`https://app.tinyman.org/#/pool/add-liquidity?asset_1=${token1.id}&asset_2=${token2.id}`}
-                rel="noreferrer"
-                style={{ color: theme.lightGray }}
-            >
-                <h3 className="dex_name">or do it manually</h3>
-            </a>
+            {pool && (
+                <a
+                    target="_blank"
+                    href={getLPTokenPoolLink(dexProvider, pool.poolId, token1.id, token2.id)}
+                    rel="noreferrer"
+                    style={{ color: theme.lightGray }}
+                >
+                    <h3 className="dex_name">or do it manually</h3>
+                </a>
+            )}
         </ModalContainer>
     );
 }
