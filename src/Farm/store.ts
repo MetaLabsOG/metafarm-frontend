@@ -333,7 +333,7 @@ export function createAprs<T extends FarmType>(
                     const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
                     const { totalRewardAmount, totalAlgoRewardAmount, beginBlock, endBlock } = contractState.initial;
                     const totalBlocks = BigInt(endBlock - beginBlock);
-                    const rewardPerBlock = fromSmallestUnits(rewardTokenInfo, totalRewardAmount / totalBlocks);
+                    const totalRewardInSmallestUnits = fromSmallestUnits(rewardTokenInfo, totalRewardAmount);
 
                     const extraAlgoRewardPerBlock = totalAlgoRewardAmount / totalBlocks;
                     const algoRewardPerBlock = extraAlgoRewardPerBlock
@@ -342,7 +342,9 @@ export function createAprs<T extends FarmType>(
 
                     const totalStakedUSD = totalStaked * stakePrice;
                     const rewardAPR = totalStakedUSD
-                        ? ((rewardPerBlock * rewardTokenInfo.price * blocksInAYear) / totalStakedUSD) * 100
+                        ? ((totalRewardInSmallestUnits * rewardTokenInfo.price * blocksInAYear) /
+                              (totalStakedUSD * Number(totalBlocks))) *
+                          100
                         : 0;
 
                     const algoRewardAPR =
