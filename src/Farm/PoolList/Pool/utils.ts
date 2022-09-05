@@ -7,8 +7,9 @@ import {
     FarmType,
     FarmInitialInfo,
     DistributionInitialInfo,
+    AssetId,
 } from '../../../common/store/types';
-import { LPTokenInfo } from '../../../dexes';
+import { DexProvider, LPTokenInfo } from '../../../dexes';
 import { ALGONET, MAINNET, TESTNET } from '../../../AppContext';
 import { PoolState } from './types';
 
@@ -47,7 +48,7 @@ export const numberRound = (amount: number | Amount) => {
     return amount > 0 ? formatDecimalsMeaningful(amount) : 0;
 };
 
-export const getLPTokenPoolLink = ({ poolDex, poolId, asset1, asset2 }: LPTokenInfo): string => {
+export const getLPTokenPoolLink = (poolDex: DexProvider, poolId: number, asset1: AssetId, asset2: AssetId): string => {
     if (poolDex === 'T2') {
         return `${TINYMAN_URL}/#/pool/add-liquidity?asset_1=${asset1}&asset_2=${asset2}`;
     }
