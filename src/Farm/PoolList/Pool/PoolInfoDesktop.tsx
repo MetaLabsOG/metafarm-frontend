@@ -76,7 +76,7 @@ export const StakeValue: FC<ValueProps> = ({ contractState, tokenInfo }) => {
 };
 
 export const getAPRTip = (APR: AprType, unitname: string) => {
-    const rewards = `${numberRound(APR.reward)}%${unitname}`;
+    const rewards = `${numberRound(APR.reward)}% ${unitname}`;
     const algoRewards = APR.algoReward ? ` + ${numberRound(APR.algoReward)}% ALGO` : '';
     const fees = APR.fees ? ` + ${numberRound(APR.fees)}% trading fees` : '';
     return rewards + algoRewards + fees;
