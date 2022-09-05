@@ -15,6 +15,9 @@ import {
     PoolSubtitle,
 } from './styled';
 
+// KOSTYL for GARD....
+const GARD_ID = 684649988;
+
 export function PoolHeader({
     asset1_id,
     asset2_id,
@@ -42,7 +45,7 @@ export function PoolHeader({
             <div>
                 <LpTokensIconsWrapper>
                     <a target="_blank" href={getTokenLink(asset1_id)} rel="noreferrer">
-                        <LPTokensIcon first>
+                        <LPTokensIcon first isWhite={asset1_id === GARD_ID}>
                             {asset1_logo && (
                                 <img
                                     alt=""
@@ -58,7 +61,7 @@ export function PoolHeader({
                         </LPTokensIcon>
                     </a>
                     <a target="_blank" href={getTokenLink(asset2_id)} rel="noreferrer">
-                        <LPTokensIcon>
+                        <LPTokensIcon isWhite={asset2_id === GARD_ID}>
                             {asset2_logo && (
                                 <img
                                     alt=""

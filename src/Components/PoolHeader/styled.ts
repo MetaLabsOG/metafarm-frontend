@@ -50,14 +50,14 @@ export const LpTokensIconsWrapper = styled.div`
     width: 85px;
 `;
 
-export const LPTokensIcon = styled.div<{ first?: boolean }>`
+export const LPTokensIcon = styled.div<{ first?: boolean; isWhite?: boolean }>`
     position: absolute;
     left: ${({ first }) => (first ? '0' : '30px')};
     height: 100%;
     //width: 40px;
     border: 0 solid;
     border-radius: 40px;
-    background-color: black;
+    background-color: ${({ isWhite }) => (isWhite ? 'white' : 'black')};
 `;
 
 export const DexIcon = styled.img`
