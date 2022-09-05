@@ -6,12 +6,16 @@ import algofi from '../imgs/dexes/algofi.png';
 import { reach } from '../AppContext';
 import { Contract, SubstituteType } from '../types';
 import { DexProvider } from '../dexes';
-import { Amount, FarmInitialInfo } from '../common/store';
+import { Amount, DistributionInitialInfo, FarmInitialInfo } from '../common/store';
 
 // Reuse the view type here
-export type InitialState = SubstituteType<FarmInitialInfo, Amount, BigNumberish>;
+export type InitialFarmState = SubstituteType<FarmInitialInfo, Amount, BigNumberish>;
+export type InitialDistributionState = SubstituteType<DistributionInitialInfo, Amount, BigNumberish>;
 
-export async function deployFarm(ctc: Contract, initialState: InitialState): Promise<BigNumberish> {
+export async function deployFarm(
+    ctc: Contract,
+    initialState: InitialFarmState | InitialDistributionState
+): Promise<BigNumberish> {
     const creatorInteract = {
         getParams: () => initialState,
         deployed: reach.disconnect,

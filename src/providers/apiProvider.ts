@@ -152,7 +152,7 @@ export const deployContractToBackend = async (
     console.log('/contract/register', request);
     logEvent(
         accountAddress,
-        { status: '[ADDFARM DEPLOY]', contractId: Number(contractId), params: JSON.stringify(request) },
+        { status: '[ADDFARM DEPLOY]', contractType, contractId: Number(contractId), params: JSON.stringify(request) },
         LogName.ADDFARM
     );
 

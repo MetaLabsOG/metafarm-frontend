@@ -3,6 +3,8 @@ import { SelectedOptionValue } from 'react-select-search';
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-expect-error
 import { backend as farmBackend } from 'metalabs-farm-17_2_5';
+// @ts-expect-error No provided type bindings in contracts package
+import { backend as distributionBackend } from 'metalabs-distribution-17_0_5';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
@@ -14,19 +16,28 @@ import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGrou
 
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
-import { $account, $balances, $meanRoundDuration, $networkTime, ALGO_ASSET, AssetId, Time } from '../common/store';
+import {
+    $account,
+    $balances,
+    $meanRoundDuration,
+    $networkTime,
+    ALGO_ASSET,
+    AssetId,
+    FarmType,
+    Time,
+} from '../common/store';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { DAY, formatDecimalsMeaningful, getSmallestUnits, unsafeFromBigint } from '../common/lib';
 import { deployContractToBackend, getTinymanPools } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
 import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE, FARM_FLAT_ALGO_CREATION_FEE } from '../AppContext';
-import { Backend } from '../types';
+import { Contract, Backend } from '../types';
 import { expBackoff } from '../common/store/utils';
 import { logEvent, LogName } from '../logEvent';
 import { DexProvider } from '../dexes';
 import { AddFarmRow, DateInput } from './styled';
-import { deployFarm, InitialState } from './utils';
+import { deployFarm, InitialDistributionState, InitialFarmState } from './utils';
 
 // TODO: Using aliases for different package versions prevents us from automatically determining
 // the version of given contract type from package.json. So we have to hard-code it.
@@ -105,6 +116,64 @@ const checkFarmParams = (
     return true;
 };
 
+const getContractAndParams = (
+    contractType: FarmType,
+    account: Account,
+    stakeToken: StakingAsset,
+    rewardToken: TokenOptionType,
+    beginBlock: number,
+    endBlock: number,
+    rewardAmount: number,
+    algoToken: TokenOptionType,
+    extraAlgoRewardAmount: number,
+    lockLengthBlocks: number
+): [Contract, InitialFarmState | InitialDistributionState] => {
+    const totalRewardAmount = unsafeFromBigint(getSmallestUnits(rewardToken, rewardAmount));
+    const totalAlgoRewardAmount = unsafeFromBigint(getSmallestUnits(ALGO_ASSET, extraAlgoRewardAmount));
+    const flatAlgoCreationFee = unsafeFromBigint(getSmallestUnits(ALGO_ASSET, Number(FARM_FLAT_ALGO_CREATION_FEE)));
+
+    console.log(
+        'Start create ' + contractType,
+        stakeToken.id,
+        rewardToken.id,
+        beginBlock,
+        endBlock,
+        totalRewardAmount,
+        totalAlgoRewardAmount
+    );
+
+    if (contractType === 'farm') {
+        const ctc = account.contract(farmBackend as Backend);
+        const contractParameters: InitialFarmState = {
+            beneficiary: FARM_BENEFICIARY_ADDR ?? '',
+            creationFee: FARM_CREATION_FEE ?? 0,
+            stakeToken: stakeToken.id,
+            rewardToken: rewardToken.id,
+            beginBlock,
+            endBlock,
+            totalRewardAmount,
+            totalAlgoRewardAmount,
+            lockLengthBlocks,
+            flatAlgoCreationFee,
+        };
+        return [ctc, contractParameters];
+    }
+
+    const ctc = account.contract(distributionBackend as Backend);
+    const contractParameters: InitialDistributionState = {
+        beneficiary: FARM_BENEFICIARY_ADDR ?? '',
+        creationFee: FARM_CREATION_FEE ?? 0,
+        token: stakeToken.id,
+        beginBlock,
+        endBlock,
+        totalRewardAmount,
+        totalAlgoRewardAmount,
+        lockLengthBlocks,
+        flatAlgoCreationFee,
+    };
+    return [ctc, contractParameters];
+};
+
 const createFarm = async (
     account: Account,
     stakeToken: StakingAsset,
@@ -122,46 +191,34 @@ const createFarm = async (
         return false;
     }
 
-    const totalRewardAmount = unsafeFromBigint(getSmallestUnits(rewardToken, rewardAmount));
-    const totalAlgoRewardAmount = unsafeFromBigint(getSmallestUnits(ALGO_ASSET, extraAlgoRewardAmount));
-    const flatAlgoCreationFee = unsafeFromBigint(getSmallestUnits(ALGO_ASSET, Number(FARM_FLAT_ALGO_CREATION_FEE)));
-
-    console.log(
-        'Start create farm',
-        stakeToken.id,
-        rewardToken.id,
+    const contractType: FarmType = stakeToken.id === rewardToken.id ? 'distribution' : 'farm';
+    const [ctc, contractParameters] = getContractAndParams(
+        contractType,
+        account,
+        stakeToken,
+        rewardToken,
         beginBlock,
         endBlock,
-        totalRewardAmount,
-        totalAlgoRewardAmount
+        rewardAmount,
+        algoToken,
+        extraAlgoRewardAmount,
+        lockLengthBlocks
     );
-    const contractParameters: InitialState = {
-        beneficiary: FARM_BENEFICIARY_ADDR ?? '',
-        creationFee: FARM_CREATION_FEE ?? 0,
-        stakeToken: stakeToken.id,
-        rewardToken: rewardToken.id,
-        beginBlock,
-        endBlock,
-        totalRewardAmount,
-        totalAlgoRewardAmount,
-        lockLengthBlocks,
-        flatAlgoCreationFee,
-    };
+
     logEvent(
         account.networkAccount.addr,
-        { status: '[ADDFARM START]', params: JSON.stringify(contractParameters) },
+        { status: '[ADDFARM START]', contractType, params: JSON.stringify(contractParameters) },
         LogName.ADDFARM
     );
 
     try {
-        const ctc = account.contract(farmBackend as Backend);
         const contractId = await deployFarm(ctc, contractParameters);
 
         const deployToBackendWithBackoffFun = expBackoff(async () =>
             deployContractToBackend(
                 account.networkAccount.addr,
                 Number(contractId),
-                stakeToken.id === rewardToken.id ? 'distribution' : 'farm',
+                contractType,
                 stakeToken.name,
                 stakeToken.dex,
                 CURRENT_FARM_VERSION
@@ -172,7 +229,12 @@ const createFarm = async (
         notify(`Done! Contract id is ${Number(contractId)}. Please, update the page.`, 'success');
         logEvent(
             account.networkAccount.addr,
-            { status: '[ADDFARM OK]', contractId: Number(contractId), params: JSON.stringify(contractParameters) },
+            {
+                status: '[ADDFARM OK]',
+                contractType,
+                contractId: Number(contractId),
+                params: JSON.stringify(contractParameters),
+            },
             LogName.ADDFARM
         );
     } catch (error) {
@@ -189,7 +251,12 @@ const createFarm = async (
         }
         logEvent(
             account.networkAccount.addr,
-            { status: '[ADDFARM ERROR]', error: String(error), params: JSON.stringify(contractParameters) },
+            {
+                status: '[ADDFARM ERROR]',
+                contractType,
+                error: String(error),
+                params: JSON.stringify(contractParameters),
+            },
             LogName.ADDFARM
         );
         return false;

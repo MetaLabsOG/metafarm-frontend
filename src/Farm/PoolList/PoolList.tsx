@@ -43,15 +43,16 @@ export function PoolList({ pools }: { pools: PoolWithStats[] }) {
 
     const poolComponents = pools
         .filter((pws: PoolWithStats) => {
+            let isShown = true;
             if (showVerified) {
-                return pws.pool.info.metadata.verified;
+                isShown = Boolean(pws.pool.info.metadata.verified);
             }
             if (showLive) {
                 const beginBlock = pws.pool.state?.initial?.beginBlock ?? 0;
                 const endBlock = pws.pool.state?.initial?.endBlock ?? 1e9;
-                return currentBlock > beginBlock && currentBlock < endBlock;
+                isShown = isShown && currentBlock > beginBlock && currentBlock < endBlock;
             }
-            return true;
+            return isShown;
         })
         .map((pws: PoolWithStats) => <Pool key={pws.pool.id} pws={pws} />);
 
