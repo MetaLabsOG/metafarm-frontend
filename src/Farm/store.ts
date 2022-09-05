@@ -32,6 +32,7 @@ import { nonConcurrent } from '../common/store/utils';
 import { AllDefined, Backend } from '../types';
 import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
 import { fromSmallestUnits, YEAR } from '../common/lib';
+import { algod } from '../AppContext';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 import { PoolState } from './PoolList/Pool/types';
 import { ColumnType } from './PoolList/PoolList';
@@ -49,6 +50,9 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
     }
     if (name.includes('liquidity') || name.includes('pact')) {
         return 'PT';
+    }
+    if (name.includes('hm')) {
+        return 'HM';
     }
 
     return 'MOCK';
