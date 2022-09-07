@@ -78,8 +78,16 @@ export const getTokenLink = (asset_id: number | undefined): string => {
 };
 
 // TODO: remove this when pools name it will be not test names
-export const formatLPTokenName = (name: string) => {
-    return name.replace('TinymanPool1.1 ', '').replace('liquidity', '').replace('PACT LP Token', '').replace('/', '-');
+export const formatLPTokenName = (token: LPTokenInfo) => {
+    if (token.poolDex === 'T2') {
+        return token.name.replace('TinymanPool1.1 ', '').replace('liquidity', '');
+    } else if (token.poolDex === 'PT') {
+        return token.name.replace('PACT LP Token', '').replace('/', '-');
+    } else if (token.poolDex === 'HM') {
+        return token.name.replace('HUMBLE', '').replace('LP', '').replace('-', '').replace('/', '-');
+    } else {
+        return token.name;
+    }
 };
 
 export const calculateAlgoReward = (initial: ContractState<FarmType>['initial'], tokenReward: Amount): Amount => {

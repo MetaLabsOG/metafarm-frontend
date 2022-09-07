@@ -19,7 +19,13 @@ import { getDestroyLPLink, isLPTokenInfo } from './utils';
 export const getLPTokenAction = (lpToken: LPTokenInfo, openModal: () => void) => {
     if (lpToken.poolDex === 'T2' || lpToken.poolDex === 'PT') {
         return openModal;
+    } else if (lpToken.poolDex === 'HM') {
+        const humbleUrl = ALGONET === TESTNET ? 'testnet.humbleswap.com' : 'app.humble.sh';
+        return () => {
+            window.open(`https://${humbleUrl}/pool/add/${lpToken.poolId}`, '_blank');
+        };
     }
+
     return () => {
         notify('Sorry, this is a mock token, you cannot get it', 'error');
     };

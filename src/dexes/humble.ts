@@ -1,42 +1,25 @@
+import { CONSOLE_LEVELS } from '.store/@sentry-utils-npm-7.8.0-d80ccccdcb/package';
 import * as humble from '@reach-sh/humble-sdk';
 import algosdk from 'algosdk';
 import { createEvent, createStore, sample, Store } from 'effector';
 import { Map } from 'immutable';
+import { maxBy } from 'ramda';
 
 import { ALGONET, MAINNET } from '../AppContext';
-import { $account, Asset, AssetId, AppId, fetchAsset } from '../common/store';
+import { Asset, AssetId, AppId, fetchAsset } from '../common/store';
 import { assetId, fetchStore } from '../common/store/utils';
-import { WalletTransactionGroup } from '../types';
 import { Dex, DexPool, DexProvider, Mint, Swap, Zap } from './common';
 
 humble.initHumbleSDK({
     network: ALGONET,
+    // Those fuckers are using a DIFFERENT master contract on their testnet!
+    // You cannot imagine how long it took to figure out those params!
+    customTriumvirateAddress: 'XSWSQVQPFMTEQO7UTXGQA5CSSYCDBT2WEN5XWNQ76EBLT2CFRV2HBYKZBE',
+    customTriumvirateId: '93443561',
     providerEnv: process.env as unknown as humble.AlgoEnvOverride,
 });
 
 const humbleReach: humble.ReachStdLib = humble.createReachAPI();
-
-// export class HumbleSwap implements Swap {
-//     dex: DexProvider = 'HM';
-
-//     assetIn: Asset;
-//     assetOut: Asset;
-//     amountIn: bigint;
-//     amountOut: bigint;
-//     minimalAmountOut: bigint;
-//     price: number;
-//     fee: bigint;
-//     slippage: number;
-//     priceImpact: number;
-
-//     constructor(info: humble.SwapInfo) {
-
-//     }
-
-//     prepareTxs(sender: string): Promise<WalletTransactionGroup[]> {
-//         throw new Error('Method not implemented.');
-//     }
-// }
 
 export class HumblePool implements DexPool {
     poolId: number;
@@ -53,14 +36,20 @@ export class HumblePool implements DexPool {
     origDetails: humble.PoolDetails;
 
     constructor(data: humble.PoolDetails, ctc: any) {
+        console.log('HUMBLE POOL ID', data.poolAddress, data.poolTokenId);
         this.poolId = Number(data.poolAddress); // it's always a `number` for Algorand...
         this.asset1 = Number(data.tokenAId);
         this.asset2 = Number(data.tokenBId);
         this.liquidityAsset = Number(data.poolTokenId);
 
-        this.asset1Reserve = BigInt(data.tokenABalance ?? 0);
-        this.asset2Reserve = BigInt(data.tokenBBalance ?? 0);
-        this.totalLiquidity = BigInt(data.mintedLiquidityTokens ?? 0);
+        this.totalLiquidity = BigInt(data.mintedLiquidityTokens ?? '0');
+
+        this.asset1Reserve = data.tokenABalance
+            ? BigInt(Math.round(Number(data.tokenABalance) * 10 ** (data.tokenADecimals ?? 0)))
+            : BigInt(0);
+        this.asset2Reserve = data.tokenBBalance
+            ? BigInt(Math.round(Number(data.tokenABalance) * 10 ** (data.tokenADecimals ?? 0)))
+            : BigInt(0);
 
         // I don't know what to do with this yet
         this.dexFeeApr = 0;
@@ -112,46 +101,43 @@ export class HumblePool implements DexPool {
  */
 export class HumbleDex extends Dex {
     private algod: algosdk.Algodv2;
-    private $existingPools: Store<Map<[AssetId, AssetId], AppId>>;
+    private $existingPools: Store<Map<AppId, HumblePool>>;
+    private account: humble.ReachAccount | null;
 
     constructor(algod: algosdk.Algodv2) {
         super();
         this.algod = algod;
 
-        const poolAvailable = createEvent<[AppId, AssetId, AssetId]>();
-        this.$existingPools = createStore(Map<[AssetId, AssetId], AppId>());
+        const poolExists = createEvent<HumblePool>();
+        this.$existingPools = createStore(Map<AppId, HumblePool>());
 
-        this.$existingPools.on(poolAvailable, (pools, [appId, assetA, assetB]) => pools.set([assetA, assetB], appId));
+        this.$existingPools.on(poolExists, (pools, pool) => pools.set(pool.poolId, pool));
+        this.account = null;
 
         humbleReach.createAccount().then((acc) => {
+            this.account = acc;
             humble.subscribeToPoolStream(acc, {
-                onPoolReceived: (info: any) => poolAvailable(info.map(Number)),
+                onPoolFetched: ({ succeeded, data: { pool, tradeable }, contract }: any) => {
+                    if (succeeded && pool) {
+                        poolExists(new HumblePool(pool, contract));
+                    } else {
+                        console.log('failed humble pool?', pool);
+                    }
+                },
             });
         });
     }
 
-    async getPool(poolId: number | string): Promise<HumblePool> {
-        // A very un-idiomatic way of fetching an account but what else to do
-        let account = (await fetchStore($account)) as humble.ReachAccount | null;
+    async getPool(poolId: AppId, n2nn = true): Promise<HumblePool> {
+        // TODO: All will be rewritten after pool list is on the backend
+        const TIMEOUT = 10000; // arbitraty timeout
 
-        if (account === null) {
-            account = await humbleReach.createAccount();
-        }
-
-        console.log('HUMBLE: account used', account.networkAccount.addr);
-
-        const { succeeded, data, contract, message } = await humble.fetchLiquidityPool(account, {
-            n2nn: true, // TODO: wtf to do about this fucking flag?
-            poolAddress: poolId,
+        return new Promise<HumblePool>((resolve, reject) => {
+            sample({ source: this.$existingPools.map((pools) => pools.get(poolId)) }).watch(
+                (pool) => pool && resolve(pool)
+            );
+            setTimeout(() => reject('humble pool wait timeout'), TIMEOUT);
         });
-
-        console.log('HUMBLE POOL FETCHED!', data);
-
-        if (succeeded && data.pool !== null) {
-            return new HumblePool(data.pool, contract);
-        } else {
-            throw new Error(`Could not fetch Humble pool: ${message}`);
-        }
     }
 
     async getPoolByAddress(poolAddress: string): Promise<HumblePool> {
@@ -167,26 +153,38 @@ export class HumbleDex extends Dex {
         ownedAssets.sort();
         const [assetA, assetB] = ownedAssets;
 
-        return this.getPoolByAssets(assetA, assetB);
+        const fittingPools = await this.getPoolsByAssets(assetA, assetB);
+        const foundPools = fittingPools.filter((pool) => pool.liquidityAsset === liquidityToken);
+        if (foundPools.length === 0) {
+            throw new Error(`Could not find any Humble pool fitting an address ${poolAddress}`);
+        }
+        return foundPools[0];
     }
 
     async getPoolByAssets(asset1: number | Asset, asset2: number | Asset): Promise<HumblePool> {
-        const poolId = await this.waitForPoolByAssets(assetId(asset1), assetId(asset2));
-        console.log('HUMBLE: poolId', poolId);
-        return this.getPool(poolId);
+        const fittingPools = await this.getPoolsByAssets(asset1, asset2);
+        const mostLiquid = fittingPools.reduce((a, b) => maxBy((p) => Number(p.totalLiquidity), a, b));
+        return mostLiquid;
     }
 
-    private async waitForPoolByAssets(assetA: AssetId, assetB: AssetId): Promise<AppId> {
+    async getPoolsByAssets(asset1: number | Asset, asset2: number | Asset): Promise<HumblePool[]> {
+        return this.waitForPoolsFiltered((pool: HumblePool) => {
+            return (
+                (pool.asset1 === assetId(asset1) && pool.asset2 === assetId(asset2)) ||
+                (pool.asset2 === assetId(asset1) && pool.asset1 === assetId(asset2))
+            );
+        });
+    }
+
+    private async waitForPoolsFiltered(criterion: (pool: HumblePool) => boolean): Promise<HumblePool[]> {
         // TODO: Look at this. Isn't it пиздец какой-то?
-        const TIMEOUT = 5000; // arbitraty timeout
+        const TIMEOUT = 10000; // arbitraty timeout
 
-        return new Promise<AppId>((resolve, reject) => {
+        return new Promise<HumblePool[]>((resolve, reject) => {
             const unsub = sample({ source: this.$existingPools }).watch((pools) => {
-                const key = `${assetA},${assetB}`;
-                // const res = pools.get([assetA, assetB], pools.get([assetB, assetA], null));
-                const res = (pools.toJS()[key] as AppId) ?? null;
+                const res = pools.toList().toArray().filter(criterion);
 
-                if (res !== null) {
+                if (res.length > 0) {
                     // if (unsub) {
                     //     unsub();
                     // }
