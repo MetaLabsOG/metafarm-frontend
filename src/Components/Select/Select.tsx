@@ -2,12 +2,13 @@ import React, { FC } from 'react';
 import SelectSearch, { fuzzySearch } from 'react-select-search';
 import { formatNumber } from '../../common/lib';
 import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
-import { getDexName } from '../../Farm/utils';
+import { getDexIcon, getDexName } from '../../Farm/utils';
 import tokenPlaceholder from '../../imgs/tokenPlaceholder.svg';
-import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
+import { DexOptionType, PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
 import './styled.css';
 
 export enum SelectType {
+    dexSelect,
     tokenSelect,
     poolSelect,
 }
@@ -37,6 +38,10 @@ export const POOL_OPTION: PoolOptionType = {
 };
 
 export const getPlaceholder = (selectType: SelectType) => {
+    if (selectType === SelectType.dexSelect) {
+        return 'Choose DEX';
+    }
+
     if (selectType === SelectType.tokenSelect) {
         return 'Choose token';
     }
@@ -47,6 +52,25 @@ export const getPlaceholder = (selectType: SelectType) => {
 
     return '';
 };
+
+function DexOption({ option }: { option: DexOptionType }) {
+    return (
+        <>
+            <img
+                alt=""
+                className="tokenIcon"
+                src={getDexIcon(option.value) || undefined}
+                onError={({ currentTarget }) => {
+                    currentTarget.onerror = null; // prevents looping
+                    currentTarget.src = tokenPlaceholder;
+                }}
+            />
+            <div>
+                <div className="optionTitle">{option.name}</div>
+            </div>
+        </>
+    );
+}
 
 function TokenOption({ option, showAdditionalInfo }: { option: TokenOptionType; showAdditionalInfo: boolean }) {
     return (
@@ -121,6 +145,10 @@ function SelectOption({
     option: SelectOptionType;
     showAdditionalInfo: boolean;
 }) {
+    if (selectType === SelectType.dexSelect) {
+        return <DexOption option={option as DexOptionType} />;
+    }
+
     if (selectType === SelectType.tokenSelect) {
         return <TokenOption option={option as TokenOptionType} showAdditionalInfo={showAdditionalInfo} />;
     }

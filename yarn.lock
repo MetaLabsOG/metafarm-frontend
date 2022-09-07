@@ -12183,7 +12183,7 @@ __metadata:
     secp256k1: "npm:^3.7.1"
     superagent: "npm:^5.1.0"
     websocket: "npm:^1.0.31"
-  checksum: 2c1590ba0ca952b3685232ca5bacec2b53f90b8612695795866ea625603aff811920da7fcbf4dcd1fda4589b087134d0ec4b6519a0620b54ef86615af922f1af
+  checksum: 3056bbb9db7747f9b5b00aaf0f58d37b4dd2c624fb53b0f25ea24ba2a9d6244cae13496ab70f8a5579ad1b6e509b0912fd41c9ba3c63ef4cd9fadf092c983fda
   languageName: node
   linkType: hard
 
