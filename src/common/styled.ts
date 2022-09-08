@@ -144,3 +144,24 @@ export const SwitchText = styled.h3`
     text-align: center;
     margin-left: 10px;
 `;
+
+export const DexButton = styled.img<{ isActive?: boolean }>`
+    background-color: white;
+    height: 25px;
+    border-radius: 5px;
+    margin-right: 10px;
+    filter: ${({ isActive }) => (isActive ? 'brightness(100%)' : 'brightness(50%)')};
+
+    :hover {
+        cursor: pointer;
+        filter: brightness(90%);
+    }
+`;
+
+export const DexSwitchContainer = styled.div`
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+`;

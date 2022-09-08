@@ -8,8 +8,8 @@ import {
     FarmInitialInfo,
     DistributionInitialInfo,
     AssetId,
-} from '../../../common/store/types';
-import { DexProvider, LPTokenInfo } from '../../../dexes';
+} from '../../../common/store';
+import { DexProvider, LPTokenInfo, tinymanDex } from '../../../dexes';
 import { ALGONET, MAINNET, TESTNET } from '../../../AppContext';
 import { PoolState } from './types';
 
@@ -54,6 +54,17 @@ export const getLPTokenPoolLink = (poolDex: DexProvider, poolId: number, asset1:
     }
     if (poolDex === 'PT') {
         return `${PACT_URL}/add-liquidity/${poolId}`;
+    }
+    return '#'; // Dunno what else to do with dummy LPs
+};
+
+export const getDestroyLPLink = async (lpToken: Priced<LPTokenInfo>): Promise<string> => {
+    if (lpToken.poolDex === 'T2') {
+        const poolAddress = await tinymanDex.getPoolAddress(lpToken.asset1, lpToken.asset2);
+        return poolAddress ? `${TINYMAN_URL}/#/pool/${poolAddress}/remove` : '';
+    }
+    if (lpToken.poolDex === 'PT') {
+        return `${PACT_URL}/your-liquidity`;
     }
     return '#'; // Dunno what else to do with dummy LPs
 };
