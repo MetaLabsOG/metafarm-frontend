@@ -1,4 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
+import pactsdk from '@pactfi/pactsdk';
 import { SelectedOptionValue } from 'react-select-search';
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-expect-error
@@ -11,7 +12,7 @@ import { useModal } from 'react-hooks-use-modal';
 import { getTokens } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { POOL_OPTION, Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
-import { PoolOptionType, SelectOptionType, TokenOptionType } from '../Components/Select/types';
+import { DexOptionType, PoolOptionType, SelectOptionType, TokenOptionType } from '../Components/Select/types';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
@@ -28,7 +29,7 @@ import {
 } from '../common/store';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { DAY, formatDecimalsMeaningful, getSmallestUnits, unsafeFromBigint } from '../common/lib';
-import { deployContractToBackend, getTinymanPools } from '../providers/apiProvider';
+import { deployContractToBackend, getPactPools, getTinymanPools } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
 import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE, FARM_FLAT_ALGO_CREATION_FEE } from '../AppContext';
@@ -370,7 +371,7 @@ function PoolInfo({
     );
 }
 
-function getPoolOptions(selectedOption?: SelectOptionType) {
+function getTinymanPoolOptions(selectedOption?: SelectOptionType) {
     return (query: string) => {
         return getTinymanPools(50, query).then((pools) => {
             const options: PoolOptionType[] = pools.map((pool) => {
@@ -395,6 +396,42 @@ function getPoolOptions(selectedOption?: SelectOptionType) {
 
             return options;
         });
+    };
+}
+
+let pactPools: pactsdk.ApiPool[] = [];
+
+function getPactPoolOptions(selectedOption?: SelectOptionType) {
+    return async (query: string) => {
+        if (pactPools.length === 0) {
+            pactPools = await getPactPools();
+        }
+        query = query.toLowerCase();
+        const filtered = pactPools.filter(
+            ({ primary_asset, secondary_asset }) =>
+                primary_asset.unit_name.toLowerCase().includes(query) ||
+                secondary_asset.unit_name.toLowerCase().includes(query)
+        );
+
+        const options: PoolOptionType[] = filtered.map((pool) => ({
+            value: pool.pool_asset.algoid,
+            name: `${pool.primary_asset.unit_name}-${pool.secondary_asset.unit_name} LP`,
+            poolId: Number(pool.appid),
+            poolDex: 'PT',
+            asset1: Number(pool.primary_asset.algoid),
+            asset2: Number(pool.secondary_asset.algoid),
+            liquidityAsset: Number(pool.pool_asset.algoid),
+            asset1Reserve: BigInt(0),
+            asset2Reserve: BigInt(0),
+            totalLiquidity: BigInt(Math.round(Number(pool.tvl_usd))),
+            dexFeeApr: 0, // Is it important here?
+        }));
+
+        if (selectedOption && selectedOption.value && !options.includes(selectedOption as PoolOptionType)) {
+            options.push(selectedOption as PoolOptionType);
+        }
+
+        return options;
     };
 }
 
@@ -424,6 +461,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
     const currentBlock = useUnit($networkTime);
     const meanRoundDuration = useUnit($meanRoundDuration);
 
+    const [selectedDex, setSelectedDex] = useState<DexOptionType>({ value: 'T2', name: 'Tinyman' });
     const [poolOptions, setPoolOptions] = useState<PoolOptionType[]>([]);
     const [selectedPool, setSelectedPool] = useState<PoolOptionType>(POOL_OPTION);
     const [selectedToken, setSelectedToken] = useState<TokenOptionType>(TOKEN_OPTION);
@@ -451,9 +489,11 @@ export function AddFarm({ type }: { type: AddFarmType }) {
         Number(lockPeriod)
     );
 
+    const getPoolOptions = selectedDex.value === 'T2' ? getTinymanPoolOptions : getPactPoolOptions;
+
     useEffect(() => {
         getPoolOptions()('').then((options) => setPoolOptions(options));
-    }, []);
+    }, [getPoolOptions]);
 
     useEffect(() => {
         getTokens(account, balances).then((res) => {
@@ -465,6 +505,12 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             setAlgoToken(filteredAlgoAsset[0]);
         });
     }, [account, balances]);
+
+    const selectDexOnChange = (value: SelectedOptionValue, option: DexOptionType) => {
+        setSelectedDex(option);
+        setPoolOptions([]);
+        setSelectedPool(POOL_OPTION);
+    };
 
     const selectPoolOnChange = (value: SelectedOptionValue, option: PoolOptionType) => {
         setSelectedPool(option);
@@ -498,6 +544,17 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             <ModalTitle>ADD {type.toString().toUpperCase()}</ModalTitle>
             {type === 'farm' && (
                 <>
+                    <Heading2>DEX</Heading2>
+                    <Select
+                        selectType={SelectType.dexSelect}
+                        options={[
+                            { value: 'T2', name: 'Tinyman' },
+                            { value: 'PT', name: 'Pact' },
+                        ]}
+                        selectedOption={selectedDex}
+                        selectOnChange={selectDexOnChange}
+                    />
+
                     <Heading2>LP POOL</Heading2>
                     <Select
                         selectType={SelectType.poolSelect}
