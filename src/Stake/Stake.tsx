@@ -10,6 +10,6 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
     <FarmContainer>
         <Balance kind={'distribution' as FarmType} />
         <PoolList pools={state} />
-        <InfoCards />
+        <InfoCards addFarmType="stake" />
     </FarmContainer>
 ));

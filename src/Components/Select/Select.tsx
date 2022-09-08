@@ -59,6 +59,7 @@ function DexOption({ option }: { option: DexOptionType }) {
             <img
                 alt=""
                 className="tokenIcon"
+                style={{ background: 'white' }}
                 src={getDexIcon(option.value) || undefined}
                 onError={({ currentTarget }) => {
                     currentTarget.onerror = null; // prevents looping
