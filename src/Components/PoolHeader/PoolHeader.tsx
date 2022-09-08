@@ -2,6 +2,7 @@ import ReactTooltip from 'react-tooltip';
 import { getAssetLogoUrl, getTokenLink } from '../../Farm/PoolList/Pool/utils';
 import verified from '../../imgs/verified.svg';
 import info from '../../imgs/info.svg';
+import game from '../../imgs/game.png';
 import { Image } from '../../Farm/utils';
 import tokenPlaceholder from '../../imgs/tokenPlaceholder.svg';
 import {
@@ -13,6 +14,8 @@ import {
     PoolInfo,
     PoolTitle,
     PoolSubtitle,
+    Game,
+    AnimatedText,
 } from './styled';
 
 // KOSTYL for GARD....
@@ -27,6 +30,7 @@ export function PoolHeader({
     lock,
     isVerified,
     algoRewards,
+    isGame,
 }: {
     asset1_id: number;
     asset2_id: number;
@@ -36,6 +40,7 @@ export function PoolHeader({
     lock: string;
     isVerified: boolean;
     algoRewards: boolean;
+    isGame: boolean;
 }) {
     const asset1_logo = getAssetLogoUrl(asset1_id);
     const asset2_logo = getAssetLogoUrl(asset2_id);
@@ -77,6 +82,7 @@ export function PoolHeader({
                         </LPTokensIcon>
                     </a>
                     {dexIcon && <DexIcon alt="" src={dexIcon} />}
+                    {isGame && <Game alt="" src={game} />}
                 </LpTokensIconsWrapper>
             </div>
             <PoolInfo>

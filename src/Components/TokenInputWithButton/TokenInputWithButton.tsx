@@ -3,6 +3,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { useStore, useUnit } from 'effector-react';
 import { Effect } from 'effector';
 import { BigNumberish } from '@ethersproject/bignumber';
+import { useModal } from 'react-hooks-use-modal';
 import { LPTokenInfo } from '../../dexes';
 import { $account, Asset, Priced } from '../../common/store';
 import { fromSmallestUnits, getSmallestUnits, sleep } from '../../common/lib';
@@ -12,6 +13,8 @@ import { logFarmActionData } from '../../logEvent';
 import Confetti from '../Confetti/Confetti';
 import { batchOptIn, checkOptIn } from '../../batchOptIn';
 import { reach } from '../../AppContext';
+import { Button } from '../Button/Button';
+import { ModalContainer, ModalSubtitle, ModalTitle } from '../../common/styled';
 import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
 export interface InputWithButtonProps {
@@ -67,6 +70,12 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     const buttonType = buttonName.toLowerCase();
     const balanceField = buttonType === 'stake' ? 'Balance' : 'Staked';
 
+    const [WarningModal, openWarningModal, closeWarningModal] = useModal('root', { preventScroll: true });
+    const warningText =
+        buttonName === 'Stake'
+            ? "It's locked pool. You can claim rewards only after lock period. If you stake again your lock period will be reset."
+            : 'Your rewards and lock period will be reset.';
+
     const setNotificationText = useToasts({
         // eslint-disable-next-line effector/mandatory-scope-binding
         api: actionEffect,
@@ -100,15 +109,6 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
             logFarmActionData(account, buttonName, inputAmount, token as LPTokenInfo);
             setIsLoading(true);
             setInputAmount('');
-            if (hasLock) {
-                notify(
-                    buttonName === 'Stake'
-                        ? "Attention! It's locked pool. You can claim rewards only after lock period. If you stake again your lock period will be reset."
-                        : 'Your rewards and lock period will be reset.',
-                    'warning'
-                );
-                await sleep(5000);
-            }
             try {
                 const isTokenOptIn = account === null ? false : await checkOptIn(account.networkAccount.addr, optInId);
                 if (account && !isTokenOptIn) {
@@ -150,7 +150,13 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                     buttonText={buttonName}
                     buttonStyle="token_input_button"
                     isInactive={!isValidInput || !isActive}
-                    onClickAction={async () => onClick()}
+                    onClickAction={async () => {
+                        if (hasLock) {
+                            openWarningModal();
+                        } else {
+                            await onClick();
+                        }
+                    }}
                 />
                 <MaxButton isActive={isActive} onClick={setInputMaxAmount}>
                     MAX
@@ -166,6 +172,19 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                     setShowConfetti(false);
                 }}
             />
+            <WarningModal>
+                <ModalContainer>
+                    <ModalTitle style={{ textAlign: 'center' }}>⚠️ WARNING</ModalTitle>
+                    <ModalSubtitle style={{ fontSize: '18px', width: '300px' }}>{warningText}</ModalSubtitle>
+                    <Button
+                        buttonText="OK"
+                        onClick={async () => {
+                            closeWarningModal();
+                            await onClick();
+                        }}
+                    />
+                </ModalContainer>
+            </WarningModal>
         </TokenInputWithButtonContainer>
     );
 };

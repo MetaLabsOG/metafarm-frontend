@@ -54,6 +54,8 @@ export type StakingAsset = {
     id: AssetId;
     name: string;
     dex?: DexProvider;
+    asset1_id?: number;
+    asset2_id?: number;
 };
 
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
@@ -96,16 +98,14 @@ const checkFarmParams = (
         return false;
     }
 
-    if (
-        !Number.isNaN(algoToken.balance) &&
-        algoToken.balance < Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE
-    ) {
-        const needAlgo =
-            Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE - algoToken.balance;
+    const minAlgoBalance = Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE;
+    if (!Number.isNaN(algoToken.balance) && algoToken.balance < minAlgoBalance) {
+        const needAlgo = minAlgoBalance - algoToken.balance;
         notify(
-            `Not enough ALGOs in the wallet. Please, add at least ${Math.round(
-                needAlgo
-            )} ALGOs. The creation fee is ${FARM_FLAT_ALGO_CREATION_FEE} ALGOs.`,
+            `Not enough ALGO. Please deposit at least ${Math.round(needAlgo)} ALGO to proceed.
+            Some ALGOs reserved by Algorand Network. 
+            Creation fee is ${FARM_FLAT_ALGO_CREATION_FEE} ALGO. 
+            So minimum balance to create the pool is ${minAlgoBalance}.`,
             'warning'
         );
         return false;
@@ -222,8 +222,9 @@ const createFarm = async (
                 account.networkAccount.addr,
                 Number(contractId),
                 contractType,
-                stakeToken.name,
-                stakeToken.dex,
+                stakeToken,
+                rewardToken.id,
+                extraAlgoRewardAmount,
                 CURRENT_CONTRACT_VERSION[contractType]
             )
         );
@@ -412,6 +413,8 @@ function getStakingAsset(
         id: selectedPool.liquidityAsset,
         name: selectedPool.name,
         dex: selectedPool.poolDex,
+        asset1_id: selectedPool.asset1,
+        asset2_id: selectedPool.asset2,
     };
 }
 

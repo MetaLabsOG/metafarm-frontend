@@ -99,6 +99,7 @@ export const recalculatedReward = (contractState: AllDefined<ContractState<FarmT
     const rewardPerTokenStoredNew = rewardPerTokenStored + (BigInt(rewardBlocksPassed) * rewardPerBlock) / totalStaked;
 
     const rewardToPayNow = (staked * (rewardPerTokenStoredNew - rewardPerTokenPaid)) / BIG_NUM;
+
     return reward + rewardToPayNow;
 };
 
