@@ -1,4 +1,6 @@
 import axios from 'axios';
+import pactsdk from '@pactfi/pactsdk';
+
 import packages from '../../package.json';
 import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
 import { AssetId, ContractType } from '../common/store/types';
@@ -6,6 +8,7 @@ import { ALGONET } from '../AppContext';
 import { nonConcurrent } from '../common/store/utils';
 import { DexProvider } from '../dexes/common';
 import { logEvent, LogName } from '../logEvent';
+import { pactDex } from '../dexes';
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -169,4 +172,9 @@ export const getTinymanPools = nonConcurrent(async (limit: number, search: strin
     const poolsResponse = await fetch(tinymanUrl);
     const pools = await poolsResponse.json();
     return pools.results;
+});
+
+export const getPactPools = nonConcurrent(async (): Promise<pactsdk.ApiPool[]> => {
+    const response = await pactDex.pact.listPools();
+    return response.results;
 });
