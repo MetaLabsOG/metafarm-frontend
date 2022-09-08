@@ -28,6 +28,7 @@ import {
     Time,
     $meanRoundDuration,
 } from '../common/store';
+import { nonConcurrent } from '../common/store/utils';
 import { AllDefined, Backend } from '../types';
 import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
 import { fromSmallestUnits, YEAR } from '../common/lib';
@@ -145,15 +146,17 @@ type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
 export const $lpTokenInfos = createStore<LPTokenStore>(Map());
 
 export const getLPTokenInfoFx = createEffect(
-    async ({
-        asset,
-        provider,
-        algoPrice,
-    }: {
-        asset: Asset;
-        provider: DexProvider | undefined;
-        algoPrice: number | null;
-    }) => getLPTokenInfo(asset, algoPrice, provider)
+    nonConcurrent(
+        async ({
+            asset,
+            provider,
+            algoPrice,
+        }: {
+            asset: Asset;
+            provider: DexProvider | undefined;
+            algoPrice: number | null;
+        }) => getLPTokenInfo(asset, algoPrice, provider)
+    )
 );
 
 $lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
