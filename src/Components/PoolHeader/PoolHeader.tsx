@@ -15,7 +15,6 @@ import {
     PoolTitle,
     PoolSubtitle,
     Game,
-    AnimatedText,
 } from './styled';
 
 // KOSTYL for GARD....
