@@ -6,7 +6,7 @@ import { PoolList } from './PoolList';
 import { $sortedPoolsWithStats } from './store';
 import { FarmContainer } from './styled';
 
-export const InfoCards = () => {
+export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
     if (window.innerWidth <= 1120) {
         return null;
     }
@@ -14,10 +14,10 @@ export const InfoCards = () => {
     return (
         <div style={{ display: 'flex', gap: '20px', marginTop: '20px' }}>
             <InfoCard
-                title="How to create a farm?"
-                subtitle="Launch your own farm in a few clicks."
-                linkText="Coming soon"
-                link=""
+                title="How to create a pool?"
+                subtitle={`Launch your own ${addFarmType} pool in a few clicks.`}
+                linkText={`Launch ${addFarmType}`}
+                link={`/add${addFarmType}`}
             />
             <InfoCard
                 title="How to use Cometa?"
@@ -33,6 +33,6 @@ export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
         <Balance kind={'farm' as FarmType} />
         <PoolList pools={state} />
-        <InfoCards />
+        <InfoCards addFarmType="farm" />
     </FarmContainer>
 ));
