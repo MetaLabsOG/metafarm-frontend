@@ -10,10 +10,10 @@ import { useEffect, useState } from 'react';
 import { useModal } from 'react-hooks-use-modal';
 import { useStoreMap, useUnit } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
+import ReactGA from 'react-ga';
 import GlobalStyle from './common/globalStyles';
 
 import { Menu } from './Menu';
-import { Fomo } from './Fomo';
 import { Farm } from './Farm';
 import { Swap } from './Swap';
 import { Zap } from './Zap';
@@ -45,6 +45,7 @@ Sentry.init({
     // We recommend adjusting this value in production
     tracesSampleRate: 1,
 });
+ReactGA.initialize('G-P19KGXJGTP');
 
 // TODO
 window.open = (function (open) {

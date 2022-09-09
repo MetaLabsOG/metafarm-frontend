@@ -1,7 +1,9 @@
+import ReactGA from 'react-ga';
 import { LPTokenInfo } from './dexes';
 import { Asset, Priced } from './common/store';
 import { Account } from './types';
 import { ALGONET } from './AppContext';
+import { BROWSER } from './wallet/ConnectWallet';
 
 export enum LogName {
     WALLET,
@@ -39,8 +41,9 @@ export function logFarmActionData(
     logEvent(account?.networkAccount.addr, data, LogName.FARM);
 }
 
-export function logEvent(address: string | undefined, parameters: Record<string, unknown>, logName: LogName) {
+export function logEvent(address: string | undefined, parameters: Record<string, any>, logName: LogName) {
     // Console.log('LOG', address, status, error);
+    const event: string = parameters.message ?? parameters.status ?? ''; // TODO
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -60,7 +63,41 @@ export function logEvent(address: string | undefined, parameters: Record<string,
 
     fetch('https://api.airtable.com/v0/appqAikFZd31XeJqW/' + LogName[logName].toLowerCase(), requestOptions).catch(
         () => {
-            console.warn('Faliled to log event to Airtable');
+            console.warn('Failed to log event to Airtable');
         }
     );
+
+    // AMPLITUDE
+    const requestOptionsAmplitude = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: '*/*',
+        },
+        body: JSON.stringify({
+            api_key: '91836797cfc6bdf5e35d828744747bb9',
+            events: [
+                {
+                    user_id: address ?? '',
+                    event_type: event,
+                    time: Date.now(),
+                    event_properties: {
+                        algonet: ALGONET.toString(),
+                        ...parameters,
+                    },
+                    platform: BROWSER?.name,
+                    os_name: BROWSER?.os,
+                },
+            ],
+        }),
+    };
+
+    fetch('https://api2.amplitude.com/2/httpapi', requestOptionsAmplitude).catch(() => {
+        console.warn('Failed to log event to Amplitude');
+    });
+
+    ReactGA.event({
+        category: 'User',
+        action: event,
+    });
 }

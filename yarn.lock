@@ -12183,7 +12183,7 @@ __metadata:
     secp256k1: "npm:^3.7.1"
     superagent: "npm:^5.1.0"
     websocket: "npm:^1.0.31"
-  checksum: 3056bbb9db7747f9b5b00aaf0f58d37b4dd2c624fb53b0f25ea24ba2a9d6244cae13496ab70f8a5579ad1b6e509b0912fd41c9ba3c63ef4cd9fadf092c983fda
+  checksum: 2c1590ba0ca952b3685232ca5bacec2b53f90b8612695795866ea625603aff811920da7fcbf4dcd1fda4589b087134d0ec4b6519a0620b54ef86615af922f1af
   languageName: node
   linkType: hard
 
@@ -13209,6 +13209,7 @@ __metadata:
     react-device-detect: "npm:^2.2.2"
     react-dom: "npm:^18.2.0"
     react-error-overlay: "npm:6.0.11"
+    react-ga: "npm:^3.3.1"
     react-hooks-use-modal: "npm:^2.1.0"
     react-is: "npm:^18.2.0"
     react-query: "npm:^3.39.2"
@@ -15988,6 +15989,16 @@ __metadata:
   version: 6.0.11
   resolution: "react-error-overlay@npm:6.0.11"
   checksum: 6895a094484a767fb77f4c8dac084d1ce1cc8f0505dbd94244eadd6f6d8765bf4d4990546a67eccfd2f2204a803e3fec5a548b036fa27fe4a89a10c382e15682
+  languageName: node
+  linkType: hard
+
+"react-ga@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "react-ga@npm:3.3.1"
+  peerDependencies:
+    prop-types: ^15.6.0
+    react: ^15.6.2 || ^16.0 || ^17 || ^18
+  checksum: eb46af49f660ec7f16a3c1f6eba4fe2d5799f12e9c1115e5aebe3794040f7b7a5855972e762acc712357a6f32db9ab629208ea03a8b0c1812c4a20ad2b306d82
   languageName: node
   linkType: hard
 
