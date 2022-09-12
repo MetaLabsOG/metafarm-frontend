@@ -37,6 +37,7 @@ import { Contract, Backend } from '../types';
 import { expBackoff } from '../common/store/utils';
 import { logEvent, LogName } from '../logEvent';
 import { DexProvider } from '../dexes';
+import { DexSwitch } from '../Zap/Zap';
 import { AddFarmRow, DateInput } from './styled';
 import { deployFarm, InitialDistributionState, InitialFarmState } from './utils';
 
@@ -104,7 +105,7 @@ const checkFarmParams = (
         const needAlgo = minAlgoBalance - algoToken.balance;
         notify(
             `Not enough ALGO. Please deposit at least ${Math.round(needAlgo)} ALGO to proceed.
-            Some ALGOs reserved by Algorand Network. 
+            Some ALGOs are reserved by Algorand Network. 
             Creation fee is ${FARM_FLAT_ALGO_CREATION_FEE} ALGO. 
             So minimum balance to create the pool is ${minAlgoBalance}.`,
             'warning'
@@ -461,7 +462,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
     const currentBlock = useUnit($networkTime);
     const meanRoundDuration = useUnit($meanRoundDuration);
 
-    const [selectedDex, setSelectedDex] = useState<DexOptionType>({ value: 'T2', name: 'Tinyman' });
+    const [selectedDex, setSelectedDex] = useState<DexProvider>('T2');
     const [poolOptions, setPoolOptions] = useState<PoolOptionType[]>([]);
     const [selectedPool, setSelectedPool] = useState<PoolOptionType>(POOL_OPTION);
     const [selectedToken, setSelectedToken] = useState<TokenOptionType>(TOKEN_OPTION);
@@ -489,7 +490,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
         Number(lockPeriod)
     );
 
-    const getPoolOptions = selectedDex.value === 'T2' ? getTinymanPoolOptions : getPactPoolOptions;
+    const getPoolOptions = selectedDex === 'T2' ? getTinymanPoolOptions : getPactPoolOptions;
 
     useEffect(() => {
         getPoolOptions()('').then((options) => setPoolOptions(options));
@@ -506,8 +507,8 @@ export function AddFarm({ type }: { type: AddFarmType }) {
         });
     }, [account, balances]);
 
-    const selectDexOnChange = (value: SelectedOptionValue, option: DexOptionType) => {
-        setSelectedDex(option);
+    const selectDexOnChange = (dex: DexProvider) => {
+        setSelectedDex(dex);
         setPoolOptions([]);
         setSelectedPool(POOL_OPTION);
     };
@@ -544,17 +545,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             <ModalTitle>ADD {type.toString().toUpperCase()}</ModalTitle>
             {type === 'farm' && (
                 <>
-                    <Heading2>DEX</Heading2>
-                    <Select
-                        selectType={SelectType.dexSelect}
-                        options={[
-                            { value: 'T2', name: 'Tinyman' },
-                            { value: 'PT', name: 'Pact' },
-                        ]}
-                        selectedOption={selectedDex}
-                        selectOnChange={selectDexOnChange}
-                    />
-
+                    <DexSwitch dexProvider={selectedDex} dexOnChange={selectDexOnChange} />
                     <Heading2>LP POOL</Heading2>
                     <Select
                         selectType={SelectType.poolSelect}

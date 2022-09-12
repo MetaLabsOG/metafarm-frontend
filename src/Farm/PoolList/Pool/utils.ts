@@ -58,9 +58,9 @@ export const getLPTokenPoolLink = (poolDex: DexProvider, poolId: number, asset1:
     return '#'; // Dunno what else to do with dummy LPs
 };
 
-export const getDestroyLPLink = async (lpToken: Priced<LPTokenInfo>): Promise<string> => {
+export const getDestroyLPLink = (lpToken: Priced<LPTokenInfo>): string => {
     if (lpToken.poolDex === 'T2') {
-        const poolAddress = await tinymanDex.getPoolAddress(lpToken.asset1, lpToken.asset2);
+        const poolAddress = tinymanDex.getPoolAddress(lpToken.asset1, lpToken.asset2);
         return poolAddress ? `${TINYMAN_URL}/#/pool/${poolAddress}/remove` : '';
     }
     if (lpToken.poolDex === 'PT') {

@@ -61,13 +61,6 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     isAutoClaim,
 }) => {
     const account = useUnit($account);
-    const [destroyLPLink, setDestroyLPLink] = useState('');
-
-    useEffect(() => {
-        if (isLPTokenInfo(stakedToken)) {
-            getDestroyLPLink(stakedToken).then((url) => setDestroyLPLink(url));
-        }
-    }, [stakedToken]);
 
     return (
         <PoolActionsDesktopContainer>
@@ -92,8 +85,8 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
                         <ContractLink>Сontract</ContractLink>
                     </a>
-                    {destroyLPLink && (
-                        <a target="_blank" href={destroyLPLink} rel="noreferrer">
+                    {isLPTokenInfo(stakedToken) && (
+                        <a target="_blank" href={getDestroyLPLink(stakedToken)} rel="noreferrer">
                             <ContractLink>Destroy LP</ContractLink>
                         </a>
                     )}

@@ -183,15 +183,17 @@ export function ZapResult({
     );
 }
 
-function DexSwitch({
+export function DexSwitch({
     dexProvider,
     dexOnChange,
+    style,
 }: {
     dexProvider: DexProvider;
     dexOnChange: (dex: DexProvider) => void;
+    style?: React.CSSProperties;
 }) {
     return (
-        <DexSwitchContainer>
+        <DexSwitchContainer style={style}>
             <Heading2>DEX</Heading2>
             <DexButton isActive={dexProvider === 'T2'} alt="tinyman" src={tinyman} onClick={() => dexOnChange('T2')} />
             <DexButton isActive={dexProvider === 'PT'} alt="pact" src={pact} onClick={() => dexOnChange('PT')} />
@@ -408,7 +410,13 @@ export function Zap({
                 dexProvider={dexProvider}
                 lpMicroBalance={zapData.pool_lp_id ? balances[zapData.pool_lp_id] : BigInt(0)}
             />
-            {!closeModal && <DexSwitch dexProvider={dexProvider} dexOnChange={dexOnChange} />}
+            {!closeModal && (
+                <DexSwitch
+                    style={{ paddingLeft: '10px', paddingRight: '10px' }}
+                    dexProvider={dexProvider}
+                    dexOnChange={dexOnChange}
+                />
+            )}
             <PacmanButton buttonText={zapButtonText} buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
             {pool && (
                 <a

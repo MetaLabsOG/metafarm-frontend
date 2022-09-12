@@ -105,6 +105,18 @@ export const ModalSubtitle = styled.h3`
     margin-bottom: 30px;
 `;
 
+export const ModalCloseButton = styled.img`
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    left: 330px;
+    top: 15px;
+
+    :hover {
+        cursor: pointer;
+    }
+`;
+
 export const Plus = styled.img`
     width: 15px;
     height: 15px;
@@ -162,6 +174,4 @@ export const DexSwitchContainer = styled.div`
     display: flex;
     align-items: center;
     width: 100%;
-    padding-left: 10px;
-    padding-right: 10px;
 `;

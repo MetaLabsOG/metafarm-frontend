@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useState } from 'react';
 
 import { useStore, useUnit } from 'effector-react';
 import { Effect } from 'effector';
@@ -6,15 +6,16 @@ import { BigNumberish } from '@ethersproject/bignumber';
 import { useModal } from 'react-hooks-use-modal';
 import { LPTokenInfo } from '../../dexes';
 import { $account, Asset, Priced } from '../../common/store';
-import { fromSmallestUnits, getSmallestUnits, sleep } from '../../common/lib';
+import { fromSmallestUnits, getSmallestUnits } from '../../common/lib';
 import { notify, ToastTypes, useToasts } from '../Notification';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
 import { logFarmActionData } from '../../logEvent';
 import Confetti from '../Confetti/Confetti';
+import closeButton from '../../imgs/close.svg';
 import { batchOptIn, checkOptIn } from '../../batchOptIn';
 import { reach } from '../../AppContext';
 import { Button } from '../Button/Button';
-import { ModalContainer, ModalSubtitle, ModalTitle } from '../../common/styled';
+import { ModalCloseButton, ModalContainer, ModalSubtitle, ModalTitle } from '../../common/styled';
 import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
 
 export interface InputWithButtonProps {
@@ -174,6 +175,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
             />
             <WarningModal>
                 <ModalContainer>
+                    <ModalCloseButton src={closeButton} alt="close" onClick={closeWarningModal} />
                     <ModalTitle style={{ textAlign: 'center' }}>⚠️ WARNING</ModalTitle>
                     <ModalSubtitle style={{ fontSize: '18px', width: '300px' }}>{warningText}</ModalSubtitle>
                     <Button
