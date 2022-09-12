@@ -11,11 +11,11 @@ import { notify } from '../Components/Notification';
 import { customWalletFallback, WalletType } from './customWalletFallback';
 import { ConnectWalletModal } from './ConnectWalletModal';
 
-const browser = detect();
+export const BROWSER = detect();
 const browserInfoString =
-    browser === null
+    BROWSER === null
         ? 'unknown'
-        : `${browser.name} ${browser.version ?? 'UNKNOWN_VERSION'} ${browser.os ?? 'UNKNOWN_OS'}`;
+        : `${BROWSER.name} ${BROWSER.version ?? 'UNKNOWN_VERSION'} ${BROWSER.os ?? 'UNKNOWN_OS'}`;
 
 const WALLET_TYPE_KEY = 'connectedWalletType';
 

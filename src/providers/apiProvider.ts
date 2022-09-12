@@ -9,6 +9,7 @@ import { nonConcurrent } from '../common/store/utils';
 import { DexProvider } from '../dexes/common';
 import { logEvent, LogName } from '../logEvent';
 import { pactDex } from '../dexes';
+import { StakingAsset } from '../Farm/AddFarm';
 
 const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -122,15 +123,16 @@ type AddContractType = {
     id: number;
     version: string;
     description: string;
-    metadata: Record<string, string | undefined>;
+    metadata: Record<string, string | number | boolean | undefined>;
 };
 
 export const deployContractToBackend = async (
     accountAddress: string,
     contractId: number,
     contractType: ContractType,
-    farmName: string,
-    dex?: DexProvider,
+    stakeToken: StakingAsset,
+    rewardTokenId: number,
+    extraAlgoRewardAmount: number,
     contractVersion?: string
 ) => {
     if (!contractVersion) {
@@ -147,9 +149,13 @@ export const deployContractToBackend = async (
         type: contractType,
         id: contractId,
         version: contractVersion,
-        description: farmName,
+        description: stakeToken.name,
         metadata: {
-            dex,
+            dex: stakeToken.dex,
+            asset1_id: stakeToken.asset1_id,
+            asset2_id: stakeToken.asset2_id,
+            rewardTokenId: rewardTokenId,
+            algoRewards: extraAlgoRewardAmount > 0,
         },
     };
     console.log('/contract/register', request);

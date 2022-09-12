@@ -33,6 +33,14 @@ export type JsonWithBignum =
     | JsonWithBignum[]
     | { [key: string]: JsonWithBignum };
 
+export class SentTxError extends Error {
+    sendTxIds: string[];
+    constructor(message: string, sendTxIds: string[]) {
+        super(message);
+        this.sendTxIds = sendTxIds;
+    }
+}
+
 export function resolveBignums(object: Json): JsonWithBignum {
     if (typeof object === 'string' || typeof object === 'number' || typeof object === 'boolean' || object === null) {
         return object;
@@ -222,10 +230,14 @@ export const signAndPostTxnGroups = async (
         return await Promise.all(signedGroups.map(postAndWait));
     } else {
         const sentTxIds = [];
-        for (const sgroup of signedGroups) {
-            sentTxIds.push(await postAndWait(sgroup));
+        try {
+            for (const sgroup of signedGroups) {
+                sentTxIds.push(await postAndWait(sgroup));
+            }
+            return sentTxIds;
+        } catch (error) {
+            throw new SentTxError((error as Error).message, sentTxIds);
         }
-        return sentTxIds;
     }
 };
 

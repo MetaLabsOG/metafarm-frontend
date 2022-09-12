@@ -68,6 +68,14 @@ export const DexIcon = styled.img`
     border-radius: 5px;
 `;
 
+export const Game = styled.img`
+    position: absolute;
+    left: 59px;
+    height: 20px;
+    border-radius: 5px;
+    background-color: white;
+`;
+
 export const ContractLockSuffix = styled.div`
     font-size: 12px;
     margin-right: 3px;

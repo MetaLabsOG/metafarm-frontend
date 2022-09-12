@@ -98,6 +98,7 @@ export function PoolInfo({
             isOpen={isOpen}
             dexIcon={dexIcon}
             isVerified={poolMetadata.verified ?? false}
+            isGame={poolMetadata.game ?? false}
         />
     ) : (
         <PoolInfoDesktop
@@ -115,6 +116,7 @@ export function PoolInfo({
             isOpen={isOpen}
             dexIcon={dexIcon}
             isVerified={poolMetadata.verified ?? false}
+            isGame={poolMetadata.game ?? false}
         />
     );
 }
