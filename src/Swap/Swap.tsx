@@ -23,6 +23,7 @@ import {
     fromSmallestUnits,
     getSmallestUnits,
     parseTxs,
+    SentTxError,
     signAndPostTxnGroups,
     unsafeFromBigint,
 } from '../common/lib';
@@ -261,6 +262,12 @@ export async function runTransactions(
         return txIds;
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
+        const hasSwap = error instanceof SentTxError ? error.sendTxIds.length > 0 : false;
+
+        if (type == QueryType.zap && hasSwap) {
+            notify('We already swapped half of tokens. Please, check and try zap again.', 'warning');
+        }
+
         const queryType = QueryType[type].toUpperCase();
         if (error_message.includes('underflow')) {
             notify(queryType + ': Not enough tokens.', 'error');

@@ -6,24 +6,35 @@ import '../css/swap.css';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit } from 'effector-react';
-import Switch from 'react-switch';
 import { logEvent, logFarmActionData, LogName } from '../logEvent';
 import { $account, $balances, fetchAsset } from '../common/store';
 import { formatNumber, getTokens, isSwapZapDataValid, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
-import { ModalContainer, ModalSubtitle, ModalTitle, Plus, SwitchContainer, SwitchText } from '../common/styled';
+import {
+    DexButton,
+    DexSwitchContainer,
+    Heading2,
+    ModalContainer,
+    ModalSubtitle,
+    ModalTitle,
+    Plus,
+} from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
-import { Zap as ZapOperation, DexProvider, makeDex, Mint, MintQuote, DexPool } from '../dexes';
+import { Zap as ZapOperation, DexProvider, makeDex, Mint, MintQuote, DexPool, Dex } from '../dexes';
 import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
 import plus from '../imgs/plus.svg';
+import pact from '../imgs/dexes/pact.png';
+import tinyman from '../imgs/dexes/tinyman.png';
+import humble from '../imgs/dexes/humble.png';
 import { theme } from '../theme';
 import { SwitchSelect } from '../Components/SwitchSelect/SwitchSelect';
 import { getLPTokenPoolLink } from '../Farm/PoolList/Pool/utils';
+import { getDexName } from '../Farm/utils';
 import { ZapData } from './types';
 
 export function quoteToZapData(asset1Id: number, inputQuote: ZapOperation | MintQuote | null): ZapData {
@@ -104,7 +115,7 @@ export async function loadZapData(
         const error_message = error instanceof Error ? error.message : String(error);
         if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
             notify('Operation is cancelled.', 'warning');
-        } else if (error_message.includes('pool for address')) {
+        } else if (error_message.includes('pool for address') || error_message.includes('No Pact pool')) {
             notify('There is no pool for tokens pair.', 'warning');
         } else {
             notify(error_message, 'error');
@@ -131,12 +142,14 @@ export function ZapResult({
     zap_data,
     token1,
     token2,
+    dexProvider,
     lpMicroBalance,
 }: {
     isLoading: boolean;
     zap_data: ZapData;
     token1: TokenOptionType;
     token2: TokenOptionType;
+    dexProvider: DexProvider;
     lpMicroBalance: bigint;
 }) {
     const [token1Amount, token2Amount] =
@@ -151,8 +164,8 @@ export function ZapResult({
     return (
         <InfoPanel isLoading={isLoading} minHeight={175}>
             <InfoRow
-                title={token1.unitName + '-' + token2.unitName + ' LP'}
-                value={formatNumber(zap_data.lp_amount ?? 0)}
+                title={'Minimum received'}
+                value={formatNumber(zap_data.lp_amount ?? 0) + ' LP'}
                 valueStyle={{ fontSize: '18px', color: 'white' }}
                 style={{ marginBottom: '5px' }}
             />
@@ -161,9 +174,30 @@ export function ZapResult({
                 title="Current LP balance"
                 value={fromSmallestUnits({ decimals: zap_data.pool_lp_decimals }, lpMicroBalance)}
             />
-            <InfoRow title="LP ASA ID" value={formatNumber(zap_data.pool_lp_id ?? 0)} />
+            <InfoRow
+                title="LP ASA ID"
+                value={formatNumber(zap_data.pool_lp_id ?? 0) + ` (${getDexName(dexProvider)})`}
+            />
             <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} />
         </InfoPanel>
+    );
+}
+
+export function DexSwitch({
+    dexProvider,
+    dexOnChange,
+    style,
+}: {
+    dexProvider: DexProvider;
+    dexOnChange: (dex: DexProvider) => void;
+    style?: React.CSSProperties;
+}) {
+    return (
+        <DexSwitchContainer style={style}>
+            <Heading2>DEX</Heading2>
+            <DexButton isActive={dexProvider === 'T2'} alt="tinyman" src={tinyman} onClick={() => dexOnChange('T2')} />
+            <DexButton isActive={dexProvider === 'PT'} alt="pact" src={pact} onClick={() => dexOnChange('PT')} />
+        </DexSwitchContainer>
     );
 }
 
@@ -191,7 +225,6 @@ export function Zap({
     const [halfSwap, setHalfSwap] = useState(false);
     const zapButtonText = !halfSwap ? 'GET LP' : 'CONVERT ' + token1.unitName + ' TO LP';
 
-    // TODO: We need additional UI to support zap on Pact in the standalone zap page (dex selection?)
     const [dexProvider, setDexProvider] = useState<DexProvider>(inputDexProvider);
     const [pool, setPool] = useState<DexPool | null>(null);
 
@@ -230,10 +263,10 @@ export function Zap({
 
     const getZapTimeout = useRef<NodeJS.Timeout>();
 
-    function getZap(token1_id: string, token2_id: string, amount: string, swapHalf: boolean) {
+    function getZap(token1_id: string, token2_id: string, amount: string, dex: DexProvider, swapHalf: boolean) {
         setIsLoading(true);
 
-        loadZapData(account, dexProvider, token1_id, token2_id, amount, swapHalf).then((res) => {
+        loadZapData(account, dex, token1_id, token2_id, amount, swapHalf).then((res) => {
             setZapOp(res);
             if (!swapHalf) {
                 const zapData = quoteToZapData(Number(token1_id), res);
@@ -248,7 +281,14 @@ export function Zap({
         });
     }
 
-    function getZapThrottled(token1_id: string, token2_id: string, amount: string, swapHalf: boolean, delay: number) {
+    function getZapThrottled(
+        token1_id: string,
+        token2_id: string,
+        amount: string,
+        dex: DexProvider,
+        swapHalf: boolean,
+        delay: number
+    ) {
         if (!token1_id || !token2_id || !amount) {
             setZapOp(null);
             return;
@@ -257,7 +297,7 @@ export function Zap({
             clearTimeout(getZapTimeout.current);
         }
         getZapTimeout.current = setTimeout(() => {
-            getZap(token1_id, token2_id, amount, swapHalf);
+            getZap(token1_id, token2_id, amount, dex, swapHalf);
         }, delay);
     }
 
@@ -271,9 +311,9 @@ export function Zap({
         if (closeModal !== undefined) {
             const anotherOption = options.filter((o) => o.value !== option.value)[0];
             setToken2(anotherOption);
-            getZapThrottled(option.value, anotherOption.value, token1Amount, halfSwap, 50);
+            getZapThrottled(option.value, anotherOption.value, token1Amount, dexProvider, halfSwap, 50);
         } else {
-            getZapThrottled(option.value, token2.value, token1Amount, halfSwap, 50);
+            getZapThrottled(option.value, token2.value, token1Amount, dexProvider, halfSwap, 50);
         }
     };
 
@@ -286,24 +326,29 @@ export function Zap({
         if (closeModal !== undefined) {
             const anotherOption = options.filter((o) => o.value !== option.value)[0];
             setToken1(anotherOption);
-            getZapThrottled(anotherOption.value, option.value, token1Amount, halfSwap, 50);
+            getZapThrottled(anotherOption.value, option.value, token1Amount, dexProvider, halfSwap, 50);
         } else {
-            getZapThrottled(token1.value, option.value, token1Amount, halfSwap, 50);
+            getZapThrottled(token1.value, option.value, token1Amount, dexProvider, halfSwap, 50);
         }
     };
 
     const input1OnChange = (inputValue: string) => {
-        getZapThrottled(token1.value, token2.value, inputValue, halfSwap, 1000);
+        getZapThrottled(token1.value, token2.value, inputValue, dexProvider, halfSwap, 1000);
     };
 
     const input2OnChange = (inputValue: string) => {
-        getZapThrottled(token2.value, token1.value, inputValue, halfSwap, 1000);
+        getZapThrottled(token2.value, token1.value, inputValue, dexProvider, halfSwap, 1000);
     };
 
     const handleChangeHalfSwap = (newHalfSwap: boolean) => {
         setToken2Amount('');
         setHalfSwap(newHalfSwap);
-        getZapThrottled(token1.value, token2.value, token1Amount, newHalfSwap, 50);
+        getZapThrottled(token1.value, token2.value, token1Amount, dexProvider, newHalfSwap, 50);
+    };
+
+    const dexOnChange = (dex: DexProvider) => {
+        setDexProvider(dex);
+        getZapThrottled(token1.value, token2.value, token1Amount, dex, halfSwap, 50);
     };
 
     const ZapButtonOnClick = async () => {
@@ -362,10 +407,17 @@ export function Zap({
                 zap_data={zapData}
                 token1={token1}
                 token2={token2}
+                dexProvider={dexProvider}
                 lpMicroBalance={zapData.pool_lp_id ? balances[zapData.pool_lp_id] : BigInt(0)}
             />
+            {!closeModal && (
+                <DexSwitch
+                    style={{ paddingLeft: '10px', paddingRight: '10px' }}
+                    dexProvider={dexProvider}
+                    dexOnChange={dexOnChange}
+                />
+            )}
             <PacmanButton buttonText={zapButtonText} buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
-            <h3 className="dex_name">via {dexProvider == 'T2' ? 'tinyman' : 'pact'}</h3>
             {pool && (
                 <a
                     target="_blank"

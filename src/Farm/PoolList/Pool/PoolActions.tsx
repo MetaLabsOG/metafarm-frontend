@@ -75,11 +75,14 @@ export function PoolActions({
 
     const pendingClaim = useStore(ctc.apis.claim.pending);
 
-    const unlockTime = calculateUnlockTimeinSecs(
-        currentBlock,
-        contractState.local.lockTimestamp,
-        Number(contractState.initial.lockLengthBlocks)
-    );
+    const unlockTime =
+        poolState !== PoolState.Finished
+            ? calculateUnlockTimeinSecs(
+                  currentBlock,
+                  contractState.local.lockTimestamp,
+                  Number(contractState.initial.lockLengthBlocks)
+              )
+            : 0;
 
     const [unlockTimer] = useTimer(unlockTime);
 
@@ -89,7 +92,7 @@ export function PoolActions({
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;
     const isActiveClaim = contractState.local.reward > 0 && !pendingClaim && !unlockTimer;
-    const hasLock = contractState.initial.lockLengthBlocks > 0;
+    const hasLock = contractState.initial.lockLengthBlocks > 0 && poolState !== PoolState.Finished;
     const [Modal, openZapModal, closeZapModal] = useModal('root');
 
     const isAutoClaim = contractVersion.replace('^', '') === '17.2.4';

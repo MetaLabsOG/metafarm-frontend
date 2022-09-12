@@ -35,6 +35,7 @@ export interface PoolInfoDesktopProps {
     isOpen: boolean;
     dexIcon: Image | null;
     isVerified: boolean;
+    isGame: boolean;
 }
 
 export interface ValueProps {
@@ -47,6 +48,7 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedA
     if (!contractState.local) {
         return <div>—</div>;
     }
+
     const algoReward = calculateAlgoReward(contractState.initial, contractState.local.reward);
 
     return (
@@ -97,6 +99,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     contractLockSuffix,
     dexIcon,
     isVerified,
+    isGame,
 }) => {
     return (
         <PoolInfoDesktopContainer>
@@ -110,6 +113,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     lock={contractLockSuffix}
                     isVerified={isVerified}
                     algoRewards={contractState.initial.totalAlgoRewardAmount > 0}
+                    isGame={isGame}
                 />
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Tvl]}>{`$${numberRound(

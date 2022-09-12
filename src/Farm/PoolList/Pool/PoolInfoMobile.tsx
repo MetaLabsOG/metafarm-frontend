@@ -21,6 +21,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     isOpen,
     dexIcon,
     isVerified,
+    isGame,
 }) => {
     if (contractState.local && isOpen) {
         return null;
@@ -37,6 +38,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 lock={contractLockSuffix}
                 isVerified={isVerified}
                 algoRewards={contractState.initial.totalAlgoRewardAmount > 0}
+                isGame={isGame}
             />
             <PoolInfoValue style={{ marginTop: '30px' }}>
                 <div>TVL</div>

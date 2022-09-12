@@ -105,6 +105,18 @@ export const ModalSubtitle = styled.h3`
     margin-bottom: 30px;
 `;
 
+export const ModalCloseButton = styled.img`
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    left: 330px;
+    top: 15px;
+
+    :hover {
+        cursor: pointer;
+    }
+`;
+
 export const Plus = styled.img`
     width: 15px;
     height: 15px;
@@ -143,4 +155,23 @@ export const SwitchText = styled.h3`
     font-weight: normal;
     text-align: center;
     margin-left: 10px;
+`;
+
+export const DexButton = styled.img<{ isActive?: boolean }>`
+    background-color: white;
+    height: 25px;
+    border-radius: 5px;
+    margin-right: 10px;
+    filter: ${({ isActive }) => (isActive ? 'brightness(100%)' : 'brightness(50%)')};
+
+    :hover {
+        cursor: pointer;
+        filter: brightness(90%);
+    }
+`;
+
+export const DexSwitchContainer = styled.div`
+    display: flex;
+    align-items: center;
+    width: 100%;
 `;
