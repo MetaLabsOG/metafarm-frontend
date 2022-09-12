@@ -347,6 +347,11 @@ export class TinymanDex extends Dex {
         return this.getPoolByAddress(creator);
     }
 
+    getPoolAddress(asset1_id: AssetId, asset2_id: AssetId): string {
+        const logicSig = Tinyman.getPoolLogicSig(asset1_id, asset2_id, this.validatorAppId);
+        return logicSig.address();
+    }
+
     async getPoolByAddress(poolAddress: string): Promise<TinymanPool> {
         const accountInfo = await this.algod.accountInformation(poolAddress).do();
         const tinymanPoolData = await getTinymanPools(1, poolAddress);

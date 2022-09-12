@@ -227,7 +227,6 @@ export const TimingMobile = styled.div`
 
 export const ContractLink = styled.div`
     margin-top: 7px;
-    margin-left: 5px;
     font-size: 13px;
     text-decoration: underline;
     color: #676767;

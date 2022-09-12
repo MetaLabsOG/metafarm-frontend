@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction } from 'react';
+import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import { useUnit } from 'effector-react';
 import { LPTokenInfo } from '../../../dexes';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
@@ -7,13 +7,12 @@ import { AllDefined } from '../../../types';
 import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { Button } from '../../../Components/Button/Button';
 import { algoexplorerContractLink } from '../../../common/lib';
-import { ALGONET, TESTNET } from '../../../AppContext';
 import { notify } from '../../../Components/Notification';
 import { isCompoundEnabled, runCompound } from './compound';
 import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
-import { convertAmountToUSD, isLPTokenInfo } from './utils';
+import { getDestroyLPLink, isLPTokenInfo } from './utils';
 
 // NOTE: I will leave this function here in case we add more dexes and want to have fallback functionality
 // before zap support
@@ -82,9 +81,16 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                         />
                     </a>
                 )}
-                <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
-                    <ContractLink>Сontract</ContractLink>
-                </a>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
+                        <ContractLink>Сontract</ContractLink>
+                    </a>
+                    {isLPTokenInfo(stakedToken) && (
+                        <a target="_blank" href={getDestroyLPLink(stakedToken)} rel="noreferrer">
+                            <ContractLink>Destroy LP</ContractLink>
+                        </a>
+                    )}
+                </div>
             </TokenInfo>
             <TokenInputWithButton
                 style={!canStake ? { visibility: 'hidden' } : {}}

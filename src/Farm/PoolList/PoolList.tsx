@@ -1,5 +1,5 @@
 import { useUnit } from 'effector-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { PoolWithStats, sortPools } from '../store';
 import swapArrow from '../../imgs/swapArrow.svg';
 import { theme } from '../../theme';
@@ -57,6 +57,10 @@ export function PoolList({ pools }: { pools: PoolWithStats[] }) {
         .map((pws: PoolWithStats) => <Pool key={pws.pool.id} pws={pws} />);
 
     const sortEvent = useUnit(sortPools);
+
+    useEffect(() => {
+        sortEvent({ type: ColumnType.Tvl, asc: false });
+    }, []);
 
     const onColumnClick = (key: ColumnType) => {
         if (key === sortKey) {

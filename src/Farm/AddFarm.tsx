@@ -37,6 +37,7 @@ import { Contract, Backend } from '../types';
 import { expBackoff } from '../common/store/utils';
 import { logEvent, LogName } from '../logEvent';
 import { DexProvider } from '../dexes';
+import { DexSwitch } from '../Zap/Zap';
 import { AddFarmRow, DateInput } from './styled';
 import { deployFarm, InitialDistributionState, InitialFarmState } from './utils';
 
@@ -55,6 +56,8 @@ export type StakingAsset = {
     id: AssetId;
     name: string;
     dex?: DexProvider;
+    asset1_id?: number;
+    asset2_id?: number;
 };
 
 const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
@@ -97,16 +100,14 @@ const checkFarmParams = (
         return false;
     }
 
-    if (
-        !Number.isNaN(algoToken.balance) &&
-        algoToken.balance < Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE
-    ) {
-        const needAlgo =
-            Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE - algoToken.balance;
+    const minAlgoBalance = Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE;
+    if (!Number.isNaN(algoToken.balance) && algoToken.balance < minAlgoBalance) {
+        const needAlgo = minAlgoBalance - algoToken.balance;
         notify(
-            `Not enough ALGOs in the wallet. Please, add at least ${Math.round(
-                needAlgo
-            )} ALGOs. The creation fee is ${FARM_FLAT_ALGO_CREATION_FEE} ALGOs.`,
+            `Not enough ALGO. Please deposit at least ${Math.round(needAlgo)} ALGO to proceed.
+            Some ALGOs are reserved by Algorand Network. 
+            Creation fee is ${FARM_FLAT_ALGO_CREATION_FEE} ALGO. 
+            So minimum balance to create the pool is ${minAlgoBalance}.`,
             'warning'
         );
         return false;
@@ -223,8 +224,9 @@ const createFarm = async (
                 account.networkAccount.addr,
                 Number(contractId),
                 contractType,
-                stakeToken.name,
-                stakeToken.dex,
+                stakeToken,
+                rewardToken.id,
+                extraAlgoRewardAmount,
                 CURRENT_CONTRACT_VERSION[contractType]
             )
         );
@@ -449,6 +451,8 @@ function getStakingAsset(
         id: selectedPool.liquidityAsset,
         name: selectedPool.name,
         dex: selectedPool.poolDex,
+        asset1_id: selectedPool.asset1,
+        asset2_id: selectedPool.asset2,
     };
 }
 
@@ -458,7 +462,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
     const currentBlock = useUnit($networkTime);
     const meanRoundDuration = useUnit($meanRoundDuration);
 
-    const [selectedDex, setSelectedDex] = useState<DexOptionType>({ value: 'T2', name: 'Tinyman' });
+    const [selectedDex, setSelectedDex] = useState<DexProvider>('T2');
     const [poolOptions, setPoolOptions] = useState<PoolOptionType[]>([]);
     const [selectedPool, setSelectedPool] = useState<PoolOptionType>(POOL_OPTION);
     const [selectedToken, setSelectedToken] = useState<TokenOptionType>(TOKEN_OPTION);
@@ -486,7 +490,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
         Number(lockPeriod)
     );
 
-    const getPoolOptions = selectedDex.value === 'T2' ? getTinymanPoolOptions : getPactPoolOptions;
+    const getPoolOptions = selectedDex === 'T2' ? getTinymanPoolOptions : getPactPoolOptions;
 
     useEffect(() => {
         getPoolOptions()('').then((options) => setPoolOptions(options));
@@ -503,8 +507,8 @@ export function AddFarm({ type }: { type: AddFarmType }) {
         });
     }, [account, balances]);
 
-    const selectDexOnChange = (value: SelectedOptionValue, option: DexOptionType) => {
-        setSelectedDex(option);
+    const selectDexOnChange = (dex: DexProvider) => {
+        setSelectedDex(dex);
         setPoolOptions([]);
         setSelectedPool(POOL_OPTION);
     };
@@ -541,17 +545,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             <ModalTitle>ADD {type.toString().toUpperCase()}</ModalTitle>
             {type === 'farm' && (
                 <>
-                    <Heading2>DEX</Heading2>
-                    <Select
-                        selectType={SelectType.dexSelect}
-                        options={[
-                            { value: 'T2', name: 'Tinyman' },
-                            { value: 'PT', name: 'Pact' },
-                        ]}
-                        selectedOption={selectedDex}
-                        selectOnChange={selectDexOnChange}
-                    />
-
+                    <DexSwitch dexProvider={selectedDex} dexOnChange={selectDexOnChange} />
                     <Heading2>LP POOL</Heading2>
                     <Select
                         selectType={SelectType.poolSelect}
