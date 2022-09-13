@@ -103,6 +103,8 @@ export async function loadZapData(
                 asset2_amount: zapData.asset2_amount,
                 lp_amount: zapData.lp_amount,
                 pool_lp_id: zapData.pool_lp_id,
+                asset1: asset1.unitName,
+                asset2: asset2.unitName,
                 // ...zap_data,
                 swapHalf: Number(swapHalf),
                 dex: dexProvider,
