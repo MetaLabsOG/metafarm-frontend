@@ -3819,37 +3819,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reach-sh/humble-sdk@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@reach-sh/humble-sdk@npm:2.0.0"
-  dependencies:
-    "@reach-sh/stdlib": "npm:0.1.10-rc.6"
-  checksum: cb5f5eef67d8034aa0e55811009e2cef0a1a707c73334af9eb57716b56d3171c54d6d929beae033ac89e438cf381f672a0f535bda99cdaecd0165ecdd14220e7
-  languageName: node
-  linkType: hard
-
-"@reach-sh/stdlib@npm:0.1.10-rc.6":
-  version: 0.1.10-rc.6
-  resolution: "@reach-sh/stdlib@npm:0.1.10-rc.6"
-  dependencies:
-    "@msgpack/msgpack": "npm:^2.5.1"
-    "@randlabs/myalgo-connect": "npm:^1.1.2"
-    "@walletconnect/client": "npm:^1.7.3"
-    algorand-walletconnect-qrcode-modal: "npm:^1.6.1"
-    algosdk: "npm:^1.15.0"
-    await-timeout: "npm:^0.6.0"
-    ethers: "npm:^5.5.4"
-    express: "npm:^4.17.3"
-    hi-base32: "npm:^0.5.0"
-    js-conflux-sdk: "git+https://github.com/reach-sh/js-conflux-sdk.git#v1_6_0_blockNumber"
-    jsbi: "npm:^3.1.6"
-    node-fetch: "npm:^2.6.1"
-    tslib: "npm:^2.3.1"
-    wait-port: "npm:^0.2.9"
-  checksum: 1acd460ded950767e6f0df62fcadb5e02cc25d82ddcf0254952a6b70690d5c4a2cb5bab7e8e187b1ddb67c948bebe1667fde6f9a67bcf8b0bd21e8ec28da448a
-  languageName: node
-  linkType: hard
-
 "@reach-sh/stdlib@npm:0.1.11-rc.0":
   version: 0.1.11-rc.0
   resolution: "@reach-sh/stdlib@npm:0.1.11-rc.0"
@@ -13143,7 +13112,6 @@ __metadata:
     "@perawallet/connect": "npm:^0.2.0"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.7"
     "@ramonak/react-progress-bar": "npm:^5.0.2"
-    "@reach-sh/humble-sdk": "npm:^2.0.0"
     "@reach-sh/stdlib": "npm:0.1.11-rc.5"
     "@sentry/react": "npm:^7.8.0"
     "@sentry/tracing": "npm:^7.8.0"

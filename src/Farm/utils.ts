@@ -45,7 +45,7 @@ export const getDexIcon = (poolDex: DexProvider): Image | null => {
         return tinyman;
     } else if (poolDex === 'PT') {
         return pact;
-    } else if (poolDex === 'HM') {
+    } else if (poolDex === 'H2') {
         return humble;
     }
 

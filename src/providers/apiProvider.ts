@@ -11,7 +11,7 @@ import { logEvent, LogName } from '../logEvent';
 import { pactDex } from '../dexes';
 import { StakingAsset } from '../Farm/AddFarm';
 
-const instance = axios.create({
+export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
 });
 

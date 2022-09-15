@@ -52,7 +52,7 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
         return 'PT';
     }
     if (name.includes('humble')) {
-        return 'HM';
+        return 'H2';
     }
 
     return 'MOCK';

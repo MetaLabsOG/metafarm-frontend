@@ -73,12 +73,12 @@ export const humbleDex = new HumbleDex(algod);
 export const mockDex = new MockDex();
 
 export function makeDex(provider: DexProvider): Dex {
-    return provider === 'PT' ? pactDex : provider === 'T2' ? tinymanDex : provider === 'HM' ? humbleDex : mockDex;
+    return provider === 'PT' ? pactDex : provider === 'T2' ? tinymanDex : provider === 'H2' ? humbleDex : mockDex;
 }
 
 // In which order to call dexes for the swap price for each token.
 // if no pair on Tinyman, try Pact; otherwise provide dummy prices on testnet or throw on mainnet.
-const DEX_TRY_ORDER: DexProvider[] = ALGONET === TESTNET ? ['T2', 'PT', 'HM', 'MOCK'] : ['T2', 'PT', 'HM'];
+const DEX_TRY_ORDER: DexProvider[] = ALGONET === TESTNET ? ['T2', 'PT', 'H2', 'MOCK'] : ['T2', 'PT', 'H2'];
 
 export async function getSwapCostSomewhere(
     assetIn: AssetId | Asset,
