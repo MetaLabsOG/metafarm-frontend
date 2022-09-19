@@ -1,9 +1,12 @@
 import { useStoreMap, useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
+import { useEffect, useState } from 'react';
 import { $meanRoundDuration, $networkTime, $pricedAssets, Contract } from '../common/store';
 import { DexProvider } from '../dexes';
 import { ProgressBar } from '../Components/ProgressBar/ProgressBar';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
+import { getTinymanPools } from '../providers/apiProvider';
+import { getDexName } from '../Farm/utils';
 import { LaaSHeader } from './LaaSHeader';
 import { LaaSInfo } from './LaaSInfo';
 import { LaaSResults } from './LaaSResults';
@@ -68,13 +71,15 @@ export const ROWS_BY_STAGE: any = {
     [LaaSStage.unknown]: {},
 };
 
+export const AUCTION_BLOCKS = 60 * 60 * 24;
+
 const getLaaSStage = (currentBlock: number, vault: Contract<'laas'>): LaaSStage => {
     if (!vault.state) {
         return LaaSStage.unknown;
     }
 
     const startBlock = vault.state.initial.startBlock;
-    const subscriptionBlocks = vault.state.initial.subscriptionBlock;
+    const subscriptionBlocks = vault.state.initial.subscriptionBlocks;
     const isFullySubscribed = vault.state.global.isFullySubscribed;
 
     if (currentBlock - startBlock < subscriptionBlocks && !isFullySubscribed) {
@@ -88,7 +93,6 @@ const getLaaSStage = (currentBlock: number, vault: Contract<'laas'>): LaaSStage 
 
     const auctionStartBlock = vault.state.global.auctionStartBlock;
     const auctionLeftToRaise = vault.state.global.auctionLeftToRaise;
-    const AUCTION_BLOCKS = 60 * 60 * 24;
     if (currentBlock - auctionStartBlock < AUCTION_BLOCKS && auctionLeftToRaise > 0) {
         return LaaSStage.auction;
     }
@@ -119,12 +123,26 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
 
     const vaultDurationText = getVaultDurationText(laasStage, meanRoundDuration, currentBlock, vault.state.initial);
 
+    const [expectedAPR, setExpectedAPR] = useState<number>(0);
+    const poolAddress = vault.state.initial.liquidityPoolAddr;
+
     const [DepositModal, openDepositModal, closeDepositModal] = useModal('root', { preventScroll: true });
     const [AuctionModal, openAuctionModal, closeAuctionModal] = useModal('root', { preventScroll: true });
+
+    useEffect(() => {
+        getTinymanPools(1, poolAddress).then((pools) => {
+            pools[0] && setExpectedAPR(pools[0].annual_percentage_rate * 2);
+        });
+    }, [poolAddress]);
 
     if (!asset1 || !asset2) {
         return <></>;
     }
+
+    const vaultName = `${asset1.unitName}/${asset2.unitName} on ${getDexName(dex)}`;
+    const capacityLeft =
+        (Number(vault.state.initial.initialABalance - vault.state.global.totalALiqProvided) * asset1.price) /
+        asset2.price;
 
     return (
         <LaaSCardContainer>
@@ -136,9 +154,9 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                     progress={totalALiqProvided / initialABalance}
                 />
             ) : (
-                <LaaSResults APY={0.3} IL={0} />
+                <LaaSResults laasStage={laasStage} APY={expectedAPR} IL={0} />
             )}
-            <LaaSInfo laasStage={laasStage} vault={vault} asset1={asset1} asset2={asset2} />
+            <LaaSInfo laasStage={laasStage} vault={vault} asset1={asset1} asset2={asset2} expectedAPR={expectedAPR} />
             <LaaSButton
                 laasStage={laasStage}
                 vault={vault}
@@ -154,7 +172,14 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                 }}
             />
             <DepositModal>
-                <LaaSTokenDeposit vault={vault} asset2={asset2} buttonSubtitle={vaultDurationText} />
+                <LaaSTokenDeposit
+                    vault={vault}
+                    asset={asset2}
+                    buttonSubtitle={vaultDurationText}
+                    vaultName={vaultName}
+                    expectedAPR={expectedAPR}
+                    capacityLeft={capacityLeft}
+                />
             </DepositModal>
             <AuctionModal>
                 <LaaSAuction vault={vault} asset1={asset1} asset2={asset2} />

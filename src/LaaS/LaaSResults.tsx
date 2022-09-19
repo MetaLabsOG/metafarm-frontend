@@ -1,24 +1,16 @@
 import { theme } from '../theme';
+import { numberRound } from '../Farm/PoolList/Pool/utils';
 import { LaaSResultNumber, LaaSResultNumberSubtitle, LaaSResultsContainer, LaaSSquare } from './styled';
+import { LaaSStage } from './LaaSCard';
 
-export const LaaSResults = ({
-    APY,
-    IL,
-    isFinalAPY,
-    isFinalIL,
-}: {
-    APY: number;
-    IL: number;
-    isFinalAPY?: boolean;
-    isFinalIL?: boolean;
-}) => {
-    const APYSubtitle = isFinalAPY ? 'Result' : 'Projected';
-    const ILSubtile = isFinalAPY ? 'Result' : 'Expected';
+export const LaaSResults = ({ laasStage, APY, IL }: { laasStage: LaaSStage; APY: number; IL: number }) => {
+    const APYSubtitle = laasStage >= LaaSStage.auction ? 'Result' : 'Projected';
+    const ILSubtile = laasStage === LaaSStage.withdraw ? 'Result' : 'Expected';
 
     return (
         <LaaSResultsContainer>
             <LaaSSquare>
-                <LaaSResultNumber>{`${APY * 100}%`}</LaaSResultNumber>
+                <LaaSResultNumber>{`${numberRound(APY * 100)}%`}</LaaSResultNumber>
                 <LaaSResultNumberSubtitle>{APYSubtitle} APY</LaaSResultNumberSubtitle>
             </LaaSSquare>
             <LaaSSquare>

@@ -171,7 +171,7 @@ export type LaasInitialInfo = {
     // сколько всего длится vault со старта до начала аукциона
     vaultRunBlocks: Time;
     // сколько максимально длится subscription
-    subscriptionBlock: Time; // TODO add s
+    subscriptionBlocks: Time;
     initialABalance: Amount;
     aToken: AssetId;
     // токен пользователя
@@ -185,7 +185,7 @@ export type LaasInitialInfo = {
 };
 
 export type LaasGlobalInfo = {
-    // сколько предоставили в DEX, чтобы считать trading fees
+    // сколько предоставили в DEX. можно использовать для trading fees
     totalALiqProvided: Amount;
     totalBLiqProvided: Amount;
 
@@ -204,17 +204,10 @@ export type LaasGlobalInfo = {
     // сколько токенов B осталось получить
     auctionLeftToRaise: Amount;
     // сколько всего токенов B надо было покрыть
-    // auctionToRaiseInitital: Amount;
-
-    // TODO: это можно взять как баланс кошелька
-    aBalance: Amount;
-    bBalance: Amount;
-    lpBalance: Amount;
+    auctionToRaiseInitial: Amount;
 };
 
-export type LaasLocalInfo = {
-    currentBlock: Time;
-};
+export type LaasLocalInfo = unknown;
 
 // CONVERSIONS
 // I wish it could be done better, if only I had normal fucking typeclasses...

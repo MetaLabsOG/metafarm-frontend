@@ -322,3 +322,7 @@ export function algoexplorerTxLink(txId: string): string {
 export function algoexplorerContractLink(appId: AppId): string {
     return `https://${ALGONET === MAINNET ? '' : 'testnet.'}algoexplorer.io/application/${appId}`;
 }
+
+export function algoexplorerAssetLink(assetId: AppId): string {
+    return `https://${ALGONET === MAINNET ? '' : 'testnet.'}algoexplorer.io/asset/${assetId}`;
+}

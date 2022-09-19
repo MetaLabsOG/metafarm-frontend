@@ -12,7 +12,7 @@ export const getVaultDurationText = (
 ): string => {
     const vaultBlocks = currentBlock - vaultInitialState.startBlock;
     if (laasStage === LaaSStage.subscription) {
-        const blocksLeft = vaultInitialState.subscriptionBlock - vaultBlocks;
+        const blocksLeft = vaultInitialState.subscriptionBlocks - vaultBlocks;
         const vaultDurationText = blocksToText(meanRoundDuration, blocksLeft);
         return 'closed in ' + vaultDurationText;
     }

@@ -258,7 +258,7 @@ export const laasCtcMockSubscription: Contract<'laas'> = {
         initial: {
             startBlock: 24110498,
             vaultRunBlocks: 10000000,
-            subscriptionBlock: 1000000,
+            subscriptionBlocks: 1000000,
             initialABalance: BigInt(100000),
             aToken: META_TOKEN_ID,
             bToken: 0,
@@ -266,7 +266,7 @@ export const laasCtcMockSubscription: Contract<'laas'> = {
             slpToken: 0,
             liquidityPoolApp: 123,
             creator: 'addr',
-            liquidityPoolAddr: 'addr',
+            liquidityPoolAddr: 'QGN6WJNNUNAL533NQJNASX6T5YZ5RJTYAQZFPAZV7JUJQ43SJDUPAER3YA',
         },
         global: {
             totalALiqProvided: BigInt(50000),
@@ -282,14 +282,9 @@ export const laasCtcMockSubscription: Contract<'laas'> = {
             auctionInitMarketPriceMult: BigInt(2),
             auctionStartBlock: 3000,
             auctionLeftToRaise: BigInt(10000),
-
-            aBalance: BigInt(1000),
-            bBalance: BigInt(1000),
-            lpBalance: BigInt(1000),
+            auctionToRaiseInitial: BigInt(20000),
         },
-        local: {
-            currentBlock: 10,
-        },
+        local: {},
     },
 };
 
@@ -322,7 +317,7 @@ export const laasCtcMockRunning: Contract<'laas'> = {
         initial: {
             startBlock: 24110498,
             vaultRunBlocks: 100000,
-            subscriptionBlock: 10000,
+            subscriptionBlocks: 10000,
             initialABalance: BigInt(100000),
             aToken: META_TOKEN_ID,
             bToken: 0,
@@ -330,7 +325,7 @@ export const laasCtcMockRunning: Contract<'laas'> = {
             slpToken: 0,
             liquidityPoolApp: 123,
             creator: 'addr',
-            liquidityPoolAddr: 'addr',
+            liquidityPoolAddr: 'QGN6WJNNUNAL533NQJNASX6T5YZ5RJTYAQZFPAZV7JUJQ43SJDUPAER3YA',
         },
         global: {
             totalALiqProvided: BigInt(50000),
@@ -346,14 +341,9 @@ export const laasCtcMockRunning: Contract<'laas'> = {
             auctionInitMarketPriceMult: BigInt(2),
             auctionStartBlock: 24200498,
             auctionLeftToRaise: BigInt(10000),
-
-            aBalance: BigInt(1000),
-            bBalance: BigInt(1000),
-            lpBalance: BigInt(1000),
+            auctionToRaiseInitial: BigInt(20000),
         },
-        local: {
-            currentBlock: 10,
-        },
+        local: {},
     },
 };
 
@@ -386,7 +376,7 @@ export const laasCtcMockAuction: Contract<'laas'> = {
         initial: {
             startBlock: 24109498,
             vaultRunBlocks: 1000000,
-            subscriptionBlock: 10,
+            subscriptionBlocks: 10,
             initialABalance: BigInt(100000),
             aToken: META_TOKEN_ID,
             bToken: 0,
@@ -410,14 +400,9 @@ export const laasCtcMockAuction: Contract<'laas'> = {
             auctionInitMarketPriceMult: BigInt(2),
             auctionStartBlock: 24110498,
             auctionLeftToRaise: BigInt(10000),
-
-            aBalance: BigInt(1000),
-            bBalance: BigInt(1000),
-            lpBalance: BigInt(1000),
+            auctionToRaiseInitial: BigInt(20000),
         },
-        local: {
-            currentBlock: 10,
-        },
+        local: {},
     },
 };
 
@@ -450,7 +435,7 @@ export const laasCtcMockWithdraw: Contract<'laas'> = {
         initial: {
             startBlock: 24109498,
             vaultRunBlocks: 10,
-            subscriptionBlock: 5,
+            subscriptionBlocks: 5,
             initialABalance: BigInt(100000),
             aToken: META_TOKEN_ID,
             bToken: 0,
@@ -474,13 +459,8 @@ export const laasCtcMockWithdraw: Contract<'laas'> = {
             auctionInitMarketPriceMult: BigInt(2),
             auctionStartBlock: 24109500,
             auctionLeftToRaise: BigInt(0),
-
-            aBalance: BigInt(1000),
-            bBalance: BigInt(1000),
-            lpBalance: BigInt(1000),
+            auctionToRaiseInitial: BigInt(20000),
         },
-        local: {
-            currentBlock: 10,
-        },
+        local: {},
     },
 };
