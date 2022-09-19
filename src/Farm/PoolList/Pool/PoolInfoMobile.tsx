@@ -19,7 +19,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     timing,
     contractLockSuffix,
     isOpen,
-    dexIcon,
+    dex,
     isVerified,
     isGame,
 }) => {
@@ -34,7 +34,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 asset2_id={asset2_id}
                 pool_name={pool_name}
                 rewardTokenName={rewardTokenInfo.unitName}
-                dexIcon={dexIcon}
+                dex={dex}
                 lock={contractLockSuffix}
                 isVerified={isVerified}
                 algoRewards={contractState.initial.totalAlgoRewardAmount > 0}

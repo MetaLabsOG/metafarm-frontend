@@ -5,13 +5,15 @@ export const InfoRowContainer = styled.div`
     display: flex;
     justify-content: space-between;
     color: ${theme.lightGray};
+    font-weight: 400;
+    line-height: 17px;
     margin-bottom: 10px;
     white-space: nowrap;
     width: 100%;
 `;
 
 export const InfoKey = styled.h3`
-    color: inherit;
+    color: var(--gray);
     font-family: 'Montserrat', serif;
     font-weight: normal;
     font-size: 14px;
