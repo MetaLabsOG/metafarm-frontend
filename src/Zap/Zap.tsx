@@ -199,6 +199,7 @@ export function DexSwitch({
             <Heading2>DEX</Heading2>
             <DexButton isActive={dexProvider === 'T2'} alt="tinyman" src={tinyman} onClick={() => dexOnChange('T2')} />
             <DexButton isActive={dexProvider === 'PT'} alt="pact" src={pact} onClick={() => dexOnChange('PT')} />
+            <DexButton isActive={dexProvider === 'H2'} alt="humble" src={humble} onClick={() => dexOnChange('H2')} />
         </DexSwitchContainer>
     );
 }
