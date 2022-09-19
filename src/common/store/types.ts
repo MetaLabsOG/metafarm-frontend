@@ -34,7 +34,7 @@ export type AllBignums<T> = T extends number | bigint
 
 // TODO: there should be a better way to add new contract types
 // We should explore the possibility of providing types from the _contract packages_.
-export type ContractType = 'farm' | 'crowdsale' | 'distribution';
+export type ContractType = 'farm' | 'crowdsale' | 'distribution' | 'laas';
 // | 'fomo'
 
 export type FarmType = 'farm' | 'distribution';
@@ -83,24 +83,28 @@ export type ContractMetadata = {
     distribution: { verified?: boolean };
     crowdsale: { whitelist: string[] };
     fomo: unknown;
+    laas: { verified?: boolean };
 };
 
 type InitialInfo = {
     farm: FarmInitialInfo;
     distribution: DistributionInitialInfo;
     crowdsale: CrowdsaleInitialInfo;
+    laas: LaasInitialInfo;
 };
 
 type GlobalInfo = {
     farm: FarmGlobalInfo;
     distribution: FarmGlobalInfo;
     crowdsale: CrowdsaleGlobalInfo;
+    laas: LaasGlobalInfo;
 };
 
 type LocalInfo = {
     farm: FarmLocalInfo;
     distribution: FarmLocalInfo;
     crowdsale: CrowdsaleLocalInfo;
+    laas: LaasLocalInfo;
 };
 
 // Farm types
@@ -159,6 +163,57 @@ type CrowdsaleGlobalInfo = {
 
 type CrowdsaleLocalInfo = {
     alreadyBought: Amount;
+};
+
+// LaaS types
+export type LaasInitialInfo = {
+    startBlock: Time;
+    // сколько всего длится vault со старта до начала аукциона
+    vaultRunBlocks: Time;
+    // сколько максимально длится subscription
+    subscriptionBlock: Time; // TODO add s
+    initialABalance: Amount;
+    aToken: AssetId;
+    // токен пользователя
+    bToken: AssetId;
+    lpToken: AssetId;
+    // токен, который мы предоставляем
+    slpToken: AssetId;
+    liquidityPoolApp: AssetId;
+    creator: string;
+    liquidityPoolAddr: string;
+};
+
+export type LaasGlobalInfo = {
+    // сколько предоставили в DEX, чтобы считать trading fees
+    totalALiqProvided: Amount;
+    totalBLiqProvided: Amount;
+
+    isFullySubscribed: boolean;
+
+    // балансы ликвидити сикера, которые он может снять, обычно они не 0 когда кончается волт
+    lsAAccumulator: Amount;
+    lsBAccumulator: Amount;
+    priorityAddress: string;
+
+    // кол-во токенов, которые смогут снять провайдеры
+    totalBToWithdraw: Amount;
+
+    auctionInitMarketPriceMult: Amount;
+    auctionStartBlock: Time;
+    // сколько токенов B осталось получить
+    auctionLeftToRaise: Amount;
+    // сколько всего токенов B надо было покрыть
+    // auctionToRaiseInitital: Amount;
+
+    // TODO: это можно взять как баланс кошелька
+    aBalance: Amount;
+    bBalance: Amount;
+    lpBalance: Amount;
+};
+
+export type LaasLocalInfo = {
+    currentBlock: Time;
 };
 
 // CONVERSIONS

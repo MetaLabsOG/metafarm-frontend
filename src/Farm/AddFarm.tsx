@@ -60,11 +60,11 @@ export type StakingAsset = {
     asset2_id?: number;
 };
 
-const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
+export const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: number) => {
     return Math.floor(Math.max(5, (endTime - startTime) / 1000) / meanRoundDuration);
 };
 
-const daysToBlocks = (days: number, meanRoundDuration: number) => {
+export const daysToBlocks = (days: number, meanRoundDuration: number) => {
     return Math.floor((days * DAY) / meanRoundDuration);
 };
 
@@ -287,7 +287,7 @@ const calculateFarmData = (
     return [beginBlock, endBlock, rewardPerBlock, lockPeriodBlocks];
 };
 
-const calculateTimeByBlock = (currentBlock: number, block: number, meanRoundDuration: number) => {
+export const calculateTimeByBlock = (currentBlock: number, block: number, meanRoundDuration: number) => {
     const timestamp = Date.now() + (block - currentBlock) * meanRoundDuration * 1000;
     return new Date(timestamp).toLocaleString('en-US', {
         day: 'numeric',

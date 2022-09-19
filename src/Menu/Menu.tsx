@@ -31,6 +31,7 @@ function MenuItems() {
             <MenuItem to="/zap">zap</MenuItem>
             <MenuItem to="/farm">farm</MenuItem>
             <MenuItem to="/stake">stake</MenuItem>
+            <MenuItem to="/laas">laas</MenuItem>
             {/* <MenuItem to="/fomo">fomo3d</MenuItem> */}
             <MenuItem to="/meta-dao">nft</MenuItem>
             {/* <MenuItem to="/tokensale">tokensale</MenuItem> */}
