@@ -6,11 +6,13 @@ import { theme } from '../../theme';
 import { SwitchSelect } from '../../Components/SwitchSelect/SwitchSelect';
 import { $networkTime } from '../../common/store';
 import {
+    AddFarmButtonContainer,
     PoolFiltersContainer,
     PoolListArrow,
     PoolListContainer,
     PoolListHeader,
     PoolListHeaderElement,
+    PoolTopLineContainer,
 } from './styled';
 import { Pool } from './Pool';
 
@@ -32,7 +34,15 @@ export const POOL_COLUMN_WIDTH: Record<ColumnType, string> = {
     [ColumnType.Ends]: '120px',
 };
 
-export function PoolList({ pools }: { pools: PoolWithStats[] }) {
+const AddFarmButton = ({ addFarmType }: { addFarmType: string }) => {
+    return (
+        <AddFarmButtonContainer target="_blank" href={`/add${addFarmType}`} rel="noreferrer">
+            {`Create ${addFarmType}`}
+        </AddFarmButtonContainer>
+    );
+};
+
+export function PoolList({ pools, poolType }: { pools: PoolWithStats[]; poolType: string }) {
     const currentBlock = useUnit($networkTime);
 
     const [sortKey, setSortKey] = useState<ColumnType>(ColumnType.Tvl);
@@ -75,10 +85,13 @@ export function PoolList({ pools }: { pools: PoolWithStats[] }) {
 
     return (
         <div>
-            <PoolFiltersContainer>
-                <SwitchSelect switchStatus={showLive} onChange={setShowLive} switchText={'live pools'} />
-                <SwitchSelect switchStatus={showVerified} onChange={setShowVerified} switchText={'verified only'} />
-            </PoolFiltersContainer>
+            <PoolTopLineContainer>
+                <AddFarmButton addFarmType={poolType} />
+                <PoolFiltersContainer>
+                    <SwitchSelect switchStatus={showLive} onChange={setShowLive} switchText={'live pools'} />
+                    <SwitchSelect switchStatus={showVerified} onChange={setShowVerified} switchText={'verified only'} />
+                </PoolFiltersContainer>
+            </PoolTopLineContainer>
             <PoolListContainer>
                 <PoolListHeader>
                     {(Object.keys(ColumnType) as (keyof typeof ColumnType)[]).map((key) => (

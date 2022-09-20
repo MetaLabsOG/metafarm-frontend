@@ -9,7 +9,7 @@ import { $sortedStakePoolsWithStats } from './store';
 export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state) => (
     <FarmContainer>
         <Balance kind={'distribution' as FarmType} />
-        <PoolList pools={state} />
+        <PoolList pools={state} poolType="stake" />
         <InfoCards addFarmType="stake" />
     </FarmContainer>
 ));

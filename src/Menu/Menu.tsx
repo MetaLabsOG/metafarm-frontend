@@ -88,7 +88,7 @@ export function Menu() {
             },
             { once: true }
         );
-    }, [isBurgerOpen]);
+    }, []); // TODO: fix me
 
     return (
         <>
