@@ -606,7 +606,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             <ModalTitle>ADD {type.toString().toUpperCase()}</ModalTitle>
             {type === 'farm' && (
                 <>
-                    <DexSwitch dexProvider={selectedDex} dexOnChange={selectDexOnChange} />
+                    <DexSwitch dexProvider={selectedDex} dexOnChange={selectDexOnChange} hasHumble={true} />
                     <Heading2>LP POOL</Heading2>
                     <Select
                         selectType={SelectType.poolSelect}

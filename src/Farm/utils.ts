@@ -35,6 +35,9 @@ export const getDexName = (poolDex: string): string => {
     if (poolDex === 'PT') {
         return 'pact';
     }
+    if (poolDex === 'H2') {
+        return 'humble';
+    }
     return poolDex;
 };
 
