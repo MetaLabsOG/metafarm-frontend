@@ -1,5 +1,6 @@
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import { useUnit } from 'effector-react';
+import { ALGONET, TESTNET } from '../../../AppContext';
 import { LPTokenInfo } from '../../../dexes';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { $account, Amount, AppId, Asset, ContractState, FarmType, Priced } from '../../../common/store';

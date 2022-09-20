@@ -9,11 +9,8 @@ import { nonConcurrent } from '../common/store/utils';
 import { DexProvider } from '../dexes/common';
 import { logEvent, LogName } from '../logEvent';
 import { pactDex } from '../dexes';
-<<<<<<< HEAD
 import { StakingAsset } from '../Farm/AddFarm';
-=======
 import * as MiniHumble from '../dexes/humbleReexports';
->>>>>>> 8407511 (add farm for Humble)
 
 export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,

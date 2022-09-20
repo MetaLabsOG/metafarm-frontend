@@ -551,11 +551,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
     );
 
     const getPoolOptions =
-        selectedDex === 'T2'
-            ? getTinymanPoolOptions
-            : selectedDex === 'PT'
-            ? getPactPoolOptions
-            : getHumblePoolOptions;
+        selectedDex === 'T2' ? getTinymanPoolOptions : selectedDex === 'PT' ? getPactPoolOptions : getHumblePoolOptions;
 
     useEffect(() => {
         getPoolOptions()('').then((options) => setPoolOptions(options));
@@ -744,5 +740,3 @@ export function AddFarm({ type }: { type: AddFarmType }) {
         </ModalContainer>
     );
 }
-
-? getTinymanPoolOptions
