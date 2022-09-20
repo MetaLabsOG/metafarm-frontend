@@ -98,7 +98,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
             },
             { once: true }
         );
-    }, [accDropdownOpen]);
+    }, []); // TODO: fix me
 
     const toggleDropdown: MouseEventHandler<HTMLAnchorElement> = (e) => {
         e.preventDefault();
