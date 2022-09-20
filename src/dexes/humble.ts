@@ -4,6 +4,7 @@ import { maxBy } from 'ramda';
 import { instance as backendAxios } from '../providers/apiProvider';
 import { Asset, AssetId, AppId, fetchAsset } from '../common/store';
 import { assetId } from '../common/store/utils';
+import { fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { Dex, DexPool, DexProvider, Mint, Swap, Zap } from './common';
 
 import * as MiniHumble from './humbleReexports';
@@ -22,7 +23,6 @@ export class HumblePool implements DexPool {
     origDetails: MiniHumble.PoolDetails;
 
     constructor(data: MiniHumble.PoolDetails) {
-        console.log('HUMBLE POOL ID', data.poolAddress, data.poolTokenId);
         this.poolId = Number(data.poolAddress); // it's always a `number` for Algorand...
         this.asset1 = Number(data.tokenAId);
         this.asset2 = Number(data.tokenBId);
@@ -44,24 +44,26 @@ export class HumblePool implements DexPool {
     }
 
     async getSwap(assetIn: AssetId | Asset, amountIn: bigint, slippage: number): Promise<Swap> {
-        // Slippage is a fucking GLOBAL PARAMETER IN THIS SDK can you imagine?
         if (typeof assetIn === 'number') {
             assetIn = await fetchAsset(assetIn);
         }
         const assetOut = await fetchAsset(assetId(assetIn) == this.asset1 ? this.asset2 : this.asset1);
 
+        const amountInStr = fromSmallestUnits(assetIn, amountIn).toString();
         const swap = MiniHumble.calculateTokenSwap({
             pool: this.origDetails,
-            swap: { tokenAId: assetId(assetIn), tokenBId: assetId(assetOut), amountA: amountIn },
+            swap: { tokenAId: assetId(assetIn), tokenBId: assetId(assetOut), amountA: amountInStr },
         });
+
+        const amountOut = getSmallestUnits(assetOut, Number(swap.amountB));
 
         return {
             dex: 'H2',
             assetIn,
             assetOut,
-            amountIn: BigInt(swap.amountA),
-            amountOut: BigInt(swap.amountB),
-            minimalAmountOut: (BigInt(swap.amountB) * BigInt(Math.round(100 - slippage * 100))) / BigInt(100),
+            amountIn,
+            amountOut,
+            minimalAmountOut: (amountOut * BigInt(Math.round(100 - slippage * 100))) / BigInt(100),
             price: Number(swap.amountB) / Number(swap.amountA),
             priceImpact: 0, // TODO: calculate
             fee: BigInt(0), // TODO: how to fucking get it??? ok seems to be 0.25%
@@ -128,6 +130,11 @@ export class HumbleDex extends Dex {
     async getPoolsByAssets(assetA: number | Asset, assetB: number | Asset): Promise<HumblePool[]> {
         assetA = assetId(assetA);
         assetB = assetId(assetB);
+
+        if (assetA > assetB) {
+            [assetB, assetA] = [assetA, assetB];
+        }
+
         const poolDatas = await backendAxios
             .get<MiniHumble.PoolDetails[]>(`/humble/pools?assetA=${assetA}&assetB=${assetB}`)
             .then(({ data }) => data);

@@ -1,4 +1,4 @@
-import { reach } from '../AppContext';
+import { ALGONET, reach, TESTNET } from '../AppContext';
 
 // Copy-pasting select types/methods from Humble SDK to avoid actually importing Humble SDK
 
@@ -255,6 +255,10 @@ export function getFeeInfo(): PoolProtocolInfo {
     return {
         lpFee: LIQUIDITY_PROVIDER_FEE,
         protoFee: HUMBLE_DAO_FEE,
+        protoAddr:
+            ALGONET === TESTNET
+                ? 'XSWSQVQPFMTEQO7UTXGQA5CSSYCDBT2WEN5XWNQ76EBLT2CFRV2HBYKZBE'
+                : 'RKUC34RZOMK26ZOD4J2OFY3UILORX5AAMIX24L5MWAUUF6DVJVBJYQSABQ',
         totFee: TOTAL_FEE,
         locked: false,
     };
@@ -263,6 +267,7 @@ export function getFeeInfo(): PoolProtocolInfo {
 export type PoolProtocolInfo = {
     locked?: boolean;
     lpFee?: number;
+    protoAddr: string;
     protoFee: number;
     totFee: number;
 };
