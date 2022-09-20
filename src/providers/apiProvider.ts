@@ -10,8 +10,9 @@ import { DexProvider } from '../dexes/common';
 import { logEvent, LogName } from '../logEvent';
 import { pactDex } from '../dexes';
 import { StakingAsset } from '../Farm/AddFarm';
+import * as MiniHumble from '../dexes/humbleReexports';
 
-const instance = axios.create({
+export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
 });
 
@@ -183,4 +184,8 @@ export const getTinymanPools = nonConcurrent(async (limit: number, search: strin
 export const getPactPools = nonConcurrent(async (): Promise<pactsdk.ApiPool[]> => {
     const response = await pactDex.pact.listPools();
     return response.results;
+});
+
+export const getHumblePools = nonConcurrent(async (): Promise<MiniHumble.PoolDetails[]> => {
+    return instance.get('/humble/pools/all').then(({ data }) => data);
 });
