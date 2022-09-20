@@ -46,8 +46,10 @@ const fetchAssetFx = createEffect(
     nonConcurrent(async (id: AssetId): Promise<Asset> => {
         const { params } = await algod.getAssetByID(id).do();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const { name, creator, decimals } = params;
-        const unit_name = params['unit-name'];
+        const { creator, decimals } = params;
+
+        const name = params['name'] ?? Buffer.from(params['name-b64'], 'base64').toString();
+        const unit_name = params['unit-name'] ?? Buffer.from(params['unit-name-b64'], 'base64').toString();
 
         return {
             id,

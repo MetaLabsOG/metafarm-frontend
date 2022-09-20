@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import * as Sentry from '@sentry/react';
@@ -62,8 +62,7 @@ window.open = (function (open) {
 
 const queryClient = new QueryClient();
 
-// Throw events on initialization
-fetchAllPricesFx();
+void fetchAllPricesFx();
 
 function App() {
     const account = useUnit($account);
@@ -134,11 +133,14 @@ function App() {
     );
 }
 
-ReactDOM.render(
+const container = document.getElementById('root');
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+const root = createRoot(container!);
+
+root.render(
     <BrowserRouter>
         <QueryClientProvider client={queryClient}>
             <App />
         </QueryClientProvider>
-    </BrowserRouter>,
-    document.querySelector('#root')
+    </BrowserRouter>
 );

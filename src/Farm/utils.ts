@@ -35,6 +35,9 @@ export const getDexName = (poolDex: string): string => {
     if (poolDex === 'PT') {
         return 'pact';
     }
+    if (poolDex === 'H2') {
+        return 'humble';
+    }
     return poolDex;
 };
 
@@ -43,9 +46,11 @@ export type Image = string;
 export const getDexIcon = (poolDex: DexProvider): Image | null => {
     if (poolDex === 'T2') {
         return tinyman;
-    }
-    if (poolDex === 'PT') {
+    } else if (poolDex === 'PT') {
         return pact;
+    } else if (poolDex === 'H2') {
+        return humble;
     }
+
     return null;
 };

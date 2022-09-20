@@ -25,11 +25,12 @@ import {
     ALGO_ASSET,
     AssetId,
     FarmType,
+    fetchAsset,
     Time,
 } from '../common/store';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { DAY, formatDecimalsMeaningful, getSmallestUnits, unsafeFromBigint } from '../common/lib';
-import { deployContractToBackend, getPactPools, getTinymanPools } from '../providers/apiProvider';
+import { deployContractToBackend, getPactPools, getTinymanPools, getHumblePools } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
 import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE, FARM_FLAT_ALGO_CREATION_FEE } from '../AppContext';
@@ -38,8 +39,9 @@ import { expBackoff } from '../common/store/utils';
 import { logEvent, LogName } from '../logEvent';
 import { DexProvider } from '../dexes';
 import { DexSwitch } from '../Zap/Zap';
+import * as MiniHumble from '../dexes/humbleReexports';
 import { AddFarmRow, DateInput } from './styled';
-import { deployFarm, InitialDistributionState, InitialFarmState } from './utils';
+import { deployFarm, getDexName, InitialDistributionState, InitialFarmState } from './utils';
 
 // TODO: Using aliases for different package versions prevents us from automatically determining
 // the version of given contract type from package.json. So we have to hard-code it.
@@ -337,7 +339,15 @@ function PoolInfo({
                 value={stakingAsset.name}
                 valueLink={'https://algoscan.app/asset/' + stakingAsset.id}
             />
-            <InfoRow title="ASA ID" value={stakingAsset.id + ' (tinyman)'} style={{ marginBottom: '20px' }} />
+            <InfoRow
+                title="ASA ID"
+                value={
+                    stakingAsset.dex
+                        ? `${stakingAsset.id} (${getDexName(stakingAsset.dex)})`
+                        : stakingAsset.id.toString()
+                }
+                style={{ marginBottom: '20px' }}
+            />
             {type === 'farm' && (
                 <InfoRow
                     title="Current pool liquidity"
@@ -436,6 +446,56 @@ function getPactPoolOptions(selectedOption?: SelectOptionType) {
     };
 }
 
+type HumblePoolInfo = {
+    tokenAUnitName: string;
+    tokenBUnitName: string;
+} & MiniHumble.PoolDetails;
+
+let humblePools: HumblePoolInfo[] = [];
+
+// TODO: eeeh this is very copy-pasty can we do it in a more unified way?
+function getHumblePoolOptions(selectedOption?: SelectOptionType) {
+    return async (query: string) => {
+        if (humblePools.length === 0) {
+            const poolDatas = await getHumblePools();
+            humblePools = await Promise.all(
+                poolDatas.map(async (pool) => {
+                    const tokenA = await fetchAsset(Number(pool.tokenAId));
+                    const tokenB = await fetchAsset(Number(pool.tokenBId));
+
+                    return { ...pool, tokenAUnitName: tokenA.unitName, tokenBUnitName: tokenB.unitName };
+                })
+            );
+        }
+
+        query = query.toLowerCase();
+        const filtered = humblePools.filter(
+            ({ tokenAUnitName, tokenBUnitName }) =>
+                tokenAUnitName.toLowerCase().includes(query) || tokenBUnitName.toLowerCase().includes(query)
+        );
+
+        const options: PoolOptionType[] = filtered.map((pool) => ({
+            value: pool.poolTokenId?.toString() || '',
+            name: `${pool.tokenAUnitName}-${pool.tokenBUnitName} LP`,
+            poolId: Number(pool.poolAddress),
+            poolDex: 'H2',
+            asset1: Number(pool.tokenAId),
+            asset2: Number(pool.tokenBId),
+            liquidityAsset: Number(pool.poolTokenId),
+            asset1Reserve: BigInt(0),
+            asset2Reserve: BigInt(0),
+            totalLiquidity: BigInt(Math.round(Number(pool.mintedLiquidityTokens))),
+            dexFeeApr: 0, // Is it important here?
+        }));
+
+        if (selectedOption && selectedOption.value && !options.includes(selectedOption as PoolOptionType)) {
+            options.push(selectedOption as PoolOptionType);
+        }
+
+        return options;
+    };
+}
+
 function getStakingAsset(
     type: AddFarmType,
     selectedToken: TokenOptionType,
@@ -490,7 +550,8 @@ export function AddFarm({ type }: { type: AddFarmType }) {
         Number(lockPeriod)
     );
 
-    const getPoolOptions = selectedDex === 'T2' ? getTinymanPoolOptions : getPactPoolOptions;
+    const getPoolOptions =
+        selectedDex === 'T2' ? getTinymanPoolOptions : selectedDex === 'PT' ? getPactPoolOptions : getHumblePoolOptions;
 
     useEffect(() => {
         getPoolOptions()('').then((options) => setPoolOptions(options));
@@ -545,7 +606,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             <ModalTitle>ADD {type.toString().toUpperCase()}</ModalTitle>
             {type === 'farm' && (
                 <>
-                    <DexSwitch dexProvider={selectedDex} dexOnChange={selectDexOnChange} />
+                    <DexSwitch dexProvider={selectedDex} dexOnChange={selectDexOnChange} hasHumble={true} />
                     <Heading2>LP POOL</Heading2>
                     <Select
                         selectType={SelectType.poolSelect}

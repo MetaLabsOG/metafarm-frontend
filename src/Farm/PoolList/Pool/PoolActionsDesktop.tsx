@@ -1,5 +1,6 @@
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import { useUnit } from 'effector-react';
+import { ALGONET, TESTNET } from '../../../AppContext';
 import { LPTokenInfo } from '../../../dexes';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { $account, Amount, AppId, Asset, ContractState, FarmType, Priced } from '../../../common/store';
@@ -19,7 +20,13 @@ import { getDestroyLPLink, isLPTokenInfo } from './utils';
 export const getLPTokenAction = (lpToken: LPTokenInfo, openModal: () => void) => {
     if (lpToken.poolDex === 'T2' || lpToken.poolDex === 'PT') {
         return openModal;
+    } else if (lpToken.poolDex === 'H2') {
+        const humbleUrl = ALGONET === TESTNET ? 'testnet.humbleswap.com' : 'app.humble.sh';
+        return () => {
+            window.open(`https://${humbleUrl}/pool/add/${lpToken.poolId}`, '_blank');
+        };
     }
+
     return () => {
         notify('Sorry, this is a mock token, you cannot get it', 'error');
     };
