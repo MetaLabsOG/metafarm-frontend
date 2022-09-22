@@ -108,6 +108,7 @@ export const LaaSBackendContractsMock = [
     },
 ];
 
+// TODO: most likely we don't need it
 export const LaaSBackendMock: Backend = {
     _Connectors: {
         ALGO: {
@@ -128,15 +129,15 @@ export const LaaSBackendMock: Backend = {
         },
     },
     _backendVersion: 1,
-    _getViews: (stdlib, viewlib) => {
+    _getViews(stdlib, viewlib) {
         return {
-            views: { [1]: [] },
+            views: { 1: [] },
             infos: {
-                ['viewn']: {},
+                viewn: {},
             },
         };
     },
-    _getMaps: (stdlib) => {
+    _getMaps(stdlib) {
         return {
             mapDataTy: {
                 name: 'a',
@@ -150,82 +151,82 @@ export const LaaSBackendMock: Backend = {
         };
     },
     _Participants: {
-        ['1']: null,
+        '1': null,
     },
     _APIs: {
-        ['1']: null,
+        '1': null,
     },
     _stateSourceMap: {
-        [1]: null,
+        1: null,
     },
     _getEvents: (stdlib) => ({
-        ['1']: [null],
+        '1': [null],
     }),
 };
 
 export const LaaSCtcMock: ReachContract = {
-    getInfo: async () => {
+    async getInfo() {
         return new BigNumber(0, '16');
     },
-    getViews: () => {
+    getViews() {
         return {
-            ['1']: async () => {
+            async '1'() {
                 return null;
             },
         };
     },
-    getContractAddress: async () => {
+    async getContractAddress() {
         return 'a';
     },
-    getABI: (x?: boolean) => {},
+    getABI(x?: boolean) {},
     participants: {
-        ['1']: async () => {
+        async '1'() {
             return null;
         },
     },
     p: {
-        ['1']: async () => {
+        async '1'() {
             return null;
         },
     },
     views: {
-        ['1']: async () => {
+        async '1'() {
             return null;
         },
     },
     v: {
-        ['1']: async () => {
+        async '1'() {
             return null;
         },
     },
     unsafeViews: {
-        ['1']: async () => {
+        async '1'() {
             return null;
         },
     },
     apis: {
-        ['1']: async () => {
+        async '1'() {
             return null;
         },
     },
     a: {
-        ['1']: async () => {
+        async '1'() {
             return null;
         },
     },
     safeApis: {
-        ['1']: async () => {
+        async '1'() {
             return null;
         },
     },
     e: {
-        ['1']: null,
+        '1': null,
     },
     events: {
-        ['1']: null,
+        '1': null,
     },
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error
     _initialize: () => null,
 };
 
@@ -244,14 +245,14 @@ export const laasCtcMockSubscription: Contract<'laas'> = {
     },
     ctc: {
         apis: {
-            provide_b: (amount: number) => {},
-            withdraw_excessive_a: () => {},
-            end_vault: () => {},
+            provide_b(amount: number) {},
+            withdraw_excessive_a() {},
+            end_vault() {},
             // seeker достает свои деньги скорее всего после аукциона
-            ls_withdraw: () => {},
-            withdraw_b: (amount: number) => {},
-            auction_buy: (bAmount: number, aToBuyDesired: number) => {},
-            change_priority: (new_priority_addr: string) => {},
+            ls_withdraw() {},
+            withdraw_b(amount: number) {},
+            auction_buy(bAmount: number, aToBuyDesired: number) {},
+            change_priority(new_priority_addr: string) {},
         },
     },
     state: {
@@ -279,6 +280,7 @@ export const laasCtcMockSubscription: Contract<'laas'> = {
 
             totalBToWithdraw: BigInt(1000),
 
+            auctionToRaiseInitital: BigInt(1000),
             auctionInitMarketPriceMult: BigInt(2),
             auctionStartBlock: 3000,
             auctionLeftToRaise: BigInt(10000),
@@ -308,14 +310,14 @@ export const laasCtcMockRunning: Contract<'laas'> = {
     },
     ctc: {
         apis: {
-            provide_b: (amount: number) => {},
-            withdraw_excessive_a: () => {},
-            end_vault: () => {},
+            provide_b(amount: number) {},
+            withdraw_excessive_a() {},
+            end_vault() {},
             // seeker достает свои деньги скорее всего после аукциона
-            ls_withdraw: () => {},
-            withdraw_b: (amount: number) => {},
-            auction_buy: (bAmount: number, aToBuyDesired: number) => {},
-            change_priority: (new_priority_addr: string) => {},
+            ls_withdraw() {},
+            withdraw_b(amount: number) {},
+            auction_buy(bAmount: number, aToBuyDesired: number) {},
+            change_priority(new_priority_addr: string) {},
         },
     },
     state: {
@@ -343,6 +345,7 @@ export const laasCtcMockRunning: Contract<'laas'> = {
 
             totalBToWithdraw: BigInt(1000),
 
+            auctionToRaiseInitital: BigInt(1000),
             auctionInitMarketPriceMult: BigInt(2),
             auctionStartBlock: 24200498,
             auctionLeftToRaise: BigInt(10000),
@@ -372,14 +375,14 @@ export const laasCtcMockAuction: Contract<'laas'> = {
     },
     ctc: {
         apis: {
-            provide_b: (amount: number) => {},
-            withdraw_excessive_a: () => {},
-            end_vault: () => {},
+            provide_b(amount: number) {},
+            withdraw_excessive_a() {},
+            end_vault() {},
             // seeker достает свои деньги скорее всего после аукциона
-            ls_withdraw: () => {},
-            withdraw_b: (amount: number) => {},
-            auction_buy: (bAmount: number, aToBuyDesired: number) => {},
-            change_priority: (new_priority_addr: string) => {},
+            ls_withdraw() {},
+            withdraw_b(amount: number) {},
+            auction_buy(bAmount: number, aToBuyDesired: number) {},
+            change_priority(new_priority_addr: string) {},
         },
     },
     state: {
@@ -407,6 +410,7 @@ export const laasCtcMockAuction: Contract<'laas'> = {
 
             totalBToWithdraw: BigInt(1000),
 
+            auctionToRaiseInitital: BigInt(1000),
             auctionInitMarketPriceMult: BigInt(2),
             auctionStartBlock: 24110498,
             auctionLeftToRaise: BigInt(10000),
@@ -436,14 +440,14 @@ export const laasCtcMockWithdraw: Contract<'laas'> = {
     },
     ctc: {
         apis: {
-            provide_b: (amount: number) => {},
-            withdraw_excessive_a: () => {},
-            end_vault: () => {},
+            provide_b(amount: number) {},
+            withdraw_excessive_a() {},
+            end_vault() {},
             // seeker достает свои деньги скорее всего после аукциона
-            ls_withdraw: () => {},
-            withdraw_b: (amount: number) => {},
-            auction_buy: (bAmount: number, aToBuyDesired: number) => {},
-            change_priority: (new_priority_addr: string) => {},
+            ls_withdraw() {},
+            withdraw_b(amount: number) {},
+            auction_buy(bAmount: number, aToBuyDesired: number) {},
+            change_priority(new_priority_addr: string) {},
         },
     },
     state: {
@@ -471,6 +475,7 @@ export const laasCtcMockWithdraw: Contract<'laas'> = {
 
             totalBToWithdraw: BigInt(1000),
 
+            auctionToRaiseInitital: BigInt(1000),
             auctionInitMarketPriceMult: BigInt(2),
             auctionStartBlock: 24109500,
             auctionLeftToRaise: BigInt(0),

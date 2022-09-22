@@ -1,0 +1,4 @@
+export const clearProgram = `#pragma version 6
+int 1
+return
+`;

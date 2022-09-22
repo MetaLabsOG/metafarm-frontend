@@ -1,11 +1,10 @@
-import { buildContractsStore, registerPricedAsset } from '../common/store';
-import { LaaSBackendMock } from '../common/mocks';
+import { buildTealContractsStore, ContractType, LAAS_BACKEND, registerPricedAsset } from '../common/store';
 
-const LAAS_BACKENDS = {
-    '0_0_1': LaaSBackendMock,
-};
-
-const { $contracts, $contractStatesWithCache, setContractInfos } = buildContractsStore('laas', LAAS_BACKENDS);
+// TODO shall we support multiple backends?
+const { $contracts, $contractStatesWithCache, setContractInfos } = buildTealContractsStore(
+    'laas' as const,
+    LAAS_BACKEND.original
+);
 
 export const $laasPools = $contracts;
 export const setLaasPoolInfos = setContractInfos;

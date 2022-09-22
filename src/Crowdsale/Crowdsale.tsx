@@ -11,12 +11,12 @@ import { getContracts, tokensaleWhitelist } from '../providers/apiProvider';
 import { useContractOptin } from '../common/reachHooks';
 import { InfoHeader } from '../common/styled';
 import { META_TOKEN_ID } from '../AppContext';
-import { $account, Amount, buildContractsStore, Contract } from '../common/store';
+import { $account, Amount, buildReachContractsStore, Contract } from '../common/store';
 import { Account, Backend } from '../types';
 import { unsafeFromBigint } from '../common/lib';
 import { Button } from './styled';
 
-const { $contracts, setContractInfos } = buildContractsStore('crowdsale', backend as Backend);
+const { $contracts, setContractInfos } = buildReachContractsStore('crowdsale', backend as Backend);
 
 type CrowdsaleProps = {
     account: Account;

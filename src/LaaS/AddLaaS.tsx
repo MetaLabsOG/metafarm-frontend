@@ -1,26 +1,42 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import { Buffer } from 'buffer';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
+import { getSuggestedParams, mkTxParams, MyAlgoWalletSession, testnetURL } from '@algo-builder/web';
+import { mkTransaction } from '@algo-builder/web/build/lib/txn';
+import {
+    AppDefinitionFromFile,
+    AppDefinitionFromSourceCompiled,
+    AppOptionalFlags,
+    DeployAppParam,
+    ExecParams,
+    MetaType,
+    SignType,
+    StorageConfig,
+    TransactionType,
+} from '@algo-builder/web/build/types';
+import { Algodv2, makeApplicationCreateTxn, Transaction } from 'algosdk';
 import { getTokens } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
 import { TokenOptionType } from '../Components/Select/types';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
-
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
-import { $account, $balances, $meanRoundDuration, $networkTime } from '../common/store';
+import { $account, $balances, $meanRoundDuration, $networkTime, AppId, AssetId } from '../common/store';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
-import { FARM_FLAT_ALGO_CREATION_FEE } from '../AppContext';
+import { algod, FARM_FLAT_ALGO_CREATION_FEE, reach } from '../AppContext';
 import { logEvent, LogName } from '../logEvent';
 import { DexProvider } from '../dexes';
 import { DexSwitch } from '../Zap/Zap';
 import { AddFarmRow, DateInput } from '../Farm/styled';
 import { calculateTimeByBlock, daysToBlocks } from '../Farm/AddFarm';
+import { approvalProgram } from './vault_approval_source';
+import { clearProgram } from './vault_clear_source';
 
 const MIN_ALLOWED_ALGO_BALANCE = 5;
 
@@ -72,7 +88,53 @@ const checkLaaSParams = (
     return true;
 };
 
-const createFarm = async (
+// helper function to compile program source
+async function compileProgram(client: Algodv2, programSource: string): Promise<Uint8Array> {
+    const encoder = new TextEncoder();
+    const programBytes = encoder.encode(programSource);
+    const compileResponse = await client.compile(programBytes).do();
+    return new Uint8Array(Buffer.from(compileResponse.result, 'base64'));
+}
+
+export async function makeVaultDefinition(
+    foreignAssets: AssetId[],
+    liquidityPoolApp: AppId
+): Promise<AppDefinitionFromSourceCompiled> {
+    // TODO check if it's right
+    const appStorageConfig: StorageConfig = {
+        appName: 'laasVault',
+        localInts: 0,
+        localBytes: 0,
+        globalInts: 16,
+        globalBytes: 8,
+        extraPages: 3,
+    };
+
+    const appOptionalFlags: AppOptionalFlags = {
+        appArgs: [],
+        accounts: [],
+        foreignApps: [liquidityPoolApp], // TODO
+        foreignAssets,
+        // Note?: Uint8Array;
+        // lease?: Uint8Array;
+    };
+
+    const approvalProgramBytes = await compileProgram(algod, approvalProgram);
+    const clearProgramBytes = await compileProgram(algod, clearProgram);
+
+    //makeApplicationCreateTxn
+
+    // TODO use makeApplicationCreate?
+    return {
+        metaType: MetaType.BYTES as const,
+        approvalProgramBytes,
+        clearProgramBytes,
+        ...appOptionalFlags,
+        ...appStorageConfig,
+    };
+}
+
+const createVault = async (
     account: Account,
     stakeToken: TokenOptionType,
     rewardToken: TokenOptionType,
@@ -82,14 +144,54 @@ const createFarm = async (
     algoToken: TokenOptionType,
     extraAlgoRewardAmount: number
 ) => {
-    if (
+    // TODO validation is needed
+    /*if (
         !checkLaaSParams(stakeToken, rewardToken, beginBlock, endBlock, rewardAmount, algoToken, extraAlgoRewardAmount)
     ) {
         return false;
-    }
+    }*/
 
     try {
-        console.log('LAAS!');
+        // TODO TestNet or MainNet
+        const walletURL = {
+            token: '',
+            server: testnetURL,
+            port: '',
+        };
+        const wcSession = new MyAlgoWalletSession(walletURL);
+        await wcSession.connectToMyAlgo();
+
+        // This is a very weird pool of 'WALGO-Tinyman LP' Pact LP. Don't ask.
+        const WALGO_ID = 14704676;
+        const TMPOOL11_ID = 62401500;
+        const PLP_ID = 108425831;
+
+        // TODO: TEAL 6 one, need to try with TEAL 5
+        const PACT_POOL_APP_ID = 108425790;
+
+        const acc = await reach.getDefaultAccount();
+
+        console.log('Default account is', acc.networkAccount.addr);
+
+        const txns: Transaction[] = [];
+        const execParam: DeployAppParam = {
+            type: TransactionType.DeployApp,
+            sign: SignType.SecretKey,
+            fromAccount: { addr: acc.networkAccount.addr, sk: new Uint8Array(0) },
+            appDefinition: await makeVaultDefinition([WALGO_ID, TMPOOL11_ID, PLP_ID], PACT_POOL_APP_ID),
+            payFlags: { totalFee: 5000 }, // TODO 5000 is arbitrary
+        };
+
+        const sp = await getSuggestedParams(algod);
+        const tx = mkTransaction(execParam, await mkTxParams(algod, execParam.payFlags, sp));
+
+        const reachTxn = { txn: Buffer.from(tx.toByte()).toString('base64') };
+
+        const p = await reach.getProvider();
+
+        await p.signAndPostTxns([reachTxn]);
+
+        console.log('OMG CANT BELIVE IT WORKS!');
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
         console.log(error);
@@ -249,7 +351,7 @@ export function AddLaaS() {
                     buttonText="VERIFY DETAILS"
                     buttonStyle="swap_button"
                     onClickAction={async () => {
-                        if (
+                        /*if (
                             checkLaaSParams(
                                 selectedUserToken,
                                 selectedProjectToken,
@@ -259,9 +361,9 @@ export function AddLaaS() {
                                 rewardToken,
                                 Number(rewardTokenAmount)
                             )
-                        ) {
-                            openAddLaaSModal();
-                        }
+                        ) {*/
+                        openAddLaaSModal();
+                        //   }
                     }}
                 />
             )}
@@ -285,7 +387,7 @@ export function AddLaaS() {
                             buttonText="CREATE LAAS VAULT"
                             buttonStyle="swap_button"
                             onClickAction={async () => {
-                                const res = await createFarm(
+                                const res = await createVault(
                                     account,
                                     selectedUserToken,
                                     selectedProjectToken,

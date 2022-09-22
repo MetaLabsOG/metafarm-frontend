@@ -116,9 +116,6 @@ function parseBignumState<T extends ContractType>(
 // Contracts store
 export type ContractsStoreVars<T extends ContractType> = {
     $contracts: Store<Array<Contract<T>>>;
-    $contractInfos: Store<Array<ContractInfo<T>>>;
-    $contractCtcs: Store<Map<AppId, any>>;
-    $contractStates: Store<Map<AppId, ContractState<T>>>;
     $contractStatesWithCache: Store<Map<AppId, ContractState<T>>>;
     setContractInfos: Event<Array<ContractInfo<T>>>;
     triggerStateUpdate: Event<AppId>;
@@ -133,13 +130,36 @@ function isBackend(backend: Backend | any): backend is Backend {
     return '_Connectors' in backend;
 }
 
+export enum LAAS_BACKEND {
+    original,
+}
+
+export function buildTealContractsStore<T extends ContractType>(type: T, backend: LAAS_BACKEND): ContractsStoreVars<T> {
+    const $contracts = createStore<Array<Contract<T>>>([]);
+    const $contractStatesWithCache = createStore<Map<AppId, ContractState<T>>>(Map());
+
+    const setContractInfos = createEvent<Array<ContractInfo<T>>>();
+    const triggerStateUpdate = createEvent<AppId>();
+    const contractStateUpdated = createEvent<{ id: AppId; state: ContractState<T> }>();
+
+    // TODO need to create this stupid Contract object somehow
+
+    return {
+        $contracts,
+        $contractStatesWithCache,
+        setContractInfos,
+        triggerStateUpdate,
+        contractStateUpdated,
+    };
+}
+
 /**
  * Creates a store for the array of contracts of a given type.
  * @param type Contract type
  * @param backend Reach contract backend
  * @returns Relevant stores and events
  */
-export function buildContractsStore<T extends ContractType>(
+export function buildReachContractsStore<T extends ContractType>(
     type: T,
     backend: Backend | Record<string, Backend>
 ): ContractsStoreVars<T> {
@@ -284,9 +304,6 @@ export function buildContractsStore<T extends ContractType>(
 
     return {
         $contracts,
-        $contractInfos,
-        $contractCtcs,
-        $contractStates,
         $contractStatesWithCache,
         setContractInfos,
         triggerStateUpdate,
