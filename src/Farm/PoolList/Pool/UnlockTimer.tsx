@@ -1,10 +1,11 @@
 import { DAY } from '../../../common/lib';
+import { $meanRoundDuration } from '../../../common/store';
 
 export const calculateUnlockTimeinSecs = (currentBlock: number, lockTimestamp: number, lockLengthBlocks: number) => {
     if (!lockLengthBlocks || !lockTimestamp) {
         return 0;
     }
-    return Math.floor(Math.max(0, lockLengthBlocks - (currentBlock - lockTimestamp)) * 4.35); // In seconds
+    return Math.floor(Math.max(0, lockLengthBlocks - (currentBlock - lockTimestamp)) * $meanRoundDuration.__); // In seconds
 };
 
 const formatUnlockTime = (unlockTime: number) => {
