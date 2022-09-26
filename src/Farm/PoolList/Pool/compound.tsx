@@ -1,5 +1,13 @@
 import { LPTokenInfo, makeDex, ZapQuote } from '../../../dexes';
-import { ALGO_ASSET, Amount, Asset, Priced, refreshAccountInfo } from '../../../common/store';
+import {
+    ALGO_ASSET,
+    Amount,
+    Asset,
+    fetchAccountInfoFx,
+    getBalancesFromAccountInfo,
+    Priced,
+    refreshAccountInfo,
+} from '../../../common/store';
 import { fromSmallestUnits } from '../../../common/lib';
 import { QueryType, runTransactions, SLIPPAGE } from '../../../Swap/Swap';
 import { Account, Contract, ViewVal } from '../../../types';
@@ -73,12 +81,14 @@ export const runCompound = async (
             console.log('Algo zap res lp amount', microAlgoLpAmount);
         }
 
-        refreshAccountInfo();
+        const accInfo = await fetchAccountInfoFx(account);
+        const balances = getBalancesFromAccountInfo(accInfo);
         console.log('COMPOUND ZAP', zapOp, zapTxIds);
 
         // If mint transaction passed, tinyman could not return less than that (since txs are deterministic).
         // TODO: we should check
-        const microLpAmount = zapOp.mint.minimalLiquidityIssued + microAlgoLpAmount;
+        // const microLpAmount = zapOp.mint.minimalLiquidityIssued + microAlgoLpAmount;
+        const microLpAmount = balances[lpTokenInfo.id];
         console.log('start stake', fromSmallestUnits(lpTokenInfo, microLpAmount), microLpAmount);
 
         await (ctc.apis.stake as ViewVal)([microLpAmount]);

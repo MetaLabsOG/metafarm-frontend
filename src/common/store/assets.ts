@@ -14,7 +14,7 @@ export const registerAsset = createEvent<AssetId>();
 // =================================================================
 // Balances store which watches updates in accountInfo
 // =================================================================
-function getBalancesFromAccountInfo(accountInfo: Record<string, any> | null): Record<AssetId, Amount> {
+export function getBalancesFromAccountInfo(accountInfo: Record<string, any> | null): Record<AssetId, Amount> {
     if (accountInfo === null) {
         return {};
     }
