@@ -25,7 +25,7 @@ export type TotalCost = {
 
 export async function getTotalCost(address: string, weeks = 6): Promise<TotalCost[]> {
     return instance
-        .get<TotalCost[]>(`total_cost/${address}`, { params: { weeks_count: weeks } })
+        .get<TotalCost[]>(`wallet/${address}/total_cost`, { params: { weeks_count: weeks } })
         .then(({ data }) => data)
         .catch((error) => {
             console.log('ERR', error);
@@ -62,7 +62,7 @@ export type TinymanPool = {
 
 export async function getAssets(address: string): Promise<Asset[]> {
     return instance
-        .get<Asset[]>(`wallet_assets/${address}`)
+        .get<Asset[]>(`wallet/${address}/assets`)
         .then(({ data }) => data)
         .catch((error) => {
             console.log('ERR', error);
@@ -84,7 +84,7 @@ export type WalletNFT = {
 
 export async function getWalletNFTs(wallet: string): Promise<WalletNFT[]> {
     return instance
-        .get<WalletNFT[]>(`wallet_nfts/${wallet}`)
+        .get<WalletNFT[]>(`wallet/${wallet}/nfts`)
         .then(({ data }) => data)
         .catch((error) => {
             console.log('ERR', error);
