@@ -61,7 +61,7 @@ export const LaaSInfo = ({
             {ROWS_BY_STAGE[laasStage][RowType.expectedARP] && (
                 <InfoRow
                     title={'Expected APR'}
-                    value={`${expectedAPR * 100}%`}
+                    value={`${numberRound(expectedAPR * 100)}%`}
                     style={{ color: 'white', fontWeight: '600' }}
                 />
             )}

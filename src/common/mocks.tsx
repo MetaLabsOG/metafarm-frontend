@@ -257,7 +257,7 @@ export const laasCtcMockSubscription: Contract<'laas'> = {
     state: {
         initial: {
             startBlock: 24110498,
-            vaultRunBlocks: 10000000,
+            vaultRunBlocks: 1000000,
             subscriptionBlocks: 1000000,
             initialABalance: BigInt(100000),
             aToken: META_TOKEN_ID,
@@ -319,7 +319,7 @@ export const laasCtcMockRunning: Contract<'laas'> = {
             vaultRunBlocks: 100000,
             subscriptionBlocks: 10000,
             initialABalance: BigInt(100000),
-            aToken: META_TOKEN_ID,
+            aToken: 10458941,
             bToken: 0,
             lpToken: 93085031,
             slpToken: 0,
@@ -378,7 +378,7 @@ export const laasCtcMockAuction: Contract<'laas'> = {
             vaultRunBlocks: 1000000,
             subscriptionBlocks: 10,
             initialABalance: BigInt(100000),
-            aToken: META_TOKEN_ID,
+            aToken: 96690352,
             bToken: 0,
             lpToken: 93085031,
             slpToken: 0,
@@ -437,7 +437,7 @@ export const laasCtcMockWithdraw: Contract<'laas'> = {
             vaultRunBlocks: 10,
             subscriptionBlocks: 5,
             initialABalance: BigInt(100000),
-            aToken: META_TOKEN_ID,
+            aToken: 27963203,
             bToken: 0,
             lpToken: 93085031,
             slpToken: 0,
@@ -458,6 +458,65 @@ export const laasCtcMockWithdraw: Contract<'laas'> = {
 
             auctionInitMarketPriceMult: BigInt(2),
             auctionStartBlock: 24109500,
+            auctionLeftToRaise: BigInt(0),
+            auctionToRaiseInitial: BigInt(20000),
+        },
+        local: {},
+    },
+};
+
+export const laasCtcMockTEST: Contract<'laas'> = {
+    id: 1,
+    info: {
+        type: 'laas',
+        id: 1,
+        version: '0.0.1',
+        deployed_timestamp: 12,
+        description: 'laas mock subscription contract',
+        metadata: {
+            cache: undefined,
+            verified: true,
+        },
+    },
+    ctc: {
+        apis: {
+            provide_b: (amount: number) => {},
+            withdraw_excessive_a: () => {},
+            end_vault: () => {},
+            // seeker достает свои деньги скорее всего после аукциона
+            ls_withdraw: () => {},
+            withdraw_b: (amount: number) => {},
+            auction_buy: (bAmount: number, aToBuyDesired: number) => {},
+            change_priority: (new_priority_addr: string) => {},
+        },
+    },
+    state: {
+        initial: {
+            startBlock: 24110498,
+            vaultRunBlocks: 50000,
+            subscriptionBlocks: 1000,
+            initialABalance: BigInt(100000),
+            aToken: META_TOKEN_ID,
+            bToken: 0,
+            lpToken: 93085031,
+            slpToken: 0,
+            liquidityPoolApp: 123,
+            creator: 'addr',
+            liquidityPoolAddr: 'QGN6WJNNUNAL533NQJNASX6T5YZ5RJTYAQZFPAZV7JUJQ43SJDUPAER3YA',
+        },
+        global: {
+            totalALiqProvided: BigInt(50000),
+            totalBLiqProvided: BigInt(10000),
+            isFullySubscribed: true,
+
+            lsAAccumulator: BigInt(10),
+            lsBAccumulator: BigInt(10),
+            priorityAddress: 'addr',
+
+            totalBToWithdraw: BigInt(1000),
+
+            auctionInitMarketPriceMult: BigInt(2),
+            auctionStartBlock: 24332292 - 10,
             auctionLeftToRaise: BigInt(0),
             auctionToRaiseInitial: BigInt(20000),
         },

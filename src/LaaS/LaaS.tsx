@@ -1,12 +1,19 @@
 import { createComponent } from 'effector-react';
-import { laasCtcMockAuction, laasCtcMockRunning, laasCtcMockSubscription, laasCtcMockWithdraw } from '../common/mocks';
+import {
+    laasCtcMockAuction,
+    laasCtcMockRunning,
+    laasCtcMockSubscription,
+    laasCtcMockTEST,
+    laasCtcMockWithdraw,
+} from '../common/mocks';
 import { Contract } from '../common/store';
 import { LaaSCard } from './LaaSCard';
 import { LaaSContainer } from './styled';
 
 const laasPools: Contract<'laas'>[] = [
-    laasCtcMockSubscription,
     laasCtcMockRunning,
+    laasCtcMockTEST,
+    // laasCtcMockSubscription,
     laasCtcMockAuction,
     laasCtcMockWithdraw,
 ];

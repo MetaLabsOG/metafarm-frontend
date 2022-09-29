@@ -33,7 +33,7 @@ const checkLaaSParams = (
     algoToken: TokenOptionType,
     extraAlgoRewardAmount: number
 ) => {
-    if (!stakeToken.id) {
+    if (Number.isNaN(stakeToken.id)) {
         notify('Please, choose LP pool.', 'warning');
         return false;
     }
@@ -56,23 +56,23 @@ const checkLaaSParams = (
         return false;
     }
 
-    const minAlgoBalance = Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE;
-    if (!Number.isNaN(algoToken.balance) && algoToken.balance < minAlgoBalance) {
-        const needAlgo = minAlgoBalance - algoToken.balance;
-        notify(
-            `Not enough ALGO. Please deposit at least ${Math.round(needAlgo)} ALGO to proceed.
-            Some ALGOs are reserved by Algorand Network. 
-            Creation fee is ${FARM_FLAT_ALGO_CREATION_FEE} ALGO. 
-            So minimum balance to create the pool is ${minAlgoBalance}.`,
-            'warning'
-        );
-        return false;
-    }
+    // const minAlgoBalance = Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE;
+    // if (!Number.isNaN(algoToken.balance) && algoToken.balance < minAlgoBalance) {
+    //     const needAlgo = minAlgoBalance - algoToken.balance;
+    //     notify(
+    //         `Not enough ALGO. Please deposit at least ${Math.round(needAlgo)} ALGO to proceed.
+    //         Some ALGOs are reserved by Algorand Network.
+    //         Creation fee is ${FARM_FLAT_ALGO_CREATION_FEE} ALGO.
+    //         So minimum balance to create the pool is ${minAlgoBalance}.`,
+    //         'warning'
+    //     );
+    //     return false;
+    // }
 
     return true;
 };
 
-const createFarm = async (
+const createLaaS = async (
     account: Account,
     stakeToken: TokenOptionType,
     rewardToken: TokenOptionType,
@@ -285,7 +285,7 @@ export function AddLaaS() {
                             buttonText="CREATE LAAS VAULT"
                             buttonStyle="swap_button"
                             onClickAction={async () => {
-                                const res = await createFarm(
+                                const res = await createLaaS(
                                     account,
                                     selectedUserToken,
                                     selectedProjectToken,

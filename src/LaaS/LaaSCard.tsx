@@ -1,11 +1,12 @@
 import { useStoreMap, useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { $meanRoundDuration, $networkTime, $pricedAssets, Contract } from '../common/store';
 import { DexProvider } from '../dexes';
 import { ProgressBar } from '../Components/ProgressBar/ProgressBar';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
 import { getTinymanPools } from '../providers/apiProvider';
+import Confetti from '../Components/Confetti/Confetti';
 import { getDexName } from '../Farm/utils';
 import { LaaSHeader } from './LaaSHeader';
 import { LaaSInfo } from './LaaSInfo';
@@ -129,6 +130,8 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const [DepositModal, openDepositModal, closeDepositModal] = useModal('root', { preventScroll: true });
     const [AuctionModal, openAuctionModal, closeAuctionModal] = useModal('root', { preventScroll: true });
 
+    const [showConfetti, setShowConfetti] = useState(false);
+
     useEffect(() => {
         getTinymanPools(1, poolAddress).then((pools) => {
             pools[0] && setExpectedAPR(pools[0].annual_percentage_rate * 2);
@@ -166,8 +169,11 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                     if (laasStage === LaaSStage.subscription) {
                         openDepositModal();
                     }
-                    if (laasStage == LaaSStage.auction) {
+                    if (laasStage === LaaSStage.auction) {
                         openAuctionModal();
+                    }
+                    if (laasStage === LaaSStage.withdraw) {
+                        setShowConfetti(true);
                     }
                 }}
             />
@@ -184,6 +190,12 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
             <AuctionModal>
                 <LaaSAuction vault={vault} asset1={asset1} asset2={asset2} />
             </AuctionModal>
+            <Confetti
+                showConfetti={showConfetti}
+                onFinish={() => {
+                    setShowConfetti(false);
+                }}
+            />
         </LaaSCardContainer>
     );
 };

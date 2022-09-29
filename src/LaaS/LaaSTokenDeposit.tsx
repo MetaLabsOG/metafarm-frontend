@@ -47,7 +47,7 @@ const DepositInfo = ({
                 style={{ color: theme.green }}
             />
             <InfoRow title={'Vault'} value={vaultName} valueLink={algoexplorerAssetLink(vault.state.initial.lpToken)} />
-            <InfoRow title={'Estimated APR'} value={`${numberRound(expectedAPR)}%`} />
+            <InfoRow title={'Estimated APR'} value={`${numberRound(expectedAPR * 100)}%`} />
             <InfoRow title={'Withdrawal date'} value={withdrawalDate} />
             <InfoRow title={'Remaining Capacity'} value={`${numberRound(capacityLeft)} ${asset.unitName}`} />
             <InfoRow title={'Vault duration'} value={vaultDuration} />

@@ -23,10 +23,10 @@ export const LaaSAuction = ({
     return (
         <LaaSAuctionContainer>
             <ModalTitle style={{ textAlign: 'center', marginBottom: 5 }}>{asset1.unitName} AUCTION</ModalTitle>
-            <ProgressBar title="55%" value={`100,345 / 250,000 ALGO`} progress={0.54} color={theme.lightGray} />
-            <InfoRow title={'Left to sell'} value={`53,000 BIRD`} />
-            <InfoRow title={'Current price'} value={`1.5 ALGO per BIRD`} />
-            <InfoRow title={'Market price'} value={`1 ALGO per BIRD`} />
+            <ProgressBar title="55%" value={`5,345 / 10,000 ALGO`} progress={0.54} color={theme.lightGray} />
+            <InfoRow title={'Left to sell'} value={`53,000 META`} />
+            <InfoRow title={'Current price'} value={`1.5 ALGO per META`} />
+            <InfoRow title={'Market price'} value={`1 ALGO per META`} />
             <InfoRow title={'Reach market price '} value={`in 13 hours`} />
             <TokenInput
                 token={asset2}
