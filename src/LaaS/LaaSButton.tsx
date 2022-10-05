@@ -42,7 +42,7 @@ export const LaaSButton = ({
     isProject?: boolean;
 }) => {
     if (!vault.state) {
-        return <></>;
+        return null;
     }
     const buttonTitle =
         laasStage === LaaSStage.subscription && !isProject ? `deposit ${asset2_name}` : BUTTON_TITLE[laasStage];

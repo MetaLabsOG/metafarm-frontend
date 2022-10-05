@@ -19,7 +19,8 @@ export const LaaSInfo = ({
     asset2: Priced<Asset>;
 }) => {
     if (!vault.state) {
-        return <></>;
+        console.log("Vault doesn't have state:", vault);
+        return null;
     }
 
     const expectedAPR = 9.8; // TODO trading fees * 2
@@ -31,37 +32,25 @@ export const LaaSInfo = ({
 
     const meanRoundDuration = useUnit($meanRoundDuration);
     const vaultDuration = blocksToText(meanRoundDuration, vault.state.initial.vaultRunBlocks);
-    const myRevenue = vault.state.global.totalBToWithdraw / vault.state.global.totalBLiqProvided; // TODO умножить на баланс сALGO, это когда закончился аукцион
+    // const myRevenue = vault.state.global.totalBToWithdraw / vault.state.global.totalBLiqProvided; // TODO умножить на баланс сALGO, это когда закончился аукцион
     // const myRevenue = vault.state.global.totalBToWithdraw / vault.state.global.totalBLiqProvided; // TODO баланс сALGO / кол-во токенов в обороте
 
     return (
         <LaaSInfoContainer>
-            {ROWS_BY_STAGE[laasStage][RowType.expectedARP] && (
-                <InfoRow
-                    title={'Expected APR'}
-                    value={`${expectedAPR}%`}
-                    style={{ color: 'white', fontWeight: '600' }}
-                />
+            {ROWS_BY_STAGE[laasStage].expectedARP && (
+                <InfoRow title="Expected APR" value={`${expectedAPR}%`} style={{ color: 'white', fontWeight: '600' }} />
             )}
-            {ROWS_BY_STAGE[laasStage][RowType.capacityLeft] && (
-                <InfoRow title={'Capacity left'} value={`${numberRound(capacityLeft)} ${asset2.unitName}`} />
+            {ROWS_BY_STAGE[laasStage].capacityLeft && (
+                <InfoRow title="Capacity left" value={`${numberRound(capacityLeft)} ${asset2.unitName}`} />
             )}
-            {ROWS_BY_STAGE[laasStage][RowType.TVL] && <InfoRow title={'TVL'} value={`$${numberRound(TVL)}`} />}
-            {ROWS_BY_STAGE[laasStage][RowType.vaultDuration] && (
-                <InfoRow title={'Vault duration'} value={vaultDuration} />
-            )}
-            {ROWS_BY_STAGE[laasStage][RowType.myStake] && <InfoRow title={'My stake'} value={`1000 cALGO`} />}
-            {ROWS_BY_STAGE[laasStage][RowType.myRevenue] && <InfoRow title={'My revenue'} value={`40 ALGO (+4%)`} />}
-            {ROWS_BY_STAGE[laasStage][RowType.expectedRevenue] && (
-                <InfoRow title={'Expected revenue'} value={`23 ALGO`} />
-            )}
-            {ROWS_BY_STAGE[laasStage][RowType.withdrawIn] && <InfoRow title={'Withdraw in'} value={`at most 2 days`} />}
-            {ROWS_BY_STAGE[laasStage][RowType.ILCovered] && (
-                <InfoRow title={'IL covered'} value={`20,000 / 20,000 ALGO`} />
-            )}
-            {ROWS_BY_STAGE[laasStage][RowType.claimAmount] && (
-                <InfoRow title={'Claim amount'} value={`1200 ALGO (+20%)`} />
-            )}
+            {ROWS_BY_STAGE[laasStage].TVL && <InfoRow title="TVL" value={`$${numberRound(TVL)}`} />}
+            {ROWS_BY_STAGE[laasStage].vaultDuration && <InfoRow title="Vault duration" value={vaultDuration} />}
+            {ROWS_BY_STAGE[laasStage].myStake && <InfoRow title="My stake" value="1000 cALGO" />}
+            {ROWS_BY_STAGE[laasStage].myRevenue && <InfoRow title="My revenue" value="40 ALGO (+4%)" />}
+            {ROWS_BY_STAGE[laasStage].expectedRevenue && <InfoRow title="Expected revenue" value="23 ALGO" />}
+            {ROWS_BY_STAGE[laasStage].withdrawIn && <InfoRow title="Withdraw in" value="at most 2 days" />}
+            {ROWS_BY_STAGE[laasStage].ILCovered && <InfoRow title="IL covered" value="20,000 / 20,000 ALGO" />}
+            {ROWS_BY_STAGE[laasStage].claimAmount && <InfoRow title="Claim amount" value="1200 ALGO (+20%)" />}
         </LaaSInfoContainer>
     );
 };

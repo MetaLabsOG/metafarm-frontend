@@ -7,6 +7,8 @@ import { useModal } from 'react-hooks-use-modal';
 import { getSuggestedParams, mkTxParams, MyAlgoWalletSession, testnetURL } from '@algo-builder/web';
 import { mkTransaction } from '@algo-builder/web/build/lib/txn';
 import {
+    AlgoTransferParam,
+    AppCallsParam,
     AppDefinitionFromFile,
     AppDefinitionFromSourceCompiled,
     AppOptionalFlags,
@@ -17,7 +19,17 @@ import {
     StorageConfig,
     TransactionType,
 } from '@algo-builder/web/build/types';
-import { Algodv2, makeApplicationCreateTxn, Transaction } from 'algosdk';
+import {
+    Algodv2,
+    assignGroupID,
+    getApplicationAddress,
+    makeApplicationCreateTxn,
+    makePaymentTxn,
+    makePaymentTxnWithSuggestedParams,
+    OnApplicationComplete,
+    Transaction,
+} from 'algosdk';
+import { zip } from 'ramda';
 import { getTokens } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
@@ -37,6 +49,16 @@ import { AddFarmRow, DateInput } from '../Farm/styled';
 import { calculateTimeByBlock, daysToBlocks } from '../Farm/AddFarm';
 import { approvalProgram } from './vault_approval_source';
 import { clearProgram } from './vault_clear_source';
+import { makeSetupTxs, SetupParams } from './vault-tx-params';
+import * as VaultTx from './vault-tx-params';
+import * as CommonTx from './common-tx-params';
+import {
+    instantiatePactTemplate,
+    makeAddLiquidityTxs,
+    makeCreateLiquidityTokenTx,
+    makeDeployPactDefinition,
+    makeOptInTx,
+} from './pact-tx-params';
 
 const MIN_ALLOWED_ALGO_BALANCE = 5;
 
@@ -88,18 +110,41 @@ const checkLaaSParams = (
     return true;
 };
 
-// helper function to compile program source
-async function compileProgram(client: Algodv2, programSource: string): Promise<Uint8Array> {
+// Helper function to compile program source
+export async function compileProgram(client: Algodv2, programSource: string): Promise<Uint8Array> {
     const encoder = new TextEncoder();
     const programBytes = encoder.encode(programSource);
     const compileResponse = await client.compile(programBytes).do();
     return new Uint8Array(Buffer.from(compileResponse.result, 'base64'));
 }
 
-export async function makeVaultDefinition(
+export const sendAlgodTxsViaReachWallet = async (txs: ExecParams[]) => {
+    const sp = await getSuggestedParams(algod);
+    const txParams = await Promise.all(txs.map(async (param) => mkTxParams(algod, param.payFlags, sp)));
+    const txsWithParams = zip(txs, txParams);
+
+    const algodTxs = [];
+
+    for (const [param, algodParam] of txsWithParams) {
+        const tx = mkTransaction(param, algodParam);
+        algodTxs.push(tx);
+    }
+
+    assignGroupID(algodTxs);
+
+    const reachTxs = algodTxs.map((tx) => ({ txn: Buffer.from(tx.toByte()).toString('base64') }));
+
+    const p = await reach.getProvider();
+
+    return p.signAndPostTxns(reachTxs);
+};
+
+export function makeVaultDefinition(
+    approvalProgramBytes: Uint8Array,
+    clearProgramBytes: Uint8Array,
     foreignAssets: AssetId[],
     liquidityPoolApp: AppId
-): Promise<AppDefinitionFromSourceCompiled> {
+): AppDefinitionFromSourceCompiled {
     // TODO check if it's right
     const appStorageConfig: StorageConfig = {
         appName: 'laasVault',
@@ -119,19 +164,139 @@ export async function makeVaultDefinition(
         // lease?: Uint8Array;
     };
 
-    const approvalProgramBytes = await compileProgram(algod, approvalProgram);
-    const clearProgramBytes = await compileProgram(algod, clearProgram);
-
-    //makeApplicationCreateTxn
-
     // TODO use makeApplicationCreate?
     return {
         metaType: MetaType.BYTES as const,
         approvalProgramBytes,
         clearProgramBytes,
+        // TODO I guess i don't need it here right now?
         ...appOptionalFlags,
         ...appStorageConfig,
     };
+}
+
+async function deployVault(ammAppId: AppId, aToken: AssetId, bToken: AssetId, lpToken: AssetId) {
+    const tokens = [aToken, bToken, lpToken];
+
+    // TODO: TEAL 6 one, need to try with TEAL 5
+
+    const approvalProgramBytes = await compileProgram(algod, approvalProgram);
+    const clearProgramBytes = await compileProgram(algod, clearProgram);
+
+    // Console.log('Approval program bytes:', approvalProgramBytes);
+    // console.log('Clear program bytes:', clearProgramBytes);
+    console.log('Deploying vault...');
+    const appDef = makeVaultDefinition(approvalProgramBytes, clearProgramBytes, tokens, ammAppId);
+
+    const acc = await reach.getDefaultAccount();
+    const execParam: DeployAppParam = {
+        type: TransactionType.DeployApp,
+        sign: SignType.SecretKey,
+        fromAccount: { addr: acc.networkAccount.addr, sk: new Uint8Array(0) },
+        appDefinition: appDef,
+        payFlags: { totalFee: 5000 }, // TODO 5000 is arbitrary
+    };
+
+    await sendAlgodTxsViaReachWallet([execParam]);
+}
+
+async function deployPactPool(aToken: AssetId, bToken: AssetId) {
+    const tokens = [aToken, bToken];
+
+    const { approvalCode, clearCode } = instantiatePactTemplate(
+        aToken,
+        bToken,
+        30,
+        30,
+        'G5WRMSA3AGJRBI6WXUZOM64STKWGBHKPVCWGMCSK4ZJEZXRCVPRNCGN5YI'
+    );
+
+    const approvalProgramBytes = await compileProgram(algod, approvalCode);
+    const clearProgramBytes = await compileProgram(algod, clearCode);
+
+    const appDef = makeDeployPactDefinition(approvalProgramBytes, clearProgramBytes, aToken, bToken);
+    const acc = await reach.getDefaultAccount();
+    const execParam: DeployAppParam = {
+        type: TransactionType.DeployApp,
+        sign: SignType.SecretKey,
+        fromAccount: { addr: acc.networkAccount.addr, sk: new Uint8Array(0) },
+        appDefinition: appDef,
+        payFlags: { totalFee: 5000 }, // TODO 5000 is arbitrary
+    };
+
+    await sendAlgodTxsViaReachWallet([execParam]);
+}
+
+async function fundApp(vaultAppId: AppId) {
+    // TODO it shall happen right after creation, we just need to get appId somehow
+    console.log('Funding AMM with ALGO for fees...');
+    const vaultAddress = getApplicationAddress(vaultAppId);
+    console.log('Deployed vault:', { id: vaultAppId, address: vaultAddress });
+    // TODO can we do it in init via payFlags? Would be a bit simpler for consumers
+    const acc = await reach.getDefaultAccount();
+    const fundAppParam = CommonTx.makeFundAppTx({ addr: acc.networkAccount.addr, sk: new Uint8Array(0) }, vaultAddress);
+
+    await sendAlgodTxsViaReachWallet([fundAppParam]);
+
+    console.log('Vault is ready (but needs setup)!');
+}
+
+async function setupVault(vaultAppId: AppId, ammAppId: AppId, aToken: AssetId, bToken: AssetId, lpToken: AssetId) {
+    console.log('Setting up vault app and funding with A...');
+    const vaultAddress = getApplicationAddress(vaultAppId);
+    const setupParams: SetupParams = {
+        vaultRunBlocks: 1_000_000,
+        liquidityPoolApp: ammAppId,
+    };
+
+    const acc = await reach.getDefaultAccount();
+    const typedAcc = { addr: acc.networkAccount.addr, sk: new Uint8Array(0) };
+
+    const initialAmountA = 1000;
+
+    const setupTxs = makeSetupTxs(
+        typedAcc,
+        vaultAppId,
+        vaultAddress,
+        setupParams,
+        initialAmountA,
+        aToken,
+        bToken,
+        lpToken
+    );
+
+    await sendAlgodTxsViaReachWallet(setupTxs);
+}
+
+async function pactCreateLiquidityTokenTx(appId: AppId, a: AssetId, b: AssetId) {
+    const acc = await reach.getDefaultAccount();
+    const typedAcc = { addr: acc.networkAccount.addr, sk: new Uint8Array(0) };
+    const appCallTx: AppCallsParam = makeCreateLiquidityTokenTx(typedAcc, appId, a, b);
+    await sendAlgodTxsViaReachWallet([appCallTx]);
+}
+
+async function pactOptIn(appId: AppId, a: AssetId, b: AssetId) {
+    const acc = await reach.getDefaultAccount();
+    const typedAcc = { addr: acc.networkAccount.addr, sk: new Uint8Array(0) };
+    const appCallTx: AppCallsParam = makeOptInTx(typedAcc, appId, a, b);
+    await sendAlgodTxsViaReachWallet([appCallTx]);
+}
+
+async function pactAddLiq(appId: AppId, a: AssetId, b: AssetId, lp: AssetId) {
+    const initialLiquidity = 10001; // Minimum
+    const acc = await reach.getDefaultAccount();
+    const typedAcc = { addr: acc.networkAccount.addr, sk: new Uint8Array(0) };
+    const addInitialLiqTxs = makeAddLiquidityTxs(
+        typedAcc,
+        appId,
+        getApplicationAddress(appId),
+        lp,
+        a,
+        b,
+        initialLiquidity,
+        initialLiquidity
+    );
+    await sendAlgodTxsViaReachWallet(addInitialLiqTxs);
 }
 
 const createVault = async (
@@ -145,11 +310,11 @@ const createVault = async (
     extraAlgoRewardAmount: number
 ) => {
     // TODO validation is needed
-    /*if (
+    /* if (
         !checkLaaSParams(stakeToken, rewardToken, beginBlock, endBlock, rewardAmount, algoToken, extraAlgoRewardAmount)
     ) {
         return false;
-    }*/
+    } */
 
     try {
         // TODO TestNet or MainNet
@@ -161,35 +326,39 @@ const createVault = async (
         const wcSession = new MyAlgoWalletSession(walletURL);
         await wcSession.connectToMyAlgo();
 
-        // This is a very weird pool of 'WALGO-Tinyman LP' Pact LP. Don't ask.
-        const WALGO_ID = 14704676;
-        const TMPOOL11_ID = 62401500;
-        const PLP_ID = 108425831;
-
-        // TODO: TEAL 6 one, need to try with TEAL 5
-        const PACT_POOL_APP_ID = 108425790;
-
         const acc = await reach.getDefaultAccount();
 
         console.log('Default account is', acc.networkAccount.addr);
 
-        const txns: Transaction[] = [];
-        const execParam: DeployAppParam = {
-            type: TransactionType.DeployApp,
-            sign: SignType.SecretKey,
-            fromAccount: { addr: acc.networkAccount.addr, sk: new Uint8Array(0) },
-            appDefinition: await makeVaultDefinition([WALGO_ID, TMPOOL11_ID, PLP_ID], PACT_POOL_APP_ID),
-            payFlags: { totalFee: 5000 }, // TODO 5000 is arbitrary
-        };
-
         const sp = await getSuggestedParams(algod);
-        const tx = mkTransaction(execParam, await mkTxParams(algod, execParam.payFlags, sp));
 
-        const reachTxn = { txn: Buffer.from(tx.toByte()).toString('base64') };
+        const USDC_ID = 10458941;
+        const ALGF_ID = 70283957;
+        const PLP_ID = 114635758;
 
-        const p = await reach.getProvider();
+        // MY CUSTOM POOL! USDC-ALGF
+        const PACT_POOL_APP_ID = 114634485;
 
-        await p.signAndPostTxns([reachTxn]);
+        // await deployPactPool(USDC_ID, ALGF_ID);
+        // await fundApp(PACT_POOL_APP_ID);
+        // await pactCreateLiquidityTokenTx(PACT_POOL_APP_ID, USDC_ID, ALGF_ID);
+        // await pactOptIn(PACT_POOL_APP_ID, USDC_ID, ALGF_ID);
+        // await pactAddLiq(PACT_POOL_APP_ID, USDC_ID, ALGF_ID, PLP_ID);
+
+        // Order matters (in terms of id)
+        // await deployVault(PACT_POOL_APP_ID, USDC_ID, ALGF_ID, PLP_ID);
+
+        // TODO: how to get created app id?
+        const vaultAppId = 114637307;
+        const vaultAppAddr = getApplicationAddress(vaultAppId);
+
+        await fundApp(vaultAppId);
+        await setupVault(vaultAppId, PACT_POOL_APP_ID, USDC_ID, ALGF_ID, PLP_ID);
+
+        // This.tokens.slp = Number(this.runtime.getGlobalState(this.vaultAppId, 'slp_token'));
+
+        // console.log(`Opting in into Vault SLP tokens... (id=${this.tokens.slp})`);
+        // this.runtime.optInToASA(this.tokens.slp, this.vaultLiquidityProvider.address, {});
 
         console.log('OMG CANT BELIVE IT WORKS!');
     } catch (error) {
@@ -243,12 +412,12 @@ function LaaSInfo({
 
     return (
         <InfoPanel isLoading={false}>
-            <InfoRow title="Expected user APR" value={'10%'} />
-            <InfoRow title="Expected Impermanent Loss" value={'5%'} />
-            <InfoRow title="Subscription period" value={'10 days'} />
+            <InfoRow title="Expected user APR" value="10%" />
+            <InfoRow title="Expected Impermanent Loss" value="5%" />
+            <InfoRow title="Subscription period" value="10 days" />
             <InfoRow title="Vault start" value={startTime} />
             <InfoRow title="Vault end" value={endTime} />
-            <InfoRow title="Auction duration" value={'2 days'} />
+            <InfoRow title="Auction duration" value="2 days" />
             <InfoRow
                 title="Total reward"
                 value={rewardAmount + ' ' + rewardToken.unitName}
@@ -351,7 +520,7 @@ export function AddLaaS() {
                     buttonText="VERIFY DETAILS"
                     buttonStyle="swap_button"
                     onClickAction={async () => {
-                        /*if (
+                        /* If (
                             checkLaaSParams(
                                 selectedUserToken,
                                 selectedProjectToken,
@@ -361,7 +530,7 @@ export function AddLaaS() {
                                 rewardToken,
                                 Number(rewardTokenAmount)
                             )
-                        ) {*/
+                        ) { */
                         openAddLaaSModal();
                         //   }
                     }}

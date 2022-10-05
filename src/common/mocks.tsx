@@ -288,10 +288,9 @@ export const laasCtcMockSubscription: Contract<'laas'> = {
             aBalance: BigInt(1000),
             bBalance: BigInt(1000),
             lpBalance: BigInt(1000),
-        },
-        local: {
             currentBlock: 10,
         },
+        local: {},
     },
 };
 
@@ -353,10 +352,9 @@ export const laasCtcMockRunning: Contract<'laas'> = {
             aBalance: BigInt(1000),
             bBalance: BigInt(1000),
             lpBalance: BigInt(1000),
-        },
-        local: {
             currentBlock: 10,
         },
+        local: {},
     },
 };
 
@@ -418,10 +416,9 @@ export const laasCtcMockAuction: Contract<'laas'> = {
             aBalance: BigInt(1000),
             bBalance: BigInt(1000),
             lpBalance: BigInt(1000),
-        },
-        local: {
             currentBlock: 10,
         },
+        local: {},
     },
 };
 
@@ -483,9 +480,8 @@ export const laasCtcMockWithdraw: Contract<'laas'> = {
             aBalance: BigInt(1000),
             bBalance: BigInt(1000),
             lpBalance: BigInt(1000),
-        },
-        local: {
             currentBlock: 10,
         },
+        local: {},
     },
 };

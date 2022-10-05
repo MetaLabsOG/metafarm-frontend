@@ -240,7 +240,7 @@ retsub
 
 // setup
 setup_4:
-byte "subscription_blocks"
+byte "vault_run_blocks"
 app_global_get
 int 0
 ==
@@ -267,7 +267,7 @@ global ZeroAddress
 assert
 callsub optintokens_2
 txn NumAppArgs
-int 4
+int 3
 ==
 assert
 byte "creator"
@@ -281,47 +281,25 @@ global Round
 app_global_put
 txna ApplicationArgs 1
 btoi
-int 0
+int 100000
 >
-txna ApplicationArgs 2
-btoi
-int 0
->
-&&
-assert
 txna ApplicationArgs 1
-btoi
-int 10000000
-<
-txna ApplicationArgs 2
 btoi
 int 10000000
 <
 &&
 assert
-txna ApplicationArgs 1
-btoi
-int 4
-*
 txna ApplicationArgs 2
-btoi
-<=
-assert
-txna ApplicationArgs 3
 btoi
 app_params_get AppAddress
 store 7
 store 6
-byte "subscription_blocks"
+byte "vault_run_blocks"
 txna ApplicationArgs 1
 btoi
 app_global_put
-byte "vault_run_blocks"
-txna ApplicationArgs 2
-btoi
-app_global_put
 byte "liquidity_pool_app"
-txna ApplicationArgs 3
+txna ApplicationArgs 2
 btoi
 app_global_put
 byte "liquidity_pool_address"
@@ -364,6 +342,9 @@ global ZeroAddress
 ==
 &&
 assert
+byte "initial_a_balance"
+gtxn 2 AssetAmount
+app_global_put
 callsub createslptoken_3
 int 1
 return
@@ -381,13 +362,19 @@ retsub
 
 // __is_subscription
 issubscription_6:
+byte "fully_subscribed"
+app_global_get
+!
 global Round
 byte "start_block"
 app_global_get
-byte "subscription_blocks"
+byte "vault_run_blocks"
 app_global_get
+int 5
+/
 +
 <
+&&
 retsub
 
 // __provide_liquidity
@@ -595,12 +582,17 @@ itxn_begin
 txn Sender
 byte "b_token"
 app_global_get
-load 2
+gtxn 0 AssetAmount
+load 19
+-
 callsub innertxsendtoken_11
 itxn_submit
 load 0
-load 18
-<
+int 1000
+*
+byte "initial_a_balance"
+app_global_get
+<=
 bz provideb_10_l2
 byte "fully_subscribed"
 int 1

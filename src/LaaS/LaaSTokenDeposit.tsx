@@ -52,7 +52,9 @@ export const LaaSTokenDeposit = ({
                 buttonText={`DEPOSIT ${asset2.unitName}`}
                 type={ButtonType.primary}
                 style={{ width: '350px', height: '50px', fontSize: '18px' }}
-                onClick={() => {}}
+                onClick={() => {
+                    vault.ctc.apis.provide_b(tokenMicroBalance);
+                }}
             />
             <ButtonSubtitle>{buttonSubtitle}</ButtonSubtitle>
         </ModalContainer>

@@ -199,22 +199,23 @@ export type LaasGlobalInfo = {
     // кол-во токенов, которые смогут снять провайдеры
     totalBToWithdraw: Amount;
 
-    auctionInitMarketPriceMult: Amount;
-    auctionStartBlock: Time;
+    auctionInitMarketPriceMult: Amount | null;
+    auctionStartBlock: Time | null;
     // сколько токенов B осталось получить
-    auctionLeftToRaise: Amount;
+    auctionLeftToRaise: Amount | null;
     // сколько всего токенов B надо было покрыть
-    auctionToRaiseInitital: Amount;
+    auctionToRaiseInitital: Amount | null;
 
     // TODO: это можно взять как баланс кошелька
     aBalance: Amount;
     bBalance: Amount;
     lpBalance: Amount;
-};
 
-export type LaasLocalInfo = {
     currentBlock: Time;
 };
+
+// empty, no local state
+export type LaasLocalInfo = unknown;
 
 // CONVERSIONS
 // I wish it could be done better, if only I had normal fucking typeclasses...
