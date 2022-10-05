@@ -112,6 +112,7 @@ export const runCompound = async (
 
         const accInfo = await fetchAccountInfoFx(account);
         const balances = getBalancesFromAccountInfo(accInfo);
+
         const endBalance = balances[stakedAsset.id];
         const stakeAmount = endBalance - startBalance;
         await (ctc.apis.stake as ViewVal)([stakeAmount]);
