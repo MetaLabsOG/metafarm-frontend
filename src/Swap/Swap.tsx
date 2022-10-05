@@ -120,7 +120,7 @@ export function isSwapZapDataValid(
     return true;
 }
 
-async function getBestSwap(
+export async function getBestSwap(
     account: Account | null,
     asset1_id: string | undefined,
     asset2_id: string | undefined,

@@ -9,6 +9,7 @@ import { backend as distributionBackend } from 'metalabs-distribution-17_0_5';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
+import { AxiosError } from 'axios';
 import { getTokens } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { POOL_OPTION, Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
@@ -248,6 +249,7 @@ const createFarm = async (
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
         console.log(error);
+        const additionalInfo = error instanceof AxiosError && error.response ? error.response.data.detail : '';
         if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
             notify('Operation is cancelled.', 'warning');
         } else if (error_message.includes('popup')) {
@@ -262,7 +264,7 @@ const createFarm = async (
             {
                 status: '[ADDFARM ERROR]',
                 contractType,
-                error: String(error),
+                error: String(error) + ': ' + additionalInfo,
                 params: JSON.stringify(contractParameters),
             },
             LogName.ADDFARM
