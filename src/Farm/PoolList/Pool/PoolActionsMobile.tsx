@@ -99,20 +99,16 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                     />
                     <UnlockTimer unlockTimer={unlockTimer} />
                 </div>
-                {canStake &&
-                    canClaim &&
-                    isLPTokenInfo(stakedToken) &&
-                    account &&
-                    isCompoundEnabled(stakedToken, rewardTokenInfo.id) && (
-                        <PacmanButton
-                            buttonText="COMPOUND"
-                            buttonStyle="claim_button"
-                            isInactive={!isActiveClaim}
-                            onClickAction={async () =>
-                                runCompound(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
-                            }
-                        />
-                    )}
+                {canStake && canClaim && account && isCompoundEnabled(stakedToken, rewardTokenInfo.id) && (
+                    <PacmanButton
+                        buttonText="COMPOUND"
+                        buttonStyle="claim_button"
+                        isInactive={!isActiveClaim}
+                        onClickAction={async () =>
+                            runCompound(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
+                        }
+                    />
+                )}
             </RewardsContainer>
         </PoolActionsMobileContainer>
     );

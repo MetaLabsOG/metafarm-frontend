@@ -91,17 +91,14 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
     }, []);
 
     useEffect(() => {
-        window.addEventListener(
-            'click',
-            () => {
-                accDropdownOpen && setAccDropdownOpen(!accDropdownOpen);
-            },
-            { once: true }
-        );
-    }, []); // TODO: fix me
+        window.addEventListener('click', () => {
+            accDropdownOpen && setAccDropdownOpen(!accDropdownOpen);
+        });
+    }, [accDropdownOpen]);
 
     const toggleDropdown: MouseEventHandler<HTMLAnchorElement> = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         setAccDropdownOpen(!accDropdownOpen);
         return e;
     };

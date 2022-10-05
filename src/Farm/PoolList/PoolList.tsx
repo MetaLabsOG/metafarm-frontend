@@ -36,7 +36,7 @@ export const POOL_COLUMN_WIDTH: Record<ColumnType, string> = {
 
 const AddFarmButton = ({ addFarmType }: { addFarmType: string }) => {
     return (
-        <AddFarmButtonContainer target="_blank" href={`/add${addFarmType}`} rel="noreferrer">
+        <AddFarmButtonContainer href={`/add${addFarmType}`} rel="noreferrer">
             {`Create ${addFarmType}`}
         </AddFarmButtonContainer>
     );
