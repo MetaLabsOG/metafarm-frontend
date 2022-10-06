@@ -70,3 +70,26 @@ export const PoolListArrow = styled.img<{ isAscSort?: boolean }>`
         cursor: pointer;
     }
 `;
+
+export const PoolTopLineContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    @media (max-width: 1120px) {
+        justify-content: center;
+    }
+`;
+
+export const AddFarmButtonContainer = styled.a`
+    color: var(--lightGray);
+    text-decoration: none;
+    :hover {
+        cursor: pointer;
+        color: var(--lightGreen);
+    }
+
+    @media (max-width: 1120px) {
+        display: none;
+    }
+`;

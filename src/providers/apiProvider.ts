@@ -10,9 +10,10 @@ import { DexProvider } from '../dexes/common';
 import { logEvent, LogName } from '../logEvent';
 import { pactDex } from '../dexes';
 import { StakingAsset } from '../Farm/AddFarm';
+import * as MiniHumble from '../dexes/humbleReexports';
 import { LaaSBackendContractsMock } from '../common/mocks';
 
-const instance = axios.create({
+export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
 });
 
@@ -25,7 +26,7 @@ export type TotalCost = {
 
 export async function getTotalCost(address: string, weeks = 6): Promise<TotalCost[]> {
     return instance
-        .get<TotalCost[]>(`total_cost/${address}`, { params: { weeks_count: weeks } })
+        .get<TotalCost[]>(`wallet/${address}/total_cost`, { params: { weeks_count: weeks } })
         .then(({ data }) => data)
         .catch((error) => {
             console.log('ERR', error);
@@ -62,7 +63,7 @@ export type TinymanPool = {
 
 export async function getAssets(address: string): Promise<Asset[]> {
     return instance
-        .get<Asset[]>(`wallet_assets/${address}`)
+        .get<Asset[]>(`wallet/${address}/assets`)
         .then(({ data }) => data)
         .catch((error) => {
             console.log('ERR', error);
@@ -84,7 +85,7 @@ export type WalletNFT = {
 
 export async function getWalletNFTs(wallet: string): Promise<WalletNFT[]> {
     return instance
-        .get<WalletNFT[]>(`wallet_nfts/${wallet}`)
+        .get<WalletNFT[]>(`wallet/${wallet}/nfts`)
         .then(({ data }) => data)
         .catch((error) => {
             console.log('ERR', error);
@@ -187,4 +188,8 @@ export const getTinymanPools = nonConcurrent(async (limit: number, search: strin
 export const getPactPools = nonConcurrent(async (): Promise<pactsdk.ApiPool[]> => {
     const response = await pactDex.pact.listPools();
     return response.results;
+});
+
+export const getHumblePools = nonConcurrent(async (): Promise<MiniHumble.PoolDetails[]> => {
+    return instance.get('/humble/pools/all').then(({ data }) => data);
 });

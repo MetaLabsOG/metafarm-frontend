@@ -5,6 +5,7 @@ import { WalletTransactionGroup } from '../types';
 import { Dex, PoolInfo, SwapQuote, MintQuote, DexProvider, DexPool } from './common';
 import { PactDex } from './pact';
 import { TinymanDex } from './tinyman';
+import { HumbleDex } from './humble';
 
 /**
  * Mock API for dexes (yields data with arbitrary numbers)
@@ -68,15 +69,16 @@ export class MockDex extends Dex {
 
 export const tinymanDex = new TinymanDex(algod);
 export const pactDex = new PactDex(algod);
+export const humbleDex = new HumbleDex(algod);
 export const mockDex = new MockDex();
 
 export function makeDex(provider: DexProvider): Dex {
-    return provider === 'PT' ? pactDex : provider === 'T2' ? tinymanDex : mockDex;
+    return provider === 'PT' ? pactDex : provider === 'T2' ? tinymanDex : provider === 'H2' ? humbleDex : mockDex;
 }
 
 // In which order to call dexes for the swap price for each token.
 // if no pair on Tinyman, try Pact; otherwise provide dummy prices on testnet or throw on mainnet.
-const DEX_TRY_ORDER: DexProvider[] = ALGONET === TESTNET ? ['T2', 'PT', 'MOCK'] : ['T2', 'PT'];
+const DEX_TRY_ORDER: DexProvider[] = ALGONET === TESTNET ? ['T2', 'PT', 'H2', 'MOCK'] : ['T2', 'PT', 'H2'];
 
 export async function getSwapCostSomewhere(
     assetIn: AssetId | Asset,

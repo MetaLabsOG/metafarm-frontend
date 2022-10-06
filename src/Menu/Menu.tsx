@@ -73,22 +73,20 @@ export function Menu() {
     const [isBurgerOpen, setIsBurgerOpen] = useState(false);
 
     useEffect(() => {
-        window.addEventListener(
-            'click',
-            () => {
-                isBurgerOpen && setIsBurgerOpen(!isBurgerOpen);
-            },
-            { once: true }
-        );
-        window.addEventListener(
-            'keydown',
-            (e) => {
-                if (e.key === 'Escape') {
-                    isBurgerOpen && setIsBurgerOpen(!isBurgerOpen);
-                }
-            },
-            { once: true }
-        );
+        const clickHandler = () => {
+            isBurgerOpen && setIsBurgerOpen(!isBurgerOpen);
+        };
+
+        const keydownHandler = (e: KeyboardEvent) => {
+            e.key === 'Escape' && isBurgerOpen && setIsBurgerOpen(!isBurgerOpen);
+        };
+        window.addEventListener('click', clickHandler);
+        window.addEventListener('keydown', keydownHandler);
+
+        return () => {
+            window.removeEventListener('click', clickHandler);
+            window.removeEventListener('keydown', keydownHandler);
+        };
     }, [isBurgerOpen]);
 
     return (
@@ -102,7 +100,8 @@ export function Menu() {
                         src={burger}
                         alt="logo"
                         height="20px"
-                        onClick={() => {
+                        onClick={(e) => {
+                            e.stopPropagation();
                             setIsBurgerOpen(!isBurgerOpen);
                         }}
                     />
