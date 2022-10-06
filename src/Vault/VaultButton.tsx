@@ -1,23 +1,23 @@
-import { Contract, LaasInitialInfo } from '../common/store';
+import { Contract, VaultInitialInfo } from '../common/store';
 import { Button, ButtonType } from '../Components/Button/Button';
 import { blocksToText } from '../Farm/PoolList/Pool/PoolInfo';
 import { ButtonSubtitle } from './styled';
-import { BUTTON_TITLE, LaaSStage } from './LaaSCard';
+import { BUTTON_TITLE, VaultStage } from './VaultCard';
 
 export const getVaultDurationText = (
-    laasStage: LaaSStage,
+    vaultStage: VaultStage,
     meanRoundDuration: number,
     currentBlock: number,
-    vaultInitialState: LaasInitialInfo
+    vaultInitialState: VaultInitialInfo
 ): string => {
     const vaultBlocks = currentBlock - vaultInitialState.startBlock;
-    if (laasStage === LaaSStage.subscription) {
+    if (vaultStage === VaultStage.subscription) {
         const blocksLeft = vaultInitialState.subscriptionBlocks - vaultBlocks;
         const vaultDurationText = blocksToText(meanRoundDuration, blocksLeft);
         return 'closed in ' + vaultDurationText;
     }
 
-    if (laasStage === LaaSStage.running) {
+    if (vaultStage === VaultStage.running) {
         const blocksLeft = vaultInitialState.vaultRunBlocks - vaultBlocks;
         const vaultDurationText = blocksToText(meanRoundDuration, blocksLeft);
         return 'ends in ' + vaultDurationText;
@@ -26,16 +26,16 @@ export const getVaultDurationText = (
     return '';
 };
 
-export const LaaSButton = ({
-    laasStage,
+export const VaultButton = ({
+    vaultStage,
     vault,
     onClick,
     asset2_name,
     buttonSubtitle,
     isProject,
 }: {
-    laasStage: LaaSStage;
-    vault: Contract<'laas'>;
+    vaultStage: VaultStage;
+    vault: Contract<'vault'>;
     onClick: () => void;
     asset2_name: string;
     buttonSubtitle: string;
@@ -45,11 +45,11 @@ export const LaaSButton = ({
         return <></>;
     }
     const buttonTitle =
-        laasStage === LaaSStage.subscription && !isProject ? `deposit ${asset2_name}` : BUTTON_TITLE[laasStage];
+        vaultStage === VaultStage.subscription && !isProject ? `deposit ${asset2_name}` : BUTTON_TITLE[vaultStage];
     const buttonType =
-        laasStage === LaaSStage.auction
+        vaultStage === VaultStage.auction
             ? ButtonType.secondary
-            : laasStage === LaaSStage.running
+            : vaultStage === VaultStage.running
             ? ButtonType.disabled
             : ButtonType.primary;
 

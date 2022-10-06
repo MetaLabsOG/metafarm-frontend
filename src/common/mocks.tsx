@@ -97,18 +97,18 @@ export const ctcMock: Contract<'farm'> = {
     },
 };
 
-export const LaaSBackendContractsMock = [
+export const VaultBackendContractsMock = [
     {
-        type: 'laas',
+        type: 'vault',
         id: 1,
         version: '0.0.1',
         deployed_timestamp: 123,
-        description: 'laas mock back',
+        description: 'vault mock back',
         metadata: {},
     },
 ];
 
-export const LaaSBackendMock: Backend = {
+export const VaultBackendMock: Backend = {
     _Connectors: {
         ALGO: {
             version: 1,
@@ -163,7 +163,7 @@ export const LaaSBackendMock: Backend = {
     }),
 };
 
-export const LaaSCtcMock: ReachContract = {
+export const VaultCtcMock: ReachContract = {
     getInfo: async () => {
         return new BigNumber(0, '16');
     },
@@ -225,18 +225,18 @@ export const LaaSCtcMock: ReachContract = {
         ['1']: null,
     },
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error
     _initialize: () => null,
 };
 
-export const laasCtcMockSubscription: Contract<'laas'> = {
+export const vaultCtcMockSubscription: Contract<'vault'> = {
     id: 1,
     info: {
-        type: 'laas',
+        type: 'vault',
         id: 1,
         version: '0.0.1',
         deployed_timestamp: 12,
-        description: 'laas mock subscription contract',
+        description: 'vault mock subscription contract',
         metadata: {
             cache: undefined,
             verified: true,
@@ -288,14 +288,14 @@ export const laasCtcMockSubscription: Contract<'laas'> = {
     },
 };
 
-export const laasCtcMockRunning: Contract<'laas'> = {
+export const vaultCtcMockRunning: Contract<'vault'> = {
     id: 2,
     info: {
-        type: 'laas',
+        type: 'vault',
         id: 2,
         version: '0.0.1',
         deployed_timestamp: 12,
-        description: 'laas mock running contract',
+        description: 'vault mock running contract',
         metadata: {
             cache: undefined,
             verified: true,
@@ -347,14 +347,14 @@ export const laasCtcMockRunning: Contract<'laas'> = {
     },
 };
 
-export const laasCtcMockAuction: Contract<'laas'> = {
+export const vaultCtcMockAuction: Contract<'vault'> = {
     id: 3,
     info: {
-        type: 'laas',
+        type: 'vault',
         id: 3,
         version: '0.0.1',
         deployed_timestamp: 12,
-        description: 'laas mock auction contract',
+        description: 'vault mock auction contract',
         metadata: {
             cache: undefined,
             verified: true,
@@ -406,14 +406,14 @@ export const laasCtcMockAuction: Contract<'laas'> = {
     },
 };
 
-export const laasCtcMockWithdraw: Contract<'laas'> = {
+export const vaultCtcMockWithdraw: Contract<'vault'> = {
     id: 4,
     info: {
-        type: 'laas',
+        type: 'vault',
         id: 4,
         version: '0.0.1',
         deployed_timestamp: 12,
-        description: 'laas mock withdraw contract',
+        description: 'vault mock withdraw contract',
         metadata: {
             cache: undefined,
             verified: true,
@@ -465,14 +465,14 @@ export const laasCtcMockWithdraw: Contract<'laas'> = {
     },
 };
 
-export const laasCtcMockTEST: Contract<'laas'> = {
+export const vaultCtcMockTEST: Contract<'vault'> = {
     id: 1,
     info: {
-        type: 'laas',
+        type: 'vault',
         id: 1,
         version: '0.0.1',
         deployed_timestamp: 12,
-        description: 'laas mock subscription contract',
+        description: 'vault mock subscription contract',
         metadata: {
             cache: undefined,
             verified: true,

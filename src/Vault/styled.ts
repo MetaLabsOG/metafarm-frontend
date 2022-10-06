@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const LaaSCardContainer = styled.div`
+export const VaultCardContainer = styled.div`
     width: 320px;
     height: 420px;
     display: flex;
@@ -14,7 +14,7 @@ export const LaaSCardContainer = styled.div`
     gap: 25px;
 `;
 
-export const LaaSContainer = styled.div`
+export const VaultContainer = styled.div`
     font-family: 'Montserrat';
     display: flex;
     flex-wrap: wrap;
@@ -25,7 +25,7 @@ export const LaaSContainer = styled.div`
     height: 100%;
 `;
 
-export const LaaSHeaderTitle = styled.div`
+export const VaultHeaderTitle = styled.div`
     display: flex;
     white-space: nowrap;
     font-family: 'Korona One';
@@ -36,7 +36,7 @@ export const LaaSHeaderTitle = styled.div`
     color: white;
 `;
 
-export const LaaSHeaderSubtitle = styled.div`
+export const VaultHeaderSubtitle = styled.div`
     display: flex;
     white-space: nowrap;
     font-family: 'Montserrat';
@@ -47,7 +47,7 @@ export const LaaSHeaderSubtitle = styled.div`
     color: var(--lightGray);
 `;
 
-export const LaaSInfoContainer = styled.div`
+export const VaultInfoContainer = styled.div`
     width: 250px;
     min-height: 108px;
 `;
@@ -63,12 +63,12 @@ export const ButtonSubtitle = styled.div`
     margin-top: 5px;
 `;
 
-export const LaaSResultsContainer = styled.div`
+export const VaultResultsContainer = styled.div`
     display: flex;
     gap: 13px;
 `;
 
-export const LaaSSquare = styled.div`
+export const VaultSquare = styled.div`
     width: 123px;
     height: 77px;
     background: #272727;
@@ -79,7 +79,7 @@ export const LaaSSquare = styled.div`
     justify-content: center;
 `;
 
-export const LaaSResultNumber = styled.div`
+export const VaultResultNumber = styled.div`
     font-family: 'Krona One';
     font-style: normal;
     font-weight: 400;
@@ -92,7 +92,7 @@ export const LaaSResultNumber = styled.div`
     color: var(--lightGray);
 `;
 
-export const LaaSResultNumberSubtitle = styled.div`
+export const VaultResultNumberSubtitle = styled.div`
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: 400;
@@ -104,7 +104,7 @@ export const LaaSResultNumberSubtitle = styled.div`
     color: var(--gray);
 `;
 
-export const LaaSAuctionContainer = styled.div`
+export const VaultAuctionContainer = styled.div`
     width: 350px;
     display: flex;
     flex-direction: column;
@@ -121,7 +121,7 @@ export const LaaSAuctionContainer = styled.div`
     }
 `;
 
-export const LaaSAuctionResult = styled.div`
+export const VaultAuctionResult = styled.div`
     background-color: var(--darkGray);
     width: 100%;
     border-radius: 8px;

@@ -5,8 +5,8 @@ import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
 import { blocksToText } from '../Farm/PoolList/Pool/PoolInfo';
 import { getTinymanPools } from '../providers/apiProvider';
-import { LaaSInfoContainer } from './styled';
-import { AUCTION_BLOCKS, LaaSStage, ROWS_BY_STAGE, RowType } from './LaaSCard';
+import { VaultInfoContainer } from './styled';
+import { AUCTION_BLOCKS, VaultStage, ROWS_BY_STAGE, RowType } from './VaultCard';
 
 const getAPRText = (initial: number, current: number) => {
     if (current === 0) {
@@ -17,15 +17,15 @@ const getAPRText = (initial: number, current: number) => {
     return `${resultAPRPrefix}${resultAPR * 100}%`;
 };
 
-export const LaaSInfo = ({
-    laasStage,
+export const VaultInfo = ({
+    vaultStage,
     vault,
     asset1,
     asset2,
     expectedAPR,
 }: {
-    laasStage: LaaSStage;
-    vault: Contract<'laas'>;
+    vaultStage: VaultStage;
+    vault: Contract<'vault'>;
     asset1: Priced<Asset>;
     asset2: Priced<Asset>;
     expectedAPR: number;
@@ -57,48 +57,48 @@ export const LaaSInfo = ({
     const ILCovered = vault.state.global.auctionToRaiseInitial - vault.state.global.auctionLeftToRaise;
 
     return (
-        <LaaSInfoContainer>
-            {ROWS_BY_STAGE[laasStage][RowType.expectedARP] && (
+        <VaultInfoContainer>
+            {ROWS_BY_STAGE[vaultStage][RowType.expectedARP] && (
                 <InfoRow
                     title={'Expected APR'}
                     value={`${numberRound(expectedAPR * 100)}%`}
                     style={{ color: 'white', fontWeight: '600' }}
                 />
             )}
-            {ROWS_BY_STAGE[laasStage][RowType.capacityLeft] && (
+            {ROWS_BY_STAGE[vaultStage][RowType.capacityLeft] && (
                 <InfoRow title={'Capacity left'} value={`${numberRound(capacityLeft)} ${asset2.unitName}`} />
             )}
-            {ROWS_BY_STAGE[laasStage][RowType.TVL] && <InfoRow title={'TVL'} value={`$${numberRound(TVL)}`} />}
-            {ROWS_BY_STAGE[laasStage][RowType.vaultDuration] && (
+            {ROWS_BY_STAGE[vaultStage][RowType.TVL] && <InfoRow title={'TVL'} value={`$${numberRound(TVL)}`} />}
+            {ROWS_BY_STAGE[vaultStage][RowType.vaultDuration] && (
                 <InfoRow title={'Vault duration'} value={vaultDuration} />
             )}
-            {ROWS_BY_STAGE[laasStage][RowType.myStake] && (
+            {ROWS_BY_STAGE[vaultStage][RowType.myStake] && (
                 <InfoRow title={'My stake'} value={`${myStake} c${asset2.unitName}`} />
             )}
-            {ROWS_BY_STAGE[laasStage][RowType.myRevenue] && (
+            {ROWS_BY_STAGE[vaultStage][RowType.myRevenue] && (
                 <InfoRow
                     title={'My revenue'}
                     value={`${myRevenue} ${asset2.unitName} (${getAPRText(myStake, myStake + myRevenue)})`}
                 />
             )}
-            {ROWS_BY_STAGE[laasStage][RowType.expectedRevenue] && (
+            {ROWS_BY_STAGE[vaultStage][RowType.expectedRevenue] && (
                 <InfoRow title={'Expected revenue'} value={`${myRevenue} ${asset2.unitName}`} />
             )}
-            {ROWS_BY_STAGE[laasStage][RowType.withdrawIn] && (
+            {ROWS_BY_STAGE[vaultStage][RowType.withdrawIn] && (
                 <InfoRow title={'Withdraw in'} value={`at most ${withdrawIn}`} />
             )}
-            {ROWS_BY_STAGE[laasStage][RowType.ILCovered] && (
+            {ROWS_BY_STAGE[vaultStage][RowType.ILCovered] && (
                 <InfoRow
                     title={'IL covered'}
                     value={`${numberRound(ILCovered)} / ${numberRound(auctionToRaiseInitial)} ${asset1.unitName}`}
                 />
             )}
-            {ROWS_BY_STAGE[laasStage][RowType.claimAmount] && (
+            {ROWS_BY_STAGE[vaultStage][RowType.claimAmount] && (
                 <InfoRow
                     title={'Claim amount'}
                     value={`${claimAmount} ${asset2.unitName} (${getAPRText(myStake, claimAmount)})`}
                 />
             )}
-        </LaaSInfoContainer>
+        </VaultInfoContainer>
     );
 };

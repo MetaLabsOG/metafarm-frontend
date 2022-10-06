@@ -6,14 +6,14 @@ import { ProgressBar } from '../Components/ProgressBar/ProgressBar';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenInput } from '../Components/TokenInput/TokenInput';
 import { Button, ButtonType } from '../Components/Button/Button';
-import { LaaSAuctionContainer, LaaSAuctionResult } from './styled';
+import { VaultAuctionContainer, VaultAuctionResult } from './styled';
 
-export const LaaSAuction = ({
+export const VaultAuction = ({
     vault,
     asset1,
     asset2,
 }: {
-    vault: Contract<'laas'>;
+    vault: Contract<'vault'>;
     asset1: Priced<Asset>;
     asset2: Priced<Asset>;
 }) => {
@@ -21,7 +21,7 @@ export const LaaSAuction = ({
     const tokenMicroBalance = BigInt(1000000); // TODO
 
     return (
-        <LaaSAuctionContainer>
+        <VaultAuctionContainer>
             <ModalTitle style={{ textAlign: 'center', marginBottom: 5 }}>{asset1.unitName} AUCTION</ModalTitle>
             <ProgressBar title="55%" value={`5,345 / 10,000 ALGO`} progress={0.54} color={theme.lightGray} />
             <InfoRow title={'Left to sell'} value={`53,000 META`} />
@@ -34,7 +34,7 @@ export const LaaSAuction = ({
                 tokenInput={tokenInput}
                 setTokenInput={setTokenInput}
             />
-            <LaaSAuctionResult>
+            <VaultAuctionResult>
                 <InfoRow
                     title="Minimum received"
                     value={`345 ${asset1.unitName}`}
@@ -46,13 +46,13 @@ export const LaaSAuction = ({
                         lineHeight: '22px',
                     }}
                 />
-            </LaaSAuctionResult>
+            </VaultAuctionResult>
             <Button
                 buttonText={`BUY ${asset1.unitName}`}
                 type={ButtonType.primary}
                 style={{ width: '250px', height: '50px', fontSize: '18px' }}
                 onClick={() => {}}
             />
-        </LaaSAuctionContainer>
+        </VaultAuctionContainer>
     );
 };

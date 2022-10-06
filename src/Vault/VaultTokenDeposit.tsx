@@ -21,7 +21,7 @@ const DepositInfo = ({
     expectedAPR,
     capacityLeft,
 }: {
-    vault: Contract<'laas'>;
+    vault: Contract<'vault'>;
     asset: Priced<Asset>;
     assetAmount: number;
     vaultName: string;
@@ -61,7 +61,7 @@ const DepositInfo = ({
     );
 };
 
-export const LaaSTokenDeposit = ({
+export const VaultTokenDeposit = ({
     vault,
     asset,
     buttonSubtitle,
@@ -69,7 +69,7 @@ export const LaaSTokenDeposit = ({
     expectedAPR,
     capacityLeft,
 }: {
-    vault: Contract<'laas'>;
+    vault: Contract<'vault'>;
     asset: Priced<Asset>;
     buttonSubtitle: string;
     vaultName: string;

@@ -34,7 +34,7 @@ export type AllBignums<T> = T extends number | bigint
 
 // TODO: there should be a better way to add new contract types
 // We should explore the possibility of providing types from the _contract packages_.
-export type ContractType = 'farm' | 'crowdsale' | 'distribution' | 'laas';
+export type ContractType = 'farm' | 'crowdsale' | 'distribution' | 'vault';
 // | 'fomo'
 
 export type FarmType = 'farm' | 'distribution';
@@ -83,28 +83,28 @@ export type ContractMetadata = {
     distribution: { verified?: boolean };
     crowdsale: { whitelist: string[] };
     fomo: unknown;
-    laas: { verified?: boolean };
+    vault: { verified?: boolean };
 };
 
 type InitialInfo = {
     farm: FarmInitialInfo;
     distribution: DistributionInitialInfo;
     crowdsale: CrowdsaleInitialInfo;
-    laas: LaasInitialInfo;
+    vault: VaultInitialInfo;
 };
 
 type GlobalInfo = {
     farm: FarmGlobalInfo;
     distribution: FarmGlobalInfo;
     crowdsale: CrowdsaleGlobalInfo;
-    laas: LaasGlobalInfo;
+    vault: VaultGlobalInfo;
 };
 
 type LocalInfo = {
     farm: FarmLocalInfo;
     distribution: FarmLocalInfo;
     crowdsale: CrowdsaleLocalInfo;
-    laas: LaasLocalInfo;
+    vault: VaultLocalInfo;
 };
 
 // Farm types
@@ -165,8 +165,8 @@ type CrowdsaleLocalInfo = {
     alreadyBought: Amount;
 };
 
-// LaaS types
-export type LaasInitialInfo = {
+// Vault types
+export type VaultInitialInfo = {
     startBlock: Time;
     // сколько всего длится vault со старта до начала аукциона
     vaultRunBlocks: Time;
@@ -184,7 +184,7 @@ export type LaasInitialInfo = {
     liquidityPoolAddr: string;
 };
 
-export type LaasGlobalInfo = {
+export type VaultGlobalInfo = {
     // сколько предоставили в DEX. можно использовать для trading fees
     totalALiqProvided: Amount;
     totalBLiqProvided: Amount;
@@ -207,7 +207,7 @@ export type LaasGlobalInfo = {
     auctionToRaiseInitial: Amount;
 };
 
-export type LaasLocalInfo = unknown;
+export type VaultLocalInfo = unknown;
 
 // CONVERSIONS
 // I wish it could be done better, if only I had normal fucking typeclasses...

@@ -11,7 +11,7 @@ import { logEvent, LogName } from '../logEvent';
 import { pactDex } from '../dexes';
 import { StakingAsset } from '../Farm/AddFarm';
 import * as MiniHumble from '../dexes/humbleReexports';
-import { LaaSBackendContractsMock } from '../common/mocks';
+import { VaultBackendContractsMock } from '../common/mocks';
 
 export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -96,7 +96,7 @@ export async function getWalletNFTs(wallet: string): Promise<WalletNFT[]> {
 // TODO maybe typing could be improved
 export async function getContracts(type: string): Promise<JsonWithBignum> {
     if (type === 'laas') {
-        return resolveBignums(LaaSBackendContractsMock);
+        return resolveBignums(VaultBackendContractsMock);
     }
     return instance
         .get<Json>(`/contracts?type=${type}`)

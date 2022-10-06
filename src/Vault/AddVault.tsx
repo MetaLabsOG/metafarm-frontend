@@ -24,7 +24,7 @@ import { calculateTimeByBlock, daysToBlocks } from '../Farm/AddFarm';
 
 const MIN_ALLOWED_ALGO_BALANCE = 5;
 
-const checkLaaSParams = (
+const checkVaultParams = (
     stakeToken: TokenOptionType,
     rewardToken: TokenOptionType,
     beginBlock: number,
@@ -72,7 +72,7 @@ const checkLaaSParams = (
     return true;
 };
 
-const createLaaS = async (
+const createVault = async (
     account: Account,
     stakeToken: TokenOptionType,
     rewardToken: TokenOptionType,
@@ -83,13 +83,13 @@ const createLaaS = async (
     extraAlgoRewardAmount: number
 ) => {
     if (
-        !checkLaaSParams(stakeToken, rewardToken, beginBlock, endBlock, rewardAmount, algoToken, extraAlgoRewardAmount)
+        !checkVaultParams(stakeToken, rewardToken, beginBlock, endBlock, rewardAmount, algoToken, extraAlgoRewardAmount)
     ) {
         return false;
     }
 
     try {
-        console.log('LAAS!');
+        console.log('VAULT!');
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
         console.log(error);
@@ -105,7 +105,7 @@ const createLaaS = async (
         logEvent(
             account.networkAccount.addr,
             {
-                status: '[LAAS ERROR]',
+                status: '[Vault ERROR]',
                 error: String(error),
             },
             LogName.ADDFARM
@@ -116,7 +116,7 @@ const createLaaS = async (
     return true;
 };
 
-function LaaSInfo({
+function VaultInfo({
     stakingAsset,
     currentBlock,
     beginBlock,
@@ -135,7 +135,7 @@ function LaaSInfo({
     meanRoundDuration: number;
     algoTokenRewards: number;
 }) {
-    const laasCreationFee = 0;
+    const vaultCreationFee = 0;
     const startTime = calculateTimeByBlock(currentBlock, beginBlock, meanRoundDuration);
     const endTime = calculateTimeByBlock(currentBlock, endBlock, meanRoundDuration);
 
@@ -158,7 +158,7 @@ function LaaSInfo({
     );
 }
 
-export function AddLaaS() {
+export function AddVault() {
     const account = useUnit($account);
     const balances = useUnit($balances);
     const currentBlock = useUnit($networkTime);
@@ -176,7 +176,7 @@ export function AddLaaS() {
 
     const [daysDuration, setDaysDuration] = useState<string>('');
 
-    const [AddLaaSModal, openAddLaaSModal, closeAddLaaSModal] = useModal('root', { preventScroll: true });
+    const [AddVaultModal, openAddVaultModal, closeAddVaultModal] = useModal('root', { preventScroll: true });
 
     const endBlock: number = currentBlock + daysToBlocks(Number(daysDuration), meanRoundDuration);
 
@@ -250,7 +250,7 @@ export function AddLaaS() {
                     buttonStyle="swap_button"
                     onClickAction={async () => {
                         if (
-                            checkLaaSParams(
+                            checkVaultParams(
                                 selectedUserToken,
                                 selectedProjectToken,
                                 currentBlock,
@@ -260,17 +260,17 @@ export function AddLaaS() {
                                 Number(rewardTokenAmount)
                             )
                         ) {
-                            openAddLaaSModal();
+                            openAddVaultModal();
                         }
                     }}
                 />
             )}
-            <AddLaaSModal>
+            <AddVaultModal>
                 <ModalContainer>
                     <ModalSubtitle style={{ fontSize: '16px' }}>
                         Please, carefully verify the LaaS creation parameters.
                     </ModalSubtitle>
-                    <LaaSInfo
+                    <VaultInfo
                         stakingAsset={selectedUserToken}
                         currentBlock={currentBlock}
                         beginBlock={currentBlock}
@@ -285,7 +285,7 @@ export function AddLaaS() {
                             buttonText="CREATE LAAS VAULT"
                             buttonStyle="swap_button"
                             onClickAction={async () => {
-                                const res = await createLaaS(
+                                const res = await createVault(
                                     account,
                                     selectedUserToken,
                                     selectedProjectToken,
@@ -295,12 +295,12 @@ export function AddLaaS() {
                                     rewardToken,
                                     Number(rewardTokenAmount)
                                 );
-                                res && closeAddLaaSModal();
+                                res && closeAddVaultModal();
                             }}
                         />
                     )}
                 </ModalContainer>
-            </AddLaaSModal>
+            </AddVaultModal>
         </ModalContainer>
     );
 }

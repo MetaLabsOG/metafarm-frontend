@@ -8,15 +8,15 @@ import { numberRound } from '../Farm/PoolList/Pool/utils';
 import { getTinymanPools } from '../providers/apiProvider';
 import Confetti from '../Components/Confetti/Confetti';
 import { getDexName } from '../Farm/utils';
-import { LaaSHeader } from './LaaSHeader';
-import { LaaSInfo } from './LaaSInfo';
-import { LaaSResults } from './LaaSResults';
-import { getVaultDurationText, LaaSButton } from './LaaSButton';
-import { LaaSCardContainer } from './styled';
-import { LaaSTokenDeposit } from './LaaSTokenDeposit';
-import { LaaSAuction } from './LaaSAuction';
+import { VaultHeader } from './VaultHeader';
+import { VaultInfo } from './VaultInfo';
+import { VaultResults } from './VaultResults';
+import { getVaultDurationText, VaultButton } from './VaultButton';
+import { VaultCardContainer } from './styled';
+import { VaultTokenDeposit } from './VaultTokenDeposit';
+import { VaultAuction } from './VaultAuction';
 
-export enum LaaSStage {
+export enum VaultStage {
     subscription,
     running,
     auction,
@@ -24,12 +24,12 @@ export enum LaaSStage {
     unknown,
 }
 
-export const BUTTON_TITLE: Record<LaaSStage, string> = {
-    [LaaSStage.subscription]: 'subscription',
-    [LaaSStage.running]: 'running',
-    [LaaSStage.auction]: 'go to auction',
-    [LaaSStage.withdraw]: 'withdraw',
-    [LaaSStage.unknown]: '',
+export const BUTTON_TITLE: Record<VaultStage, string> = {
+    [VaultStage.subscription]: 'subscription',
+    [VaultStage.running]: 'running',
+    [VaultStage.auction]: 'go to auction',
+    [VaultStage.withdraw]: 'withdraw',
+    [VaultStage.unknown]: '',
 };
 
 export enum RowType {
@@ -46,37 +46,38 @@ export enum RowType {
 }
 
 export const ROWS_BY_STAGE: any = {
-    //Record<LaaSStage, Record<RowType, boolean>> = {
-    [LaaSStage.subscription]: {
+    //Record<VaultStage, Record<RowType, boolean>> = {
+    [VaultStage.subscription]: {
         [RowType.expectedARP]: true,
         [RowType.capacityLeft]: true,
         [RowType.vaultDuration]: true,
         [RowType.myStake]: true,
     },
-    [LaaSStage.running]: {
+    [VaultStage.running]: {
         [RowType.TVL]: true,
         [RowType.myStake]: true,
         [RowType.myRevenue]: true,
     },
-    [LaaSStage.auction]: {
+    [VaultStage.auction]: {
         [RowType.TVL]: true,
         [RowType.myStake]: true,
         [RowType.expectedRevenue]: true,
         [RowType.withdrawIn]: true,
     },
-    [LaaSStage.withdraw]: {
+    [VaultStage.withdraw]: {
         [RowType.TVL]: true,
         [RowType.ILCovered]: true,
         [RowType.claimAmount]: true,
     },
-    [LaaSStage.unknown]: {},
+    [VaultStage.unknown]: {},
 };
 
+// TODO (need to update contract): should be read from the contract.
 export const AUCTION_BLOCKS = 60 * 60 * 24;
 
-const getLaaSStage = (currentBlock: number, vault: Contract<'laas'>): LaaSStage => {
+const getVaultStage = (currentBlock: number, vault: Contract<'vault'>): VaultStage => {
     if (!vault.state) {
-        return LaaSStage.unknown;
+        return VaultStage.unknown;
     }
 
     const startBlock = vault.state.initial.startBlock;
@@ -84,24 +85,24 @@ const getLaaSStage = (currentBlock: number, vault: Contract<'laas'>): LaaSStage 
     const isFullySubscribed = vault.state.global.isFullySubscribed;
 
     if (currentBlock - startBlock < subscriptionBlocks && !isFullySubscribed) {
-        return LaaSStage.subscription;
+        return VaultStage.subscription;
     }
 
     const vaultRunBlocks = vault.state.initial.vaultRunBlocks;
     if (currentBlock - startBlock < vaultRunBlocks) {
-        return LaaSStage.running;
+        return VaultStage.running;
     }
 
     const auctionStartBlock = vault.state.global.auctionStartBlock;
     const auctionLeftToRaise = vault.state.global.auctionLeftToRaise;
     if (currentBlock - auctionStartBlock < AUCTION_BLOCKS && auctionLeftToRaise > 0) {
-        return LaaSStage.auction;
+        return VaultStage.auction;
     }
 
-    return LaaSStage.withdraw;
+    return VaultStage.withdraw;
 };
 
-export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
+export const VaultCard = ({ vault }: { vault: Contract<'vault'> }) => {
     if (!vault.state) {
         return <></>;
     }
@@ -117,12 +118,12 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
 
     const meanRoundDuration = useUnit($meanRoundDuration);
     const currentBlock = useUnit($networkTime);
-    const laasStage = getLaaSStage(currentBlock, vault);
+    const vaultStage = getVaultStage(currentBlock, vault);
 
     const initialABalance = Number(vault.state.initial.initialABalance);
     const totalALiqProvided = Number(vault.state.global.totalALiqProvided);
 
-    const vaultDurationText = getVaultDurationText(laasStage, meanRoundDuration, currentBlock, vault.state.initial);
+    const vaultDurationText = getVaultDurationText(vaultStage, meanRoundDuration, currentBlock, vault.state.initial);
 
     const [expectedAPR, setExpectedAPR] = useState<number>(0);
     const poolAddress = vault.state.initial.liquidityPoolAddr;
@@ -148,37 +149,43 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
         asset2.price;
 
     return (
-        <LaaSCardContainer>
-            <LaaSHeader asset1={asset1} asset2={asset2} dex={dex} isVerified={isVerified} />
-            {laasStage === LaaSStage.subscription ? (
+        <VaultCardContainer>
+            <VaultHeader asset1={asset1} asset2={asset2} dex={dex} isVerified={isVerified} />
+            {vaultStage === VaultStage.subscription ? (
                 <ProgressBar
                     title="TVL"
                     value={`${numberRound(totalALiqProvided)} / ${numberRound(initialABalance)} ${asset1.unitName}`}
                     progress={totalALiqProvided / initialABalance}
                 />
             ) : (
-                <LaaSResults laasStage={laasStage} APY={expectedAPR} IL={0} />
+                <VaultResults vaultStage={vaultStage} APY={expectedAPR} IL={0} />
             )}
-            <LaaSInfo laasStage={laasStage} vault={vault} asset1={asset1} asset2={asset2} expectedAPR={expectedAPR} />
-            <LaaSButton
-                laasStage={laasStage}
+            <VaultInfo
+                vaultStage={vaultStage}
+                vault={vault}
+                asset1={asset1}
+                asset2={asset2}
+                expectedAPR={expectedAPR}
+            />
+            <VaultButton
+                vaultStage={vaultStage}
                 vault={vault}
                 asset2_name={asset2.name}
                 buttonSubtitle={vaultDurationText}
                 onClick={() => {
-                    if (laasStage === LaaSStage.subscription) {
+                    if (vaultStage === VaultStage.subscription) {
                         openDepositModal();
                     }
-                    if (laasStage === LaaSStage.auction) {
+                    if (vaultStage === VaultStage.auction) {
                         openAuctionModal();
                     }
-                    if (laasStage === LaaSStage.withdraw) {
+                    if (vaultStage === VaultStage.withdraw) {
                         setShowConfetti(true);
                     }
                 }}
             />
             <DepositModal>
-                <LaaSTokenDeposit
+                <VaultTokenDeposit
                     vault={vault}
                     asset={asset2}
                     buttonSubtitle={vaultDurationText}
@@ -188,7 +195,7 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                 />
             </DepositModal>
             <AuctionModal>
-                <LaaSAuction vault={vault} asset1={asset1} asset2={asset2} />
+                <VaultAuction vault={vault} asset1={asset1} asset2={asset2} />
             </AuctionModal>
             <Confetti
                 showConfetti={showConfetti}
@@ -196,6 +203,6 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                     setShowConfetti(false);
                 }}
             />
-        </LaaSCardContainer>
+        </VaultCardContainer>
     );
 };

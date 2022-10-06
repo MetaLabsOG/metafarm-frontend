@@ -4,9 +4,9 @@ import { DexProvider } from '../dexes';
 import { PoolHeaderContainer, PoolInfo } from '../Components/PoolHeader/styled';
 import verified from '../imgs/verified.svg';
 import { Asset, Priced } from '../common/store';
-import { LaaSHeaderSubtitle, LaaSHeaderTitle } from './styled';
+import { VaultHeaderSubtitle, VaultHeaderTitle } from './styled';
 
-export const LaaSHeader = ({
+export const VaultHeader = ({
     asset1,
     asset2,
     dex,
@@ -22,12 +22,12 @@ export const LaaSHeader = ({
             <TokensIcons asset1_id={asset1.id} asset2_id={asset2.id} dex={dex} />
             <PoolInfo>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-                    <LaaSHeaderTitle>{asset2.unitName}</LaaSHeaderTitle>
-                    <LaaSHeaderTitle style={{ fontSize: '17px' }}>{`/${asset1.unitName}`}</LaaSHeaderTitle>
+                    <VaultHeaderTitle>{asset2.unitName}</VaultHeaderTitle>
+                    <VaultHeaderTitle style={{ fontSize: '17px' }}>{`/${asset1.unitName}`}</VaultHeaderTitle>
                 </div>
                 {isVerified && (
                     <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-                        <LaaSHeaderSubtitle>VERIFIED</LaaSHeaderSubtitle>
+                        <VaultHeaderSubtitle>VERIFIED</VaultHeaderSubtitle>
                         <img data-tip="Project is verified by Cometa" alt="" height="14px" src={verified} />
                     </div>
                 )}
