@@ -94,10 +94,6 @@ export async function getWalletNFTs(wallet: string): Promise<WalletNFT[]> {
 
 // TODO maybe typing could be improved
 export async function getContracts(type: string): Promise<JsonWithBignum> {
-    // TODO: stub, should use backend similarly to below
-    if (type === 'laas') {
-        return resolveBignums(LaaSBackendContractsMock);
-    }
     return instance
         .get<Json>(`/contracts?type=${type}`)
         .then(({ data }) => resolveBignums(data))
