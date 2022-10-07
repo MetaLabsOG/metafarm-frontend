@@ -1,10 +1,8 @@
-import { buildTealContractsStore, ContractType, LAAS_BACKEND, registerPricedAsset } from '../common/store';
+import { buildContractsStore, ContractType, registerPricedAsset } from '../common/store';
+import { backend as laasBackend } from '../cometa-laas-tmp/wrapper';
 
 // TODO shall we support multiple backends?
-const { $contracts, $contractStatesWithCache, setContractInfos } = buildTealContractsStore(
-    'laas' as const,
-    LAAS_BACKEND.original
-);
+const { $contracts, $contractStatesWithCache, setContractInfos } = buildContractsStore('laas', laasBackend);
 
 export const $laasPools = $contracts;
 export const setLaasPoolInfos = setContractInfos;

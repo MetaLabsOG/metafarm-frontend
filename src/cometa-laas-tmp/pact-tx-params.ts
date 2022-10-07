@@ -17,7 +17,6 @@ import { Account } from 'algosdk';
 import { Address } from '../types';
 import { AppId, AssetId } from '../common/store';
 import { pactApprovalProgramTemplate } from './pact_approval_source';
-import { compileProgram } from './AddLaaS';
 
 // Arguments are actually used in eval
 export function instantiatePactTemplate(

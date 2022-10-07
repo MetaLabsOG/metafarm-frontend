@@ -179,7 +179,7 @@ export type LaasInitialInfo = {
     lpToken: AssetId;
     // токен, который мы предоставляем
     slpToken: AssetId;
-    liquidityPoolApp: AssetId;
+    liquidityPoolApp: AppId;
     creator: string;
     liquidityPoolAddr: string;
 };
@@ -215,7 +215,7 @@ export type LaasGlobalInfo = {
 };
 
 // empty, no local state
-export type LaasLocalInfo = unknown;
+export type LaasLocalInfo = Record<string, never>;
 
 // CONVERSIONS
 // I wish it could be done better, if only I had normal fucking typeclasses...
@@ -354,6 +354,18 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
             } else {
                 //@ts-ignore
                 return parseCrowdsaleLocalInfo(obj);
+            }
+        } else if (contractType === 'laas') {
+            // no parsing, everything is produced as necessary
+            if (viewType === 'initial') {
+                //@ts-ignore
+                return obj as LaasInitialInfo;
+            } else if (viewType === 'global') {
+                //@ts-ignore
+                return obj as LaasGlobalInfo;
+            } else {
+                //@ts-ignore
+                return obj as LaasLocalInfo;
             }
         }
 

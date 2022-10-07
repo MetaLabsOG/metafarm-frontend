@@ -73,10 +73,10 @@ function App() {
     const algoBalance = useStoreMap($balances, (bs) => Number(bs[0]));
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
-    const setLaasPoolInfosEvent = useUnit(setLaasPoolInfos);
+    // const setLaasPoolInfosEvent = useUnit(setLaasPoolInfos);
     const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm'));
     const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution'));
-    const laasFetch = useQuery(['contracts', 'laas'], async () => getContracts('laas'));
+    // const laasFetch = useQuery(['contracts', 'laas'], async () => getContracts('laas'));
 
     const [hasTestnetModalOpened, setHasTestnetModalOpened] = useState(false);
     const [Modal, openTestnetModal] = useModal('root', { preventScroll: true });
@@ -108,12 +108,12 @@ function App() {
         }
     }, [distrFetch, setDistributionPoolInfosEvent]);
 
-    useEffect(() => {
-        if (laasFetch.isSuccess) {
-            const data = laasFetch.data! as Array<ContractInfo<'laas'>>;
-            setLaasPoolInfosEvent(data);
-        }
-    }, [laasFetch, setLaasPoolInfosEvent]);
+    // useEffect(() => {
+    //     if (laasFetch.isSuccess) {
+    //         const data = laasFetch.data! as Array<ContractInfo<'laas'>>;
+    //         setLaasPoolInfosEvent(data);
+    //     }
+    // }, [laasFetch, setLaasPoolInfosEvent]);
 
     return (
         <>

@@ -1,8 +1,18 @@
 import { Map } from 'immutable';
 import { combine, createEffect, createEvent, createStore, sample, Store, Event, Effect } from 'effector';
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
-import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract } from '../../types';
-import { maybeToNullable } from '../lib';
+import { Transaction } from 'algosdk';
+
+import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract, Address } from '../../types';
+import { reach } from '../../AppContext';
+import {
+    compileTeal,
+    getAccountInfo,
+    getLocalState,
+    maybeToNullable,
+    signAndPostTxnGroups,
+    toReachTxnGroup,
+} from '../lib';
 import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
@@ -38,6 +48,18 @@ function mapViewMap<V extends ViewFunMap | ViewVal, T>(
     }, {});
 }
 
+/**
+ * Type guard to see if object is really a reach Backend
+ * @param backend Backend to check
+ */
+function isReachBackend(backend: Backend | any): backend is Backend {
+    return '_Connectors' in backend;
+}
+
+function isTealBackend(backend: TealBackend | any): backend is TealBackend {
+    return 'makeCtc' in backend;
+}
+
 // This can be passed to or received from smart-contract
 type ReachValue = string | BigNumberish;
 
@@ -46,6 +68,64 @@ type WrappedContract = {
     views: any;
     apis: Record<string, Effect<ReachValue[], ReachValue[]>>;
 };
+
+export type TealConnector = {
+    signAndPostTxs: (txns: Transaction[][]) => Promise<string[]>;
+    getAppInfo: (appId: AppId) => Promise<any>;
+    getAppLocalState: (addr: Address, appId: AppId) => Promise<any>;
+    getTransaction: (txId: string) => Promise<any>;
+    compile: (teal: string) => Promise<Uint8Array>;
+};
+
+export const DEFAULT_TEAL_CONNECTOR: TealConnector = {
+    signAndPostTxs: async (txGroups) => {
+        return signAndPostTxnGroups(txGroups.map(toReachTxnGroup));
+    },
+    getAppInfo: async (appId: AppId) => {
+        const p = await reach.getProvider();
+        return p.algodClient.getApplicationByID(appId).do();
+    },
+    getAppLocalState: async (addr: Address, appId: AppId) => {
+        const accInfo = await getAccountInfo(addr);
+        return getLocalState(accInfo, appId);
+    },
+    getTransaction: async (txId: string) => {
+        const p = await reach.getProvider();
+        return p.indexer
+            .lookupTransactionByID(txId)
+            .do()
+            .then((data) => data.transaction);
+    },
+    compile: async (teal: string) => {
+        const p = await reach.getProvider();
+        return compileTeal(p.algodClient, teal);
+    },
+};
+
+export type TealCtcWrapper = {
+    participants: ViewFunMap;
+    p: ViewFunMap;
+    views: ViewFunMap;
+    v: ViewFunMap;
+    apis: ViewFunMap;
+    a: ViewFunMap;
+    getInfo: () => Promise<AppId>;
+};
+
+export type TealBackend = {
+    makeCtc: (account: Account, connector: TealConnector, contractId?: AppId) => TealCtcWrapper;
+};
+
+export type SomeBackend = Backend | TealBackend;
+export type SomeContract = ReachContract | TealCtcWrapper;
+
+function makeSomeContract(account: Account, backend: SomeBackend, contractId: AppId): SomeContract {
+    if (isReachBackend(backend)) {
+        return account.contract(backend, Promise.resolve(BigNumber.from(contractId)));
+    } else {
+        return backend.makeCtc(account, DEFAULT_TEAL_CONNECTOR, contractId);
+    }
+}
 
 /**
  * Wrap the methods of ctc with bignum parsing and callback on api calls.
@@ -59,12 +139,13 @@ type WrappedContract = {
 function makeWrappedCtc<T extends ContractType>(
     type: T,
     account: Account | null,
-    backend: Backend,
+    backend: SomeBackend,
     contractId: AppId,
     onWrite: (id: AppId) => Promise<void>
-): ReachContract {
+): SomeContract {
     // TODO: make read-only ctc when account is null
-    const ctc = account!.contract(backend, Promise.resolve(BigNumber.from(contractId)));
+    // const ctc = account!.contract(backend, Promise.resolve(BigNumber.from(contractId)));
+    const ctc = makeSomeContract(account!, backend, contractId);
 
     // TODO: proper typing for wrapped contracts
     // const wCtc: WrappedContract = {
@@ -122,54 +203,27 @@ export type ContractsStoreVars<T extends ContractType> = {
     contractStateUpdated: Event<{ id: AppId; state: ContractState<T> }>;
 };
 
-/**
- * Type guard to see if object is really a Backend
- * @param backend Backend to check
- */
-function isBackend(backend: Backend | any): backend is Backend {
-    return '_Connectors' in backend;
-}
-
 export enum LAAS_BACKEND {
     original,
-}
-
-export function buildTealContractsStore<T extends ContractType>(type: T, backend: LAAS_BACKEND): ContractsStoreVars<T> {
-    const $contracts = createStore<Array<Contract<T>>>([]);
-    const $contractStatesWithCache = createStore<Map<AppId, ContractState<T>>>(Map());
-
-    const setContractInfos = createEvent<Array<ContractInfo<T>>>();
-    const triggerStateUpdate = createEvent<AppId>();
-    const contractStateUpdated = createEvent<{ id: AppId; state: ContractState<T> }>();
-
-    // TODO need to create this stupid Contract object somehow
-
-    return {
-        $contracts,
-        $contractStatesWithCache,
-        setContractInfos,
-        triggerStateUpdate,
-        contractStateUpdated,
-    };
 }
 
 /**
  * Creates a store for the array of contracts of a given type.
  * @param type Contract type
- * @param backend Reach contract backend
+ * @param backend Reach/TEAL-wrapper contract backend
  * @returns Relevant stores and events
  */
-export function buildReachContractsStore<T extends ContractType>(
+export function buildContractsStore<T extends ContractType>(
     type: T,
-    backend: Backend | Record<string, Backend>
+    backend: SomeBackend | Record<string, SomeBackend>
 ): ContractsStoreVars<T> {
-    const getBackendVersion = (v: string): Backend => {
+    const getBackendVersion = (v: string): SomeBackend => {
         // fix stupid bug around version number in add farm previously
         if (v.startsWith('^')) {
             v = v.substring(1);
         }
 
-        if (isBackend(backend)) {
+        if (isReachBackend(backend) || isTealBackend(backend)) {
             return backend;
         } else if (v in backend) {
             return backend[v];
@@ -224,7 +278,7 @@ export function buildReachContractsStore<T extends ContractType>(
                 account,
             }: {
                 contractId: AppId;
-                ctc: ReachContract;
+                ctc: SomeContract;
                 account: Account | null;
             }): Promise<ContractState<T>> => {
                 return {
@@ -240,7 +294,7 @@ export function buildReachContractsStore<T extends ContractType>(
         clock: initializeContract,
         source: $account,
         filter: (account, _) => account !== null,
-        fn: (account, { id, version }): [AppId, ReachContract] => [
+        fn: (account, { id, version }): [AppId, SomeContract] => [
             id,
             makeWrappedCtc(type, account, getBackendVersion(version), id, async (id) => {
                 triggerStateUpdate(id);
@@ -298,6 +352,9 @@ export function buildReachContractsStore<T extends ContractType>(
 
     combine({ account: $account, idsAndVersions: $contractIdsAndVersions }).watch(({ idsAndVersions }) => {
         for (const idVersion of idsAndVersions) {
+            if (type === 'laas') {
+                console.log('LAAS HMM', idVersion);
+            }
             initializeContract(idVersion);
         }
     });

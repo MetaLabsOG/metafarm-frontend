@@ -4,7 +4,7 @@ import { backend as distribution_17_0_4 } from 'metalabs-distribution-17_0_4';
 import { backend as distribution_17_0_5 } from 'metalabs-distribution-17_0_5';
 
 import { combine, Store } from 'effector';
-import { buildReachContractsStore, registerPricedAsset, $networkTime, $pricedAssets, Contract } from '../common/store';
+import { buildContractsStore, registerPricedAsset, $networkTime, $pricedAssets, Contract } from '../common/store';
 import {
     $stakePools,
     $farmStakeTokens,
@@ -24,7 +24,7 @@ const DISTRIBUTION_BACKENDS = {
     '17.0.5': distribution_17_0_5,
 };
 
-const { $contracts, $contractStatesWithCache, setContractInfos } = buildReachContractsStore(
+const { $contracts, $contractStatesWithCache, setContractInfos } = buildContractsStore(
     'distribution',
     DISTRIBUTION_BACKENDS
 );

@@ -9,7 +9,7 @@ import {
     Asset,
     AssetId,
     assetId,
-    buildReachContractsStore,
+    buildContractsStore,
     ContractState,
     Amount,
     Priced,
@@ -125,7 +125,7 @@ export const projectContracts = <T extends FarmType>(
     );
 };
 
-const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpdate } = buildReachContractsStore(
+const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpdate } = buildContractsStore(
     'farm',
     FARM_BACKENDS
 );

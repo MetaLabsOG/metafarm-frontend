@@ -12213,7 +12213,7 @@ __metadata:
     secp256k1: "npm:^3.7.1"
     superagent: "npm:^5.1.0"
     websocket: "npm:^1.0.31"
-  checksum: 9df68f39d07528f4d48937bde91f458b8f3bc3b1cf5922e781a5326c42bcd9e2ba5f72de2240fd5cb690433a20c315c7dedd37bd76038cb89038a6c5ff27561e
+  checksum: cca262353c687fdb0559d9801b21912b0ff4e940c6e6e824bcd3f98407e0c95d39b94238372426adfbef684f13b0328517279fd94fd2274ddba51cc404d7322f
   languageName: node
   linkType: hard
 
@@ -13262,6 +13262,7 @@ __metadata:
     superagent: "npm:^8.0.0"
     tailwindcss: "npm:^3.1.7"
     terser-webpack-plugin: "npm:^5.3.3"
+    tslib: "npm:^2.4.0"
     typescript: "npm:^4.7.4"
     url-parse: "npm:^1.5.10"
     util: "npm:^0.12.4"
