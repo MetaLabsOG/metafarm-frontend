@@ -4,11 +4,17 @@ import { ExecParams } from '@algo-builder/web/build/types';
 import { assignGroupID, getApplicationAddress } from 'algosdk';
 
 import { Account } from '../types';
+import { toReachTxnGroup } from '../common/lib';
 import { reach } from '../AppContext';
-import { AppId, TealConnector } from '../common/store';
+import { AppId, AssetId, TealConnector } from '../common/store';
 import { makeFundAppTx } from './common-tx-params';
 
-export async function sendAlgobTxs(algobTxs: ExecParams[], connector: TealConnector): Promise<string[]> {
+export async function sendAlgobTxs(
+    algobTxs: ExecParams[],
+    optinApps: AppId[],
+    optinAssets: AssetId[],
+    connector: TealConnector
+): Promise<string[]> {
     const p = await reach.getProvider();
     const sp = await getSuggestedParams(p.algodClient);
 
@@ -20,7 +26,12 @@ export async function sendAlgobTxs(algobTxs: ExecParams[], connector: TealConnec
     );
 
     assignGroupID(algodTxs);
-    return connector.signAndPostTxs([algodTxs]);
+
+    const walletGroup = toReachTxnGroup(algodTxs);
+    walletGroup.usedApps = optinApps;
+    walletGroup.usedAssets = optinAssets;
+
+    return connector.signAndPostTxs([walletGroup]);
 }
 
 export async function getCreatedAppId(txId: string, connector: TealConnector): Promise<AppId> {
@@ -33,5 +44,5 @@ export async function fundApp(appId: AppId, acc: Account, connector: TealConnect
     const appAddress = getApplicationAddress(appId);
     const fundAppParam = makeFundAppTx({ addr: acc.networkAccount.addr, sk: new Uint8Array(0) }, appAddress);
 
-    await sendAlgobTxs([fundAppParam], connector);
+    await sendAlgobTxs([fundAppParam], [appId], [], connector);
 }

@@ -3,7 +3,16 @@ import { combine, createEffect, createEvent, createStore, sample, Store, Event, 
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Transaction } from 'algosdk';
 
-import { Account, Backend, ViewVal, ViewMap, ViewFunMap, Contract as ReachContract, Address } from '../../types';
+import {
+    Account,
+    Backend,
+    ViewVal,
+    ViewMap,
+    ViewFunMap,
+    Contract as ReachContract,
+    Address,
+    WalletTransactionGroup,
+} from '../../types';
 import { reach } from '../../AppContext';
 import {
     compileTeal,
@@ -70,7 +79,7 @@ type WrappedContract = {
 };
 
 export type TealConnector = {
-    signAndPostTxs: (txns: Transaction[][]) => Promise<string[]>;
+    signAndPostTxs: (txns: WalletTransactionGroup[]) => Promise<string[]>;
     getAppInfo: (appId: AppId) => Promise<any>;
     getAppLocalState: (addr: Address, appId: AppId) => Promise<any>;
     getTransaction: (txId: string) => Promise<any>;
@@ -78,9 +87,7 @@ export type TealConnector = {
 };
 
 export const DEFAULT_TEAL_CONNECTOR: TealConnector = {
-    signAndPostTxs: async (txGroups) => {
-        return signAndPostTxnGroups(txGroups.map(toReachTxnGroup));
-    },
+    signAndPostTxs: signAndPostTxnGroups,
     getAppInfo: async (appId: AppId) => {
         const p = await reach.getProvider();
         return p.algodClient.getApplicationByID(appId).do();

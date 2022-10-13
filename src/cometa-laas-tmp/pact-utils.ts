@@ -42,14 +42,14 @@ export async function deployPactPool(
         payFlags: { totalFee: 5000 }, // TODO 5000 is arbitrary
     };
 
-    const appIds = await sendAlgobTxs([execParam], connector);
+    const appIds = await sendAlgobTxs([execParam], [], [aToken, bToken], connector);
     return getCreatedAppId(appIds[0], connector);
 }
 
 export async function pactOptIn(appId: AppId, a: AssetId, b: AssetId, acc: Account, connector: TealConnector) {
     const typedAcc = { addr: acc.networkAccount.addr, sk: new Uint8Array(0) };
     const appCallTx: AppCallsParam = makeOptInTx(typedAcc, appId, a, b);
-    await sendAlgobTxs([appCallTx], connector);
+    await sendAlgobTxs([appCallTx], [], [a, b], connector);
 }
 
 export async function pactCreateLiquidityTokenTx(
@@ -61,7 +61,7 @@ export async function pactCreateLiquidityTokenTx(
 ): Promise<AssetId> {
     const typedAcc = { addr: acc.networkAccount.addr, sk: new Uint8Array(0) };
     const appCallTx: AppCallsParam = makeCreateLiquidityTokenTx(typedAcc, appId, a, b);
-    const createTxIds = await sendAlgobTxs([appCallTx], connector);
+    const createTxIds = await sendAlgobTxs([appCallTx], [appId], [a, b], connector);
     const createTxn = await connector.getTransaction(createTxIds[0]);
 
     const cfgTxn = createTxn['inner-txns'].find((txn: any) => txn['tx-type'] === 'acfg');
@@ -88,7 +88,7 @@ export async function pactAddLiq(
         initialLiquidity,
         initialLiquidity
     );
-    await sendAlgobTxs(addInitialLiqTxs, connector);
+    await sendAlgobTxs(addInitialLiqTxs, [appId], [a, b, lp], connector);
 }
 
 export async function deployPactPoolFull(

@@ -92,7 +92,7 @@ async function deployVault(
         payFlags: { totalFee: 5000 }, // TODO 5000 is arbitrary
     };
 
-    const txIds = await sendAlgobTxs([execParam], connector);
+    const txIds = await sendAlgobTxs([execParam], [], [], connector);
     return getCreatedAppId(txIds[0], connector);
 }
 
@@ -127,7 +127,7 @@ async function setupVault(
         lpToken
     );
 
-    await sendAlgobTxs(setupTxs, connector);
+    await sendAlgobTxs(setupTxs, [vaultAppId], [aToken, bToken, lpToken], connector);
 }
 
 export async function deployVaultFull(
@@ -270,8 +270,13 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
 
     const typedAcc = { addr: account.networkAccount.addr, sk: new Uint8Array(0) };
 
+    const allTokens = (initialState: LaasInitialInfo): AssetId[] => {
+        return [initialState.aToken, initialState.bToken, initialState.lpToken, initialState.slpToken];
+    };
+
     const laasApis = {
         async provide_b(amount: number) {
+            console.log('PROVIDE_B');
             const initialState = await laasViews.initial().then((m) => m[1]);
             const vaultAddress = getApplicationAddress(appId!);
 
@@ -289,12 +294,12 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
                 initialState.liquidityPoolAddr
             );
 
-            await sendAlgobTxs(txs, connector);
+            await sendAlgobTxs(txs, [], allTokens(initialState), connector);
         },
         async withdraw_excessive_a() {
             const initialState = await laasViews.initial().then((m) => m[1]);
             const tx = makeLiquiditySeekerWithdrawExcessTx(typedAcc, appId!, initialState.aToken);
-            await sendAlgobTxs([tx], connector);
+            await sendAlgobTxs([tx], [], [], connector);
         },
         async end_vault() {
             const initialState = await laasViews.initial().then((m) => m[1]);
@@ -304,14 +309,14 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
                 initialState.bToken,
                 initialState.lpToken,
             ]);
-            await sendAlgobTxs([tx], connector);
+            await sendAlgobTxs([tx], [], allTokens(initialState), connector);
         },
         // Seeker достает свои деньги скорее всего после аукциона
         async ls_withdraw() {
             const initialState = await laasViews.initial().then((m) => m[1]);
 
             const tx = makeWithdrawLsTx(typedAcc, appId!, initialState.aToken, initialState.bToken);
-            await sendAlgobTxs([tx], connector);
+            await sendAlgobTxs([tx], [], allTokens(initialState), connector);
         },
         async withdraw_b(amount: number) {
             const initialState = await laasViews.initial().then((m) => m[1]);
@@ -325,7 +330,7 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
                 initialState.slpToken,
                 amount
             );
-            await sendAlgobTxs(txs, connector);
+            await sendAlgobTxs(txs, [], allTokens(initialState), connector);
         },
         async auction_buy(bAmount: number, aToBuyDesired: number) {
             const initialState = await laasViews.initial().then((m) => m[1]);
@@ -341,12 +346,12 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
                 aToBuyDesired,
                 '' // TODO ls address
             );
-            await sendAlgobTxs(txs, connector);
+            await sendAlgobTxs(txs, [], allTokens(initialState), connector);
         },
         async change_priority(new_priority_addr: string) {
             const vaultAddress = getApplicationAddress(appId!);
             const tx = makeChangePriorityTx(typedAcc, vaultAddress, appId!);
-            await sendAlgobTxs([tx], connector);
+            await sendAlgobTxs([tx], [], [], connector);
         },
     };
 
