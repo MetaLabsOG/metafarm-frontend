@@ -46,6 +46,7 @@ export const PoolListContainer = styled.div`
     @media (max-width: 1120px) {
         background-color: black;
         margin-top: 0;
+        min-width: 320px;
     }
 `;
 
