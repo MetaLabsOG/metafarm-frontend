@@ -1,8 +1,5 @@
 import { FC, useState } from 'react';
-import SelectSearch, { fuzzySearch } from 'react-select-search';
-import { renderOption, SelectType } from '../Select/Select';
 import { formatNumber } from '../../common/lib';
-import '../Select/styled.css';
 import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
 import { theme } from '../../theme';
 import { MaxButton } from '../TokenInputWithButton/styled';
@@ -25,25 +22,6 @@ function TokenOption({ option }: { option: any }) {
                 }}
             />
             <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.unitName}</div>
-        </div>
-    );
-}
-
-// TODO(DariaYakovleva): please check types, looks very suspicious
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-function renderSelectedOption(valueProps, snapshot) {
-    const { option } = snapshot;
-
-    return (
-        <div style={{ position: 'relative' }}>
-            {option && !snapshot.focus && <TokenOption option={option} />}
-            <input
-                {...valueProps}
-                placeholder={snapshot.focus || !snapshot.displayValue ? 'Choose token' : ''}
-                className="search_value"
-                value={snapshot.search}
-            />
         </div>
     );
 }
@@ -72,18 +50,18 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
 
     return (
         <div className="SelectInputGroupContainer">
-            <SelectSearch
-                search
-                className="select-search"
-                options={options}
-                filterOptions={fuzzySearch}
-                renderOption={(props, option) => renderOption(props, option, SelectType.tokenSelect)}
-                renderValue={(props, snapshot) => renderSelectedOption(props, snapshot)}
-                value={selectedOption.value}
-                placeholder=""
-                onChange={selectOnChange}
-                disabled={selectDisabled}
-            />
+            {/*<SelectSearch*/}
+            {/*    search*/}
+            {/*    className="select-search-input-group"*/}
+            {/*    options={options}*/}
+            {/*    filterOptions={fuzzySearch}*/}
+            {/*    renderOption={(props, option) => renderOption(props, option, SelectType.tokenSelect)}*/}
+            {/*    renderValue={(props, snapshot) => renderSelectedOption(props, snapshot)}*/}
+            {/*    value={selectedOption.value}*/}
+            {/*    placeholder=""*/}
+            {/*    onChange={selectOnChange}*/}
+            {/*    disabled={selectDisabled}*/}
+            {/*/>*/}
             <input
                 disabled={inputDisabled}
                 className="tokenInput"

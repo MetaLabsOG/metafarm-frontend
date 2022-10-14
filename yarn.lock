@@ -11577,13 +11577,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fuse.js@npm:^6.6.0":
-  version: 6.6.2
-  resolution: "fuse.js@npm:6.6.2"
-  checksum: e22fe31176b52a0d4be7c7ee116758d478653d9694d6c5df5d2e28b002b4d83fc5aa07c24d27a26ee2e85fc31a8b22cafdc071ddb700917a021395023abb16aa
-  languageName: node
-  linkType: hard
-
 "gauge@npm:^4.0.3":
   version: 4.0.4
   resolution: "gauge@npm:4.0.4"
@@ -15647,7 +15640,6 @@ __metadata:
     react-query: "npm:^3.39.2"
     react-refresh: "npm:^0.14.0"
     react-router-dom: "npm:^6.3.0"
-    react-select-search: "npm:^3.0.10"
     react-switch: "npm:^7.0.0"
     react-toastify: "npm:^9.0.7"
     react-tooltip: "npm:^4.2.21"
@@ -18841,22 +18833,6 @@ __metadata:
   peerDependencies:
     react: ">=16.8"
   checksum: e18db7761282cb28dda7a4f81c4df696f0484c7f998dc339b4939cb9bb9e8d968e33b627a9616adfed141b588ca1885be6be602c12ff52e81b4bab4bf3e629f8
-  languageName: node
-  linkType: hard
-
-"react-select-search@npm:^3.0.10":
-  version: 3.0.10
-  resolution: "react-select-search@npm:3.0.10"
-  dependencies:
-    fuse.js: "npm:^6.6.0"
-  peerDependencies:
-    prop-types: ^15.8.1
-    react: ^18.0.1 || ^17.0.1 || ^16.14.0
-    react-dom: ^18.0.1 || ^17.0.1 || ^16.14.0
-  dependenciesMeta:
-    fuse.js:
-      optional: true
-  checksum: 647e94afe84884273d6714b6a523ebcf532b987051a2ae610254c5853ef4d41b712cc6e3c4f63a732c720921a6fdb17ea84bfae9bb440bbff5b06335324dfcef
   languageName: node
   linkType: hard
 

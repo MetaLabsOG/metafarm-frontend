@@ -1,14 +1,27 @@
-import React, { FC } from 'react';
-import SelectSearch, { fuzzySearch } from 'react-select-search';
+import React, { FC, useEffect, useState } from 'react';
+import { useModal } from 'react-hooks-use-modal';
 import { formatNumber } from '../../common/lib';
 import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
-import { getDexIcon, getDexName } from '../../Farm/utils';
+import { getDexName } from '../../Farm/utils';
 import tokenPlaceholder from '../../imgs/tokenPlaceholder.svg';
-import { DexOptionType, PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
-import './styled.css';
+import select from '../../imgs/select.svg';
+
+import {
+    LpIcon,
+    LpIcons,
+    OptionAdditionalInfo,
+    OptionSubtitle,
+    OptionTitle,
+    OptionContainer,
+    SelectContainer,
+    SelectModalContainer,
+    SelectOptionContainer,
+    SelectSearch,
+    TokenIcon,
+} from './styled';
+import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
 
 export enum SelectType {
-    dexSelect,
     tokenSelect,
     poolSelect,
 }
@@ -37,48 +50,11 @@ export const POOL_OPTION: PoolOptionType = {
     dexFeeApr: 0,
 };
 
-export const getPlaceholder = (selectType: SelectType) => {
-    if (selectType === SelectType.dexSelect) {
-        return 'Choose DEX';
-    }
-
-    if (selectType === SelectType.tokenSelect) {
-        return 'Choose token';
-    }
-
-    if (selectType === SelectType.poolSelect) {
-        return 'Choose pool';
-    }
-
-    return '';
-};
-
-function DexOption({ option }: { option: DexOptionType }) {
-    return (
-        <>
-            <img
-                alt=""
-                className="tokenIcon"
-                style={{ background: 'white' }}
-                src={getDexIcon(option.value) || undefined}
-                onError={({ currentTarget }) => {
-                    currentTarget.onerror = null; // prevents looping
-                    currentTarget.src = tokenPlaceholder;
-                }}
-            />
-            <div>
-                <div className="optionTitle">{option.name}</div>
-            </div>
-        </>
-    );
-}
-
 function TokenOption({ option, showAdditionalInfo }: { option: TokenOptionType; showAdditionalInfo: boolean }) {
     return (
-        <>
-            <img
+        <OptionContainer>
+            <TokenIcon
                 alt=""
-                className="tokenIcon"
                 src={getAssetLogoUrl(option.id)}
                 onError={({ currentTarget }) => {
                     currentTarget.onerror = null; // prevents looping
@@ -86,26 +62,25 @@ function TokenOption({ option, showAdditionalInfo }: { option: TokenOptionType; 
                 }}
             />
             <div>
-                <div className="optionTitle">{option.name}</div>
-                <div className="optionSubTitle">{option.unitName}</div>
+                <OptionTitle>{option.name}</OptionTitle>
+                <OptionSubtitle>{option.unitName}</OptionSubtitle>
             </div>
             {showAdditionalInfo && option.balance > 0 && (
-                <div className="selectAdditionalInfo">
+                <OptionAdditionalInfo>
                     Balance:
                     <br />
                     {formatNumber(option.balance)}
-                </div>
+                </OptionAdditionalInfo>
             )}
-        </>
+        </OptionContainer>
     );
 }
 
 function PoolOption({ option }: { option: PoolOptionType }) {
     return (
-        <>
-            <div className="lpIcons">
-                <img
-                    className="lpIcon"
+        <OptionContainer>
+            <LpIcons>
+                <LpIcon
                     alt=""
                     src={getAssetLogoUrl(option.asset1)}
                     onError={({ currentTarget }) => {
@@ -113,8 +88,7 @@ function PoolOption({ option }: { option: PoolOptionType }) {
                         currentTarget.src = tokenPlaceholder;
                     }}
                 />
-                <img
-                    className="lpIcon"
+                <LpIcon
                     style={{ left: '16px' }}
                     alt=""
                     src={getAssetLogoUrl(option.asset2)}
@@ -123,17 +97,17 @@ function PoolOption({ option }: { option: PoolOptionType }) {
                         currentTarget.src = tokenPlaceholder;
                     }}
                 />
-            </div>
+            </LpIcons>
             <div>
-                <div className="optionTitle">{option.name}</div>
-                <div className="optionSubTitle">{getDexName(option.poolDex)}</div>
+                <OptionTitle>{option.name}</OptionTitle>
+                <OptionSubtitle>{getDexName(option.poolDex)}</OptionSubtitle>
             </div>
-            <div className="selectAdditionalInfo">
+            <OptionAdditionalInfo>
                 ASA ID
                 <br />
                 {option.liquidityAsset}
-            </div>
-        </>
+            </OptionAdditionalInfo>
+        </OptionContainer>
     );
 }
 
@@ -146,10 +120,6 @@ function SelectOption({
     option: SelectOptionType;
     showAdditionalInfo: boolean;
 }) {
-    if (selectType === SelectType.dexSelect) {
-        return <DexOption option={option as DexOptionType} />;
-    }
-
     if (selectType === SelectType.tokenSelect) {
         return <TokenOption option={option as TokenOptionType} showAdditionalInfo={showAdditionalInfo} />;
     }
@@ -161,62 +131,55 @@ function SelectOption({
     return <></>;
 }
 
-// TODO(DariaYakovleva): please check types, looks very suspicious
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-export function renderOption(props, option, selectType: SelectType, showAdditionalInfo = true) {
-    return (
-        <button {...props} className="search_option" type="button">
-            <div
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    fontFamily: 'Montserrat',
-                    whiteSpace: 'nowrap',
-                }}
-            >
-                <SelectOption selectType={selectType} option={option} showAdditionalInfo={showAdditionalInfo} />
-            </div>
-        </button>
-    );
-}
-
-// TODO(DariaYakovleva): please check types, looks very suspicious
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-function renderSelectedOption(valueProps, snapshot, selectType: SelectType) {
-    const { option } = snapshot;
-
-    return (
-        <div style={{ position: 'relative' }}>
-            {option && !snapshot.focus && (
-                <div className="TokenOptionContainer">
-                    <SelectOption showAdditionalInfo selectType={selectType} option={option} />
-                </div>
-            )}
-            <input
-                {...valueProps}
-                placeholder={snapshot.focus || !snapshot.displayValue ? getPlaceholder(selectType) : ''}
-                className="search_value search_value_basic"
-                value={snapshot.search}
-            />
-        </div>
-    );
-}
-
 export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange, getOptions }) => {
+    const [SelectModal, openSelectModal, closeSelectModal] = useModal('root');
+    const [tokenSearchInput, setTokenSearchInput] = useState<string>('');
+    const [currentOptions, setCurrentOptions] = useState<SelectOptionType[]>(options);
+
+    useEffect(() => {
+        setCurrentOptions(options);
+    }, [options]);
+
+    useEffect(() => {
+        if (getOptions) {
+            getOptions(selectedOption)(tokenSearchInput).then((options) => {
+                setCurrentOptions(options);
+            });
+        } else {
+            setCurrentOptions(
+                options.filter((option) => option.name.toLowerCase().includes(tokenSearchInput.toLowerCase()))
+            );
+        }
+    }, [tokenSearchInput]);
+
     return (
-        <SelectSearch
-            search
-            className="select-search select-search-basic"
-            options={options}
-            getOptions={getOptions ? getOptions(selectedOption) : undefined}
-            value={selectedOption.value}
-            renderOption={(props, option) => renderOption(props, option, selectType)}
-            renderValue={(props, snapshot) => renderSelectedOption(props, snapshot, selectType)}
-            filterOptions={fuzzySearch}
-            placeholder={getPlaceholder(selectType)}
-            onChange={selectOnChange}
-        />
+        <>
+            <SelectContainer onClick={openSelectModal}>
+                <SelectOption showAdditionalInfo selectType={selectType} option={selectedOption} />
+                <img style={{ width: '15px', marginRight: '16px' }} alt="select" src={select} />
+            </SelectContainer>
+            <SelectModal>
+                <SelectModalContainer>
+                    <SelectSearch
+                        placeholder="Search token name"
+                        value={tokenSearchInput}
+                        onChange={(e) => {
+                            setTokenSearchInput(e.target.value);
+                        }}
+                    />
+                    {currentOptions.slice(0, 10).map((option) => (
+                        <SelectOptionContainer
+                            key={option.name}
+                            onClick={() => {
+                                selectOnChange(option);
+                                closeSelectModal();
+                            }}
+                        >
+                            <SelectOption showAdditionalInfo selectType={selectType} option={option} />
+                        </SelectOptionContainer>
+                    ))}
+                </SelectModalContainer>
+            </SelectModal>
+        </>
     );
 };

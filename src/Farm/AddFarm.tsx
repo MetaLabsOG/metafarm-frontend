@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import pactsdk from '@pactfi/pactsdk';
-import { SelectedOptionValue } from 'react-select-search';
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-expect-error
 import { backend as farmBackend } from 'metalabs-farm-17_2_5';
@@ -13,7 +12,7 @@ import { AxiosError } from 'axios';
 import { getTokens } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { POOL_OPTION, Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
-import { DexOptionType, PoolOptionType, SelectOptionType, TokenOptionType } from '../Components/Select/types';
+import { PoolOptionType, SelectOptionType, TokenOptionType } from '../Components/Select/types';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
@@ -556,7 +555,10 @@ export function AddFarm({ type }: { type: AddFarmType }) {
         selectedDex === 'T2' ? getTinymanPoolOptions : selectedDex === 'PT' ? getPactPoolOptions : getHumblePoolOptions;
 
     useEffect(() => {
-        getPoolOptions()('').then((options) => setPoolOptions(options));
+        getPoolOptions()('').then((options) => {
+            setPoolOptions(options);
+            setSelectedPool(options[0]);
+        });
     }, [getPoolOptions]);
 
     useEffect(() => {
@@ -564,6 +566,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             const filteredAssets = res.filter((asset) => asset.id !== 0);
             setRewardTokenOptions(filteredAssets);
             setSelectedRewardToken(filteredAssets[0]);
+            setSelectedToken(filteredAssets[0]);
 
             const filteredAlgoAsset = res.filter((asset) => asset.id === 0);
             setAlgoToken(filteredAlgoAsset[0]);
@@ -576,15 +579,15 @@ export function AddFarm({ type }: { type: AddFarmType }) {
         setSelectedPool(POOL_OPTION);
     };
 
-    const selectPoolOnChange = (value: SelectedOptionValue, option: PoolOptionType) => {
+    const selectPoolOnChange = (option: PoolOptionType) => {
         setSelectedPool(option);
     };
 
-    const selectTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
+    const selectTokenOnChange = (option: TokenOptionType) => {
         setSelectedToken(option);
     };
 
-    const selectRewardTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
+    const selectRewardTokenOnChange = (option: TokenOptionType) => {
         setSelectedRewardToken(option);
     };
 

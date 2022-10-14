@@ -6,6 +6,13 @@
     position: relative;
 }
 
+.select-search-input-group {
+    font-family: Montserrat;
+    position: absolute;
+    left: 8px;
+    top: 8px;
+}
+
 .tokenInput {
     height: 72px;
     width: 100%;
@@ -33,4 +40,17 @@
     font-size: 12px;
     margin-left: 10px;
     text-align: left;
+}
+
+.TokenOptionContainer {
+    pointer-events: none;
+    /*position: absolute;*/
+    /*left: 0;*/
+    /*top: 0;*/
+    /*right: 0;*/
+    /*bottom: 0;*/
+    display: flex;
+    font-family: 'Montserrat';
+    color: white;
+    align-items: center;
 }

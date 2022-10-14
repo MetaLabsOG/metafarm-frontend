@@ -1,10 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useUnit } from 'effector-react';
-import { SelectedOption, SelectedOptionValue } from 'react-select-search';
-import 'react-select-search/style.css';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { theme } from '../theme';
-import { alammexClient, ALGONET, FARM_BENEFICIARY_ADDR, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
+import { alammexClient, ALGONET, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
 import {
     $account,
     $balances,
@@ -442,17 +440,13 @@ export function Swap() {
         }, delay);
     }
 
-    const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
+    const select1OnChange = (option: TokenOptionType) => {
         setToken1(option);
         setToken1Amount('');
         getBestSwapThrottled(option.value, token2.value, token1Amount, 50);
     };
 
-    const select2OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
+    const select2OnChange = (option: TokenOptionType) => {
         setToken2(option);
         getBestSwapThrottled(token1.value, option.value, token1Amount, 50);
     };
