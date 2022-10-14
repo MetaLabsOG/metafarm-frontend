@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import 'react-select-search/style.css';
-import '../css/swap.css';
 
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
@@ -14,6 +13,7 @@ import { TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import {
     DexButton,
+    DexName,
     DexSwitchContainer,
     Heading2,
     ModalContainer,
@@ -437,7 +437,7 @@ export function Zap({
                     rel="noreferrer"
                     style={{ color: theme.lightGray }}
                 >
-                    <h3 className="dex_name">or do it manually</h3>
+                    <DexName>or do it manually</DexName>
                 </a>
             )}
         </ModalContainer>

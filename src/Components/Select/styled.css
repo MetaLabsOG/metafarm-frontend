@@ -25,7 +25,7 @@
     height: 50px;
     width: 100%;
     color: white;
-    background-color: #272727;
+    background-color: var(--backgroundColor);
     border: 0;
     font-size: 14px;
 }
@@ -45,17 +45,24 @@
 
 .search_value {
     padding: 10px;
-    height: 50px;
-    width: 150px;
+    /*height: 50px;*/
+    /*width: 150px;*/
     color: white;
-    background-color: #272727;
+    /*background-color: var(--backgroundColor);*/
 
-    border: 1px solid rgba(125, 125, 125, 0.66);
+    /*border: 1px solid rgba(125, 125, 125, 0.66);*/
     border-radius: 8px;
 
     font-family: 'Montserrat';
     font-size: 14px;
-    border-radius: 8px 0 0 8px;
+    /*border-radius: 8px 0 0 8px;*/
+
+    width: 164px;
+    height: 56px;
+
+    border: 0;
+    background: var(--backgroundCard);
+    border-radius: 8px;
 }
 
 .search_value_basic {
@@ -68,6 +75,9 @@
     width: 150px;
     margin-bottom: 20px;
     font-family: Montserrat;
+    position: absolute; /* TODO */
+    left: 8px;
+    top: 8px;
 }
 
 .select-search-basic {
@@ -75,7 +85,7 @@
 }
 
 .select-search__select {
-    background: #272727;
+    background: var(--backgroundColor);
     width: 350px;
     box-shadow: 0 .0625rem .125rem rgba(125, 125, 125, 0.66);
 }

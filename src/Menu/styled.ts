@@ -91,7 +91,7 @@ export const MenuContainer = styled.div`
     justify-content: space-between;
     flex-direction: column;
     z-index: 10;
-    background: var(--newDarkGray); //#1d1f23;
+    background: var(--backgroundCard);
 `;
 
 export const ExchangeRatesContainer = styled.div`
@@ -137,31 +137,36 @@ export const BurgerMenuContainer = styled.div`
 
 export const FooterContainer = styled.div`
     width: 100% !important;
-    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-top: 100px;
-    background: var(--newDarkGray);
+    margin-bottom: 10px;
     padding: 15px 30px 15px 30px;
     font-family: 'Montserrat', serif;
-    color: var(--lightGreen);
-`;
-
-export const FooterItem = styled.div`
-    font-family: 'Montserrat', serif;
-    margin-top: auto;
-    margin-bottom: auto;
-    text-align: center;
-    color: var(--lightGreen);
 
     @media (max-width: 640px) {
-        font-size: 10px;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 10px;
     }
 `;
 
-export const FooterLink = styled.a`
-    color: var(--lightGreen);
-    text-decoration: none;
-    :hover {
-        cursor: pointer;
-        color: var(--green);
+export const FooterItem = styled.div`
+    text-align: center;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 18px;
+    color: var(--newnewGray);
+`;
+
+export const FooterText = styled.div`
+    display: flex;
+    gap: 4px;
+
+    @media (max-width: 640px) {
+        flex-direction: column;
     }
 `;

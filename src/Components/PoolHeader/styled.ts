@@ -79,7 +79,7 @@ export const Game = styled.img`
 export const ContractLockSuffix = styled.div`
     font-size: 12px;
     margin-right: 3px;
-    color: #838383;
+    color: var(--gray);
     @media (max-width: 1120px) {
         color: white;
     }
@@ -92,7 +92,7 @@ export const AnimatedText = styled.div`
     background-size: auto auto;
     background-clip: border-box;
     background-size: 200% auto;
-    color: #fff;
+    color: white;
     text-fill-color: transparent;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;

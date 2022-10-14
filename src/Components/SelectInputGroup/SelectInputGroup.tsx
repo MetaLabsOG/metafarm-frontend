@@ -84,45 +84,45 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                 onChange={selectOnChange}
                 disabled={selectDisabled}
             />
-            <div style={{ width: '100%', position: 'relative' }}>
-                <input
-                    disabled={inputDisabled}
-                    className="tokenInput"
-                    placeholder={!inputDisabled ? 'Enter amount' : '0'}
-                    value={inputData}
-                    onChange={(e) => {
-                        if (Number.isNaN(Number(e.target.value))) {
-                            return;
-                        }
-                        const isValidInput =
-                            !e.target.value ||
-                            Number.isNaN(selectedOption.balance) ||
-                            Number(e.target.value) <= selectedOption.balance;
-                        setIsValidInput(isValidInput);
-                        setInputData(e.target.value);
-                        inputOnChange && inputOnChange(e.target.value);
-                    }}
-                />
+            <input
+                disabled={inputDisabled}
+                className="tokenInput"
+                placeholder={!inputDisabled ? 'Enter amount' : '0'}
+                value={inputData}
+                onChange={(e) => {
+                    if (Number.isNaN(Number(e.target.value))) {
+                        return;
+                    }
+                    const isValidInput =
+                        !e.target.value ||
+                        Number.isNaN(selectedOption.balance) ||
+                        Number(e.target.value) <= selectedOption.balance;
+                    setIsValidInput(isValidInput);
+                    setInputData(e.target.value);
+                    inputOnChange && inputOnChange(e.target.value);
+                }}
+            />
 
-                <div className="tokenBalance" style={isValidInput ? {} : { color: theme.red }}>
-                    Balance: {formatNumber(!Number.isNaN(selectedOption.balance) ? selectedOption.balance : 0)}
-                    {isValidInput ? '' : ' (Not enough)'}
-                </div>
-                {selectedOption.balance > 0 && !inputDisabled && (
-                    <MaxButton
-                        isActive
-                        style={{
-                            fontSize: '16px',
-                            background: '#272727',
-                            marginTop: '8px',
-                            left: '70%',
-                        }}
-                        onClick={setInputMaxAmount}
-                    >
-                        MAX
-                    </MaxButton>
-                )}
-            </div>
+            {/*<div className="tokenBalance" style={isValidInput ? {} : { color: theme.red }}>*/}
+            {/*    Balance: {formatNumber(!Number.isNaN(selectedOption.balance) ? selectedOption.balance : 0)}*/}
+            {/*    {isValidInput ? '' : ' (Not enough)'}*/}
+            {/*</div>*/}
+            {selectedOption.balance > 0 && !inputDisabled && (
+                <MaxButton
+                    isActive
+                    style={{
+                        fontSize: 13,
+                        background: theme.backgroundModal,
+                        marginTop: 20,
+                        left: 188,
+                        borderRadius: 20,
+                        color: theme.newLightGray,
+                    }}
+                    onClick={setInputMaxAmount}
+                >
+                    max
+                </MaxButton>
+            )}
         </div>
     );
 };

@@ -1,22 +1,24 @@
 .swap_button {
     height: 50px;
     width: 350px;
-    border-radius: 8px;
     border: 1px solid #009427;
-    color: black;
-    background: linear-gradient(270deg, #06A903 1.29%, #00FF29 100%);
+    color: var(--newWhite);
+    background: rgba(66, 201, 63, 0.7);
+    border-radius: 16px;
     margin-top: 20px;
 
     font-family: 'Korona One';
-    font-size: 15px;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+    letter-spacing: 0.04em;
 
     cursor: pointer;
 }
 
 .swap_button:hover {
-    color: var(--green);
-    border: 1px solid var(--green);
-    background: black;
+    background: rgba(66, 201, 63, 0.84);
 }
 
 .swap_button.loading {
@@ -55,7 +57,7 @@
 
     border: 0px;
     color: #B9B9B9;
-    background-color: #000;
+    background-color: black;
 }
 
 .price_button.loading {
@@ -67,7 +69,7 @@
 
 .price_button.loading:hover {
     border: 1px solid #5cfc3c;
-    background-color: #000;
+    background-color: black;
 }
 
 .price_button:hover {

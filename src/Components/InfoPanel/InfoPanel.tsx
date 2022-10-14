@@ -14,7 +14,7 @@ export const InfoPanel: FC<InfoPanelProps> = ({ children, isLoading, minHeight }
             <InfoPanelContainer
                 style={{ display: 'flex', justifyContent: 'center', minHeight: minHeight ? minHeight + 'px' : '' }}
             >
-                <img style={{ width: '50px', height: '50px', margin: 'auto' }} alt="loader" src={pacman} />
+                §
             </InfoPanelContainer>
         );
     }

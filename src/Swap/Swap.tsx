@@ -3,8 +3,8 @@ import { useUnit } from 'effector-react';
 import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import 'react-select-search/style.css';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { ALGONET, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
-import '../css/swap.css';
+import { theme } from '../theme';
+import { alammexClient, ALGONET, FARM_BENEFICIARY_ADDR, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
 import {
     $account,
     $balances,
@@ -25,11 +25,10 @@ import {
     parseTxs,
     SentTxError,
     signAndPostTxnGroups,
-    unsafeFromBigint,
 } from '../common/lib';
 import { TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
-import { ModalContainer, ModalSubtitle, ModalTitle, SwapArrow } from '../common/styled';
+import { DexName, ModalContainer, ModalSubtitle, ModalTitle, SwapArrow } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
 import { BestSwap, Mint, tinymanDex, Zap } from '../dexes';
@@ -140,6 +139,10 @@ export async function getBestSwap(
         const asset1 = await fetchAsset(Number.parseInt(asset1_id));
         const asset2 = await fetchAsset(Number.parseInt(asset2_id));
         const amountIn = getSmallestUnits(asset1, Number.parseFloat(asset1_amount));
+
+        const alammexQuote = await alammexClient.getFixedInputSwapQuote(asset1_id, asset2_id, Number(amountIn));
+        console.log('AAA', alammexQuote);
+
         const bestSwap = (await tinymanDex.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE)) as BestSwapPriced;
         bestSwap.outTokenPrice = await fetchAssetPriceFx(asset2);
         const swapInfo = quoteToBestSwap(bestSwap);
@@ -193,6 +196,8 @@ export async function runTransactions(
         notify('Please, connect the wallet.', 'warning');
         return null;
     }
+
+    // const txnGroup = await alammexClient.getSwapQuoteTransactions(addr, quote, slippage, FARM_BENEFICIARY_ADDR);
 
     let type: QueryType, token1: Asset, token2: Asset, token1AmountBig: Amount;
     if ('best' in operation) {
@@ -387,7 +392,7 @@ function BestTokenPrice({
             <InfoRow
                 title="Minimum received"
                 value={numberRound(bestSwap.best_swap) + ' ' + token2.unitName}
-                valueStyle={{ fontSize: '18px', color: 'white', fontWeight: 'bold' }}
+                valueStyle={{ fontSize: '16px', color: theme.newWhite, fontWeight: 600 }}
             />
             <InfoRow title="Route" value={bestSwap.best_path.map((t: { unit_name: any }) => t.unit_name).join('-')} />
             <InfoRow title="Price" value={`${numberRound(pricePerToken)} ${token2.unitName} per ${token1.unitName}`} />
@@ -479,7 +484,7 @@ export function Swap() {
     };
 
     return (
-        <ModalContainer>
+        <ModalContainer style={{ background: 'transparent' }}>
             <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>OPTIMAL SWAP</ModalTitle>
             <ModalSubtitle>we find the optimal route to swap your token</ModalSubtitle>
             <SelectInputGroup
@@ -510,7 +515,7 @@ export function Swap() {
                 token2={token2}
             />
             <PacmanButton buttonText="SWAP" buttonStyle="swap_button" onClickAction={SwapButtonOnClick} />
-            <h3 className="dex_name">via tinyman</h3>
+            <DexName>via tinyman</DexName>
         </ModalContainer>
     );
 }

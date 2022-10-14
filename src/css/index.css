@@ -42,6 +42,18 @@
     --newDarkGray: #0F0F0F;
     --lightGreen: #A1FF8E;
     --newGray: #181818;
+    --darkGreen: #03a100;
+
+    --backgroundColor: #272727;
+
+    --background: #121212;
+    --backgroundCard: #1E1E1E;
+    --backgroundModal: #2C2C2C;
+    --backgroundHover: #363636;
+    --newWhite: #E2E2E2;
+    --newLightGray: #A2A2A2;
+    --newnewGray: #828282;
+    --borderColor: #484848;
 }
 
 .mobile {

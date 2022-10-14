@@ -208,10 +208,9 @@ export const RewardUSDValue = styled.div`
 export const RewardTokenValue = styled.div`
     white-space: nowrap;
     //font-size: 14px;
-    color: #808080;
+    color: var(--gray);
     @media (max-width: 1120px) {
         font-size: 14px;
-        color: #909090;
         text-align: right;
     }
 `;
@@ -229,5 +228,5 @@ export const ContractLink = styled.div`
     margin-top: 7px;
     font-size: 13px;
     text-decoration: underline;
-    color: #676767;
+    color: var(--gray);
 `;

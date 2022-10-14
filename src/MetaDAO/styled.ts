@@ -26,7 +26,7 @@ export const Wallet = styled.a`
     margin-top: 20px;
     font-weight: 200;
     font-family: 'Montserrat';
-    color: #59f63c;
+    color: var(--green);
     text-overflow: ellipsis;
     width: 400px;
     overflow: hidden;
@@ -123,7 +123,7 @@ export const NFTCardInfo = styled.div`
     padding: 0 26px 30px 26px;
     align-items: flex-start;
     text-decoration: none;
-    color: #59f63c;
+    color: var(--green);
 `;
 
 export const Nft = styled.div<{ url: string }>`

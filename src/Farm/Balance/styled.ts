@@ -43,7 +43,8 @@ export const BalanceList = styled.div`
     width: 100%;
     display: flex;
     justify-content: space-evenly;
-    background-color: var(--newDarkGray);
+    background-color: var(--backgroundCard);
+    opacity: 50%;
     height: 91px;
     align-items: center;
     font-family: 'Montserrat';

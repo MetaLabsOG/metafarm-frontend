@@ -14,8 +14,8 @@ export const DateInput = styled.input`
     height: 50px;
     width: 250px;
     padding: 10px;
-    color: #ffffff;
-    background-color: #272727;
+    color: white;
+    background-color: var(--backgroundColor);
     flex-shrink: 0;
     color-scheme: dark;
 
