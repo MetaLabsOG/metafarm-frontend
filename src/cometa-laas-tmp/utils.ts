@@ -36,13 +36,13 @@ export async function sendAlgobTxs(
 
 export async function getCreatedAppId(txId: string, connector: TealConnector): Promise<AppId> {
     const tx = await connector.getTransaction(txId);
-    return tx['created-application-index'];
+    return Number(tx['created-application-index']);
 }
 
-export async function fundApp(appId: AppId, acc: Account, connector: TealConnector) {
+export async function fundApp(appId: AppId, acc: Account, connector: TealConnector, optin = true) {
     // TODO it shall happen right after creation, we just need to get appId somehow
     const appAddress = getApplicationAddress(appId);
     const fundAppParam = makeFundAppTx({ addr: acc.networkAccount.addr, sk: new Uint8Array(0) }, appAddress);
 
-    await sendAlgobTxs([fundAppParam], [appId], [], connector);
+    await sendAlgobTxs([fundAppParam], optin ? [appId] : [], [], connector);
 }

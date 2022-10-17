@@ -113,6 +113,8 @@ const createVault = async (
             aToken: USDC_ID,
             bToken: ALGF_ID,
             lpToken: PLP_ID,
+            vaultRunBlocks: 200,
+            initialAmountA: 1000,
         });
 
         // await deployFarm()

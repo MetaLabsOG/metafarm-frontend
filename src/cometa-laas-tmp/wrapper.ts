@@ -11,7 +11,7 @@ import {
 } from '@algo-builder/web/build/types';
 
 import { Address, Account } from '../types';
-import { AppId, AssetId, LaasGlobalInfo, LaasInitialInfo, LaasLocalInfo } from '../common/store/types';
+import { Amount, AppId, AssetId, LaasGlobalInfo, LaasInitialInfo, LaasLocalInfo } from '../common/store/types';
 import { TealBackend, TealConnector, TealCtcWrapper } from '../common/store/contracts';
 import {
     makeProvideLiquidityTxs,
@@ -93,6 +93,7 @@ async function deployVault(
     };
 
     const txIds = await sendAlgobTxs([execParam], [], [], connector);
+    console.log('VAULT DEPLOYED', txIds);
     return getCreatedAppId(txIds[0], connector);
 }
 
@@ -102,32 +103,32 @@ async function setupVault(
     aToken: AssetId,
     bToken: AssetId,
     lpToken: AssetId,
+    vaultRunBlocks: number,
+    initialAmountA: Amount,
     acc: Account,
     connector: TealConnector
 ) {
     console.log('Setting up vault app and funding with A...');
     const vaultAddress = getApplicationAddress(vaultAppId);
     const setupParams: SetupParams = {
-        vaultRunBlocks: 1_000_000,
+        vaultRunBlocks,
         liquidityPoolApp: ammAppId,
     };
 
     const typedAcc = { addr: acc.networkAccount.addr, sk: new Uint8Array(0) };
-
-    const initialAmountA = 1000;
 
     const setupTxs = makeSetupTxs(
         typedAcc,
         vaultAppId,
         vaultAddress,
         setupParams,
-        initialAmountA,
+        Number(initialAmountA), // TODO: unsafe, can we do better?
         aToken,
         bToken,
         lpToken
     );
 
-    await sendAlgobTxs(setupTxs, [vaultAppId], [aToken, bToken, lpToken], connector);
+    await sendAlgobTxs(setupTxs, [], [aToken, bToken, lpToken], connector);
 }
 
 export async function deployVaultFull(
@@ -135,12 +136,15 @@ export async function deployVaultFull(
     aToken: AssetId,
     bToken: AssetId,
     lpToken: AssetId,
+    vaultRunBlocks: number,
+    initialAmountA: Amount,
     acc: Account,
     connector: TealConnector
 ): Promise<AppId> {
     const vaultId = await deployVault(ammAppId, aToken, bToken, lpToken, acc, connector);
-    await fundApp(vaultId, acc, connector);
-    await setupVault(vaultId, ammAppId, aToken, bToken, lpToken, acc, connector);
+    console.log('VAULT ID', vaultId);
+    await fundApp(vaultId, acc, connector, false);
+    await setupVault(vaultId, ammAppId, aToken, bToken, lpToken, vaultRunBlocks, initialAmountA, acc, connector);
     return vaultId;
 }
 
@@ -149,6 +153,8 @@ type LaasInitParams = {
     aToken: AssetId;
     bToken: AssetId;
     lpToken: AssetId;
+    vaultRunBlocks: number;
+    initialAmountA: Amount;
 };
 
 type LaasCreatorInteract = {
@@ -198,10 +204,19 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
 
     // Contract creation
     async function laasCreator(interact: LaasCreatorInteract): Promise<void> {
-        const { ammAppId, aToken, bToken, lpToken } = interact.getParams();
+        const { ammAppId, aToken, bToken, lpToken, vaultRunBlocks, initialAmountA } = interact.getParams();
         // console.log('LaaS creator params: ', params);
 
-        appId = await deployVaultFull(ammAppId, aToken, bToken, lpToken, account, connector);
+        appId = await deployVaultFull(
+            ammAppId,
+            aToken,
+            bToken,
+            lpToken,
+            vaultRunBlocks,
+            initialAmountA,
+            account,
+            connector
+        );
 
         interact.deployed();
 
@@ -276,7 +291,6 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
 
     const laasApis = {
         async provide_b(amount: number) {
-            console.log('PROVIDE_B');
             const initialState = await laasViews.initial().then((m) => m[1]);
             const vaultAddress = getApplicationAddress(appId!);
 
