@@ -2,7 +2,7 @@ import { FC } from 'react';
 import ReactTooltip from 'react-tooltip';
 import { Asset, AssetId, ContractState, FarmType, Priced } from '../../../common/store';
 import { Arrow } from '../../../imgs/arrow';
-import { LPTokenInfo } from '../../../dexes';
+import { DexProvider, LPTokenInfo } from '../../../dexes';
 import pacman from '../../../imgs/pacman.gif';
 import { Account } from '../../../types';
 import { fromSmallestUnits } from '../../../common/lib';
@@ -33,7 +33,7 @@ export interface PoolInfoDesktopProps {
     timing: string;
     contractLockSuffix: string;
     isOpen: boolean;
-    dexIcon: Image | null;
+    dex: DexProvider | null;
     isVerified: boolean;
     isGame: boolean;
 }
@@ -97,7 +97,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     timing,
     isOpen,
     contractLockSuffix,
-    dexIcon,
+    dex,
     isVerified,
     isGame,
 }) => {
@@ -109,7 +109,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     asset2_id={asset2_id}
                     pool_name={pool_name}
                     rewardTokenName={rewardTokenInfo.unitName}
-                    dexIcon={dexIcon}
+                    dex={dex}
                     lock={contractLockSuffix}
                     isVerified={isVerified}
                     algoRewards={contractState.initial.totalAlgoRewardAmount > 0}

@@ -170,6 +170,14 @@ export const toReachTxn = (txn: Transaction): WalletTransaction => {
     return { txn: Buffer.from(txn.toByte()).toString('base64') };
 };
 
+export const toReachTxnGroup = (txs: Transaction[]): WalletTransactionGroup => {
+    const firstTxID = txs[0].txID();
+    return {
+        firstTxID,
+        txns: txs.map(toReachTxn),
+    };
+};
+
 export const parseTxs = (txs: WalletTransactionGroup[]): Transaction[][] => {
     return txs.map(({ txns }) => txns.map(({ txn }) => decodeUnsignedTransaction(Buffer.from(txn, 'base64'))));
 };
@@ -291,6 +299,19 @@ export const manualBatchOptIn = async (
     const txGroups = prepareOptinTxs(account.networkAccount.addr, ps, toOptin);
     return signAndPostTxnGroups(txGroups);
 };
+
+/**
+ * Sends TEAL to algo node for compilation
+ * @param client Algodv2 client
+ * @param tealSource TEAL program source
+ * @returns Uint8Array of compiled TEAL
+ */
+export async function compileTeal(client: Algodv2, tealSource: string): Promise<Uint8Array> {
+    const encoder = new TextEncoder();
+    const programBytes = encoder.encode(tealSource);
+    const compileResponse = await client.compile(programBytes).do();
+    return new Uint8Array(Buffer.from(compileResponse.result, 'base64'));
+}
 
 export const fromSmallestUnits = (token: { decimals: number }, amount: Amount | null): number => {
     if (amount === null || amount === undefined) {
