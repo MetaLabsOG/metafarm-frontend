@@ -123,13 +123,13 @@ export const fetchAlgoPriceFx = createEffect(
 export const $algoUsdPrice = restore(fetchAlgoPriceFx.doneData, null);
 
 export const fetchAllPricesFx = createEffect(async () => {
-    console.log('fetching prices...');
+    //console.log('fetching prices...');
     return fetchAlgoPriceFx()
         .then(() => {
-            console.log('prices fetched');
+            // console.log('prices fetched');
         })
         .catch(() => {
-            console.log('failed to fetch');
+            console.log('failed to fetch prices :(');
         });
 });
 
