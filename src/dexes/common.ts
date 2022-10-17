@@ -7,6 +7,7 @@ import { WalletTransactionGroup } from '../types';
 export type DexProvider =
     | 'T2' // Tinyman v1.1
     | 'PT' // Pact
+    | 'H2' // Humble
     | 'MOCK'; // Mock dex (random tokens are staked)
 
 export interface PoolInfo {

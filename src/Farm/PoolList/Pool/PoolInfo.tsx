@@ -73,7 +73,7 @@ export function PoolInfo({
 
     const asset1_id = isFarm ? stakeTokenInfo.asset1 : stakeTokenInfo.id;
     const asset2_id = isFarm ? stakeTokenInfo.asset2 : rewardTokenInfo.id;
-    const pool_name = isFarm ? formatLPTokenName(stakeTokenInfo.name) + ' LP' : 'STAKE ' + stakeTokenInfo.unitName;
+    const pool_name = isFarm ? formatLPTokenName(stakeTokenInfo) + ' LP' : 'STAKE ' + stakeTokenInfo.unitName;
     // TODO: separate 0 from undefined in lpTokenInfo.asset
     const contractLockSuffix = contractState.initial.lockLengthBlocks
         ? 'with ' + blocksToText(Number(contractState.initial.lockLengthBlocks), meanRoundDuration) + ' lock'

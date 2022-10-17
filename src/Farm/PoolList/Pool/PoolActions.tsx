@@ -3,7 +3,16 @@ import { useStore, useStoreMap, useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { AllDefined } from '../../../types';
-import { $balances, ContractState, Priced, Asset, FarmType, Amount, AppId } from '../../../common/store';
+import {
+    $balances,
+    ContractState,
+    Priced,
+    Asset,
+    FarmType,
+    Amount,
+    AppId,
+    $meanRoundDuration,
+} from '../../../common/store';
 import { LPTokenInfo } from '../../../dexes';
 import { notify, ToastTypes, useToasts } from '../../../Components/Notification';
 import { useTimer } from '../../../common/reachHooks';
@@ -74,13 +83,15 @@ export function PoolActions({
     const isFarm = isLPTokenInfo(stakeTokenInfo);
 
     const pendingClaim = useStore(ctc.apis.claim.pending);
+    const meanRoundDuration = useUnit($meanRoundDuration);
 
     const unlockTime =
         poolState !== PoolState.Finished
             ? calculateUnlockTimeinSecs(
                   currentBlock,
                   contractState.local.lockTimestamp,
-                  Number(contractState.initial.lockLengthBlocks)
+                  Number(contractState.initial.lockLengthBlocks),
+                  meanRoundDuration
               )
             : 0;
 

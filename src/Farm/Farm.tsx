@@ -32,7 +32,7 @@ export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
 export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
         <Balance kind={'farm' as FarmType} />
-        <PoolList pools={state} />
+        <PoolList pools={state} poolType="farm" />
         <InfoCards addFarmType="farm" />
     </FarmContainer>
 ));
