@@ -114,8 +114,7 @@ export const ModalSubtitle = styled.h3`
 `;
 
 export const ModalCloseButton = styled.img`
-    width: 15px;
-    height: 15px;
+    width: 28px;
     position: absolute;
     left: 330px;
     top: 15px;
@@ -134,12 +133,16 @@ export const Plus = styled.img`
     z-index: 1;
 `;
 
+export const SwapContainer = styled.div`
+    display: flex;
+    width: 100%;
+    justify-content: right;
+    margin-top: 2px;
+    margin-bottom: 10px;
+`;
+
 export const SwapArrow = styled.img`
-    width: 17px;
-    position: absolute;
-    left: 48px;
-    top: 172px;
-    z-index: 1;
+    width: 32px;
     transition: transform 0.2s ease;
 
     :hover {

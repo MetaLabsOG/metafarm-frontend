@@ -5,7 +5,6 @@ import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
 import { getDexName } from '../../Farm/utils';
 import tokenPlaceholder from '../../imgs/tokenPlaceholder.svg';
 import select from '../../imgs/select.svg';
-
 import {
     LpIcon,
     LpIcons,
@@ -18,12 +17,14 @@ import {
     SelectOptionContainer,
     SelectSearch,
     TokenIcon,
+    SelectInputGroupContainer,
 } from './styled';
 import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
 
 export enum SelectType {
     tokenSelect,
     poolSelect,
+    selectInputGroup,
 }
 
 export const TOKEN_OPTION: TokenOptionType = {
@@ -111,27 +112,56 @@ function PoolOption({ option }: { option: PoolOptionType }) {
     );
 }
 
+function SelectInputGroupOption({ option }: { option: TokenOptionType }) {
+    return (
+        <SelectInputGroupContainer>
+            <img
+                alt=""
+                className="tokenIcon"
+                width="32"
+                height="32"
+                src={getAssetLogoUrl(option.id)}
+                onError={({ currentTarget }) => {
+                    currentTarget.onerror = null; // prevents looping
+                    currentTarget.src = tokenPlaceholder;
+                }}
+            />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.unitName}</div>
+                {option.balance > 0 && <OptionAdditionalInfo>{formatNumber(option.balance)}</OptionAdditionalInfo>}
+            </div>
+        </SelectInputGroupContainer>
+    );
+}
+
 function SelectOption({
     selectType,
     option,
-    showAdditionalInfo,
+    searchModal,
 }: {
     selectType: SelectType;
     option: SelectOptionType;
-    showAdditionalInfo: boolean;
+    searchModal?: boolean;
 }) {
     if (selectType === SelectType.tokenSelect) {
-        return <TokenOption option={option as TokenOptionType} showAdditionalInfo={showAdditionalInfo} />;
+        return <TokenOption option={option as TokenOptionType} showAdditionalInfo={true} />;
     }
 
     if (selectType === SelectType.poolSelect) {
         return <PoolOption option={option as PoolOptionType} />;
     }
 
+    if (selectType === SelectType.selectInputGroup) {
+        if (searchModal) {
+            return <TokenOption option={option as TokenOptionType} showAdditionalInfo={true} />;
+        }
+        return <SelectInputGroupOption option={option as TokenOptionType} />;
+    }
+
     return <></>;
 }
 
-export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange, getOptions }) => {
+export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange, getOptions, style }) => {
     const [SelectModal, openSelectModal, closeSelectModal] = useModal('root');
     const [tokenSearchInput, setTokenSearchInput] = useState<string>('');
     const [currentOptions, setCurrentOptions] = useState<SelectOptionType[]>(options);
@@ -154,8 +184,8 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
 
     return (
         <>
-            <SelectContainer onClick={openSelectModal}>
-                <SelectOption showAdditionalInfo selectType={selectType} option={selectedOption} />
+            <SelectContainer style={style} onClick={openSelectModal}>
+                <SelectOption selectType={selectType} option={selectedOption} />
                 <img style={{ width: '15px', marginRight: '16px' }} alt="select" src={select} />
             </SelectContainer>
             <SelectModal>
@@ -175,7 +205,7 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
                                 closeSelectModal();
                             }}
                         >
-                            <SelectOption showAdditionalInfo selectType={selectType} option={option} />
+                            <SelectOption searchModal selectType={selectType} option={option} />
                         </SelectOptionContainer>
                     ))}
                 </SelectModalContainer>

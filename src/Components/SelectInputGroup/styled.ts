@@ -1,19 +1,26 @@
-.SelectInputGroupContainer {
+import styled from 'styled-components';
+
+export const SelectInputGroupContainer = styled.div`
     display: flex;
     white-space: nowrap;
     width: 350px;
     margin-bottom: 10px;
     position: relative;
-}
+`;
 
-.select-search-input-group {
-    font-family: Montserrat;
+export const SelectContainer = styled.div`
+    display: flex;
+    padding: 10px;
     position: absolute;
+    height: 56px;
+    width: 164px;
+    background: var(--backgroundCard);
+    border-radius: 8px;
     left: 8px;
     top: 8px;
-}
+`;
 
-.tokenInput {
+export const TokenInput = styled.input`
     height: 72px;
     width: 100%;
     padding: 8px 16px 8px 8px;
@@ -31,26 +38,13 @@
     border: 1px solid var(--borderColor);
     border-radius: 12px;
     flex-grow: 1;
-}
+`;
 
-.tokenBalance {
+export const TokenBalance = styled.div`
     color: #8b8b8b;
     margin-top: 5px;
     font-family: 'Montserrat';
     font-size: 12px;
     margin-left: 10px;
     text-align: left;
-}
-
-.TokenOptionContainer {
-    pointer-events: none;
-    /*position: absolute;*/
-    /*left: 0;*/
-    /*top: 0;*/
-    /*right: 0;*/
-    /*bottom: 0;*/
-    display: flex;
-    font-family: 'Montserrat';
-    color: white;
-    align-items: center;
-}
+`;

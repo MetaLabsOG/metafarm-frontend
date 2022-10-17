@@ -49,6 +49,15 @@ export const SelectOptionContainer = styled.div`
     }
 `;
 
+export const SelectInputGroupContainer = styled.div`
+    pointer-events: none;
+    display: flex;
+    gap: 10px;
+    font-family: 'Montserrat';
+    color: white;
+    align-items: center;
+`;
+
 export const OptionTitle = styled.div`
     font-family: 'Montserrat';
     color: var(--newWhite);
@@ -94,6 +103,6 @@ export const OptionAdditionalInfo = styled.div`
     margin-right: 20px;
     text-align: right;
     font-family: 'Montserrat';
-    font-size: 12px;
-    color: #8b8b8b;
+    font-size: 14px;
+    color: var(--newLightGray);
 `;

@@ -189,3 +189,23 @@ export const getPactPools = nonConcurrent(async (): Promise<pactsdk.ApiPool[]> =
 export const getHumblePools = nonConcurrent(async (): Promise<MiniHumble.PoolDetails[]> => {
     return instance.get('/humble/pools/all').then(({ data }) => data);
 });
+
+export async function checkNftLottery(
+    txid: string,
+    wallet: string,
+    asset1_id: number,
+    asset2_id: number,
+    asset1_amount: number,
+    asset2_amount: number
+): Promise<PoolInfo> {
+    const request = {
+        txid,
+        wallet,
+        asset1_id,
+        asset2_id,
+        asset1_amount,
+        asset2_amount,
+    };
+
+    return instance.post('/swap/lottery', request);
+}

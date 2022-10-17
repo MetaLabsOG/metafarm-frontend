@@ -26,14 +26,15 @@ import {
 } from '../common/lib';
 import { TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
-import { DexName, ModalContainer, ModalSubtitle, ModalTitle, SwapArrow } from '../common/styled';
+import { DexName, ModalContainer, ModalSubtitle, ModalTitle, SwapArrow, SwapContainer } from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
 import { BestSwap, Mint, tinymanDex, Zap } from '../dexes';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
-import swapArrow from '../imgs/swapArrow.svg';
+import swap from '../imgs/swap.svg';
+import { checkNftLottery } from '../providers/apiProvider';
 import { BestSwapInfo, Token } from './types';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
@@ -473,6 +474,17 @@ export function Swap() {
             const res = await runTransactions(account, bestSwap, token1.balance);
             if (res !== null) {
                 notify('Done!', 'success', algoexplorerTxLink(res[0]));
+
+                // Check NFT winning
+                const nftRes = await checkNftLottery(
+                    res[0],
+                    account?.networkAccount.addr ?? '',
+                    token1.id,
+                    token2.id,
+                    Number(token1Amount),
+                    Number(token2Amount)
+                );
+                console.log('NFFFTTT', nftRes);
             }
         }
     };
@@ -489,9 +501,9 @@ export function Swap() {
                 selectOnChange={select1OnChange}
                 inputOnChange={input1OnChange}
             />
-            <div style={{ marginBottom: '15px' }}>
-                <SwapArrow alt="arrow" src={swapArrow} onClick={swapTokens} />
-            </div>
+            <SwapContainer>
+                <SwapArrow alt="arrow" src={swap} onClick={swapTokens} />
+            </SwapContainer>
             <SelectInputGroup
                 options={options}
                 selectedOption={token2}

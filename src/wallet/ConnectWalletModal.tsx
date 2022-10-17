@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import pera from '../imgs/pera.svg';
 import myalgo from '../imgs/myalgo.svg';
+import closeButton from '../imgs/close.svg';
+import { ModalCloseButton } from '../common/styled';
 import { WalletType } from './customWalletFallback';
 import { connectWallet } from './ConnectWallet';
 import { WalletButton, WalletHeader, WalletModalContainer, WalletText } from './styled';
@@ -19,6 +21,7 @@ export function ConnectWalletModal({ closeModal, isModalOpen }: { closeModal: ()
 
     return (
         <WalletModalContainer finishedOpening={finishedOpening}>
+            <ModalCloseButton style={{ left: 410 }} src={closeButton} alt="close" onClick={closeModal} />
             <WalletHeader>CHOOSE WALLET</WalletHeader>
             <WalletButton onClick={() => walletClick('MyAlgo')}>
                 <WalletText>Connect to MyAlgo</WalletText>

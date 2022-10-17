@@ -1,30 +1,10 @@
-import { FC, useState } from 'react';
+import React, { FC, useState } from 'react';
 import { formatNumber } from '../../common/lib';
-import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
 import { theme } from '../../theme';
 import { MaxButton } from '../TokenInputWithButton/styled';
-import tokenPlaceholder from '../../imgs/tokenPlaceholder.svg';
+import { Select, SelectType } from '../Select/Select';
+import { SelectContainer, SelectInputGroupContainer, TokenInput } from './styled';
 import { SelectInputGroupProps } from './types';
-import './styled.css';
-
-function TokenOption({ option }: { option: any }) {
-    return (
-        <div className="TokenOptionContainer">
-            <img
-                alt=""
-                className="tokenIcon"
-                width="32"
-                height="32"
-                src={getAssetLogoUrl(option.id)}
-                onError={({ currentTarget }) => {
-                    currentTarget.onerror = null; // prevents looping
-                    currentTarget.src = tokenPlaceholder;
-                }}
-            />
-            <div style={{ fontSize: '16px', textAlign: 'left' }}>{option.unitName}</div>
-        </div>
-    );
-}
 
 export const SelectInputGroup: FC<SelectInputGroupProps> = ({
     options,
@@ -49,23 +29,19 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
     };
 
     return (
-        <div className="SelectInputGroupContainer">
-            {/*<SelectSearch*/}
-            {/*    search*/}
-            {/*    className="select-search-input-group"*/}
-            {/*    options={options}*/}
-            {/*    filterOptions={fuzzySearch}*/}
-            {/*    renderOption={(props, option) => renderOption(props, option, SelectType.tokenSelect)}*/}
-            {/*    renderValue={(props, snapshot) => renderSelectedOption(props, snapshot)}*/}
-            {/*    value={selectedOption.value}*/}
-            {/*    placeholder=""*/}
-            {/*    onChange={selectOnChange}*/}
-            {/*    disabled={selectDisabled}*/}
-            {/*/>*/}
-            <input
+        <SelectInputGroupContainer>
+            <SelectContainer>
+                <Select
+                    selectType={SelectType.selectInputGroup}
+                    options={options}
+                    selectedOption={selectedOption}
+                    selectOnChange={selectOnChange}
+                    style={{ border: 0 }}
+                />
+            </SelectContainer>
+            <TokenInput
                 disabled={inputDisabled}
-                className="tokenInput"
-                placeholder={!inputDisabled ? 'Enter amount' : '0'}
+                placeholder="0"
                 value={inputData}
                 onChange={(e) => {
                     if (Number.isNaN(Number(e.target.value))) {
@@ -81,10 +57,10 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                 }}
             />
 
-            {/*<div className="tokenBalance" style={isValidInput ? {} : { color: theme.red }}>*/}
+            {/*<TokenBalance style={isValidInput ? {} : { color: theme.red }}>*/}
             {/*    Balance: {formatNumber(!Number.isNaN(selectedOption.balance) ? selectedOption.balance : 0)}*/}
             {/*    {isValidInput ? '' : ' (Not enough)'}*/}
-            {/*</div>*/}
+            {/*</TokenBalance>*/}
             {selectedOption.balance > 0 && !inputDisabled && (
                 <MaxButton
                     isActive
@@ -101,6 +77,6 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                     max
                 </MaxButton>
             )}
-        </div>
+        </SelectInputGroupContainer>
     );
 };
