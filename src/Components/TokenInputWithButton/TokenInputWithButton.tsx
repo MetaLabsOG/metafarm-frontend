@@ -30,7 +30,7 @@ export interface InputWithButtonProps {
     hasLock?: boolean;
 }
 
-const checkValidInput = (input: string, token: LPTokenInfo | Priced<Asset>, tokenMicroBalance: bigint) => {
+export const checkValidInput = (input: string, token: LPTokenInfo | Priced<Asset>, tokenMicroBalance: bigint) => {
     if (!input) {
         return true;
     }

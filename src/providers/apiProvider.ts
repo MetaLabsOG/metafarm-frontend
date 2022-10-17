@@ -10,6 +10,7 @@ import { DexProvider } from '../dexes/common';
 import { logEvent, LogName } from '../logEvent';
 import { pactDex } from '../dexes';
 import { StakingAsset } from '../Farm/AddFarm';
+import { LaaSBackendContractsMock } from '../common/mocks';
 import * as MiniHumble from '../dexes/humbleReexports';
 
 export const instance = axios.create({

@@ -2,7 +2,6 @@ import { useUnit } from 'effector-react';
 import { $account, $meanRoundDuration, Asset, ContractState, FarmType, Priced, Time } from '../../../common/store';
 import { LPTokenInfo } from '../../../dexes';
 import { DAY, HOUR, MINUTE } from '../../../common/lib';
-import { getDexIcon } from '../../utils';
 import { $farmAprs, AprType } from '../../store';
 import { $stakeAprs } from '../../../Stake/store';
 import { formatLPTokenName, isLPTokenInfo } from './utils';
@@ -10,7 +9,7 @@ import { PoolState } from './types';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
 import { PoolInfoMobile } from './PoolInfoMobile';
 
-const blocksToText = (blocks: number, meanRoundDuration: number) => {
+export const blocksToText = (blocks: number, meanRoundDuration: number) => {
     const diffSecs = Math.abs(blocks) * meanRoundDuration;
     let resTimeUnit = MINUTE;
     if (diffSecs > DAY) {
@@ -80,7 +79,7 @@ export function PoolInfo({
         ? 'with ' + blocksToText(Number(contractState.initial.lockLengthBlocks), meanRoundDuration) + ' lock'
         : '';
 
-    const dexIcon = isFarm ? getDexIcon(stakeTokenInfo.poolDex) : null;
+    const dex = isFarm ? stakeTokenInfo.poolDex : null;
 
     return window.innerWidth <= 1120 ? (
         <PoolInfoMobile
@@ -96,7 +95,7 @@ export function PoolInfo({
             timing={timing}
             contractLockSuffix={contractLockSuffix}
             isOpen={isOpen}
-            dexIcon={dexIcon}
+            dex={dex}
             isVerified={poolMetadata.verified ?? false}
             isGame={poolMetadata.game ?? false}
         />
@@ -114,7 +113,7 @@ export function PoolInfo({
             timing={timing}
             contractLockSuffix={contractLockSuffix}
             isOpen={isOpen}
-            dexIcon={dexIcon}
+            dex={dex}
             isVerified={poolMetadata.verified ?? false}
             isGame={poolMetadata.game ?? false}
         />

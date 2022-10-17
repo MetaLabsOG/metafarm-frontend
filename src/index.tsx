@@ -35,6 +35,9 @@ import { Footer } from './Menu/Footer';
 import { ALGONET, TESTNET } from './AppContext';
 import { notify } from './Components/Notification';
 import { AddFarm } from './Farm/AddFarm';
+import { LaaS } from './LaaS/LaaS';
+import { setLaasPoolInfos } from './LaaS/store';
+import { AddLaaS } from './LaaS/AddLaaS';
 
 Sentry.init({
     dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',
@@ -69,8 +72,10 @@ function App() {
     const algoBalance = useStoreMap($balances, (bs) => Number(bs[0]));
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
+    const setLaasPoolInfosEvent = useUnit(setLaasPoolInfos);
     const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm'));
     const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution'));
+    const laasFetch = useQuery(['contracts', 'laas'], async () => getContracts('laas'));
 
     const [hasTestnetModalOpened, setHasTestnetModalOpened] = useState(false);
     const [Modal, openTestnetModal] = useModal('root', { preventScroll: true });
@@ -102,6 +107,13 @@ function App() {
         }
     }, [distrFetch, setDistributionPoolInfosEvent]);
 
+    useEffect(() => {
+        if (laasFetch.isSuccess) {
+            const data = laasFetch.data! as Array<ContractInfo<'laas'>>;
+            setLaasPoolInfosEvent(data);
+        }
+    }, [laasFetch, setLaasPoolInfosEvent]);
+
     return (
         <>
             <GlobalStyle />
@@ -113,6 +125,7 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Farm />} />
                             {/*<Route path="/fomo" element={<Fomo />} />*/}
+                            <Route path="/laas" element={<LaaS />} />
                             <Route path="/farm" element={<Farm />} />
                             <Route path="/stake" element={<Stake />} />
                             <Route path="/swap" element={<Swap />} />
@@ -121,6 +134,7 @@ function App() {
                             {/*<Route path="/tokensale" element={<Crowdsale />} />*/}
                             <Route path="/addfarm" element={<AddFarm type="farm" />} />
                             <Route path="/addstake" element={<AddFarm type="stake" />} />
+                            <Route path="/addlaas" element={<AddLaaS />} />
                         </Routes>
                     </ContentContainer>
                     <Modal>
