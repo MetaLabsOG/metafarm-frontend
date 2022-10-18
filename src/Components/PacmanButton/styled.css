@@ -1,6 +1,6 @@
 .swap_button {
     height: 50px;
-    width: 350px;
+    width: 100%;
     border: 1px solid #009427;
     color: var(--newWhite);
     background: rgba(66, 201, 63, 0.7);

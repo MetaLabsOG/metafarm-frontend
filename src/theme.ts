@@ -20,7 +20,7 @@ export const theme: ColorTheme = {
     lightGray: '#B6B9BD',
     gray: '#676767',
     darkGray: '#1F1F1F',
-    red: '#d0373a',
+    red: '#E1636B',
     lightGreen: '#A1FF8E',
 
     backgroundColor: '#272727',

@@ -53,10 +53,8 @@ export const FARM_BENEFICIARY_ADDR = process.env.REACT_APP_BENEFICIARY_ADDR;
 export const FARM_CREATION_FEE = process.env.REACT_APP_FARM_CREATION_FEE;
 export const FARM_FLAT_ALGO_CREATION_FEE = process.env.REACT_APP_FARM_FLAT_ALGO_CREATION_FEE;
 
-const alammexApiKey = ''; // reach out to phil@alammex.com to get custom API key with higher rate limit
+const ALAMMEX_API_KEY = '9a1c1fe8-b49a-4d18-b393-4777e557ff74';
 export const alammexClient =
     ALGONET === TESTNET
-        ? AlammexClient.fetchTestnetClient(process.env.ALGO_SERVER, process.env.ALGO_TOKEN, '', alammexApiKey)
-        : AlammexClient.fetchMainnetClient(process.env.ALGO_SERVER, process.env.ALGO_TOKEN, '', alammexApiKey);
-
-console.log(alammexClient);
+        ? AlammexClient.fetchTestnetClient(process.env.ALGO_SERVER, process.env.ALGO_TOKEN, '', ALAMMEX_API_KEY)
+        : AlammexClient.fetchMainnetClient(process.env.ALGO_SERVER, process.env.ALGO_TOKEN, '', ALAMMEX_API_KEY);

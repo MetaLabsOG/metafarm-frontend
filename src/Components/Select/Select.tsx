@@ -162,7 +162,7 @@ function SelectOption({
 }
 
 export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange, getOptions, style }) => {
-    const [SelectModal, openSelectModal, closeSelectModal] = useModal('root');
+    const [SelectModal, openSelectModal, closeSelectModal] = useModal('root', { preventScroll: true });
     const [tokenSearchInput, setTokenSearchInput] = useState<string>('');
     const [currentOptions, setCurrentOptions] = useState<SelectOptionType[]>(options);
 

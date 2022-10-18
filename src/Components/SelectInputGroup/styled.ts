@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 export const SelectInputGroupContainer = styled.div`
     display: flex;
+    flex-direction: column;
     white-space: nowrap;
     width: 350px;
     margin-bottom: 10px;
@@ -23,8 +24,8 @@ export const SelectContainer = styled.div`
 export const TokenInput = styled.input`
     height: 72px;
     width: 100%;
-    padding: 8px 16px 8px 8px;
-    background-color: transparent;
+    padding: 8px 16px 8px 230px;
+    background-color: var(--background);
 
     font-family: 'Krona One';
     font-style: normal;
@@ -38,13 +39,23 @@ export const TokenInput = styled.input`
     border: 1px solid var(--borderColor);
     border-radius: 12px;
     flex-grow: 1;
+
+    :focus {
+        border: 1px solid var(--newLightGray);
+    }
 `;
 
 export const TokenBalance = styled.div`
-    color: #8b8b8b;
-    margin-top: 5px;
-    font-family: 'Montserrat';
-    font-size: 12px;
-    margin-left: 10px;
+    color: var(--red);
     text-align: left;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 18px;
+    letter-spacing: 0.06em;
+
+    position: absolute;
+    top: 105%;
+    left: 10px;
 `;

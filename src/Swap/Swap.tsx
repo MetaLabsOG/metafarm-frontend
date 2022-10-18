@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useUnit } from 'effector-react';
 import { Account } from '@reach-sh/stdlib/ALGO';
+import { useModal } from 'react-hooks-use-modal';
+import { func } from 'prop-types';
+import AlammexQuote from 'alammex-sdk-js/dist/v0/AlammexQuote';
 import { theme } from '../theme';
-import { alammexClient, ALGONET, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
+import { alammexClient, ALGONET, FARM_BENEFICIARY_ADDR, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
 import {
     $account,
     $balances,
@@ -35,7 +38,9 @@ import { notify } from '../Components/Notification';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
 import swap from '../imgs/swap.svg';
 import { checkNftLottery } from '../providers/apiProvider';
-import { BestSwapInfo, Token } from './types';
+import { Token } from './types';
+import { NftLottery, NftWinModal } from './NftWinModal';
+import { AlammexSwap } from './AlammexSwap';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 
@@ -55,6 +60,7 @@ export enum QueryType {
     swap,
     zap,
     mint,
+    alammexSwap,
 }
 
 export const getNetworkAssetId = (asset_id: number) => {
@@ -64,37 +70,6 @@ export const getNetworkAssetId = (asset_id: number) => {
 
     return MAINNET_TO_TESTNET_ASA_ID[asset_id] ?? -1;
 };
-
-type BestSwapPriced = BestSwap & { outTokenPrice: number };
-
-function quoteToBestSwap(q: BestSwapPriced | null): BestSwapInfo {
-    if (q === null) {
-        return {
-            best_swap: 0,
-            direct_swap: 0,
-            best_path: [],
-            usdc_diff: 0,
-            priceImpact: 0,
-        };
-    }
-
-    const best_swap = fromSmallestUnits(q.best.assetOut, q.best.minimalAmountOut);
-    const direct_swap = q.direct ? fromSmallestUnits(q.direct.assetOut, q.direct.minimalAmountOut) : best_swap;
-    const usdc_diff = q.outTokenPrice * (best_swap - direct_swap);
-
-    const best_path = q.path.map((q) => ({ unit_name: q.assetIn.unitName }));
-    best_path.push({ unit_name: q.path[q.path.length - 1].assetOut.unitName });
-
-    const priceImpact = q.best.priceImpact;
-
-    return {
-        best_swap,
-        direct_swap,
-        best_path,
-        usdc_diff,
-        priceImpact,
-    };
-}
 
 export function isSwapZapDataValid(
     asset1_id: string | undefined,
@@ -123,7 +98,7 @@ export async function getBestSwap(
     asset1_id: string | undefined,
     asset2_id: string | undefined,
     asset1_amount: string
-): Promise<BestSwapPriced | null> {
+): Promise<BestSwap | AlammexSwap | null> {
     if (!isSwapZapDataValid(asset1_id, asset2_id, asset1_amount)) {
         return null;
     }
@@ -139,15 +114,13 @@ export async function getBestSwap(
         const asset2 = await fetchAsset(Number.parseInt(asset2_id));
         const amountIn = getSmallestUnits(asset1, Number.parseFloat(asset1_amount));
 
-        const alammexQuote = await alammexClient.getFixedInputSwapQuote(asset1_id, asset2_id, Number(amountIn));
-        console.log('AAA', alammexQuote);
-
-        const bestSwap = (await tinymanDex.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE)) as BestSwapPriced;
-        bestSwap.outTokenPrice = await fetchAssetPriceFx(asset2);
-        const swapInfo = quoteToBestSwap(bestSwap);
-
-        console.log(bestSwap);
-        console.log(swapInfo);
+        const alammexQuote: AlammexQuote = await alammexClient.getFixedInputSwapQuote(
+            asset1_id,
+            asset2_id,
+            Number(amountIn)
+        );
+        // const bestSwap = await tinymanDex.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
+        const bestSwap = new AlammexSwap(alammexQuote, asset1, asset2, amountIn);
 
         logEvent(
             account?.networkAccount.addr,
@@ -158,10 +131,8 @@ export async function getBestSwap(
                 asset1: asset1.unitName,
                 asset2: asset2.unitName,
                 amount: asset1_amount,
-                best_swap: swapInfo.best_swap,
-                direct_swap: swapInfo.direct_swap,
-                best_path: swapInfo.best_path.map((t: { unit_name: any }) => t.unit_name).join('-'),
-                usdc_diff: swapInfo.usdc_diff,
+                best_swap: bestSwap.amountOut,
+                best_path: bestSwap.pathString,
             },
             LogName.SWAP
         );
@@ -188,15 +159,13 @@ export async function getBestSwap(
 
 export async function runTransactions(
     account: Account | null,
-    operation: BestSwap | Zap | Mint,
+    operation: BestSwap | Zap | Mint | AlammexSwap,
     token1Balance?: number
 ): Promise<string[] | null> {
     if (!account) {
         notify('Please, connect the wallet.', 'warning');
         return null;
     }
-
-    // const txnGroup = await alammexClient.getSwapQuoteTransactions(addr, quote, slippage, FARM_BENEFICIARY_ADDR);
 
     let type: QueryType, token1: Asset, token2: Asset, token1AmountBig: Amount;
     if ('best' in operation) {
@@ -216,12 +185,19 @@ export async function runTransactions(
             operation.swap.assetOut,
             curToken1AmountBig,
         ];
-    } else {
+    } else if ('lpToken' in operation) {
         [type, token1, token2, token1AmountBig] = [
             QueryType.mint,
             operation.assetA,
             operation.assetB,
             operation.amountA,
+        ];
+    } else {
+        [type, token1, token2, token1AmountBig] = [
+            QueryType.alammexSwap,
+            operation.assetA,
+            operation.assetB,
+            operation.microAmountIn,
         ];
     }
 
@@ -311,7 +287,7 @@ export async function runTransactions(
                 amount: token1Amount.toString(),
                 error: error_message,
             },
-            type === QueryType.swap ? LogName.SWAP : LogName.ZAP
+            type === QueryType.swap || type === QueryType.alammexSwap ? LogName.SWAP : LogName.ZAP
         );
         return null;
     }
@@ -373,30 +349,32 @@ export function formatNumber(x: number) {
 function BestTokenPrice({
     isLoading,
     token1Amount,
-    bestSwap,
+    swapInfo,
     token1,
     token2,
 }: {
     isLoading: boolean;
     token1Amount: string;
-    bestSwap: BestSwapInfo;
+    swapInfo: AlammexSwap | BestSwap | null;
     token1: TokenOptionType;
     token2: TokenOptionType;
 }) {
-    const pricePerToken =
-        Number.parseFloat(token1Amount) > 0 ? bestSwap.best_swap / Number.parseFloat(token1Amount) : 0;
+    const best_swap = swapInfo ? swapInfo.amountOut : 0;
+    const best_path = swapInfo ? swapInfo.pathString : '';
+    const priceImpact = swapInfo ? swapInfo.getPriceImpact() : 0;
+    const pricePerToken = Number.parseFloat(token1Amount) > 0 ? best_swap / Number.parseFloat(token1Amount) : 0;
 
     return (
         <InfoPanel isLoading={isLoading} minHeight={180}>
             <InfoRow
                 title="Minimum received"
-                value={numberRound(bestSwap.best_swap) + ' ' + token2.unitName}
+                value={numberRound(best_swap * (1 - SLIPPAGE)) + ' ' + token2.unitName}
                 valueStyle={{ fontSize: '16px', color: theme.newWhite, fontWeight: 600 }}
             />
-            <InfoRow title="Route" value={bestSwap.best_path.map((t: { unit_name: any }) => t.unit_name).join('-')} />
+            <InfoRow title="Route" value={best_path} />
             <InfoRow title="Price" value={`${numberRound(pricePerToken)} ${token2.unitName} per ${token1.unitName}`} />
             <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
-            <InfoRow title="Price impact" value={`${numberRound(bestSwap.priceImpact * 100)}%`} />
+            <InfoRow title="Price impact" value={`${numberRound(priceImpact * 100)}%`} />
         </InfoPanel>
     );
 }
@@ -409,9 +387,13 @@ export function Swap() {
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [token2Amount, setToken2Amount] = useState<string>('');
-    const [bestSwap, setBestSwap] = useState<BestSwapPriced | null>(null);
+    const [bestSwap, setBestSwap] = useState<BestSwap | AlammexSwap | null>(null);
     const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const [txId, setTxId] = useState<string>('');
+    const [nft, setNft] = useState<NftLottery>({ asa_id: 0, image_url: '', name: '' });
+    const [NftModal, openNftModal, closeNftModal] = useModal('root');
 
     useEffect(() => {
         getTokens(account, balances).then((res) => {
@@ -434,8 +416,8 @@ export function Swap() {
             setIsLoading(true);
             getBestSwap(account, token1_id, token2_id, amount).then((res) => {
                 setBestSwap(res);
-                const swapData = quoteToBestSwap(res);
-                setToken2Amount(swapData.best_swap.toString());
+                const best_swap = res ? res.amountOut : 0;
+                setToken2Amount(numberRound(best_swap));
                 setIsLoading(false);
             });
         }, delay);
@@ -473,24 +455,29 @@ export function Swap() {
         if (bestSwap !== null) {
             const res = await runTransactions(account, bestSwap, token1.balance);
             if (res !== null) {
-                notify('Done!', 'success', algoexplorerTxLink(res[0]));
+                const txId = res[0];
+                notify('Done!', 'success', algoexplorerTxLink(txId));
 
                 // Check NFT winning
-                const nftRes = await checkNftLottery(
-                    res[0],
+                const nft = await checkNftLottery(
+                    txId,
                     account?.networkAccount.addr ?? '',
                     token1.id,
                     token2.id,
                     Number(token1Amount),
                     Number(token2Amount)
                 );
-                console.log('NFFFTTT', nftRes);
+                if (nft) {
+                    setTxId(txId);
+                    setNft(nft);
+                    openNftModal();
+                }
             }
         }
     };
 
     return (
-        <ModalContainer style={{ background: 'transparent' }}>
+        <ModalContainer>
             <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>OPTIMAL SWAP</ModalTitle>
             <ModalSubtitle>we find the optimal route to swap your token</ModalSubtitle>
             <SelectInputGroup
@@ -516,12 +503,15 @@ export function Swap() {
             <BestTokenPrice
                 isLoading={isLoading}
                 token1Amount={token1Amount}
-                bestSwap={quoteToBestSwap(bestSwap)}
+                swapInfo={bestSwap}
                 token1={token1}
                 token2={token2}
             />
             <PacmanButton buttonText="SWAP" buttonStyle="swap_button" onClickAction={SwapButtonOnClick} />
-            <DexName>via tinyman</DexName>
+            <DexName>via alammex</DexName>
+            <NftModal>
+                <NftWinModal txId={txId} nft={nft} closeModal={closeNftModal} />
+            </NftModal>
         </ModalContainer>
     );
 }

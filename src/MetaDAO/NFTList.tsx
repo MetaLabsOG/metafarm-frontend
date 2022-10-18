@@ -33,19 +33,19 @@ export function NFTList() {
                             <Nft url={nft.image_url} />
                             <NFTCardInfo>
                                 <NftName>{nft.name}</NftName>
-                                <NftPrice>${formatNumber(nft.floor_price.usd)}</NftPrice>
-                                {nft.week_price_change && (
-                                    <NftWeekPriceChange>
-                                        {nft.week_price_change > 0 ? <ArrowUp /> : <ArrowUp rotate />}
-                                        <NFtPriceValue>
-                                            {`${
-                                                nft.week_price_change > 0
-                                                    ? `+${formatNumber(nft.week_price_change)}`
-                                                    : formatNumber(nft.week_price_change)
-                                            }% week`}
-                                        </NFtPriceValue>
-                                    </NftWeekPriceChange>
-                                )}
+                                {/*<NftPrice>${formatNumber(nft.floor_price.usd)}</NftPrice>*/}
+                                {/*{nft.week_price_change && (*/}
+                                {/*    <NftWeekPriceChange>*/}
+                                {/*        {nft.week_price_change > 0 ? <ArrowUp /> : <ArrowUp rotate />}*/}
+                                {/*        <NFtPriceValue>*/}
+                                {/*            {`${*/}
+                                {/*                nft.week_price_change > 0*/}
+                                {/*                    ? `+${formatNumber(nft.week_price_change)}`*/}
+                                {/*                    : formatNumber(nft.week_price_change)*/}
+                                {/*            }% week`}*/}
+                                {/*        </NFtPriceValue>*/}
+                                {/*    </NftWeekPriceChange>*/}
+                                {/*)}*/}
                             </NFTCardInfo>
                         </NFTCard>
                     </a>

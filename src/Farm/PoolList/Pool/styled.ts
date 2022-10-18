@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { ColorThemed, theme } from '../../../theme';
+import { theme } from '../../../theme';
 
 export const PoolContainer = styled.div`
     display: flex;
@@ -8,14 +8,14 @@ export const PoolContainer = styled.div`
     height: auto;
     margin-bottom: 16px;
     color: var(--gray);
-    background-color: var(--newGray);
+    background-color: var(--backgroundModal);
     width: 95%;
     font-size: 14px;
     padding: 20px 0 20px 0;
     border-radius: 10px;
 
     :hover {
-        background: linear-gradient(270deg, rgba(92, 252, 60, 0.03) 0%, rgba(24, 24, 24, 0.03) 30.46%), #1c1c1c;
+        background: linear-gradient(270deg, rgba(81, 221, 78, 0.06) 0%, rgba(54, 54, 54, 0.06) 30.46%), #363636;
     }
 
     @media (max-width: 1120px) {

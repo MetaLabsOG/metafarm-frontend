@@ -290,14 +290,19 @@ const calculateFarmData = (
     return [beginBlock, endBlock, rewardPerBlock, lockPeriodBlocks];
 };
 
-export const calculateTimeByBlock = (currentBlock: number, block: number, meanRoundDuration: number) => {
+export const calculateTimeByBlock = (
+    currentBlock: number,
+    block: number,
+    meanRoundDuration: number,
+    dateOnly?: boolean
+) => {
     const timestamp = Date.now() + (block - currentBlock) * meanRoundDuration * 1000;
     return new Date(timestamp).toLocaleString('en-US', {
         day: 'numeric',
         month: 'numeric',
         year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
+        hour: dateOnly ? undefined : '2-digit',
+        minute: dateOnly ? undefined : '2-digit',
         hour12: false,
     });
 };
@@ -608,7 +613,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
 
     return (
         <ModalContainer>
-            <ModalTitle>ADD {type.toString().toUpperCase()}</ModalTitle>
+            <ModalTitle style={{ textAlign: 'center' }}>ADD {type.toString().toUpperCase()}</ModalTitle>
             {type === 'farm' && (
                 <>
                     <DexSwitch dexProvider={selectedDex} dexOnChange={selectDexOnChange} hasHumble={true} />
@@ -641,7 +646,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
                 setInputData={setRewardTokenAmount}
                 selectOnChange={selectRewardTokenOnChange}
             />
-            <Heading2>ALGO REWARDS [OPTIONAL]</Heading2>
+            <Heading2 style={{ marginTop: 5 }}>ALGO REWARDS [OPTIONAL]</Heading2>
             <SelectInputGroup
                 options={[algoToken]}
                 selectedOption={algoToken}
@@ -703,7 +708,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             )}
             <AddFarmModal>
                 <ModalContainer>
-                    <ModalSubtitle style={{ fontSize: '16px' }}>
+                    <ModalSubtitle style={{ fontSize: '16px', width: 350 }}>
                         Please, carefully verify the farm creation parameters.
                     </ModalSubtitle>
                     <PoolInfo

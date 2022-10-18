@@ -44,7 +44,6 @@ export const BalanceList = styled.div`
     display: flex;
     justify-content: space-evenly;
     background-color: var(--backgroundCard);
-    opacity: 50%;
     height: 91px;
     align-items: center;
     font-family: 'Montserrat';

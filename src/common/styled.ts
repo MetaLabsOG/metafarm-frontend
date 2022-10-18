@@ -72,10 +72,10 @@ export const ModalContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: var(--backgroundColor);
+    background: var(--background);
     border-radius: 10px;
     padding: 30px;
-    margin-top: 30px;
+    margin-top: 10px;
     position: relative;
 
     input {
@@ -127,10 +127,6 @@ export const ModalCloseButton = styled.img`
 export const Plus = styled.img`
     width: 15px;
     height: 15px;
-    position: absolute;
-    left: 48px;
-    top: 172px;
-    z-index: 1;
 `;
 
 export const SwapContainer = styled.div`

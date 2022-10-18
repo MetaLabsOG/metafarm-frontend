@@ -3,7 +3,7 @@ import { formatNumber } from '../../common/lib';
 import { theme } from '../../theme';
 import { MaxButton } from '../TokenInputWithButton/styled';
 import { Select, SelectType } from '../Select/Select';
-import { SelectContainer, SelectInputGroupContainer, TokenInput } from './styled';
+import { SelectContainer, SelectInputGroupContainer, TokenInput, TokenBalance } from './styled';
 import { SelectInputGroupProps } from './types';
 
 export const SelectInputGroup: FC<SelectInputGroupProps> = ({
@@ -40,6 +40,7 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                 />
             </SelectContainer>
             <TokenInput
+                style={isValidInput ? {} : { borderColor: theme.red }}
                 disabled={inputDisabled}
                 placeholder="0"
                 value={inputData}
@@ -56,11 +57,6 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                     inputOnChange && inputOnChange(e.target.value);
                 }}
             />
-
-            {/*<TokenBalance style={isValidInput ? {} : { color: theme.red }}>*/}
-            {/*    Balance: {formatNumber(!Number.isNaN(selectedOption.balance) ? selectedOption.balance : 0)}*/}
-            {/*    {isValidInput ? '' : ' (Not enough)'}*/}
-            {/*</TokenBalance>*/}
             {selectedOption.balance > 0 && !inputDisabled && (
                 <MaxButton
                     isActive
@@ -77,6 +73,7 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                     max
                 </MaxButton>
             )}
+            {!isValidInput && <TokenBalance>Insufficient balance</TokenBalance>}
         </SelectInputGroupContainer>
     );
 };

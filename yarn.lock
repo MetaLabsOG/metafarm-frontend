@@ -5,6 +5,22 @@ __metadata:
   version: 7
   cacheKey: 9
 
+"@algo-builder/web@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "@algo-builder/web@npm:5.0.1"
+  dependencies:
+    "@json-rpc-tools/utils": "npm:^1.7.6"
+    "@randlabs/myalgo-connect": "npm:^1.1.2"
+    "@walletconnect/client": "npm:^1.6.6"
+    "@walletconnect/types": "npm:^1.7.1"
+    algorand-walletconnect-qrcode-modal: "npm:^1.7.4"
+    algosdk: "npm:^1.18.1"
+    debug: "npm:^4.3.4"
+    zod: "npm:^3.13.4"
+  checksum: c28fc8ec65d3826642c64eca0c8ca613dbda08c9ef22e67b4ba2cb19ebdf3ffed8feacd1868462a14d00bef901c0d0487ddec3a4c365080095ce76a6c62661f3
+  languageName: node
+  linkType: hard
+
 "@ampproject/remapping@npm:^2.1.0":
   version: 2.2.0
   resolution: "@ampproject/remapping@npm:2.2.0"
@@ -5541,6 +5557,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@walletconnect/client@npm:^1.6.6, @walletconnect/client@npm:^1.7.7":
+  version: 1.8.0
+  resolution: "@walletconnect/client@npm:1.8.0"
+  dependencies:
+    "@walletconnect/core": "npm:^1.8.0"
+    "@walletconnect/iso-crypto": "npm:^1.8.0"
+    "@walletconnect/types": "npm:^1.8.0"
+    "@walletconnect/utils": "npm:^1.8.0"
+  checksum: 87f76c5e42ffa5cfb0186166e4f4457b9c6125726ec3347475a22e8dfc665ba571583e4eb29cf509543bdbd7d9bee73551be6ad93b2ce1402f87c19df19138f8
+  languageName: node
+  linkType: hard
+
 "@walletconnect/client@npm:^1.7.3":
   version: 1.7.8
   resolution: "@walletconnect/client@npm:1.7.8"
@@ -5550,18 +5578,6 @@ __metadata:
     "@walletconnect/types": "npm:^1.7.8"
     "@walletconnect/utils": "npm:^1.7.8"
   checksum: 717034a2e8886e219f1e7c0525a193a9081ca4861f3ea398d0ac79e2dd4159d5c620422634e2151906935af52e6a7ddf7a164bb0aa96fcf6471cd56ea68244f7
-  languageName: node
-  linkType: hard
-
-"@walletconnect/client@npm:^1.7.7":
-  version: 1.8.0
-  resolution: "@walletconnect/client@npm:1.8.0"
-  dependencies:
-    "@walletconnect/core": "npm:^1.8.0"
-    "@walletconnect/iso-crypto": "npm:^1.8.0"
-    "@walletconnect/types": "npm:^1.8.0"
-    "@walletconnect/utils": "npm:^1.8.0"
-  checksum: 87f76c5e42ffa5cfb0186166e4f4457b9c6125726ec3347475a22e8dfc665ba571583e4eb29cf509543bdbd7d9bee73551be6ad93b2ce1402f87c19df19138f8
   languageName: node
   linkType: hard
 
@@ -5705,17 +5721,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@walletconnect/types@npm:^1.7.1, @walletconnect/types@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "@walletconnect/types@npm:1.8.0"
+  checksum: e0ec0d01a794225e09e48b73d31afb59a443dfcb192c165d3d7e26b519dd054a283034d8fb0a37bb726a46f0a4d3af210eef5eb2e13eef01a1fb6a9a9c8a71e3
+  languageName: node
+  linkType: hard
+
 "@walletconnect/types@npm:^1.7.4, @walletconnect/types@npm:^1.7.8":
   version: 1.7.8
   resolution: "@walletconnect/types@npm:1.7.8"
   checksum: b6753aa7c8f831b76e75e98b962b6dc2abf490fd4e06da8fb5c9f93348d7a797fae243e2f60cffb6612eb4f4ef80bc39463182f8572d0d928884a3976646d139
-  languageName: node
-  linkType: hard
-
-"@walletconnect/types@npm:^1.8.0":
-  version: 1.8.0
-  resolution: "@walletconnect/types@npm:1.8.0"
-  checksum: e0ec0d01a794225e09e48b73d31afb59a443dfcb192c165d3d7e26b519dd054a283034d8fb0a37bb726a46f0a4d3af210eef5eb2e13eef01a1fb6a9a9c8a71e3
   languageName: node
   linkType: hard
 
@@ -6204,7 +6220,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"algosdk@npm:^1.14.0, algosdk@npm:^1.15.0, algosdk@npm:^1.19.0":
+"algorand-walletconnect-qrcode-modal@npm:^1.7.4":
+  version: 1.8.0
+  resolution: "algorand-walletconnect-qrcode-modal@npm:1.8.0"
+  dependencies:
+    "@walletconnect/browser-utils": "npm:^1.8.0"
+    "@walletconnect/mobile-registry": "npm:^1.4.0"
+    "@walletconnect/types": "npm:^1.8.0"
+    copy-to-clipboard: "npm:^3.3.1"
+    preact: "npm:10.4.1"
+    qrcode: "npm:1.4.4"
+  checksum: e763bad1459eca02aa22f8b42c32258891d76734d2957c53326de720c4e6aa358d67d80c490bb470338048b8c443f91848d093de766d3e61df596939867b62f9
+  languageName: node
+  linkType: hard
+
+"algosdk@npm:1.19.0, algosdk@npm:^1.14.0, algosdk@npm:^1.15.0, algosdk@npm:^1.19.0":
   version: 1.19.0
   resolution: "algosdk@npm:1.19.0"
   dependencies:
@@ -15527,6 +15557,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "metafarm-frontend@workspace:."
   dependencies:
+    "@algo-builder/web": "npm:^5.0.1"
     "@babel/core": "npm:^7.18.9"
     "@ethersproject/bignumber": "npm:^5.6.2"
     "@metalabsog/common": "npm:^17.0.0"
@@ -15557,7 +15588,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^5.31.0"
     "@walletconnect/encoding": "npm:^1.0.1"
     alammex-sdk-js: "npm:^1.0.6"
-    algosdk: "npm:^1.19.0"
+    algosdk: "npm:1.19.0"
     axios: "npm:^0.27.2"
     babel-jest: "npm:^28.1.3"
     babel-loader: "npm:^8.2.5"
@@ -15655,6 +15686,7 @@ __metadata:
     superagent: "npm:^8.0.0"
     tailwindcss: "npm:^3.1.7"
     terser-webpack-plugin: "npm:^5.3.3"
+    tslib: "npm:^2.4.0"
     typescript: "npm:^4.7.4"
     url-parse: "npm:^1.5.10"
     util: "npm:^0.12.4"
@@ -23354,5 +23386,12 @@ __metadata:
   version: 1.0.0
   resolution: "yocto-queue@npm:1.0.0"
   checksum: 4522405d36a190a188112c3bc9ae84ac5eeafee637417ec127c6defc28a75b745a6139f9178107389e5ae57c3a5523b0016aec5a1f23b228c7b17ca8b2869a9c
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.13.4":
+  version: 3.19.1
+  resolution: "zod@npm:3.19.1"
+  checksum: 67b0f6d39002e19d56a55daf78ab278f1c958f76cb09602f810090162fbc179f40725b1a1bae22a6b08cc9691d81227b8ea94a21ae6a221e997fa537384f71f5
   languageName: node
   linkType: hard

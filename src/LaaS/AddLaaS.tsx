@@ -1,5 +1,4 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-import { SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
@@ -228,11 +227,11 @@ export function AddLaaS() {
         setSelectedDex(dex);
     };
 
-    const selectTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
+    const selectTokenOnChange = (option: TokenOptionType) => {
         setSelectedUserToken(option);
     };
 
-    const selectRewardTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
+    const selectRewardTokenOnChange = (option: TokenOptionType) => {
         setSelectedProjectToken(option);
     };
 

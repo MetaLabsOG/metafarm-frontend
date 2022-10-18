@@ -36,7 +36,7 @@
     --lightGray: #B6B9BD;
     --gray: #676767;
     --darkGray: #1F1F1F;
-    --red: #d0373a;
+    --red: #E1636B;
     --toastify-color-error: #FF394A !important;
 
     --newDarkGray: #0F0F0F;
@@ -47,6 +47,7 @@
     --backgroundColor: #272727;
 
     --background: #121212;
+    --backgroundPool: #141414;
     --backgroundCard: #1E1E1E;
     --backgroundModal: #2C2C2C;
     --backgroundHover: #363636;
