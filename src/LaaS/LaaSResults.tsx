@@ -1,4 +1,5 @@
 import { theme } from '../theme';
+import { numberRound } from '../Farm/PoolList/Pool/utils';
 import { LaaSResultNumber, LaaSResultNumberSubtitle, LaaSResultsContainer, LaaSSquare } from './styled';
 
 export const LaaSResults = ({
@@ -18,7 +19,7 @@ export const LaaSResults = ({
     return (
         <LaaSResultsContainer>
             <LaaSSquare>
-                <LaaSResultNumber>{`${APY * 100}%`}</LaaSResultNumber>
+                <LaaSResultNumber>{`${numberRound(APY * 100)}%`}</LaaSResultNumber>
                 <LaaSResultNumberSubtitle>{APYSubtitle} APY</LaaSResultNumberSubtitle>
             </LaaSSquare>
             <LaaSSquare>

@@ -350,6 +350,7 @@ export async function getTokens(
         // TODO: remove it
         if (ALGONET === TESTNET && asset.value === META_TOKEN_ID.toString()) {
             asset.balance /= 10 ** 2;
+            asset.decimals += 2;
         }
     }
     assets

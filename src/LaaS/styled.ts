@@ -23,6 +23,22 @@ export const LaaSContainer = styled.div`
     align-items: center;
     width: 1114px;
     height: 100%;
+    margin-top: 20px;
+`;
+
+export const CreateVaultContainer = styled.a`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+
+    font-family: 'Montserrat';
+    color: var(--lightGray);
+    text-decoration: none;
+    :hover {
+        cursor: pointer;
+        color: var(--lightGreen);
+    }
 `;
 
 export const LaaSHeaderTitle = styled.div`

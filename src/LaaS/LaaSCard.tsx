@@ -1,9 +1,20 @@
 import { useStoreMap, useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
-import { $meanRoundDuration, $networkTime, $pricedAssets, Contract } from '../common/store';
+import { useEffect, useState } from 'react';
+import { ApiPool } from '@pactfi/pactsdk';
+import {
+    $meanRoundDuration,
+    $networkTime,
+    $pricedAssets,
+    Asset,
+    Contract,
+    ContractState,
+    Priced,
+} from '../common/store';
 import { DexProvider } from '../dexes';
 import { ProgressBar } from '../Components/ProgressBar/ProgressBar';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
+import { getPactPools } from '../providers/apiProvider';
 import { LaaSHeader } from './LaaSHeader';
 import { LaaSInfo } from './LaaSInfo';
 import { LaaSResults } from './LaaSResults';
@@ -100,15 +111,44 @@ const getLaaSStage = (currentBlock: number, vault: Contract<'laas'>): LaaSStage 
     return LaaSStage.withdraw;
 };
 
+export const findPool = async (
+    dex: DexProvider,
+    assetA_id: number | undefined,
+    assetB_id: number | undefined,
+    poolAppId?: string
+): Promise<ApiPool | null> => {
+    if (dex !== 'PT') {
+        return null;
+    }
+
+    const pactPools = await getPactPools({
+        primary_asset__algoid: assetA_id ? assetA_id.toString() : undefined,
+        secondary_asset__algoid: assetB_id ? assetB_id.toString() : undefined,
+    });
+    const filteredPools = pactPools; //.filter((pool) => pool.appid === poolAppId);
+    // console.log('POOL', poolAppId, pactPools, filteredPools);
+    if (!filteredPools) {
+        return null;
+    }
+    return filteredPools[0];
+};
+
+export const getPoolAPR = (poolInfo: ApiPool | null) => {
+    return poolInfo ? Number(poolInfo.apr_7d) * 2 : 0;
+};
+
+export const getCapacityLeft = (asset1: Priced<Asset>, asset2: Priced<Asset>, vaultState: ContractState<'laas'>) => {
+    return (
+        (Number(vaultState.initial.initialABalance - vaultState.global.totalALiqProvided) * asset1.price) / asset2.price
+    );
+};
+
 export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
-    const dex: DexProvider = 'T2';
+    const dex: DexProvider = 'PT';
     const asset1_id = vault?.state?.initial.aToken;
     const asset2_id = vault?.state?.initial.bToken;
     const asset1 = useStoreMap($pricedAssets, (as) => as.get(asset1_id ?? 0, null));
     const asset2 = useStoreMap($pricedAssets, (as) => as.get(asset2_id ?? 0, null));
-    const pricedAssets = useUnit($pricedAssets);
-    // Const asset1 = await fetchAsset(asset1_id);
-    // const asset2 = await fetchAsset(asset2_id);
     const isVerified = vault.info.metadata.verified ?? false;
 
     const meanRoundDuration = useUnit($meanRoundDuration);
@@ -118,10 +158,21 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const [DepositModal, openDepositModal, closeDepositModal] = useModal('root', { preventScroll: true });
     const [AuctionModal, openAuctionModal, closeAuctionModal] = useModal('root', { preventScroll: true });
 
+    const [poolInfo, setPoolInfo] = useState<ApiPool | null>(null);
+
+    useEffect(() => {
+        if (!vault.state) {
+            return;
+        }
+        // TODO: не находит пакт этот пул
+        const poolAppId = vault.state.initial.liquidityPoolApp;
+        findPool(dex, asset1_id, asset2_id, poolAppId.toString()).then((res) => setPoolInfo(res));
+    }, [vault.state]);
+
     if (!vault.state || !asset1 || !asset2) {
-        console.log('card is null cuz no state or assets fail', asset1, asset2);
-        console.log('vault:', vault);
-        console.log('priced assets', pricedAssets);
+        // console.log('card is null cuz no state or assets fail', asset1, asset2);
+        // console.log('vault:', vault);
+        // console.log('priced assets', pricedAssets);
         return null;
     }
 
@@ -129,6 +180,8 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const totalALiqProvided = Number(vault.state.global.totalALiqProvided);
 
     const vaultDurationText = getVaultDurationText(laasStage, meanRoundDuration, currentBlock, vault.state.initial);
+
+    // console.log('STATE', vault.state);
 
     return (
         <LaaSCardContainer>
@@ -140,13 +193,19 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                     progress={totalALiqProvided / initialABalance}
                 />
             ) : (
-                <LaaSResults APY={0.3} IL={0} />
+                <LaaSResults APY={getPoolAPR(poolInfo)} IL={0} />
             )}
-            <LaaSInfo laasStage={laasStage} vault={vault} asset1={asset1} asset2={asset2} />
+            <LaaSInfo
+                laasStage={laasStage}
+                vaultState={vault.state}
+                asset1={asset1}
+                asset2={asset2}
+                poolInfo={poolInfo}
+            />
             <LaaSButton
                 laasStage={laasStage}
                 vault={vault}
-                asset2_name={asset2.name}
+                asset2_name={asset2.unitName}
                 buttonSubtitle={vaultDurationText}
                 onClick={() => {
                     if (laasStage === LaaSStage.subscription) {
@@ -158,7 +217,15 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                 }}
             />
             <DepositModal>
-                <LaaSTokenDeposit vault={vault} asset2={asset2} buttonSubtitle={vaultDurationText} />
+                <LaaSTokenDeposit
+                    vault={vault}
+                    dex={dex}
+                    asset1={asset1}
+                    asset2={asset2}
+                    poolInfo={poolInfo}
+                    buttonSubtitle={vaultDurationText}
+                    closeModal={closeDepositModal}
+                />
             </DepositModal>
             <AuctionModal>
                 <LaaSAuction vault={vault} asset1={asset1} asset2={asset2} />

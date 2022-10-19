@@ -343,3 +343,7 @@ export function algoexplorerTxLink(txId: string): string {
 export function algoexplorerContractLink(appId: AppId): string {
     return `https://${ALGONET === MAINNET ? '' : 'testnet.'}algoexplorer.io/application/${appId}`;
 }
+
+export function algoexplorerLink(type: string, id: AppId): string {
+    return `https://${ALGONET === MAINNET ? '' : 'testnet.'}algoexplorer.io/${type}/${id}`;
+}

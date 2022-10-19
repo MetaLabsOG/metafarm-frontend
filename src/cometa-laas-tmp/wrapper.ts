@@ -299,7 +299,7 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
                 typedAcc,
                 appId!,
                 vaultAddress,
-                1,
+                amount,
                 initialState.aToken,
                 initialState.bToken,
                 initialState.lpToken,

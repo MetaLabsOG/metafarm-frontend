@@ -12,6 +12,7 @@ import { pactDex } from '../dexes';
 import { StakingAsset } from '../Farm/AddFarm';
 import { LaaSBackendContractsMock } from '../common/mocks';
 import * as MiniHumble from '../dexes/humbleReexports';
+import { ListPoolsOptions } from '.store/@pactfi-pactsdk-npm-0.5.0-60f29c2259/package/dist/esm/api';
 
 export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -182,8 +183,8 @@ export const getTinymanPools = nonConcurrent(async (limit: number, search: strin
     return pools.results;
 });
 
-export const getPactPools = nonConcurrent(async (): Promise<pactsdk.ApiPool[]> => {
-    const response = await pactDex.pact.listPools();
+export const getPactPools = nonConcurrent(async (options?: ListPoolsOptions): Promise<pactsdk.ApiPool[]> => {
+    const response = await pactDex.pact.listPools(options);
     return response.results;
 });
 
