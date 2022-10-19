@@ -35,7 +35,7 @@ import { TokenOptionType } from '../Components/Select/types';
 import { BestSwap, Mint, tinymanDex, Zap } from '../dexes';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
-import { numberRound } from '../Farm/PoolList/Pool/utils';
+import { getTokenLink, numberRound } from '../Farm/PoolList/Pool/utils';
 import swap from '../imgs/swap.svg';
 import { checkNftLottery } from '../providers/apiProvider';
 import { Token } from './types';
@@ -216,7 +216,7 @@ export async function runTransactions(
     try {
         const address = account.networkAccount.addr;
         const txns = await operation.prepareTxs(address);
-        console.log(parseTxs(txns));
+        // console.log(parseTxs(txns));
         let txIds = await signAndPostTxnGroups(txns);
         console.log(QueryType[type].toUpperCase() + ' OK', txIds);
 
@@ -360,21 +360,21 @@ function BestTokenPrice({
     token2: TokenOptionType;
 }) {
     const best_swap = swapInfo ? swapInfo.amountOut : 0;
-    const best_path = swapInfo ? swapInfo.pathString : '';
+    // const best_path = swapInfo ? swapInfo.pathString : '';
     const priceImpact = swapInfo ? swapInfo.getPriceImpact() : 0;
     const pricePerToken = Number.parseFloat(token1Amount) > 0 ? best_swap / Number.parseFloat(token1Amount) : 0;
 
     return (
-        <InfoPanel isLoading={isLoading} minHeight={180}>
+        <InfoPanel isLoading={isLoading} minHeight={152}>
             <InfoRow
                 title="Minimum received"
                 value={numberRound(best_swap * (1 - SLIPPAGE)) + ' ' + token2.unitName}
                 valueStyle={{ fontSize: '16px', color: theme.newWhite, fontWeight: 600 }}
             />
-            <InfoRow title="Route" value={best_path} />
             <InfoRow title="Price" value={`${numberRound(pricePerToken)} ${token2.unitName} per ${token1.unitName}`} />
             <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
             <InfoRow title="Price impact" value={`${numberRound(priceImpact * 100)}%`} />
+            {/*<InfoRow title="Route" value={best_path} />*/}
         </InfoPanel>
     );
 }
@@ -508,7 +508,9 @@ export function Swap() {
                 token2={token2}
             />
             <PacmanButton buttonText="SWAP" buttonStyle="swap_button" onClickAction={SwapButtonOnClick} />
-            <DexName>via alammex</DexName>
+            <a target="_blank" href="https://www.alammex.com/" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                <DexName>via alammex</DexName>
+            </a>
             <NftModal>
                 <NftWinModal txId={txId} nft={nft} closeModal={closeNftModal} />
             </NftModal>

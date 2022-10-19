@@ -210,7 +210,7 @@ export function AddLaaS() {
 
     const [daysDuration, setDaysDuration] = useState<string>('');
 
-    const [AddLaaSModal, openAddLaaSModal, closeAddLaaSModal] = useModal('root', { preventScroll: true });
+    const [AddLaaSModal, openAddLaaSModal, closeAddLaaSModal] = useModal('root');
 
     const endBlock: number = currentBlock + daysToBlocks(Number(daysDuration), meanRoundDuration);
 

@@ -188,4 +188,8 @@ export const DexName = styled.div`
     font-family: 'Montserrat', serif;
     font-size: 12px;
     margin-top: 5px;
+
+    :hover {
+        color: var(--newWhite);
+    }
 `;

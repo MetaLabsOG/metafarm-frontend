@@ -81,7 +81,7 @@
 }
 
 .account_item:hover {
-    background: var(--gray);
+    background: var(--backgroundHover);
     border-radius: 5px;
     color: var(--green);
 }

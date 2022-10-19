@@ -22,16 +22,16 @@ export const SelectModalContainer = styled.div`
     display: flex;
     flex-direction: column;
     width: 400px;
-    height: 600px;
+    height: 700px;
     padding: 20px;
-    background-color: var(--backgroundModal);
+    background-color: var(--background);
     border-radius: 12px;
 `;
 
 export const SelectSearch = styled.input`
     width: 100%;
     display: flex;
-    padding: 10px;
+    padding: 10px 10px 10px 30px;
     border: 1px solid var(--borderColor);
     border-radius: 12px;
     background-color: transparent;
@@ -40,11 +40,12 @@ export const SelectSearch = styled.input`
     color: var(--newWhite);
     outline: none;
     margin-bottom: 10px;
+    margin-top: 35px;
 `;
 
 export const SelectOptionContainer = styled.div`
     :hover {
-        background-color: var(--backgroundHover);
+        background-color: var(--backgroundCard);
         cursor: pointer;
     }
 `;
@@ -105,4 +106,11 @@ export const OptionAdditionalInfo = styled.div`
     font-family: 'Montserrat';
     font-size: 14px;
     color: var(--newLightGray);
+`;
+
+export const Loupe = styled.img`
+    position: absolute;
+    left: 30px;
+    top: 67px;
+    width: 15px;
 `;

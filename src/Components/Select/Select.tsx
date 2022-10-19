@@ -5,6 +5,9 @@ import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
 import { getDexName } from '../../Farm/utils';
 import tokenPlaceholder from '../../imgs/tokenPlaceholder.svg';
 import select from '../../imgs/select.svg';
+import loupe from '../../imgs/loupe.svg';
+import closeButton from '../../imgs/close.svg';
+import { ModalCloseButton } from '../../common/styled';
 import {
     LpIcon,
     LpIcons,
@@ -18,6 +21,7 @@ import {
     SelectSearch,
     TokenIcon,
     SelectInputGroupContainer,
+    Loupe,
 } from './styled';
 import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
 
@@ -162,7 +166,7 @@ function SelectOption({
 }
 
 export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange, getOptions, style }) => {
-    const [SelectModal, openSelectModal, closeSelectModal] = useModal('root', { preventScroll: true });
+    const [SelectModal, openSelectModal, closeSelectModal] = useModal('root');
     const [tokenSearchInput, setTokenSearchInput] = useState<string>('');
     const [currentOptions, setCurrentOptions] = useState<SelectOptionType[]>(options);
 
@@ -182,6 +186,17 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
         }
     }, [tokenSearchInput]);
 
+    useEffect(() => {
+        const keydownHandler = (e: KeyboardEvent) => {
+            e.key === 'Escape' && closeSelectModal();
+        };
+        window.addEventListener('keydown', keydownHandler);
+
+        return () => {
+            window.removeEventListener('keydown', keydownHandler);
+        };
+    }, []);
+
     return (
         <>
             <SelectContainer style={style} onClick={openSelectModal}>
@@ -190,6 +205,8 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
             </SelectContainer>
             <SelectModal>
                 <SelectModalContainer>
+                    <ModalCloseButton style={{ left: 360 }} src={closeButton} alt="close" onClick={closeSelectModal} />
+                    <Loupe alt="search" src={loupe} />
                     <SelectSearch
                         placeholder="Search token name"
                         value={tokenSearchInput}

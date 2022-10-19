@@ -74,7 +74,7 @@
     "react-device-detect": "^2.2.2",
     "react-dom": "^18.2.0",
     "react-ga": "^3.3.1",
-    "react-hooks-use-modal": "^2.1.0",
+    "react-hooks-use-modal": "^3.1.0",
     "react-is": "^18.2.0",
     "react-query": "^3.39.2",
     "react-refresh": "^0.14.0",

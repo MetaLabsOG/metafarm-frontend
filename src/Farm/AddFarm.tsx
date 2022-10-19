@@ -544,7 +544,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
     const [daysDuration, setDaysDuration] = useState<string>('');
     const [lockPeriod, setLockPeriod] = useState<string>('0');
 
-    const [AddFarmModal, openAddFarmModal, closeAddFarmModal] = useModal('root', { preventScroll: true });
+    const [AddFarmModal, openAddFarmModal, closeAddFarmModal] = useModal('root');
 
     const startTimestamp = Date.parse(startTime);
     const [beginBlock, endBlock, rewardPerBlock, lockPeriodBlocks] = calculateFarmData(
@@ -684,7 +684,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
                 <Heading2>DAYS</Heading2>
             </AddFarmRow>
             {!account ? (
-                <ConnectWallet buttonClassName="swap_button" />
+                <ConnectWallet buttonClassName="swap_button" style={{ width: '100%' }} />
             ) : (
                 <PacmanButton
                     buttonText="VERIFY DETAILS"

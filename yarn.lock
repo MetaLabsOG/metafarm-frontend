@@ -7262,6 +7262,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"body-scroll-lock@npm:^3.1.5":
+  version: 3.1.5
+  resolution: "body-scroll-lock@npm:3.1.5"
+  checksum: e14d397197208e669639d336dd45eaab711cfd039b5c14ab1071ce5cffb7e98c80d3677ae389f310a57535e8a4931607f49b053d77301f0fac43806746ed0798
+  languageName: node
+  linkType: hard
+
 "bonjour-service@npm:^1.0.11":
   version: 1.0.13
   resolution: "bonjour-service@npm:1.0.13"
@@ -9255,13 +9262,6 @@ __metadata:
   dependencies:
     path-type: "npm:^4.0.0"
   checksum: 713590b89f9d09b80da82094419260ee15f4e67da692659876ac747ee38788dbb8b2bd5d2749bbcf298ce934888e378569f01895a136a09b54d1b28753e337c7
-  languageName: node
-  linkType: hard
-
-"disable-scroll@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "disable-scroll@npm:0.6.0"
-  checksum: 89bd07d02331e650972fee0a2ea9fde7e4efff47502445406cb5bd847964137a57bec2320c18c3c1df151dacaafe4b92084143c671100f7eb87ef9f6a6306c74
   languageName: node
   linkType: hard
 
@@ -11323,6 +11323,15 @@ __metadata:
   version: 3.2.6
   resolution: "flatted@npm:3.2.6"
   checksum: 258feebea8962c3632e9bbd5a565257a802ebea99d0a6f999503c6fa7f6ed1830566b0da4854c9933a4d3a6f1ecb21ce4d26eca6ac28624478f08b8d2a8c1f43
+  languageName: node
+  linkType: hard
+
+"focus-trap@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "focus-trap@npm:7.0.0"
+  dependencies:
+    tabbable: "npm:^6.0.0"
+  checksum: f72958b0507a9cb49ebeb98a6c95ac3bae8c53767fb0254e591ad51d9adbb3bc811058dd0a3f06fa09b00c1ead1c2519b3a2423ec31391b963d258360740f17f
   languageName: node
   linkType: hard
 
@@ -15666,7 +15675,7 @@ __metadata:
     react-dom: "npm:^18.2.0"
     react-error-overlay: "npm:6.0.11"
     react-ga: "npm:^3.3.1"
-    react-hooks-use-modal: "npm:^2.1.0"
+    react-hooks-use-modal: "npm:^3.1.0"
     react-is: "npm:^18.2.0"
     react-query: "npm:^3.39.2"
     react-refresh: "npm:^0.14.0"
@@ -18780,15 +18789,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-hooks-use-modal@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "react-hooks-use-modal@npm:2.1.0"
+"react-hooks-use-modal@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "react-hooks-use-modal@npm:3.1.0"
   dependencies:
-    disable-scroll: "npm:^0.6.0"
+    body-scroll-lock: "npm:^3.1.5"
+    focus-trap: "npm:^7.0.0"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0
     react-dom: ^16.8.0 || ^17.0.0
-  checksum: 0c863f5f3b326464c40c9e77b7c3811bc450daee0825d0f21ef29049b15bcf243205f0c4c68e115978ba2b2f299e53af6fb9c69a519fd3cf711bcc26d3279bf9
+  checksum: 4217520905074d5f2922731958b79a97967317aad1e5ae133a64bf4def19d47496bf48368dc99cedd16792dfb8b095d8cbe1409b64409a7fceb8e239303ed435
   languageName: node
   linkType: hard
 
@@ -21187,6 +21197,13 @@ __metadata:
     "@pkgr/utils": "npm:^2.3.0"
     tslib: "npm:^2.4.0"
   checksum: 223ae59432706a9f9729c197ea932481a69ef478a83686327666b363433729b78d245627446288c2ee741a12f3fb5937fc942dfee76199f373e625a2780f5d18
+  languageName: node
+  linkType: hard
+
+"tabbable@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "tabbable@npm:6.0.0"
+  checksum: d99c121081b100aed4cc8d4e8ccc21397b483bdabbd2bfed27e2071e915fa8de5c6fb86eddf4c8e12d0b6db1e3c80b9bdbb71e1deab366990b44d7ff05f3e8e7
   languageName: node
   linkType: hard
 

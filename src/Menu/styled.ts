@@ -129,7 +129,7 @@ export const BurgerMenuContainer = styled.div`
     width: 100%;
     position: fixed;
     left: 0;
-    background: var(--newDarkGray);
+    background: var(--backgroundCard);
     padding-left: 20px;
     z-index: 10;
     padding-bottom: 20px;
