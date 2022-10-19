@@ -382,6 +382,9 @@ export class TinymanDex extends Dex {
         }
 
         const st = validatorLocalState[0]['key-value'];
+        if (!st) {
+            return [];
+        }
         let txGroups: WalletTransactionGroup[] = [];
 
         for (const { key, value } of st) {
