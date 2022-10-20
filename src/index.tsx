@@ -7,7 +7,7 @@ import { BrowserTracing } from '@sentry/tracing';
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import { useEffect, useState } from 'react';
-import { useModal } from 'react-hooks-use-modal';
+import { useModal, ModalProvider } from 'react-hooks-use-modal';
 import { useStoreMap, useUnit } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
 import ReactGA from 'react-ga';
@@ -67,6 +67,23 @@ const queryClient = new QueryClient();
 
 void fetchAllPricesFx();
 
+const modalComponents = {
+    Overlay: () => {
+        return (
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.86)',
+                }}
+            />
+        );
+    },
+};
+
 function App() {
     const account = useUnit($account);
     const algoBalance = useStoreMap($balances, (bs) => Number(bs[0]));
@@ -78,7 +95,7 @@ function App() {
     const laasFetch = useQuery(['contracts', 'laas'], async () => getContracts('laas'));
 
     const [hasTestnetModalOpened, setHasTestnetModalOpened] = useState(false);
-    const [Modal, openTestnetModal] = useModal('root', { preventScroll: true });
+    const [Modal, openTestnetModal] = useModal('root');
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
@@ -119,28 +136,30 @@ function App() {
             <GlobalStyle />
             <ToastContainer limit={3} theme="colored" position="bottom-right" transition={Flip} />
             <ThemeProvider theme={theme}>
-                <Container>
-                    <Menu />
-                    <ContentContainer>
-                        <Routes>
-                            <Route path="/" element={<Farm />} />
-                            {/*<Route path="/fomo" element={<Fomo />} />*/}
-                            <Route path="/laas" element={<LaaS />} />
-                            <Route path="/farm" element={<Farm />} />
-                            <Route path="/stake" element={<Stake />} />
-                            <Route path="/swap" element={<Swap />} />
-                            <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
-                            <Route path="/meta-dao" element={<MetaDAO />} />
-                            {/*<Route path="/tokensale" element={<Crowdsale />} />*/}
-                            <Route path="/addfarm" element={<AddFarm type="farm" />} />
-                            <Route path="/addstake" element={<AddFarm type="stake" />} />
-                            <Route path="/addlaas" element={<AddLaaS />} />
-                        </Routes>
-                    </ContentContainer>
-                    <Modal>
-                        <TestnetModal />
-                    </Modal>
-                </Container>
+                <ModalProvider preventScroll components={modalComponents}>
+                    <Container>
+                        <Menu />
+                        <ContentContainer>
+                            <Routes>
+                                <Route path="/" element={<Farm />} />
+                                {/*<Route path="/fomo" element={<Fomo />} />*/}
+                                <Route path="/laas" element={<LaaS />} />
+                                <Route path="/farm" element={<Farm />} />
+                                <Route path="/stake" element={<Stake />} />
+                                <Route path="/swap" element={<Swap />} />
+                                <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
+                                <Route path="/meta-dao" element={<MetaDAO />} />
+                                {/*<Route path="/tokensale" element={<Crowdsale />} />*/}
+                                <Route path="/addfarm" element={<AddFarm type="farm" />} />
+                                <Route path="/addstake" element={<AddFarm type="stake" />} />
+                                <Route path="/addlaas" element={<AddLaaS />} />
+                            </Routes>
+                        </ContentContainer>
+                        <Modal>
+                            <TestnetModal />
+                        </Modal>
+                    </Container>
+                </ModalProvider>
                 <Footer />
             </ThemeProvider>
         </>

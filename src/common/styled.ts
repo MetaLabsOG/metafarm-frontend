@@ -64,7 +64,7 @@ export const Heading2 = styled.h2`
     text-align: left;
     width: 100%;
     padding: 10px;
-    color: #7a7a7a;
+    color: var(--gray);
 `;
 
 export const ModalContainer = styled.div`
@@ -72,10 +72,10 @@ export const ModalContainer = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: #272727;
+    background: var(--background);
     border-radius: 10px;
     padding: 30px;
-    margin-top: 30px;
+    margin-top: 10px;
     position: relative;
 
     input {
@@ -88,26 +88,33 @@ export const ModalContainer = styled.div`
 `;
 
 export const ModalTitle = styled.h1`
-    color: #d3d3d3;
+    color: var(--newWhite);
     width: 100%;
     text-align: left;
-    font-size: 22px;
     margin-bottom: 20px;
+    font-family: 'Krona One';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 28px;
+    letter-spacing: 0.04em;
 `;
 
 export const ModalSubtitle = styled.h3`
-    color: #8b8b8b;
-    margin-top: 5px;
+    color: var(--newnewGray);
     font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400;
     font-size: 14px;
-    font-weight: normal;
+    line-height: 18px;
+    letter-spacing: 0.02em;
     text-align: center;
+    margin-top: 5px;
     margin-bottom: 30px;
 `;
 
 export const ModalCloseButton = styled.img`
-    width: 15px;
-    height: 15px;
+    width: 28px;
     position: absolute;
     left: 330px;
     top: 15px;
@@ -120,18 +127,18 @@ export const ModalCloseButton = styled.img`
 export const Plus = styled.img`
     width: 15px;
     height: 15px;
-    position: absolute;
-    left: 48px;
-    top: 172px;
-    z-index: 1;
+`;
+
+export const SwapContainer = styled.div`
+    display: flex;
+    width: 100%;
+    justify-content: right;
+    margin-top: 2px;
+    margin-bottom: 10px;
 `;
 
 export const SwapArrow = styled.img`
-    width: 17px;
-    position: absolute;
-    left: 48px;
-    top: 172px;
-    z-index: 1;
+    width: 32px;
     transition: transform 0.2s ease;
 
     :hover {
@@ -174,4 +181,15 @@ export const DexSwitchContainer = styled.div`
     display: flex;
     align-items: center;
     width: 100%;
+`;
+
+export const DexName = styled.div`
+    color: var(--lightGray);
+    font-family: 'Montserrat', serif;
+    font-size: 12px;
+    margin-top: 5px;
+
+    :hover {
+        color: var(--newWhite);
+    }
 `;

@@ -52,6 +52,7 @@ export const Input = styled.input<{ isActive: boolean }>`
     width: 60%;
     font-size: 14px;
     padding-left: 10px;
+    padding-right: 50px;
     font-family: 'Montserrat';
     :focus {
         outline: none;
@@ -72,7 +73,7 @@ export const MaxButton = styled.div<{ isActive: boolean }>`
     font-weight: normal;
     font-size: 12px;
     line-height: 15px;
-    background-color: var(--newGray);
+    background-color: transparent;
     :hover {
         color: ${({ theme, isActive }: InputProps) => (isActive ? theme.white : theme.gray)};
     }

@@ -11,6 +11,7 @@ import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
 import { ColumnType, POOL_COLUMN_WIDTH } from '../PoolList';
 import { Image } from '../../utils';
 import { AprType } from '../../store';
+import { theme } from '../../../theme';
 import {
     PoolInfoDesktopContainer,
     ArrowIconsWrapper,
@@ -20,6 +21,7 @@ import {
     RewardTokenValue,
 } from './styled';
 import { calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
+
 export interface PoolInfoDesktopProps {
     account: Account | null;
     pricedAlgo: Priced<Asset>;
@@ -138,7 +140,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Reward]}>
                 <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
             </PoolInfoValue>
-            <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Ends]} style={{ color: 'gray', fontSize: '16px' }}>
+            <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Ends]} style={{ color: theme.gray, fontSize: '16px' }}>
                 {timing.split('\n').map((x) => (
                     <div key={x}>{x}</div>
                 ))}

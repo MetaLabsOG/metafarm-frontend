@@ -45,7 +45,7 @@ export const numberRound = (amount: number | Amount) => {
     if (typeof amount !== 'number') {
         amount = unsafeFromBigint(amount);
     }
-    return amount > 0 ? formatDecimalsMeaningful(amount) : 0;
+    return amount > 0 ? formatDecimalsMeaningful(amount) : '0';
 };
 
 export const getLPTokenPoolLink = (poolDex: DexProvider, poolId: number, asset1: AssetId, asset2: AssetId): string => {

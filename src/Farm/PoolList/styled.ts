@@ -38,13 +38,13 @@ export const PoolListContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: var(--newDarkGray);
+    background-color: var(--backgroundCard);
     width: 80%;
     min-width: 1114px;
     border-radius: 10px;
 
     @media (max-width: 1120px) {
-        background-color: black;
+        background-color: transparent;
         margin-top: 0;
         min-width: 320px;
     }

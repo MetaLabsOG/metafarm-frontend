@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { ColorThemed, theme } from '../../../theme';
+import { theme } from '../../../theme';
 
 export const PoolContainer = styled.div`
     display: flex;
@@ -8,14 +8,14 @@ export const PoolContainer = styled.div`
     height: auto;
     margin-bottom: 16px;
     color: var(--gray);
-    background-color: var(--newGray);
+    background-color: var(--backgroundModal);
     width: 95%;
     font-size: 14px;
     padding: 20px 0 20px 0;
     border-radius: 10px;
 
     :hover {
-        background: linear-gradient(270deg, rgba(92, 252, 60, 0.03) 0%, rgba(24, 24, 24, 0.03) 30.46%), #1c1c1c;
+        background: linear-gradient(270deg, rgba(81, 221, 78, 0.06) 0%, rgba(54, 54, 54, 0.06) 30.46%), #363636;
     }
 
     @media (max-width: 1120px) {
@@ -27,6 +27,7 @@ export const PoolContainer = styled.div`
         perspective: 1000px;
         transition: transform 0.6s;
         transform-style: preserve-3d;
+        background-color: var(--backgroundCard);
     }
 `;
 
@@ -208,10 +209,9 @@ export const RewardUSDValue = styled.div`
 export const RewardTokenValue = styled.div`
     white-space: nowrap;
     //font-size: 14px;
-    color: #808080;
+    color: var(--gray);
     @media (max-width: 1120px) {
         font-size: 14px;
-        color: #909090;
         text-align: right;
     }
 `;
@@ -229,5 +229,5 @@ export const ContractLink = styled.div`
     margin-top: 7px;
     font-size: 13px;
     text-decoration: underline;
-    color: #676767;
+    color: var(--gray);
 `;

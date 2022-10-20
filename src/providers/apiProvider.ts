@@ -12,6 +12,7 @@ import { pactDex } from '../dexes';
 import { StakingAsset } from '../Farm/AddFarm';
 import { LaaSBackendContractsMock } from '../common/mocks';
 import * as MiniHumble from '../dexes/humbleReexports';
+import { NftLottery } from '../Swap/NftWinModal';
 
 export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -190,3 +191,27 @@ export const getPactPools = nonConcurrent(async (): Promise<pactsdk.ApiPool[]> =
 export const getHumblePools = nonConcurrent(async (): Promise<MiniHumble.PoolDetails[]> => {
     return instance.get('/humble/pools/all').then(({ data }) => data);
 });
+
+export async function checkNftLottery(
+    txid: string,
+    wallet: string,
+    asset1_id: number,
+    asset2_id: number,
+    asset1_amount: number,
+    asset2_amount: number
+): Promise<NftLottery | null> {
+    const request = {
+        txid,
+        wallet,
+        asset1_id,
+        asset2_id,
+        asset1_amount,
+        asset2_amount,
+    };
+
+    return instance.post('/swap/lottery', request).then(({ data }) => data);
+}
+
+export async function nftClaim(txid: string): Promise<string> {
+    return instance.patch(`/lottery/claim?swap_txid=${txid}`).then(({ data }) => data);
+}
