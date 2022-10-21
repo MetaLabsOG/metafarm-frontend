@@ -170,6 +170,7 @@ type LaasViews = {
 
 function parseLaasGlobalState(globalStateRaw: any): Record<string, string | number> {
     const globalState: Record<string, string | number> = {};
+    // console.log('RAW', globalStateRaw);
     for (const { key, value } of globalStateRaw) {
         const decodedKey = Buffer.from(key, 'base64').toString();
         if (value.type === 2) {
@@ -248,6 +249,7 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
 
         async global() {
             const globalState = await fetchGlobalState();
+            // console.log('GLOBAL', globalState);
             return [
                 'Some',
                 {

@@ -1,18 +1,16 @@
 import axios from 'axios';
-import pactsdk from '@pactfi/pactsdk';
+import pactsdk, { ListPoolsOptions } from '@pactfi/pactsdk';
 
 import packages from '../../package.json';
 import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
 import { AssetId, ContractType } from '../common/store/types';
 import { ALGONET } from '../AppContext';
 import { nonConcurrent } from '../common/store/utils';
-import { DexProvider } from '../dexes/common';
 import { logEvent, LogName } from '../logEvent';
 import { pactDex } from '../dexes';
 import { StakingAsset } from '../Farm/AddFarm';
-import { LaaSBackendContractsMock } from '../common/mocks';
 import * as MiniHumble from '../dexes/humbleReexports';
-import { ListPoolsOptions } from '.store/@pactfi-pactsdk-npm-0.5.0-60f29c2259/package/dist/esm/api';
+import { TokenOptionType } from '../Components/Select/types';
 
 export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -157,8 +155,8 @@ export const deployContractToBackend = async (
             dex: stakeToken.dex,
             asset1_id: stakeToken.asset1_id,
             asset2_id: stakeToken.asset2_id,
-            rewardTokenId: rewardTokenId,
-            algoRewards: extraAlgoRewardAmount > 0,
+            reward_token_d: rewardTokenId,
+            algo_rewards: extraAlgoRewardAmount > 0,
         },
     };
     console.log('/contract/register', request);
@@ -167,6 +165,25 @@ export const deployContractToBackend = async (
         { status: '[ADDFARM DEPLOY]', contractType, contractId: Number(contractId), params: JSON.stringify(request) },
         LogName.ADDFARM
     );
+
+    await instance.post('/contract/register', request);
+};
+
+export const deployVaultToBackend = async (
+    accountAddress: string,
+    contractId: number,
+    contractType: ContractType,
+    asset1: TokenOptionType,
+    asset2: TokenOptionType
+) => {
+    const request: AddContractType = {
+        type: contractType,
+        id: contractId,
+        version: '1.0.0',
+        description: `${asset1.unitName}/${asset2.unitName} laas vault`,
+        metadata: {},
+    };
+    console.log('/contract/register', request);
 
     await instance.post('/contract/register', request);
 };

@@ -281,13 +281,8 @@ global Round
 app_global_put
 txna ApplicationArgs 1
 btoi
-int 100000
->
-txna ApplicationArgs 1
-btoi
 int 10000000
 <
-&&
 assert
 txna ApplicationArgs 2
 btoi
@@ -387,19 +382,43 @@ asset_holding_get AssetBalance
 store 1
 store 0
 itxn_begin
-byte "liquidity_pool_address"
-app_global_get
 byte "a_token"
 app_global_get
-load 0
-callsub innertxsendtoken_11
-itxn_next
+byte "b_token"
+app_global_get
+<
+bnz provideliquidity_7_l23
+int 1
+provideliquidity_7_l2:
+int 0
+==
+bnz provideliquidity_7_l22
 byte "liquidity_pool_address"
 app_global_get
 byte "b_token"
 app_global_get
 load 20
 callsub innertxsendtoken_11
+provideliquidity_7_l4:
+itxn_next
+byte "a_token"
+app_global_get
+byte "b_token"
+app_global_get
+<
+bnz provideliquidity_7_l21
+int 1
+provideliquidity_7_l6:
+int 1
+==
+bnz provideliquidity_7_l20
+byte "liquidity_pool_address"
+app_global_get
+byte "b_token"
+app_global_get
+load 20
+callsub innertxsendtoken_11
+provideliquidity_7_l8:
 itxn_next
 int appl
 itxn_field TypeEnum
@@ -413,9 +432,70 @@ itob
 itxn_field ApplicationArgs
 byte "a_token"
 app_global_get
-itxn_field Assets
 byte "b_token"
 app_global_get
+<
+bnz provideliquidity_7_l19
+int 1
+provideliquidity_7_l10:
+int 0
+==
+bnz provideliquidity_7_l18
+byte "b_token"
+app_global_get
+provideliquidity_7_l12:
+itxn_field Assets
+byte "a_token"
+app_global_get
+byte "b_token"
+app_global_get
+<
+bnz provideliquidity_7_l17
+int 1
+provideliquidity_7_l14:
+int 1
+==
+bnz provideliquidity_7_l16
+byte "b_token"
+app_global_get
+b provideliquidity_7_l24
+provideliquidity_7_l16:
+byte "a_token"
+app_global_get
+b provideliquidity_7_l24
+provideliquidity_7_l17:
+int 0
+b provideliquidity_7_l14
+provideliquidity_7_l18:
+byte "a_token"
+app_global_get
+b provideliquidity_7_l12
+provideliquidity_7_l19:
+int 0
+b provideliquidity_7_l10
+provideliquidity_7_l20:
+byte "liquidity_pool_address"
+app_global_get
+byte "a_token"
+app_global_get
+load 0
+callsub innertxsendtoken_11
+b provideliquidity_7_l8
+provideliquidity_7_l21:
+int 0
+b provideliquidity_7_l6
+provideliquidity_7_l22:
+byte "liquidity_pool_address"
+app_global_get
+byte "a_token"
+app_global_get
+load 0
+callsub innertxsendtoken_11
+b provideliquidity_7_l4
+provideliquidity_7_l23:
+int 0
+b provideliquidity_7_l2
+provideliquidity_7_l24:
 itxn_field Assets
 byte "lp_token"
 app_global_get
@@ -889,12 +969,12 @@ global Round
 byte "auction_start_block"
 app_global_get
 -
-int 259200
+int 3600
 >=
 bnz auctionpriceMULT_16_l2
 byte "auction_init_market_price"
 app_global_get
-int 259200
+int 3600
 global Round
 byte "auction_start_block"
 app_global_get
@@ -1087,7 +1167,7 @@ auctionend_20:
 global Round
 byte "start_block"
 app_global_get
-int 259200
+int 3600
 +
 >=
 byte "auction_left_to_raise"

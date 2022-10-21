@@ -3,6 +3,7 @@ import { useModal } from 'react-hooks-use-modal';
 import { useEffect, useState } from 'react';
 import { ApiPool } from '@pactfi/pactsdk';
 import {
+    $balances,
     $meanRoundDuration,
     $networkTime,
     $pricedAssets,
@@ -15,6 +16,8 @@ import { DexProvider } from '../dexes';
 import { ProgressBar } from '../Components/ProgressBar/ProgressBar';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
 import { getPactPools } from '../providers/apiProvider';
+import { DAY, fromSmallestUnits } from '../common/lib';
+import { notify } from '../Components/Notification';
 import { LaaSHeader } from './LaaSHeader';
 import { LaaSInfo } from './LaaSInfo';
 import { LaaSResults } from './LaaSResults';
@@ -74,6 +77,7 @@ export const ROWS_BY_STAGE: any = {
     [LaaSStage.withdraw]: {
         TVL: true,
         ILCovered: true,
+        myStake: true,
         claimAmount: true,
     },
     [LaaSStage.unknown]: {},
@@ -86,7 +90,7 @@ const getLaaSStage = (currentBlock: number, vault: Contract<'laas'>): LaaSStage 
 
     const { startBlock } = vault.state.initial;
     const subscriptionBlocks = vault.state.initial.subscriptionBlock;
-    const { isFullySubscribed } = vault.state.global;
+    const isFullySubscribed = Number(vault.state.initial.initialABalance - vault.state.global.totalALiqProvided) === 0;
 
     if (currentBlock - startBlock < subscriptionBlocks && !isFullySubscribed) {
         return LaaSStage.subscription;
@@ -98,7 +102,8 @@ const getLaaSStage = (currentBlock: number, vault: Contract<'laas'>): LaaSStage 
     }
 
     const { auctionStartBlock, auctionLeftToRaise } = vault.state.global;
-    const AUCTION_BLOCKS = 60 * 60 * 24;
+    const AUCTION_BLOCKS = DAY;
+    // console.log('AUCTION', vault.state.global);
     if (
         auctionLeftToRaise &&
         auctionStartBlock &&
@@ -113,8 +118,8 @@ const getLaaSStage = (currentBlock: number, vault: Contract<'laas'>): LaaSStage 
 
 export const findPool = async (
     dex: DexProvider,
-    assetA_id: number | undefined,
-    assetB_id: number | undefined,
+    assetA_id: number,
+    assetB_id: number,
     poolAppId?: string
 ): Promise<ApiPool | null> => {
     if (dex !== 'PT') {
@@ -122,8 +127,8 @@ export const findPool = async (
     }
 
     const pactPools = await getPactPools({
-        primary_asset__algoid: assetA_id ? assetA_id.toString() : undefined,
-        secondary_asset__algoid: assetB_id ? assetB_id.toString() : undefined,
+        primary_asset__algoid: String(Math.min(assetA_id, assetB_id)),
+        secondary_asset__algoid: String(Math.max(assetA_id, assetB_id)),
     });
     const filteredPools = pactPools; //.filter((pool) => pool.appid === poolAppId);
     // console.log('POOL', poolAppId, pactPools, filteredPools);
@@ -139,18 +144,33 @@ export const getPoolAPR = (poolInfo: ApiPool | null) => {
 
 export const getCapacityLeft = (asset1: Priced<Asset>, asset2: Priced<Asset>, vaultState: ContractState<'laas'>) => {
     return (
-        (Number(vaultState.initial.initialABalance - vaultState.global.totalALiqProvided) * asset1.price) / asset2.price
+        (fromSmallestUnits(asset1, vaultState.initial.initialABalance - vaultState.global.totalALiqProvided) *
+            asset1.price) /
+        asset2.price
     );
+};
+
+export const getCurrentImpermanentLoss = (
+    asset1: Priced<Asset>,
+    asset2: Priced<Asset>,
+    vaultState: ContractState<'laas'>
+) => {
+    const rOld = Number(vaultState.global.totalALiqProvided) / Number(vaultState.global.totalBLiqProvided);
+    const rCurrent = asset1.price / asset2.price;
+    const p = rOld / rCurrent;
+
+    return Math.abs((2 * Math.sqrt(p)) / (1 + p) - 1);
 };
 
 export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const dex: DexProvider = 'PT';
-    const asset1_id = vault?.state?.initial.aToken;
-    const asset2_id = vault?.state?.initial.bToken;
+    const asset1_id = vault.state?.initial.aToken;
+    const asset2_id = vault.state?.initial.bToken;
     const asset1 = useStoreMap($pricedAssets, (as) => as.get(asset1_id ?? 0, null));
     const asset2 = useStoreMap($pricedAssets, (as) => as.get(asset2_id ?? 0, null));
     const isVerified = vault.info.metadata.verified ?? false;
 
+    const balances = useUnit($balances);
     const meanRoundDuration = useUnit($meanRoundDuration);
     const currentBlock = useUnit($networkTime);
     const laasStage = getLaaSStage(currentBlock, vault);
@@ -161,7 +181,7 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const [poolInfo, setPoolInfo] = useState<ApiPool | null>(null);
 
     useEffect(() => {
-        if (!vault.state) {
+        if (!vault.state || !asset1_id || !asset2_id) {
             return;
         }
         // TODO: не находит пакт этот пул
@@ -169,15 +189,12 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
         findPool(dex, asset1_id, asset2_id, poolAppId.toString()).then((res) => setPoolInfo(res));
     }, [vault.state]);
 
-    if (!vault.state || !asset1 || !asset2) {
-        // console.log('card is null cuz no state or assets fail', asset1, asset2);
-        // console.log('vault:', vault);
-        // console.log('priced assets', pricedAssets);
+    if (!asset1 || !asset2 || !currentBlock || !vault.state) {
         return null;
     }
 
-    const initialABalance = Number(vault.state.initial.initialABalance);
-    const totalALiqProvided = Number(vault.state.global.totalALiqProvided);
+    const initialABalance = fromSmallestUnits(asset1, vault.state.initial.initialABalance);
+    const totalALiqProvided = fromSmallestUnits(asset1, vault.state.global.totalALiqProvided);
 
     const vaultDurationText = getVaultDurationText(laasStage, meanRoundDuration, currentBlock, vault.state.initial);
 
@@ -193,7 +210,7 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                     progress={totalALiqProvided / initialABalance}
                 />
             ) : (
-                <LaaSResults APY={getPoolAPR(poolInfo)} IL={0} />
+                <LaaSResults APY={getPoolAPR(poolInfo)} IL={getCurrentImpermanentLoss(asset1, asset2, vault.state)} />
             )}
             <LaaSInfo
                 laasStage={laasStage}
@@ -207,12 +224,19 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                 vault={vault}
                 asset2_name={asset2.unitName}
                 buttonSubtitle={vaultDurationText}
-                onClick={() => {
+                onClick={async () => {
                     if (laasStage === LaaSStage.subscription) {
                         openDepositModal();
                     }
                     if (laasStage === LaaSStage.auction) {
                         openAuctionModal();
+                    }
+                    if (laasStage === LaaSStage.withdraw) {
+                        // await vault.ctc.apis.end_vault();
+                        // console.log('VAULT IS ENDED');
+                        const bAmount = vault.state ? balances[vault.state.initial.slpToken] : 0;
+                        await vault.ctc.apis.withdraw_b([bAmount]);
+                        notify('Done!', 'success');
                     }
                 }}
             />

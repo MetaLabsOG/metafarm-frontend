@@ -18,14 +18,13 @@ import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
 import { FARM_FLAT_ALGO_CREATION_FEE } from '../AppContext';
 import { DexProvider } from '../dexes';
-import { DexSwitch } from '../Zap/Zap';
 import { AddFarmRow, DateInput } from '../Farm/styled';
 import { calculateTimeByBlock, daysToBlocks } from '../Farm/AddFarm';
 import { deployFarm, getDexName } from '../Farm/utils';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
-import { deployPactPoolFull } from '../cometa-laas-tmp/pact-utils';
 import { getSmallestUnits } from '../common/lib';
-import { findPool } from './LaaSCard';
+import { expBackoff } from '../common/store/utils';
+import { deployVaultToBackend } from '../providers/apiProvider';
 
 const MIN_ALLOWED_ALGO_BALANCE = 5;
 
@@ -95,7 +94,7 @@ const createVault = async (
     try {
         const aToken = projectToken.id;
         const bToken = userToken.id;
-        console.log('[START]', aToken, bToken);
+        console.log('[START]', aToken, bToken, vaultRunBlocks);
 
         // const pool = await findPool(dex, Math.min(aToken, bToken), Math.max(aToken, bToken));
         // if (pool === null) {
@@ -116,6 +115,12 @@ const createVault = async (
         const lpToken = 117099049;
         const poolAppId = 117099002;
 
+        // USDC/ALGF
+        // const USDC_ID = 10458941;
+        // const ALGF_ID = 70283957;
+        // const lpToken = 114635758;
+        // const poolAppId = 114634485;
+
         console.log('[PACT POOL]', lpToken, poolAppId);
 
         const vaultParams = {
@@ -133,6 +138,13 @@ const createVault = async (
         // This.tokens.slp = Number(this.runtime.getGlobalState(this.vaultAppId, 'slp_token'));
         // console.log(`Opting in into Vault SLP tokens... (id=${this.tokens.slp})`);
         // this.runtime.optInToASA(this.tokens.slp, this.vaultLiquidityProvider.address, {});
+
+        const deployToBackendWithBackoffFun = expBackoff(async () =>
+            deployVaultToBackend(account.networkAccount.addr, Number(vaultId), 'laas', projectToken, userToken)
+        );
+
+        await deployToBackendWithBackoffFun(null);
+        notify(`Done! Contract id is ${Number(vaultId)}. Please, update the page.`, 'success');
 
         console.log('OMG CANT BELIVE IT WORKS!', vaultId);
     } catch (error) {
