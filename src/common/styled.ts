@@ -92,7 +92,7 @@ export const ModalTitle = styled.h1`
     width: 100%;
     text-align: left;
     margin-bottom: 20px;
-    font-family: 'Krona One';
+    font-family: 'Korona One';
     font-style: normal;
     font-weight: 400;
     font-size: 22px;
@@ -116,7 +116,7 @@ export const ModalSubtitle = styled.h3`
 export const ModalCloseButton = styled.img`
     width: 28px;
     position: absolute;
-    left: 330px;
+    right: 15px;
     top: 15px;
 
     :hover {

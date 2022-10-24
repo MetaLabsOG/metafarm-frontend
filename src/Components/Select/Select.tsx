@@ -205,7 +205,7 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
             </SelectContainer>
             <SelectModal>
                 <SelectModalContainer>
-                    <ModalCloseButton style={{ left: 360 }} src={closeButton} alt="close" onClick={closeSelectModal} />
+                    <ModalCloseButton src={closeButton} alt="close" onClick={closeSelectModal} />
                     <Loupe alt="search" src={loupe} />
                     <SelectSearch
                         placeholder="Search token name"

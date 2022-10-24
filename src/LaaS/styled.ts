@@ -80,7 +80,7 @@ export const LaaSSquare = styled.div`
 `;
 
 export const LaaSResultNumber = styled.div`
-    font-family: 'Krona One';
+    font-family: 'Korona One';
     font-style: normal;
     font-weight: 400;
     font-size: 20px;

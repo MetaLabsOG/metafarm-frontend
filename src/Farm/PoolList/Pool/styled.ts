@@ -28,6 +28,10 @@ export const PoolContainer = styled.div`
         transition: transform 0.6s;
         transform-style: preserve-3d;
         background-color: var(--backgroundCard);
+
+        :hover {
+            background: var(--backgroundCard);
+        }
     }
 `;
 

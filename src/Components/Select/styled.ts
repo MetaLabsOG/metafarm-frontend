@@ -26,6 +26,14 @@ export const SelectModalContainer = styled.div`
     padding: 20px;
     background-color: var(--background);
     border-radius: 12px;
+
+    @media (max-height: 700px) {
+        height: calc(100vh - 150px);
+    }
+
+    @media (max-width: 400px) {
+        width: calc(100vw - 30px);
+    }
 `;
 
 export const SelectSearch = styled.input`

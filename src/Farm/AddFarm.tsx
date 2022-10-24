@@ -416,21 +416,11 @@ function getTinymanPoolOptions(selectedOption?: SelectOptionType) {
     };
 }
 
-let pactPools: pactsdk.ApiPool[] = [];
-
 function getPactPoolOptions(selectedOption?: SelectOptionType) {
     return async (query: string) => {
-        if (pactPools.length === 0) {
-            pactPools = await getPactPools();
-        }
-        query = query.toLowerCase();
-        const filtered = pactPools.filter(
-            ({ primary_asset, secondary_asset }) =>
-                primary_asset.unit_name.toLowerCase().includes(query) ||
-                secondary_asset.unit_name.toLowerCase().includes(query)
-        );
+        const pactPools = await getPactPools(20, query);
 
-        const options: PoolOptionType[] = filtered.map((pool) => ({
+        const options: PoolOptionType[] = pactPools.map((pool) => ({
             value: pool.pool_asset.algoid,
             name: `${pool.primary_asset.unit_name}-${pool.secondary_asset.unit_name} LP`,
             poolId: Number(pool.appid),
@@ -443,10 +433,6 @@ function getPactPoolOptions(selectedOption?: SelectOptionType) {
             totalLiquidity: BigInt(Math.round(Number(pool.tvl_usd))),
             dexFeeApr: 0, // Is it important here?
         }));
-
-        if (selectedOption && selectedOption.value && !options.includes(selectedOption as PoolOptionType)) {
-            options.push(selectedOption as PoolOptionType);
-        }
 
         return options;
     };

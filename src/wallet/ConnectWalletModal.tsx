@@ -21,7 +21,7 @@ export function ConnectWalletModal({ closeModal, isModalOpen }: { closeModal: ()
 
     return (
         <WalletModalContainer finishedOpening={finishedOpening}>
-            <ModalCloseButton style={{ left: 410 }} src={closeButton} alt="close" onClick={closeModal} />
+            <ModalCloseButton src={closeButton} alt="close" onClick={closeModal} />
             <WalletHeader>CHOOSE WALLET</WalletHeader>
             <WalletButton onClick={() => walletClick('MyAlgo')}>
                 <WalletText>Connect to MyAlgo</WalletText>
