@@ -44,6 +44,7 @@ export const SelectInputGroup: FC<SelectInputGroupProps> = ({
                 disabled={inputDisabled}
                 placeholder="0"
                 value={inputData}
+                inputMode="decimal"
                 onChange={(e) => {
                     if (Number.isNaN(Number(e.target.value))) {
                         return;

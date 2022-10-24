@@ -19,6 +19,7 @@ export const SelectContainer = styled.div`
     border-radius: 8px;
     left: 8px;
     top: 8px;
+    z-index: 2;
 `;
 
 export const TokenInput = styled.input`
@@ -27,7 +28,7 @@ export const TokenInput = styled.input`
     padding: 8px 16px 8px 230px;
     background-color: var(--background);
 
-    font-family: 'Krona One';
+    font-family: 'Korona One';
     font-style: normal;
     font-weight: 400;
     font-size: 18px;
@@ -39,6 +40,7 @@ export const TokenInput = styled.input`
     border: 1px solid var(--borderColor);
     border-radius: 12px;
     flex-grow: 1;
+    appearance: none;
 
     :focus {
         border: 1px solid var(--newLightGray);

@@ -4,7 +4,7 @@ import pactsdk from '@pactfi/pactsdk';
 import packages from '../../package.json';
 import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
 import { AssetId, ContractType } from '../common/store/types';
-import { ALGONET } from '../AppContext';
+import { ALGONET, TESTNET } from '../AppContext';
 import { nonConcurrent } from '../common/store/utils';
 import { DexProvider } from '../dexes/common';
 import { logEvent, LogName } from '../logEvent';
@@ -183,9 +183,16 @@ export const getTinymanPools = nonConcurrent(async (limit: number, search: strin
     return pools.results;
 });
 
-export const getPactPools = nonConcurrent(async (): Promise<pactsdk.ApiPool[]> => {
-    const response = await pactDex.pact.listPools();
-    return response.results;
+export const getPactPools = nonConcurrent(async (limit: number, search = ''): Promise<pactsdk.ApiPool[]> => {
+    // const response = await pactDex.pact.listPools();
+    const prefix = ALGONET === TESTNET ? 'testnet.' : '';
+    let pactUrl = `https://api.${prefix}pact.fi/api/pools?limit=${limit}&offset=0&ordering=-tvl_usd`;
+    if (search) {
+        pactUrl += `&details=${search}`;
+    }
+    const poolsResponse = await fetch(pactUrl);
+    const pools = await poolsResponse.json();
+    return pools.results;
 });
 
 export const getHumblePools = nonConcurrent(async (): Promise<MiniHumble.PoolDetails[]> => {
