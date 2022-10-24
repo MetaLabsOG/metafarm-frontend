@@ -17,7 +17,7 @@ import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/s
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
 import { FARM_FLAT_ALGO_CREATION_FEE } from '../AppContext';
-import { DexProvider } from '../dexes';
+import { DexProvider, makeDex } from '../dexes';
 import { AddFarmRow, DateInput } from '../Farm/styled';
 import { calculateTimeByBlock, daysToBlocks } from '../Farm/AddFarm';
 import { deployFarm, getDexName } from '../Farm/utils';
@@ -96,30 +96,17 @@ const createVault = async (
         const bToken = userToken.id;
         console.log('[START]', aToken, bToken, vaultRunBlocks);
 
-        // const pool = await findPool(dex, Math.min(aToken, bToken), Math.max(aToken, bToken));
-        // if (pool === null) {
-        //     console.log('No lp pool :(');
-        //     return false;
-        // }
-        // const lpToken = pool.id;
-        // const poolAppId = pool.appid;
+        const pool = await makeDex(dex).getPoolByAssets(aToken, bToken);
+        if (pool === null) {
+            console.log('No lp pool :(');
+            return false;
+        }
+        const lpToken = pool.liquidityAsset;
+        const poolAppId = pool.poolId;
 
         // const { poolId, lpTokenId } = await deployPactPoolFull(aToken, bToken, account, DEFAULT_TEAL_CONNECTOR);
         // const lpToken = poolId;
         // const poolAppId = lpTokenId;
-
-        // META/ALGO
-        // const lpToken = 117097222;
-        // const poolAppId = 117097199;
-        // META/USDC
-        const lpToken = 117099049;
-        const poolAppId = 117099002;
-
-        // USDC/ALGF
-        // const USDC_ID = 10458941;
-        // const ALGF_ID = 70283957;
-        // const lpToken = 114635758;
-        // const poolAppId = 114634485;
 
         console.log('[PACT POOL]', lpToken, poolAppId);
 
@@ -134,10 +121,6 @@ const createVault = async (
         console.log('[START VAULT DEPLOY]', vaultParams);
         const laasCtc = laasBackend.makeCtc(account, DEFAULT_TEAL_CONNECTOR);
         const vaultId = await deployFarm(laasCtc, vaultParams);
-
-        // This.tokens.slp = Number(this.runtime.getGlobalState(this.vaultAppId, 'slp_token'));
-        // console.log(`Opting in into Vault SLP tokens... (id=${this.tokens.slp})`);
-        // this.runtime.optInToASA(this.tokens.slp, this.vaultLiquidityProvider.address, {});
 
         const deployToBackendWithBackoffFun = expBackoff(async () =>
             deployVaultToBackend(account.networkAccount.addr, Number(vaultId), 'laas', projectToken, userToken)
@@ -233,9 +216,9 @@ export function AddLaaS() {
         });
     }, [account, balances]);
 
-    const selectDexOnChange = (dex: DexProvider) => {
-        setSelectedDex(dex);
-    };
+    // const selectDexOnChange = (dex: DexProvider) => {
+    //     setSelectedDex(dex);
+    // };
 
     const selectProjectTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
         setSelectedProjectToken(option);

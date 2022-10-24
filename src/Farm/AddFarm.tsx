@@ -43,6 +43,7 @@ import { DexSwitch } from '../Zap/Zap';
 import * as MiniHumble from '../dexes/humbleReexports';
 import { AddFarmRow, DateInput } from './styled';
 import { deployFarm, getDexName, InitialDistributionState, InitialFarmState } from './utils';
+import { numberRound } from './PoolList/Pool/utils';
 
 // TODO: Using aliases for different package versions prevents us from automatically determining
 // the version of given contract type from package.json. So we have to hard-code it.
@@ -353,7 +354,7 @@ function PoolInfo({
             {type === 'farm' && (
                 <InfoRow
                     title="Current pool liquidity"
-                    value={'$' + formatDecimalsMeaningful(Number(selectedPool.totalLiquidity))}
+                    value={'$' + numberRound(Number(selectedPool.totalLiquidity))}
                 />
             )}
             {type === 'farm' && (

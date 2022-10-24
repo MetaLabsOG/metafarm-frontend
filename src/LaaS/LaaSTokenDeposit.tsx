@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { useUnit } from '.store/effector-react-virtual-9349769ad3/package';
-import { ApiPool } from '.store/@pactfi-pactsdk-npm-0.5.0-60f29c2259/package';
+import { useUnit } from 'effector-react';
 import { theme } from '../theme';
 import { ModalContainer, ModalSubtitle, ModalTitle } from '../common/styled';
 import { $balances, $meanRoundDuration, $networkTime, Asset, Contract, Priced } from '../common/store';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
-import { Button, ButtonType } from '../Components/Button/Button';
 import { TokenInput } from '../Components/TokenInput/TokenInput';
 import { algoexplorerLink, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
@@ -17,21 +15,21 @@ import { getDexName } from '../Farm/utils';
 import { blocksToText } from '../Farm/PoolList/Pool/PoolInfo';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { ButtonSubtitle } from './styled';
-import { getCapacityLeft, getPoolAPR } from './LaaSCard';
+import { getCapacityLeft } from './LaaSCard';
 
 const DepositInfo = ({
     vault,
     dex,
     asset1,
     asset2,
-    poolInfo,
+    poolAPR,
     tokenAmount,
 }: {
     vault: Contract<'laas'>;
     dex: DexProvider;
     asset1: Priced<Asset>;
     asset2: Priced<Asset>;
-    poolInfo: ApiPool | null;
+    poolAPR: number;
     tokenAmount: number;
 }) => {
     if (!vault.state) {
@@ -61,7 +59,7 @@ const DepositInfo = ({
                 value={vaultName}
                 valueLink={algoexplorerLink('application', vault.state.initial.liquidityPoolApp)}
             />
-            <InfoRow title={'Estimated APR'} value={`${getPoolAPR(poolInfo) * 100}%`} />
+            <InfoRow title={'Estimated APR'} value={`${poolAPR * 100}%`} />
             <InfoRow title={'Withdrawal date'} value={withdrawalDate} />
             <InfoRow title={'Remaining Capacity'} value={`${numberRound(remainingCapacity)} ${asset2.unitName}`} />
             <InfoRow title={'Vault duration'} value={vaultDurationText} />
@@ -80,7 +78,7 @@ export const LaaSTokenDeposit = ({
     dex,
     asset1,
     asset2,
-    poolInfo,
+    poolAPR,
     buttonSubtitle,
     closeModal,
 }: {
@@ -88,7 +86,7 @@ export const LaaSTokenDeposit = ({
     dex: DexProvider;
     asset1: Priced<Asset>;
     asset2: Priced<Asset>;
-    poolInfo: ApiPool | null;
+    poolAPR: number;
     buttonSubtitle: string;
     closeModal: () => void;
 }) => {
@@ -111,7 +109,7 @@ export const LaaSTokenDeposit = ({
                 dex={dex}
                 asset1={asset1}
                 asset2={asset2}
-                poolInfo={poolInfo}
+                poolAPR={poolAPR}
                 tokenAmount={Number(tokenAmount)}
             />
             <ModalSubtitle style={{ marginTop: 20, marginBottom: 10, width: 350 }}>

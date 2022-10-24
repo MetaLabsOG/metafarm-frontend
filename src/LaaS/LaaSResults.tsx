@@ -14,7 +14,7 @@ export const LaaSResults = ({
     isFinalIL?: boolean;
 }) => {
     const APYSubtitle = isFinalAPY ? 'Result' : 'Projected';
-    const ILSubtile = isFinalAPY ? 'Result' : 'Current'; // TODO Expected
+    const ILSubtitle = isFinalIL ? 'Result' : 'Current'; // TODO Expected
 
     return (
         <LaaSResultsContainer>
@@ -24,9 +24,10 @@ export const LaaSResults = ({
             </LaaSSquare>
             <LaaSSquare>
                 <LaaSResultNumber style={{ color: IL > 0.75 ? theme.red : theme.green }}>{`${numberRound(
-                    IL * 100
+                    IL * 100,
+                    2
                 )}%`}</LaaSResultNumber>
-                <LaaSResultNumberSubtitle>{ILSubtile} IL</LaaSResultNumberSubtitle>
+                <LaaSResultNumberSubtitle>{ILSubtitle} IL</LaaSResultNumberSubtitle>
             </LaaSSquare>
         </LaaSResultsContainer>
     );

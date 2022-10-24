@@ -49,6 +49,7 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     463554836: 70283957, // ALGF
     792313023: 96690352, // XSOL
     342889824: 27963203, // BOARD
+    312769: 42279195, // USDT
 };
 
 export const SLIPPAGE = 0.01;

@@ -251,7 +251,7 @@ export const laasCtcMockSubscription: Contract<'laas'> = {
             // seeker достает свои деньги скорее всего после аукциона
             ls_withdraw() {},
             withdraw_b(amount: number) {},
-            auction_buy(bAmount: number, aToBuyDesired: number) {},
+            auction_buy(bAmount: number) {},
             change_priority(new_priority_addr: string) {},
         },
     },
@@ -268,6 +268,7 @@ export const laasCtcMockSubscription: Contract<'laas'> = {
             liquidityPoolApp: 123,
             creator: 'addr',
             liquidityPoolAddr: 'addr',
+            auctionLength: 100,
         },
         global: {
             totalALiqProvided: BigInt(50000),
@@ -280,8 +281,8 @@ export const laasCtcMockSubscription: Contract<'laas'> = {
 
             totalBToWithdraw: BigInt(1000),
 
-            auctionToRaiseInitital: BigInt(1000),
-            auctionInitMarketPriceMult: BigInt(2),
+            auctionLeftToRaiseInitial: BigInt(1000),
+            auctionInitMarketPrice: BigInt(2),
             auctionStartBlock: 3000,
             auctionLeftToRaise: BigInt(10000),
 
@@ -315,7 +316,7 @@ export const laasCtcMockRunning: Contract<'laas'> = {
             // seeker достает свои деньги скорее всего после аукциона
             ls_withdraw() {},
             withdraw_b(amount: number) {},
-            auction_buy(bAmount: number, aToBuyDesired: number) {},
+            auction_buy(bAmount: number) {},
             change_priority(new_priority_addr: string) {},
         },
     },
@@ -332,6 +333,7 @@ export const laasCtcMockRunning: Contract<'laas'> = {
             liquidityPoolApp: 123,
             creator: 'addr',
             liquidityPoolAddr: 'addr',
+            auctionLength: 100,
         },
         global: {
             totalALiqProvided: BigInt(50000),
@@ -344,8 +346,8 @@ export const laasCtcMockRunning: Contract<'laas'> = {
 
             totalBToWithdraw: BigInt(1000),
 
-            auctionToRaiseInitital: BigInt(1000),
-            auctionInitMarketPriceMult: BigInt(2),
+            auctionLeftToRaiseInitial: BigInt(1000),
+            auctionInitMarketPrice: BigInt(2),
             auctionStartBlock: 24200498,
             auctionLeftToRaise: BigInt(10000),
 
@@ -379,7 +381,7 @@ export const laasCtcMockAuction: Contract<'laas'> = {
             // seeker достает свои деньги скорее всего после аукциона
             ls_withdraw() {},
             withdraw_b(amount: number) {},
-            auction_buy(bAmount: number, aToBuyDesired: number) {},
+            auction_buy(bAmount: number) {},
             change_priority(new_priority_addr: string) {},
         },
     },
@@ -396,6 +398,7 @@ export const laasCtcMockAuction: Contract<'laas'> = {
             liquidityPoolApp: 123,
             creator: 'addr',
             liquidityPoolAddr: 'addr',
+            auctionLength: 100,
         },
         global: {
             totalALiqProvided: BigInt(50000),
@@ -408,8 +411,8 @@ export const laasCtcMockAuction: Contract<'laas'> = {
 
             totalBToWithdraw: BigInt(1000),
 
-            auctionToRaiseInitital: BigInt(1000),
-            auctionInitMarketPriceMult: BigInt(2),
+            auctionLeftToRaiseInitial: BigInt(1000),
+            auctionInitMarketPrice: BigInt(2),
             auctionStartBlock: 24110498,
             auctionLeftToRaise: BigInt(10000),
 
@@ -443,7 +446,7 @@ export const laasCtcMockWithdraw: Contract<'laas'> = {
             // seeker достает свои деньги скорее всего после аукциона
             ls_withdraw() {},
             withdraw_b(amount: number) {},
-            auction_buy(bAmount: number, aToBuyDesired: number) {},
+            auction_buy(bAmount: number) {},
             change_priority(new_priority_addr: string) {},
         },
     },
@@ -460,6 +463,7 @@ export const laasCtcMockWithdraw: Contract<'laas'> = {
             liquidityPoolApp: 123,
             creator: 'addr',
             liquidityPoolAddr: 'addr',
+            auctionLength: 100,
         },
         global: {
             totalALiqProvided: BigInt(50000),
@@ -472,8 +476,8 @@ export const laasCtcMockWithdraw: Contract<'laas'> = {
 
             totalBToWithdraw: BigInt(1000),
 
-            auctionToRaiseInitital: BigInt(1000),
-            auctionInitMarketPriceMult: BigInt(2),
+            auctionLeftToRaiseInitial: BigInt(1000),
+            auctionInitMarketPrice: BigInt(2),
             auctionStartBlock: 24109500,
             auctionLeftToRaise: BigInt(0),
 

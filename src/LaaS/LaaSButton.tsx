@@ -1,6 +1,7 @@
 import { Contract, LaasInitialInfo } from '../common/store';
 import { Button, ButtonType } from '../Components/Button/Button';
 import { blocksToText } from '../Farm/PoolList/Pool/PoolInfo';
+import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { ButtonSubtitle } from './styled';
 import { BUTTON_TITLE, LaaSStage } from './LaaSCard';
 
@@ -36,7 +37,7 @@ export const LaaSButton = ({
 }: {
     laasStage: LaaSStage;
     vault: Contract<'laas'>;
-    onClick: () => void;
+    onClick: () => Promise<void>;
     asset2_name: string;
     buttonSubtitle: string;
     isProject?: boolean;
@@ -55,12 +56,22 @@ export const LaaSButton = ({
 
     return (
         <div>
-            <Button
-                buttonText={buttonTitle.toUpperCase()}
-                type={buttonType}
-                style={{ width: '215px', height: '42px', fontSize: '15px' }}
-                onClick={onClick}
-            />
+            {laasStage !== LaaSStage.withdraw && (
+                <Button
+                    buttonText={buttonTitle.toUpperCase()}
+                    type={buttonType}
+                    style={{ width: '215px', height: '42px', fontSize: '15px' }}
+                    onClick={onClick}
+                />
+            )}
+            {laasStage === LaaSStage.withdraw && (
+                <PacmanButton
+                    buttonText={buttonTitle.toUpperCase()}
+                    buttonStyle="swap_button"
+                    style={{ width: '215px', height: '42px', fontSize: '15px' }}
+                    onClickAction={onClick}
+                />
+            )}
             <ButtonSubtitle>{buttonSubtitle}</ButtonSubtitle>
         </div>
     );
