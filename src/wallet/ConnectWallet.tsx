@@ -1,4 +1,4 @@
-import { MouseEventHandler, useEffect, useState } from 'react';
+import { CSSProperties, MouseEventHandler, useEffect, useState } from 'react';
 import { useModal } from 'react-hooks-use-modal';
 import { detect } from 'detect-browser';
 
@@ -76,9 +76,15 @@ const disconnectWallet = () => {
     }
 };
 
-export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonClassName?: string }) {
+export function ConnectWallet({
+    buttonClassName = 'connect_wallet',
+    style,
+}: {
+    buttonClassName?: string;
+    style?: CSSProperties;
+}) {
     const account = useUnit($account);
-    const [Modal, open, close, isOpen] = useModal('root', { preventScroll: true });
+    const [Modal, open, close, isOpen] = useModal('root');
     const [accDropdownOpen, setAccDropdownOpen] = useState(false);
     const prefix = ALGONET === TESTNET ? 'testnet.' : '';
 
@@ -111,7 +117,7 @@ export function ConnectWallet({ buttonClassName = 'connect_wallet' }: { buttonCl
 
     return (
         <>
-            <div className="wallet_container">
+            <div className="wallet_container" style={style}>
                 {!account ? (
                     <button className={buttonClassName} onClick={open}>
                         CONNECT WALLET

@@ -4,7 +4,7 @@ import pactsdk from '@pactfi/pactsdk';
 import packages from '../../package.json';
 import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
 import { AssetId, ContractType } from '../common/store/types';
-import { ALGONET } from '../AppContext';
+import { ALGONET, TESTNET } from '../AppContext';
 import { nonConcurrent } from '../common/store/utils';
 import { DexProvider } from '../dexes/common';
 import { logEvent, LogName } from '../logEvent';
@@ -12,6 +12,7 @@ import { pactDex } from '../dexes';
 import { StakingAsset } from '../Farm/AddFarm';
 import { LaaSBackendContractsMock } from '../common/mocks';
 import * as MiniHumble from '../dexes/humbleReexports';
+import { NftLottery } from '../Swap/NftWinModal';
 
 export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -182,11 +183,42 @@ export const getTinymanPools = nonConcurrent(async (limit: number, search: strin
     return pools.results;
 });
 
-export const getPactPools = nonConcurrent(async (): Promise<pactsdk.ApiPool[]> => {
-    const response = await pactDex.pact.listPools();
-    return response.results;
+export const getPactPools = nonConcurrent(async (limit: number, search = ''): Promise<pactsdk.ApiPool[]> => {
+    // const response = await pactDex.pact.listPools();
+    const prefix = ALGONET === TESTNET ? 'testnet.' : '';
+    let pactUrl = `https://api.${prefix}pact.fi/api/pools?limit=${limit}&offset=0&ordering=-tvl_usd`;
+    if (search) {
+        pactUrl += `&details=${search}`;
+    }
+    const poolsResponse = await fetch(pactUrl);
+    const pools = await poolsResponse.json();
+    return pools.results;
 });
 
 export const getHumblePools = nonConcurrent(async (): Promise<MiniHumble.PoolDetails[]> => {
     return instance.get('/humble/pools/all').then(({ data }) => data);
 });
+
+export async function checkNftLottery(
+    txid: string,
+    wallet: string,
+    asset1_id: number,
+    asset2_id: number,
+    asset1_amount: number,
+    asset2_amount: number
+): Promise<NftLottery | null> {
+    const request = {
+        txid,
+        wallet,
+        asset1_id,
+        asset2_id,
+        asset1_amount,
+        asset2_amount,
+    };
+
+    return instance.post('/swap/lottery', request).then(({ data }) => data);
+}
+
+export async function nftClaim(txid: string): Promise<string> {
+    return instance.patch(`/lottery/claim?swap_txid=${txid}`).then(({ data }) => data);
+}

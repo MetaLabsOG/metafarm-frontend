@@ -1,9 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-
-import 'react-select-search/style.css';
-import '../css/swap.css';
-
-import { SelectedOption, SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit } from 'effector-react';
 import { logEvent, logFarmActionData, LogName } from '../logEvent';
@@ -14,6 +9,7 @@ import { TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import {
     DexButton,
+    DexName,
     DexSwitchContainer,
     Heading2,
     ModalContainer,
@@ -313,10 +309,7 @@ export function Zap({
         }, delay);
     }
 
-    const select1OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
-        // FIXME
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
+    const select1OnChange = (option: TokenOptionType) => {
         setToken1(option);
         setToken1Amount('');
 
@@ -329,10 +322,7 @@ export function Zap({
         }
     };
 
-    const select2OnChange = (value: SelectedOptionValue, option: SelectedOption) => {
-        // FIXME
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
+    const select2OnChange = (option: TokenOptionType) => {
         setToken2(option);
 
         if (closeModal !== undefined) {
@@ -437,7 +427,7 @@ export function Zap({
                     rel="noreferrer"
                     style={{ color: theme.lightGray }}
                 >
-                    <h3 className="dex_name">or do it manually</h3>
+                    <DexName>or do it manually</DexName>
                 </a>
             )}
         </ModalContainer>

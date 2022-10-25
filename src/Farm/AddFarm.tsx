@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import pactsdk from '@pactfi/pactsdk';
-import { SelectedOptionValue } from 'react-select-search';
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-expect-error
 import { backend as farmBackend } from 'metalabs-farm-17_2_5';
@@ -13,7 +12,7 @@ import { AxiosError } from 'axios';
 import { getTokens } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { POOL_OPTION, Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';
-import { DexOptionType, PoolOptionType, SelectOptionType, TokenOptionType } from '../Components/Select/types';
+import { PoolOptionType, SelectOptionType, TokenOptionType } from '../Components/Select/types';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
@@ -291,14 +290,19 @@ const calculateFarmData = (
     return [beginBlock, endBlock, rewardPerBlock, lockPeriodBlocks];
 };
 
-export const calculateTimeByBlock = (currentBlock: number, block: number, meanRoundDuration: number) => {
+export const calculateTimeByBlock = (
+    currentBlock: number,
+    block: number,
+    meanRoundDuration: number,
+    dateOnly?: boolean
+) => {
     const timestamp = Date.now() + (block - currentBlock) * meanRoundDuration * 1000;
     return new Date(timestamp).toLocaleString('en-US', {
         day: 'numeric',
         month: 'numeric',
         year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
+        hour: dateOnly ? undefined : '2-digit',
+        minute: dateOnly ? undefined : '2-digit',
         hour12: false,
     });
 };
@@ -412,21 +416,11 @@ function getTinymanPoolOptions(selectedOption?: SelectOptionType) {
     };
 }
 
-let pactPools: pactsdk.ApiPool[] = [];
-
 function getPactPoolOptions(selectedOption?: SelectOptionType) {
     return async (query: string) => {
-        if (pactPools.length === 0) {
-            pactPools = await getPactPools();
-        }
-        query = query.toLowerCase();
-        const filtered = pactPools.filter(
-            ({ primary_asset, secondary_asset }) =>
-                primary_asset.unit_name.toLowerCase().includes(query) ||
-                secondary_asset.unit_name.toLowerCase().includes(query)
-        );
+        const pactPools = await getPactPools(20, query);
 
-        const options: PoolOptionType[] = filtered.map((pool) => ({
+        const options: PoolOptionType[] = pactPools.map((pool) => ({
             value: pool.pool_asset.algoid,
             name: `${pool.primary_asset.unit_name}-${pool.secondary_asset.unit_name} LP`,
             poolId: Number(pool.appid),
@@ -439,10 +433,6 @@ function getPactPoolOptions(selectedOption?: SelectOptionType) {
             totalLiquidity: BigInt(Math.round(Number(pool.tvl_usd))),
             dexFeeApr: 0, // Is it important here?
         }));
-
-        if (selectedOption && selectedOption.value && !options.includes(selectedOption as PoolOptionType)) {
-            options.push(selectedOption as PoolOptionType);
-        }
 
         return options;
     };
@@ -540,7 +530,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
     const [daysDuration, setDaysDuration] = useState<string>('');
     const [lockPeriod, setLockPeriod] = useState<string>('0');
 
-    const [AddFarmModal, openAddFarmModal, closeAddFarmModal] = useModal('root', { preventScroll: true });
+    const [AddFarmModal, openAddFarmModal, closeAddFarmModal] = useModal('root');
 
     const startTimestamp = Date.parse(startTime);
     const [beginBlock, endBlock, rewardPerBlock, lockPeriodBlocks] = calculateFarmData(
@@ -556,7 +546,10 @@ export function AddFarm({ type }: { type: AddFarmType }) {
         selectedDex === 'T2' ? getTinymanPoolOptions : selectedDex === 'PT' ? getPactPoolOptions : getHumblePoolOptions;
 
     useEffect(() => {
-        getPoolOptions()('').then((options) => setPoolOptions(options));
+        getPoolOptions()('').then((options) => {
+            setPoolOptions(options);
+            setSelectedPool(options[0]);
+        });
     }, [getPoolOptions]);
 
     useEffect(() => {
@@ -564,6 +557,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             const filteredAssets = res.filter((asset) => asset.id !== 0);
             setRewardTokenOptions(filteredAssets);
             setSelectedRewardToken(filteredAssets[0]);
+            setSelectedToken(filteredAssets[0]);
 
             const filteredAlgoAsset = res.filter((asset) => asset.id === 0);
             setAlgoToken(filteredAlgoAsset[0]);
@@ -576,15 +570,15 @@ export function AddFarm({ type }: { type: AddFarmType }) {
         setSelectedPool(POOL_OPTION);
     };
 
-    const selectPoolOnChange = (value: SelectedOptionValue, option: PoolOptionType) => {
+    const selectPoolOnChange = (option: PoolOptionType) => {
         setSelectedPool(option);
     };
 
-    const selectTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
+    const selectTokenOnChange = (option: TokenOptionType) => {
         setSelectedToken(option);
     };
 
-    const selectRewardTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
+    const selectRewardTokenOnChange = (option: TokenOptionType) => {
         setSelectedRewardToken(option);
     };
 
@@ -605,7 +599,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
 
     return (
         <ModalContainer>
-            <ModalTitle>ADD {type.toString().toUpperCase()}</ModalTitle>
+            <ModalTitle style={{ textAlign: 'center' }}>ADD {type.toString().toUpperCase()}</ModalTitle>
             {type === 'farm' && (
                 <>
                     <DexSwitch dexProvider={selectedDex} dexOnChange={selectDexOnChange} hasHumble={true} />
@@ -638,7 +632,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
                 setInputData={setRewardTokenAmount}
                 selectOnChange={selectRewardTokenOnChange}
             />
-            <Heading2>ALGO REWARDS [OPTIONAL]</Heading2>
+            <Heading2 style={{ marginTop: 5 }}>ALGO REWARDS [OPTIONAL]</Heading2>
             <SelectInputGroup
                 options={[algoToken]}
                 selectedOption={algoToken}
@@ -676,7 +670,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
                 <Heading2>DAYS</Heading2>
             </AddFarmRow>
             {!account ? (
-                <ConnectWallet buttonClassName="swap_button" />
+                <ConnectWallet buttonClassName="swap_button" style={{ width: '100%' }} />
             ) : (
                 <PacmanButton
                     buttonText="VERIFY DETAILS"
@@ -700,7 +694,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             )}
             <AddFarmModal>
                 <ModalContainer>
-                    <ModalSubtitle style={{ fontSize: '16px' }}>
+                    <ModalSubtitle style={{ fontSize: '16px', width: 350 }}>
                         Please, carefully verify the farm creation parameters.
                     </ModalSubtitle>
                     <PoolInfo

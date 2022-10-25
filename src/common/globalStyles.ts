@@ -2,7 +2,7 @@ import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle` 
   body {
-    background-color: #000;
+    background-color: var(--background);
     width: 100%;
     height: 100%;
     color: #5cfc3c;

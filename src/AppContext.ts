@@ -1,5 +1,6 @@
 import algosdk from 'algosdk';
 
+import { AlammexClient } from '.store/alammex-sdk-js-npm-1.0.6-39f19f56f2/package';
 import type { Provider, ReachStdlib } from './types';
 import { loadStdlibShimmed, makeProviderByEnv } from './reachRedefinitions';
 
@@ -51,3 +52,9 @@ export const FOMO_APP_ID = process.env.REACT_APP_FOMO_ID;
 export const FARM_BENEFICIARY_ADDR = process.env.REACT_APP_BENEFICIARY_ADDR;
 export const FARM_CREATION_FEE = process.env.REACT_APP_FARM_CREATION_FEE;
 export const FARM_FLAT_ALGO_CREATION_FEE = process.env.REACT_APP_FARM_FLAT_ALGO_CREATION_FEE;
+
+const ALAMMEX_API_KEY = process.env.REACT_APP_ALAMMEX_API_KEY;
+export const alammexClient =
+    ALGONET === TESTNET
+        ? AlammexClient.fetchTestnetClient(process.env.ALGO_SERVER, process.env.ALGO_TOKEN, '', ALAMMEX_API_KEY)
+        : AlammexClient.fetchMainnetClient(process.env.ALGO_SERVER, process.env.ALGO_TOKEN, '', ALAMMEX_API_KEY);

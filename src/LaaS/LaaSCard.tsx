@@ -115,8 +115,8 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const currentBlock = useUnit($networkTime);
     const laasStage = getLaaSStage(currentBlock, vault);
 
-    const [DepositModal, openDepositModal, closeDepositModal] = useModal('root', { preventScroll: true });
-    const [AuctionModal, openAuctionModal, closeAuctionModal] = useModal('root', { preventScroll: true });
+    const [DepositModal, openDepositModal, closeDepositModal] = useModal('root');
+    const [AuctionModal, openAuctionModal, closeAuctionModal] = useModal('root');
 
     if (!vault.state || !asset1 || !asset2) {
         console.log('card is null cuz no state or assets fail', asset1, asset2);

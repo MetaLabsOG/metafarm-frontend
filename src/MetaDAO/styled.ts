@@ -26,7 +26,7 @@ export const Wallet = styled.a`
     margin-top: 20px;
     font-weight: 200;
     font-family: 'Montserrat';
-    color: #59f63c;
+    color: var(--green);
     text-overflow: ellipsis;
     width: 400px;
     overflow: hidden;
@@ -118,12 +118,11 @@ export const NFTCard = styled.div`
 
 export const NFTCardInfo = styled.div`
     display: flex;
-    height: 35%;
     flex-direction: column;
-    padding: 0 26px 30px 26px;
-    align-items: flex-start;
+    padding: 20px 26px 20px 26px;
+    align-items: center;
     text-decoration: none;
-    color: #59f63c;
+    color: var(--green);
 `;
 
 export const Nft = styled.div<{ url: string }>`
@@ -131,7 +130,7 @@ export const Nft = styled.div<{ url: string }>`
     background-position: center center;
     background-size: cover;
     width: 100%;
-    height: 70%;
+    height: 80%;
     border-radius: 16px 16px 0 0;
 `;
 

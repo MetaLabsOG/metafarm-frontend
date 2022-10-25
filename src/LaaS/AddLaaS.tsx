@@ -1,5 +1,4 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-import { SelectedOptionValue } from 'react-select-search';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
@@ -211,7 +210,7 @@ export function AddLaaS() {
 
     const [daysDuration, setDaysDuration] = useState<string>('');
 
-    const [AddLaaSModal, openAddLaaSModal, closeAddLaaSModal] = useModal('root', { preventScroll: true });
+    const [AddLaaSModal, openAddLaaSModal, closeAddLaaSModal] = useModal('root');
 
     const endBlock: number = currentBlock + daysToBlocks(Number(daysDuration), meanRoundDuration);
 
@@ -228,11 +227,11 @@ export function AddLaaS() {
         setSelectedDex(dex);
     };
 
-    const selectTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
+    const selectTokenOnChange = (option: TokenOptionType) => {
         setSelectedUserToken(option);
     };
 
-    const selectRewardTokenOnChange = (value: SelectedOptionValue, option: TokenOptionType) => {
+    const selectRewardTokenOnChange = (option: TokenOptionType) => {
         setSelectedProjectToken(option);
     };
 

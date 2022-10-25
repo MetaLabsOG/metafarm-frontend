@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useStoreMap, useUnit } from 'effector-react';
-import { useModal } from '.store/react-hooks-use-modal-virtual-c2664bb5e8/package';
+import { useModal } from 'react-hooks-use-modal';
 import { Status } from '../../../Status.js';
-import { $networkTime, queryTimeUpdate, Contract, FarmType, hasLocalState, $pricedAlgo } from '../../../common/store';
+import { $networkTime, queryTimeUpdate, hasLocalState, $pricedAlgo } from '../../../common/store';
 import { $stakingTokens } from '../../../Stake/store';
 import logo from '../../../imgs/logo.png';
 import { $farmRewardTokens, PoolWithStats } from '../../store';
@@ -19,9 +19,7 @@ export function Pool({ pws }: { pws: PoolWithStats }) {
     const pricedAlgo = useUnit($pricedAlgo);
     const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
     const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null)) ?? stakeTokenInfo;
-    const [ConnectWallet, openConnectWallet, closeConnectWallet, isConnectWalletOpen] = useModal('root', {
-        preventScroll: true,
-    });
+    const [ConnectWallet, openConnectWallet, closeConnectWallet, isConnectWalletOpen] = useModal('root');
     const [isOpen, setIsOpen] = useState(false);
 
     const queryTimeUpdateEvent = useUnit(queryTimeUpdate);
