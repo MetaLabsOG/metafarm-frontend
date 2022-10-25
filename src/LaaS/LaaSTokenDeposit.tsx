@@ -1,38 +1,98 @@
 import React, { useState } from 'react';
+import { useUnit } from 'effector-react';
 import { theme } from '../theme';
 import { ModalContainer, ModalSubtitle, ModalTitle } from '../common/styled';
-import { Asset, Contract, Priced } from '../common/store';
+import { $balances, $meanRoundDuration, $networkTime, Asset, Contract, Priced } from '../common/store';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
-import { Button, ButtonType } from '../Components/Button/Button';
 import { TokenInput } from '../Components/TokenInput/TokenInput';
+import { algoexplorerLink, getSmallestUnits } from '../common/lib';
+import { notify } from '../Components/Notification';
+import { numberRound } from '../Farm/PoolList/Pool/utils';
+import { calculateTimeByBlock } from '../Farm/AddFarm';
+import { DexProvider } from '../dexes';
+import { getDexName } from '../Farm/utils';
+import { blocksToText } from '../Farm/PoolList/Pool/PoolInfo';
+import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { ButtonSubtitle } from './styled';
+import { getCapacityLeft } from './LaaSCard';
 
-const DepositInfo = () => {
+const DepositInfo = ({
+    vault,
+    dex,
+    asset1,
+    asset2,
+    poolAPR,
+    tokenAmount,
+}: {
+    vault: Contract<'laas'>;
+    dex: DexProvider;
+    asset1: Priced<Asset>;
+    asset2: Priced<Asset>;
+    poolAPR: number;
+    tokenAmount: number;
+}) => {
+    if (!vault.state) {
+        return <div>hz</div>;
+    }
+    const meanRoundDuration = useUnit($meanRoundDuration);
+    const currentBlock = useUnit($networkTime);
+    const withdrawalDate = calculateTimeByBlock(
+        currentBlock,
+        vault.state.initial.startBlock + vault.state.initial.vaultRunBlocks,
+        meanRoundDuration
+    );
+    const vaultDurationText = blocksToText(meanRoundDuration, vault.state.initial.vaultRunBlocks);
+    const vaultName = `${asset1.unitName}/${asset2.unitName} on ${getDexName(dex)}`;
+    const remainingCapacity = getCapacityLeft(asset1, asset2, vault.state);
+    const receiveUsdAmount = tokenAmount * asset2.price;
+
     return (
         <InfoPanel isLoading={false}>
-            <InfoRow title={'You receive'} value={'500,000 cALGO (123,000$)'} style={{ color: theme.green }} />
-            <InfoRow title={'Vault'} value={'ALGO/XUSD on tinyman'} valueLink={'TODO'} />
-            <InfoRow title={'Estimated APR'} value={'8.60%'} />
-            <InfoRow title={'Withdrawal date'} value={'03/12/2022 12:00 UTC'} />
-            <InfoRow title={'Remaining Capacity'} value={'398,000 ALGO'} />
-            <InfoRow title={'Vault duration'} value={'35 days'} />
-            <InfoRow title={'Vault contract'} value={'algoexplorer'} valueLink={'TODO'} style={{ marginBottom: 0 }} />
+            <InfoRow
+                title={'You receive'}
+                value={`${numberRound(tokenAmount)} c${asset2.unitName} (${numberRound(receiveUsdAmount)}$)`}
+                style={{ color: theme.green }}
+            />
+            <InfoRow
+                title={'Vault'}
+                value={vaultName}
+                valueLink={algoexplorerLink('application', vault.state.initial.liquidityPoolApp)}
+            />
+            <InfoRow title={'Estimated APR'} value={`${poolAPR * 100}%`} />
+            <InfoRow title={'Withdrawal date'} value={withdrawalDate} />
+            <InfoRow title={'Remaining Capacity'} value={`${numberRound(remainingCapacity)} ${asset2.unitName}`} />
+            <InfoRow title={'Vault duration'} value={vaultDurationText} />
+            <InfoRow
+                title={'Vault contract'}
+                value={'algoexplorer'}
+                valueLink={algoexplorerLink('application', vault.id)}
+                style={{ marginBottom: 0 }}
+            />
         </InfoPanel>
     );
 };
 
 export const LaaSTokenDeposit = ({
-    asset2,
     vault,
+    dex,
+    asset1,
+    asset2,
+    poolAPR,
     buttonSubtitle,
+    closeModal,
 }: {
     vault: Contract<'laas'>;
+    dex: DexProvider;
+    asset1: Priced<Asset>;
     asset2: Priced<Asset>;
+    poolAPR: number;
     buttonSubtitle: string;
+    closeModal: () => void;
 }) => {
-    const [tokenInput, setTokenInput] = useState<string>('');
-    const tokenMicroBalance = BigInt(1000000); // TODO
+    const balances = useUnit($balances);
+    const [tokenAmount, setTokenAmount] = useState<string>('');
+    const tokenMicroBalance = balances[asset2.id];
 
     return (
         <ModalContainer>
@@ -41,19 +101,35 @@ export const LaaSTokenDeposit = ({
             <TokenInput
                 token={asset2}
                 tokenMicroBalance={tokenMicroBalance}
-                tokenInput={tokenInput}
-                setTokenInput={setTokenInput}
+                tokenInput={tokenAmount}
+                setTokenInput={setTokenAmount}
             />
-            <DepositInfo />
-            <ModalSubtitle style={{ marginTop: 20, width: 350 }}>
-                ⚠️ You can withdraw {asset2.unitName} <br /> only after the withdrawal date
+            <DepositInfo
+                vault={vault}
+                dex={dex}
+                asset1={asset1}
+                asset2={asset2}
+                poolAPR={poolAPR}
+                tokenAmount={Number(tokenAmount)}
+            />
+            <ModalSubtitle style={{ marginTop: 20, marginBottom: 10, width: 350 }}>
+                ⚠️ You can withdraw {asset2.unitName} only after the withdrawal date
             </ModalSubtitle>
-            <Button
+            <PacmanButton
                 buttonText={`DEPOSIT ${asset2.unitName}`}
-                type={ButtonType.primary}
+                buttonStyle="swap_button"
                 style={{ width: '350px', height: '50px', fontSize: '18px' }}
-                onClick={() => {
-                    return vault.ctc.apis.provide_b([tokenMicroBalance]);
+                onClickAction={async () => {
+                    // TODO: ограничить сверху сколько чел может предоставить
+                    try {
+                        await vault.ctc.apis.provide_b([getSmallestUnits(asset2, Number(tokenAmount))]);
+                        notify('Done!', 'success');
+                        closeModal();
+                    } catch (error) {
+                        const error_message = error instanceof Error ? error.message : String(error);
+                        console.log('[DEPOSIT ERROR]', error_message);
+                        notify('Fail!', 'error');
+                    }
                 }}
             />
             <ButtonSubtitle>{buttonSubtitle}</ButtonSubtitle>

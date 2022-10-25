@@ -64,7 +64,7 @@ main_l17:
 int 0
 return
 main_l18:
-callsub auctionbuy_19
+callsub auctionbuy_18
 b main_l17
 main_l19:
 callsub endvault_14
@@ -132,6 +132,12 @@ return
 
 // init
 init_1:
+byte "auction_length"
+int 3600
+app_global_put
+byte "algo_fee"
+int 1000000
+app_global_put
 int 1
 return
 
@@ -281,13 +287,8 @@ global Round
 app_global_put
 txna ApplicationArgs 1
 btoi
-int 100000
->
-txna ApplicationArgs 1
-btoi
 int 10000000
 <
-&&
 assert
 txna ApplicationArgs 2
 btoi
@@ -387,19 +388,43 @@ asset_holding_get AssetBalance
 store 1
 store 0
 itxn_begin
-byte "liquidity_pool_address"
-app_global_get
 byte "a_token"
 app_global_get
-load 0
-callsub innertxsendtoken_11
-itxn_next
+byte "b_token"
+app_global_get
+<
+bnz provideliquidity_7_l23
+int 1
+provideliquidity_7_l2:
+int 0
+==
+bnz provideliquidity_7_l22
 byte "liquidity_pool_address"
 app_global_get
 byte "b_token"
 app_global_get
 load 20
 callsub innertxsendtoken_11
+provideliquidity_7_l4:
+itxn_next
+byte "a_token"
+app_global_get
+byte "b_token"
+app_global_get
+<
+bnz provideliquidity_7_l21
+int 1
+provideliquidity_7_l6:
+int 1
+==
+bnz provideliquidity_7_l20
+byte "liquidity_pool_address"
+app_global_get
+byte "b_token"
+app_global_get
+load 20
+callsub innertxsendtoken_11
+provideliquidity_7_l8:
 itxn_next
 int appl
 itxn_field TypeEnum
@@ -413,9 +438,70 @@ itob
 itxn_field ApplicationArgs
 byte "a_token"
 app_global_get
-itxn_field Assets
 byte "b_token"
 app_global_get
+<
+bnz provideliquidity_7_l19
+int 1
+provideliquidity_7_l10:
+int 0
+==
+bnz provideliquidity_7_l18
+byte "b_token"
+app_global_get
+provideliquidity_7_l12:
+itxn_field Assets
+byte "a_token"
+app_global_get
+byte "b_token"
+app_global_get
+<
+bnz provideliquidity_7_l17
+int 1
+provideliquidity_7_l14:
+int 1
+==
+bnz provideliquidity_7_l16
+byte "b_token"
+app_global_get
+b provideliquidity_7_l24
+provideliquidity_7_l16:
+byte "a_token"
+app_global_get
+b provideliquidity_7_l24
+provideliquidity_7_l17:
+int 0
+b provideliquidity_7_l14
+provideliquidity_7_l18:
+byte "a_token"
+app_global_get
+b provideliquidity_7_l12
+provideliquidity_7_l19:
+int 0
+b provideliquidity_7_l10
+provideliquidity_7_l20:
+byte "liquidity_pool_address"
+app_global_get
+byte "a_token"
+app_global_get
+load 0
+callsub innertxsendtoken_11
+b provideliquidity_7_l8
+provideliquidity_7_l21:
+int 0
+b provideliquidity_7_l6
+provideliquidity_7_l22:
+byte "liquidity_pool_address"
+app_global_get
+byte "a_token"
+app_global_get
+load 0
+callsub innertxsendtoken_11
+b provideliquidity_7_l4
+provideliquidity_7_l23:
+int 0
+b provideliquidity_7_l2
+provideliquidity_7_l24:
 itxn_field Assets
 byte "lp_token"
 app_global_get
@@ -454,9 +540,48 @@ itob
 itxn_field ApplicationArgs
 byte "a_token"
 app_global_get
-itxn_field Assets
 byte "b_token"
 app_global_get
+<
+bnz removeliquidity_8_l11
+int 1
+removeliquidity_8_l2:
+int 0
+==
+bnz removeliquidity_8_l10
+byte "b_token"
+app_global_get
+removeliquidity_8_l4:
+itxn_field Assets
+byte "a_token"
+app_global_get
+byte "b_token"
+app_global_get
+<
+bnz removeliquidity_8_l9
+int 1
+removeliquidity_8_l6:
+int 1
+==
+bnz removeliquidity_8_l8
+byte "b_token"
+app_global_get
+b removeliquidity_8_l12
+removeliquidity_8_l8:
+byte "a_token"
+app_global_get
+b removeliquidity_8_l12
+removeliquidity_8_l9:
+int 0
+b removeliquidity_8_l6
+removeliquidity_8_l10:
+byte "a_token"
+app_global_get
+b removeliquidity_8_l4
+removeliquidity_8_l11:
+int 0
+b removeliquidity_8_l2
+removeliquidity_8_l12:
 itxn_field Assets
 byte "lp_token"
 app_global_get
@@ -745,20 +870,20 @@ load 2
 load 30
 -
 *
-int 1000000000
+int 1000
 *
 load 26
 /
 int 2
 *
-int 1000000000
+int 1000
 -
 store 27
 byte "total_b_liq_provided"
 app_global_get
 load 27
 *
-int 1000000000
+int 1000
 /
 store 28
 load 2
@@ -772,7 +897,7 @@ byte "auction_init_market_price"
 load 0
 load 29
 -
-int 1000000000
+int 1000
 *
 load 2
 load 30
@@ -780,6 +905,11 @@ load 30
 /
 app_global_put
 byte "auction_left_to_raise"
+load 28
+load 2
+-
+app_global_put
+byte "auction_initial_left_to_raise"
 load 28
 load 2
 -
@@ -889,12 +1019,12 @@ global Round
 byte "auction_start_block"
 app_global_get
 -
-int 259200
+int 3600
 >=
 bnz auctionpriceMULT_16_l2
 byte "auction_init_market_price"
 app_global_get
-int 259200
+int 3600
 global Round
 byte "auction_start_block"
 app_global_get
@@ -910,7 +1040,7 @@ app_global_get
 /
 retsub
 auctionpriceMULT_16_l2:
-int 1000000000
+int 1000
 retsub
 
 // __min
@@ -927,16 +1057,8 @@ min_17_l2:
 load 34
 retsub
 
-// __min3
-min3_18:
-store 36
-callsub min_17
-load 36
-callsub min_17
-retsub
-
 // auction_buy
-auctionbuy_19:
+auctionbuy_18:
 global GroupSize
 int 2
 ==
@@ -965,18 +1087,8 @@ int 0
 >
 assert
 txn NumAppArgs
-int 2
+int 1
 ==
-assert
-txna ApplicationArgs 1
-btoi
-int 0
->
-assert
-txna ApplicationArgs 1
-btoi
-load 0
-<=
 assert
 callsub auctionpriceMULT_16
 store 31
@@ -984,28 +1096,26 @@ txn Sender
 byte "priority_address"
 app_global_get
 ==
-bnz auctionbuy_19_l6
-auctionbuy_19_l1:
-txna ApplicationArgs 1
-btoi
+bnz auctionbuy_18_l6
+auctionbuy_18_l1:
 byte "auction_left_to_raise"
 app_global_get
-int 1000000000
+int 1000
 *
 load 31
-callsub ceildiv_21
+callsub ceildiv_20
 gtxn 0 AssetAmount
-int 1000000000
+int 1000
 *
 load 31
 /
-callsub min3_18
+callsub min_17
 store 32
 load 32
 load 31
 *
-int 1000000000
-callsub ceildiv_21
+int 1000
+callsub ceildiv_20
 store 33
 gtxn 0 TypeEnum
 int axfer
@@ -1032,14 +1142,14 @@ load 33
 byte "auction_left_to_raise"
 app_global_get
 >
-bnz auctionbuy_19_l5
+bnz auctionbuy_18_l5
 byte "auction_left_to_raise"
 byte "auction_left_to_raise"
 app_global_get
 load 33
 -
 app_global_put
-auctionbuy_19_l3:
+auctionbuy_18_l3:
 itxn_begin
 txn Sender
 byte "b_token"
@@ -1059,35 +1169,35 @@ byte "auction_left_to_raise"
 app_global_get
 int 0
 ==
-bz auctionbuy_19_l7
-callsub auctionend_20
-b auctionbuy_19_l7
-auctionbuy_19_l5:
+bz auctionbuy_18_l7
+callsub auctionend_19
+b auctionbuy_18_l7
+auctionbuy_18_l5:
 byte "auction_left_to_raise"
 int 0
 app_global_put
-b auctionbuy_19_l3
-auctionbuy_19_l6:
+b auctionbuy_18_l3
+auctionbuy_18_l6:
 load 31
 byte "auction_left_to_raise"
 app_global_get
-int 1000000000
+int 1000
 *
 load 0
-callsub ceildiv_21
+callsub ceildiv_20
 callsub min_17
 store 31
-b auctionbuy_19_l1
-auctionbuy_19_l7:
+b auctionbuy_18_l1
+auctionbuy_18_l7:
 int 1
 return
 
 // __auction_end
-auctionend_20:
+auctionend_19:
 global Round
 byte "start_block"
 app_global_get
-int 259200
+int 3600
 +
 >=
 byte "auction_left_to_raise"
@@ -1123,12 +1233,12 @@ int 1
 return
 
 // __ceil_div
-ceildiv_21:
-store 37
-load 37
+ceildiv_20:
+store 36
+load 36
 +
 int 1
 -
-load 37
+load 36
 /
 retsub`;

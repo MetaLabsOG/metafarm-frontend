@@ -182,6 +182,7 @@ export type LaasInitialInfo = {
     liquidityPoolApp: AppId;
     creator: string;
     liquidityPoolAddr: string;
+    auctionLength: Time;
 };
 
 export type LaasGlobalInfo = {
@@ -197,14 +198,14 @@ export type LaasGlobalInfo = {
     priorityAddress: string;
 
     // кол-во токенов, которые смогут снять провайдеры
-    totalBToWithdraw: Amount;
+    totalBToWithdraw: Amount | null;
 
-    auctionInitMarketPriceMult: Amount | null;
+    auctionInitMarketPrice: Amount | null;
     auctionStartBlock: Time | null;
     // сколько токенов B осталось получить
     auctionLeftToRaise: Amount | null;
     // сколько всего токенов B надо было покрыть
-    auctionToRaiseInitital: Amount | null;
+    auctionLeftToRaiseInitial: Amount | null;
 
     // TODO: это можно взять как баланс кошелька
     aBalance: Amount;

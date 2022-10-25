@@ -21,7 +21,7 @@ export function makeVaultDefinition(foreignAssets: AssetId[], liquidityPoolApp: 
         appName: 'laasVault',
         localInts: 0,
         localBytes: 0,
-        globalInts: 16,
+        globalInts: 19,
         globalBytes: 8,
         extraPages: 3,
     };
@@ -249,10 +249,8 @@ export function makeAuctionBuyTxs(
     aToken: AssetId,
     bToken: AssetId,
     bAmount: number,
-    aToBuyDesired: number,
     liquiditySeekerAddress: Address
 ): ExecParams[] {
-    const desiredArg = `int:${aToBuyDesired}`;
     const appCallParams: AppCallsParam = {
         type: TransactionType.CallApp,
         sign: SignType.SecretKey,
@@ -260,7 +258,7 @@ export function makeAuctionBuyTxs(
         appID: appId,
         foreignAssets: [aToken, bToken],
         payFlags: { totalFee: 5000 },
-        appArgs: ['str:auction_buy', desiredArg],
+        appArgs: ['str:auction_buy'],
         // TODO rework, probably not needed
         accounts: [liquiditySeekerAddress],
     };
