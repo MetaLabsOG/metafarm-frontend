@@ -20,6 +20,7 @@ export interface NftLottery {
 export const NftWinModal = ({ txId, nft }: { txId: string; nft: NftLottery }) => {
     const account = useUnit($account);
     const nftLink = nft.image_url;
+    const [receivedNft, setReceivedNft] = useState<boolean>(false);
 
     const onClick = async () => {
         if (!account) {
@@ -30,6 +31,7 @@ export const NftWinModal = ({ txId, nft }: { txId: string; nft: NftLottery }) =>
             console.log('WIN NFT!', nft);
             await batchOptIn(reach, account.networkAccount.addr, [nft.asa_id], false);
             await nftClaim(txId);
+            setReceivedNft(true);
             notify('Done! NFT is in your wallet!', 'success');
         } catch (error) {
             const error_message = error instanceof Error ? error.message : String(error);
@@ -41,7 +43,8 @@ export const NftWinModal = ({ txId, nft }: { txId: string; nft: NftLottery }) =>
             <ModalTitle style={{ width: 300, fontFamily: 'Montserrat' }}>{nft.title}</ModalTitle>
             <ModalSubtitle>Please, opt-in and we will send it to you!</ModalSubtitle>
             <img alt="NFT" width="300px" src={nftLink} style={{ marginBottom: 20 }} />
-            <PacmanButton buttonText="OPTIN" buttonStyle="swap_button" onClickAction={onClick} />
+            {!receivedNft && <PacmanButton buttonText="OPTIN" buttonStyle="swap_button" onClickAction={onClick} />}
+            {receivedNft && <ModalTitle style={{ width: 300, fontFamily: 'Montserrat' }}>Done!</ModalTitle>}
             <Confetti showConfetti />
         </ModalContainer>
     );
