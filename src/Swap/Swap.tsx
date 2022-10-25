@@ -274,6 +274,11 @@ export async function runTransactions(
             notify('Operation is cancelled.', 'warning');
         } else if (error_message.includes('exceeds schema integer count')) {
             notify('Please, redeem all tokens on tinyman.', 'warning');
+        } else if (error_message.includes('the network is offline')) {
+            notify(
+                'There is a problem connecting to Pera wallet. Probably the swap is done, but please check.',
+                'warning'
+            );
         } else {
             notify(queryType + ' error. Please, contact us in twitter or discord.', 'error');
         }
