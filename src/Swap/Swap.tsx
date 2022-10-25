@@ -242,7 +242,7 @@ export async function runTransactions(
                 amount: token1Amount.toString(),
                 txns: txIds.map(algoexplorerTxLink).join('\n'),
             },
-            type === QueryType.swap ? LogName.SWAP : LogName.ZAP
+            type === QueryType.zap ? LogName.ZAP : LogName.SWAP
         );
 
         return txIds;
@@ -289,7 +289,7 @@ export async function runTransactions(
                 amount: token1Amount.toString(),
                 error: error_message,
             },
-            type === QueryType.swap || type === QueryType.alammexSwap ? LogName.SWAP : LogName.ZAP
+            type === QueryType.zap ? LogName.ZAP : LogName.SWAP
         );
         return null;
     }
@@ -394,8 +394,7 @@ export function Swap() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const [txId, setTxId] = useState<string>('');
-    const [nft, setNft] = useState<NftLottery>({ asa_id: 0, image_url: '', name: '' });
-    const [NftModal, openNftModal, closeNftModal] = useModal('root');
+    const [nft, setNft] = useState<NftLottery | null>(null);
 
     useEffect(() => {
         getTokens(account, balances).then((res) => {
@@ -472,11 +471,14 @@ export function Swap() {
                 if (nft) {
                     setTxId(txId);
                     setNft(nft);
-                    openNftModal();
                 }
             }
         }
     };
+
+    if (nft) {
+        return <NftWinModal txId={txId} nft={nft} />;
+    }
 
     return (
         <ModalContainer>
@@ -513,9 +515,6 @@ export function Swap() {
             <a target="_blank" href="https://www.alammex.com/" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <DexName>via alammex</DexName>
             </a>
-            <NftModal>
-                <NftWinModal txId={txId} nft={nft} closeModal={closeNftModal} />
-            </NftModal>
         </ModalContainer>
     );
 }
