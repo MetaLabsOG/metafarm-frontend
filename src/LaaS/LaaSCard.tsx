@@ -126,22 +126,6 @@ const getLaaSStage = (currentBlock: number, vault: Contract<'laas'>): LaaSStage 
     return LaaSStage.withdraw;
 };
 
-export const findPool = async (dex: DexProvider, assetA_id: number, assetB_id: number): Promise<ApiPool | null> => {
-    if (dex !== 'PT') {
-        return null;
-    }
-
-    const pactPools = await getPactPools(10, ''); //TODO{
-    //     primary_asset__algoid: String(Math.min(assetA_id, assetB_id)),
-    //     secondary_asset__algoid: String(Math.max(assetA_id, assetB_id)),
-    // });
-    // console.log('POOL', pactPools, filteredPools);
-    if (!pactPools) {
-        return null;
-    }
-    return pactPools[0];
-};
-
 export const getCapacityLeft = (asset1: Priced<Asset>, asset2: Priced<Asset>, vaultState: ContractState<'laas'>) => {
     return (
         (fromSmallestUnits(asset1, vaultState.initial.initialABalance - vaultState.global.totalALiqProvided) *
@@ -205,10 +189,16 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
             return;
         }
 
-        findPool(dex, asset1_id, asset2_id).then((res) => setPoolAPR(res ? Number(res.apr_7d) * 2 : 0));
         makeDex(dex)
             .getPoolByAssets(asset1_id, asset2_id)
-            .then((pool) => setPool(pool));
+            .then((pool) => {
+                setPool(pool);
+                getPactPools(1, pool.poolId).then((pools) => {
+                    if (pools[0]) {
+                        setPoolAPR(Number(pools[0].apr_7d));
+                    }
+                });
+            });
     }, [vault.state]);
 
     if (!asset1 || !asset2 || !currentBlock || !vault.state) {
