@@ -4,6 +4,7 @@ import { LPTokenInfo } from '../../../dexes';
 import { DAY, HOUR, MINUTE } from '../../../common/lib';
 import { $farmAprs, AprType } from '../../store';
 import { $stakeAprs } from '../../../Stake/store';
+import { calculateTimeByBlock } from '../../AddFarm';
 import { formatLPTokenName, isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
@@ -32,7 +33,8 @@ const calculateTiming = (
     meanRoundDuration: number
 ) => {
     if (poolState === PoolState.Finished) {
-        return 'ended';
+        const endTime = calculateTimeByBlock(currentBlock, endBlock, meanRoundDuration, true);
+        return 'ended \n' + endTime;
     }
 
     const timingPrefix = poolState === PoolState.Running ? 'ends\nin ' : 'starts\nin ';

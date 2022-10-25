@@ -49,7 +49,7 @@ export function PoolList({ pools, poolType }: { pools: PoolWithStats[]; poolType
     const [isAscSort, setIsAscSort] = useState(false);
 
     const [showVerified, setShowVerified] = useState(false);
-    const [showLive, setShowLive] = useState(false);
+    const [showEnded, setShowEnded] = useState(false);
 
     const poolComponents = pools
         .filter((pws: PoolWithStats) => {
@@ -57,11 +57,9 @@ export function PoolList({ pools, poolType }: { pools: PoolWithStats[]; poolType
             if (showVerified) {
                 isShown = Boolean(pws.pool.info.metadata.verified);
             }
-            if (showLive) {
-                const beginBlock = pws.pool.state?.initial?.beginBlock ?? 0;
-                const endBlock = pws.pool.state?.initial?.endBlock ?? 1e9;
-                isShown = isShown && currentBlock > beginBlock && currentBlock < endBlock;
-            }
+            const endBlock = pws.pool.state?.initial?.endBlock ?? 1e9;
+            const statusFilter = showEnded ? currentBlock > endBlock : currentBlock <= endBlock;
+            isShown = isShown && statusFilter;
             return isShown;
         })
         .map((pws: PoolWithStats) => <Pool key={pws.pool.id} pws={pws} />);
@@ -69,8 +67,11 @@ export function PoolList({ pools, poolType }: { pools: PoolWithStats[]; poolType
     const sortEvent = useUnit(sortPools);
 
     useEffect(() => {
-        sortEvent({ type: ColumnType.Tvl, asc: false });
-    }, []);
+        const sortColumn = showEnded ? ColumnType.Stake : ColumnType.Tvl;
+        setSortKey(sortColumn);
+        setIsAscSort(false);
+        sortEvent({ type: sortColumn, asc: false });
+    }, [showEnded]);
 
     const onColumnClick = (key: ColumnType) => {
         if (key === sortKey) {
@@ -88,7 +89,7 @@ export function PoolList({ pools, poolType }: { pools: PoolWithStats[]; poolType
             <PoolTopLineContainer>
                 <AddFarmButton addFarmType={poolType} />
                 <PoolFiltersContainer>
-                    <SwitchSelect switchStatus={showLive} onChange={setShowLive} switchText={'live pools'} />
+                    <SwitchSelect switchStatus={showEnded} onChange={setShowEnded} switchText={'show ended'} />
                     <SwitchSelect switchStatus={showVerified} onChange={setShowVerified} switchText={'verified only'} />
                 </PoolFiltersContainer>
             </PoolTopLineContainer>

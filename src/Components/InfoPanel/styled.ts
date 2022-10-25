@@ -6,6 +6,6 @@ export const InfoPanelContainer = styled.div`
     padding: 20px;
     margin-top: 15px;
 
-    background: rgb(35, 35, 35);
+    background: var(--backgroundCard);
     border-radius: 8px;
 `;

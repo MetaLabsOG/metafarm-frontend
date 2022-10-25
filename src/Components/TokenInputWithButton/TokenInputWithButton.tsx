@@ -71,7 +71,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     const buttonType = buttonName.toLowerCase();
     const balanceField = buttonType === 'stake' ? 'Balance' : 'Staked';
 
-    const [WarningModal, openWarningModal, closeWarningModal] = useModal('root', { preventScroll: true });
+    const [WarningModal, openWarningModal, closeWarningModal] = useModal('root');
     const warningText =
         buttonName === 'Stake'
             ? "It's locked pool. You can claim rewards only after lock period. If you stake again your lock period will be reset."

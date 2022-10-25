@@ -131,10 +131,10 @@ export const findPool = async (dex: DexProvider, assetA_id: number, assetB_id: n
         return null;
     }
 
-    const pactPools = await getPactPools({
-        primary_asset__algoid: String(Math.min(assetA_id, assetB_id)),
-        secondary_asset__algoid: String(Math.max(assetA_id, assetB_id)),
-    });
+    const pactPools = await getPactPools(10, ''); //TODO{
+    //     primary_asset__algoid: String(Math.min(assetA_id, assetB_id)),
+    //     secondary_asset__algoid: String(Math.max(assetA_id, assetB_id)),
+    // });
     // console.log('POOL', pactPools, filteredPools);
     if (!pactPools) {
         return null;
@@ -194,8 +194,8 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const currentBlock = useUnit($networkTime);
     const laasStage = getLaaSStage(currentBlock, vault);
 
-    const [DepositModal, openDepositModal, closeDepositModal] = useModal('root', { preventScroll: true });
-    const [AuctionModal, openAuctionModal, closeAuctionModal] = useModal('root', { preventScroll: true });
+    const [DepositModal, openDepositModal, closeDepositModal] = useModal('root');
+    const [AuctionModal, openAuctionModal, closeAuctionModal] = useModal('root');
 
     const [poolAPR, setPoolAPR] = useState<number>(0);
     const [pool, setPool] = useState<DexPool | null>(null);

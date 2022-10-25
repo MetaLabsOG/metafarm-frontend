@@ -3,6 +3,7 @@ import { assetId } from '../common/store/utils';
 
 import { ALGO_ASSET, fetchAsset } from '../common/store/assets';
 import { WalletTransactionGroup } from '../types';
+import { fromSmallestUnits } from '../common/lib';
 
 export type DexProvider =
     | 'T2' // Tinyman v1.1
@@ -50,7 +51,6 @@ export interface MintQuote {
 
 export interface BestSwapQuote {
     best: SwapQuote;
-    direct?: SwapQuote;
     path: SwapQuote[];
 }
 
@@ -83,13 +83,18 @@ export interface DexPool extends PoolInfo {
 
 export class BestSwap implements BestSwapQuote, Operation {
     best: SwapQuote;
-    direct?: SwapQuote;
     path: Swap[];
+    amountOut: number;
+    pathString: string;
 
-    constructor(best: SwapQuote, path: Swap[], direct?: SwapQuote) {
+    constructor(best: SwapQuote, path: Swap[]) {
         this.best = best;
         this.path = path;
-        this.direct = direct;
+
+        this.amountOut = fromSmallestUnits(best.assetOut, best.minimalAmountOut);
+        const best_path = path.map((q) => q.assetIn.unitName);
+        best_path.push(path[path.length - 1].assetOut.unitName);
+        this.pathString = best_path.join('-');
     }
 
     async prepareTxs(sender: string): Promise<WalletTransactionGroup[]> {
@@ -99,6 +104,10 @@ export class BestSwap implements BestSwapQuote, Operation {
             txs = [...txs, ...curSwap];
         }
         return txs;
+    }
+
+    getPriceImpact(): number {
+        return this.best.priceImpact;
     }
 }
 
@@ -128,7 +137,7 @@ export abstract class Dex {
             // Make direct swap right away if one of the assets is ALGO
             if (assetIn.id === 0 || assetOut.id === 0) {
                 const best = direct;
-                return new BestSwap(best, [best], direct);
+                return new BestSwap(best, [best]);
             }
         } catch {
             console.log(`Direct swap for token IDs ${assetIn.id} ${assetOut.id} not found`);
@@ -154,13 +163,13 @@ export abstract class Dex {
             };
 
             if (!direct || direct.price < throughAlgo.price) {
-                return new BestSwap(throughAlgo, [toAlgo, fromAlgo], direct);
+                return new BestSwap(throughAlgo, [toAlgo, fromAlgo]);
             }
-            return new BestSwap(direct, [direct], direct);
+            return new BestSwap(direct, [direct]);
         } catch {
             console.log(`Could not find a routed swap for token IDs ${assetIn.id} ${assetOut.id}`);
             if (direct) {
-                return new BestSwap(direct, [direct], direct);
+                return new BestSwap(direct, [direct]);
             }
             throw new Error(`Failed to find any swap for token IDs ${assetIn.id} ${assetOut.id}`);
         }
