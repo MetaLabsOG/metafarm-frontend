@@ -518,7 +518,12 @@ export function Swap() {
                 token1={token1}
                 token2={token2}
             />
-            <PacmanButton buttonText="SWAP" buttonStyle="swap_button" onClickAction={SwapButtonOnClick} />
+            <PacmanButton
+                buttonText="SWAP"
+                buttonStyle="swap_button"
+                onClickAction={SwapButtonOnClick}
+                style={{ marginTop: 20 }}
+            />
             <a target="_blank" href="https://www.alammex.com/" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <DexName>via alammex</DexName>
             </a>

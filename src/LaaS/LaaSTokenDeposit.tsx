@@ -14,6 +14,7 @@ import { DexProvider } from '../dexes';
 import { getDexName } from '../Farm/utils';
 import { blocksToText } from '../Farm/PoolList/Pool/PoolInfo';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
+import { logEvent, LogName } from '../logEvent';
 import { ButtonSubtitle } from './styled';
 import { getCapacityLeft } from './LaaSCard';
 
@@ -74,6 +75,7 @@ const DepositInfo = ({
 };
 
 export const LaaSTokenDeposit = ({
+    address,
     vault,
     dex,
     asset1,
@@ -82,6 +84,7 @@ export const LaaSTokenDeposit = ({
     buttonSubtitle,
     closeModal,
 }: {
+    address: string;
     vault: Contract<'laas'>;
     dex: DexProvider;
     asset1: Priced<Asset>;
@@ -123,11 +126,32 @@ export const LaaSTokenDeposit = ({
                     // TODO: ограничить сверху сколько чел может предоставить
                     try {
                         await vault.ctc.apis.provide_b([getSmallestUnits(asset2, Number(tokenAmount))]);
+                        logEvent(
+                            address,
+                            {
+                                message: '[DEPOSIT OK]',
+                                vault_id: vault.id,
+                                vault_name: `${asset1.unitName}/${asset2.unitName}`,
+                                amount: Number(tokenAmount),
+                            },
+                            LogName.LAAS
+                        );
                         notify('Done!', 'success');
                         closeModal();
                     } catch (error) {
                         const error_message = error instanceof Error ? error.message : String(error);
                         console.log('[DEPOSIT ERROR]', error_message);
+                        logEvent(
+                            address,
+                            {
+                                message: '[DEPOSIT ERROR]',
+                                vault_id: vault.id,
+                                vault_name: `${asset1.unitName}/${asset2.unitName}`,
+                                amount: Number(tokenAmount),
+                                error: error_message,
+                            },
+                            LogName.LAAS
+                        );
                         notify('Fail!', 'error');
                     }
                 }}

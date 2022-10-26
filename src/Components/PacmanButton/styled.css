@@ -5,7 +5,6 @@
     color: var(--newWhite);
     background: rgba(66, 201, 63, 0.7);
     border-radius: 16px;
-    margin-top: 20px;
 
     font-family: 'Korona One';
     font-style: normal;
@@ -24,11 +23,11 @@
 .swap_button.loading {
     height: 50px;
     position: relative;
-    border: 1px solid var(--green);
+    border: 1px solid rgba(66, 201, 63, 0.7);
 }
 
 .swap_button.loading:hover {
-    border: 1px solid var(--green);
+    border: 1px solid rgba(66, 201, 63, 0.7);
     background-color: transparent;
     cursor: default;
 }
@@ -36,7 +35,7 @@
 .loading {
     background-color: inherit;
     position: absolute;
-    border-radius: 8px;
+    border-radius: 16px;
     left: 0;
     top: 0;
     width: 100%;
@@ -44,38 +43,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.price_button {
-    height: 50px;
-    width: 350px;
-    border-radius: 8px;
-    margin-top: 15px;
-    font-size: 15px;
-    font-family: 'Korona One';
-    cursor: pointer;
-
-    border: 0px;
-    color: #B9B9B9;
-    background-color: black;
-}
-
-.price_button.loading {
-    border: 1px solid #5cfc3c;
-    color: #5cfc3c;
-    background-color: inherit;
-    position: relative;
-}
-
-.price_button.loading:hover {
-    border: 1px solid #5cfc3c;
-    background-color: black;
-}
-
-.price_button:hover {
-    color: black;
-    background-color: #5cfc3c;
-    border: 0;
 }
 
 .claim_button {

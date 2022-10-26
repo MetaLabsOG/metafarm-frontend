@@ -185,7 +185,7 @@ function parseLaasGlobalState(globalStateRaw: any): Record<string, string | numb
 }
 
 function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?: AppId): TealCtcWrapper {
-    console.log('LAAS API PREPARATION', appId);
+    // console.log('LAAS API PREPARATION', appId);
 
     const fetchGlobalState = async () => {
         if (appId === undefined) {

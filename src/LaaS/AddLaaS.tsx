@@ -278,6 +278,7 @@ export function AddLaaS() {
                 <PacmanButton
                     buttonText="VERIFY DETAILS"
                     buttonStyle="swap_button"
+                    style={{ marginTop: 20 }}
                     onClickAction={async () => {
                         /* If (
                             checkLaaSParams(
@@ -315,6 +316,7 @@ export function AddLaaS() {
                         <PacmanButton
                             buttonText="CREATE LAAS VAULT"
                             buttonStyle="swap_button"
+                            style={{ marginTop: 20 }}
                             onClickAction={async () => {
                                 const res = await createVault(
                                     account,
