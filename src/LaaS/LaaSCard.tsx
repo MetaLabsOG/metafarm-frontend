@@ -1,8 +1,8 @@
 import { useStoreMap, useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
 import { useEffect, useState } from 'react';
-import { ApiPool } from '@pactfi/pactsdk';
 import {
+    $account,
     $balances,
     $meanRoundDuration,
     $networkTime,
@@ -16,8 +16,9 @@ import { DexPool, DexProvider, makeDex } from '../dexes';
 import { ProgressBar } from '../Components/ProgressBar/ProgressBar';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
 import { getPactPools } from '../providers/apiProvider';
-import { DAY, fromSmallestUnits } from '../common/lib';
+import { fromSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
+import { logEvent, LogName } from '../logEvent';
 import { LaaSHeader } from './LaaSHeader';
 import { LaaSInfo } from './LaaSInfo';
 import { LaaSResults } from './LaaSResults';
@@ -176,6 +177,8 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const balances = useUnit($balances);
     const meanRoundDuration = useUnit($meanRoundDuration);
     const currentBlock = useUnit($networkTime);
+    const account = useUnit($account);
+    const address = account ? account.networkAccount.addr : '';
     const laasStage = getLaaSStage(currentBlock, vault);
 
     const [DepositModal, openDepositModal, closeDepositModal] = useModal('root');
@@ -249,17 +252,54 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                     }
                     if (laasStage === LaaSStage.waitingEndVault) {
                         await vault.ctc.apis.end_vault();
+                        logEvent(
+                            address,
+                            {
+                                message: '[VAULT IS ENDED]',
+                                vault_id: vault.id,
+                                vault_name: `${asset1?.unitName}/${asset2?.unitName}`,
+                            },
+                            LogName.LAAS
+                        );
                         console.log('VAULT IS ENDED');
                     }
                     if (laasStage === LaaSStage.withdraw) {
                         const bAmount = vault.state ? balances[vault.state.initial.slpToken] : 0;
-                        await vault.ctc.apis.withdraw_b([bAmount]);
-                        notify('Done!', 'success');
+                        try {
+                            await vault.ctc.apis.withdraw_b([bAmount]);
+                            logEvent(
+                                address,
+                                {
+                                    message: '[WITHDRAW OK]',
+                                    vault_id: vault.id,
+                                    vault_name: `${asset1?.unitName}/${asset2?.unitName}`,
+                                    amount: Number(bAmount),
+                                },
+                                LogName.LAAS
+                            );
+                            notify('Done!', 'success');
+                        } catch (error) {
+                            const error_message = error instanceof Error ? error.message : String(error);
+                            console.log('[WITHDRAW ERROR]', error_message);
+                            logEvent(
+                                address,
+                                {
+                                    message: '[WITHDRAW ERROR]',
+                                    vault_id: vault.id,
+                                    vault_name: `${asset1.unitName}/${asset2.unitName}`,
+                                    amount: Number(bAmount),
+                                    error: error_message,
+                                },
+                                LogName.LAAS
+                            );
+                            notify('Fail!', 'error');
+                        }
                     }
                 }}
             />
             <DepositModal>
                 <LaaSTokenDeposit
+                    address={address}
                     vault={vault}
                     dex={dex}
                     asset1={asset1}
@@ -270,7 +310,14 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                 />
             </DepositModal>
             <AuctionModal>
-                <LaaSAuction vault={vault} asset1={asset1} asset2={asset2} closeModal={closeAuctionModal} pool={pool} />
+                <LaaSAuction
+                    address={address}
+                    vault={vault}
+                    asset1={asset1}
+                    asset2={asset2}
+                    closeModal={closeAuctionModal}
+                    pool={pool}
+                />
             </AuctionModal>
         </LaaSCardContainer>
     );

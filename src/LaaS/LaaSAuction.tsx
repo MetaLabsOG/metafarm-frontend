@@ -12,6 +12,7 @@ import { notify } from '../Components/Notification';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { DexPool } from '../dexes';
 import { blocksToText } from '../Farm/PoolList/Pool/PoolInfo';
+import { logEvent, LogName } from '../logEvent';
 import { LaaSAuctionContainer, LaaSAuctionResult } from './styled';
 
 const calculateMarketPrice = (
@@ -32,12 +33,14 @@ const calculateReachMarketPrice = (initMarketPrice: number, auctionLength: numbe
 };
 
 export const LaaSAuction = ({
+    address,
     vault,
     asset1,
     asset2,
     closeModal,
     pool,
 }: {
+    address: string;
     vault: Contract<'laas'>;
     asset1: Priced<Asset>;
     asset2: Priced<Asset>;
@@ -128,9 +131,36 @@ export const LaaSAuction = ({
                 onClickAction={async () => {
                     const bAmount = getSmallestUnits(asset2, Number(tokenInput));
                     console.log('AUCTION', bAmount);
-                    await vault.ctc.apis.auction_buy([bAmount]);
-                    notify('Done!', 'success');
-                    closeModal();
+                    try {
+                        await vault.ctc.apis.auction_buy([bAmount]);
+                        logEvent(
+                            address,
+                            {
+                                message: '[AUCTION OK]',
+                                vault_id: vault.id,
+                                vault_name: `${asset1.unitName}/${asset2.unitName}`,
+                                amount: Number(bAmount),
+                            },
+                            LogName.LAAS
+                        );
+                        notify('Done!', 'success');
+                        closeModal();
+                    } catch (error) {
+                        const error_message = error instanceof Error ? error.message : String(error);
+                        console.log('[AUCTION ERROR]', error_message);
+                        logEvent(
+                            address,
+                            {
+                                message: '[AUCTION ERROR]',
+                                vault_id: vault.id,
+                                vault_name: `${asset1.unitName}/${asset2.unitName}`,
+                                amount: Number(bAmount),
+                                error: error_message,
+                            },
+                            LogName.LAAS
+                        );
+                        notify('Fail!', 'error');
+                    }
                 }}
             />
         </LaaSAuctionContainer>

@@ -13,6 +13,7 @@ export enum LogName {
     ZAP,
     FARM,
     ADDFARM,
+    LAAS,
 }
 
 export function logFarmActionData(
@@ -61,11 +62,13 @@ export function logEvent(address: string | undefined, parameters: Record<string,
         }),
     };
 
-    fetch('https://api.airtable.com/v0/appqAikFZd31XeJqW/' + LogName[logName].toLowerCase(), requestOptions).catch(
-        () => {
-            console.warn('Failed to log event to Airtable');
-        }
-    );
+    if (logName !== LogName.ERRORS && logName !== LogName.WALLET) {
+        fetch('https://api.airtable.com/v0/appqAikFZd31XeJqW/' + LogName[logName].toLowerCase(), requestOptions).catch(
+            () => {
+                console.warn('Failed to log event to Airtable');
+            }
+        );
+    }
 
     // AMPLITUDE
     const requestOptionsAmplitude = {

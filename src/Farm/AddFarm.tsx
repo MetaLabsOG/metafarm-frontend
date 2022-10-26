@@ -676,6 +676,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
                 <PacmanButton
                     buttonText="VERIFY DETAILS"
                     buttonStyle="swap_button"
+                    style={{ marginTop: 20 }}
                     onClickAction={async () => {
                         if (
                             checkFarmParams(
@@ -716,6 +717,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
                         <PacmanButton
                             buttonText="CREATE FARM"
                             buttonStyle="swap_button"
+                            style={{ marginTop: 20 }}
                             onClickAction={async () => {
                                 const res = await createFarm(
                                     account,
