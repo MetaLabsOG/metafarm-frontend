@@ -841,9 +841,9 @@ asset_holding_get AssetBalance
 store 3
 store 2
 load 0
-store 29
+store 28
 load 2
-store 30
+store 29
 callsub removeliquidity_8
 global CurrentApplicationAddress
 byte "a_token"
@@ -857,37 +857,35 @@ app_global_get
 asset_holding_get AssetBalance
 store 3
 store 2
+int 1000
+load 0
+load 28
+-
+*
 byte "total_a_liq_provided"
 app_global_get
-byte "total_b_liq_provided"
-app_global_get
-*
-store 26
-load 0
+/
+load 2
 load 29
 -
-load 2
-load 30
--
 *
-int 1000
-*
-load 26
+byte "total_b_liq_provided"
+app_global_get
 /
 int 2
 *
 int 1000
 -
-store 27
+store 26
 byte "total_b_liq_provided"
 app_global_get
-load 27
+load 26
 *
 int 1000
 /
-store 28
+store 27
 load 2
-load 28
+load 27
 >=
 bnz endvault_14_l2
 byte "auction_start_block"
@@ -895,22 +893,22 @@ global Round
 app_global_put
 byte "auction_init_market_price"
 load 0
-load 29
+load 28
 -
 int 1000
 *
 load 2
-load 30
+load 29
 -
 /
 app_global_put
 byte "auction_left_to_raise"
-load 28
+load 27
 load 2
 -
 app_global_put
 byte "auction_initial_left_to_raise"
-load 28
+load 27
 load 2
 -
 app_global_put
@@ -932,14 +930,14 @@ int 0
 &&
 assert
 byte "total_b_to_withdraw"
-load 28
+load 27
 app_global_put
 byte "ls_a_accumulator"
 load 0
 app_global_put
 byte "ls_b_accumulator"
 load 2
-load 28
+load 27
 -
 app_global_put
 endvault_14_l3:
@@ -1045,16 +1043,16 @@ retsub
 
 // __min
 min_17:
-store 35
 store 34
+store 33
+load 33
 load 34
-load 35
 <
 bnz min_17_l2
-load 35
+load 34
 retsub
 min_17_l2:
-load 34
+load 33
 retsub
 
 // auction_buy
@@ -1091,7 +1089,7 @@ int 1
 ==
 assert
 callsub auctionpriceMULT_16
-store 31
+store 30
 txn Sender
 byte "priority_address"
 app_global_get
@@ -1102,21 +1100,21 @@ byte "auction_left_to_raise"
 app_global_get
 int 1000
 *
-load 31
+load 30
 callsub ceildiv_20
 gtxn 0 AssetAmount
 int 1000
 *
-load 31
+load 30
 /
 callsub min_17
-store 32
-load 32
+store 31
 load 31
+load 30
 *
 int 1000
 callsub ceildiv_20
-store 33
+store 32
 gtxn 0 TypeEnum
 int axfer
 ==
@@ -1126,7 +1124,7 @@ app_global_get
 ==
 &&
 gtxn 0 AssetAmount
-load 33
+load 32
 >=
 &&
 gtxn 0 AssetReceiver
@@ -1138,7 +1136,7 @@ global ZeroAddress
 ==
 &&
 assert
-load 33
+load 32
 byte "auction_left_to_raise"
 app_global_get
 >
@@ -1146,7 +1144,7 @@ bnz auctionbuy_18_l5
 byte "auction_left_to_raise"
 byte "auction_left_to_raise"
 app_global_get
-load 33
+load 32
 -
 app_global_put
 auctionbuy_18_l3:
@@ -1155,14 +1153,14 @@ txn Sender
 byte "b_token"
 app_global_get
 gtxn 0 AssetAmount
-load 33
+load 32
 -
 callsub innertxsendtoken_11
 itxn_next
 txn Sender
 byte "a_token"
 app_global_get
-load 32
+load 31
 callsub innertxsendtoken_11
 itxn_submit
 byte "auction_left_to_raise"
@@ -1178,7 +1176,7 @@ int 0
 app_global_put
 b auctionbuy_18_l3
 auctionbuy_18_l6:
-load 31
+load 30
 byte "auction_left_to_raise"
 app_global_get
 int 1000
@@ -1186,7 +1184,7 @@ int 1000
 load 0
 callsub ceildiv_20
 callsub min_17
-store 31
+store 30
 b auctionbuy_18_l1
 auctionbuy_18_l7:
 int 1
@@ -1234,11 +1232,11 @@ return
 
 // __ceil_div
 ceildiv_20:
-store 36
-load 36
+store 35
+load 35
 +
 int 1
 -
-load 36
+load 35
 /
 retsub`;

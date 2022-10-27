@@ -208,10 +208,11 @@ export function AddLaaS() {
 
     useEffect(() => {
         getTokens(account, balances).then((res) => {
-            setTokensOptions(res);
-            setSelectedUserToken(res[0]);
-            setSelectedProjectToken(res[1]);
-            setRewardToken(res[1]);
+            const filteredTokens = res.filter((token) => token.id !== 0);
+            setTokensOptions(filteredTokens);
+            setSelectedProjectToken(filteredTokens[0]);
+            setRewardToken(filteredTokens[0]);
+            setSelectedUserToken(filteredTokens[1]);
         });
     }, [account, balances]);
 
@@ -254,14 +255,14 @@ export function AddLaaS() {
                 selectedOption={selectedUserToken}
                 selectOnChange={selectUserTokenOnChange}
             />
-            <Heading2>REWARDS [OPTIONAL]</Heading2>
-            <SelectInputGroup
-                options={tokensOptions}
-                selectedOption={rewardToken}
-                inputData={rewardTokenAmount}
-                setInputData={setRewardTokenAmount}
-                selectOnChange={selectRewardTokenOnChange}
-            />
+            {/*<Heading2>REWARDS [OPTIONAL]</Heading2>*/}
+            {/*<SelectInputGroup*/}
+            {/*    options={tokensOptions}*/}
+            {/*    selectedOption={rewardToken}*/}
+            {/*    inputData={rewardTokenAmount}*/}
+            {/*    setInputData={setRewardTokenAmount}*/}
+            {/*    selectOnChange={selectRewardTokenOnChange}*/}
+            {/*/>*/}
             <AddFarmRow>
                 <Heading2 style={{ minWidth: '130px' }}>DURATION</Heading2>
                 <DateInput
