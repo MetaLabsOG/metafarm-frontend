@@ -212,6 +212,7 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const totalALiqProvided = fromSmallestUnits(asset1, vault.state.global.totalALiqProvided);
     const vaultDurationText = getVaultDurationText(laasStage, meanRoundDuration, currentBlock, vault.state.initial);
 
+    const withdrawBalance = vault.state ? balances[vault.state.initial.slpToken] : 0;
     // console.log('STATE', vault.state);
 
     return (
@@ -243,6 +244,7 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                 vault={vault}
                 asset2_name={asset2.unitName}
                 buttonSubtitle={vaultDurationText}
+                disabled={laasStage === LaaSStage.withdraw && withdrawBalance === 0}
                 onClick={async () => {
                     if (laasStage === LaaSStage.subscription) {
                         openDepositModal();
@@ -264,16 +266,15 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                         console.log('VAULT IS ENDED');
                     }
                     if (laasStage === LaaSStage.withdraw) {
-                        const bAmount = vault.state ? balances[vault.state.initial.slpToken] : 0;
                         try {
-                            await vault.ctc.apis.withdraw_b([bAmount]);
+                            await vault.ctc.apis.withdraw_b([withdrawBalance]);
                             logEvent(
                                 address,
                                 {
                                     message: '[WITHDRAW OK]',
                                     vault_id: vault.id,
                                     vault_name: `${asset1?.unitName}/${asset2?.unitName}`,
-                                    amount: Number(bAmount),
+                                    amount: Number(withdrawBalance),
                                 },
                                 LogName.LAAS
                             );
@@ -287,7 +288,7 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                                     message: '[WITHDRAW ERROR]',
                                     vault_id: vault.id,
                                     vault_name: `${asset1.unitName}/${asset2.unitName}`,
-                                    amount: Number(bAmount),
+                                    amount: Number(withdrawBalance),
                                     error: error_message,
                                 },
                                 LogName.LAAS

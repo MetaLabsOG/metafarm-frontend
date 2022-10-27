@@ -34,6 +34,7 @@ export const LaaSButton = ({
     asset2_name,
     buttonSubtitle,
     isProject,
+    disabled,
 }: {
     laasStage: LaaSStage;
     vault: Contract<'laas'>;
@@ -41,30 +42,31 @@ export const LaaSButton = ({
     asset2_name: string;
     buttonSubtitle: string;
     isProject?: boolean;
+    disabled?: boolean;
 }) => {
     if (!vault.state) {
         return null;
     }
+
     const buttonTitle =
         laasStage === LaaSStage.subscription && !isProject ? `deposit ${asset2_name}` : BUTTON_TITLE[laasStage];
     const buttonType =
         laasStage === LaaSStage.auction
             ? ButtonType.secondary
-            : laasStage === LaaSStage.running
+            : laasStage === LaaSStage.running || disabled
             ? ButtonType.disabled
             : ButtonType.primary;
 
     return (
         <div>
-            {laasStage !== LaaSStage.withdraw && (
+            {laasStage !== LaaSStage.withdraw || disabled ? (
                 <Button
                     buttonText={buttonTitle.toUpperCase()}
                     type={buttonType}
                     style={{ width: '215px', height: '42px', fontSize: '15px' }}
                     onClick={onClick}
                 />
-            )}
-            {laasStage === LaaSStage.withdraw && (
+            ) : (
                 <PacmanButton
                     buttonText={buttonTitle.toUpperCase()}
                     buttonStyle="swap_button"
