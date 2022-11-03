@@ -4,6 +4,7 @@ import {
     SignType,
     AppCallsParam,
     AssetTransferParam,
+    AlgoTransferParam,
     ExecParams,
     StorageConfig,
     MetaType,
@@ -107,15 +108,25 @@ export function makeAddLiquidityTxs(
     aAmount: number,
     bAmount: number
 ): ExecParams[] {
-    const aTransferParams: AssetTransferParam = {
-        type: TransactionType.TransferAsset,
-        sign: SignType.SecretKey,
-        fromAccount,
-        toAccountAddr,
-        amount: aAmount,
-        assetID: aToken,
-        payFlags: { totalFee: 5000 },
-    };
+    const aTransferParams =
+        aToken === 0
+            ? ({
+                  type: TransactionType.TransferAlgo,
+                  sign: SignType.SecretKey,
+                  fromAccount,
+                  toAccountAddr,
+                  amountMicroAlgos: aAmount,
+                  payFlags: { totalFee: 5000 },
+              } as AlgoTransferParam)
+            : ({
+                  type: TransactionType.TransferAsset,
+                  sign: SignType.SecretKey,
+                  fromAccount,
+                  toAccountAddr,
+                  amount: aAmount,
+                  assetID: aToken,
+                  payFlags: { totalFee: 5000 },
+              } as AssetTransferParam);
 
     const bTransferParams: AssetTransferParam = {
         type: TransactionType.TransferAsset,
@@ -188,22 +199,34 @@ export function makeSwapTxs(
     // TODO acutally use it
     minimumAmountReceived = 0
 ): ExecParams[] {
-    const assetTransferParams: AssetTransferParam = {
-        type: TransactionType.TransferAsset,
-        sign: SignType.SecretKey,
-        fromAccount,
-        toAccountAddr,
-        amount,
-        assetID: toSwap === ToSwap.a ? tokenA : tokenB,
-        payFlags: { totalFee: 5000 },
-    };
+    const assetID = toSwap === ToSwap.a ? tokenA : tokenB;
+
+    const assetTransferParams =
+        assetID === 0
+            ? ({
+                  type: TransactionType.TransferAlgo,
+                  sign: SignType.SecretKey,
+                  fromAccount,
+                  toAccountAddr,
+                  amountMicroAlgos: amount,
+                  payFlags: { totalFee: 5000 },
+              } as AlgoTransferParam)
+            : ({
+                  type: TransactionType.TransferAsset,
+                  sign: SignType.SecretKey,
+                  fromAccount,
+                  toAccountAddr,
+                  amount,
+                  assetID,
+                  payFlags: { totalFee: 5000 },
+              } as AssetTransferParam);
 
     const appCallParams: AppCallsParam = {
         type: TransactionType.CallApp,
         sign: SignType.SecretKey,
         fromAccount,
         appID: appId,
-        foreignAssets: [tokenA, tokenB],
+        foreignAssets: [tokenA, tokenB].sort((x, y) => x - y),
         payFlags: { totalFee: 5000 },
         appArgs: ['str:SWAP', `int:${minimumAmountReceived}`],
     };
