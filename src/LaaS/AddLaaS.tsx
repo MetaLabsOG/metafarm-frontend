@@ -42,6 +42,10 @@ const checkLaaSParams = (
         notify('Please, choose user token.', 'warning');
         return false;
     }
+    if (projectToken.id === userToken.id) {
+        notify('Please, choose different tokens for the pair', 'warning');
+        return false;
+    }
 
     if (Number.isNaN(beginBlock) || beginBlock >= endBlock) {
         notify('Please, choose vault duration.', 'warning');
@@ -217,7 +221,8 @@ export function AddLaaS() {
 
     useEffect(() => {
         getTokens(account, balances).then((res) => {
-            const filteredTokens = res.filter((token) => token.id !== 0);
+            // const filteredTokens = res.filter((token) => token.id !== 0);
+            const filteredTokens = res;
             setTokensOptions(filteredTokens);
             setSelectedProjectToken(filteredTokens[0]);
             setRewardToken(filteredTokens[0]);
