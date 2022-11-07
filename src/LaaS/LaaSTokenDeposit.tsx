@@ -60,7 +60,7 @@ const DepositInfo = ({
                 value={vaultName}
                 valueLink={algoexplorerLink('application', vault.state.initial.liquidityPoolApp)}
             />
-            <InfoRow title={'Estimated APR'} value={`${poolAPR * 100}%`} />
+            <InfoRow title={'Estimated APR'} value={`${numberRound(poolAPR * 100, 2)}%`} />
             <InfoRow title={'Withdrawal date'} value={withdrawalDate} />
             <InfoRow title={'Remaining Capacity'} value={`${numberRound(remainingCapacity)} ${asset2.unitName}`} />
             <InfoRow title={'Vault duration'} value={vaultDurationText} />

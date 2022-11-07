@@ -15,62 +15,66 @@ import { $account, $balances, $meanRoundDuration, $networkTime, DEFAULT_TEAL_CON
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
-import { FARM_FLAT_ALGO_CREATION_FEE } from '../AppContext';
-import { DexProvider, makeDex } from '../dexes';
+import { DexPool, DexProvider, makeDex } from '../dexes';
 import { AddFarmRow, DateInput } from '../Farm/styled';
 import { calculateTimeByBlock, daysToBlocks } from '../Farm/AddFarm';
 import { deployFarm, getDexName } from '../Farm/utils';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
-import { getSmallestUnits } from '../common/lib';
+import { algoexplorerLink, getSmallestUnits } from '../common/lib';
 import { expBackoff } from '../common/store/utils';
-import { deployVaultToBackend } from '../providers/apiProvider';
+import { deployVaultToBackend, getPactPools } from '../providers/apiProvider';
 
 const MIN_ALLOWED_ALGO_BALANCE = 5;
 
 const checkLaaSParams = (
-    stakeToken: TokenOptionType,
-    rewardToken: TokenOptionType,
+    projectToken: TokenOptionType,
+    projectTokenAmount: number,
+    userToken: TokenOptionType,
     beginBlock: number,
     endBlock: number,
-    rewardAmount: number,
-    algoToken: TokenOptionType,
-    extraAlgoRewardAmount: number
+    pool: DexPool | null
 ) => {
-    if (!stakeToken.id) {
-        notify('Please, choose LP pool.', 'warning');
+    if (!projectToken.id) {
+        notify('Please, choose project token.', 'warning');
         return false;
     }
-    if (Number.isNaN(rewardToken.id)) {
-        notify('Please, choose reward token.', 'warning');
+    if (Number.isNaN(userToken.id)) {
+        notify('Please, choose user token.', 'warning');
         return false;
     }
 
     if (Number.isNaN(beginBlock) || beginBlock >= endBlock) {
-        notify('Please, choose start time and farm duration.', 'warning');
-        return false;
-    }
-    if (Number.isNaN(rewardAmount) || rewardAmount === 0) {
-        notify('Please, enter reward amount.', 'warning');
+        notify('Please, choose vault duration.', 'warning');
         return false;
     }
 
-    if (!Number.isNaN(rewardToken.balance) && rewardToken.balance < rewardAmount) {
-        notify('Reward tokens amount is less than the wallet balance.', 'warning');
+    if (Number.isNaN(projectTokenAmount) || projectTokenAmount === 0) {
+        notify('Please, enter project token amount.', 'warning');
         return false;
     }
 
-    const minAlgoBalance = Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE;
-    if (!Number.isNaN(algoToken.balance) && algoToken.balance < minAlgoBalance) {
-        const needAlgo = minAlgoBalance - algoToken.balance;
-        notify(
-            `Not enough ALGO. Please deposit at least ${Math.round(needAlgo)} ALGO to proceed.
-            Some ALGOs are reserved by Algorand Network. 
-            Creation fee is ${FARM_FLAT_ALGO_CREATION_FEE} ALGO. 
-            So minimum balance to create the pool is ${minAlgoBalance}.`,
-            'warning'
-        );
+    if (!Number.isNaN(projectToken.balance) && projectToken.balance < projectTokenAmount) {
+        notify('Project tokens amount is less than the wallet balance.', 'warning');
         return false;
     }
+
+    if (!pool) {
+        notify("Pact pool isn't found.", 'error');
+        return false;
+    }
+
+    // const minAlgoBalance = Number(FARM_FLAT_ALGO_CREATION_FEE) + MIN_ALLOWED_ALGO_BALANCE;
+    // if (!Number.isNaN(algoToken.balance) && algoToken.balance < minAlgoBalance) {
+    //     const needAlgo = minAlgoBalance - algoToken.balance;
+    //     notify(
+    //         `Not enough ALGO. Please deposit at least ${Math.round(needAlgo)} ALGO to proceed.
+    //         Some ALGOs are reserved by Algorand Network.
+    //         Creation fee is ${FARM_FLAT_ALGO_CREATION_FEE} ALGO.
+    //         So minimum balance to create the pool is ${minAlgoBalance}.`,
+    //         'warning'
+    //     );
+    //     return false;
+    // }
 
     return true;
 };
@@ -83,37 +87,25 @@ const createVault = async (
     userToken: TokenOptionType,
     vaultRunBlocks: number,
     rewardToken: TokenOptionType,
-    rewardAmount: number
+    rewardAmount: number,
+    lpTokenId: number,
+    poolAppId: number
 ) => {
-    // TODO validation is needed
-    /* if (!checkLaaSParams()) {
-        return false;
-    } */
+    // if (!checkLaaSParams()) {
+    //     return false;
+    // }
 
     try {
-        const aToken = projectToken.id;
-        const bToken = userToken.id;
-        console.log('[START]', aToken, bToken, vaultRunBlocks);
+        console.log('[START]', projectToken.id, userToken.id, vaultRunBlocks);
+        console.log('[PACT POOL]', lpTokenId, poolAppId);
 
-        const pool = await makeDex(dex).getPoolByAssets(aToken, bToken);
-        if (pool === null) {
-            console.log('No lp pool :(');
-            return false;
-        }
-        const lpToken = pool.liquidityAsset;
-        const poolAppId = pool.poolId;
-
-        // const { poolId, lpTokenId } = await deployPactPoolFull(aToken, bToken, account, DEFAULT_TEAL_CONNECTOR);
-        // const lpToken = poolId;
-        // const poolAppId = lpTokenId;
-
-        console.log('[PACT POOL]', lpToken, poolAppId);
+        // const { poolAppId, lpTokenId } = await deployPactPoolFull(aToken, bToken, account, DEFAULT_TEAL_CONNECTOR);
 
         const vaultParams = {
             ammAppId: poolAppId,
-            aToken: aToken,
-            bToken: bToken,
-            lpToken: lpToken,
+            aToken: projectToken.id,
+            bToken: userToken.id,
+            lpToken: lpTokenId,
             vaultRunBlocks: vaultRunBlocks,
             initialAmountA: getSmallestUnits(projectToken, projectTokenAmount),
         };
@@ -148,6 +140,8 @@ function LaaSInfo({
     rewardToken,
     daysDuration,
     meanRoundDuration,
+    poolAPR,
+    pool,
 }: {
     projectToken: TokenOptionType;
     userToken: TokenOptionType;
@@ -158,27 +152,39 @@ function LaaSInfo({
     rewardToken: TokenOptionType;
     daysDuration: number;
     meanRoundDuration: number;
+    poolAPR: number;
+    pool: DexPool | null;
 }) {
     const laasCreationFee = 0;
     const startTime = calculateTimeByBlock(currentBlock, currentBlock, meanRoundDuration);
     const endTime = calculateTimeByBlock(currentBlock, endBlock, meanRoundDuration);
-    const subscriptionPeriod = daysDuration / 3; // TODO
+    const subscriptionPeriod = daysDuration / 5;
+    const auctionDurationDays = 3;
     const vaultName = `${projectToken.unitName}/${userToken.unitName} on ${getDexName(dex)}`;
+
+    if (!pool) {
+        return null;
+    }
 
     return (
         <InfoPanel isLoading={false}>
-            <InfoRow title="Vault" value={vaultName} />
-            <InfoRow title="Expected user APR" value="10%" />
-            <InfoRow title="Expected Impermanent Loss" value="5%" />
+            <InfoRow title="Vault" value={vaultName} valueLink={algoexplorerLink('application', pool.poolId)} />
+            <InfoRow
+                title="LP ASA ID"
+                value={pool.liquidityAsset}
+                valueLink={algoexplorerLink('asset', pool.liquidityAsset)}
+            />
+            <InfoRow title="Expected user APR" value={`${numberRound(poolAPR * 100, 2)}%`} />
+            {/*<InfoRow title="Expected Impermanent Loss" value="5%" />*/}
             <InfoRow title="Subscription period" value={`${numberRound(subscriptionPeriod)} days`} />
             <InfoRow title="Vault start" value={startTime} />
             <InfoRow title="Vault end" value={endTime} />
-            <InfoRow title="Auction duration" value="2 days" />
-            <InfoRow
-                title="Total reward"
-                value={`${rewardAmount} ${rewardToken.unitName}`}
-                valueLink={`https://algoscan.app/asset/${rewardToken.id}`}
-            />
+            <InfoRow title="Auction duration" value={`${auctionDurationDays} days`} />
+            {/*<InfoRow*/}
+            {/*    title="Total reward"*/}
+            {/*    value={`${rewardAmount} ${rewardToken.unitName}`}*/}
+            {/*    valueLink={`https://algoscan.app/asset/${rewardToken.id}`}*/}
+            {/*/>*/}
             <InfoRow title="Vault creation fee" value={`${laasCreationFee} ALGO`} />
         </InfoPanel>
     );
@@ -206,6 +212,9 @@ export function AddLaaS() {
 
     const endBlock: number = currentBlock + daysToBlocks(Number(daysDuration), meanRoundDuration);
 
+    const [pool, setPool] = useState<DexPool | null>(null);
+    const [poolAPR, setPoolAPR] = useState<number>(0);
+
     useEffect(() => {
         getTokens(account, balances).then((res) => {
             const filteredTokens = res.filter((token) => token.id !== 0);
@@ -215,6 +224,23 @@ export function AddLaaS() {
             setSelectedUserToken(filteredTokens[1]);
         });
     }, [account, balances]);
+
+    useEffect(() => {
+        makeDex(selectedDex)
+            .getPoolByAssets(selectedProjectToken.id, selectedUserToken.id)
+            .then((pool) => {
+                setPool(pool);
+                getPactPools(1, pool.poolId).then((pools) => {
+                    if (pools[0]) {
+                        setPoolAPR(Number(pools[0].apr_7d));
+                    }
+                });
+            })
+            .catch((e) => {
+                setPool(null);
+                setPoolAPR(0);
+            });
+    }, [selectedProjectToken, selectedUserToken]);
 
     // const selectDexOnChange = (dex: DexProvider) => {
     //     setSelectedDex(dex);
@@ -281,19 +307,18 @@ export function AddLaaS() {
                     buttonStyle="swap_button"
                     style={{ marginTop: 20 }}
                     onClickAction={async () => {
-                        /* If (
+                        if (
                             checkLaaSParams(
-                                selectedUserToken,
                                 selectedProjectToken,
+                                Number(projectTokenAmount),
+                                selectedUserToken,
                                 currentBlock,
                                 endBlock,
-                                Number(projectTokenAmount),
-                                rewardToken,
-                                Number(rewardTokenAmount)
+                                pool
                             )
-                        ) { */
-                        openAddLaaSModal();
-                        //   }
+                        ) {
+                            openAddLaaSModal();
+                        }
                     }}
                 />
             )}
@@ -312,8 +337,10 @@ export function AddLaaS() {
                         rewardAmount={Number(rewardTokenAmount)}
                         daysDuration={Number(daysDuration)}
                         meanRoundDuration={meanRoundDuration}
+                        poolAPR={poolAPR}
+                        pool={pool}
                     />
-                    {account && (
+                    {account && pool && (
                         <PacmanButton
                             buttonText="CREATE LAAS VAULT"
                             buttonStyle="swap_button"
@@ -327,7 +354,9 @@ export function AddLaaS() {
                                     selectedUserToken,
                                     endBlock - currentBlock,
                                     rewardToken,
-                                    Number(rewardTokenAmount)
+                                    Number(rewardTokenAmount),
+                                    pool.poolId,
+                                    pool.liquidityAsset
                                 );
                                 res && closeAddLaaSModal();
                             }}

@@ -15,11 +15,12 @@ export const LaaSResults = ({
 }) => {
     const APYSubtitle = isFinalAPY ? 'Result' : 'Projected';
     const ILSubtitle = isFinalIL ? 'Result' : 'Current'; // TODO Expected
+    const roundedAPY = APY === 0 ? '0' : (APY * 100).toFixed(2);
 
     return (
         <LaaSResultsContainer>
             <LaaSSquare>
-                <LaaSResultNumber>{`${numberRound(APY * 100)}%`}</LaaSResultNumber>
+                <LaaSResultNumber>{`${roundedAPY}%`}</LaaSResultNumber>
                 <LaaSResultNumberSubtitle>{APYSubtitle} APY</LaaSResultNumberSubtitle>
             </LaaSSquare>
             <LaaSSquare>

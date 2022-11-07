@@ -215,6 +215,11 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const withdrawBalance = vault.state ? balances[vault.state.initial.slpToken] : 0;
     // console.log('STATE', vault.state);
 
+    const isFinalResult = laasStage === LaaSStage.withdraw;
+    const resultARP = vault.state
+        ? Number(vault.state.global.totalBToWithdraw) / Number(vault.state.global.totalBLiqProvided) - 1
+        : 0;
+
     return (
         <LaaSCardContainer>
             <LaaSHeader asset1={asset1} asset2={asset2} dex={dex} isVerified={isVerified} />
@@ -226,10 +231,10 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                 />
             ) : (
                 <LaaSResults
-                    APY={poolAPR}
+                    APY={isFinalResult ? resultARP : poolAPR}
                     IL={getCurrentImpermanentLoss(asset1, asset2, vault.state, pool, laasStage)}
-                    isFinalAPY={laasStage === LaaSStage.withdraw || laasStage === LaaSStage.auction}
-                    isFinalIL={laasStage === LaaSStage.withdraw}
+                    isFinalAPY={isFinalResult}
+                    isFinalIL={isFinalResult}
                 />
             )}
             <LaaSInfo
