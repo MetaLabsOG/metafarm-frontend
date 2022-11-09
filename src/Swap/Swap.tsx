@@ -468,7 +468,7 @@ export function Swap() {
 
                 // Check NFT winning
                 const nft = await checkNftLottery(
-                    txId,
+                    res,
                     account?.networkAccount.addr ?? '',
                     token1.id,
                     token2.id,
