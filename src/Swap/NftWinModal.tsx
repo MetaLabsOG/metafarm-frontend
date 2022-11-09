@@ -28,9 +28,10 @@ export const NftWinModal = ({ txId, nft }: { txId: string; nft: NftLottery }) =>
         }
 
         try {
+            const address = account.networkAccount.addr;
             console.log('WIN NFT!', nft);
-            await batchOptIn(reach, account.networkAccount.addr, [nft.asa_id], false);
-            await nftClaim(txId);
+            await batchOptIn(reach, address, [nft.asa_id], false);
+            await nftClaim(address);
             setReceivedNft(true);
             notify('Done! NFT is in your wallet!', 'success');
         } catch (error) {
