@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import pera from '../imgs/pera.svg';
 import myalgo from '../imgs/myalgo.svg';
+import defly from '../imgs/defly.svg';
 import closeButton from '../imgs/close.svg';
 import { ModalCloseButton } from '../common/styled';
 import { WalletType } from './customWalletFallback';
@@ -30,6 +31,10 @@ export function ConnectWalletModal({ closeModal, isModalOpen }: { closeModal: ()
             <WalletButton onClick={() => walletClick('WalletConnect')}>
                 <WalletText>Connect to Pera wallet</WalletText>
                 <img style={{ width: '28px', height: '28px' }} alt="pera wallet" src={pera} />
+            </WalletButton>
+            <WalletButton onClick={() => walletClick('WalletConnectDefly')}>
+                <WalletText>Connect to Defly wallet</WalletText>
+                <img style={{ width: '28px', height: '28px' }} alt="defly wallet" src={defly} />
             </WalletButton>
         </WalletModalContainer>
     );

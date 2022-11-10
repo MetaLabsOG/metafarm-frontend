@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import algosdk from 'algosdk';
 import { PeraWalletConnect } from '@perawallet/connect';
-import { ALGO_MyAlgoConnect as MyAlgoConnect } from '@reach-sh/stdlib';
+import { ALGO_MyAlgoConnect as MyAlgoConnect, ALGO_WalletConnect as WalletConnect } from '@reach-sh/stdlib';
 import type {
     ARC11_Wallet,
     EnableOpts,
@@ -16,7 +16,7 @@ import type {
 import { makeProviderByEnv } from '../reachRedefinitions';
 import { reach } from '../AppContext';
 
-export type WalletType = 'MyAlgo' | 'WalletConnect';
+export type WalletType = 'MyAlgo' | 'WalletConnect' | 'WalletConnectDefly';
 export type WalletFallbackOpts = any & ({ MyAlgoConnect: MyAlgoConnect } | { WalletConnect: PeraWalletConnect });
 export type ARC11_Wallet_Disconnectable = ARC11_Wallet & { disconnect: () => Promise<void> };
 export type ARC11_Wallet_Exposed = ARC11_Wallet_Disconnectable & { _impl: MyAlgoConnect | PeraWalletConnect };
@@ -32,7 +32,6 @@ export const doCustomWalletFallback = (
     options: any,
     getAddr: () => Promise<string>,
     signTxns_: (txns: WalletTransaction[]) => Promise<string[]>,
-
     disconnect: () => Promise<void> = async () => {}
 ): ARC11_Wallet_Disconnectable => {
     let p: Provider | undefined;
@@ -101,6 +100,9 @@ export const customWalletFallback = (options: any & { walletType: WalletType }) 
     }
     if (options.walletType === 'WalletConnect') {
         return walletFallback_WalletConnect(options);
+    }
+    if (options.walletType === 'WalletConnectDefly') {
+        return walletFallback_WalletConnectDefly(options);
     }
 
     throw new TypeError(`Invalid wallet type: ${options.walletType}`);
@@ -178,4 +180,40 @@ const walletFallback_WalletConnect = (options: object) => (): ARC11_Wallet_Expos
         }
     });
     return { ...wallet, _impl: peraWallet };
+};
+
+const walletFallback_WalletConnectDefly = (opts: object) => (): ARC11_Wallet_Exposed => {
+    const wc = new WalletConnect();
+    const disconnect = () => wc.wc.killSession();
+    const wallet = doCustomWalletFallback(
+        opts,
+        () => wc.getAddr(),
+        async (txns: WalletTransaction[]): Promise<string[]> => {
+            await wc.ensureSession();
+            const preparedTxns = txns.map(({ txn, stxn }) => (stxn ? { txn, signers: [] } : { txn }));
+            const req = {
+                method: 'algo_signTxn',
+                params: [preparedTxns],
+            };
+            console.log('AWC signTxns -> ', req);
+            try {
+                const res = await wc.wc.sendCustomRequest(req);
+                console.log(`AWC signTxns <-`, res);
+
+                const signedTxns: string[] = res
+                    .filter((item: any) => item !== null)
+                    .map((buf: any) => Buffer.from(buf).toString('base64'));
+
+                return txns.reduce((allStxns: string[], { stxn }) => {
+                    allStxns.push(stxn ? stxn : signedTxns.shift()!);
+                    return allStxns;
+                }, []);
+            } catch (e: any) {
+                console.log(`AWC signTxns err`, e);
+                throw e;
+            }
+        },
+        disconnect
+    );
+    return { ...wallet, _impl: wc };
 };
