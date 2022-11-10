@@ -25,6 +25,7 @@ export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
     96690153: 607591690, // XGLI
     27963203: 342889824, // BOARD
     96690352: 792313023, // XSOL
+    42279195: 312769, // USDT
 };
 
 export const getAssetLogoUrl = (input_asset_id: number) => {
@@ -41,11 +42,11 @@ export const convertAmountToUSD = (lpToken: Priced<Asset>, amount: Amount) => {
     return (lpToken.price * unsafeFromBigint(amount)) / 10 ** lpToken.decimals;
 };
 
-export const numberRound = (amount: number | Amount) => {
+export const numberRound = (amount: number | Amount, presicion?: number) => {
     if (typeof amount !== 'number') {
         amount = unsafeFromBigint(amount);
     }
-    return amount > 0 ? formatDecimalsMeaningful(amount) : '0';
+    return amount > 0 ? formatDecimalsMeaningful(amount, presicion) : '0';
 };
 
 export const getLPTokenPoolLink = (poolDex: DexProvider, poolId: number, asset1: AssetId, asset2: AssetId): string => {

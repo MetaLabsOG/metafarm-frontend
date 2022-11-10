@@ -15,13 +15,16 @@ import { $account, $balances, $meanRoundDuration, $networkTime, DEFAULT_TEAL_CON
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
-import { algod, FARM_FLAT_ALGO_CREATION_FEE, reach } from '../AppContext';
-import { logEvent, LogName } from '../logEvent';
-import { DexProvider } from '../dexes';
-import { DexSwitch } from '../Zap/Zap';
+import { FARM_FLAT_ALGO_CREATION_FEE } from '../AppContext';
+import { DexProvider, makeDex } from '../dexes';
 import { AddFarmRow, DateInput } from '../Farm/styled';
 import { calculateTimeByBlock, daysToBlocks } from '../Farm/AddFarm';
-import { deployFarm } from '../Farm/utils';
+import { deployFarm, getDexName } from '../Farm/utils';
+import { numberRound } from '../Farm/PoolList/Pool/utils';
+import { getSmallestUnits } from '../common/lib';
+import { expBackoff } from '../common/store/utils';
+import { deployVaultToBackend } from '../providers/apiProvider';
+
 const MIN_ALLOWED_ALGO_BALANCE = 5;
 
 const checkLaaSParams = (
@@ -39,6 +42,10 @@ const checkLaaSParams = (
     }
     if (Number.isNaN(rewardToken.id)) {
         notify('Please, choose reward token.', 'warning');
+        return false;
+    }
+    if (stakeToken.id === rewardToken.id) {
+        notify('Please, choose different tokens for the pair', 'warning');
         return false;
     }
 
@@ -74,76 +81,61 @@ const checkLaaSParams = (
 
 const createVault = async (
     account: Account,
-    stakeToken: TokenOptionType,
+    dex: DexProvider,
+    projectToken: TokenOptionType,
+    projectTokenAmount: number,
+    userToken: TokenOptionType,
+    vaultRunBlocks: number,
     rewardToken: TokenOptionType,
-    beginBlock: number,
-    endBlock: number,
-    rewardAmount: number,
-    algoToken: TokenOptionType,
-    extraAlgoRewardAmount: number
+    rewardAmount: number
 ) => {
     // TODO validation is needed
-    /* if (
-        !checkLaaSParams(stakeToken, rewardToken, beginBlock, endBlock, rewardAmount, algoToken, extraAlgoRewardAmount)
-    ) {
+    /* if (!checkLaaSParams()) {
         return false;
     } */
 
     try {
-        const USDC_ID = 10458941;
-        const ALGF_ID = 70283957;
-        const PLP_ID = 114635758;
+        const aToken = projectToken.id;
+        const bToken = userToken.id;
+        console.log('[START]', aToken, bToken, vaultRunBlocks);
 
-        // MY CUSTOM POOL! USDC-ALGF
-        const PACT_POOL_APP_ID = 114634485;
+        const pool = await makeDex(dex).getPoolByAssets(aToken, bToken);
+        if (pool === null) {
+            console.log('No lp pool :(');
+            return false;
+        }
+        const lpToken = pool.liquidityAsset;
+        const poolAppId = pool.poolId;
 
-        // await deployPactPool(USDC_ID, ALGF_ID);
-        // await fundApp(PACT_POOL_APP_ID);
-        // await pactCreateLiquidityTokenTx(PACT_POOL_APP_ID, USDC_ID, ALGF_ID);
-        // await pactOptIn(PACT_POOL_APP_ID, USDC_ID, ALGF_ID);
-        // await pactAddLiq(PACT_POOL_APP_ID, USDC_ID, ALGF_ID, PLP_ID);
+        // const { poolId, lpTokenId } = await deployPactPoolFull(aToken, bToken, account, DEFAULT_TEAL_CONNECTOR);
+        // const lpToken = poolId;
+        // const poolAppId = lpTokenId;
 
-        // Order matters (in terms of id)
-        // await deployVault(PACT_POOL_APP_ID, USDC_ID, ALGF_ID, PLP_ID);
+        console.log('[PACT POOL]', lpToken, poolAppId);
 
+        const vaultParams = {
+            ammAppId: poolAppId,
+            aToken: aToken,
+            bToken: bToken,
+            lpToken: lpToken,
+            vaultRunBlocks: vaultRunBlocks,
+            initialAmountA: getSmallestUnits(projectToken, projectTokenAmount),
+        };
+        console.log('[START VAULT DEPLOY]', vaultParams);
         const laasCtc = laasBackend.makeCtc(account, DEFAULT_TEAL_CONNECTOR);
-        const vaultId = await deployFarm(laasCtc, {
-            ammAppId: PACT_POOL_APP_ID,
-            aToken: USDC_ID,
-            bToken: ALGF_ID,
-            lpToken: PLP_ID,
-            vaultRunBlocks: 200,
-            initialAmountA: 1000,
-        });
+        const vaultId = await deployFarm(laasCtc, vaultParams);
 
-        // await deployFarm()
-        // await deployVaultFull(PACT_POOL_APP_ID, USDC_ID, ALGF_ID, PLP_ID);
-        // This.tokens.slp = Number(this.runtime.getGlobalState(this.vaultAppId, 'slp_token'));
+        const deployToBackendWithBackoffFun = expBackoff(async () =>
+            deployVaultToBackend(account.networkAccount.addr, Number(vaultId), 'laas', projectToken, userToken)
+        );
 
-        // console.log(`Opting in into Vault SLP tokens... (id=${this.tokens.slp})`);
-        // this.runtime.optInToASA(this.tokens.slp, this.vaultLiquidityProvider.address, {});
+        await deployToBackendWithBackoffFun(null);
+        notify(`Done! Contract id is ${Number(vaultId)}. Please, update the page.`, 'success');
 
         console.log('OMG CANT BELIVE IT WORKS!', vaultId);
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
-        console.log(error);
-        if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
-            notify('Operation is cancelled.', 'warning');
-        } else if (error_message.includes('popup')) {
-            notify('Popups are blocked. Please, allow popups in your browser.', 'error');
-        } else if (error_message.includes('below min')) {
-            notify('Not enough ALGOs in the wallet.', 'error');
-        } else {
-            notify(`Something went wrong, please contact us on twitter or discord!`, 'error');
-        }
-        logEvent(
-            account.networkAccount.addr,
-            {
-                status: '[LAAS ERROR]',
-                error: String(error),
-            },
-            LogName.ADDFARM
-        );
+        console.log(error_message);
         return false;
     }
 
@@ -151,43 +143,47 @@ const createVault = async (
 };
 
 function LaaSInfo({
-    stakingAsset,
+    projectToken,
+    userToken,
+    dex,
     currentBlock,
-    beginBlock,
     endBlock,
     rewardAmount,
     rewardToken,
+    daysDuration,
     meanRoundDuration,
-    algoTokenRewards,
 }: {
-    stakingAsset: TokenOptionType;
+    projectToken: TokenOptionType;
+    userToken: TokenOptionType;
+    dex: DexProvider;
     currentBlock: number;
-    beginBlock: number;
     endBlock: number;
     rewardAmount: number;
     rewardToken: TokenOptionType;
+    daysDuration: number;
     meanRoundDuration: number;
-    algoTokenRewards: number;
 }) {
     const laasCreationFee = 0;
-    const startTime = calculateTimeByBlock(currentBlock, beginBlock, meanRoundDuration);
+    const startTime = calculateTimeByBlock(currentBlock, currentBlock, meanRoundDuration);
     const endTime = calculateTimeByBlock(currentBlock, endBlock, meanRoundDuration);
+    const subscriptionPeriod = daysDuration / 3; // TODO
+    const vaultName = `${projectToken.unitName}/${userToken.unitName} on ${getDexName(dex)}`;
 
     return (
         <InfoPanel isLoading={false}>
+            <InfoRow title="Vault" value={vaultName} />
             <InfoRow title="Expected user APR" value="10%" />
             <InfoRow title="Expected Impermanent Loss" value="5%" />
-            <InfoRow title="Subscription period" value="10 days" />
+            <InfoRow title="Subscription period" value={`${numberRound(subscriptionPeriod)} days`} />
             <InfoRow title="Vault start" value={startTime} />
             <InfoRow title="Vault end" value={endTime} />
             <InfoRow title="Auction duration" value="2 days" />
             <InfoRow
                 title="Total reward"
-                value={rewardAmount + ' ' + rewardToken.unitName}
-                valueLink={'https://algoscan.app/asset/' + rewardToken.id}
+                value={`${rewardAmount} ${rewardToken.unitName}`}
+                valueLink={`https://algoscan.app/asset/${rewardToken.id}`}
             />
-            {algoTokenRewards > 0 && <InfoRow title="Extra rewards" value={algoTokenRewards + ' ALGO'} />}
-            <InfoRow title="Vault creation fee" value={(FARM_FLAT_ALGO_CREATION_FEE ?? 0) + ' ALGO'} />
+            <InfoRow title="Vault creation fee" value={`${laasCreationFee} ALGO`} />
         </InfoPanel>
     );
 }
@@ -198,7 +194,7 @@ export function AddLaaS() {
     const currentBlock = useUnit($networkTime);
     const meanRoundDuration = useUnit($meanRoundDuration);
 
-    const [selectedDex, setSelectedDex] = useState<DexProvider>('T2');
+    const [selectedDex, setSelectedDex] = useState<DexProvider>('PT');
     const [tokensOptions, setTokensOptions] = useState<TokenOptionType[]>([]);
 
     const [selectedProjectToken, setSelectedProjectToken] = useState<TokenOptionType>(TOKEN_OPTION);
@@ -216,23 +212,29 @@ export function AddLaaS() {
 
     useEffect(() => {
         getTokens(account, balances).then((res) => {
-            setTokensOptions(res);
-            setSelectedUserToken(res[0]);
-            setSelectedProjectToken(res[1]);
-            setRewardToken(res[1]);
+            // const filteredTokens = res.filter((token) => token.id !== 0);
+            const filteredTokens = res;
+            setTokensOptions(filteredTokens);
+            setSelectedProjectToken(filteredTokens[0]);
+            setRewardToken(filteredTokens[0]);
+            setSelectedUserToken(filteredTokens[1]);
         });
     }, [account, balances]);
 
-    const selectDexOnChange = (dex: DexProvider) => {
-        setSelectedDex(dex);
+    // const selectDexOnChange = (dex: DexProvider) => {
+    //     setSelectedDex(dex);
+    // };
+
+    const selectProjectTokenOnChange = (option: TokenOptionType) => {
+        setSelectedProjectToken(option);
     };
 
-    const selectTokenOnChange = (option: TokenOptionType) => {
+    const selectUserTokenOnChange = (option: TokenOptionType) => {
         setSelectedUserToken(option);
     };
 
     const selectRewardTokenOnChange = (option: TokenOptionType) => {
-        setSelectedProjectToken(option);
+        setRewardToken(option);
     };
 
     const durationInputOnChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -242,30 +244,30 @@ export function AddLaaS() {
     return (
         <ModalContainer>
             <ModalTitle style={{ textAlign: 'center' }}>ADD LAAS VAULT</ModalTitle>
-            <DexSwitch dexProvider={selectedDex} dexOnChange={selectDexOnChange} />
+            {/*<DexSwitch dexProvider={selectedDex} dexOnChange={selectDexOnChange} />*/}
             <Heading2>PROJECT TOKEN</Heading2>
             <SelectInputGroup
                 options={tokensOptions}
                 selectedOption={selectedProjectToken}
                 inputData={projectTokenAmount}
                 setInputData={setProjectTokenAmount}
-                selectOnChange={selectRewardTokenOnChange}
+                selectOnChange={selectProjectTokenOnChange}
             />
             <Heading2>USER TOKEN</Heading2>
             <Select
                 selectType={SelectType.tokenSelect}
                 options={tokensOptions}
                 selectedOption={selectedUserToken}
-                selectOnChange={selectTokenOnChange}
+                selectOnChange={selectUserTokenOnChange}
             />
-            <Heading2>REWARDS [OPTIONAL]</Heading2>
-            <SelectInputGroup
-                options={tokensOptions}
-                selectedOption={rewardToken}
-                inputData={rewardTokenAmount}
-                setInputData={setRewardTokenAmount}
-                selectOnChange={() => {}}
-            />
+            {/*<Heading2>REWARDS [OPTIONAL]</Heading2>*/}
+            {/*<SelectInputGroup*/}
+            {/*    options={tokensOptions}*/}
+            {/*    selectedOption={rewardToken}*/}
+            {/*    inputData={rewardTokenAmount}*/}
+            {/*    setInputData={setRewardTokenAmount}*/}
+            {/*    selectOnChange={selectRewardTokenOnChange}*/}
+            {/*/>*/}
             <AddFarmRow>
                 <Heading2 style={{ minWidth: '130px' }}>DURATION</Heading2>
                 <DateInput
@@ -282,6 +284,7 @@ export function AddLaaS() {
                 <PacmanButton
                     buttonText="VERIFY DETAILS"
                     buttonStyle="swap_button"
+                    style={{ marginTop: 20 }}
                     onClickAction={async () => {
                         /* If (
                             checkLaaSParams(
@@ -301,31 +304,33 @@ export function AddLaaS() {
             )}
             <AddLaaSModal>
                 <ModalContainer>
-                    <ModalSubtitle style={{ fontSize: '16px' }}>
-                        Please, carefully verify the LaaS creation parameters.
+                    <ModalSubtitle style={{ fontSize: '16px', width: 350, marginBottom: 10 }}>
+                        Please, carefully verify the vault creation parameters.
                     </ModalSubtitle>
                     <LaaSInfo
-                        stakingAsset={selectedUserToken}
+                        projectToken={selectedProjectToken}
+                        userToken={selectedUserToken}
+                        dex={selectedDex}
                         currentBlock={currentBlock}
-                        beginBlock={currentBlock}
                         endBlock={endBlock}
-                        rewardAmount={Number(projectTokenAmount)}
-                        rewardToken={selectedProjectToken}
+                        rewardToken={rewardToken}
+                        rewardAmount={Number(rewardTokenAmount)}
+                        daysDuration={Number(daysDuration)}
                         meanRoundDuration={meanRoundDuration}
-                        algoTokenRewards={Number(rewardTokenAmount)}
                     />
                     {account && (
                         <PacmanButton
                             buttonText="CREATE LAAS VAULT"
                             buttonStyle="swap_button"
+                            style={{ marginTop: 20 }}
                             onClickAction={async () => {
                                 const res = await createVault(
                                     account,
-                                    selectedUserToken,
+                                    selectedDex,
                                     selectedProjectToken,
-                                    currentBlock,
-                                    endBlock,
                                     Number(projectTokenAmount),
+                                    selectedUserToken,
+                                    endBlock - currentBlock,
                                     rewardToken,
                                     Number(rewardTokenAmount)
                                 );

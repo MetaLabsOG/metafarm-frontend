@@ -419,7 +419,12 @@ export function Zap({
                     dexOnChange={dexOnChange}
                 />
             )}
-            <PacmanButton buttonText={zapButtonText} buttonStyle="swap_button" onClickAction={ZapButtonOnClick} />
+            <PacmanButton
+                buttonText={zapButtonText}
+                buttonStyle="swap_button"
+                onClickAction={ZapButtonOnClick}
+                style={{ marginTop: 20 }}
+            />
             {pool && (
                 <a
                     target="_blank"

@@ -52,6 +52,7 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     463554836: 70283957, // ALGF
     792313023: 96690352, // XSOL
     342889824: 27963203, // BOARD
+    312769: 42279195, // USDT
 };
 
 export const SLIPPAGE = 0.01;
@@ -337,6 +338,7 @@ export async function getTokens(
         // TODO: remove it
         if (ALGONET === TESTNET && asset.value === META_TOKEN_ID.toString()) {
             asset.balance /= 10 ** 2;
+            asset.decimals += 2;
         }
     }
     assets
@@ -466,7 +468,7 @@ export function Swap() {
 
                 // Check NFT winning
                 const nft = await checkNftLottery(
-                    txId,
+                    res,
                     account?.networkAccount.addr ?? '',
                     token1.id,
                     token2.id,
@@ -516,7 +518,12 @@ export function Swap() {
                 token1={token1}
                 token2={token2}
             />
-            <PacmanButton buttonText="SWAP" buttonStyle="swap_button" onClickAction={SwapButtonOnClick} />
+            <PacmanButton
+                buttonText="SWAP"
+                buttonStyle="swap_button"
+                onClickAction={SwapButtonOnClick}
+                style={{ marginTop: 20 }}
+            />
             <a target="_blank" href="https://www.alammex.com/" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <DexName>via alammex</DexName>
             </a>

@@ -8,7 +8,7 @@ export enum ButtonType {
 }
 
 export const SecondaryButton = styled.button`
-    border-radius: 4px;
+    border-radius: 16px;
     width: 137px;
     height: 34px;
     background-color: inherit;
@@ -48,26 +48,26 @@ export const SecondaryButton = styled.button`
         content: '';
         color: black !important;
         background: linear-gradient(270deg, #06a903 1.29%, #00ff29 100%);
+        border-radius: 16px;
         transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
     }
 `;
 
 export const PrimaryButton = styled(SecondaryButton)`
-    background: linear-gradient(270deg, #06a903 1.29%, #00ff29 100%);
+    background: rgba(66, 201, 63, 0.7);
     border: 1px solid #009427;
-    color: black;
+    color: var(--newWhite);
 
     :hover {
-        border: 1px solid var(--green);
-        color: var(--green) !important;
-        background-color: black;
-        text-shadow: none;
+        background-color: rgba(66, 201, 63, 0.84);
+        color: var(--newWhite) !important;
     }
 
+    :hover:before {
+        height: 0;
+    }
     :before {
-        color: var(--green) !important;
-        background: black;
-        border-radius: 4px;
+        width: 0;
     }
 `;
 

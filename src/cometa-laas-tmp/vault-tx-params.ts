@@ -15,37 +15,6 @@ import { Account } from 'algosdk';
 import { AppId, AssetId } from '../common/store/types';
 import { Address } from '../types';
 
-export function makeVaultDefinition(foreignAssets: AssetId[], liquidityPoolApp: AppId): AppDefinitionFromFile {
-    // TODO check if it's right
-    const appStorageConfig: StorageConfig = {
-        appName: 'laasVault',
-        localInts: 0,
-        localBytes: 0,
-        globalInts: 16,
-        globalBytes: 8,
-        extraPages: 3,
-    };
-
-    const appOptionalFlags: AppOptionalFlags = {
-        appArgs: [],
-        accounts: [],
-        foreignApps: [liquidityPoolApp], // TODO
-        foreignAssets,
-        // Note?: Uint8Array;
-        // lease?: Uint8Array;
-    };
-
-    // TODO use makeApplicationCreate?
-    return {
-        metaType: MetaType.FILE as const,
-        approvalProgramFilename: 'vault.py',
-        clearProgramFilename: 'clear.py',
-        // TODO I guess i don't need it here right now?
-        ...appOptionalFlags,
-        ...appStorageConfig,
-    };
-}
-
 // Opt-in application into lp and abc token
 export function makeOptInTx(fromAccount: Account, appId: AppId, assets: AssetId[]): AppCallsParam {
     return {
@@ -100,15 +69,25 @@ export function makeSetupTxs(
         payFlags: { totalFee: 5000 },
     };
 
-    const payParams: AssetTransferParam = {
-        type: TransactionType.TransferAsset,
-        sign: SignType.SecretKey,
-        fromAccount,
-        toAccountAddr,
-        amount: aTokenAmount,
-        assetID: aTokenId,
-        payFlags: { totalFee: 5000 },
-    };
+    const payParams =
+        aTokenId === 0
+            ? ({
+                  type: TransactionType.TransferAlgo,
+                  sign: SignType.SecretKey,
+                  fromAccount,
+                  toAccountAddr,
+                  amountMicroAlgos: aTokenAmount,
+                  payFlags: { totalFee: 5000 },
+              } as AlgoTransferParam)
+            : ({
+                  type: TransactionType.TransferAsset,
+                  sign: SignType.SecretKey,
+                  fromAccount,
+                  toAccountAddr,
+                  amount: aTokenAmount,
+                  assetID: aTokenId,
+                  payFlags: { totalFee: 5000 },
+              } as AssetTransferParam);
 
     // TODO: appCall should be last otherwise it's not composable?
     return [appCallParams, feeParams, payParams];
@@ -127,6 +106,7 @@ export function makeProvideLiquidityTxs(
     ammAppId: AppId,
     ammAppAddress: Address
 ): ExecParams[] {
+    console.log('foreign assets', [assetAId, assetBId, slpId]);
     const appCallParams: AppCallsParam = {
         type: TransactionType.CallApp,
         sign: SignType.SecretKey,
@@ -139,15 +119,25 @@ export function makeProvideLiquidityTxs(
         accounts: [ammAppAddress],
     };
 
-    const assetTransferParams: AssetTransferParam = {
-        type: TransactionType.TransferAsset,
-        sign: SignType.SecretKey,
-        fromAccount,
-        toAccountAddr,
-        amount,
-        assetID: assetBId,
-        payFlags: { totalFee: 5000 },
-    };
+    const assetTransferParams =
+        assetBId === 0
+            ? ({
+                  type: TransactionType.TransferAlgo,
+                  sign: SignType.SecretKey,
+                  fromAccount,
+                  toAccountAddr,
+                  amountMicroAlgos: amount,
+                  payFlags: { totalFee: 5000 },
+              } as AlgoTransferParam)
+            : ({
+                  type: TransactionType.TransferAsset,
+                  sign: SignType.SecretKey,
+                  fromAccount,
+                  toAccountAddr,
+                  amount,
+                  assetID: assetBId,
+                  payFlags: { totalFee: 5000 },
+              } as AssetTransferParam);
 
     return [assetTransferParams, appCallParams];
 }
@@ -249,10 +239,8 @@ export function makeAuctionBuyTxs(
     aToken: AssetId,
     bToken: AssetId,
     bAmount: number,
-    aToBuyDesired: number,
     liquiditySeekerAddress: Address
 ): ExecParams[] {
-    const desiredArg = `int:${aToBuyDesired}`;
     const appCallParams: AppCallsParam = {
         type: TransactionType.CallApp,
         sign: SignType.SecretKey,
@@ -260,20 +248,30 @@ export function makeAuctionBuyTxs(
         appID: appId,
         foreignAssets: [aToken, bToken],
         payFlags: { totalFee: 5000 },
-        appArgs: ['str:auction_buy', desiredArg],
+        appArgs: ['str:auction_buy'],
         // TODO rework, probably not needed
         accounts: [liquiditySeekerAddress],
     };
 
-    const assetTransferParams: AssetTransferParam = {
-        type: TransactionType.TransferAsset,
-        sign: SignType.SecretKey,
-        fromAccount,
-        toAccountAddr,
-        amount: bAmount,
-        assetID: bToken,
-        payFlags: { totalFee: 5000 },
-    };
+    const assetTransferParams =
+        bToken === 0
+            ? ({
+                  type: TransactionType.TransferAlgo,
+                  sign: SignType.SecretKey,
+                  fromAccount,
+                  toAccountAddr,
+                  amountMicroAlgos: bAmount,
+                  payFlags: { totalFee: 5000 },
+              } as AlgoTransferParam)
+            : ({
+                  type: TransactionType.TransferAsset,
+                  sign: SignType.SecretKey,
+                  fromAccount,
+                  toAccountAddr,
+                  amount: bAmount,
+                  assetID: bToken,
+                  payFlags: { totalFee: 5000 },
+              } as AssetTransferParam);
 
     return [assetTransferParams, appCallParams];
 }

@@ -6,7 +6,7 @@ import algo_logo from '../imgs/algo_token.svg';
 import burger from '../imgs/burger.svg';
 import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
 import { ConnectWallet } from '../wallet/ConnectWallet';
-import { META_TOKEN_ID } from '../AppContext';
+import { ALGONET, META_TOKEN_ID, TESTNET } from '../AppContext';
 import { getTokenLink } from '../Farm/PoolList/Pool/utils';
 import {
     MenuItem,
@@ -31,7 +31,7 @@ function MenuItems() {
             <MenuItem to="/zap">zap</MenuItem>
             <MenuItem to="/farm">farm</MenuItem>
             <MenuItem to="/stake">stake</MenuItem>
-            {/*<MenuItem to="/laas">laas</MenuItem>*/}
+            {ALGONET === TESTNET && <MenuItem to="/laas">laas</MenuItem>}
             {/* <MenuItem to="/fomo">fomo3d</MenuItem> */}
             <MenuItem to="/meta-dao">nft</MenuItem>
             {/* <MenuItem to="/tokensale">tokensale</MenuItem> */}

@@ -39,7 +39,7 @@ export function makeVaultDefinition(
         appName: 'laasVault',
         localInts: 0,
         localBytes: 0,
-        globalInts: 16,
+        globalInts: 19,
         globalBytes: 8,
         extraPages: 3,
     };
@@ -170,6 +170,7 @@ type LaasViews = {
 
 function parseLaasGlobalState(globalStateRaw: any): Record<string, string | number> {
     const globalState: Record<string, string | number> = {};
+    // console.log('RAW', globalStateRaw);
     for (const { key, value } of globalStateRaw) {
         const decodedKey = Buffer.from(key, 'base64').toString();
         if (value.type === 2) {
@@ -184,7 +185,7 @@ function parseLaasGlobalState(globalStateRaw: any): Record<string, string | numb
 }
 
 function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?: AppId): TealCtcWrapper {
-    console.log('LAAS API PREPARATION', appId);
+    // console.log('LAAS API PREPARATION', appId);
 
     const fetchGlobalState = async () => {
         if (appId === undefined) {
@@ -242,12 +243,14 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
                     liquidityPoolApp: globalState.liquidity_pool_app as number,
                     creator: globalState.creator as string,
                     liquidityPoolAddr: globalState.liquidity_pool_address as string,
+                    auctionLength: globalState.auction_length as number,
                 },
             ];
         },
 
         async global() {
             const globalState = await fetchGlobalState();
+            // console.log('GLOBAL', globalState);
             return [
                 'Some',
                 {
@@ -259,15 +262,14 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
                     lsBAccumulator: BigInt(globalState.ls_b_accumulator ?? 0),
                     priorityAddress: globalState.priority_address as string,
 
-                    totalBToWithdraw: BigInt(globalState.total_b_to_withdraw ?? 0),
+                    totalBToWithdraw: globalState.total_b_to_withdraw ? BigInt(globalState.total_b_to_withdraw) : null,
 
-                    // TODO
-                    auctionToRaiseInitital: BigInt(1000), // TODO
-                    auctionInitMarketPriceMult: BigInt(2), // TODO
+                    auctionInitMarketPrice: BigInt(globalState.auction_init_market_price ?? 0),
                     auctionStartBlock: (globalState.auction_start_block as number | undefined) ?? null,
                     auctionLeftToRaise: globalState.auction_left_to_raise
                         ? BigInt(globalState.auction_left_to_raise)
                         : null,
+                    auctionLeftToRaiseInitial: BigInt(globalState.auction_initial_left_to_raise ?? 0),
 
                     // TODO just read balances
                     aBalance: BigInt(1000),
@@ -299,7 +301,7 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
                 typedAcc,
                 appId!,
                 vaultAddress,
-                1,
+                amount,
                 initialState.aToken,
                 initialState.bToken,
                 initialState.lpToken,
@@ -346,7 +348,7 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
             );
             await sendAlgobTxs(txs, [], allTokens(initialState), connector);
         },
-        async auction_buy(bAmount: number, aToBuyDesired: number) {
+        async auction_buy(bAmount: number) {
             const initialState = await laasViews.initial().then((m) => m[1]);
             const vaultAddress = getApplicationAddress(appId!);
 
@@ -357,8 +359,7 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
                 initialState.aToken,
                 initialState.bToken,
                 bAmount,
-                aToBuyDesired,
-                '' // TODO ls address
+                'XNF7S2PP3IWGJVBFHKZ5QTV6ZSSTDA3WGZCDILQ44EF7PAEFA3XK2NMQME' // TODO ls address
             );
             await sendAlgobTxs(txs, [], allTokens(initialState), connector);
         },

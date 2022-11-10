@@ -360,7 +360,7 @@ export function buildContractsStore<T extends ContractType>(
     combine({ account: $account, idsAndVersions: $contractIdsAndVersions }).watch(({ idsAndVersions }) => {
         for (const idVersion of idsAndVersions) {
             if (type === 'laas') {
-                console.log('LAAS HMM', idVersion);
+                // console.log('LAAS HMM', idVersion);
             }
             initializeContract(idVersion);
         }

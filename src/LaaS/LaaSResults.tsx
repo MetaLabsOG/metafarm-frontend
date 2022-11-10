@@ -1,4 +1,5 @@
 import { theme } from '../theme';
+import { numberRound } from '../Farm/PoolList/Pool/utils';
 import { LaaSResultNumber, LaaSResultNumberSubtitle, LaaSResultsContainer, LaaSSquare } from './styled';
 
 export const LaaSResults = ({
@@ -13,19 +14,20 @@ export const LaaSResults = ({
     isFinalIL?: boolean;
 }) => {
     const APYSubtitle = isFinalAPY ? 'Result' : 'Projected';
-    const ILSubtile = isFinalAPY ? 'Result' : 'Expected';
+    const ILSubtitle = isFinalIL ? 'Result' : 'Current'; // TODO Expected
 
     return (
         <LaaSResultsContainer>
             <LaaSSquare>
-                <LaaSResultNumber>{`${APY * 100}%`}</LaaSResultNumber>
+                <LaaSResultNumber>{`${numberRound(APY * 100)}%`}</LaaSResultNumber>
                 <LaaSResultNumberSubtitle>{APYSubtitle} APY</LaaSResultNumberSubtitle>
             </LaaSSquare>
             <LaaSSquare>
-                <LaaSResultNumber style={{ color: IL > 0 ? theme.red : theme.green }}>{`${
-                    IL * 100
-                }%`}</LaaSResultNumber>
-                <LaaSResultNumberSubtitle>{ILSubtile} IL</LaaSResultNumberSubtitle>
+                <LaaSResultNumber style={{ color: IL > 0.75 ? theme.red : theme.green }}>{`${numberRound(
+                    IL * 100,
+                    2
+                )}%`}</LaaSResultNumber>
+                <LaaSResultNumberSubtitle>{ILSubtitle} IL</LaaSResultNumberSubtitle>
             </LaaSSquare>
         </LaaSResultsContainer>
     );
