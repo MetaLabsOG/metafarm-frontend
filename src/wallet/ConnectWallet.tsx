@@ -27,6 +27,9 @@ export const connectWallet = (walletType: WalletType) => {
     if (walletType === 'WalletConnect' && ALGONET === TESTNET) {
         notify('Please, switch you Pera wallet to testnet.', 'info');
     }
+    if (walletType === 'WalletConnectDefly' && ALGONET === TESTNET) {
+        notify('Please, switch you Defly wallet to testnet.', 'info');
+    }
     reach
         .getDefaultAccount()
         .then((acc) => {
