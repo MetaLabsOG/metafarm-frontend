@@ -19,6 +19,7 @@ import { getPactPools } from '../providers/apiProvider';
 import { fromSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
 import { logEvent, LogName } from '../logEvent';
+import { Button, ButtonType } from '../Components/Button/Button';
 import { LaaSHeader } from './LaaSHeader';
 import { LaaSInfo } from './LaaSInfo';
 import { LaaSResults } from './LaaSResults';
@@ -26,6 +27,7 @@ import { getVaultDurationText, LaaSButton } from './LaaSButton';
 import { LaaSCardContainer } from './styled';
 import { LaaSTokenDeposit } from './LaaSTokenDeposit';
 import { LaaSAuction } from './LaaSAuction';
+import { VaultManagement } from './VaultManagement';
 
 export enum LaaSStage {
     subscription,
@@ -183,6 +185,7 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
 
     const [DepositModal, openDepositModal, closeDepositModal] = useModal('root');
     const [AuctionModal, openAuctionModal, closeAuctionModal] = useModal('root');
+    const [VaultManagementModal, openVaultManagementModal, closeVaultManagementModal] = useModal('root');
 
     const [poolAPR, setPoolAPR] = useState<number>(0);
     const [pool, setPool] = useState<DexPool | null>(null);
@@ -219,6 +222,8 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const resultARP = vault.state
         ? Number(vault.state.global.totalBToWithdraw) / Number(vault.state.global.totalBLiqProvided) - 1
         : 0;
+
+    const isCreator = address === vault.state.initial.creator;
 
     return (
         <LaaSCardContainer>
@@ -303,6 +308,14 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                     }
                 }}
             />
+            {isCreator && (
+                <Button
+                    buttonText="MANAGE"
+                    type={ButtonType.primary}
+                    style={{ width: '90px', height: '30px', fontSize: '10px' }}
+                    onClick={openVaultManagementModal}
+                />
+            )}
             <DepositModal>
                 <LaaSTokenDeposit
                     address={address}
@@ -325,6 +338,9 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                     pool={pool}
                 />
             </AuctionModal>
+            <VaultManagementModal>
+                <VaultManagement vault={vault} laasStage={laasStage} asset1={asset1} asset2={asset2} dex={dex} />
+            </VaultManagementModal>
         </LaaSCardContainer>
     );
 };
