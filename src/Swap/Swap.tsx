@@ -99,7 +99,7 @@ export async function getBestSwap(
     asset1_id: string | undefined,
     asset2_id: string | undefined,
     asset1_amount: string
-): Promise<BestSwap | AlammexSwap | null> {
+): Promise<AlammexSwap | null> {
     if (!isSwapZapDataValid(asset1_id, asset2_id, asset1_amount)) {
         return null;
     }
@@ -396,11 +396,10 @@ export function Swap() {
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [token2Amount, setToken2Amount] = useState<string>('');
-    const [bestSwap, setBestSwap] = useState<BestSwap | AlammexSwap | null>(null);
+    const [bestSwap, setBestSwap] = useState<AlammexSwap | null>(null);
     const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const [txId, setTxId] = useState<string>('');
     const [nft, setNft] = useState<NftLottery | null>(null);
 
     useEffect(() => {
@@ -470,13 +469,12 @@ export function Swap() {
                 const nft = await checkNftLottery(
                     res,
                     account?.networkAccount.addr ?? '',
-                    token1.id,
-                    token2.id,
+                    bestSwap.assetA.id,
+                    bestSwap.assetB.id,
                     Number(token1Amount),
                     Number(token2Amount)
                 );
                 if (nft) {
-                    setTxId(txId);
                     setNft(nft);
                 }
             }
@@ -484,7 +482,7 @@ export function Swap() {
     };
 
     if (nft) {
-        return <NftWinModal txId={txId} nft={nft} />;
+        return <NftWinModal nft={nft} />;
     }
 
     return (

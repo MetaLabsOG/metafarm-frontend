@@ -17,7 +17,7 @@ export interface NftLottery {
     title: string;
 }
 
-export const NftWinModal = ({ txId, nft }: { txId: string; nft: NftLottery }) => {
+export const NftWinModal = ({ nft }: { nft: NftLottery }) => {
     const account = useUnit($account);
     const nftLink = nft.image_url;
     const [receivedNft, setReceivedNft] = useState<boolean>(false);
