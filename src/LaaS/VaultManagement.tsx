@@ -35,17 +35,20 @@ export const VaultManagement = ({
             ? vault.state.global.lsAAccumulator
             : vault.state.initial.initialABalance - amountLockedMicro;
     const availableAmount = fromSmallestUnits(asset1, availableAmountMicro);
-    // TODO vault.state.global.lsBAccumulator;
+    const availableAsset2Amount = fromSmallestUnits(asset2, vault.state.global.lsBAccumulator);
     const priorityAddress = vault.state.global.priorityAddress;
     const [newPriorityAddress, setNewPriorityAddress] = useState('');
 
     return (
-        <ModalContainer style={{ gap: 20 }}>
+        <ModalContainer style={{ gap: 15 }}>
             <LaaSHeader asset1={asset1} asset2={asset2} dex={dex} isVerified={false} />
-            <InfoRow title={`${asset1.unitName} locked`} value={numberRound(amountLocked)} />
-            <InfoRow title={`Available ${asset1.unitName}`} value={numberRound(availableAmount)} />
+            <div style={{ width: '100%' }}>
+                <InfoRow title={`Liquidity provided`} value={`${numberRound(amountLocked)} ${asset1.unitName}`} />
+                <InfoRow title={`Available ${asset1.unitName}`} value={numberRound(availableAmount)} />
+                <InfoRow title={`Available ${asset2.unitName}`} value={numberRound(availableAsset2Amount)} />
+            </div>
             <PacmanButton
-                buttonText={`WITHDRAW ${asset1.unitName}`}
+                buttonText={`WITHDRAW`}
                 buttonStyle="swap_button"
                 style={{ width: '215px', height: '42px', fontSize: '13px' }}
                 onClickAction={async () => {
@@ -64,13 +67,14 @@ export const VaultManagement = ({
             <InfoRow
                 title={`Priority address`}
                 value={priorityAddress}
-                style={{ flexDirection: 'column', width: 254 }}
+                style={{ flexDirection: 'column', width: 254, marginTop: 20 }}
                 valueStyle={{ textOverflow: 'ellipsis', overflow: 'hidden' }}
             />
             <Input
                 placeholder="Enter new priority address"
                 value={newPriorityAddress}
                 isActive={true}
+                style={{ fontSize: 14 }}
                 onChange={(e) => setNewPriorityAddress(e.currentTarget.value)}
             />
             <PacmanButton
@@ -88,7 +92,4 @@ export const VaultManagement = ({
             />
         </ModalContainer>
     );
-    // ls_withdraw()
-    // withdraw_excessive_a()
-    // change_priority()
 };

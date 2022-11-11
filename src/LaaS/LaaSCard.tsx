@@ -24,7 +24,7 @@ import { LaaSHeader } from './LaaSHeader';
 import { LaaSInfo } from './LaaSInfo';
 import { LaaSResults } from './LaaSResults';
 import { getVaultDurationText, LaaSButton } from './LaaSButton';
-import { LaaSCardContainer } from './styled';
+import { LaaSCardContainer, ManageButton } from './styled';
 import { LaaSTokenDeposit } from './LaaSTokenDeposit';
 import { LaaSAuction } from './LaaSAuction';
 import { VaultManagement } from './VaultManagement';
@@ -308,14 +308,7 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                     }
                 }}
             />
-            {isCreator && (
-                <Button
-                    buttonText="MANAGE"
-                    type={ButtonType.primary}
-                    style={{ width: '90px', height: '30px', fontSize: '10px' }}
-                    onClick={openVaultManagementModal}
-                />
-            )}
+            {isCreator && <ManageButton onClick={openVaultManagementModal}>MANAGE</ManageButton>}
             <DepositModal>
                 <LaaSTokenDeposit
                     address={address}
