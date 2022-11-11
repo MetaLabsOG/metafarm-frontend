@@ -8,16 +8,19 @@ import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { Input } from '../Components/TokenInput/styled';
 import { fromSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
+import { logEvent, LogName } from '../logEvent';
 import { LaaSHeader } from './LaaSHeader';
 import { LaaSStage } from './LaaSCard';
 
 export const VaultManagement = ({
+    address,
     vault,
     laasStage,
     asset1,
     asset2,
     dex,
 }: {
+    address: string;
     vault: Contract<'laas'>;
     laasStage: LaaSStage;
     asset1: Priced<Asset>;
@@ -28,14 +31,16 @@ export const VaultManagement = ({
         return null;
     }
 
-    const amountLockedMicro = vault.state.global.totalALiqProvided;
-    const amountLocked = fromSmallestUnits(asset1, amountLockedMicro);
-    const availableAmountMicro =
+    const liquidityProvided = fromSmallestUnits(asset1, vault.state.global.totalALiqProvided);
+    const initialBalance = fromSmallestUnits(asset1, vault.state.initial.initialABalance);
+    const availableAmount =
         laasStage === LaaSStage.withdraw
-            ? vault.state.global.lsAAccumulator
-            : vault.state.initial.initialABalance - amountLockedMicro;
-    const availableAmount = fromSmallestUnits(asset1, availableAmountMicro);
+            ? fromSmallestUnits(asset1, vault.state.global.lsAAccumulator)
+            : laasStage !== LaaSStage.subscription
+            ? initialBalance - liquidityProvided
+            : 0;
     const availableAsset2Amount = fromSmallestUnits(asset2, vault.state.global.lsBAccumulator);
+
     const priorityAddress = vault.state.global.priorityAddress;
     const [newPriorityAddress, setNewPriorityAddress] = useState('');
 
@@ -43,9 +48,16 @@ export const VaultManagement = ({
         <ModalContainer style={{ gap: 15 }}>
             <LaaSHeader asset1={asset1} asset2={asset2} dex={dex} isVerified={false} />
             <div style={{ width: '100%' }}>
-                <InfoRow title={`Liquidity provided`} value={`${numberRound(amountLocked)} ${asset1.unitName}`} />
-                <InfoRow title={`Available ${asset1.unitName}`} value={numberRound(availableAmount)} />
-                <InfoRow title={`Available ${asset2.unitName}`} value={numberRound(availableAsset2Amount)} />
+                <InfoRow title={`Initial balance`} value={`${numberRound(initialBalance)} ${asset1.unitName}`} />
+                <InfoRow title={`Liquidity provided`} value={`${numberRound(liquidityProvided)} ${asset1.unitName}`} />
+                <InfoRow title={`Current balance`} value={`${numberRound(availableAmount)} ${asset1.unitName}`} />
+                <InfoRow
+                    title={`Available to withdraw`}
+                    value={`${numberRound(availableAmount)} ${asset1.unitName} + ${numberRound(
+                        availableAsset2Amount
+                    )} ${asset2.unitName}`}
+                    style={{ flexDirection: 'column', textAlign: 'center' }}
+                />
             </div>
             <PacmanButton
                 buttonText={`WITHDRAW`}
@@ -59,8 +71,31 @@ export const VaultManagement = ({
                             await vault.ctc.apis.withdraw_excessive_a();
                         }
                         notify('Done!', 'success');
+                        logEvent(
+                            address,
+                            {
+                                message: '[LS WITHDRAW OK]',
+                                vault_id: vault.id,
+                                vault_name: `${asset1?.unitName}/${asset2?.unitName}`,
+                                amount: Number(availableAmount),
+                            },
+                            LogName.LAAS
+                        );
                     } catch (error) {
-                        notify('Error.', 'error');
+                        const error_message = error instanceof Error ? error.message : String(error);
+                        notify(error_message, 'error');
+                        console.log('[LS WITHDRAW ERROR]', error_message);
+                        logEvent(
+                            address,
+                            {
+                                message: '[LS WITHDRAW ERROR]',
+                                vault_id: vault.id,
+                                vault_name: `${asset1.unitName}/${asset2.unitName}`,
+                                amount: Number(availableAmount),
+                                error: error_message,
+                            },
+                            LogName.LAAS
+                        );
                     }
                 }}
             />
@@ -83,10 +118,34 @@ export const VaultManagement = ({
                 style={{ width: '215px', height: '42px', fontSize: '13px' }}
                 onClickAction={async () => {
                     try {
+                        console.log('NEW PRIORITY', newPriorityAddress);
                         await vault.ctc.apis.change_priority(newPriorityAddress);
                         notify('Done!', 'success');
+                        logEvent(
+                            address,
+                            {
+                                message: '[CHANGE PRIORITY OK]',
+                                vault_id: vault.id,
+                                vault_name: `${asset1?.unitName}/${asset2?.unitName}`,
+                                new_address: newPriorityAddress,
+                            },
+                            LogName.LAAS
+                        );
                     } catch (error) {
-                        notify('Error.', 'error');
+                        const error_message = error instanceof Error ? error.message : String(error);
+                        notify(error_message, 'error');
+                        console.log('[CHANGE PRIORITY ERROR]', error_message);
+                        logEvent(
+                            address,
+                            {
+                                message: '[CHANGE PRIORITY ERROR]',
+                                vault_id: vault.id,
+                                vault_name: `${asset1.unitName}/${asset2.unitName}`,
+                                error: error_message,
+                                new_address: newPriorityAddress,
+                            },
+                            LogName.LAAS
+                        );
                     }
                 }}
             />

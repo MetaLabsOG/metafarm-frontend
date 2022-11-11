@@ -191,7 +191,7 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const [pool, setPool] = useState<DexPool | null>(null);
 
     useEffect(() => {
-        if (!vault.state || !asset1_id || !asset2_id) {
+        if (!vault.state || asset1_id === undefined || asset2_id === undefined) {
             return;
         }
 
@@ -204,6 +204,9 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                         setPoolAPR(Number(pools[0].apr_7d));
                     }
                 });
+            })
+            .catch((e) => {
+                console.log(e);
             });
     }, [vault.state]);
 
@@ -332,7 +335,14 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                 />
             </AuctionModal>
             <VaultManagementModal>
-                <VaultManagement vault={vault} laasStage={laasStage} asset1={asset1} asset2={asset2} dex={dex} />
+                <VaultManagement
+                    address={address}
+                    vault={vault}
+                    laasStage={laasStage}
+                    asset1={asset1}
+                    asset2={asset2}
+                    dex={dex}
+                />
             </VaultManagementModal>
         </LaaSCardContainer>
     );

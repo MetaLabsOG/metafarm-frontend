@@ -127,6 +127,7 @@ const createVault = async (
         console.log('OMG CANT BELIVE IT WORKS!', vaultId);
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
+        notify(error_message, 'error');
         console.log(error_message);
         return false;
     }
@@ -224,9 +225,9 @@ export function AddLaaS() {
             // const filteredTokens = res.filter((token) => token.id !== 0);
             const filteredTokens = res;
             setTokensOptions(filteredTokens);
-            setSelectedProjectToken(filteredTokens[0]);
-            setRewardToken(filteredTokens[0]);
-            setSelectedUserToken(filteredTokens[1]);
+            setSelectedUserToken(filteredTokens[0]);
+            setSelectedProjectToken(filteredTokens[1]);
+            setRewardToken(filteredTokens[1]);
         });
     }, [account, balances]);
 
@@ -360,8 +361,8 @@ export function AddLaaS() {
                                     endBlock - currentBlock,
                                     rewardToken,
                                     Number(rewardTokenAmount),
-                                    pool.poolId,
-                                    pool.liquidityAsset
+                                    pool.liquidityAsset,
+                                    pool.poolId
                                 );
                                 res && closeAddLaaSModal();
                             }}

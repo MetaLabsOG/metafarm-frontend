@@ -364,8 +364,7 @@ function makeLaasReachWrapper(account: Account, connector: TealConnector, appId?
             await sendAlgobTxs(txs, [], allTokens(initialState), connector);
         },
         async change_priority(new_priority_addr: string) {
-            const vaultAddress = getApplicationAddress(appId!);
-            const tx = makeChangePriorityTx(typedAcc, vaultAddress, appId!);
+            const tx = makeChangePriorityTx(typedAcc, new_priority_addr, appId!);
             await sendAlgobTxs([tx], [], [], connector);
         },
     };
