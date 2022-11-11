@@ -21,8 +21,7 @@ import { Zap } from './Zap';
 import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
-import { Crowdsale } from './Crowdsale';
-import { $account, $balances, ContractInfo, fetchAllPricesFx } from './common/store';
+import { $account, ContractInfo, fetchAllPricesFx } from './common/store';
 import { Stake } from './Stake/Stake';
 
 import './css/index.css';
@@ -30,9 +29,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { setPoolInfos } from './Farm/store';
 import { getContracts } from './providers/apiProvider';
 import { setDistributionPoolInfos } from './Stake/store';
-import { TestnetModal } from './TestnetModal';
+import { WelcomeModal } from './WelcomeModal';
 import { Footer } from './Menu/Footer';
-import { ALGONET, TESTNET } from './AppContext';
 import { notify } from './Components/Notification';
 import { AddFarm } from './Farm/AddFarm';
 import { LaaS } from './LaaS/LaaS';
@@ -67,6 +65,8 @@ const queryClient = new QueryClient();
 
 void fetchAllPricesFx();
 
+const WELCOME_MODAL_KEY = `welcome_cosmaud`;
+
 const modalComponents = {
     Overlay: () => {
         return (
@@ -86,7 +86,6 @@ const modalComponents = {
 
 function App() {
     const account = useUnit($account);
-    const algoBalance = useStoreMap($balances, (bs) => Number(bs[0]));
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
     const setLaasPoolInfosEvent = useUnit(setLaasPoolInfos);
@@ -94,8 +93,7 @@ function App() {
     const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution'));
     const laasFetch = useQuery(['contracts', 'laas'], async () => getContracts('laas'));
 
-    const [hasTestnetModalOpened, setHasTestnetModalOpened] = useState(false);
-    const [Modal, openTestnetModal] = useModal('root');
+    const [Modal, openWelcomeModal] = useModal('root');
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
@@ -105,17 +103,12 @@ function App() {
     }, [farmsFetch, setPoolInfosEvent]);
 
     useEffect(() => {
-        if (
-            !hasTestnetModalOpened &&
-            account &&
-            !Number.isNaN(algoBalance) &&
-            algoBalance === 0 &&
-            ALGONET === TESTNET
-        ) {
-            openTestnetModal();
-            setHasTestnetModalOpened(true);
+        const isWelcomeShowed = localStorage.getItem(WELCOME_MODAL_KEY);
+        if (!isWelcomeShowed) {
+            localStorage.setItem(WELCOME_MODAL_KEY, '1');
+            openWelcomeModal();
         }
-    }, [algoBalance, account, hasTestnetModalOpened, openTestnetModal]);
+    }, []);
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
@@ -156,7 +149,7 @@ function App() {
                             </Routes>
                         </ContentContainer>
                         <Modal>
-                            <TestnetModal />
+                            <WelcomeModal />
                         </Modal>
                     </Container>
                 </ModalProvider>

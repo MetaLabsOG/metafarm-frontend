@@ -224,7 +224,7 @@ export const getHumblePools = nonConcurrent(async (): Promise<MiniHumble.PoolDet
 });
 
 export async function checkNftLottery(
-    txid: string,
+    txids: string[],
     wallet: string,
     asset1_id: number,
     asset2_id: number,
@@ -232,7 +232,7 @@ export async function checkNftLottery(
     asset2_amount: number
 ): Promise<NftLottery | null> {
     const request = {
-        txid,
+        txids,
         wallet,
         asset1_id,
         asset2_id,
@@ -243,6 +243,6 @@ export async function checkNftLottery(
     return instance.post('/swap/lottery', request).then(({ data }) => data);
 }
 
-export async function nftClaim(txid: string): Promise<string> {
-    return instance.patch(`/lottery/claim?swap_txid=${txid}`).then(({ data }) => data);
+export async function nftClaim(wallet: string): Promise<string> {
+    return instance.patch(`/lottery/claim?wallet=${wallet}`).then(({ data }) => data);
 }
