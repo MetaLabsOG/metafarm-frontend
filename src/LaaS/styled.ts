@@ -11,7 +11,7 @@ export const LaaSCardContainer = styled.div`
     border-radius: 10px;
     padding: 30px;
     margin-top: 0;
-    gap: 25px;
+    gap: 22px;
 `;
 
 export const LaaSContainer = styled.div`
@@ -143,4 +143,13 @@ export const LaaSAuctionResult = styled.div`
     border-radius: 8px;
     padding: 20px;
     margin: 10px;
+`;
+
+export const ManageButton = styled.div`
+    background-color: transparent;
+    color: var(--newLightGray);
+    :hover {
+        cursor: pointer;
+        color: var(--newWhite);
+    }
 `;

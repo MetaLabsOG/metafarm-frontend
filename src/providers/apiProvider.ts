@@ -12,6 +12,7 @@ import { StakingAsset } from '../Farm/AddFarm';
 import * as MiniHumble from '../dexes/humbleReexports';
 import { TokenOptionType } from '../Components/Select/types';
 import { NftLottery } from '../Swap/NftWinModal';
+import { blocksToText } from '../Farm/PoolList/Pool/PoolInfo';
 
 export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -133,8 +134,9 @@ export const deployContractToBackend = async (
     contractId: number,
     contractType: ContractType,
     stakeToken: StakingAsset,
-    rewardTokenId: number,
+    rewardToken: TokenOptionType,
     extraAlgoRewardAmount: number,
+    lockLengthBlocks: number,
     contractVersion?: string
 ) => {
     if (!contractVersion) {
@@ -147,16 +149,20 @@ export const deployContractToBackend = async (
         throw new Error('Wrong contract type:' + contractType);
     }
 
+    const description = `${stakeToken.name} -> ${rewardToken.unitName} ${extraAlgoRewardAmount > 0 ? '+ ALGO' : ''} ${
+        lockLengthBlocks > 0 ? '(with lock)' : ''
+    }`;
+
     const request: AddContractType = {
         type: contractType,
         id: contractId,
         version: contractVersion,
-        description: stakeToken.name,
+        description: description,
         metadata: {
             dex: stakeToken.dex,
             asset1_id: stakeToken.asset1_id,
             asset2_id: stakeToken.asset2_id,
-            reward_token_id: rewardTokenId,
+            reward_token_id: rewardToken.id,
             algo_rewards: extraAlgoRewardAmount > 0,
         },
     };
