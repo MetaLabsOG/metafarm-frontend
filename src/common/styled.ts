@@ -193,3 +193,12 @@ export const DexName = styled.div`
         color: var(--newWhite);
     }
 `;
+
+export const WelcomeText = styled.div`
+    font-family: 'Montserrat';
+    font-size: 20px;
+    text-align: left;
+    width: 100%;
+    padding: 10px;
+    color: var(--newWhite);
+`;

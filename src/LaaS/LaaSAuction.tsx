@@ -48,6 +48,7 @@ export const LaaSAuction = ({
     pool: DexPool | null;
 }) => {
     if (!vault.state || !pool) {
+        console.log('No vault or pool', vault.state, pool);
         return null;
     }
     const balances = useUnit($balances);
@@ -104,7 +105,9 @@ export const LaaSAuction = ({
                 title={'Market price'}
                 value={`${numberRound(marketPrice)} ${asset2.unitName} per ${asset1.unitName}`}
             />
-            <InfoRow title={'Reach market price '} value={`in ${reachMarketPriceText}`} />
+            {currentPrice > marketPrice && (
+                <InfoRow title={'Reach market price '} value={`in ${reachMarketPriceText}`} />
+            )}
             <TokenInput
                 token={asset2}
                 tokenMicroBalance={tokenMicroBalance}

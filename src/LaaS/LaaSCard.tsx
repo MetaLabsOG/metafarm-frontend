@@ -19,13 +19,15 @@ import { getPactPools } from '../providers/apiProvider';
 import { fromSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
 import { logEvent, LogName } from '../logEvent';
+import { Button, ButtonType } from '../Components/Button/Button';
 import { LaaSHeader } from './LaaSHeader';
 import { LaaSInfo } from './LaaSInfo';
 import { LaaSResults } from './LaaSResults';
 import { getVaultDurationText, LaaSButton } from './LaaSButton';
-import { LaaSCardContainer } from './styled';
+import { LaaSCardContainer, ManageButton } from './styled';
 import { LaaSTokenDeposit } from './LaaSTokenDeposit';
 import { LaaSAuction } from './LaaSAuction';
+import { VaultManagement } from './VaultManagement';
 
 export enum LaaSStage {
     subscription,
@@ -183,12 +185,13 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
 
     const [DepositModal, openDepositModal, closeDepositModal] = useModal('root');
     const [AuctionModal, openAuctionModal, closeAuctionModal] = useModal('root');
+    const [VaultManagementModal, openVaultManagementModal, closeVaultManagementModal] = useModal('root');
 
     const [poolAPR, setPoolAPR] = useState<number>(0);
     const [pool, setPool] = useState<DexPool | null>(null);
 
     useEffect(() => {
-        if (!vault.state || !asset1_id || !asset2_id) {
+        if (!vault.state || asset1_id === undefined || asset2_id === undefined) {
             return;
         }
 
@@ -201,6 +204,9 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                         setPoolAPR(Number(pools[0].apr_7d));
                     }
                 });
+            })
+            .catch((e) => {
+                console.log(e);
             });
     }, [vault.state]);
 
@@ -215,6 +221,13 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
     const withdrawBalance = vault.state ? balances[vault.state.initial.slpToken] : 0;
     // console.log('STATE', vault.state);
 
+    const isFinalResult = laasStage === LaaSStage.withdraw;
+    const resultARP = vault.state
+        ? Number(vault.state.global.totalBToWithdraw) / Number(vault.state.global.totalBLiqProvided) - 1
+        : 0;
+
+    const isCreator = address === vault.state.initial.creator;
+
     return (
         <LaaSCardContainer>
             <LaaSHeader asset1={asset1} asset2={asset2} dex={dex} isVerified={isVerified} />
@@ -226,10 +239,10 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                 />
             ) : (
                 <LaaSResults
-                    APY={poolAPR}
+                    APY={isFinalResult ? resultARP : poolAPR}
                     IL={getCurrentImpermanentLoss(asset1, asset2, vault.state, pool, laasStage)}
-                    isFinalAPY={laasStage === LaaSStage.withdraw || laasStage === LaaSStage.auction}
-                    isFinalIL={laasStage === LaaSStage.withdraw}
+                    isFinalAPY={isFinalResult}
+                    isFinalIL={isFinalResult}
                 />
             )}
             <LaaSInfo
@@ -298,6 +311,7 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                     }
                 }}
             />
+            {isCreator && <ManageButton onClick={openVaultManagementModal}>MANAGE</ManageButton>}
             <DepositModal>
                 <LaaSTokenDeposit
                     address={address}
@@ -320,6 +334,16 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
                     pool={pool}
                 />
             </AuctionModal>
+            <VaultManagementModal>
+                <VaultManagement
+                    address={address}
+                    vault={vault}
+                    laasStage={laasStage}
+                    asset1={asset1}
+                    asset2={asset2}
+                    dex={dex}
+                />
+            </VaultManagementModal>
         </LaaSCardContainer>
     );
 };

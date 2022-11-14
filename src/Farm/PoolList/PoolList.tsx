@@ -89,7 +89,7 @@ export function PoolList({ pools, poolType }: { pools: PoolWithStats[]; poolType
             <PoolTopLineContainer>
                 <AddFarmButton addFarmType={poolType} />
                 <PoolFiltersContainer>
-                    <SwitchSelect switchStatus={showEnded} onChange={setShowEnded} switchText={'show ended'} />
+                    <SwitchSelect switchStatus={showEnded} onChange={setShowEnded} switchText={'ended only'} />
                     <SwitchSelect switchStatus={showVerified} onChange={setShowVerified} switchText={'verified only'} />
                 </PoolFiltersContainer>
             </PoolTopLineContainer>
