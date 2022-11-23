@@ -1,5 +1,6 @@
 import { useUnit } from 'effector-react';
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { PoolWithStats, sortPools } from '../store';
 import swapArrow from '../../imgs/swapArrow.svg';
 import { theme } from '../../theme';
@@ -42,7 +43,16 @@ const AddFarmButton = ({ addFarmType }: { addFarmType: string }) => {
     );
 };
 
+function useQuery() {
+    const { search } = useLocation();
+
+    return React.useMemo(() => new URLSearchParams(search), [search]);
+}
+
 export function PoolList({ pools, poolType }: { pools: PoolWithStats[]; poolType: string }) {
+    const query = useQuery();
+    const priorityPoolId = query.get('pool_id');
+
     const currentBlock = useUnit($networkTime);
 
     const [sortKey, setSortKey] = useState<ColumnType>(ColumnType.Tvl);
@@ -53,6 +63,9 @@ export function PoolList({ pools, poolType }: { pools: PoolWithStats[]; poolType
 
     const poolComponents = pools
         .filter((pws: PoolWithStats) => {
+            if (priorityPoolId) {
+                return pws.pool.id === Number(priorityPoolId);
+            }
             let isShown = true;
             if (showVerified) {
                 isShown = Boolean(pws.pool.info.metadata.verified);
@@ -62,7 +75,9 @@ export function PoolList({ pools, poolType }: { pools: PoolWithStats[]; poolType
             isShown = isShown && statusFilter;
             return isShown;
         })
-        .map((pws: PoolWithStats) => <Pool key={pws.pool.id} pws={pws} />);
+        .map((pws: PoolWithStats) => (
+            <Pool key={pws.pool.id} pws={pws} isForcedOpen={pws.pool.id === Number(priorityPoolId)} />
+        ));
 
     const sortEvent = useUnit(sortPools);
 
