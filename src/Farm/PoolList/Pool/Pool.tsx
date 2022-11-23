@@ -13,14 +13,14 @@ import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolLoadingAnimation } from './styled';
 import { getPoolState } from './utils';
 
-export function Pool({ pws }: { pws: PoolWithStats }) {
+export function Pool({ pws, isForcedOpen }: { pws: PoolWithStats; isForcedOpen?: boolean }) {
     const contract = pws.pool;
     const currentBlock = useUnit($networkTime);
     const pricedAlgo = useUnit($pricedAlgo);
     const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
     const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null)) ?? stakeTokenInfo;
     const [ConnectWallet, openConnectWallet, closeConnectWallet, isConnectWalletOpen] = useModal('root');
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(isForcedOpen ? true : false);
 
     const queryTimeUpdateEvent = useUnit(queryTimeUpdate);
 
