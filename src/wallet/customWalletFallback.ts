@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
 import algosdk from 'algosdk';
 import { PeraWalletConnect } from '@perawallet/connect';
+import { DeflyWalletConnect } from '@blockshake/defly-connect';
 import { ALGO_MyAlgoConnect as MyAlgoConnect, ALGO_WalletConnect as WalletConnect } from '@reach-sh/stdlib';
 import type {
     ARC11_Wallet,
@@ -141,79 +142,45 @@ const walletFallback_MyAlgoWallet = (options: object) => (): ARC11_Wallet_Expose
     return { ...wallet, _impl: mac };
 };
 
-const walletFallback_WalletConnect = (options: object) => (): ARC11_Wallet_Exposed => {
-    const peraWallet = new PeraWalletConnect();
-
-    const getAddr = async (): Promise<string> => {
-        let addrs;
-        try {
-            addrs = await peraWallet.reconnectSession();
-            if (addrs.length === 0) {
-                throw new Error('could not reconnect');
-            }
-        } catch {
-            addrs = await peraWallet.connect();
-        }
-        return addrs[0];
-    };
-
-    const signTxns = async (txns: WalletTransaction[]): Promise<string[]> => {
-        const peraTxns = txns.map((wt) => {
-            const txn = algosdk.decodeUnsignedTransaction(Buffer.from(wt.txn, 'base64'));
-            return wt.stxn ? { txn, signers: [] } : { txn };
-        });
-
-        const signedTxns: string[] = await peraWallet
-            .signTransaction([peraTxns])
-            .then((stxns) => stxns.map((stxn) => Buffer.from(stxn).toString('base64')));
-
-        return txns.reduce((allStxns: string[], { stxn }) => {
-            allStxns.push(stxn ? stxn : signedTxns.shift()!);
-            return allStxns;
-        }, []);
-    };
-
-    const wallet = doCustomWalletFallback(options, getAddr, signTxns, async () => {
-        const dc = peraWallet.disconnect();
-        if (dc) {
-            await dc;
-        }
-    });
-    return { ...wallet, _impl: peraWallet };
-};
-
-const walletFallback_WalletConnectDefly = (opts: object) => (): ARC11_Wallet_Exposed => {
-    const wc = new WalletConnect();
-    const disconnect = () => wc.wc.killSession();
-    const wallet = doCustomWalletFallback(
-        opts,
-        () => wc.getAddr(),
-        async (txns: WalletTransaction[]): Promise<string[]> => {
-            await wc.ensureSession();
-            const preparedTxns = txns.map(({ txn, stxn }) => (stxn ? { txn, signers: [] } : { txn }));
-            const req = {
-                method: 'algo_signTxn',
-                params: [preparedTxns],
-            };
-            console.log('AWC signTxns -> ', req);
+const walletFallback_PeraOrDefly =
+    (innerWallet: PeraWalletConnect | DeflyWalletConnect, options: object) => (): ARC11_Wallet_Exposed => {
+        const getAddr = async (): Promise<string> => {
+            let addrs;
             try {
-                const res = await wc.wc.sendCustomRequest(req);
-                console.log(`AWC signTxns <-`, res);
-
-                const signedTxns: string[] = res
-                    .filter((item: any) => item !== null)
-                    .map((buf: any) => Buffer.from(buf).toString('base64'));
-
-                return txns.reduce((allStxns: string[], { stxn }) => {
-                    allStxns.push(stxn ? stxn : signedTxns.shift()!);
-                    return allStxns;
-                }, []);
-            } catch (e: any) {
-                console.log(`AWC signTxns err`, e);
-                throw e;
+                addrs = await innerWallet.reconnectSession();
+                if (addrs.length === 0) {
+                    throw new Error('could not reconnect');
+                }
+            } catch {
+                addrs = await innerWallet.connect();
             }
-        },
-        disconnect
-    );
-    return { ...wallet, _impl: wc };
-};
+            return addrs[0];
+        };
+
+        const signTxns = async (txns: WalletTransaction[]): Promise<string[]> => {
+            const peraTxns = txns.map((wt) => {
+                const txn = algosdk.decodeUnsignedTransaction(Buffer.from(wt.txn, 'base64'));
+                return wt.stxn ? { txn, signers: [] } : { txn };
+            });
+
+            const signedTxns: string[] = await innerWallet
+                .signTransaction([peraTxns])
+                .then((stxns) => stxns.map((stxn) => Buffer.from(stxn).toString('base64')));
+
+            return txns.reduce((allStxns: string[], { stxn }) => {
+                allStxns.push(stxn ? stxn : signedTxns.shift()!);
+                return allStxns;
+            }, []);
+        };
+
+        const wallet = doCustomWalletFallback(options, getAddr, signTxns, async () => {
+            const dc = innerWallet.disconnect();
+            if (dc) {
+                await dc;
+            }
+        });
+        return { ...wallet, _impl: innerWallet };
+    };
+
+const walletFallback_WalletConnect = (opts: object) => walletFallback_PeraOrDefly(new PeraWalletConnect(), opts);
+const walletFallback_WalletConnectDefly = (opts: object) => walletFallback_PeraOrDefly(new DeflyWalletConnect(), opts);
