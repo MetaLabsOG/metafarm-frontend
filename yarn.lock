@@ -1689,6 +1689,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@blockshake/defly-connect@npm:^0.3.6":
+  version: 0.3.6
+  resolution: "@blockshake/defly-connect@npm:0.3.6"
+  dependencies:
+    "@json-rpc-tools/utils": "npm:^1.7.6"
+    "@walletconnect/client": "npm:^1.7.7"
+    bowser: "npm:^2.11.0"
+    buffer: "npm:^6.0.3"
+    lottie-react: "npm:^2.3.1"
+    react-qrcode-logo: "npm:^2.7.0"
+  peerDependencies:
+    algosdk: ^1.18.1
+    react: ^18.2.0
+    react-dom: ^18.2.0
+  checksum: cddc50861e4a7b7658d7be9283d8052123d69b5524f5cfe2a2268341f487bffb551833cdee4072b96660f7f562e8c5bf8df6279aebe8295b1f9a7c372539cfe2
+  languageName: node
+  linkType: hard
+
 "@cnakazawa/watch@npm:^1.0.3":
   version: 1.0.4
   resolution: "@cnakazawa/watch@npm:1.0.4"
@@ -7285,6 +7303,13 @@ __metadata:
   version: 1.0.0
   resolution: "boolbase@npm:1.0.0"
   checksum: 87bbb5043cc4e0525f77e0103b833a3806875e7f402f70afbfefc1b08862ccea9c373b015706ca9f442b81a55acfaa5795dc0748d5548d00df81b01dc4555b69
+  languageName: node
+  linkType: hard
+
+"bowser@npm:^2.11.0":
+  version: 2.11.0
+  resolution: "bowser@npm:2.11.0"
+  checksum: 1665856cc9caa19ff2ec958d3f7e6485bf707f6250abf171483a30b814170d56b621a8cae639c191bf123de2ad62027248b55a1e7892bf03f4df65e2d3e4a5b9
   languageName: node
   linkType: hard
 
@@ -14489,7 +14514,7 @@ __metadata:
     secp256k1: "npm:^3.7.1"
     superagent: "npm:^5.1.0"
     websocket: "npm:^1.0.31"
-  checksum: 2c1590ba0ca952b3685232ca5bacec2b53f90b8612695795866ea625603aff811920da7fcbf4dcd1fda4589b087134d0ec4b6519a0620b54ef86615af922f1af
+  checksum: cca262353c687fdb0559d9801b21912b0ff4e940c6e6e824bcd3f98407e0c95d39b94238372426adfbef684f13b0328517279fd94fd2274ddba51cc404d7322f
   languageName: node
   linkType: hard
 
@@ -15568,6 +15593,7 @@ __metadata:
   dependencies:
     "@algo-builder/web": "npm:^5.0.1"
     "@babel/core": "npm:^7.18.9"
+    "@blockshake/defly-connect": "npm:^0.3.6"
     "@ethersproject/bignumber": "npm:^5.6.2"
     "@metalabsog/common": "npm:^17.0.0"
     "@metalabsog/crowdsale": "npm:17.0.0"
