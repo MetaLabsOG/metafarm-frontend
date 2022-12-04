@@ -73,17 +73,19 @@ export async function getLPTokenInfo(
     const dex = makeDex(provider);
     const poolInfo = await dex.getPoolByAddress(asset.creator);
 
+    const firstAsset = await fetchAsset(poolInfo.asset1);
     let fstAssetPrice;
     if (poolInfo.asset1 === 0) {
         fstAssetPrice = algoPrice;
     } else {
-        const firstAsset = await fetchAsset(poolInfo.asset1);
         const algoPool = await dex.getPoolByAssets(firstAsset, ALGO_ASSET);
         const priceInAlgo = (await algoPool.getSwap(firstAsset, BigInt(10 ** firstAsset.decimals), 0.01)).price;
         fstAssetPrice = algoPrice * priceInAlgo;
     }
 
-    const price = (Number(poolInfo.asset1Reserve) / Number(poolInfo.totalLiquidity)) * fstAssetPrice * 2;
+    const asset1Reserve = fromSmallestUnits(firstAsset, poolInfo.asset1Reserve);
+    const totalLiquidity = fromSmallestUnits(asset, poolInfo.totalLiquidity);
+    const price = (asset1Reserve / totalLiquidity) * fstAssetPrice * 2;
     return { ...asset, ...poolInfo, price, priceInAlgo: price / algoPrice };
 }
 
