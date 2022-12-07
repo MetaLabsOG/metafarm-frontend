@@ -17,6 +17,7 @@ import {
     PoolWithStats,
     createSortedPoolsWithStats,
     combinePoolsWithInfo,
+    initializeFarmContract,
 } from '../Farm/store';
 
 const DISTRIBUTION_BACKENDS = {
@@ -24,13 +25,14 @@ const DISTRIBUTION_BACKENDS = {
     '17.0.5': distribution_17_0_5,
 };
 
-const { $contracts, $contractStatesWithCache, setContractInfos } = buildContractsStore(
+const { $contracts, $contractStatesWithCache, setContractInfos, initializeContract } = buildContractsStore(
     'distribution',
     DISTRIBUTION_BACKENDS
 );
 
 export const $distributionPools = combine($contracts, $networkTime, projectContracts);
 export const setDistributionPoolInfos = setContractInfos;
+export const initializeDistributionContract = initializeContract;
 
 export const $allStakePools = combine(
     { stakePools: $stakePools, distributionPools: $distributionPools },

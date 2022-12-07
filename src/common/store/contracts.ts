@@ -208,6 +208,7 @@ export type ContractsStoreVars<T extends ContractType> = {
     setContractInfos: Event<Array<ContractInfo<T>>>;
     triggerStateUpdate: Event<AppId>;
     contractStateUpdated: Event<{ id: AppId; state: ContractState<T> }>;
+    initializeContract: Event<{ id: AppId; version: string }>;
 };
 
 export enum LAAS_BACKEND {
@@ -357,20 +358,12 @@ export function buildContractsStore<T extends ContractType>(
         }))
     );
 
-    combine({ account: $account, idsAndVersions: $contractIdsAndVersions }).watch(({ idsAndVersions }) => {
-        for (const idVersion of idsAndVersions) {
-            if (type === 'laas') {
-                // console.log('LAAS HMM', idVersion);
-            }
-            initializeContract(idVersion);
-        }
-    });
-
     return {
         $contracts,
         $contractStatesWithCache,
         setContractInfos,
         triggerStateUpdate,
         contractStateUpdated,
+        initializeContract,
     };
 }

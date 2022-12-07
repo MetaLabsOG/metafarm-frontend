@@ -88,10 +88,8 @@ function App() {
     const account = useUnit($account);
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
-    const setLaasPoolInfosEvent = useUnit(setLaasPoolInfos);
     const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm'));
     const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution'));
-    const laasFetch = useQuery(['contracts', 'laas'], async () => getContracts('laas'));
 
     const [Modal, openWelcomeModal] = useModal('root');
 
@@ -116,13 +114,6 @@ function App() {
             setDistributionPoolInfosEvent(data);
         }
     }, [distrFetch, setDistributionPoolInfosEvent]);
-
-    useEffect(() => {
-        if (laasFetch.isSuccess) {
-            const data = laasFetch.data! as Array<ContractInfo<'laas'>>;
-            setLaasPoolInfosEvent(data);
-        }
-    }, [laasFetch, setLaasPoolInfosEvent]);
 
     return (
         <>

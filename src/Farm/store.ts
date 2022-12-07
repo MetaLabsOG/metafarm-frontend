@@ -131,10 +131,8 @@ export const projectContracts = <T extends FarmType>(
     );
 };
 
-const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpdate } = buildContractsStore(
-    'farm',
-    FARM_BACKENDS
-);
+const { $contracts, $contractStatesWithCache, setContractInfos, triggerStateUpdate, initializeContract } =
+    buildContractsStore('farm', FARM_BACKENDS);
 
 export type SortBy = {
     type: ColumnType;
@@ -146,6 +144,7 @@ export const $farmPools = $pools.map((pools) => pools.filter((pool) => Boolean(p
 export const $stakePools = $pools.map((pools) => pools.filter((pool) => !pool.info.metadata.dex));
 export const setPoolInfos = setContractInfos;
 export const triggerPoolUpdate = triggerStateUpdate;
+export const initializeFarmContract = initializeContract;
 
 // LP token info store
 type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
