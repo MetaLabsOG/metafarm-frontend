@@ -102,13 +102,13 @@ function App() {
         }
     }, [farmsFetch, setPoolInfosEvent]);
 
-    useEffect(() => {
-        const isWelcomeShowed = localStorage.getItem(WELCOME_MODAL_KEY);
-        if (!isWelcomeShowed) {
-            localStorage.setItem(WELCOME_MODAL_KEY, '1');
-            openWelcomeModal();
-        }
-    }, []);
+    // useEffect(() => {
+    //     const isWelcomeShowed = localStorage.getItem(WELCOME_MODAL_KEY);
+    //     if (!isWelcomeShowed) {
+    //         localStorage.setItem(WELCOME_MODAL_KEY, '1');
+    //         openWelcomeModal();
+    //     }
+    // }, []);
 
     useEffect(() => {
         if (distrFetch.isSuccess) {
