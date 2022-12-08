@@ -2,7 +2,14 @@ import { useEffect, useState } from 'react';
 import { useStoreMap, useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
 import { Status } from '../../../Status.js';
-import { $networkTime, queryTimeUpdate, hasLocalState, $pricedAlgo } from '../../../common/store';
+import {
+    $networkTime,
+    queryTimeUpdate,
+    hasLocalState,
+    $pricedAlgo,
+    ContractInfo,
+    FarmType,
+} from '../../../common/store';
 import { $stakingTokens } from '../../../Stake/store';
 import logo from '../../../imgs/logo.png';
 import { $farmRewardTokens, PoolWithStats } from '../../store';
@@ -13,7 +20,15 @@ import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolLoadingAnimation } from './styled';
 import { getPoolState } from './utils';
 
-export function Pool({ pws, isForcedOpen }: { pws: PoolWithStats; isForcedOpen?: boolean }) {
+export function Pool({
+    pws,
+    isForcedOpen,
+    initEvent,
+}: {
+    pws: PoolWithStats;
+    isForcedOpen?: boolean;
+    initEvent: (payload: ContractInfo<FarmType>) => any;
+}) {
     const contract = pws.pool;
     const currentBlock = useUnit($networkTime);
     const pricedAlgo = useUnit($pricedAlgo);
@@ -25,6 +40,9 @@ export function Pool({ pws, isForcedOpen }: { pws: PoolWithStats; isForcedOpen?:
     const queryTimeUpdateEvent = useUnit(queryTimeUpdate);
 
     useEffect(queryTimeUpdateEvent, [contract, queryTimeUpdateEvent]);
+    useEffect(() => {
+        initEvent(contract.info);
+    }, [contract.info.id, contract.info.version]);
 
     const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
     if (currentBlock === 0 || !contract.state || !is_info_loaded || !pricedAlgo) {
