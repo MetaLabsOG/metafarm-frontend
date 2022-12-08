@@ -1,11 +1,12 @@
 import { useUnit } from 'effector-react';
+import { Event } from 'effector';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PoolWithStats, sortPools } from '../store';
 import swapArrow from '../../imgs/swapArrow.svg';
 import { theme } from '../../theme';
 import { SwitchSelect } from '../../Components/SwitchSelect/SwitchSelect';
-import { $networkTime } from '../../common/store';
+import { $networkTime, AppId, ContractInfo, FarmType } from '../../common/store';
 import {
     AddFarmButtonContainer,
     PoolFiltersContainer,
@@ -49,7 +50,15 @@ function useQuery() {
     return React.useMemo(() => new URLSearchParams(search), [search]);
 }
 
-export function PoolList({ pools, poolType }: { pools: PoolWithStats[]; poolType: string }) {
+export function PoolList({
+    pools,
+    poolType,
+    initEvent,
+}: {
+    pools: PoolWithStats[];
+    poolType: string;
+    initEvent: (payload: ContractInfo<FarmType>) => any;
+}) {
     const query = useQuery();
     const priorityPoolId = query.get('pool_id');
 
@@ -63,6 +72,11 @@ export function PoolList({ pools, poolType }: { pools: PoolWithStats[]; poolType
 
     const poolComponents = pools
         .filter((pws: PoolWithStats) => {
+            if (currentBlock === 0) {
+                // Current time is not updated yet. Do not try to show the pools
+                return false;
+            }
+
             if (priorityPoolId) {
                 return pws.pool.id === Number(priorityPoolId);
             }
@@ -76,7 +90,12 @@ export function PoolList({ pools, poolType }: { pools: PoolWithStats[]; poolType
             return isShown;
         })
         .map((pws: PoolWithStats) => (
-            <Pool key={pws.pool.id} pws={pws} isForcedOpen={pws.pool.id === Number(priorityPoolId)} />
+            <Pool
+                key={pws.pool.id}
+                pws={pws}
+                isForcedOpen={pws.pool.id === Number(priorityPoolId)}
+                initEvent={initEvent}
+            />
         ));
 
     const sortEvent = useUnit(sortPools);

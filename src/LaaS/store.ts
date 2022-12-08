@@ -2,10 +2,14 @@ import { buildContractsStore, ContractType, registerPricedAsset } from '../commo
 import { backend as laasBackend } from '../cometa-laas-tmp/wrapper';
 
 // TODO shall we support multiple backends?
-const { $contracts, $contractStatesWithCache, setContractInfos } = buildContractsStore('laas', laasBackend);
+const { $contracts, $contractStatesWithCache, setContractInfos, initializeContract } = buildContractsStore(
+    'laas',
+    laasBackend
+);
 
 export const $laasPools = $contracts;
 export const setLaasPoolInfos = setContractInfos;
+export const initializeLaasPool = initializeContract;
 
 $contractStatesWithCache.watch((states) =>
     states.valueSeq().forEach((s) => {

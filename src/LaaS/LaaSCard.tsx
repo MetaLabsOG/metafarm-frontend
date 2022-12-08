@@ -9,6 +9,7 @@ import {
     $pricedAssets,
     Asset,
     Contract,
+    ContractInfo,
     ContractState,
     Priced,
 } from '../common/store';
@@ -168,7 +169,13 @@ export const getCurrentImpermanentLoss = (
     return Math.abs((2 * Math.sqrt(p)) / (1 + p) - 1);
 };
 
-export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
+export const LaaSCard = ({
+    vault,
+    initEvent,
+}: {
+    vault: Contract<'laas'>;
+    initEvent: (payload: ContractInfo<'laas'>) => any;
+}) => {
     const dex: DexProvider = 'PT';
     const asset1_id = vault.state?.initial.aToken;
     const asset2_id = vault.state?.initial.bToken;
@@ -189,6 +196,10 @@ export const LaaSCard = ({ vault }: { vault: Contract<'laas'> }) => {
 
     const [poolAPR, setPoolAPR] = useState<number>(0);
     const [pool, setPool] = useState<DexPool | null>(null);
+
+    useEffect(() => {
+        initEvent(vault.info);
+    }, [vault.info.id, vault.info.version]);
 
     useEffect(() => {
         if (!vault.state || asset1_id === undefined || asset2_id === undefined) {

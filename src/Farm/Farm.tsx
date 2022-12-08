@@ -1,9 +1,9 @@
-import { createComponent } from 'effector-react';
+import { createComponent, useUnit } from 'effector-react';
 import { FarmType } from '../common/store';
 import { InfoCard } from '../Components/InfoCard/InfoCard';
 import { Balance } from './Balance';
 import { PoolList } from './PoolList';
-import { $sortedPoolsWithStats } from './store';
+import { $sortedPoolsWithStats, initializeFarmContract } from './store';
 import { FarmContainer } from './styled';
 
 export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
@@ -32,7 +32,7 @@ export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
 export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
         <Balance kind={'farm' as FarmType} />
-        <PoolList pools={state} poolType="farm" />
+        <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
         <InfoCards addFarmType="farm" />
     </FarmContainer>
 ));
