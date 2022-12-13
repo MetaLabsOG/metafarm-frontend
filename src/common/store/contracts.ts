@@ -351,13 +351,6 @@ export function buildContractsStore<T extends ContractType>(
 
     $contractStates.on(contractStateUpdated, (states, { id, state }) => states.set(id, state));
 
-    const $contractIdsAndVersions = $contractInfos.map((infos) =>
-        infos.map(({ id, version }) => ({
-            id,
-            version,
-        }))
-    );
-
     return {
         $contracts,
         $contractStatesWithCache,
