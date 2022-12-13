@@ -199,7 +199,7 @@ export const LaaSCard = ({
 
     useEffect(() => {
         initEvent(vault.info);
-    }, [vault.info.id, vault.info.version]);
+    }, [vault.info.id, vault.info.version, account]);
 
     useEffect(() => {
         if (!vault.state || asset1_id === undefined || asset2_id === undefined) {

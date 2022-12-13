@@ -4134,20 +4134,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@perawallet/connect@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "@perawallet/connect@npm:0.2.0"
+"@perawallet/connect@npm:^1.0.7":
+  version: 1.0.7
+  resolution: "@perawallet/connect@npm:1.0.7"
   dependencies:
     "@json-rpc-tools/utils": "npm:^1.7.6"
-    "@walletconnect/client": "npm:^1.7.7"
+    "@walletconnect/client": "npm:^1.8.0"
+    "@walletconnect/types": "npm:^1.8.0"
+    bowser: "npm:^2.11.0"
     buffer: "npm:^6.0.3"
-    lottie-react: "npm:^2.3.1"
-    react-qrcode-logo: "npm:^2.7.0"
+    lottie-web: "npm:^5.9.6"
+    qr-code-styling: "npm:^1.6.0-rc.1"
   peerDependencies:
-    algosdk: ^1.18.1
-    react: ^18.2.0
-    react-dom: ^18.2.0
-  checksum: 112ad1af85f73c2e0992746711afb6a9742f438fe94e3e816c5d38ceaba5a77963be9859c493e18a1cce171951da6eca0ddbcf3fe679e74c3d26cfb1d5cfa330
+    algosdk: ^1.23.2
+  checksum: 3a3652bc36d89c3afa4cf0d25ad5e333587f3d55c4c64efa61e05c6a52411152f841052c1a385d5ff072385799a10c6e52b9065791566f70084be13f6f79045a
   languageName: node
   linkType: hard
 
@@ -5575,7 +5575,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/client@npm:^1.6.6, @walletconnect/client@npm:^1.7.7":
+"@walletconnect/client@npm:^1.6.6, @walletconnect/client@npm:^1.7.7, @walletconnect/client@npm:^1.8.0":
   version: 1.8.0
   resolution: "@walletconnect/client@npm:1.8.0"
   dependencies:
@@ -14514,7 +14514,7 @@ __metadata:
     secp256k1: "npm:^3.7.1"
     superagent: "npm:^5.1.0"
     websocket: "npm:^1.0.31"
-  checksum: 2c1590ba0ca952b3685232ca5bacec2b53f90b8612695795866ea625603aff811920da7fcbf4dcd1fda4589b087134d0ec4b6519a0620b54ef86615af922f1af
+  checksum: cca262353c687fdb0559d9801b21912b0ff4e940c6e6e824bcd3f98407e0c95d39b94238372426adfbef684f13b0328517279fd94fd2274ddba51cc404d7322f
   languageName: node
   linkType: hard
 
@@ -15319,6 +15319,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lottie-web@npm:^5.9.6":
+  version: 5.10.0
+  resolution: "lottie-web@npm:5.10.0"
+  checksum: de6ac02b690ec6d135ab55756329fb5e9e6c255da45b43c40b08f3ec13f2bb99a2bc1c0c416cc8d6c0bf6274c1572a40f1a0f4ba8e50700cc9e4271385216d6a
+  languageName: node
+  linkType: hard
+
 "lower-case@npm:^2.0.2":
   version: 2.0.2
   resolution: "lower-case@npm:2.0.2"
@@ -15599,7 +15606,7 @@ __metadata:
     "@metalabsog/crowdsale": "npm:17.0.0"
     "@metalabsog/metafomo": "npm:17.0.0"
     "@pactfi/pactsdk": "npm:^0.5.0"
-    "@perawallet/connect": "npm:^0.2.0"
+    "@perawallet/connect": "npm:^1.0.7"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.7"
     "@ramonak/react-progress-bar": "npm:^5.0.2"
     "@reach-sh/stdlib": "npm:0.1.11-rc.5"
@@ -18560,7 +18567,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qrcode-generator@npm:^1.4.1":
+"qr-code-styling@npm:^1.6.0-rc.1":
+  version: 1.6.0-rc.1
+  resolution: "qr-code-styling@npm:1.6.0-rc.1"
+  dependencies:
+    qrcode-generator: "npm:^1.4.3"
+  checksum: d2f5d78ba76ca6e26f5ada30a45e8d13748534c3dc09bef3edc0314ae49e185f46f6da49eb58b5a823269cf7842df0cd27f695abfa8e692e655484e904311850
+  languageName: node
+  linkType: hard
+
+"qrcode-generator@npm:^1.4.1, qrcode-generator@npm:^1.4.3":
   version: 1.4.4
   resolution: "qrcode-generator@npm:1.4.4"
   checksum: fc2333f8be14f0b6dfb23de2cc3692cbaa1cb505f0e42551ea7848438b2d912f930d302cd9a5c866d55ea737e5bc53f7aafc2d0eb189b18ba2385b409e721e2f

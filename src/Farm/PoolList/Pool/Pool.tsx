@@ -9,6 +9,7 @@ import {
     $pricedAlgo,
     ContractInfo,
     FarmType,
+    $account,
 } from '../../../common/store';
 import { $stakingTokens } from '../../../Stake/store';
 import logo from '../../../imgs/logo.png';
@@ -30,6 +31,7 @@ export function Pool({
     initEvent: (payload: ContractInfo<FarmType>) => any;
 }) {
     const contract = pws.pool;
+    const account = useUnit($account);
     const currentBlock = useUnit($networkTime);
     const pricedAlgo = useUnit($pricedAlgo);
     const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
@@ -42,7 +44,7 @@ export function Pool({
     useEffect(queryTimeUpdateEvent, [contract, queryTimeUpdateEvent]);
     useEffect(() => {
         initEvent(contract.info);
-    }, [contract.info.id, contract.info.version]);
+    }, [contract.info.id, contract.info.version, account]);
 
     const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
     if (currentBlock === 0 || !contract.state || !is_info_loaded || !pricedAlgo) {
