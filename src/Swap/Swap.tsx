@@ -53,6 +53,7 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     792313023: 96690352, // XSOL
     342889824: 27963203, // BOARD
     312769: 42279195, // USDT
+    672913181: 144971339, // goUSD
 };
 
 export const SLIPPAGE = 0.01;
@@ -523,7 +524,7 @@ export function Swap() {
                 style={{ marginTop: 20 }}
             />
             <a target="_blank" href="https://www.alammex.com/" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                <DexName>via alammex</DexName>
+                <DexName>via Deflex</DexName>
             </a>
         </ModalContainer>
     );

@@ -26,6 +26,7 @@ export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
     27963203: 342889824, // BOARD
     96690352: 792313023, // XSOL
     42279195: 312769, // USDT
+    144971339: 672913181, // goUSD
 };
 
 export const getAssetLogoUrl = (input_asset_id: number) => {
