@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 import { useStore, useStoreMap, useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
 import { Account } from '@reach-sh/stdlib/ALGO';
@@ -21,6 +21,8 @@ import { batchOptIn, checkOptIn } from '../../../batchOptIn';
 import { reach } from '../../../AppContext';
 import { fromSmallestUnits } from '../../../common/lib';
 import { Zap } from '../../../Zap';
+import { NftLottery, NftWinModal } from '../../../Swap/NftWinModal';
+import { checkClaimLottery, checkNftLottery } from '../../../providers/apiProvider';
 import { isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { PoolActionsDesktop } from './PoolActionsDesktop';
@@ -32,8 +34,15 @@ export const onClickClaim = async (
     ctc: any,
     stakeTokenInfo: Priced<LPTokenInfo> | Priced<Asset>,
     rewardTokenInfo: Priced<Asset>,
-    microAmount: Amount
+    microAmount: Amount,
+    contractId: AppId,
+    setNft: Dispatch<SetStateAction<NftLottery | null>>
 ) => {
+    // Check NFT winning
+    const nft = await checkClaimLottery(account?.networkAccount.addr ?? '', contractId);
+    if (nft) {
+        setNft(nft);
+    }
     const amount = fromSmallestUnits(rewardTokenInfo, microAmount);
     logFarmActionData(account, 'CLAIM', amount, stakeTokenInfo, rewardTokenInfo);
     try {
@@ -108,12 +117,18 @@ export function PoolActions({
 
     const isAutoClaim = contractVersion.replace('^', '') === '17.2.4';
 
+    const [nft, setNft] = useState<NftLottery | null>(null);
+
     useToasts({
         api: ctc.apis.claim,
         text: `${fromSmallestUnits(rewardTokenInfo, contractState.local.reward)} ${rewardTokenInfo.unitName}`,
         pendingStatus: pendingClaim,
         action: ToastTypes.claim,
     });
+
+    if (nft) {
+        return <NftWinModal nft={nft} />;
+    }
 
     return (
         <>
@@ -135,6 +150,7 @@ export function PoolActions({
                     contractId={contractId}
                     hasLock={hasLock}
                     isAutoClaim={isAutoClaim}
+                    setNft={setNft}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -154,6 +170,7 @@ export function PoolActions({
                     contractId={contractId}
                     hasLock={hasLock}
                     isAutoClaim={isAutoClaim}
+                    setNft={setNft}
                 />
             )}
             {isFarm && (
