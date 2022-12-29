@@ -31,6 +31,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     contractId,
     hasLock,
     isAutoClaim,
+    setNft,
 }) => {
     const account = useUnit($account);
     return (
@@ -94,7 +95,15 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         buttonStyle="claim_button"
                         isInactive={!isActiveClaim}
                         onClickAction={async () =>
-                            onClickClaim(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
+                            onClickClaim(
+                                account,
+                                ctc,
+                                stakedToken,
+                                rewardTokenInfo,
+                                contractState.local.reward,
+                                contractId,
+                                setNft
+                            )
                         }
                     />
                     <UnlockTimer unlockTimer={unlockTimer} />
