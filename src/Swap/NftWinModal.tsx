@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useUnit } from 'effector-react';
 import { ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
-import { Button } from '../Components/Button/Button';
 import { batchOptIn } from '../batchOptIn';
 import { reach } from '../AppContext';
 import { $account } from '../common/store';
@@ -43,8 +42,15 @@ export const NftWinModal = ({ nft }: { nft: NftLottery }) => {
         <ModalContainer>
             <ModalTitle style={{ width: 300, fontFamily: 'Montserrat' }}>{nft.title}</ModalTitle>
             <ModalSubtitle>Please, opt-in and we will send it to you!</ModalSubtitle>
-            <img alt="NFT" width="300px" src={nftLink} style={{ marginBottom: 20 }} />
-            {!receivedNft && <PacmanButton buttonText="OPTIN" buttonStyle="swap_button" onClickAction={onClick} />}
+            <img alt="NFT" height="200px" src={nftLink} style={{ marginBottom: 20 }} />
+            {!receivedNft && (
+                <PacmanButton
+                    buttonText="OPTIN"
+                    buttonStyle="swap_button"
+                    onClickAction={onClick}
+                    style={{ maxWidth: 300 }}
+                />
+            )}
             {receivedNft && <ModalTitle style={{ width: 300, fontFamily: 'Montserrat' }}>Done!</ModalTitle>}
             <Confetti showConfetti />
         </ModalContainer>

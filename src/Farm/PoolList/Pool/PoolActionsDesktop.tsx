@@ -9,6 +9,7 @@ import { PacmanButton } from '../../../Components/PacmanButton/PacmanButton';
 import { Button } from '../../../Components/Button/Button';
 import { algoexplorerContractLink } from '../../../common/lib';
 import { notify } from '../../../Components/Notification';
+import { NftLottery } from '../../../Swap/NftWinModal';
 import { isCompoundEnabled, runCompound } from './compound';
 import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
 import { UnlockTimer } from './UnlockTimer';
@@ -49,6 +50,7 @@ export interface PoolActionsDesktopProps {
     contractId: AppId;
     hasLock: boolean;
     isAutoClaim: boolean;
+    setNft: Dispatch<SetStateAction<NftLottery | null>>;
 }
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
@@ -66,6 +68,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     contractId,
     hasLock,
     isAutoClaim,
+    setNft,
 }) => {
     const account = useUnit($account);
 
@@ -127,7 +130,15 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     buttonStyle="claim_button"
                     isInactive={!isActiveClaim}
                     onClickAction={async () =>
-                        onClickClaim(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
+                        onClickClaim(
+                            account,
+                            ctc,
+                            stakedToken,
+                            rewardTokenInfo,
+                            contractState.local.reward,
+                            contractId,
+                            setNft
+                        )
                     }
                 />
                 <UnlockTimer unlockTimer={unlockTimer} />

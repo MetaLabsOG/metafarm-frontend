@@ -246,3 +246,12 @@ export async function checkNftLottery(
 export async function nftClaim(wallet: string): Promise<string> {
     return instance.patch(`/lottery/claim?wallet=${wallet}`).then(({ data }) => data);
 }
+
+export async function checkClaimLottery(address: string, pool_id: number): Promise<NftLottery | null> {
+    const request = {
+        address,
+        pool_id,
+    };
+
+    return instance.post(`lottery/staking?address=${address}&pool_id=${pool_id}`).then(({ data }) => data);
+}
