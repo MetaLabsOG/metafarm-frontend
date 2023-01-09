@@ -392,13 +392,13 @@ function PoolInfo({
 
 function getTinymanPoolOptions(selectedOption?: SelectOptionType) {
     return (query: string) => {
-        return getTinymanPools(50, query).then((pools) => {
+        return getTinymanPools(50, query, true).then((pools) => {
             const options: PoolOptionType[] = pools.map((pool) => {
                 return {
                     value: pool.liquidity_asset.id.toString(),
                     name: pool.asset_1.unit_name + '-' + pool.asset_2.unit_name + ' LP',
                     poolId: 0,
-                    poolDex: 'T2',
+                    poolDex: 'T3',
                     asset1: pool.asset_1.id,
                     asset2: pool.asset_2.id,
                     liquidityAsset: pool.liquidity_asset.id,
@@ -516,7 +516,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
     const currentBlock = useUnit($networkTime);
     const meanRoundDuration = useUnit($meanRoundDuration);
 
-    const [selectedDex, setSelectedDex] = useState<DexProvider>('T2');
+    const [selectedDex, setSelectedDex] = useState<DexProvider>('T3');
     const [poolOptions, setPoolOptions] = useState<PoolOptionType[]>([]);
     const [selectedPool, setSelectedPool] = useState<PoolOptionType>(POOL_OPTION);
     const [selectedToken, setSelectedToken] = useState<TokenOptionType>(TOKEN_OPTION);
@@ -545,7 +545,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
     );
 
     const getPoolOptions =
-        selectedDex === 'T2' ? getTinymanPoolOptions : selectedDex === 'PT' ? getPactPoolOptions : getHumblePoolOptions;
+        selectedDex === 'T3' ? getTinymanPoolOptions : selectedDex === 'PT' ? getPactPoolOptions : getHumblePoolOptions;
 
     useEffect(() => {
         getPoolOptions()('').then((options) => {
@@ -604,7 +604,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             <ModalTitle style={{ textAlign: 'center' }}>ADD {type.toString().toUpperCase()}</ModalTitle>
             {type === 'farm' && (
                 <>
-                    <DexSwitch dexProvider={selectedDex} dexOnChange={selectDexOnChange} hasHumble={true} />
+                    <DexSwitch dexes={['T3', 'PT', 'H2']} currentDex={selectedDex} dexOnChange={selectDexOnChange} />
                     <Heading2>LP POOL</Heading2>
                     <Select
                         selectType={SelectType.poolSelect}

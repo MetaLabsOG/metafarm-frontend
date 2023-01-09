@@ -7,6 +7,7 @@ import { fromSmallestUnits } from '../common/lib';
 
 export type DexProvider =
     | 'T2' // Tinyman v1.1
+    | 'T3' // Tinyman v2.0
     | 'PT' // Pact
     | 'H2' // Humble
     | 'MOCK'; // Mock dex (random tokens are staked)

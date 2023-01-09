@@ -14,7 +14,7 @@ import { isCompoundEnabled, runCompound } from './compound';
 import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
-import { getDestroyLPLink, isLPTokenInfo } from './utils';
+import { getDestroyLPLink, getLPTokenPoolLink, isLPTokenInfo } from './utils';
 
 // NOTE: I will leave this function here in case we add more dexes and want to have fallback functionality
 // before zap support
@@ -25,6 +25,10 @@ export const getLPTokenAction = (lpToken: LPTokenInfo, openModal: () => void) =>
         const humbleUrl = ALGONET === TESTNET ? 'testnet.humbleswap.com' : 'app.humble.sh';
         return () => {
             window.open(`https://${humbleUrl}/pool/add/${lpToken.poolId}`, '_blank');
+        };
+    } else if (lpToken.poolDex === 'T3') {
+        return () => {
+            window.open(getLPTokenPoolLink(lpToken.poolDex, lpToken.poolId, lpToken.asset1, lpToken.asset2), '_blank');
         };
     }
 

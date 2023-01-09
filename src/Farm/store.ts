@@ -43,6 +43,9 @@ const FARM_BACKENDS = {
 
 // TODO: this function is a huge costyl
 export function detectAssetProvider({ name }: { name: string }): DexProvider {
+    if (name.includes('TinymanPool2.0')) {
+        return 'T3';
+    }
     name = name.toLowerCase();
     if (name.includes('tinyman')) {
         return 'T2';
@@ -62,7 +65,6 @@ export async function getLPTokenInfo(
     algoPrice: number | null,
     provider?: DexProvider
 ): Promise<Priced<LPTokenInfo>> {
-    // console.log('getLPTokenInfo', asset);
     if (provider === undefined) {
         provider = detectAssetProvider(asset);
     }
@@ -71,7 +73,7 @@ export async function getLPTokenInfo(
     }
 
     const dex = makeDex(provider);
-    const poolInfo = await dex.getPoolByAddress(asset.creator);
+    const poolInfo = await dex.getPoolByAddress(asset.creator).catch(() => dex.getPoolByAddress(asset.reserve));
 
     const firstAsset = await fetchAsset(poolInfo.asset1);
     let fstAssetPrice;

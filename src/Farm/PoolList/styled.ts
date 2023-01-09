@@ -79,6 +79,7 @@ export const PoolTopLineContainer = styled.div`
 
     @media (max-width: 1120px) {
         justify-content: center;
+        flex-direction: column;
     }
 `;
 
@@ -88,9 +89,5 @@ export const AddFarmButtonContainer = styled.a`
     :hover {
         cursor: pointer;
         color: var(--lightGreen);
-    }
-
-    @media (max-width: 1120px) {
-        display: none;
     }
 `;

@@ -6,6 +6,7 @@ import { Dex, PoolInfo, SwapQuote, MintQuote, DexProvider, DexPool } from './com
 import { PactDex } from './pact';
 import { TinymanDex } from './tinyman';
 import { HumbleDex } from './humble';
+import { Tinyman2Dex } from './tinyman2';
 
 /**
  * Mock API for dexes (yields data with arbitrary numbers)
@@ -68,12 +69,21 @@ export class MockDex extends Dex {
 }
 
 export const tinymanDex = new TinymanDex(algod);
+export const tinyman2Dex = new Tinyman2Dex(algod);
 export const pactDex = new PactDex(algod);
 export const humbleDex = new HumbleDex(algod);
 export const mockDex = new MockDex();
 
 export function makeDex(provider: DexProvider): Dex {
-    return provider === 'PT' ? pactDex : provider === 'T2' ? tinymanDex : provider === 'H2' ? humbleDex : mockDex;
+    return provider === 'PT'
+        ? pactDex
+        : provider === 'T2'
+        ? tinymanDex
+        : provider === 'H2'
+        ? humbleDex
+        : provider === 'T3'
+        ? tinyman2Dex
+        : mockDex;
 }
 
 // In which order to call dexes for the swap price for each token.

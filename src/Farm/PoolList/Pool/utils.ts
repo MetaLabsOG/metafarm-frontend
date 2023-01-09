@@ -9,7 +9,7 @@ import {
     DistributionInitialInfo,
     AssetId,
 } from '../../../common/store';
-import { DexProvider, LPTokenInfo, tinymanDex } from '../../../dexes';
+import { DexProvider, LPTokenInfo, makeDex, tinyman2Dex, tinymanDex } from '../../../dexes';
 import { ALGONET, MAINNET, TESTNET } from '../../../AppContext';
 import { PoolState } from './types';
 
@@ -52,7 +52,12 @@ export const numberRound = (amount: number | Amount, presicion?: number) => {
 
 export const getLPTokenPoolLink = (poolDex: DexProvider, poolId: number, asset1: AssetId, asset2: AssetId): string => {
     if (poolDex === 'T2') {
-        return `${TINYMAN_URL}/#/pool/add-liquidity?asset_1=${asset1}&asset_2=${asset2}`;
+        const poolAddress = tinymanDex.getPoolAddress(asset1, asset2);
+        return `${TINYMAN_URL}/#/pool/${poolAddress}/add-liquidity`;
+    }
+    if (poolDex === 'T3') {
+        const poolAddress = tinyman2Dex.getPoolAddress(asset1, asset2);
+        return `${TINYMAN_URL}/#/pool/${poolAddress}/add-liquidity`;
     }
     if (poolDex === 'PT') {
         return `${PACT_URL}/add-liquidity/${poolId}`;
@@ -62,8 +67,12 @@ export const getLPTokenPoolLink = (poolDex: DexProvider, poolId: number, asset1:
 
 export const getDestroyLPLink = (lpToken: Priced<LPTokenInfo>): string => {
     if (lpToken.poolDex === 'T2') {
-        const poolAddress = tinymanDex.getPoolAddress(lpToken.asset1, lpToken.asset2);
-        return poolAddress ? `${TINYMAN_URL}/#/pool/${poolAddress}/remove` : '';
+        const poolAddress = tinyman2Dex.getPoolAddress(lpToken.asset1, lpToken.asset2);
+        return poolAddress ? `${TINYMAN_URL}/#/pool/${poolAddress}/remove-liquidity` : '';
+    }
+    if (lpToken.poolDex === 'T3') {
+        const poolAddress = tinyman2Dex.getPoolAddress(lpToken.asset1, lpToken.asset2);
+        return poolAddress ? `${TINYMAN_URL}/#/pool/${poolAddress}/remove-liquidity` : '';
     }
     if (lpToken.poolDex === 'PT') {
         return `${PACT_URL}/your-liquidity`;
@@ -83,6 +92,8 @@ export const getTokenLink = (asset_id: number | undefined): string => {
 export const formatLPTokenName = (token: LPTokenInfo) => {
     if (token.poolDex === 'T2') {
         return token.name.replace('TinymanPool1.1 ', '').replace('liquidity', '');
+    } else if (token.poolDex === 'T3') {
+        return token.name.replace('TinymanPool2.0 ', '[V2] ').replace('liquidity', '');
     } else if (token.poolDex === 'PT') {
         return token.name.replace('PACT LP Token', '').replace('/', '-').replace('liquidity', '');
     } else if (token.poolDex === 'H2') {
