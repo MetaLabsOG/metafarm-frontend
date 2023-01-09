@@ -39,6 +39,7 @@ export const TOKEN_OPTION: TokenOptionType = {
     decimals: 0,
     id: 0,
     creator: '',
+    reserve: '',
 };
 
 export const POOL_OPTION: PoolOptionType = {

@@ -48,7 +48,7 @@ export function Pool({
 
     const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
     if (currentBlock === 0 || !contract.state || !is_info_loaded || !pricedAlgo) {
-        // Console.log('WHY LOADING?', type, currentBlock, contract.state, lpTokenInfo, rewardTokenInfo, stakingTokenInfo);
+        // console.log('WHY LOADING?', currentBlock, contract.state, rewardTokenInfo, stakeTokenInfo, pricedAlgo);
         return (
             <PoolContainer>
                 <PoolLoadingAnimation src={logo} style={{ opacity: '0.5' }} width="45px" height="45px" />

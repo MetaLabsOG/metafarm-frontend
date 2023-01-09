@@ -196,12 +196,18 @@ export const deployVaultToBackend = async (
 };
 
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types
-export const getTinymanPools = nonConcurrent(async (limit: number, search: string = ''): Promise<TinymanPool[]> => {
+export const getTinymanPools = nonConcurrent(async (limit: number, search = '', v2 = false): Promise<TinymanPool[]> => {
     const prefix = ALGONET.toLowerCase();
     let tinymanUrl = `https://${prefix}.analytics.tinyman.org/api/v1/pools/?limit=${limit}&with_statistics=false&verified_only=false&ordering=-liquidity'`;
     if (search) {
         tinymanUrl += `&search=${search}`;
     }
+    if (v2) {
+        tinymanUrl += `&version__in=2.0`;
+    } else {
+        tinymanUrl += `&version__in=1.1%2C2.0`;
+    }
+
     const poolsResponse = await fetch(tinymanUrl);
     const pools = await poolsResponse.json();
     return pools.results;
