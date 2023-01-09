@@ -16,6 +16,7 @@ export type Asset = {
     name: string;
     unitName: string;
     creator: string;
+    reserve: string;
     decimals: number;
 };
 

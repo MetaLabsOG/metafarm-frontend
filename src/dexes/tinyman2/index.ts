@@ -27,10 +27,10 @@ function encodeMaybeTxs(txs: Tinyman.MaybeSignedTx[]): WalletTransactionGroup {
 /**
  * Tinyman pool can into swap mint and zap
  */
-export class TinymanPool implements DexPool {
-    readonly dex: TinymanDex;
+export class Tinyman2Pool implements DexPool {
+    readonly dex: Tinyman2Dex;
 
-    readonly poolDex: DexProvider = 'T2';
+    readonly poolDex: DexProvider = 'T3';
     readonly poolId: AppId;
     readonly asset1: AssetId;
     readonly asset2: AssetId;
@@ -40,7 +40,7 @@ export class TinymanPool implements DexPool {
     totalLiquidity: Amount;
     dexFeeApr: number;
 
-    constructor(dex: TinymanDex, accountInfo: any, tinymanStatsData: any) {
+    constructor(dex: Tinyman2Dex, accountInfo: any, tinymanStatsData: any) {
         this.dex = dex;
 
         const appInfo = accountInfo['apps-local-state'][0];
@@ -57,18 +57,21 @@ export class TinymanPool implements DexPool {
             return { [newKey]: newValue, ...acc };
         }, {});
 
-        let { a1, a2, s1, s2 } = appState;
-        if (a1 > a2) {
-            [a1, a2] = [a2, a1];
-            [s1, s2] = [s2, s1];
+        let asset1 = appState.asset_1_id ?? appState.a1;
+        let asset2 = appState.asset_2_id ?? appState.a2;
+        let asset1Reserve = appState.asset_1_reserves ?? appState.s1;
+        let asset2Reserve = appState.asset_2_reserves ?? appState.s2;
+        if (asset1 > asset2) {
+            [asset1, asset2] = [asset2, asset1];
+            [asset1Reserve, asset2Reserve] = [asset2Reserve, asset1Reserve];
         }
 
-        this.asset1 = a1;
-        this.asset2 = a2;
-        this.liquidityAsset = accountInfo['created-assets'][0].index;
-        this.asset1Reserve = BigInt(s1);
-        this.asset2Reserve = BigInt(s2);
-        this.totalLiquidity = BigInt(appState.ilt);
+        this.asset1 = asset1;
+        this.asset2 = asset2;
+        this.liquidityAsset = appState.pool_token_asset_id ?? accountInfo['created-assets'][0].index;
+        this.asset1Reserve = BigInt(asset1Reserve);
+        this.asset2Reserve = BigInt(asset2Reserve);
+        this.totalLiquidity = BigInt(appState.issued_pool_tokens ?? appState.ilt);
         this.dexFeeApr = tinymanStatsData.annual_percentage_rate;
     }
 
@@ -212,7 +215,7 @@ export class TinymanPool implements DexPool {
         return {
             swap,
             mint,
-            dex: 'T2',
+            dex: 'T3',
             prepareTxs: async (sender: string) => {
                 const swapTxs = await swap.prepareTxs(sender);
                 const mintTxs = await mint.prepareTxs(sender);
@@ -226,8 +229,8 @@ export class TinymanPool implements DexPool {
  * Swap operation on Tinyman
  */
 export class TinymanSwap implements Swap {
-    private pool: TinymanPool;
-    dex: DexProvider = 'T2';
+    private pool: Tinyman2Pool;
+    dex: DexProvider = 'T3';
 
     assetIn: Asset;
     assetOut: Asset;
@@ -239,7 +242,7 @@ export class TinymanSwap implements Swap {
     slippage: number;
     priceImpact: number;
 
-    constructor(pool: TinymanPool, params: SwapQuote) {
+    constructor(pool: Tinyman2Pool, params: SwapQuote) {
         this.pool = pool;
 
         this.assetIn = params.assetIn;
@@ -276,8 +279,8 @@ export class TinymanSwap implements Swap {
 }
 
 export class TinymanMint implements Mint {
-    private pool: TinymanPool;
-    dex: DexProvider = 'T2';
+    private pool: Tinyman2Pool;
+    dex: DexProvider = 'T3';
 
     assetA: Asset;
     assetB: Asset;
@@ -288,7 +291,7 @@ export class TinymanMint implements Mint {
     minimalLiquidityIssued: Amount;
     slippage: number;
 
-    constructor(pool: TinymanPool, params: MintQuote) {
+    constructor(pool: Tinyman2Pool, params: MintQuote) {
         this.pool = pool;
 
         this.assetA = params.assetA;
@@ -325,10 +328,10 @@ export class TinymanMint implements Mint {
 /**
  * Subset of Tinyman API implementation
  */
-export class TinymanDex extends Dex {
+export class Tinyman2Dex extends Dex {
     static readonly VALIDATOR_APP_ID = {
-        [TESTNET]: 62368684,
-        [MAINNET]: 552635992,
+        [TESTNET]: 148607000,
+        [MAINNET]: 1002541853,
     };
 
     algod: algosdk.Algodv2;
@@ -337,10 +340,10 @@ export class TinymanDex extends Dex {
     constructor(algod: algosdk.Algodv2) {
         super();
         this.algod = algod;
-        this.validatorAppId = TinymanDex.VALIDATOR_APP_ID[ALGONET];
+        this.validatorAppId = Tinyman2Dex.VALIDATOR_APP_ID[ALGONET];
     }
 
-    async getPool(poolId: AppId): Promise<TinymanPool> {
+    async getPool(poolId: AppId): Promise<Tinyman2Pool> {
         // Funnily enough, getting the pool info by creator address is one step less,
         // because Tinyman pool is a LogicSig and everything is in the creator's local state.
         const { creator } = await this.algod.getApplicationByID(poolId).do();
@@ -352,19 +355,19 @@ export class TinymanDex extends Dex {
         return logicSig.address();
     }
 
-    async getPoolByAddress(poolAddress: string): Promise<TinymanPool> {
+    async getPoolByAddress(poolAddress: string): Promise<Tinyman2Pool> {
         const accountInfo = await this.algod.accountInformation(poolAddress).do();
         const tinymanPoolData = await getTinymanPools(1, poolAddress);
-
+        console.log(tinymanPoolData, accountInfo);
         try {
-            return new TinymanPool(this, accountInfo, tinymanPoolData[0]);
+            return new Tinyman2Pool(this, accountInfo, tinymanPoolData[0]);
         } catch (e) {
             console.log('No tinyman pool found', e);
             throw new Error(`No Tinyman pool for address ${poolAddress} is found`);
         }
     }
 
-    async getPoolByAssets(a1: AssetId | Asset, a2: AssetId | Asset): Promise<TinymanPool> {
+    async getPoolByAssets(a1: AssetId | Asset, a2: AssetId | Asset): Promise<Tinyman2Pool> {
         const logicSig = Tinyman.getPoolLogicSig(assetId(a1), assetId(a2), this.validatorAppId);
         return this.getPoolByAddress(logicSig.address());
     }

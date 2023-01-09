@@ -39,6 +39,7 @@ export const ALGO_ASSET: Asset = {
     name: 'Algo',
     unitName: 'ALGO',
     creator: '',
+    reserve: '',
     decimals: 6,
 };
 
@@ -46,7 +47,7 @@ const fetchAssetFx = createEffect(
     nonConcurrent(async (id: AssetId): Promise<Asset> => {
         const { params } = await algod.getAssetByID(id).do();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const { creator, decimals } = params;
+        const { creator, reserve, decimals } = params;
 
         const name = params['name'] ?? Buffer.from(params['name-b64'], 'base64').toString();
         const unit_name = params['unit-name'] ?? Buffer.from(params['unit-name-b64'], 'base64').toString();
@@ -56,6 +57,7 @@ const fetchAssetFx = createEffect(
             name: name as string,
             unitName: unit_name as string,
             creator: creator as string,
+            reserve: reserve as string,
             decimals: decimals as number,
         } as Asset;
     })

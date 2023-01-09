@@ -26,6 +26,7 @@ import { notify } from '../Components/Notification';
 import plus from '../imgs/plus.svg';
 import pact from '../imgs/dexes/pact.png';
 import tinyman from '../imgs/dexes/tinyman.png';
+import tinymanOld from '../imgs/dexes/tinymanOld.png';
 import humble from '../imgs/dexes/humble.png';
 import { theme } from '../theme';
 import { SwitchSelect } from '../Components/SwitchSelect/SwitchSelect';
@@ -182,28 +183,40 @@ export function ZapResult({
 }
 
 export function DexSwitch({
-    dexProvider,
+    dexes,
+    currentDex,
     dexOnChange,
-    hasHumble = false,
     style,
 }: {
-    dexProvider: DexProvider;
+    dexes: DexProvider[];
+    currentDex: DexProvider;
     dexOnChange: (dex: DexProvider) => void;
-    hasHumble?: boolean;
     style?: React.CSSProperties;
 }) {
     return (
         <DexSwitchContainer style={style}>
             <Heading2>DEX</Heading2>
-            <DexButton isActive={dexProvider === 'T2'} alt="tinyman" src={tinyman} onClick={() => dexOnChange('T2')} />
-            <DexButton isActive={dexProvider === 'PT'} alt="pact" src={pact} onClick={() => dexOnChange('PT')} />
-            {hasHumble && (
+            {dexes.includes('T3') && (
                 <DexButton
-                    isActive={dexProvider === 'H2'}
-                    alt="humble"
-                    src={humble}
-                    onClick={() => dexOnChange('H2')}
+                    isActive={currentDex === 'T3'}
+                    alt="tinyman 2.0"
+                    src={tinyman}
+                    onClick={() => dexOnChange('T3')}
                 />
+            )}
+            {dexes.includes('T2') && (
+                <DexButton
+                    isActive={currentDex === 'T2'}
+                    alt="tinyman 1.1"
+                    src={tinymanOld}
+                    onClick={() => dexOnChange('T2')}
+                />
+            )}
+            {dexes.includes('PT') && (
+                <DexButton isActive={currentDex === 'PT'} alt="pact" src={pact} onClick={() => dexOnChange('PT')} />
+            )}
+            {dexes.includes('H2') && (
+                <DexButton isActive={currentDex === 'H2'} alt="humble" src={humble} onClick={() => dexOnChange('H2')} />
             )}
         </DexSwitchContainer>
     );
@@ -414,8 +427,9 @@ export function Zap({
             />
             {!closeModal && (
                 <DexSwitch
+                    dexes={['T2', 'PT']}
+                    currentDex={dexProvider}
                     style={{ paddingLeft: '10px', paddingRight: '10px' }}
-                    dexProvider={dexProvider}
                     dexOnChange={dexOnChange}
                 />
             )}

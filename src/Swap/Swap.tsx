@@ -317,6 +317,7 @@ export async function getTokens(
             balance: 0,
             decimals: token.decimals,
             creator: '',
+            reserve: '',
         }))
         .filter((token) => token.value)
         .sort((a, b) => (a.id === 0 ? -1 : a.id === META_TOKEN_ID && b.id !== 0 ? -1 : 0));

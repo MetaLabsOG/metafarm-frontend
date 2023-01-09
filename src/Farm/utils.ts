@@ -1,8 +1,8 @@
 import { BigNumberish } from '@ethersproject/bignumber';
 import pact from '../imgs/dexes/pact.png';
 import tinyman from '../imgs/dexes/tinyman.png';
+import tinymanOld from '../imgs/dexes/tinymanOld.png';
 import humble from '../imgs/dexes/humble.png';
-import algofi from '../imgs/dexes/algofi.png';
 import { reach } from '../AppContext';
 import { Contract, SubstituteType } from '../types';
 import { DexProvider } from '../dexes';
@@ -30,7 +30,10 @@ export async function deployFarm(
 
 export const getDexName = (poolDex: string): string => {
     if (poolDex === 'T2') {
-        return 'tinyman';
+        return 'tinyman1.1';
+    }
+    if (poolDex === 'T3') {
+        return 'tinyman2.0';
     }
     if (poolDex === 'PT') {
         return 'pact';
@@ -44,8 +47,10 @@ export const getDexName = (poolDex: string): string => {
 export type Image = string;
 
 export const getDexIcon = (poolDex: DexProvider): Image | null => {
-    if (poolDex === 'T2') {
+    if (poolDex === 'T3') {
         return tinyman;
+    } else if (poolDex === 'T2') {
+        return tinymanOld;
     } else if (poolDex === 'PT') {
         return pact;
     } else if (poolDex === 'H2') {
