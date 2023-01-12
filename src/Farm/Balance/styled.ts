@@ -6,11 +6,11 @@ export const AmountContainer = styled.div`
     flex-direction: column;
     width: 20%;
     align-items: center;
+    min-width: 82px;
 
     @media (max-width: 1120px) {
-        width: 320px;
+        //width: 320px;
         justify-content: center;
-
         perspective: 1000px;
     }
 `;
@@ -53,12 +53,11 @@ export const BalanceList = styled.div`
     line-height: 22px;
     text-align: center;
     border-radius: 10px;
-    margin-bottom: 20px;
 
     &:first-child {
     }
 
-    @media (max-width: 1120px) {
+    @media (max-width: 700px) {
         width: 320px;
         height: 80px;
         justify-content: center;

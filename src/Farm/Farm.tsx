@@ -1,10 +1,12 @@
 import { createComponent, useUnit } from 'effector-react';
 import { FarmType } from '../common/store';
 import { InfoCard } from '../Components/InfoCard/InfoCard';
+import governance from '../imgs/folks.jpeg';
 import { Balance } from './Balance';
 import { PoolList } from './PoolList';
 import { $sortedPoolsWithStats, initializeFarmContract } from './store';
-import { FarmContainer } from './styled';
+import { BalanceContainer, FarmContainer, GovImg } from './styled';
+import { getTokenLink } from './PoolList/Pool/utils';
 
 export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
     if (window.innerWidth <= 1120) {
@@ -31,7 +33,12 @@ export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
 
 export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
-        <Balance kind={'farm' as FarmType} />
+        <BalanceContainer>
+            <Balance kind={'farm' as FarmType} />
+            <a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">
+                <GovImg alt="Governance" src={governance} />
+            </a>
+        </BalanceContainer>
         <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
         <InfoCards addFarmType="farm" />
     </FarmContainer>
