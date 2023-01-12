@@ -46,7 +46,14 @@ export const PoolListContainer = styled.div`
     @media (max-width: 1120px) {
         background-color: transparent;
         margin-top: 0;
-        min-width: 320px;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        justify-content: center;
+        gap: 20px;
+        align-items: center;
+        min-width: unset;
+        width: 100%;
     }
 `;
 
@@ -77,7 +84,7 @@ export const PoolTopLineContainer = styled.div`
     justify-content: space-between;
     align-items: center;
 
-    @media (max-width: 1120px) {
+    @media (max-width: 700px) {
         justify-content: center;
         flex-direction: column;
     }

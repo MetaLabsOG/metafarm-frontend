@@ -2,9 +2,10 @@ import { createComponent, useUnit } from 'effector-react';
 import { ContractInfo, FarmType } from '../common/store';
 import { Balance } from '../Farm/Balance';
 import { PoolList } from '../Farm/PoolList';
-import { FarmContainer } from '../Farm/styled';
+import { BalanceContainer, FarmContainer, GovImg } from '../Farm/styled';
 import { InfoCards } from '../Farm/Farm';
 import { initializeFarmContract } from '../Farm/store';
+import governance from '../imgs/folks.jpeg';
 import { $sortedStakePoolsWithStats, initializeDistributionContract } from './store';
 
 export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state) => {
@@ -22,7 +23,12 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
 
     return (
         <FarmContainer>
-            <Balance kind={'distribution' as FarmType} />
+            <BalanceContainer>
+                <Balance kind={'distribution' as FarmType} />
+                <a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">
+                    <GovImg alt="Governance" src={governance} />
+                </a>
+            </BalanceContainer>
             <PoolList pools={state} poolType="stake" initEvent={initStakeOrDistr} />
             <InfoCards addFarmType="stake" />
         </FarmContainer>
