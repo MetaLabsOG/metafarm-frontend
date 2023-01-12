@@ -21,7 +21,7 @@ export const LaaSContainer = styled.div`
     justify-content: center;
     gap: 20px;
     align-items: center;
-    width: 1114px;
+    max-width: 1114px;
     height: 100%;
     margin-top: 20px;
 `;
