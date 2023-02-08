@@ -358,12 +358,11 @@ export class Tinyman2Dex extends Dex {
     async getPoolByAddress(poolAddress: string): Promise<Tinyman2Pool> {
         const accountInfo = await this.algod.accountInformation(poolAddress).do();
         const tinymanPoolData = await getTinymanPools(1, poolAddress);
-        console.log(tinymanPoolData, accountInfo);
         try {
             return new Tinyman2Pool(this, accountInfo, tinymanPoolData[0]);
         } catch (e) {
-            console.log('No tinyman pool found', e);
-            throw new Error(`No Tinyman pool for address ${poolAddress} is found`);
+            console.log('No tinyman2 pool found', e);
+            throw new Error(`No Tinyman2 pool for address ${poolAddress} is found`);
         }
     }
 
