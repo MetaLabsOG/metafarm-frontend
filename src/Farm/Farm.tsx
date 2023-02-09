@@ -1,6 +1,8 @@
 import { createComponent, useUnit } from 'effector-react';
 import { FarmType } from '../common/store';
 import { InfoCard } from '../Components/InfoCard/InfoCard';
+import { Button } from '../Components/Button/Button';
+import { collectFees } from '../collectFees';
 import { Balance } from './Balance';
 import { PoolList } from './PoolList';
 import { $sortedPoolsWithStats, initializeFarmContract } from './store';
@@ -31,6 +33,7 @@ export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
 
 export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
+        <Button onClick={collectFees} buttonText={'COLLECT FEES'} />
         <Balance kind={'farm' as FarmType} />
         <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
         <InfoCards addFarmType="farm" />

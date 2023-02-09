@@ -1,6 +1,6 @@
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import { useUnit } from 'effector-react';
-import { ALGONET, TESTNET } from '../../../AppContext';
+import { ALGONET, FARM_BENEFICIARY_ADDR, reach, TESTNET } from '../../../AppContext';
 import { LPTokenInfo } from '../../../dexes';
 import { TokenInputWithButton } from '../../../Components/TokenInputWithButton/TokenInputWithButton';
 import { $account, Amount, AppId, Asset, ContractState, FarmType, Priced } from '../../../common/store';
@@ -10,6 +10,7 @@ import { Button } from '../../../Components/Button/Button';
 import { algoexplorerContractLink } from '../../../common/lib';
 import { notify } from '../../../Components/Notification';
 import { NftLottery } from '../../../Swap/NftWinModal';
+import { batchOptIn, checkOptIn } from '../../../batchOptIn';
 import { isCompoundEnabled, runCompound } from './compound';
 import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
 import { UnlockTimer } from './UnlockTimer';
@@ -155,6 +156,22 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     onClickAction={async () =>
                         runCompound(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
                     }
+                />
+            )}
+            {account && account.networkAccount.addr === FARM_BENEFICIARY_ADDR && (
+                <Button
+                    style={{ color: '#ff00ff' }}
+                    buttonText={'CLAIM FEES'}
+                    onClick={async () => {
+                        console.log('CLAIM');
+                        const optInId = rewardTokenInfo.id;
+                        const isTokenOptIn = await checkOptIn(account.networkAccount.addr, optInId);
+                        if (!isTokenOptIn) {
+                            await batchOptIn(reach, account.networkAccount.addr, [Number(optInId)], true);
+                        }
+                        await ctc.apis.claimFees();
+                        notify('Done!', 'success');
+                    }}
                 />
             )}
         </PoolActionsDesktopContainer>
