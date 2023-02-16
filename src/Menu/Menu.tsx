@@ -33,7 +33,7 @@ function MenuItems() {
             <MenuItem to="/stake">stake</MenuItem>
             {ALGONET === TESTNET && <MenuItem to="/laas">laas</MenuItem>}
             {/* <MenuItem to="/fomo">fomo3d</MenuItem> */}
-            <MenuItem to="/meta-dao">nft</MenuItem>
+            <MenuItem to="/metapunks">nft</MenuItem>
             {/* <MenuItem to="/tokensale">tokensale</MenuItem> */}
         </>
     );

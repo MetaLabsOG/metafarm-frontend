@@ -7,7 +7,10 @@ import { FooterContainer, FooterItem, FooterText, Logo } from './styled';
 export function Footer() {
     return (
         <FooterContainer>
-            <FooterItem>{ALGONET}</FooterItem>
+            {/*<FooterItem>{ALGONET}</FooterItem>*/}
+            <a target="_blank" href="https://algonode.io/" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                <FooterItem>powered by Algonode.io</FooterItem>
+            </a>
             <FooterText>
                 <FooterItem>This is the first public beta version. Use the dApp at your own risk. </FooterItem>
                 <a

@@ -40,6 +40,7 @@ import { logEvent, LogName } from '../logEvent';
 import { DexProvider } from '../dexes';
 import { DexSwitch } from '../Zap/Zap';
 import * as MiniHumble from '../dexes/humbleReexports';
+import { InfoCard } from '../Components/InfoCard/InfoCard';
 import { AddFarmRow, DateInput } from './styled';
 import { deployFarm, getDexName, InitialDistributionState, InitialFarmState } from './utils';
 import { numberRound } from './PoolList/Pool/utils';
@@ -601,6 +602,13 @@ export function AddFarm({ type }: { type: AddFarmType }) {
 
     return (
         <ModalContainer>
+            <InfoCard
+                title="Can't find your token?"
+                subtitle=""
+                linkText="Add token here"
+                link="https://github.com/tinymanorg/asa-list"
+                style={{ width: '100%', height: 120, marginBottom: 20 }}
+            />
             <ModalTitle style={{ textAlign: 'center' }}>ADD {type.toString().toUpperCase()}</ModalTitle>
             {type === 'farm' && (
                 <>
@@ -737,6 +745,13 @@ export function AddFarm({ type }: { type: AddFarmType }) {
                     )}
                 </ModalContainer>
             </AddFarmModal>
+            <InfoCard
+                title="Questions? We are here"
+                subtitle=""
+                linkText="x@metapunks.world"
+                link="mailto:x@metapunks.world"
+                style={{ width: '100%', height: 120, marginTop: 20 }}
+            />
         </ModalContainer>
     );
 }
