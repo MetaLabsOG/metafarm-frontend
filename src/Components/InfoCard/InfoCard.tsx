@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { theme } from '../../theme';
 import { InfoCardContainer, InfoCardTitle, InfoCardSubtitle } from './styled';
 
@@ -7,13 +7,14 @@ type InfoCardProps = {
     subtitle: string;
     linkText: string;
     link: string;
+    style?: React.CSSProperties;
 };
 
-export const InfoCard: FC<InfoCardProps> = ({ title, subtitle, linkText, link }: InfoCardProps) => {
+export const InfoCard: FC<InfoCardProps> = ({ title, subtitle, linkText, link, style }: InfoCardProps) => {
     return (
-        <InfoCardContainer>
+        <InfoCardContainer style={style}>
             <InfoCardTitle>{title}</InfoCardTitle>
-            <InfoCardSubtitle>{subtitle}</InfoCardSubtitle>
+            {subtitle && <InfoCardSubtitle>{subtitle}</InfoCardSubtitle>}
             <a target="_blank" href={link} rel="noreferrer" style={{ color: theme.lightGreen, textDecoration: 'none' }}>
                 {linkText}
             </a>
