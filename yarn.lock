@@ -4513,6 +4513,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@slise/embed-react@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@slise/embed-react@npm:1.0.1"
+  dependencies:
+    react-script-hook: "npm:^1.7.2"
+  peerDependencies:
+    react: ^16.8.6 || 17 - 18
+    react-dom: ^16.8.6 || 17 - 18
+  checksum: d440ed76fda306090a2596c19ab9aa0f4543e9229b57ed0cc54b93a3762d4cc8f80a2de2b0259ac8c28d9a1bb3fa81a43b8826dc3daa7d39ba077e94f6636a1e
+  languageName: node
+  linkType: hard
+
 "@surma/rollup-plugin-off-main-thread@npm:^2.2.3":
   version: 2.2.3
   resolution: "@surma/rollup-plugin-off-main-thread@npm:2.2.3"
@@ -15669,6 +15681,7 @@ __metadata:
     "@reach-sh/stdlib": "npm:0.1.11-rc.5"
     "@sentry/react": "npm:^7.8.0"
     "@sentry/tracing": "npm:^7.8.0"
+    "@slise/embed-react": "npm:^1.0.1"
     "@svgr/webpack": "npm:^6.3.1"
     "@types/canvas-confetti": "npm:^1"
     "@types/jest": "npm:^28.1.6"
@@ -18974,6 +18987,16 @@ __metadata:
   peerDependencies:
     react: ">=16.8"
   checksum: e18db7761282cb28dda7a4f81c4df696f0484c7f998dc339b4939cb9bb9e8d968e33b627a9616adfed141b588ca1885be6be602c12ff52e81b4bab4bf3e629f8
+  languageName: node
+  linkType: hard
+
+"react-script-hook@npm:^1.7.2":
+  version: 1.7.2
+  resolution: "react-script-hook@npm:1.7.2"
+  peerDependencies:
+    react: ^16.8.6 || 17 - 18
+    react-dom: ^16.8.6 || 17 - 18
+  checksum: bdff944762a38a133231f4aa04e9db327aa3f8e94917af7dacf41ba00b71836096513a0a3c974ec4e85c2abfc92a949a0822490f04e82d05db33f812206553a9
   languageName: node
   linkType: hard
 

@@ -43,12 +43,12 @@ export function logFarmActionData(
 }
 
 export function logEvent(address: string | undefined, parameters: Record<string, any>, logName: LogName) {
-    // Console.log('LOG', address, status, error);
+    // console.log('LOG', address, parameters);
     const event: string = parameters.message ?? parameters.status ?? ''; // TODO
     const requestOptions = {
         method: 'POST',
         headers: {
-            Authorization: 'Bearer keyVWFbLtlqU1tMht',
+            Authorization: 'Bearer pattoCqV44GNxV1xK.467bab14578f66afa4d0ecde5c136b337c051328af65fe9ab9934958cafcfc06',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -62,8 +62,8 @@ export function logEvent(address: string | undefined, parameters: Record<string,
         }),
     };
 
-    if (logName !== LogName.ERRORS && logName !== LogName.WALLET) {
-        fetch('https://api.airtable.com/v0/appqAikFZd31XeJqW/' + LogName[logName].toLowerCase(), requestOptions).catch(
+    if (logName === LogName.ADDFARM) {
+        fetch('https://api.airtable.com/v0/app7KHOjfNZ8vVEGe/' + LogName[logName].toLowerCase(), requestOptions).catch(
             () => {
                 console.warn('Failed to log event to Airtable');
             }
