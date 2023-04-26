@@ -26,7 +26,7 @@ export function Footer() {
                 <a target="_blank" href="https://twitter.com/CometaHub" rel="noreferrer">
                     <Logo src={twitter} alt="twitter" height="17px" />
                 </a>
-                <a target="_blank" href="https://discord.gg/ejYjrHQbPv" rel="noreferrer">
+                <a target="_blank" href="https://discord.gg/7kMD9ktGjR" rel="noreferrer">
                     <Logo src={discord} alt="discord" height="17px" />
                 </a>
             </div>

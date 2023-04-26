@@ -1,12 +1,13 @@
 import { createComponent, useUnit } from 'effector-react';
+import { SliseAd } from '@slise/embed-react';
 import { FarmType } from '../common/store';
 import { InfoCard } from '../Components/InfoCard/InfoCard';
-import governance from '../imgs/folks.jpeg';
+// import governance from '../imgs/folks.jpeg';
 import { Balance } from './Balance';
 import { PoolList } from './PoolList';
 import { $sortedPoolsWithStats, initializeFarmContract } from './store';
 import { BalanceContainer, FarmContainer, GovImg } from './styled';
-import { getTokenLink } from './PoolList/Pool/utils';
+// import { getTokenLink } from './PoolList/Pool/utils';
 
 export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
     if (window.innerWidth <= 1120) {
@@ -35,9 +36,10 @@ export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
         <BalanceContainer>
             <Balance kind={'farm' as FarmType} />
-            <a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">
-                <GovImg alt="Governance" src={governance} />
-            </a>
+            {/*<a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">*/}
+            {/*    <GovImg alt="Governance" src={governance} />*/}
+            {/*</a>*/}
+            <SliseAd style={{ width: '363px', height: '91px' }} slotId="1" pub="pub-2" format="667x167" />
         </BalanceContainer>
         <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
         <InfoCards addFarmType="farm" />

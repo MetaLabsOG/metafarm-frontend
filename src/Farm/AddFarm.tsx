@@ -94,6 +94,10 @@ const checkFarmParams = (
         notify('Please, choose start time and farm duration.', 'warning');
         return false;
     }
+    if (endBlock - beginBlock > 10_000_000) {
+        notify('The maximum pool duration is one year. Please decrease the pool duration.', 'warning');
+        return false;
+    }
     if (Number.isNaN(rewardAmount) || rewardAmount === 0) {
         notify('Please, enter reward amount.', 'warning');
         return false;
@@ -663,7 +667,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
                 <Heading2 style={{ minWidth: '130px' }}>DURATION</Heading2>
                 <DateInput
                     style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
-                    placeholder="1-999"
+                    placeholder="1-420"
                     value={daysDuration}
                     onChange={durationInputOnChange}
                 />

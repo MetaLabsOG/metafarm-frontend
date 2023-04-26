@@ -1,4 +1,5 @@
 import { createComponent, useUnit } from 'effector-react';
+import { SliseAd } from '@slise/embed-react';
 import { ContractInfo, FarmType } from '../common/store';
 import { Balance } from '../Farm/Balance';
 import { PoolList } from '../Farm/PoolList';
@@ -25,9 +26,10 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
         <FarmContainer>
             <BalanceContainer>
                 <Balance kind={'distribution' as FarmType} />
-                <a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">
-                    <GovImg alt="Governance" src={governance} />
-                </a>
+                {/*<a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">*/}
+                {/*    <GovImg alt="Governance" src={governance} />*/}
+                {/*</a>*/}
+                <SliseAd style={{ width: '363px', height: '91px' }} slotId="2" pub="pub-2" format="667x167" />
             </BalanceContainer>
             <PoolList pools={state} poolType="stake" initEvent={initStakeOrDistr} />
             <InfoCards addFarmType="stake" />
