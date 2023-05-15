@@ -4513,15 +4513,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@slise/embed-react@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@slise/embed-react@npm:1.0.1"
+"@slise/embed-react@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "@slise/embed-react@npm:1.0.4"
   dependencies:
     react-script-hook: "npm:^1.7.2"
   peerDependencies:
     react: ^16.8.6 || 17 - 18
     react-dom: ^16.8.6 || 17 - 18
-  checksum: d440ed76fda306090a2596c19ab9aa0f4543e9229b57ed0cc54b93a3762d4cc8f80a2de2b0259ac8c28d9a1bb3fa81a43b8826dc3daa7d39ba077e94f6636a1e
+  checksum: b2bd3101bf3a2fd8587e5fe6a412de9f061b37c071e28ad86e17620ebe83c9895c584ab2269d0c5af528858f580433abd0a39cd7efe8712641451ebdf0cce83d
   languageName: node
   linkType: hard
 
@@ -15681,7 +15681,7 @@ __metadata:
     "@reach-sh/stdlib": "npm:0.1.11-rc.5"
     "@sentry/react": "npm:^7.8.0"
     "@sentry/tracing": "npm:^7.8.0"
-    "@slise/embed-react": "npm:^1.0.1"
+    "@slise/embed-react": "npm:^1.0.4"
     "@svgr/webpack": "npm:^6.3.1"
     "@types/canvas-confetti": "npm:^1"
     "@types/jest": "npm:^28.1.6"

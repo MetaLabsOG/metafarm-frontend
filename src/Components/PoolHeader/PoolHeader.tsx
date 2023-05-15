@@ -114,7 +114,12 @@ export function PoolHeader({
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                     <ContractLockSuffix>{lock}</ContractLockSuffix>
                     {lock && (
-                        <img data-tip="You can claim rewards only after lock period" alt="" height="10px" src={info} />
+                        <img
+                            data-tip="If you claim during the lock period, rewards are burned."
+                            alt=""
+                            height="10px"
+                            src={info}
+                        />
                     )}
                 </div>
             </PoolInfo>
