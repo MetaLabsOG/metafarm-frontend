@@ -605,157 +605,163 @@ export function AddFarm({ type }: { type: AddFarmType }) {
     };
 
     return (
-        <ModalContainer>
-            <InfoCard
-                title="Can't find your token?"
-                subtitle=""
-                linkText="Add token here"
-                link="https://github.com/tinymanorg/asa-list"
-                style={{ width: '100%', height: 120, marginBottom: 20 }}
-            />
-            <ModalTitle style={{ textAlign: 'center' }}>ADD {type.toString().toUpperCase()}</ModalTitle>
-            {type === 'farm' && (
-                <>
-                    <DexSwitch dexes={['T3', 'PT', 'H2']} currentDex={selectedDex} dexOnChange={selectDexOnChange} />
-                    <Heading2>LP POOL</Heading2>
-                    <Select
-                        selectType={SelectType.poolSelect}
-                        options={poolOptions}
-                        selectedOption={selectedPool}
-                        selectOnChange={selectPoolOnChange}
-                        getOptions={getPoolOptions}
-                    />
-                </>
-            )}
-            {type === 'stake' && (
-                <>
-                    <Heading2>STAKING TOKEN</Heading2>
-                    <Select
-                        selectType={SelectType.tokenSelect}
-                        options={rewardTokenOptions}
-                        selectedOption={selectedToken}
-                        selectOnChange={selectTokenOnChange}
-                    />
-                </>
-            )}
-            <Heading2>REWARDS</Heading2>
-            <SelectInputGroup
-                options={rewardTokenOptions}
-                selectedOption={selectedRewardToken}
-                inputData={rewardTokenAmount}
-                setInputData={setRewardTokenAmount}
-                selectOnChange={selectRewardTokenOnChange}
-            />
-            <Heading2 style={{ marginTop: 5 }}>ALGO REWARDS [OPTIONAL]</Heading2>
-            <SelectInputGroup
-                options={[algoToken]}
-                selectedOption={algoToken}
-                inputData={algoTokenAmount}
-                setInputData={setAlgoTokenAmount}
-                selectOnChange={() => {}}
-            />
-            <AddFarmRow>
-                <Heading2>START</Heading2>
-                <DateInput
-                    placeholder="Select start time"
-                    type="datetime-local"
-                    value={startTime}
-                    onChange={dateInputOnChange}
-                />
-            </AddFarmRow>
-            <AddFarmRow>
-                <Heading2 style={{ minWidth: '130px' }}>DURATION</Heading2>
-                <DateInput
-                    style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
-                    placeholder="1-420"
-                    value={daysDuration}
-                    onChange={durationInputOnChange}
-                />
-                <Heading2>DAYS</Heading2>
-            </AddFarmRow>
-            <AddFarmRow>
-                <Heading2 style={{ minWidth: '130px' }}>LOCK</Heading2>
-                <DateInput
-                    style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
-                    placeholder="1-999"
-                    value={lockPeriod}
-                    onChange={lockInputOnChange}
-                />
-                <Heading2>DAYS</Heading2>
-            </AddFarmRow>
-            {!account ? (
-                <ConnectWallet buttonClassName="swap_button" style={{ width: '100%' }} />
-            ) : (
-                <PacmanButton
-                    buttonText="VERIFY DETAILS"
-                    buttonStyle="swap_button"
-                    style={{ marginTop: 20 }}
-                    onClickAction={async () => {
-                        if (
-                            checkFarmParams(
-                                getStakingAsset(type, selectedToken, selectedPool),
-                                selectedRewardToken,
-                                beginBlock,
-                                endBlock,
-                                Number(rewardTokenAmount),
-                                algoToken,
-                                Number(algoTokenAmount)
-                            )
-                        ) {
-                            openAddFarmModal();
-                        }
-                    }}
-                />
-            )}
-            <AddFarmModal>
-                <ModalContainer>
-                    <ModalSubtitle style={{ fontSize: '16px', width: 350 }}>
-                        Please, carefully verify the farm creation parameters.
-                    </ModalSubtitle>
-                    <PoolInfo
-                        type={type}
-                        stakingAsset={getStakingAsset(type, selectedToken, selectedPool)}
-                        currentBlock={currentBlock}
-                        beginBlock={beginBlock}
-                        endBlock={endBlock}
-                        rewardPerBlock={rewardPerBlock}
-                        rewardAmount={Number(rewardTokenAmount)}
-                        rewardToken={selectedRewardToken}
-                        lockPeriodBlocks={lockPeriodBlocks}
-                        meanRoundDuration={meanRoundDuration}
-                        algoTokenRewards={Number(algoTokenAmount)}
-                        selectedPool={selectedPool}
-                    />
-                    {account && (
-                        <PacmanButton
-                            buttonText="CREATE FARM"
-                            buttonStyle="swap_button"
-                            style={{ marginTop: 20 }}
-                            onClickAction={async () => {
-                                const res = await createFarm(
-                                    account,
-                                    getStakingAsset(type, selectedToken, selectedPool),
-                                    selectedRewardToken,
-                                    beginBlock,
-                                    endBlock,
-                                    Number(rewardTokenAmount),
-                                    algoToken,
-                                    Number(algoTokenAmount),
-                                    lockPeriodBlocks
-                                );
-                                res && closeAddFarmModal();
-                            }}
-                        />
-                    )}
-                </ModalContainer>
-            </AddFarmModal>
-            <InfoCard
-                title="Questions? We are here"
-                subtitle=""
-                linkText="x@metapunks.world"
-                link="mailto:x@metapunks.world"
-                style={{ width: '100%', height: 120, marginTop: 20 }}
-            />
-        </ModalContainer>
+        <Heading2>
+            Adding farms is temporarily disabled. We are fixing issues with Algorand and Indexer APIs. ETA 1-2 days.
+        </Heading2>
     );
+
+    // return (
+    //     <ModalContainer>
+    //         <InfoCard
+    //             title="Can't find your token?"
+    //             subtitle=""
+    //             linkText="Add token here"
+    //             link="https://github.com/tinymanorg/asa-list"
+    //             style={{ width: '100%', height: 120, marginBottom: 20 }}
+    //         />
+    //         <ModalTitle style={{ textAlign: 'center' }}>ADD {type.toString().toUpperCase()}</ModalTitle>
+    //         {type === 'farm' && (
+    //             <>
+    //                 <DexSwitch dexes={['T3', 'PT', 'H2']} currentDex={selectedDex} dexOnChange={selectDexOnChange} />
+    //                 <Heading2>LP POOL</Heading2>
+    //                 <Select
+    //                     selectType={SelectType.poolSelect}
+    //                     options={poolOptions}
+    //                     selectedOption={selectedPool}
+    //                     selectOnChange={selectPoolOnChange}
+    //                     getOptions={getPoolOptions}
+    //                 />
+    //             </>
+    //         )}
+    //         {type === 'stake' && (
+    //             <>
+    //                 <Heading2>STAKING TOKEN</Heading2>
+    //                 <Select
+    //                     selectType={SelectType.tokenSelect}
+    //                     options={rewardTokenOptions}
+    //                     selectedOption={selectedToken}
+    //                     selectOnChange={selectTokenOnChange}
+    //                 />
+    //             </>
+    //         )}
+    //         <Heading2>REWARDS</Heading2>
+    //         <SelectInputGroup
+    //             options={rewardTokenOptions}
+    //             selectedOption={selectedRewardToken}
+    //             inputData={rewardTokenAmount}
+    //             setInputData={setRewardTokenAmount}
+    //             selectOnChange={selectRewardTokenOnChange}
+    //         />
+    //         <Heading2 style={{ marginTop: 5 }}>ALGO REWARDS [OPTIONAL]</Heading2>
+    //         <SelectInputGroup
+    //             options={[algoToken]}
+    //             selectedOption={algoToken}
+    //             inputData={algoTokenAmount}
+    //             setInputData={setAlgoTokenAmount}
+    //             selectOnChange={() => {}}
+    //         />
+    //         <AddFarmRow>
+    //             <Heading2>START</Heading2>
+    //             <DateInput
+    //                 placeholder="Select start time"
+    //                 type="datetime-local"
+    //                 value={startTime}
+    //                 onChange={dateInputOnChange}
+    //             />
+    //         </AddFarmRow>
+    //         <AddFarmRow>
+    //             <Heading2 style={{ minWidth: '130px' }}>DURATION</Heading2>
+    //             <DateInput
+    //                 style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
+    //                 placeholder="1-420"
+    //                 value={daysDuration}
+    //                 onChange={durationInputOnChange}
+    //             />
+    //             <Heading2>DAYS</Heading2>
+    //         </AddFarmRow>
+    //         <AddFarmRow>
+    //             <Heading2 style={{ minWidth: '130px' }}>LOCK</Heading2>
+    //             <DateInput
+    //                 style={{ width: '80px', textAlign: 'center', marginRight: '10px', marginLeft: '10px' }}
+    //                 placeholder="1-999"
+    //                 value={lockPeriod}
+    //                 onChange={lockInputOnChange}
+    //             />
+    //             <Heading2>DAYS</Heading2>
+    //         </AddFarmRow>
+    //         {!account ? (
+    //             <ConnectWallet buttonClassName="swap_button" style={{ width: '100%' }} />
+    //         ) : (
+    //             <PacmanButton
+    //                 buttonText="VERIFY DETAILS"
+    //                 buttonStyle="swap_button"
+    //                 style={{ marginTop: 20 }}
+    //                 onClickAction={async () => {
+    //                     if (
+    //                         checkFarmParams(
+    //                             getStakingAsset(type, selectedToken, selectedPool),
+    //                             selectedRewardToken,
+    //                             beginBlock,
+    //                             endBlock,
+    //                             Number(rewardTokenAmount),
+    //                             algoToken,
+    //                             Number(algoTokenAmount)
+    //                         )
+    //                     ) {
+    //                         openAddFarmModal();
+    //                     }
+    //                 }}
+    //             />
+    //         )}
+    //         <AddFarmModal>
+    //             <ModalContainer>
+    //                 <ModalSubtitle style={{ fontSize: '16px', width: 350 }}>
+    //                     Please, carefully verify the farm creation parameters.
+    //                 </ModalSubtitle>
+    //                 <PoolInfo
+    //                     type={type}
+    //                     stakingAsset={getStakingAsset(type, selectedToken, selectedPool)}
+    //                     currentBlock={currentBlock}
+    //                     beginBlock={beginBlock}
+    //                     endBlock={endBlock}
+    //                     rewardPerBlock={rewardPerBlock}
+    //                     rewardAmount={Number(rewardTokenAmount)}
+    //                     rewardToken={selectedRewardToken}
+    //                     lockPeriodBlocks={lockPeriodBlocks}
+    //                     meanRoundDuration={meanRoundDuration}
+    //                     algoTokenRewards={Number(algoTokenAmount)}
+    //                     selectedPool={selectedPool}
+    //                 />
+    //                 {account && (
+    //                     <PacmanButton
+    //                         buttonText="CREATE FARM"
+    //                         buttonStyle="swap_button"
+    //                         style={{ marginTop: 20 }}
+    //                         onClickAction={async () => {
+    //                             const res = await createFarm(
+    //                                 account,
+    //                                 getStakingAsset(type, selectedToken, selectedPool),
+    //                                 selectedRewardToken,
+    //                                 beginBlock,
+    //                                 endBlock,
+    //                                 Number(rewardTokenAmount),
+    //                                 algoToken,
+    //                                 Number(algoTokenAmount),
+    //                                 lockPeriodBlocks
+    //                             );
+    //                             res && closeAddFarmModal();
+    //                         }}
+    //                     />
+    //                 )}
+    //             </ModalContainer>
+    //         </AddFarmModal>
+    //         <InfoCard
+    //             title="Questions? We are here"
+    //             subtitle=""
+    //             linkText="x@metapunks.world"
+    //             link="mailto:x@metapunks.world"
+    //             style={{ width: '100%', height: 120, marginTop: 20 }}
+    //         />
+    //     </ModalContainer>
+    // );
 }
