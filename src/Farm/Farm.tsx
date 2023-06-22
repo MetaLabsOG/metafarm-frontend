@@ -40,10 +40,10 @@ export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
             {/*    <GovImg alt="Governance" src={governance} />*/}
             {/*</a>*/}
             <SliseAd
-                style={{ minWidth: '363px', width: '363px', height: '91px' }}
-                slotId="1"
+                style={{ minWidth: '270px', width: '270px', height: '90px' }}
+                slotId="banner"
                 pub="pub-2"
-                format="667x167"
+                format="270x90"
             />
         </BalanceContainer>
         <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
