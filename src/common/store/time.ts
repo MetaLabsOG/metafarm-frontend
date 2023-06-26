@@ -16,7 +16,7 @@ export const { $store: $networkTime, update: queryTimeUpdate } = createTimeDefer
 );
 
 // TODO: we can probably aggregate this value from the history of network time queries?....
-export const $meanRoundDuration = createStore<number>(3.7);
+export const $meanRoundDuration = createStore<number>(3.3);
 
 // Simple clock events
 // Returns event which can be called to stop ticking
