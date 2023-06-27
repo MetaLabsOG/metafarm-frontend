@@ -53,3 +53,20 @@ export const GovImg = styled.img`
         height: 80px;
     }
 `;
+
+export const PoolSearchInput = styled.input`
+    height: 30px;
+    width: 150px;
+    padding: 10px;
+    margin: 10px 0;
+    color: white;
+    background-color: transparent;
+    flex-shrink: 0;
+    color-scheme: dark;
+
+    font-family: 'Montserrat';
+    font-size: 16px;
+
+    border: 1px solid rgba(125, 125, 125, 0.66);
+    border-radius: 8px;
+`;

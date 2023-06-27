@@ -1,12 +1,13 @@
 import { useUnit } from 'effector-react';
 import { Event } from 'effector';
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PoolWithStats, sortPools } from '../store';
 import swapArrow from '../../imgs/swapArrow.svg';
 import { theme } from '../../theme';
 import { SwitchSelect } from '../../Components/SwitchSelect/SwitchSelect';
 import { $networkTime, AppId, ContractInfo, FarmType } from '../../common/store';
+import { DateInput, PoolSearchInput } from '../styled';
 import {
     AddFarmButtonContainer,
     PoolFiltersContainer,
@@ -70,6 +71,8 @@ export function PoolList({
     const [showVerified, setShowVerified] = useState(false);
     const [showEnded, setShowEnded] = useState(false);
 
+    const [poolSearch, setPoolSearch] = useState('');
+
     const poolComponents = pools
         .filter((pws: PoolWithStats) => {
             if (currentBlock === 0) {
@@ -79,6 +82,13 @@ export function PoolList({
 
             if (priorityPoolId) {
                 return pws.pool.id === Number(priorityPoolId);
+            }
+            if (
+                pws.pool.info.description &&
+                poolSearch !== '' &&
+                !pws.pool.info.description.toLowerCase().includes(poolSearch.toLowerCase())
+            ) {
+                return false;
             }
             let isShown = true;
             if (showVerified) {
@@ -123,6 +133,11 @@ export function PoolList({
             <PoolTopLineContainer>
                 <AddFarmButton addFarmType={poolType} />
                 <PoolFiltersContainer>
+                    <PoolSearchInput
+                        placeholder="pool search"
+                        value={poolSearch}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
+                    />
                     <SwitchSelect switchStatus={showEnded} onChange={setShowEnded} switchText={'ended only'} />
                     <SwitchSelect switchStatus={showVerified} onChange={setShowVerified} switchText={'verified only'} />
                 </PoolFiltersContainer>
