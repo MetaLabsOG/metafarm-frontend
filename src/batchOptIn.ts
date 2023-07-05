@@ -75,8 +75,8 @@ export async function multiBatchOptIn(reach: ReachStdlib, addr: Address) {
 }
 
 export async function checkOptIn(addr: Address, asaId: AssetId) {
-    const preffix = ALGONET === TESTNET ? 'testnet.' : '';
-    return fetch('https://algoindexer.' + preffix + 'algoexplorerapi.io/v2/accounts/' + addr, { method: 'GET' })
+    const preffix = ALGONET === TESTNET ? 'testnet' : 'mainnet';
+    return fetch('https://' + preffix + '-idx.algonode.cloud/v2/accounts/' + addr, { method: 'GET' })
         .then(async (res) => res.json())
         .then((data) => {
             if (!data.account || !data.account.assets) {

@@ -96,13 +96,16 @@ export class Tinyman2Pool implements DexPool {
         // We assume that amount is in microalgos
         const amountAfterFees = (amountIn * BigInt(997)) / BigInt(1000);
         const newAmountAfterFees = amountAfterFees > BigInt(0) ? amountAfterFees : BigInt(1);
-        const amountOut = outputSupply - k / (inputSupply + newAmountAfterFees);
+        const MULT = BigInt(1000);
+        // здесь получается 0.11, округляется к 1, потому что bigint, поэтому добавила MULT
+        // пример 3829944408 - 124135865573979338629104 / (32411923607738 + 997)
+        const amountOut = outputSupply * MULT - (k * MULT) / (inputSupply + newAmountAfterFees);
 
         const decRatio = 10 ** (assetIn.decimals - assetOut.decimals);
         const bignumSlippage = BigInt(slippage * 1000);
         const minimalAmountOut = amountOut - (amountOut * bignumSlippage) / BigInt(1000);
 
-        const swapPrice = Number(amountOut) / Number(amountIn);
+        const swapPrice = Number(amountOut) / Number(amountIn) / Number(MULT);
         const poolPrice = Number(outputSupply) / Number(inputSupply);
         const priceImpact = Math.abs(swapPrice / poolPrice - 1);
 
@@ -111,8 +114,8 @@ export class Tinyman2Pool implements DexPool {
             assetOut,
             amountIn,
             amountOut,
-            minimalAmountOut,
-            price: (Number(minimalAmountOut) / Number(amountIn)) * decRatio,
+            minimalAmountOut: minimalAmountOut / MULT,
+            price: (Number(minimalAmountOut) / Number(MULT) / Number(amountIn)) * decRatio,
             fee: BigInt(amountIn - newAmountAfterFees),
             slippage,
             priceImpact,
