@@ -1,7 +1,7 @@
 import { Map } from 'immutable';
 import { createEffect, createEvent, createStore, sample, combine, split, Store, restore } from 'effector';
 import { algod, USDT_TOKEN_ID } from '../../AppContext';
-import { getCoinRateFromBinance } from '../../providers/coinPriceProvider';
+import { getAlgoRateFromVestige } from '../../providers/coinPriceProvider';
 import { pactDex } from '../../dexes';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
@@ -106,14 +106,14 @@ export const fetchAsset = async (id: AssetId): Promise<Asset> => {
 export const fetchAlgoPriceFx = createEffect(
     nonConcurrent(async () => {
         try {
-            const rate = await getCoinRateFromBinance('ALGOUSDT');
+            const rate = await getAlgoRateFromVestige();
             if (!rate) {
-                throw new Error(`Failed to fetch ALGO price from Binance`);
+                throw new Error(`Failed to fetch ALGO price from Vestige`);
             }
 
             return Number(rate.price);
         } catch (error) {
-            console.warn('Failed to get price from Binance, piggybacking on Pact. Error was:', error);
+            console.warn('Failed to get price from Vestige, piggybacking on Pact. Error was:', error);
             const ALGO = 0;
             const pool = await pactDex.getMostLiquidPool(ALGO, USDT_TOKEN_ID);
 

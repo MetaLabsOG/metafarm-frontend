@@ -4,26 +4,22 @@ import { algod, GOBTC_TOKEN_ID, USDT_TOKEN_ID } from '../AppContext';
 
 const pact = new pactsdk.PactClient(algod);
 
-type Pair = 'BTCUSDT' | 'ALGOUSDT';
-
 type Rate = {
+    currency: string;
     price: number;
+    timestamp: number;
 };
 
 const instance = axios.create({
-    baseURL: 'https://api2.binance.com/api/v3/',
+    baseURL: 'https://free-api.vestige.fi',
 });
 
-export async function getCoinRateFromBinance(pair: Pair): Promise<Rate | null> {
+export async function getAlgoRateFromVestige(): Promise<Rate | null> {
     return instance
-        .get<Rate>(`ticker/price`, {
-            params: {
-                symbol: pair,
-            },
-        })
+        .get<Rate>(`currency/USD/price`, {})
         .then(({ data }) => data)
         .catch((error) => {
-            console.error(`Failed to fetch coin price: ${error}`);
+            console.error(`Failed to fetch ALGO price: ${error}`);
             return null;
         });
 }
