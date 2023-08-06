@@ -2335,13 +2335,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google/model-viewer@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@google/model-viewer@npm:3.0.1"
+"@google/model-viewer@npm:^3.2.1":
+  version: 3.2.1
+  resolution: "@google/model-viewer@npm:3.2.1"
   dependencies:
-    lit: "npm:^2.2.3"
-    three: "npm:^0.149.0"
-  checksum: ee522de13837e0b4da45c715cecd8257610870acfa1cdd4a36bc45524e25b2139fbbc1695629bdcb5d2b761300d2175241e290b8a84079c40993951b0c182716
+    lit: "npm:^2.7.2"
+  peerDependencies:
+    three: ^0.154.0
+  checksum: cc37c95bf7402ec72598d1591009b1825a4ef67150f9965dc23272d724c2ae5f1286349df974bfb8be8cf438e5e1e75585259cf68b32657eeee61d7d669cccda
   languageName: node
   linkType: hard
 
@@ -3733,6 +3734,13 @@ __metadata:
   version: 1.0.0
   resolution: "@lit-labs/ssr-dom-shim@npm:1.0.0"
   checksum: a44867558e52c2af87b3d90123e6f5ea312f4a09039118162b82e860352882b5c348a49291c3846d82ccb582dd8023fdfd62f1ddca51a4679b2b4766802b8a88
+  languageName: node
+  linkType: hard
+
+"@lit-labs/ssr-dom-shim@npm:^1.1.0":
+  version: 1.1.1
+  resolution: "@lit-labs/ssr-dom-shim@npm:1.1.1"
+  checksum: 76e8885c5224ecae154d92f85b8d96b26297cd851ded10d498af532add3d961c1023cd00d39560445045a1ad074af530039c786cddf330b9d231f18d4c132653
   languageName: node
   linkType: hard
 
@@ -15096,33 +15104,34 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lit-element@npm:^3.2.0":
-  version: 3.2.2
-  resolution: "lit-element@npm:3.2.2"
+"lit-element@npm:^3.3.0":
+  version: 3.3.3
+  resolution: "lit-element@npm:3.3.3"
   dependencies:
+    "@lit-labs/ssr-dom-shim": "npm:^1.1.0"
     "@lit/reactive-element": "npm:^1.3.0"
-    lit-html: "npm:^2.2.0"
-  checksum: 8feadd11d38bfc298b37c0d4e6f53b16e42a39d5c30bf77739c070334a419ea7fda12b9d282fa8b883bc05abb366822f3bc78bab090c8b9bc1fa3958503720ff
+    lit-html: "npm:^2.8.0"
+  checksum: 1ea6d8409c6e393c880f5e77ef906d0d43bd1e0da0422cafdb5bd68db5f6e42c55ce563ce7ef294666794662ba60d574135ba45276c2e13dda95a587307f26d3
   languageName: node
   linkType: hard
 
-"lit-html@npm:^2.2.0, lit-html@npm:^2.6.0":
-  version: 2.6.1
-  resolution: "lit-html@npm:2.6.1"
+"lit-html@npm:^2.8.0":
+  version: 2.8.0
+  resolution: "lit-html@npm:2.8.0"
   dependencies:
     "@types/trusted-types": "npm:^2.0.2"
-  checksum: cb6c25615a1a9214154ebb072c82286fd6c409eddc02bb155766056ef37e588dd79ec60ebce4f79e72924df03de9cb0997afafc360f3e58504f595c547d8d915
+  checksum: f7557e205349ea4d792763fb084fdb94083023b3a1f56a102a3e7918ad4d6454794ced84043ffc322b1ec76bd4bbe2f2dac3330f60c11b6fce8b61219f4a1859
   languageName: node
   linkType: hard
 
-"lit@npm:^2.2.3":
-  version: 2.6.1
-  resolution: "lit@npm:2.6.1"
+"lit@npm:^2.7.2":
+  version: 2.8.0
+  resolution: "lit@npm:2.8.0"
   dependencies:
     "@lit/reactive-element": "npm:^1.6.0"
-    lit-element: "npm:^3.2.0"
-    lit-html: "npm:^2.6.0"
-  checksum: 3ad263fe06fc2b5743f6c58aca7da70a250cdb73505512f0a0df3e2a5315f2fcc334d9a98bf0e459346576ef752a3ade7c658ee8c4630d742f8325d8602bb35b
+    lit-element: "npm:^3.3.0"
+    lit-html: "npm:^2.8.0"
+  checksum: 54359349df748d8bf69e7a487e15f1ec41442d7231a0f6da2da7d9ed18ebb13ead74960b80cd1b41369224a309837513b3468c59f3d3d518407eae430a845958
   languageName: node
   linkType: hard
 
@@ -15670,7 +15679,7 @@ __metadata:
     "@babel/core": "npm:^7.18.9"
     "@blockshake/defly-connect": "npm:^0.3.6"
     "@ethersproject/bignumber": "npm:^5.6.2"
-    "@google/model-viewer": "npm:^3.0.1"
+    "@google/model-viewer": "npm:^3.2.1"
     "@metalabsog/common": "npm:^17.0.0"
     "@metalabsog/crowdsale": "npm:17.0.0"
     "@metalabsog/metafomo": "npm:17.0.0"
@@ -21544,13 +21553,6 @@ __metadata:
   version: 0.2.0
   resolution: "text-table@npm:0.2.0"
   checksum: 65e9ab9cd26946c5378cd4b8782562f47e017bad4fe8d398356380fdc762d08b177ca6a1c5c8deac14fbe974c46cd09c0cbb86560545cfa49800f3fcacb0c952
-  languageName: node
-  linkType: hard
-
-"three@npm:^0.149.0":
-  version: 0.149.0
-  resolution: "three@npm:0.149.0"
-  checksum: 8f5a294ac7717de401cf0cf9cfabb1552d5c20426af0a2dab54e5d1b9297bc7065479c05ba9b4d18b81a8fd831b456ec6a4f5ad0a7a8ce951e6230b8f39cb808
   languageName: node
   linkType: hard
 
