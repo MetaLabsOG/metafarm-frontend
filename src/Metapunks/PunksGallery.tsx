@@ -20,7 +20,9 @@ export function Punk({ asset }: { asset: Metapunk }) {
                         bounds="tight"
                         src={asset.model_3d_url}
                         ar
+                        autoplay
                         ar-modes="webxr scene-viewer quick-look"
+                        // xr-environment
                         camera-controls
                         environment-image="neutral"
                         poster={asset.main_url}
@@ -60,7 +62,9 @@ export function Punk({ asset }: { asset: Metapunk }) {
                     </a>
                 </div>
             </PunkItem>
-            <PunkDownload>download 3d model</PunkDownload>
+            <a href={asset.model_3d_url} style={{ textDecoration: 'none' }} target="_blank" rel="noreferrer">
+                <PunkDownload>download 3d model</PunkDownload>
+            </a>
         </PunkContainer>
     );
 }
