@@ -28,7 +28,6 @@ export function Punk({ asset }: { asset: Metapunk }) {
                         poster={asset.main_url}
                         shadow-intensity="1"
                         style={{ width: 300, height: 300 }}
-                        autoplay
                     >
                         <button
                             slot="ar-button"
