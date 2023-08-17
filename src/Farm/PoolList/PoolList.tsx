@@ -138,7 +138,7 @@ export function PoolList({
                         value={poolSearch}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
                     />
-                    <SwitchSelect switchStatus={showEnded} onChange={setShowEnded} switchText={'ended only'} />
+                    <SwitchSelect switchStatus={showEnded} onChange={setShowEnded} switchText={'show ended'} />
                     <SwitchSelect switchStatus={showVerified} onChange={setShowVerified} switchText={'verified only'} />
                 </PoolFiltersContainer>
             </PoolTopLineContainer>
