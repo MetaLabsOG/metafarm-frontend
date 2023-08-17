@@ -28,13 +28,10 @@ function MenuItems() {
     return (
         <>
             <MenuItem to="/swap">swap</MenuItem>
-            <MenuItem to="/zap">zap</MenuItem>
             <MenuItem to="/farm">farm</MenuItem>
             <MenuItem to="/stake">stake</MenuItem>
             {ALGONET === TESTNET && <MenuItem to="/laas">laas</MenuItem>}
-            {/* <MenuItem to="/fomo">fomo3d</MenuItem> */}
-            <MenuItem to="/metapunks">nft</MenuItem>
-            {/* <MenuItem to="/tokensale">tokensale</MenuItem> */}
+            <MenuItem to="/metapunks">metapunks</MenuItem>
         </>
     );
 }
