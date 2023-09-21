@@ -135,7 +135,10 @@ export const deployContractToBackend = async (
     contractType: ContractType,
     stakeToken: StakingAsset,
     rewardToken: TokenOptionType,
+    rewardAmount: number,
     extraAlgoRewardAmount: number,
+    beginBlock: number,
+    endBlock: number,
     lockLengthBlocks: number,
     contractVersion?: string
 ) => {
@@ -163,7 +166,14 @@ export const deployContractToBackend = async (
             asset1_id: stakeToken.asset1_id,
             asset2_id: stakeToken.asset2_id,
             reward_token_id: rewardToken.id,
-            algo_rewards: extraAlgoRewardAmount > 0,
+            reward_token_name: rewardToken.name,
+            reward_token_decimals: rewardToken.decimals,
+            reward_amount: rewardAmount,
+            algo_reward_amount: extraAlgoRewardAmount,
+            algo_rewards: extraAlgoRewardAmount > 0, // TODO: remove, now for backward compatibility
+            begin_block: beginBlock,
+            end_block: endBlock,
+            lock_length_blocks: lockLengthBlocks,
         },
     };
     console.log('/contract/register', request);

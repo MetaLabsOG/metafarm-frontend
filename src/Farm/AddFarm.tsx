@@ -234,7 +234,10 @@ const createFarm = async (
                 contractType,
                 stakeToken,
                 rewardToken,
+                rewardAmount,
                 extraAlgoRewardAmount,
+                beginBlock,
+                endBlock,
                 lockLengthBlocks,
                 CURRENT_CONTRACT_VERSION[contractType]
             )
