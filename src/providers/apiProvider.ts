@@ -162,6 +162,7 @@ export const deployContractToBackend = async (
         version: contractVersion,
         description: description,
         metadata: {
+            stake_token_id: stakeToken.id,
             dex: stakeToken.dex,
             asset1_id: stakeToken.asset1_id,
             asset2_id: stakeToken.asset2_id,
