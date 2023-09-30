@@ -56,10 +56,10 @@ const LoginScreen: React.FC = () => {
                     accept: 'application/json',
                 },
             });
-            const data: string = await response.json();
-            logEvent({ message: data });
+            const data = await response.json();
+            logEvent({ message: data.challenge_code });
 
-            setNoteToPost(data);
+            setNoteToPost(data.challenge_code);
         } catch (error) {
             console.error('Handle get battle error:', error);
         }
@@ -89,8 +89,8 @@ const LoginScreen: React.FC = () => {
                 }
             );
             const data = await response.json();
-            logEvent({ message: data });
-            setTxAuthResultEvent(data);
+            logEvent({ message: data.access_token });
+            setTxAuthResultEvent(data.access_token);
             setGlobalStageEvent('Dashboard');
         } catch (error) {
             console.error('Handle check onchain auth error:', error);

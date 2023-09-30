@@ -11,7 +11,7 @@ import {
 } from './types';
 
 // Events
-export const newBattleClicked = createEvent<void>();
+export const newBattleClicked = createEvent();
 export const startBattleClicked = createEvent<StartBattleRequest>();
 export const endBattleClicked = createEvent<EndBattleRequest>();
 
@@ -27,28 +27,36 @@ export const $endBattleResponse = createStore<EndBattleResponse | null>(null);
 
 // Handlers
 newBattleFx.use(async (txAuthResult) => {
-    const response = await fetch(`${SERVER_URL}/battle/pve/new?auth_token=${txAuthResult}`, {
+    const response = await fetch(`${SERVER_URL}/battles/pve/new`, {
         method: 'POST',
-        headers: { accept: 'application/json' },
+        headers: { accept: 'application/json', Authorization: `Bearer ${txAuthResult.txAuthResult}` },
     });
     return await response.json();
 });
 
 startBattleFx.use(async ({ txAuthResult, request }) => {
-    const url = `${SERVER_URL}/battles/pve/start?auth_token=${txAuthResult}`;
+    const url = `${SERVER_URL}/battles/pve/start`;
     const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Bearer ${txAuthResult}`,
+        },
         body: JSON.stringify(request),
     });
     return await response.json();
 });
 
 endBattleFx.use(async ({ txAuthResult, request }) => {
-    const url = `${SERVER_URL}/battle/pve/end?auth_token=${txAuthResult}`;
+    const url = `${SERVER_URL}/battles/pve/end`;
     const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Bearer ${txAuthResult}`,
+        },
         body: JSON.stringify(request),
     });
     return await response.json();

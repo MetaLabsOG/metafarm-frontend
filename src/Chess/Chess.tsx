@@ -11,7 +11,7 @@ import DetailedInfoPanel from './DetailedInfoPanel';
 import NavigationPanel from './Navigation/NavigationPanel';
 import LogPanel from './LogPanel';
 
-export const SERVER_URL = 'http://137.184.11.123:5420';
+export const SERVER_URL = 'http://api.cometa.farm:5420';
 
 async function postTxWithNote(addr: string, note: string) {
     const p = await reach.getProvider();
