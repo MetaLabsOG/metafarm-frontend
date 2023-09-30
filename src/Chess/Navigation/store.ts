@@ -14,6 +14,7 @@ import {
 export const newBattleClicked = createEvent();
 export const startBattleClicked = createEvent<StartBattleRequest>();
 export const endBattleClicked = createEvent<EndBattleRequest>();
+export const clearBattleState = createEvent();
 
 // Effects
 export const newBattleFx = createEffect<{ txAuthResult: string }, BattleData>();
@@ -24,6 +25,12 @@ export const endBattleFx = createEffect<{ txAuthResult: string; request: EndBatt
 export const $battleData = createStore<BattleData | null>(null);
 export const $startBattleResponse = createStore<StartBattleResponse | null>(null);
 export const $endBattleResponse = createStore<EndBattleResponse | null>(null);
+
+sample({
+    source: clearBattleState,
+    fn: () => null,
+    target: $battleData,
+});
 
 // Handlers
 newBattleFx.use(async (txAuthResult) => {

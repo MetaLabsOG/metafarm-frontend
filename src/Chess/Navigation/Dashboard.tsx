@@ -10,6 +10,7 @@ import {
     $battleData,
     $endBattleResponse,
     $startBattleResponse,
+    clearBattleState,
     endBattleClicked,
     endBattleFx,
     newBattleClicked,
@@ -61,11 +62,6 @@ const SelectHeroes: React.FC = () => {
 
     const startBattleEvent = useUnit(startBattleClicked);
 
-    if (battleData === null) {
-        console.log('BattleData is null (sesh)');
-        return <div />;
-    }
-
     const toggleHero = (hero: Hero) => {
         if (selectedHeroes.includes(hero.id)) {
             setSelectedHeroes(selectedHeroes.filter((id) => hero.id !== id));
@@ -79,6 +75,11 @@ const SelectHeroes: React.FC = () => {
     useEffect(() => {
         setIsStartBattleDisabled(selectedHeroes.length !== 5);
     }, [selectedHeroes]);
+
+    if (battleData === null) {
+        console.log('BattleData is null (sesh)');
+        return <div />;
+    }
 
     const handleStartButton = () => {
         if (isStartBattleDisabled) {
@@ -197,7 +198,13 @@ const ReviewTurn: React.FC = () => {
         }
     }, [battleData, endBattleResponse]);
 
+    const clearBattleStateEvent = useUnit(clearBattleState);
     const newBattleEvent = useUnit(newBattleClicked);
+
+    const handleBattleCompletion = () => {
+        clearBattleStateEvent();
+        newBattleEvent();
+    };
 
     if (endBattleResponse == null) {
         return <div>Loading...</div>;
@@ -240,7 +247,7 @@ const ReviewTurn: React.FC = () => {
                 </div>
             </div>
             <div>
-                <button className="btn btn-primary" onClick={newBattleEvent}>
+                <button className="btn btn-primary" onClick={handleBattleCompletion}>
                     Finish Battle, start new
                 </button>
             </div>
