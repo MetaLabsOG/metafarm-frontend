@@ -1,10 +1,3 @@
-import { useUnit } from 'effector-react';
-import React, { useState, useEffect } from 'react';
-import algosdk, { IntDecoding, waitForConfirmation } from 'algosdk';
-
-import { $accountInfo } from '../common/store';
-import { reach } from '../AppContext';
-import { withAlgodEncoding } from '../common/lib';
 import 'tailwindcss/tailwind.css';
 import 'daisyui/dist/full.css';
 import DetailedInfoPanel from './DetailedInfoPanel';
@@ -12,34 +5,6 @@ import NavigationPanel from './Navigation/NavigationPanel';
 import LogPanel from './LogPanel';
 
 export const SERVER_URL = 'http://api.cometa.farm:5420';
-
-async function postTxWithNote(addr: string, note: string) {
-    const p = await reach.getProvider();
-    const { algodClient } = p;
-    const sp = await algodClient.getTransactionParams().do();
-    const CloseRemainderTo = undefined;
-    const amount = 1;
-    const enc = new TextEncoder();
-    const noteEncoded = enc.encode(note);
-
-    const txns = [algosdk.makePaymentTxnWithSuggestedParams(addr, addr, amount, CloseRemainderTo, noteEncoded, sp)];
-    algosdk.assignGroupID(txns);
-
-    const reachTxns = txns.map((txn) => ({
-        txn: Buffer.from(txn.toByte()).toString('base64'),
-    }));
-
-    await p.signAndPostTxns(reachTxns);
-
-    const txId = txns[0].txID().toString();
-    console.log('Waiting for confirmation of on-chain tx');
-    const result = await withAlgodEncoding(algodClient, IntDecoding.DEFAULT, async (algodClient) => {
-        return waitForConfirmation(algodClient, txId, 4);
-    });
-    console.log('Confirmed tx with note ' + note);
-    console.log('Result tx id: ', txId);
-    return txId;
-}
 
 export function Chess() {
     return (

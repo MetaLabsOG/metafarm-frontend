@@ -1,9 +1,8 @@
 // Dashboard.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useEvent, useStore, useUnit } from 'effector-react';
 
 import { $preBattleStage, $battleStage, $txAuthResult, setDetailedHero, setBattleStage } from '../store';
-import { SERVER_URL } from '../Chess';
 import BuffSelector from '../BuffSelector';
 
 import {
