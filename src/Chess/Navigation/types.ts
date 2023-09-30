@@ -4,45 +4,19 @@ export type Hero = {
     type: string;
     element: string;
     skills: string[];
-    created: string;
-    updated: string;
     id: string;
     image_url: string;
 };
 
-export type Player = {
-    player_id: string;
-    heroes: Hero[];
-    buff: string;
-};
-
-export type Middle = {
+export type Arena = {
+    name: string;
     description: string;
-    p1_commands: string[];
-    p2_commands: string[];
-};
-
-export type Final = {
-    description: string;
-    alive_heroes: string[];
-    p1_won: boolean;
-};
-
-export type Draft = {
-    heroes: Hero[];
-    p1_buffs: string[];
-    p2_buffs: string[];
 };
 
 export type BattleData = {
-    arena: string;
-    created: string;
-    draft: Draft;
-    player1: Player;
-    player2: Player;
-    middle: Middle;
-    final: Final;
-    updated: string;
+    heroes: Hero[];
+    arena: Arena;
+    buffs: string[];
     battle_id: string;
 };
 
@@ -61,7 +35,7 @@ export type StartBattleResponse = {
 export type EndBattleResponse = {
     battle_description: string;
     dead_hero_ids: string[];
-    is_won: true;
+    is_won: boolean;
     rewards: Rewards;
 };
 

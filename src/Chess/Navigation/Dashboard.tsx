@@ -70,7 +70,7 @@ const SelectHeroes: React.FC = () => {
 
     if (battleData === null) {
         console.log('BattleData is null (sesh)');
-        return <div></div>;
+        return <div />;
     }
 
     const toggleHero = (hero: Hero) => {
@@ -99,7 +99,7 @@ const SelectHeroes: React.FC = () => {
 
     return (
         <div className="grid grid-cols-4 gap-4">
-            {battleData.draft.heroes.map((hero) => (
+            {battleData.heroes.map((hero) => (
                 <div
                     key={hero.id}
                     onMouseOver={() => setDetailedHeroEvent(hero)}
@@ -111,11 +111,7 @@ const SelectHeroes: React.FC = () => {
             ))}
             <div className="bg-gray-200 p-10 rounded-lg">
                 <h4 className="text-xl mb-4">Select Buff</h4>
-                <BuffSelector
-                    buffs={battleData.draft.p1_buffs}
-                    selectedBuff={selectedBuff}
-                    onSelect={setSelectedBuff}
-                />
+                <BuffSelector buffs={battleData.buffs} selectedBuff={selectedBuff} onSelect={setSelectedBuff} />
             </div>
             <div>
                 <button className="btn btn-primary" onClick={handleStartButton}>
@@ -193,7 +189,7 @@ const ReviewTurn: React.FC = () => {
                     <strong>Dead Heroes:</strong> {endBattleResponse?.dead_hero_ids.join(', ')}
                 </div>
 
-                <div className="divider"></div>
+                <div className="divider" />
 
                 <div>
                     <strong>Player Update</strong>
