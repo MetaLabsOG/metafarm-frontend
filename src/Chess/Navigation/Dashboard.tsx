@@ -1,9 +1,10 @@
 // Dashboard.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useEvent, useStore, useUnit } from 'effector-react';
 
 import { $battleStage, $txAuthResult, setDetailedHero, setBattleStage } from '../store';
 import BuffSelector from '../BuffSelector';
+import { notify } from '../../Components/Notification';
 
 import {
     $battleData,
@@ -15,7 +16,7 @@ import {
     startBattleClicked,
     startBattleFx,
 } from './store';
-import { EndBattleRequest, Hero } from './types';
+import { Hero } from './types';
 
 const Dashboard: React.FC = () => {
     const preBattleStage = useUnit($battleStage);
@@ -70,10 +71,14 @@ const SelectHeroes: React.FC = () => {
             setSelectedHeroes(selectedHeroes.filter((id) => hero.id !== id));
         } else if (selectedHeroes.length < 5) {
             setSelectedHeroes([...selectedHeroes, hero.id]);
+        } else {
+            notify('Cannot select more than 5 heroes', 'info');
         }
-
-        setIsStartBattleDisabled(selectedHeroes.length !== 5);
     };
+
+    useEffect(() => {
+        setIsStartBattleDisabled(selectedHeroes.length !== 5);
+    }, [selectedHeroes]);
 
     const handleStartButton = () => {
         if (isStartBattleDisabled) {
@@ -98,7 +103,7 @@ const SelectHeroes: React.FC = () => {
                         onMouseOver={() => setDetailedHeroEvent(hero)}
                         onMouseOut={() => setDetailedHeroEvent(null)}
                         onClick={() => toggleHero(hero)}
-                        className="p-1"
+                        className={`p-1 ${selectedHeroes.includes(hero.id) ? 'border-2 border-blue-500' : ''}`}
                     >
                         <img
                             src={hero.image_url}
@@ -121,6 +126,7 @@ const SelectHeroes: React.FC = () => {
 
 const PlayTurn: React.FC = () => {
     const battleData = useUnit($battleData);
+    const startBattleResponse = useUnit($startBattleResponse);
 
     const [selectedCommand, setSelectedCommand] = useState<string>('');
 
@@ -143,23 +149,30 @@ const PlayTurn: React.FC = () => {
         setBattleStageEvent('ReviewTurn');
     };
 
+    if (startBattleResponse == null) {
+        return <div>Loading...</div>;
+    }
+
     return (
-        <div>
+        <div className="p-8 rounded-lg shadow-md w-full">
+            <h2 className="text-sm mb-4">{startBattleResponse?.battle_description}</h2>
             <div className="mb-4">
                 <label className="label">
                     <span className="label-text">Select Command</span>
                 </label>
                 <select
-                    className="select select-bordered"
-                    value={selectedCommand}
+                    className="select select-bordered w-full"
+                    value={selectedCommand || ''}
                     onChange={(e) => setSelectedCommand(e.target.value)}
                 >
                     <option disabled={true} value="">
                         Select option
                     </option>
-                    <option value="command1">Command 1</option>
-                    <option value="command2">Command 2</option>
-                    <option value="command3">Command 3</option>
+                    {startBattleResponse?.commands.map((command, index) => (
+                        <option key={index} value={command}>
+                            {command}
+                        </option>
+                    ))}
                 </select>
             </div>
             <button className="btn btn-primary" onClick={handleFinishButton}>
@@ -173,6 +186,23 @@ const ReviewTurn: React.FC = () => {
     const endBattleResponse = useUnit($endBattleResponse);
     const rewards = endBattleResponse?.rewards;
 
+    const battleData = useUnit($battleData);
+
+    const [deadHeroes, setDeadHeroes] = useState<Hero[]>([]);
+
+    useEffect(() => {
+        if (battleData && endBattleResponse) {
+            const deads = battleData.heroes.filter((hero) => endBattleResponse.dead_hero_ids.includes(hero.id));
+            setDeadHeroes(deads);
+        }
+    }, [battleData, endBattleResponse]);
+
+    const newBattleEvent = useUnit(newBattleClicked);
+
+    if (endBattleResponse == null) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className="card w-1/2 bg-base-100 shadow-xl">
             <div className="card-body">
@@ -183,7 +213,12 @@ const ReviewTurn: React.FC = () => {
                 </div>
 
                 <div>
-                    <strong>Dead Heroes:</strong> {endBattleResponse?.dead_hero_ids.join(', ')}
+                    <strong>Dead Heroes:</strong>
+                    <ul>
+                        {deadHeroes.map((hero, index) => (
+                            <li key={index}>{hero.name}</li>
+                        ))}
+                    </ul>
                 </div>
 
                 <div className="divider" />
@@ -203,6 +238,11 @@ const ReviewTurn: React.FC = () => {
                 <div>
                     <strong>Meta Earned:</strong> {rewards?.meta_earned}
                 </div>
+            </div>
+            <div>
+                <button className="btn btn-primary" onClick={newBattleEvent}>
+                    Finish Battle, start new
+                </button>
             </div>
         </div>
     );

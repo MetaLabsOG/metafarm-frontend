@@ -10,16 +10,16 @@ const DetailedInfoPanel: React.FC = () => {
             return <div>Error: Null hero</div>;
         }
         return (
-            <div className="card card-compact w-96 bg-base-100 shadow-xl">
+            <div className="card card-compact w-4/5 lg:w-2/3 xl:w-1/2 2xl:w-1/3 bg-base-100 shadow-xl">
                 <figure>
                     <img src={hero.image_url} alt="Shoes" />
                 </figure>
                 <div className="card-body">
                     <h2 className="card-title">{hero.name}</h2>
                     <p>{hero.description}</p>
-                    <div className="card-actions justify-end">
+                    <div className="card-actions justify-end flex flex-col">
                         {hero.skills.map((skill, sIndex) => (
-                            <div key={sIndex} className="flex items-center space-x-2">
+                            <div key={sIndex} className="flex items-center space-x-2 mb-2">
                                 <div className="bg-yellow-400 h-5 w-5" /> {/* Placeholder for SkillImage */}
                                 <span>{skill}</span>
                             </div>
