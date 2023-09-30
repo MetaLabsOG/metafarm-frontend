@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useEvent, useStore, useUnit } from 'effector-react';
 
-import { $preBattleStage, $battleStage, $txAuthResult, setDetailedHero, setBattleStage } from '../store';
+import { $battleStage, $txAuthResult, setDetailedHero, setBattleStage } from '../store';
 import BuffSelector from '../BuffSelector';
 
 import {
@@ -18,21 +18,16 @@ import {
 import { EndBattleRequest, Hero } from './types';
 
 const Dashboard: React.FC = () => {
-    const preBattleStage = useUnit($preBattleStage);
+    const preBattleStage = useUnit($battleStage);
     const battleStage = useUnit($battleStage);
 
     return (
         <div className="dashboard">
             <h1>Dashboard</h1>
 
-            {/* Pre-Battle Stage */}
-            <div className="pre-battle">
+            <div className="battle">
                 {preBattleStage === 'ReadyToStart' && <NewBattle />}
                 {preBattleStage === 'SelectHeroes' && <SelectHeroes />}
-            </div>
-
-            {/* Battle Stage */}
-            <div className="battle">
                 {battleStage === 'PlayTurn' && <PlayTurn />}
                 {battleStage === 'ReviewTurn' && <ReviewTurn />}
             </div>
@@ -41,10 +36,8 @@ const Dashboard: React.FC = () => {
 };
 const NewBattle: React.FC = () => {
     const newBattleEvent = useEvent(newBattleClicked);
-    const preBattleStage = useUnit($preBattleStage);
     const handleNewBattle = () => {
         newBattleEvent();
-        // TODO update stage
     };
     return (
         <div>

@@ -90,5 +90,6 @@ sample({
 });
 
 // Miscellaneous logic
+newBattleClicked.watch(() => setBattleStage('SelectHeroes'));
 startBattleClicked.watch(() => setBattleStage('PlayTurn'));
-endBattleClicked.watch(() => setBattleStage('PlayTurn'));
+endBattleClicked.watch(() => setBattleStage('ReviewTurn'));

@@ -12,8 +12,7 @@ type EventLog = {
 };
 
 type GlobalStage = 'LOGIN' | 'Dashboard';
-type PreBattleStage = 'ReadyToStart' | 'SelectHeroes' | 'SelectBuffs';
-type BattleStage = 'PlayTurn' | 'ReviewTurn';
+type BattleStage = 'ReadyToStart' | 'SelectHeroes' | 'PlayTurn' | 'ReviewTurn'; 
 
 // Left Panel
 export const $leftPanelInfo = createStore<LeftPanelInfo | null>(null);
@@ -27,15 +26,12 @@ $eventLogs.on(addEventLog, (state, newLog) => [...state, newLog]);
 
 // Stages
 export const $globalStage = createStore<GlobalStage>('LOGIN');
-export const $preBattleStage = createStore<PreBattleStage>('ReadyToStart');
-export const $battleStage = createStore<BattleStage>('PlayTurn');
+export const $battleStage = createStore<BattleStage>('ReadyToStart');
 
 export const setGlobalStage = createEvent<GlobalStage>();
-export const setPreBattleStage = createEvent<PreBattleStage>();
 export const setBattleStage = createEvent<BattleStage>();
 
 $globalStage.on(setGlobalStage, (_, stage) => stage);
-$preBattleStage.on(setPreBattleStage, (_, stage) => stage);
 $battleStage.on(setBattleStage, (_, stage) => stage);
 
 // Authentication
