@@ -215,6 +215,8 @@ const ReviewTurn: React.FC = () => {
             <div className="card-body">
                 <h2 className="card-title">Battle Results</h2>
 
+                <h2 className="text-sm mb-4">{endBattleResponse?.battle_description}</h2>
+
                 <div>
                     <strong>Player 1 Won:</strong> {endBattleResponse?.is_won ? 'Yes' : 'No'}
                 </div>
