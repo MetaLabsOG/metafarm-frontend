@@ -1,4 +1,4 @@
-import { createStore, createEvent } from 'effector';
+import { createStore, createEvent, sample, restore } from 'effector';
 import { Hero } from './Navigation/types';
 
 // Types
@@ -12,7 +12,7 @@ type EventLog = {
 };
 
 type GlobalStage = 'LOGIN' | 'Dashboard';
-type BattleStage = 'ReadyToStart' | 'SelectHeroes' | 'PlayTurn' | 'ReviewTurn'; 
+type BattleStage = 'ReadyToStart' | 'SelectHeroes' | 'PlayTurn' | 'ReviewTurn';
 
 // Left Panel
 export const $leftPanelInfo = createStore<LeftPanelInfo | null>(null);
@@ -40,7 +40,21 @@ export const $txAuthResult = createStore<string>('').on(setTxAuthResult, (_, txA
 
 // Hero Details
 export const setDetailedHero = createEvent<Hero | null>();
-export const $detailedHero = createStore<Hero | null>(null).on(setDetailedHero, (_, hero) => hero);
+export const $detailedHero = restore(setDetailedHero, null);
+
+sample({
+    source: $detailedHero,
+    fn: (newDetailedHero): LeftPanelInfo | null => {
+        if (newDetailedHero !== null) {
+            return {
+                type: 'hero',
+                details: newDetailedHero,
+            };
+        }
+        return null;
+    },
+    target: $leftPanelInfo,
+});
 
 /*
 Stage Tree:

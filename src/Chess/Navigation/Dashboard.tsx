@@ -90,23 +90,28 @@ const SelectHeroes: React.FC = () => {
     };
 
     return (
-        <div className="grid grid-cols-4 gap-4">
-            {battleData.heroes.map((hero) => (
-                <div
-                    key={hero.id}
-                    onMouseOver={() => setDetailedHeroEvent(hero)}
-                    onMouseOut={() => setDetailedHeroEvent(null)}
-                    onClick={() => toggleHero(hero)}
-                >
-                    <img src={hero.image_url} alt={hero.name} />
-                </div>
-            ))}
-            <div className="bg-gray-200 p-10 rounded-lg">
+        <div>
+            <div className="grid grid-cols-6 gap-2 mb-4">
+                {battleData.heroes.map((hero) => (
+                    <div
+                        key={hero.id}
+                        onMouseOver={() => setDetailedHeroEvent(hero)}
+                        onMouseOut={() => setDetailedHeroEvent(null)}
+                        onClick={() => toggleHero(hero)}
+                        className="p-1"
+                    >
+                        <img
+                            src={hero.image_url}
+                            alt={hero.name}
+                            className="w-full h-auto max-h-[100px] object-cover rounded-lg shadow-sm"
+                        />
+                    </div>
+                ))}
+            </div>
+            <div className="bg-gray-200 p-4 rounded-lg">
                 <h4 className="text-xl mb-4">Select Buff</h4>
                 <BuffSelector buffs={battleData.buffs} selectedBuff={selectedBuff} onSelect={setSelectedBuff} />
-            </div>
-            <div>
-                <button className="btn btn-primary" onClick={handleStartButton}>
+                <button className="btn btn-primary mt-4" onClick={handleStartButton}>
                     SELECT
                 </button>
             </div>

@@ -6,25 +6,30 @@ const DetailedInfoPanel: React.FC = () => {
     const leftPanelInfo = useStore($leftPanelInfo);
 
     const renderHero = (hero: Hero) => {
-        <div className="card card-compact w-96 bg-base-100 shadow-xl">
-            <figure>
-                <img src={hero.image_url} alt="Shoes" />
-            </figure>
-            <div className="card-body">
-                <h2 className="card-title">{hero.name}</h2>
-                <p>{hero.description}</p>
-                <div className="card-actions justify-end">
-                    {hero.skills.map((skill, sIndex) => (
-                        <div key={sIndex} className="flex items-center space-x-2">
-                            <div className="bg-yellow-400 h-5 w-5"></div> {/* Placeholder for SkillImage */}
-                            <span>{skill}</span>
-                        </div>
-                    ))}
-                    <div className="badge badge-outline">{hero.element}</div>
-                    <div className="badge badge-outline">{hero.type}</div>
+        if (hero === null) {
+            return <div>Error: Null hero</div>;
+        }
+        return (
+            <div className="card card-compact w-96 bg-base-100 shadow-xl">
+                <figure>
+                    <img src={hero.image_url} alt="Shoes" />
+                </figure>
+                <div className="card-body">
+                    <h2 className="card-title">{hero.name}</h2>
+                    <p>{hero.description}</p>
+                    <div className="card-actions justify-end">
+                        {hero.skills.map((skill, sIndex) => (
+                            <div key={sIndex} className="flex items-center space-x-2">
+                                <div className="bg-yellow-400 h-5 w-5" /> {/* Placeholder for SkillImage */}
+                                <span>{skill}</span>
+                            </div>
+                        ))}
+                        <div className="badge badge-outline">{hero.element}</div>
+                        <div className="badge badge-outline">{hero.type}</div>
+                    </div>
                 </div>
             </div>
-        </div>;
+        );
     };
 
     //     switch (element) {
@@ -70,7 +75,7 @@ const DetailedInfoPanel: React.FC = () => {
 
     switch (type) {
         case 'hero':
-            content = <div>Hero Details: {JSON.stringify(details)}</div>;
+            content = <div>Hero Details: {renderHero(details)}</div>;
             break;
         case 'skill':
             content = <div>Skill Details: {JSON.stringify(details)}</div>;

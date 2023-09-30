@@ -67,7 +67,10 @@ const LoginScreen: React.FC = () => {
 
     const handleOnchainAuth = async () => {
         try {
-            const txAuthResult = await postTxWithNote(accountInfo?.address, noteToPost);
+            // TODO: change before release
+            // const txAuthResult = await postTxWithNote(accountInfo?.address, noteToPost);
+            const txAuthResult = 'IDoNotGiveAFuck420';
+
             setAuthTxId(txAuthResult);
             logEvent({ message: txAuthResult });
         } catch (error) {
