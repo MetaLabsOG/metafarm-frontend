@@ -30,6 +30,7 @@ function MenuItems() {
             <MenuItem to="/swap">swap</MenuItem>
             <MenuItem to="/farm">farm</MenuItem>
             <MenuItem to="/stake">stake</MenuItem>
+            <MenuItem to="/chess">chess</MenuItem>
             {ALGONET === TESTNET && <MenuItem to="/laas">laas</MenuItem>}
             <MenuItem to="/metapunks">metapunks</MenuItem>
         </>
@@ -90,9 +91,9 @@ export function Menu() {
         <>
             <MenuContainer>
                 <MainMenu>
-                    <MenuItem to="/">
+                    {/* <MenuItem to="/">
                         <Logo src={logo} alt="logo" height="40px" />
-                    </MenuItem>
+                    </MenuItem> */}
                     <Burger
                         src={burger}
                         alt="logo"

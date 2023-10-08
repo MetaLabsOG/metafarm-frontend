@@ -37,6 +37,7 @@ import { LaaS } from './LaaS/LaaS';
 import { setLaasPoolInfos } from './LaaS/store';
 import { AddLaaS } from './LaaS/AddLaaS';
 import { Metapunks } from './Metapunks/Metapunks';
+import { Chess } from './Chess/Chess';
 
 Sentry.init({
     dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',
@@ -134,6 +135,7 @@ function App() {
                                 <Route path="/swap" element={<Swap />} />
                                 <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
                                 <Route path="/meta-dao" element={<MetaDAO />} />
+                                <Route path="/chess" element={<Chess/>} />
                                 <Route path="/metapunks" element={<Metapunks />} />
                                 {/*<Route path="/tokensale" element={<Crowdsale />} />*/}
                                 <Route path="/addfarm" element={<AddFarm type="farm" />} />

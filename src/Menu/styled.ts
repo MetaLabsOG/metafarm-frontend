@@ -30,7 +30,7 @@ export const MenuItemsContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 400px;
+    width: 500px;
     margin-left: 20px;
     margin-top: 3px;
     @media (max-width: 979px) {
