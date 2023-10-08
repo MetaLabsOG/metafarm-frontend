@@ -1,15 +1,15 @@
 import { Buffer } from 'buffer';
-import AlammexQuote from 'alammex-sdk-js/dist/v0/AlammexQuote';
 import { decodeUnsignedTransaction } from 'algosdk';
+import { DeflexQuote } from '@deflex/deflex-sdk-js';
 import { WalletTransaction, WalletTransactionGroup } from '../types';
 import { DexProvider, Operation } from '../dexes';
 import { Amount, Asset } from '../common/store';
-import { alammexClient, FARM_BENEFICIARY_ADDR } from '../AppContext';
+import { deflexClient } from '../AppContext';
 import { fromSmallestUnits } from '../common/lib';
 import { SLIPPAGE } from './Swap';
 
-export class AlammexSwap implements Operation {
-    quote: AlammexQuote;
+export class DeflexSwap implements Operation {
+    quote: DeflexQuote;
     assetA: Asset;
     assetB: Asset;
     microAmountIn: Amount;
@@ -17,7 +17,7 @@ export class AlammexSwap implements Operation {
     pathString: string;
     dex: DexProvider;
 
-    constructor(quote: AlammexQuote, assetA: Asset, assetB: Asset, microAmountIn: Amount) {
+    constructor(quote: DeflexQuote, assetA: Asset, assetB: Asset, microAmountIn: Amount) {
         // console.log('alammex', quote);
         this.quote = quote;
         this.assetA = assetA;
@@ -48,12 +48,7 @@ export class AlammexSwap implements Operation {
     }
 
     async prepareTxs(sender: string): Promise<WalletTransactionGroup[]> {
-        const txnGroup = await alammexClient.getSwapQuoteTransactions(
-            sender,
-            this.quote,
-            SLIPPAGE,
-            FARM_BENEFICIARY_ADDR
-        );
+        const txnGroup = await deflexClient.getSwapQuoteTransactions(sender, this.quote, SLIPPAGE);
 
         const txns: WalletTransaction[] = txnGroup.txns.map((txn) => {
             // TODO Ya hz

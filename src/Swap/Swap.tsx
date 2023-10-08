@@ -3,9 +3,9 @@ import { useUnit } from 'effector-react';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useModal } from 'react-hooks-use-modal';
 import { func } from 'prop-types';
-import AlammexQuote from 'alammex-sdk-js/dist/v0/AlammexQuote';
+import { DeflexQuote } from '@deflex/deflex-sdk-js';
 import { theme } from '../theme';
-import { alammexClient, ALGONET, FARM_BENEFICIARY_ADDR, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
+import { ALGONET, deflexClient, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
 import {
     $account,
     $balances,
@@ -40,7 +40,7 @@ import swap from '../imgs/swap.svg';
 import { checkNftLottery } from '../providers/apiProvider';
 import { Token } from './types';
 import { NftLottery, NftWinModal } from './NftWinModal';
-import { AlammexSwap } from './AlammexSwap';
+import { DeflexSwap } from './DeflexSwap';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 
@@ -100,7 +100,7 @@ export async function getBestSwap(
     asset1_id: string | undefined,
     asset2_id: string | undefined,
     asset1_amount: string
-): Promise<AlammexSwap | null> {
+): Promise<DeflexSwap | null> {
     if (!isSwapZapDataValid(asset1_id, asset2_id, asset1_amount)) {
         return null;
     }
@@ -116,13 +116,13 @@ export async function getBestSwap(
         const asset2 = await fetchAsset(Number.parseInt(asset2_id));
         const amountIn = getSmallestUnits(asset1, Number.parseFloat(asset1_amount));
 
-        const alammexQuote: AlammexQuote = await alammexClient.getFixedInputSwapQuote(
+        const deflexQuote: DeflexQuote = await deflexClient.getFixedInputSwapQuote(
             asset1_id,
             asset2_id,
             Number(amountIn)
         );
         // const bestSwap = await tinymanDex.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
-        const bestSwap = new AlammexSwap(alammexQuote, asset1, asset2, amountIn);
+        const bestSwap = new DeflexSwap(deflexQuote, asset1, asset2, amountIn);
 
         logEvent(
             account?.networkAccount.addr,
@@ -161,7 +161,7 @@ export async function getBestSwap(
 
 export async function runTransactions(
     account: Account | null,
-    operation: BestSwap | Zap | Mint | AlammexSwap,
+    operation: BestSwap | Zap | Mint | DeflexSwap,
     token1Balance?: number
 ): Promise<string[] | null> {
     if (!account) {
@@ -366,7 +366,7 @@ function BestTokenPrice({
 }: {
     isLoading: boolean;
     token1Amount: string;
-    swapInfo: AlammexSwap | BestSwap | null;
+    swapInfo: DeflexSwap | BestSwap | null;
     token1: TokenOptionType;
     token2: TokenOptionType;
 }) {
@@ -398,7 +398,7 @@ export function Swap() {
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [token2Amount, setToken2Amount] = useState<string>('');
-    const [bestSwap, setBestSwap] = useState<AlammexSwap | null>(null);
+    const [bestSwap, setBestSwap] = useState<DeflexSwap | null>(null);
     const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
