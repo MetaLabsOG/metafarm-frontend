@@ -97,23 +97,23 @@ export function isSwapZapDataValid(
 
 export async function getBestSwap(
     account: Account | null,
-    asset1_id: string | undefined,
-    asset2_id: string | undefined,
+    asset1_id: number | undefined,
+    asset2_id: number | undefined,
     asset1_amount: string
 ): Promise<DeflexSwap | null> {
-    if (!isSwapZapDataValid(asset1_id, asset2_id, asset1_amount)) {
+    if (!isSwapZapDataValid(asset1_id?.toString(), asset2_id?.toString(), asset1_amount)) {
         return null;
     }
 
-    if (!asset1_id || !asset2_id) {
+    if (asset1_id === undefined || asset2_id === undefined) {
         return null;
     }
 
     console.log('[SWAP] get data:', asset1_id, asset2_id, asset1_amount);
 
     try {
-        const asset1 = await fetchAsset(Number.parseInt(asset1_id));
-        const asset2 = await fetchAsset(Number.parseInt(asset2_id));
+        const asset1 = await fetchAsset(asset1_id);
+        const asset2 = await fetchAsset(asset2_id);
         const amountIn = getSmallestUnits(asset1, Number.parseFloat(asset1_amount));
 
         const deflexQuote: DeflexQuote = await deflexClient.getFixedInputSwapQuote(
@@ -423,7 +423,7 @@ export function Swap() {
         clearTimeout(getSwapTimeout.current);
         getSwapTimeout.current = setTimeout(() => {
             setIsLoading(true);
-            getBestSwap(account, token1_id, token2_id, amount).then((res) => {
+            getBestSwap(account, Number.parseInt(token1_id), Number.parseInt(token2_id), amount).then((res) => {
                 setBestSwap(res);
                 const best_swap = res ? res.amountOut : 0;
                 setToken2Amount(numberRound(best_swap));
@@ -524,7 +524,7 @@ export function Swap() {
                 onClickAction={SwapButtonOnClick}
                 style={{ marginTop: 20 }}
             />
-            <a target="_blank" href="https://www.alammex.com/" rel="noreferrer" style={{ textDecoration: 'none' }}>
+            <a target="_blank" href="https://www.deflex.fi/" rel="noreferrer" style={{ textDecoration: 'none' }}>
                 <DexName>via Deflex</DexName>
             </a>
         </ModalContainer>

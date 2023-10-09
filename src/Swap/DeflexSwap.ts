@@ -18,7 +18,7 @@ export class DeflexSwap implements Operation {
     dex: DexProvider;
 
     constructor(quote: DeflexQuote, assetA: Asset, assetB: Asset, microAmountIn: Amount) {
-        // console.log('alammex', quote);
+        // console.log('DEFLEX', quote);
         this.quote = quote;
         this.assetA = assetA;
         this.assetB = assetB;
@@ -49,7 +49,6 @@ export class DeflexSwap implements Operation {
 
     async prepareTxs(sender: string): Promise<WalletTransactionGroup[]> {
         const txnGroup = await deflexClient.getSwapQuoteTransactions(sender, this.quote, SLIPPAGE);
-
         const txns: WalletTransaction[] = txnGroup.txns.map((txn) => {
             // TODO Ya hz
             if (typeof txn.logicSigBlob === 'boolean') {

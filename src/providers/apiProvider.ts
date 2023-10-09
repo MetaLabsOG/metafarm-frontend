@@ -257,7 +257,7 @@ export async function checkNftLottery(
         asset2_amount,
     };
 
-    return instance.post('/swap/lottery', request).then(({ data }) => data);
+    return instance.post('/lottery/swap', request).then(({ data }) => data);
 }
 
 export async function nftClaim(wallet: string): Promise<string> {

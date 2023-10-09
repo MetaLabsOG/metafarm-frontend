@@ -6,7 +6,7 @@
     "@algo-builder/web": "^5.0.1",
     "@babel/core": "^7.18.9",
     "@blockshake/defly-connect": "^0.3.6",
-    "@deflex/deflex-sdk-js": "^2.0.2",
+    "@deflex/deflex-sdk-js": "^2.0.3",
     "@ethersproject/bignumber": "^5.6.2",
     "@google/model-viewer": "^3.2.1",
     "@metalabsog/common": "^17.0.0",

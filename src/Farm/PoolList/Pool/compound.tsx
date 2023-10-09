@@ -58,7 +58,7 @@ const zapCompound = async (
 
 const swapCompound = async (account: Account, firstAsset: Asset, secondAsset: Asset, microAmount: Amount) => {
     const amount = fromSmallestUnits(firstAsset, microAmount);
-    const bestSwap = await getBestSwap(account, firstAsset.id.toString(), secondAsset.id.toString(), amount.toString());
+    const bestSwap = await getBestSwap(account, firstAsset.id, secondAsset.id, amount.toString());
     if (!bestSwap) {
         throw new Error('Best Swap Failed');
     }

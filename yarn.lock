@@ -1695,13 +1695,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@deflex/deflex-sdk-js@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "@deflex/deflex-sdk-js@npm:2.0.2"
+"@deflex/deflex-sdk-js@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "@deflex/deflex-sdk-js@npm:2.0.3"
   dependencies:
     algosdk: "npm:2.5.0"
     axios: "npm:^0.27.2"
-  checksum: 23060aae5c11db7260de9dcbce8ac73196f5c883a1c36991b44093a0c3ee8d3f355732fbc6c93d36c71cb9259d619d460977e62efe471bdab45df58c15f93b40
+  checksum: 19fbe54b36684ec4a36278a0eae1a0ec2383d062e902bb4a3aba9e0da44ee57cdcba7359c401149c3defc770f124beac841fbac9707193dea1f199ab5539cb81
   languageName: node
   linkType: hard
 
@@ -13284,7 +13284,7 @@ __metadata:
     "@algo-builder/web": "npm:^5.0.1"
     "@babel/core": "npm:^7.18.9"
     "@blockshake/defly-connect": "npm:^0.3.6"
-    "@deflex/deflex-sdk-js": "npm:^2.0.2"
+    "@deflex/deflex-sdk-js": "npm:^2.0.3"
     "@ethersproject/bignumber": "npm:^5.6.2"
     "@google/model-viewer": "npm:^3.2.1"
     "@metalabsog/common": "npm:^17.0.0"
