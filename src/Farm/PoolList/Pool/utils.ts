@@ -93,7 +93,7 @@ export const formatLPTokenName = (token: LPTokenInfo) => {
     if (token.poolDex === 'T2') {
         return token.name.replace('TinymanPool1.1 ', '').replace('liquidity', '');
     } else if (token.poolDex === 'T3') {
-        return token.name.replace('TinymanPool2.0 ', '[V2] ').replace('liquidity', '');
+        return token.name.replace('TinymanPool2.0 ', '').replace('liquidity', '');
     } else if (token.poolDex === 'PT') {
         return token.name.replace('PACT LP Token', '').replace('/', '-').replace('liquidity', '');
     } else if (token.poolDex === 'H2') {
