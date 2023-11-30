@@ -38,6 +38,7 @@ export interface PoolInfoDesktopProps {
     dex: DexProvider | null;
     isVerified: boolean;
     isGame: boolean;
+    nftRewards: boolean;
 }
 
 export interface ValueProps {
@@ -102,6 +103,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     dex,
     isVerified,
     isGame,
+    nftRewards,
 }) => {
     return (
         <PoolInfoDesktopContainer>
@@ -116,6 +118,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                     isVerified={isVerified}
                     algoRewards={contractState.initial.totalAlgoRewardAmount > 0}
                     isGame={isGame}
+                    nftRewards={nftRewards}
                 />
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Tvl]}>{`$${numberRound(
