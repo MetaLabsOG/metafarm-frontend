@@ -88,6 +88,7 @@ export function PoolHeader({
     isVerified,
     algoRewards,
     isGame,
+    nftRewards,
 }: {
     asset1_id: number;
     asset2_id: number;
@@ -98,6 +99,7 @@ export function PoolHeader({
     isVerified: boolean;
     algoRewards: boolean;
     isGame: boolean;
+    nftRewards: boolean;
 }) {
     return (
         <PoolHeaderContainer>
@@ -110,6 +112,7 @@ export function PoolHeader({
                 <div style={{ display: 'flex' }}>
                     <PoolSubtitle>EARN {rewardTokenName}</PoolSubtitle>
                     {algoRewards && <PoolSubtitle style={{ marginLeft: '3px' }}>+ ALGO</PoolSubtitle>}
+                    {nftRewards && <PoolSubtitle style={{ marginLeft: '3px' }}>+ 🎁 NFT</PoolSubtitle>}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                     <ContractLockSuffix>{lock}</ContractLockSuffix>
