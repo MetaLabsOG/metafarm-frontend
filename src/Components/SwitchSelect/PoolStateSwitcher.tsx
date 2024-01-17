@@ -1,6 +1,7 @@
 import SwitchSelector from 'react-switch-selector';
+import PropTypes from 'prop-types';
 
-interface SecondSwitcherProps {
+interface PoolStateSwitcherProps {
     switchStatus: boolean;
     onChange: (status: boolean) => void;
 }
@@ -19,7 +20,11 @@ const options = [
 ];
 const initialSelectedIndex = options.findIndex(({ value }) => value === true);
 
-const secondSwitcher: React.FC<SecondSwitcherProps> = ({ switchStatus, onChange }) => {
+export const PoolStateSwitcher: React.FC<PoolStateSwitcherProps> = ({ switchStatus, onChange }) => {
+    PoolStateSwitcher.propTypes = {
+        switchStatus: PropTypes.bool.isRequired,
+        onChange: PropTypes.func.isRequired,
+    };
     const handleChange = (newValue: any) => {
         onChange(newValue.value);
     };
@@ -40,5 +45,3 @@ const secondSwitcher: React.FC<SecondSwitcherProps> = ({ switchStatus, onChange 
         </div>
     );
 };
-
-export default secondSwitcher;

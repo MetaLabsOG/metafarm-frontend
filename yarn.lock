@@ -1695,13 +1695,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@deflex/deflex-sdk-js@npm:^2.0.3":
-  version: 2.0.3
-  resolution: "@deflex/deflex-sdk-js@npm:2.0.3"
+"@deflex/deflex-sdk-js@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "@deflex/deflex-sdk-js@npm:2.0.5"
   dependencies:
-    algosdk: "npm:2.5.0"
+    algosdk: "npm:2.6.0"
     axios: "npm:^0.27.2"
-  checksum: 19fbe54b36684ec4a36278a0eae1a0ec2383d062e902bb4a3aba9e0da44ee57cdcba7359c401149c3defc770f124beac841fbac9707193dea1f199ab5539cb81
+  checksum: 8bc9b6c3b1dfa440874ad98547b958a8b0c0e86c2d00e003029f38ead4f4a18f5ff1510bf63d7c42a823f35613e420addceb01b6efda98ea1e9b70d6e8ce5142
   languageName: node
   linkType: hard
 
@@ -5755,9 +5755,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"algosdk@npm:2.5.0":
-  version: 2.5.0
-  resolution: "algosdk@npm:2.5.0"
+"algosdk@npm:2.6.0":
+  version: 2.6.0
+  resolution: "algosdk@npm:2.6.0"
   dependencies:
     algo-msgpack-with-bigint: "npm:^2.1.1"
     buffer: "npm:^6.0.3"
@@ -5769,7 +5769,7 @@ __metadata:
     json-bigint: "npm:^1.0.0"
     tweetnacl: "npm:^1.0.3"
     vlq: "npm:^2.0.4"
-  checksum: e4db150c043913e261418d7a61d0996af3c26d80d6ee0fb61bac291aa0cfa06219bc45c17d760d563052aab9ce60fa97dd0738fc7510e7a0fe62ffc4549e93e3
+  checksum: 5f60a50e9c180fe3717ef2c4e6cfbe0f54e59d33f94765e792dd72ced0dc807ab314e238073975848178cda5580f1b157bfbef152d56cf9e962c3c371fadd678
   languageName: node
   linkType: hard
 
@@ -10555,6 +10555,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"goober@npm:2.1.8":
+  version: 2.1.8
+  resolution: "goober@npm:2.1.8"
+  peerDependencies:
+    csstype: ^3.0.10
+  checksum: 41260ea086b75dceb173025711f95c6e67d0e8701f6c18f560dbaff82042bdb0c1729c1f28a6d3fee762495c013c9559105aa374cd7599e53f57d92ab1348a93
+  languageName: node
+  linkType: hard
+
 "graceful-fs@npm:^4.1.11, graceful-fs@npm:^4.1.15, graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.4, graceful-fs@npm:^4.2.6, graceful-fs@npm:^4.2.9":
   version: 4.2.10
   resolution: "graceful-fs@npm:4.2.10"
@@ -12323,7 +12332,7 @@ __metadata:
     secp256k1: "npm:^3.7.1"
     superagent: "npm:^5.1.0"
     websocket: "npm:^1.0.31"
-  checksum: a87ce5448c917fe2d6ea0eb01f5f8d0e228c89ff6cee5349e65a2043e1de7bda24866216df7a0319313f786d54ccf98f985011b8d5ebca27fa10dc1830929b7f
+  checksum: b21f1b0f1568c9fab2668fd492165966998daa4045303bba28b23671bc1c93aa5cf9a7bf848e13877370814f6f40db2f265aa2b58aad82a52dbfeb6eec79bc69
   languageName: node
   linkType: hard
 
@@ -13284,7 +13293,7 @@ __metadata:
     "@algo-builder/web": "npm:^5.0.1"
     "@babel/core": "npm:^7.18.9"
     "@blockshake/defly-connect": "npm:^0.3.6"
-    "@deflex/deflex-sdk-js": "npm:^2.0.3"
+    "@deflex/deflex-sdk-js": "npm:^2.0.5"
     "@ethersproject/bignumber": "npm:^5.6.2"
     "@google/model-viewer": "npm:^3.2.1"
     "@metalabsog/common": "npm:^17.0.0"
@@ -13399,6 +13408,7 @@ __metadata:
     react-refresh: "npm:^0.14.0"
     react-router-dom: "npm:^6.3.0"
     react-switch: "npm:^7.0.0"
+    react-switch-selector: "npm:^2.2.1"
     react-toastify: "npm:^9.0.7"
     react-tooltip: "npm:^4.2.21"
     resolve: "npm:^1.22.1"
@@ -16179,6 +16189,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-dom@npm:17.0.2":
+  version: 17.0.2
+  resolution: "react-dom@npm:17.0.2"
+  dependencies:
+    loose-envify: "npm:^1.1.0"
+    object-assign: "npm:^4.1.1"
+    scheduler: "npm:^0.20.2"
+  peerDependencies:
+    react: 17.0.2
+  checksum: 51a70345e6ce512d39789750b46524a2bd0bd8474fabcded2e9cd90dda77ae834fdb8481ca1e64265b91bacf8a1d760f17d6c0382bdfacf455362e617abbe5fa
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:^18.2.0":
   version: 18.2.0
   resolution: "react-dom@npm:18.2.0"
@@ -16307,6 +16330,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-switch-selector@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "react-switch-selector@npm:2.2.1"
+  dependencies:
+    goober: "npm:2.1.8"
+    react: "npm:17.0.2"
+    react-dom: "npm:17.0.2"
+  peerDependencies:
+    goober: ^2.1.1
+    react: ^16 || ^17 || ^18
+    react-dom: ^16 || ^17 || ^18
+  checksum: ac7423c37932637efc390d76344f6ce99e36656614b5d3eb6ca02a80e9c3b5fa170a8fbe97f648ace6cd5ab5ff95d4eafcb3ba51c565cbe5edb270d93c8c29d3
+  languageName: node
+  linkType: hard
+
 "react-switch@npm:^7.0.0":
   version: 7.0.0
   resolution: "react-switch@npm:7.0.0"
@@ -16341,6 +16379,16 @@ __metadata:
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
   checksum: 2ed2791866559f55049e44ca90c0cc18b4da30e70ad0fef811edd4c29429c484584d76bfde44a9c434c3327c788455692ba3c2dae368671d4fc5fb3965df537c
+  languageName: node
+  linkType: hard
+
+"react@npm:17.0.2":
+  version: 17.0.2
+  resolution: "react@npm:17.0.2"
+  dependencies:
+    loose-envify: "npm:^1.1.0"
+    object-assign: "npm:^4.1.1"
+  checksum: c21b6ec9641b973afe3974e77d67d20df6e83c7e4de718af85d12389baa1077604560f086ae0e54e3c34ea87c60bd5d26080ba0cbad1c770307f53d6fa495e32
   languageName: node
   linkType: hard
 
@@ -16962,6 +17010,16 @@ __metadata:
     sass-embedded:
       optional: true
   checksum: d462aff41fa0d7ff18c699ae1623362258de30de572235579065a5516572d8b68d48d504fa4f3effaba27d609335086a3d2c115e0d608079efba27d4547fe992
+  languageName: node
+  linkType: hard
+
+"scheduler@npm:^0.20.2":
+  version: 0.20.2
+  resolution: "scheduler@npm:0.20.2"
+  dependencies:
+    loose-envify: "npm:^1.1.0"
+    object-assign: "npm:^4.1.1"
+  checksum: b3ec1f4367776c1e8632d9b6d594fdf0d4fe0aefd738a7f6902f60e9b910142e4997c4ad931f07a553de7bae7bfc2144e9966a9a35e8ef084fe6e48f5dcf94c6
   languageName: node
   linkType: hard
 

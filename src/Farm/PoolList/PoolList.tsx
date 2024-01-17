@@ -7,10 +7,11 @@ import swapArrow from '../../imgs/swapArrow.svg';
 import { theme } from '../../theme';
 import { SwitchSelect } from '../../Components/SwitchSelect/SwitchSelect';
 import { SwitchSelectPools } from '../../Components/SwitchSelect/SwitchSelectMyPools';
+import { PoolStateSwitcher } from '../../Components/SwitchSelect/PoolStateSwitcher';
 
 import { $networkTime, AppId, ContractInfo, FarmType } from '../../common/store';
 import { DateInput, PoolSearchInput } from '../styled';
-import SecondSwitcher from '../../Components/SwitchSelect/SwitchSelect2';
+
 import {
     AddFarmButtonContainer,
     PoolFiltersContainer,
@@ -158,7 +159,7 @@ export function PoolList({
                 <PoolFiltersContainer>
                     <SwitchersContainer>
                         <SwitchSelectPools onChange={onChangePoolType} value={!showMyPools} />
-                        <SecondSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
+                        <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
                     </SwitchersContainer>
                     <SwitchersAndSearchContainer>
                         <PoolSearchInput
