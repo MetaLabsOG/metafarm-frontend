@@ -6,8 +6,11 @@ import { PoolWithStats, sortPools } from '../store';
 import swapArrow from '../../imgs/swapArrow.svg';
 import { theme } from '../../theme';
 import { SwitchSelect } from '../../Components/SwitchSelect/SwitchSelect';
+import { SwitchSelectPools } from '../../Components/SwitchSelect/SwitchSelectMyPools';
+
 import { $networkTime, AppId, ContractInfo, FarmType } from '../../common/store';
 import { DateInput, PoolSearchInput } from '../styled';
+import SecondSwitcher from '../../Components/SwitchSelect/SwitchSelect2';
 import {
     AddFarmButtonContainer,
     PoolFiltersContainer,
@@ -16,6 +19,8 @@ import {
     PoolListHeader,
     PoolListHeaderElement,
     PoolTopLineContainer,
+    SwitchersContainer,
+    SwitchersAndSearchContainer,
 } from './styled';
 import { Pool } from './Pool';
 
@@ -73,6 +78,8 @@ export function PoolList({
 
     const [poolSearch, setPoolSearch] = useState('');
 
+    const [showMyPools, setShowMyPools] = useState(false);
+
     const poolComponents = pools
         .filter((pws: PoolWithStats) => {
             if (currentBlock === 0) {
@@ -83,6 +90,13 @@ export function PoolList({
             if (priorityPoolId) {
                 return pws.pool.id === Number(priorityPoolId);
             }
+
+            //test of filter for my pools
+            if (showMyPools && pws.dollarInfo.userStake <= 0) {
+                return false;
+            }
+            //test ends here
+
             if (
                 pws.pool.info.description &&
                 poolSearch !== '' &&
@@ -128,18 +142,36 @@ export function PoolList({
         }
     };
 
+    const onShowStatusClick = () => {
+        setShowEnded(!showEnded);
+    };
+
+    //test for myPoolTypeChanger
+    const onChangePoolType = () => {
+        setShowMyPools(!showMyPools);
+    };
+
     return (
         <div>
             <PoolTopLineContainer>
                 <AddFarmButton addFarmType={poolType} />
                 <PoolFiltersContainer>
-                    <PoolSearchInput
-                        placeholder="pool search"
-                        value={poolSearch}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
-                    />
-                    <SwitchSelect switchStatus={showEnded} onChange={setShowEnded} switchText={'show ended'} />
-                    <SwitchSelect switchStatus={showVerified} onChange={setShowVerified} switchText={'verified only'} />
+                    <SwitchersContainer>
+                        <SwitchSelectPools onChange={onChangePoolType} value={!showMyPools} />
+                        <SecondSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
+                    </SwitchersContainer>
+                    <SwitchersAndSearchContainer>
+                        <PoolSearchInput
+                            placeholder="pool search"
+                            value={poolSearch}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
+                        />
+                        <SwitchSelect
+                            switchStatus={showVerified}
+                            onChange={setShowVerified}
+                            switchText={'verified only'}
+                        />
+                    </SwitchersAndSearchContainer>
                 </PoolFiltersContainer>
             </PoolTopLineContainer>
             <PoolListContainer>

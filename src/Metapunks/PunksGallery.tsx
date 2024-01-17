@@ -2,12 +2,15 @@ import React, { useEffect } from 'react';
 import '@google/model-viewer/dist/model-viewer';
 import { Button } from '../Components/Button/Button';
 import { Metapunk, METAPUNKS_INFO } from './Metapunks';
-import { Header, PunkContainer, PunkDownload, PunkImage, PunkItem, PunkName, Subheader } from './styled';
+import { Header, PunkContainer, PunkDownload, PunkImage, PunkItem, PunkName, Subheader2 } from './styled';
 
 export function Punk({ asset }: { asset: Metapunk }) {
     if (!asset) {
         return null;
     }
+
+    const modelViewerStyle =
+        window.innerWidth <= 700 ? { width: '100%', height: '300px' } : { width: '420px', height: '420px' };
 
     return (
         <PunkContainer>
@@ -27,7 +30,8 @@ export function Punk({ asset }: { asset: Metapunk }) {
                         environment-image="neutral"
                         poster={asset.main_url}
                         shadow-intensity="1"
-                        style={{ width: 300, height: 300 }}
+                        style={modelViewerStyle}
+                        auto-rotate
                     >
                         <button
                             slot="ar-button"
@@ -63,7 +67,7 @@ export function Punk({ asset }: { asset: Metapunk }) {
                 </div>
             </PunkItem>
             <a href={asset.model_3d_url} style={{ textDecoration: 'none' }} target="_blank" rel="noreferrer">
-                <PunkDownload>download 3d model</PunkDownload>
+                <PunkDownload>Download 3D model</PunkDownload>
             </a>
         </PunkContainer>
     );
@@ -91,13 +95,23 @@ export function PunksGallery({ metapunks }: { metapunks: Metapunk[] }) {
 
     return (
         <React.Fragment>
-            {metapunks.length === 0 && <Header>{"You don't have Metapunks :( See how they look like!"}</Header>}
+            {metapunks.length === 0 && (
+                <Header style={{ marginTop: '30px' }}>
+                    {"You don't have any Metapunks, get yours on secondary!👇"}
+                </Header>
+            )}
             {metapunks.length > 0 && <Header>You have {metapunks.length} Metapunks</Header>}
-            <Subheader>Use mobile device to try AR feature</Subheader>
             {assetsShow.map((asset, idx) => (
                 <Punk key={idx} asset={asset} />
             ))}
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '100px' }}>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: '100px',
+                }}
+            >
                 {assetsCntShow < metapunks.length && <Button onClick={handleShowMore} buttonText={'show more'} />}
             </div>
         </React.Fragment>

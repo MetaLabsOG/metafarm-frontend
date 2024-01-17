@@ -40,11 +40,6 @@ export function Metapunks() {
     return (
         <MetapunksContainer>
             <Header>The Metapunks are 3D NFT avatars on Algorand</Header>
-            <Subheader>
-                Right now, Metapunk NFT provides exclusive access to Discord Holder Hub, the NFT Reward program, Special
-                Holders event like Poker Tournaments, Using 3D animated avatar in Augmented Reality and MetaTreasury
-                DAO.
-            </Subheader>
             <a
                 target="_blank"
                 href="https://www.nftexplorer.app/sellers/metapunks"
@@ -58,13 +53,42 @@ export function Metapunks() {
                         height: 50,
                         fontSize: 20,
                         marginBottom: 20,
+                        marginTop: 20,
                     }}
                     onClick={() => {
                         // Do nothing
                     }}
                 />
             </a>
+
+            <Subheader>
+                Each Metapunk NFT provides exclusive access to Discord Holder Hub (link), the NFT Reward program,
+                Special Holders event like Poker Tournaments, Using 3D animated avatar in Augmented Reality and
+                MetaTreasury DAO.
+            </Subheader>
+
             <PunksGallery metapunks={metapunksIds} />
+
+            <a
+                target="_blank"
+                href="https://www.nftexplorer.app/sellers/metapunks"
+                style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center' }}
+                rel="noreferrer"
+            >
+                <Button
+                    buttonText="JOIN METAPUNKS"
+                    style={{
+                        width: 300,
+                        height: 50,
+                        fontSize: 20,
+                        marginBottom: 20,
+                        marginTop: 10,
+                    }}
+                    onClick={() => {
+                        // Do nothing
+                    }}
+                />
+            </a>
         </MetapunksContainer>
     );
 }
