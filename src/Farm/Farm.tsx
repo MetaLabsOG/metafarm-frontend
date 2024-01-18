@@ -32,21 +32,28 @@ export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
     );
 };
 
+const renderSliseAd = () => (
+    <SliseAd
+        style={{ minWidth: '270px', width: '270px', height: '90px' }}
+        slotId="banner"
+        pub="pub-2"
+        format="270x90"
+    />
+);
+
 export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
-        <BalanceContainer>
-            <Balance kind={'farm' as FarmType} />
-            {/*<a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">*/}
-            {/*    <GovImg alt="Governance" src={governance} />*/}
-            {/*</a>*/}
-            <SliseAd
-                style={{ minWidth: '270px', width: '270px', height: '90px' }}
-                slotId="banner"
-                pub="pub-2"
-                format="270x90"
-            />
-        </BalanceContainer>
+        {window.innerWidth > 700 && (
+            <BalanceContainer>
+                <Balance kind={'farm' as FarmType} />
+                {/*<a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">*/}
+                {/*    <GovImg alt="Governance" src={governance} />*/}
+                {/*</a>*/}
+                {renderSliseAd()}
+            </BalanceContainer>
+        )}
         <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
         <InfoCards addFarmType="farm" />
+        {window.innerWidth <= 700 && renderSliseAd()}
     </FarmContainer>
 ));
