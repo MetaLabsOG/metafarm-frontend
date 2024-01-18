@@ -9,13 +9,13 @@ interface SwitchSelectProps {
 export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange }) => {
     const options = [
         {
-            label: 'My Pools',
-            value: false, // Indicates showing user's pools
+            label: 'All Pools',
+            value: true, // Indicates showing user's pools
             selectedBackgroundColor: '#808080',
         },
         {
-            label: 'All Pools',
-            value: true, // Indicates showing all pools
+            label: 'My Pools',
+            value: false, // Indicates showing all pools
             selectedBackgroundColor: '#808080',
         },
     ];
@@ -26,7 +26,7 @@ export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange }) => 
     };
 
     return (
-        <div className="myWrapper" style={{ width: 180, height: 30, marginTop: 10 }}>
+        <div className="myWrapper" style={{ width: 180, height: 30, marginTop: 10, fontFamily: 'Montserrat' }}>
             <div className="mobileWrapper" style={{ maxWidth: 700, width: '100%', height: 30 }}>
                 <SwitchSelector
                     onChange={handleSelectorChange}
@@ -34,7 +34,7 @@ export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange }) => 
                     initialSelectedIndex={initialSelectedIndex}
                     backgroundColor={'#1e1e1e'}
                     fontColor={'#676767'}
-                    selectedFontColor="#90ee90"
+                    selectedFontColor="white"
                     name="PoolSwitchSelector"
                 />
             </div>
