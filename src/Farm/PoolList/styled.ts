@@ -55,6 +55,10 @@ export const PoolListContainer = styled.div`
         min-width: unset;
         width: 100%;
     }
+
+    @media (max-width: 700px) {
+        margin-top: 50px;
+    }
 `;
 
 export const PoolFiltersContainer = styled.div`
@@ -66,6 +70,12 @@ export const PoolFiltersContainer = styled.div`
 
     @media (max-width: 1120px) {
         justify-content: center;
+    }
+
+    @media (max-width: 700px) {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
     }
 `;
 
@@ -96,5 +106,28 @@ export const AddFarmButtonContainer = styled.a`
     :hover {
         cursor: pointer;
         color: var(--lightGreen);
+    }
+`;
+
+export const SwitchersContainer = styled.a`
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    @media (max-width: 700px) {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+`;
+
+export const SwitchersAndSearchContainer = styled.a`
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    @media (max-width: 700px) {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding-top: 5px;
     }
 `;
