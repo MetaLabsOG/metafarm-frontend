@@ -10,7 +10,9 @@ export function Punk({ asset }: { asset: Metapunk }) {
     }
 
     const modelViewerStyle =
-        window.innerWidth <= 700 ? { width: '100%', height: '300px' } : { width: '420px', height: '420px' };
+        window.innerWidth <= 700
+            ? { width: '320px', height: '320px', borderRadius: '10px' }
+            : { width: '420px', height: '420px', borderRadius: '10px' };
 
     return (
         <PunkContainer>
@@ -66,7 +68,12 @@ export function Punk({ asset }: { asset: Metapunk }) {
                     </a>
                 </div>
             </PunkItem>
-            <a href={asset.model_3d_url} style={{ textDecoration: 'none' }} target="_blank" rel="noreferrer">
+            <a
+                href={asset.model_3d_url}
+                style={{ textDecoration: 'none', marginTop: '20px' }}
+                target="_blank"
+                rel="noreferrer"
+            >
                 <PunkDownload>Download 3D model</PunkDownload>
             </a>
         </PunkContainer>

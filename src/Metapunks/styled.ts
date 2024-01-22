@@ -8,7 +8,7 @@ export const MetapunksContainer = styled.div`
     align-items: center;
     align-content: center;
 
-    @media (max-width: 700px) {
+    @media (max-width: 706px) {
         width: 100%;
     }
 `;
@@ -20,6 +20,7 @@ export const Header = styled.div`
     margin-bottom: 10px;
     display: flex;
     justify-content: center;
+    text-align: center;
 
     @media (max-width: 700px) {
         font-size: 20px;
@@ -33,13 +34,17 @@ export const Subheader = styled.div`
     font-size: 20px;
     margin-bottom: 20px;
     padding: 20px;
+    text-align: center;
 
     @media (max-width: 640px) {
         font-size: 20px;
+        display: none;
     }
 
     @media (max-width: 700px) {
         font-size: 12px;
+        text-align: center;
+        margin-bottom: -20px;
     }
 `;
 
@@ -61,11 +66,18 @@ export const PunkContainer = styled.div`
     flex-direction: column;
     padding: 10px 0 20px 0;
     border-radius: 10px;
-    margin-bottom: 60px;
+    align-items: flex-start;
 
-    @media (max-width: 700px) {
-        margin-top: -20px;
-        gap: 40px;
+    @media (min-width: 1600px) {
+        align-items: center;
+    }
+
+    @media (max-width: 1272px) {
+        align-items: center;
+    }
+
+    @media (max-width: 706px) {
+        height: 27%;
     }
 `;
 
@@ -75,17 +87,43 @@ export const PunkImage = styled.img`
     margin-top: 50px;
     border: 2px solid var(--green);
     box-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
-    @media (max-width: 700px) {
-        width: 90vw;
-        margin-top: 30px;
+
+    @media (max-width: 1506px) {
+        width: 280px;
+    }
+
+    @media (max-width: 1440px) {
+        width: 250px;
+    }
+
+    @media (max-width: 1340px) {
+        width: 230px;
+    }
+
+    @media (max-width: 1162px) {
+        width: 200px;
+    }
+
+    @media (max-width: 1062px) {
+        width: 180px;
+    }
+
+    @media (max-width: 706px) {
+        width: 25vw;
     }
 `;
 
 export const PunkItem = styled.div`
     display: flex;
+
+    @media (max-width: 1272px) {
+        flex-direction: column;
+        align-items: center;
+    }
+
     @media (max-width: 700px) {
         flex-direction: column;
-        items-align: center;
+        align-items: center;
     }
 `;
 
@@ -105,6 +143,7 @@ export const PunkName = styled.a`
     }
 
     @media (max-width: 700px) {
+        margin-top: -10px;
         font-size: 25px;
         text-align: center;
     }
