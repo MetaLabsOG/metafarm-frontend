@@ -11,7 +11,10 @@ interface SwitchProps {
 
 export const SwitchSelect: FC<SwitchProps> = ({ switchStatus, onChange, switchText }) => {
     return (
-        <SwitchContainer>
+        <SwitchContainer style={{ paddingTop: 15, height: 15, paddingLeft: 30 }}>
+            {window.screen.width >= 700 && (
+                <SwitchText style={{ color: theme.lightGray, paddingRight: 5 }}>{switchText}</SwitchText>
+            )}
             <Switch
                 onChange={onChange}
                 checked={switchStatus}
@@ -25,7 +28,9 @@ export const SwitchSelect: FC<SwitchProps> = ({ switchStatus, onChange, switchTe
                 height={20}
                 width={40}
             />
-            <SwitchText style={switchStatus ? { color: theme.lightGray } : {}}>{switchText}</SwitchText>
+            {window.screen.width < 700 && (
+                <SwitchText style={{ color: theme.lightGray, width: 100 }}>{switchText}</SwitchText>
+            )}
         </SwitchContainer>
     );
 };

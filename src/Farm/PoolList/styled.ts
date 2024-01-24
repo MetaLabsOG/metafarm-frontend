@@ -101,22 +101,52 @@ export const PoolTopLineContainer = styled.div`
 `;
 
 export const AddFarmButtonContainer = styled.a`
-    color: var(--lightGray);
+    color: white;
     text-decoration: none;
+    background-color: gray;
+    border-radius: 15px;
+    font-size: 15px;
+    font-weight: 300;
+    padding: 4px 15px 4px 15px;
+    padding-bottom: 5px;
+    width: 100%;
+
     :hover {
         cursor: pointer;
         color: var(--lightGreen);
+    }
+
+    @media (max-width: 922px) {
+        font-size: 12px;
+        padding: 6px;
+        margin-bottom: opx;
+    }
+
+    @media (max-width: 700px) {
+        text-align: center;
+        background-color: gray;
+        border-radius: 15px;
+        font-size: 15px;
+        padding: 5px 15px 5px 15px;
+        font-weight: 300;
+        width: 140px;
+
+        :hover {
+            cursor: pointer;
+        }
     }
 `;
 
 export const SwitchersContainer = styled.a`
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    gap: 40px;
+
     @media (max-width: 700px) {
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 9px;
+        padding-top: 15px;
     }
 `;
 
@@ -124,10 +154,41 @@ export const SwitchersAndSearchContainer = styled.a`
     display: flex;
     flex-direction: row;
     gap: 20px;
+
+    @media (max-width: 820px) {
+        margin-bottom: 10px;
+    }
+
+    @media (max-width: 805px) {
+        gap: 10px;
+    }
+
     @media (max-width: 700px) {
+        margin-bottom: 0px;
         display: flex;
         flex-direction: column;
-        gap: 5px;
-        padding-top: 5px;
+        gap: 10px;
+        padding-top: 6px;
+    }
+`;
+
+export const TopTwoButtonsMobileContainer = styled.a`
+    display: flex;
+    margin-bottom: 5px;
+
+    @media (max-width: 885px) {
+        display: flex;
+        flex-direction: row;
+        align-items: left;
+        justify-content: left;
+    }
+
+    @media (max-width: 700px) {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0%;
+        gap: 5%;
     }
 `;
