@@ -43,15 +43,13 @@ const renderSliseAd = () => (
 
 export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
-        {window.innerWidth > 700 && (
-            <BalanceContainer>
-                <Balance kind={'farm' as FarmType} />
-                {/*<a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">*/}
-                {/*    <GovImg alt="Governance" src={governance} />*/}
-                {/*</a>*/}
-                {renderSliseAd()}
-            </BalanceContainer>
-        )}
+        <BalanceContainer>
+            <Balance kind={'farm' as FarmType} />
+            {/*<a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">*/}
+            {/*    <GovImg alt="Governance" src={governance} />*/}
+            {/*</a>*/}
+            {window.innerWidth > 700 && renderSliseAd()}
+        </BalanceContainer>
         <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
         <InfoCards addFarmType="farm" />
         {window.innerWidth <= 700 && renderSliseAd()}

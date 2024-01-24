@@ -8,6 +8,9 @@ import { theme } from '../../theme';
 import { SwitchSelect } from '../../Components/SwitchSelect/SwitchSelect';
 import { SwitchSelectPools } from '../../Components/SwitchSelect/SwitchSelectMyPools';
 import { PoolStateSwitcher } from '../../Components/SwitchSelect/PoolStateSwitcher';
+import { VerifiedSwitch } from '../../Components/SwitchSelect/VerifiedSwitch';
+
+import DropdownButton from '../../Components/DropdownButton/Dropdown';
 
 import { $networkTime, AppId, ContractInfo, FarmType } from '../../common/store';
 import { DateInput, PoolSearchInput } from '../styled';
@@ -22,6 +25,7 @@ import {
     PoolTopLineContainer,
     SwitchersContainer,
     SwitchersAndSearchContainer,
+    TopTwoButtonsMobileContainer,
 } from './styled';
 import { Pool } from './Pool';
 
@@ -152,26 +156,44 @@ export function PoolList({
         setShowMyPools(!showMyPools);
     };
 
+    const onVerifiedButton = () => {
+        setShowVerified(!showVerified);
+    };
+
     return (
         <div>
             <PoolTopLineContainer>
-                <AddFarmButton addFarmType={poolType} />
+                <TopTwoButtonsMobileContainer>
+                    <AddFarmButton addFarmType={poolType} />
+                    {window.innerWidth < 700 && (
+                        <DropdownButton
+                            onColumnClick={onColumnClick}
+                            sortKey={sortKey}
+                            isAscSort={isAscSort}
+                            swapArrow={swapArrow}
+                            theme={theme}
+                        />
+                    )}
+                </TopTwoButtonsMobileContainer>
                 <PoolFiltersContainer>
                     <SwitchersContainer>
-                        <SwitchSelectPools onChange={onChangePoolType} value={!showMyPools} />
-                        <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
-                    </SwitchersContainer>
-                    <SwitchersAndSearchContainer>
+                        <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
+
+                        {/* previous switcher which was good <SwitchSelect
+                                switchStatus={showVerified}
+                                onChange={setShowVerified}
+                                switchText={'Verified only'}
+                            /> Previous switcher which was good*/}
+
                         <PoolSearchInput
-                            placeholder="pool search"
+                            placeholder="Pool search"
                             value={poolSearch}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
                         />
-                        <SwitchSelect
-                            switchStatus={showVerified}
-                            onChange={setShowVerified}
-                            switchText={'verified only'}
-                        />
+                    </SwitchersContainer>
+                    <SwitchersAndSearchContainer>
+                        <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
+                        <SwitchSelectPools onChange={onChangePoolType} value={!showMyPools} />
                     </SwitchersAndSearchContainer>
                 </PoolFiltersContainer>
             </PoolTopLineContainer>
