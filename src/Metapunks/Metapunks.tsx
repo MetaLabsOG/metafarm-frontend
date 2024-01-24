@@ -47,7 +47,7 @@ export function Metapunks() {
                 rel="noreferrer"
             >
                 <Button
-                    buttonText="BUY METAPUNKS"
+                    buttonText="BUY METAPUNK"
                     style={{
                         width: 300,
                         height: 50,
@@ -82,7 +82,8 @@ export function Metapunks() {
                         height: 50,
                         fontSize: 20,
                         marginBottom: 20,
-                        marginTop: 10,
+
+                        boxShadow: '0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3)',
                     }}
                     onClick={() => {
                         // Do nothing
