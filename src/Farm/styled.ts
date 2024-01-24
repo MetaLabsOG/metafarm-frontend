@@ -68,5 +68,24 @@ export const PoolSearchInput = styled.input`
     font-size: 16px;
 
     border: 1px solid rgba(125, 125, 125, 0.66);
-    border-radius: 8px;
+    border-radius: 15px;
+
+    @media (max-width: 820px) {
+        display: none;
+    }
+
+    @media (max-width: 700px) {
+        display: flex;
+        width: 95%;
+        border-radius: 15px;
+        margin-left: 20px;
+        height: 30px;
+        text-align: center;
+        margin-top: 11px;
+    }
+
+    &:focus {
+        outline: none;
+        border-color: #90ee90;
+    }
 `;
