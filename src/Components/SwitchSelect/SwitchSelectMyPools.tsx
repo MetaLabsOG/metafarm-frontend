@@ -1,5 +1,6 @@
 import React from 'react';
 import SwitchSelector from 'react-switch-selector';
+import { SwitchSelectWrapper } from './styled';
 
 interface SwitchSelectProps {
     onChange: (value: any) => void;
@@ -11,12 +12,12 @@ export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange }) => 
         {
             label: 'All Pools',
             value: true, // Indicates showing user's pools
-            selectedBackgroundColor: '#808080',
+            selectedBackgroundColor: '#90ee90',
         },
         {
             label: 'My Pools',
             value: false, // Indicates showing all pools
-            selectedBackgroundColor: '#808080',
+            selectedBackgroundColor: '#90ee90',
         },
     ];
     const initialSelectedIndex = options.findIndex(({ label }) => label === 'All Pools');
@@ -26,18 +27,16 @@ export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange }) => 
     };
 
     return (
-        <div className="myWrapper" style={{ width: 180, height: 30, marginTop: 10, fontFamily: 'Montserrat' }}>
-            <div className="mobileWrapper" style={{ maxWidth: 700, width: '100%', height: 30 }}>
-                <SwitchSelector
-                    onChange={handleSelectorChange}
-                    options={options}
-                    initialSelectedIndex={initialSelectedIndex}
-                    backgroundColor={'#1e1e1e'}
-                    fontColor={'#676767'}
-                    selectedFontColor="white"
-                    name="PoolSwitchSelector"
-                />
-            </div>
-        </div>
+        <SwitchSelectWrapper>
+            <SwitchSelector
+                onChange={handleSelectorChange}
+                options={options}
+                initialSelectedIndex={initialSelectedIndex}
+                backgroundColor={'#1e1e1e'}
+                fontColor={'white'}
+                selectedFontColor="black"
+                name="PoolSwitchSelector"
+            />
+        </SwitchSelectWrapper>
     );
 };

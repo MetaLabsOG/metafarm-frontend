@@ -22,6 +22,15 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
         }
     };
 
+    const renderSliseAd = () => (
+        <SliseAd
+            style={{ minWidth: '270px', width: '270px', height: '90px' }}
+            slotId="banner"
+            pub="pub-2"
+            format="270x90"
+        />
+    );
+
     return (
         <FarmContainer>
             <BalanceContainer>
@@ -29,15 +38,11 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
                 {/*<a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">*/}
                 {/*    <GovImg alt="Governance" src={governance} />*/}
                 {/*</a>*/}
-                <SliseAd
-                    style={{ minWidth: '270px', width: '270px', height: '90px' }}
-                    slotId="banner"
-                    pub="pub-2"
-                    format="270x90"
-                />
+                {window.innerWidth > 700 && renderSliseAd()}
             </BalanceContainer>
             <PoolList pools={state} poolType="stake" initEvent={initStakeOrDistr} />
             <InfoCards addFarmType="stake" />
+            {window.innerWidth <= 700 && renderSliseAd()}
         </FarmContainer>
     );
 });

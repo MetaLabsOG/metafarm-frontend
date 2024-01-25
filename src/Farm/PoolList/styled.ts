@@ -102,34 +102,45 @@ export const PoolTopLineContainer = styled.div`
 
 export const AddFarmButtonContainer = styled.a`
     color: white;
+    border: 1px solid #90ee90;
     text-decoration: none;
-    background-color: gray;
+    background-color: transparent,
+    outline: none;
     border-radius: 15px;
     font-size: 15px;
     font-weight: 300;
-    padding: 4px 15px 4px 15px;
+    padding: 5px 15px 5px 15px;
     padding-bottom: 5px;
     width: 100%;
+    height: 30px;
 
     :hover {
         cursor: pointer;
-        color: var(--lightGreen);
+        color: gray;
+        
     }
 
     @media (max-width: 922px) {
-        font-size: 12px;
-        padding: 6px;
-        margin-bottom: opx;
+        font-size: 13px;
+        padding: 6px 15px 6px 15px;
+        height: 30px;
+    }
+
+    @media (max-width: 872px) {
+        font-size: 13px;
+        padding: 6px 14px 6px 14px;
+        height: 30px;
     }
 
     @media (max-width: 700px) {
         text-align: center;
-        background-color: gray;
         border-radius: 15px;
-        font-size: 15px;
-        padding: 5px 15px 5px 15px;
+        font-size: 12px;
+        padding: 6px 15px 6px 15px;
         font-weight: 300;
-        width: 140px;
+        width: 130px;
+        height: 29px;
+        margin-top: 10px;
 
         :hover {
             cursor: pointer;
@@ -142,11 +153,16 @@ export const SwitchersContainer = styled.a`
     flex-direction: row;
     gap: 40px;
 
+    @media (max-width: 870px) {
+        gap: 10px;
+    }
+
     @media (max-width: 700px) {
         display: flex;
-        flex-direction: column;
-        gap: 9px;
-        padding-top: 15px;
+        flex-direction: column-reverse;
+        padding-left: 15px;
+        padding-top: 5px;
+        gap: 0px;
     }
 `;
 
@@ -154,6 +170,10 @@ export const SwitchersAndSearchContainer = styled.a`
     display: flex;
     flex-direction: row;
     gap: 20px;
+
+    @media (max-width: 840px) {
+        gap: 5px;
+    }
 
     @media (max-width: 820px) {
         margin-bottom: 10px;
@@ -168,7 +188,8 @@ export const SwitchersAndSearchContainer = styled.a`
         display: flex;
         flex-direction: column;
         gap: 10px;
-        padding-top: 6px;
+        padding-top: 5px;
+        margin-left: 0px;
     }
 `;
 
@@ -189,6 +210,24 @@ export const TopTwoButtonsMobileContainer = styled.a`
         align-items: center;
         justify-content: center;
         margin-right: 0%;
-        gap: 5%;
+        padding-top: 5px;
+        gap: 0px;
+        margin-bottom: 0px;
+    }
+`;
+
+export const MobileOnly = styled.div`
+    display: none;
+
+    @media (max-width: 700px) {
+        display: block;
+    }
+`;
+
+export const DesktopOnly = styled.div`
+    display: block;
+
+    @media (max-width: 700px) {
+        display: none;
     }
 `;
