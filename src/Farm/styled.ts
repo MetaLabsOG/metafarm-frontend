@@ -67,7 +67,7 @@ export const PoolSearchInput = styled.input`
     font-family: 'Montserrat';
     font-size: 16px;
 
-    border: 1px solid rgba(125, 125, 125, 0.66);
+    border: 1px solid lightgreen;
     border-radius: 15px;
 
     @media (max-width: 820px) {
@@ -76,12 +76,12 @@ export const PoolSearchInput = styled.input`
 
     @media (max-width: 700px) {
         display: flex;
-        width: 95%;
+        width: 90%;
         border-radius: 15px;
-        margin-left: 20px;
+        margin-left: 25px;
         height: 30px;
-        text-align: center;
-        margin-top: 11px;
+        text-align: left;
+        margin-top: 20px;
     }
 
     &:focus {

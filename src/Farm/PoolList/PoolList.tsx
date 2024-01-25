@@ -26,6 +26,8 @@ import {
     SwitchersContainer,
     SwitchersAndSearchContainer,
     TopTwoButtonsMobileContainer,
+    DesktopOnly,
+    MobileOnly,
 } from './styled';
 import { Pool } from './Pool';
 
@@ -165,20 +167,25 @@ export function PoolList({
             <PoolTopLineContainer>
                 <TopTwoButtonsMobileContainer>
                     <AddFarmButton addFarmType={poolType} />
-                    {window.innerWidth < 700 && (
-                        <DropdownButton
-                            onColumnClick={onColumnClick}
-                            sortKey={sortKey}
-                            isAscSort={isAscSort}
-                            swapArrow={swapArrow}
-                            theme={theme}
-                        />
-                    )}
+                    <MobileOnly>
+                        <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
+                    </MobileOnly>
+                    <DesktopOnly />
                 </TopTwoButtonsMobileContainer>
                 <PoolFiltersContainer>
                     <SwitchersContainer>
-                        <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
-
+                        <MobileOnly>
+                            <DropdownButton
+                                onColumnClick={onColumnClick}
+                                sortKey={sortKey}
+                                isAscSort={isAscSort}
+                                swapArrow={swapArrow}
+                                theme={theme}
+                            />
+                        </MobileOnly>
+                        <DesktopOnly>
+                            <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
+                        </DesktopOnly>
                         {/* previous switcher which was good <SwitchSelect
                                 switchStatus={showVerified}
                                 onChange={setShowVerified}
