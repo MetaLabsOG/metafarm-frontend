@@ -1,5 +1,6 @@
 import SwitchSelector from 'react-switch-selector';
 import PropTypes from 'prop-types';
+import { PoolStateWrapper } from './styled';
 
 interface PoolStateSwitcherProps {
     switchStatus: boolean;
@@ -10,15 +11,14 @@ const options = [
     {
         label: 'Live',
         value: false,
-        selectedBackgroundColor: '#808080',
+        selectedBackgroundColor: '#90ee90',
     },
     {
         label: 'Ended',
         value: true,
-        selectedBackgroundColor: '#808080',
+        selectedBackgroundColor: '#90ee90',
     },
 ];
-const initialSelectedIndex = options.findIndex(({ value }) => value === true);
 
 export const PoolStateSwitcher: React.FC<PoolStateSwitcherProps> = ({ switchStatus, onChange }) => {
     PoolStateSwitcher.propTypes = {
@@ -32,16 +32,16 @@ export const PoolStateSwitcher: React.FC<PoolStateSwitcherProps> = ({ switchStat
     const initialSelectedIndex = options.findIndex(({ value }) => value === switchStatus);
 
     return (
-        <div className="your-required-wrapper" style={{ width: 150, height: 30, marginTop: 10 }}>
+        <PoolStateWrapper>
             <SwitchSelector
                 onChange={handleChange}
                 options={options}
                 initialSelectedIndex={initialSelectedIndex}
                 backgroundColor={'#1e1e1e'}
-                fontColor={'#676767'}
-                selectedFontColor="white"
+                fontColor={'white'}
+                selectedFontColor="black"
                 name="LiveSwitchSelector"
             />
-        </div>
+        </PoolStateWrapper>
     );
 };
