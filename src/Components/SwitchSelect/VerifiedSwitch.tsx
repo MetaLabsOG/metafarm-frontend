@@ -3,7 +3,7 @@ import SwitchSelector from 'react-switch-selector';
 import { MyVerifiedSwitchWrapper } from './styled';
 
 interface SwitchSelectProps {
-    switchStatus: boolean;
+    switchStatus: any;
     onChange: (status: boolean) => void;
 }
 
@@ -30,13 +30,14 @@ export const VerifiedSwitch: React.FC<SwitchSelectProps> = ({ onChange, switchSt
     return (
         <MyVerifiedSwitchWrapper>
             <SwitchSelector
+                key={switchStatus}
                 onChange={handleChange}
                 options={options}
                 initialSelectedIndex={initialSelectedIndex}
                 backgroundColor={'#1e1e1e'}
                 fontColor={'white'}
                 selectedFontColor="#1e1e1e"
-                name="VerifiedSwitcher"
+                name="VerifiedSwitcherSelector"
             />
         </MyVerifiedSwitchWrapper>
     );
