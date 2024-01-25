@@ -30,12 +30,15 @@ export function Metapunks() {
         }
 
         const accountAssetsIds = accountInfo.assets.map((asset: any) => asset['asset-id']);
+
         const metapunks = accountAssetsIds
             .filter((asset_id: any) => METAPUNKS_INFO[asset_id.toString()])
             .map((asset_id: any) => METAPUNKS_INFO[asset_id]);
         console.log(metapunks);
         setMetapunksIds(metapunks);
     }, [accountInfo]);
+
+    const userHasNoMetapunks = metapunksIds.length === 0;
 
     return (
         <MetapunksContainer>
@@ -46,19 +49,35 @@ export function Metapunks() {
                 style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center' }}
                 rel="noreferrer"
             >
-                <Button
-                    buttonText="BUY METAPUNK"
-                    style={{
-                        width: 300,
-                        height: 50,
-                        fontSize: 20,
-                        marginBottom: 20,
-                        marginTop: 20,
-                    }}
-                    onClick={() => {
-                        // Do nothing
-                    }}
-                />
+                {userHasNoMetapunks ? (
+                    <Button
+                        buttonText="BUY METAPUNK"
+                        style={{
+                            width: 300,
+                            height: 50,
+                            fontSize: 20,
+                            marginBottom: 20,
+                            marginTop: 20,
+                        }}
+                        onClick={() => {
+                            // Do nothing
+                        }}
+                    />
+                ) : (
+                    <Button
+                        buttonText="GET MORE METAPUNKS"
+                        style={{
+                            width: 300,
+                            height: 50,
+                            fontSize: 20,
+                            marginBottom: 20,
+                            marginTop: 20,
+                        }}
+                        onClick={() => {
+                            // Do nothing
+                        }}
+                    />
+                )}
             </a>
 
             <Subheader>
@@ -69,27 +88,28 @@ export function Metapunks() {
 
             <PunksGallery metapunks={metapunksIds} />
 
-            <a
-                target="_blank"
-                href="https://www.nftexplorer.app/sellers/metapunks"
-                style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center' }}
-                rel="noreferrer"
-            >
-                <Button
-                    buttonText="JOIN METAPUNKS"
-                    style={{
-                        width: 300,
-                        height: 50,
-                        fontSize: 20,
-                        marginBottom: 20,
-
-                        boxShadow: '0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3)',
-                    }}
-                    onClick={() => {
-                        // Do nothing
-                    }}
-                />
-            </a>
+            {userHasNoMetapunks && (
+                <a
+                    target="_blank"
+                    href="https://www.nftexplorer.app/sellers/metapunks"
+                    style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center' }}
+                    rel="noreferrer"
+                >
+                    <Button
+                        buttonText="BUY METAPUNK"
+                        style={{
+                            width: 300,
+                            height: 50,
+                            fontSize: 20,
+                            marginBottom: 20,
+                            marginTop: 20,
+                        }}
+                        onClick={() => {
+                            // Do nothing
+                        }}
+                    />
+                </a>
+            )}
         </MetapunksContainer>
     );
 }
