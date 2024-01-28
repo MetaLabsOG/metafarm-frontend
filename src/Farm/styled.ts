@@ -70,6 +70,10 @@ export const PoolSearchInput = styled.input`
     border: 1px solid lightgreen;
     border-radius: 15px;
 
+    @media (max-width: 860px) {
+        width: 120px;
+    }
+
     @media (max-width: 820px) {
         display: none;
     }
@@ -79,9 +83,11 @@ export const PoolSearchInput = styled.input`
         width: 90%;
         border-radius: 15px;
         margin-left: 25px;
-        height: 30px;
+        height: 27px;
         text-align: left;
         margin-top: 20px;
+        font-size: 12px;
+        text-align: center;
     }
 
     &:focus {
