@@ -136,10 +136,10 @@ export const AddFarmButtonContainer = styled.a`
         text-align: center;
         border-radius: 15px;
         font-size: 12px;
-        padding: 6px 15px 6px 15px;
+        padding: 5px 15px 5px 15px;
         font-weight: 300;
         width: 130px;
-        height: 29px;
+        height: 27px;
         margin-top: 10px;
 
         :hover {
@@ -160,7 +160,7 @@ export const SwitchersContainer = styled.a`
     @media (max-width: 700px) {
         display: flex;
         flex-direction: column-reverse;
-        padding-left: 15px;
+        padding-left: 17px;
         padding-top: 5px;
         gap: 0px;
     }
@@ -187,8 +187,8 @@ export const SwitchersAndSearchContainer = styled.a`
         margin-bottom: 0px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        padding-top: 5px;
+        gap: 11px;
+        padding-top: 4px;
         margin-left: 0px;
     }
 `;
@@ -211,7 +211,7 @@ export const TopTwoButtonsMobileContainer = styled.a`
         justify-content: center;
         margin-right: 0%;
         padding-top: 5px;
-        gap: 0px;
+        gap: 2px;
         margin-bottom: 0px;
     }
 `;

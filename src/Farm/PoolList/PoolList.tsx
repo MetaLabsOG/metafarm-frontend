@@ -9,6 +9,7 @@ import { SwitchSelect } from '../../Components/SwitchSelect/SwitchSelect';
 import { SwitchSelectPools } from '../../Components/SwitchSelect/SwitchSelectMyPools';
 import { PoolStateSwitcher } from '../../Components/SwitchSelect/PoolStateSwitcher';
 import { VerifiedSwitch } from '../../Components/SwitchSelect/VerifiedSwitch';
+import { VerifiedSwitchDesktop } from '../../Components/SwitchSelect/VerifiedSwitchDesktop';
 
 import DropdownButton from '../../Components/DropdownButton/Dropdown';
 
@@ -184,23 +185,31 @@ export function PoolList({
                             />
                         </MobileOnly>
                         <DesktopOnly>
-                            <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
+                            <VerifiedSwitchDesktop onChange={onVerifiedButton} switchStatus={showVerified} />
                         </DesktopOnly>
                         {/* previous switcher which was good <SwitchSelect
                                 switchStatus={showVerified}
                                 onChange={setShowVerified}
                                 switchText={'Verified only'}
                             /> Previous switcher which was good*/}
-
-                        <PoolSearchInput
-                            placeholder="Pool search"
-                            value={poolSearch}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
-                        />
+                        <MobileOnly>
+                            <PoolSearchInput
+                                placeholder="Pool search"
+                                value={poolSearch}
+                                onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
+                            />
+                        </MobileOnly>
                     </SwitchersContainer>
                     <SwitchersAndSearchContainer>
                         <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
                         <SwitchSelectPools onChange={onChangePoolType} value={!showMyPools} />
+                        <DesktopOnly>
+                            <PoolSearchInput
+                                placeholder="Pool search"
+                                value={poolSearch}
+                                onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
+                            />
+                        </DesktopOnly>
                     </SwitchersAndSearchContainer>
                 </PoolFiltersContainer>
             </PoolTopLineContainer>
