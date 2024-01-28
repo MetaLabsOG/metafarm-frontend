@@ -33,7 +33,8 @@ export const PoolStateWrapper = styled.div`
     font-weight: 300;
 
     @media (max-width: 700px) {
-        margin-top: 11px;
+        margin-top: 12px;
+        margin-left: 2px;
     }
 `;
 
@@ -48,6 +49,7 @@ export const SwitchSelectWrapper = styled.div`
         width: 170px;
         height: 30px;
         margin-top: 14px;
+        padding-left: 2px;
     }
 `;
 

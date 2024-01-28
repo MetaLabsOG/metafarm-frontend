@@ -7,7 +7,7 @@ interface SwitchSelectProps {
     onChange: (status: boolean) => void;
 }
 
-export const VerifiedSwitch: React.FC<SwitchSelectProps> = ({ onChange, switchStatus }) => {
+export const VerifiedSwitchDesktop: React.FC<SwitchSelectProps> = ({ onChange, switchStatus }) => {
     const options = [
         {
             label: 'All',
@@ -36,7 +36,7 @@ export const VerifiedSwitch: React.FC<SwitchSelectProps> = ({ onChange, switchSt
                 backgroundColor={'#1e1e1e'}
                 fontColor={'white'}
                 selectedFontColor="#1e1e1e"
-                name="VerifiedSwitcherSelect"
+                name="VerifiedSwitcherSelectDesktop"
             />
         </MyVerifiedSwitchWrapper>
     );

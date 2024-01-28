@@ -48,13 +48,14 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
 
     return (
         <DropDownSortWrapper>
-            <div style={{ position: 'relative' }} ref={dropdownRef}>
+            <div style={{ position: 'relative', marginLeft: '1px', paddingTop: '3px' }} ref={dropdownRef}>
                 {isOpen ? (
                     <button
                         onClick={toggleDropdown}
                         style={{
                             backgroundColor: 'transparent',
                             color: 'gray',
+                            fontSize: '12px',
                             borderRadius: '20px',
                             padding: '5px 15px',
                             width: '120px',
@@ -74,8 +75,8 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                             backgroundColor: 'transparent',
                             color: 'white',
                             borderRadius: '15px',
+                            fontSize: '12px',
                             padding: '5px 15px',
-
                             width: '120px',
                             border: 'lightgreen 1px solid',
                             cursor: 'pointer',
@@ -93,6 +94,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                             position: 'absolute',
                             zIndex: 100,
                             backgroundColor: 'white',
+                            fontSize: '13px',
                             boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
                             width: '100%',
                             top: '120%',
