@@ -23,6 +23,11 @@ export const MyVerifiedSwitchWrapper = styled.div`
         max-width: 700px;
         width: 155px;
         height: 30px;
+        margin-top: 10px;
+    }
+
+    @media (max-width: 430px) {
+        margin-left: 10%;
     }
 `;
 
