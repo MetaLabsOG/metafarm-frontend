@@ -94,4 +94,8 @@ export const PoolSearchInput = styled.input`
         outline: none;
         border-color: #90ee90;
     }
+
+    @media (max-width: 430px) {
+        width: 125px;
+    }
 `;
