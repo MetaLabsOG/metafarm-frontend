@@ -7,20 +7,20 @@ interface SwitchSelectProps {
     value: any;
 }
 
-export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange }) => {
+export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, value }) => {
     const options = [
         {
             label: 'All',
-            value: true, // Indicates showing user's pools
+            value: true,
             selectedBackgroundColor: '#90ee90',
         },
         {
             label: 'My Pools',
-            value: false, // Indicates showing all pools
+            value: false,
             selectedBackgroundColor: '#90ee90',
         },
     ];
-    const initialSelectedIndex = options.findIndex(({ label }) => label === 'All');
+    const initialSelectedIndex = value ? 1 : 0;
 
     const handleSelectorChange = (newValue: any) => {
         onChange(newValue.value);

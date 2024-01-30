@@ -76,6 +76,7 @@ export const PoolFiltersContainer = styled.div`
         display: flex;
         flex-direction: row;
         align-items: center;
+        margin-bottom: -20px;
     }
 `;
 
@@ -138,7 +139,7 @@ export const AddFarmButtonContainer = styled.a`
         font-size: 12px;
         padding: 5px 15px 5px 15px;
         font-weight: 300;
-        width: 130px;
+        width: 128px;
         height: 27px;
         margin-top: 10px;
 
@@ -211,7 +212,7 @@ export const TopTwoButtonsMobileContainer = styled.a`
         justify-content: center;
         margin-right: 0%;
         padding-top: 5px;
-        gap: 2px;
+        gap: 5px;
         margin-bottom: 0px;
     }
 `;

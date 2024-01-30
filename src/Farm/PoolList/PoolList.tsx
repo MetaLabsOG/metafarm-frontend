@@ -202,7 +202,7 @@ export function PoolList({
                     </SwitchersContainer>
                     <SwitchersAndSearchContainer>
                         <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
-                        <SwitchSelectPools onChange={onChangePoolType} value={!showMyPools} />
+                        <SwitchSelectPools onChange={onChangePoolType} value={showMyPools} />
                         <DesktopOnly>
                             <PoolSearchInput
                                 placeholder="Pool search"
