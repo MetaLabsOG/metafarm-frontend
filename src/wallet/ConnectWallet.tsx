@@ -138,7 +138,7 @@ export function ConnectWallet({
                         >
                             <a
                                 target="_blank"
-                                href={'https://' + prefix + 'algoexplorer.io/address/' + account.networkAccount.addr}
+                                href={'https://allo.info/account/' + account.networkAccount.addr}
                                 rel="noreferrer"
                                 style={{ textDecoration: 'none' }}
                             >
