@@ -336,13 +336,13 @@ export function formatNumber(x: number) {
 }
 
 export function algoexplorerTxLink(txId: string): string {
-    return `https://${ALGONET === MAINNET ? '' : 'testnet.'}algoexplorer.io/tx/${txId}`;
+    return `https://allo.info/tx/${txId}`;
 }
 
 export function algoexplorerContractLink(appId: AppId): string {
-    return `https://${ALGONET === MAINNET ? '' : 'testnet.'}algoexplorer.io/application/${appId}`;
+    return `https://allo.info/application/${appId}`;
 }
 
 export function algoexplorerLink(type: string, id: AppId): string {
-    return `https://${ALGONET === MAINNET ? '' : 'testnet.'}algoexplorer.io/${type}/${id}`;
+    return `https://allo.info/${type}/${id}`;
 }

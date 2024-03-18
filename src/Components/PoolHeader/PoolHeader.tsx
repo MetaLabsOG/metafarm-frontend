@@ -107,7 +107,7 @@ export function PoolHeader({
             <PoolInfo>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                     <PoolTitle style={{ marginRight: '5px' }}>{pool_name}</PoolTitle>
-                    {isVerified && <img data-tip="Project is verified by Cometa" alt="" height="14px" src={verified} />}
+                    {isVerified && <img data-tip="Verified by Cometa" alt="" height="14px" src={verified} />}
                 </div>
                 <div style={{ display: 'flex' }}>
                     <PoolSubtitle>EARN {rewardTokenName}</PoolSubtitle>
@@ -118,7 +118,8 @@ export function PoolHeader({
                     <ContractLockSuffix>{lock}</ContractLockSuffix>
                     {lock && (
                         <img
-                            data-tip="If you claim during the lock period, rewards are burned."
+                            data-html="true"
+                            data-tip="❗️ During lock:<br />· Claim/Withdraw ➡ All rewards are lost.<br />· Stake ➡ Timer start for the beginning.<br />· POOL ENDS ➡ Lock is still active, wait."
                             alt=""
                             height="10px"
                             src={info}

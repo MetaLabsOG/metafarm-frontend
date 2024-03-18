@@ -1,5 +1,7 @@
 import twitter from '../imgs/twitter.svg';
 import discord from '../imgs/discord.svg';
+import email from '../imgs/email.svg';
+import telegram from '../imgs/telegram.svg';
 import { ALGONET } from '../AppContext';
 import { theme } from '../theme';
 import { FooterContainer, FooterItem, FooterText, Logo } from './styled';
@@ -12,7 +14,7 @@ export function Footer() {
                 <FooterItem>powered by Algonode.io</FooterItem>
             </a>
             <FooterText>
-                <FooterItem>This is the first public beta version. Use the dApp at your own risk. </FooterItem>
+                <FooterItem>Cometa 2022 — 2024. </FooterItem>
                 <a
                     target="_blank"
                     rel="noreferrer"
@@ -26,8 +28,14 @@ export function Footer() {
                 <a target="_blank" href="https://twitter.com/CometaHub" rel="noreferrer">
                     <Logo src={twitter} alt="twitter" height="17px" />
                 </a>
-                <a target="_blank" href="https://discord.gg/7kMD9ktGjR" rel="noreferrer">
+                <a target="_blank" href="https://discord.gg/u7JgwAcUwp" rel="noreferrer">
                     <Logo src={discord} alt="discord" height="17px" />
+                </a>
+                <a target="_blank" href="mailto:team@cometa.wtf" rel="noreferrer">
+                    <Logo src={email} alt="email" height="17px" />
+                </a>
+                <a target="_blank" href="https://t.me/cometahub" rel="noreferrer">
+                    <Logo src={telegram} alt="telegram" height="17px" />
                 </a>
             </div>
         </FooterContainer>
