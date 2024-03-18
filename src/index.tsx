@@ -87,10 +87,11 @@ const modalComponents = {
 
 function App() {
     const account = useUnit($account);
+    const user_address = account?.networkAccount.addr;
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
-    const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm'));
-    const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution'));
+    const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm', user_address));
+    const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution', user_address));
 
     const [Modal, openWelcomeModal] = useModal('root');
 

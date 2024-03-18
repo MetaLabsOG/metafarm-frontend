@@ -95,9 +95,13 @@ export async function getWalletNFTs(wallet: string): Promise<WalletNFT[]> {
 }
 
 // TODO maybe typing could be improved
-export async function getContracts(type: string): Promise<JsonWithBignum> {
+export async function getContracts(
+    type: string,
+    user_address: string | undefined = undefined
+): Promise<JsonWithBignum> {
+    const include_param_str = user_address ? `&include_address_pools=${user_address}` : '';
     return instance
-        .get<Json>(`/contracts?type=${type}`)
+        .get<Json>(`/contracts?type=${type}${include_param_str}`)
         .then(({ data }) => resolveBignums(data))
         .catch((error) => {
             console.log('ERR', error);
