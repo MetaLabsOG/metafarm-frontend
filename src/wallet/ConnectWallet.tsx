@@ -18,6 +18,7 @@ const browserInfoString =
         : `${BROWSER.name} ${BROWSER.version ?? 'UNKNOWN_VERSION'} ${BROWSER.os ?? 'UNKNOWN_OS'}`;
 
 const WALLET_TYPE_KEY = 'connectedWalletType';
+const WALLET_ADDRESS = 'walletAddress';
 
 export const connectWallet = (walletType: WalletType) => {
     reach.clearProvider();
@@ -47,6 +48,7 @@ export const connectWallet = (walletType: WalletType) => {
                 LogName.WALLET
             );
             localStorage.setItem(WALLET_TYPE_KEY, walletType);
+            localStorage.setItem(WALLET_ADDRESS, acc.networkAccount.addr);
 
             return acc;
         })
