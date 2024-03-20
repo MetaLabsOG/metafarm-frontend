@@ -87,7 +87,15 @@ const modalComponents = {
 
 function App() {
     const account = useUnit($account);
-    const user_address = account?.networkAccount.addr;
+    const localstorageAddress = localStorage.getItem('walletAddress');
+    let user_address: string | undefined = undefined;
+    if (localstorageAddress) {
+        user_address = localstorageAddress;
+    }
+    if (account?.networkAccount.addr) {
+        user_address = account?.networkAccount.addr;
+    }
+    console.log('user_address', user_address);
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
     const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm', user_address));
