@@ -534,7 +534,7 @@ export const Fomo = () => {
                 {currentWinner ? (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <h2 className="fomo_info">winner: </h2>
-                        <a className="fomo_info" href={'https://algoexplorer.io/address/' + currentWinner}>
+                        <a className="fomo_info" href={'https://allo.info/account/' + currentWinner}>
                             {currentWinner}
                         </a>
                     </div>
@@ -574,7 +574,7 @@ export const Fomo = () => {
                                         winner: &nbsp;
                                         <a
                                             className="fomo_info"
-                                            href={'https://algoexplorer.io/address/' + currentWinner}
+                                            href={'https://allo.info/account/' + currentWinner}
                                         >
                                             {currentWinner}
                                         </a>
@@ -595,7 +595,7 @@ export const Fomo = () => {
                         <Winner>
                             <h2 className="fomo_info">
                                 winner: &nbsp;
-                                <a className="fomo_info" href={'https://algoexplorer.io/address/' + currentWinner}>
+                                <a className="fomo_info" href={'https://allo.info/account/' + currentWinner}>
                                     {currentWinner}
                                 </a>
                             </h2>

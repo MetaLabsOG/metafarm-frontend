@@ -2153,6 +2153,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@evanhahn/lottie-web-light@npm:5.8.1":
+  version: 5.8.1
+  resolution: "@evanhahn/lottie-web-light@npm:5.8.1"
+  checksum: 3e49b2b249b717cd073bf97f45084e478d7ce82d1b79ae462139f1fc4f724c5ad8ca6253f6146b3d1cde0a27d164b391450dd83623dbb7d64f39bd0c206981c7
+  languageName: node
+  linkType: hard
+
 "@gar/promisify@npm:^1.1.3":
   version: 1.1.3
   resolution: "@gar/promisify@npm:1.1.3"
@@ -3801,20 +3808,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@perawallet/connect@npm:^1.0.7":
-  version: 1.0.7
-  resolution: "@perawallet/connect@npm:1.0.7"
+"@perawallet/connect@npm:^1.3.4":
+  version: 1.3.4
+  resolution: "@perawallet/connect@npm:1.3.4"
   dependencies:
-    "@json-rpc-tools/utils": "npm:^1.7.6"
+    "@evanhahn/lottie-web-light": "npm:5.8.1"
     "@walletconnect/client": "npm:^1.8.0"
     "@walletconnect/types": "npm:^1.8.0"
-    bowser: "npm:^2.11.0"
+    bowser: "npm:2.11.0"
     buffer: "npm:^6.0.3"
-    lottie-web: "npm:^5.9.6"
-    qr-code-styling: "npm:^1.6.0-rc.1"
+    qr-code-styling: "npm:1.6.0-rc.1"
   peerDependencies:
-    algosdk: ^1.23.2
-  checksum: 3a3652bc36d89c3afa4cf0d25ad5e333587f3d55c4c64efa61e05c6a52411152f841052c1a385d5ff072385799a10c6e52b9065791566f70084be13f6f79045a
+    algosdk: ^2.1.0
+  checksum: aae355a531874d9a7266f36b6e6c307a7726eee98b10fd5ad9618bd671765145b13346a04de6173ef53337baab6e1b6ca00d41f744b0cb81301cd8c5e18adaab
   languageName: node
   linkType: hard
 
@@ -6537,7 +6543,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bowser@npm:^2.11.0":
+"bowser@npm:2.11.0, bowser@npm:^2.11.0":
   version: 2.11.0
   resolution: "bowser@npm:2.11.0"
   checksum: 1665856cc9caa19ff2ec958d3f7e6485bf707f6250abf171483a30b814170d56b621a8cae639c191bf123de2ad62027248b55a1e7892bf03f4df65e2d3e4a5b9
@@ -13034,13 +13040,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lottie-web@npm:^5.9.6":
-  version: 5.10.0
-  resolution: "lottie-web@npm:5.10.0"
-  checksum: de6ac02b690ec6d135ab55756329fb5e9e6c255da45b43c40b08f3ec13f2bb99a2bc1c0c416cc8d6c0bf6274c1572a40f1a0f4ba8e50700cc9e4271385216d6a
-  languageName: node
-  linkType: hard
-
 "lower-case@npm:^2.0.2":
   version: 2.0.2
   resolution: "lower-case@npm:2.0.2"
@@ -13300,7 +13299,7 @@ __metadata:
     "@metalabsog/crowdsale": "npm:17.0.0"
     "@metalabsog/metafomo": "npm:17.0.0"
     "@pactfi/pactsdk": "npm:^0.5.0"
-    "@perawallet/connect": "npm:^1.0.7"
+    "@perawallet/connect": "npm:^1.3.4"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.7"
     "@ramonak/react-progress-bar": "npm:^5.0.2"
     "@reach-sh/stdlib": "npm:0.1.11-rc.5"
@@ -15961,7 +15960,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qr-code-styling@npm:^1.6.0-rc.1":
+"qr-code-styling@npm:1.6.0-rc.1":
   version: 1.6.0-rc.1
   resolution: "qr-code-styling@npm:1.6.0-rc.1"
   dependencies:
