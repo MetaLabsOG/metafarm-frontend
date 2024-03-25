@@ -35,7 +35,7 @@ export function MetaDAO() {
                                 fontFamily: 'Montserrat',
                             }}
                         >
-                            <Wallet target="_blank" href={`https://algoexplorer.io/address/${METAWALLET}`}>
+                            <Wallet target="_blank" href={`https://allo.info/account/${METAWALLET}`}>
                                 METATREASURY WALLET
                             </Wallet>
                         </div>
