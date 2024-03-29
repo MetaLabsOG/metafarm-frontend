@@ -29,9 +29,24 @@ export const TESTNET_TO_MAINNET_ASA_ID: Record<number, number> = {
     144971339: 672913181, // goUSD
 };
 
+let assetData: Record<string, any> = {};
+
+async function fetchAssetData() {
+    try {
+        const response = await fetch('https://asa-list.tinyman.org/assets.json');
+        assetData = await response.json();
+    } catch (error) {
+        console.error('Error fetching asset data:', error);
+    }
+}
+
+fetchAssetData();
+
 export const getAssetLogoUrl = (input_asset_id: number) => {
     const asset_id = ALGONET === MAINNET ? input_asset_id : TESTNET_TO_MAINNET_ASA_ID[input_asset_id];
-
+    if (asset_id in assetData) {
+        return assetData[asset_id].logo.png;
+    }
     return `https://asa-list.tinyman.org/assets/${asset_id}/icon.png`;
 };
 
