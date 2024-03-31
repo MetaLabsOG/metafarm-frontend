@@ -144,7 +144,7 @@ export function ConnectWallet({
                                 rel="noreferrer"
                                 style={{ textDecoration: 'none' }}
                             >
-                                <div className="account_item">Allo</div>
+                                <div className="account_item">Account Review</div>
                             </a>
                             {ALGONET === TESTNET && (
                                 <a

@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import pera from '../imgs/pera.svg';
-import myalgo from '../imgs/myalgo.svg';
 import defly from '../imgs/defly.svg';
 import closeButton from '../imgs/close.svg';
 import { ModalCloseButton } from '../common/styled';
 import { WalletType } from './customWalletFallback';
 import { connectWallet } from './ConnectWallet';
-import { WalletButton, WalletHeader, WalletModalContainer, WalletText } from './styled';
+import { DeflyButton, PeraButton, WalletHeader, WalletModalContainer, WalletText } from './styled';
 
 export function ConnectWalletModal({ closeModal, isModalOpen }: { closeModal: () => void; isModalOpen: boolean }) {
     const [finishedOpening, setFinishedOpening] = useState(false);
@@ -23,19 +22,15 @@ export function ConnectWalletModal({ closeModal, isModalOpen }: { closeModal: ()
     return (
         <WalletModalContainer finishedOpening={finishedOpening}>
             <ModalCloseButton src={closeButton} alt="close" onClick={closeModal} />
-            <WalletHeader>CHOOSE WALLET</WalletHeader>
-            <WalletButton onClick={() => walletClick('MyAlgo')}>
-                <WalletText>Connect to MyAlgo</WalletText>
-                <img style={{ width: '28px', height: '28px' }} alt="myalgo wallet" src={myalgo} />
-            </WalletButton>
-            <WalletButton onClick={() => walletClick('WalletConnect')}>
-                <WalletText>Connect to Pera wallet</WalletText>
-                <img style={{ width: '28px', height: '28px' }} alt="pera wallet" src={pera} />
-            </WalletButton>
-            <WalletButton onClick={() => walletClick('WalletConnectDefly')}>
-                <WalletText>Connect to Defly wallet</WalletText>
-                <img style={{ width: '28px', height: '28px' }} alt="defly wallet" src={defly} />
-            </WalletButton>
+            <WalletHeader>Connect Wallet</WalletHeader>
+            <PeraButton onClick={() => walletClick('WalletConnect')}>
+                <img style={{ width: '28px', height: '28px', marginRight: '12px' }} alt="pera wallet" src={pera} />
+                <WalletText style={{ color: 'black' }}>Pera</WalletText>
+            </PeraButton>
+            <DeflyButton onClick={() => walletClick('WalletConnectDefly')}>
+                <img style={{ width: '28px', height: '28px', marginRight: '12px' }} alt="defly wallet" src={defly} />
+                <WalletText style={{ color: 'white' }}>Defly</WalletText>
+            </DeflyButton>
         </WalletModalContainer>
     );
 }

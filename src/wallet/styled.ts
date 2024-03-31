@@ -1,13 +1,31 @@
 import styled from 'styled-components';
 
-// TODO: fix animation
+export const WalletHeader = styled.div`
+    font-family: 'Korona One';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 28px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    letter-spacing: 0.04em;
+    margin-bottom: 20px;
+    white-space: nowrap;
+
+    color: var(--newWhite);
+
+    @media (max-width: 450px) {
+        font-size: 18px;
+    }
+`;
+
 export const WalletModalContainer = styled.div<{ finishedOpening: boolean }>`
-    width: calc(100vw - 32px);
-    max-width: 450px;
+    width: 400px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 50px;
+    padding: 30px 30px;
     gap: 20px;
     margin: auto;
     background-color: var(--backgroundCard);
@@ -22,49 +40,37 @@ export const WalletModalContainer = styled.div<{ finishedOpening: boolean }>`
     }
 `;
 
-export const WalletHeader = styled.div`
-    font-family: 'Korona One';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 22px;
-    line-height: 28px;
-    display: flex;
-    align-items: center;
-    text-align: center;
-    letter-spacing: 0.04em;
-    margin-bottom: 20px;
-
-    color: var(--newWhite);
-
-    @media (max-width: 450px) {
-        font-size: 18px;
-    }
-`;
-
 export const WalletButton = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 24px;
 
-    max-width: 350px;
     width: 100%;
     height: 76px;
 
     background: var(--backgroundModal);
-    border-radius: 12px;
+    border-radius: 25px;
 
     :hover {
         background-color: var(--backgroundHover);
     }
 `;
 
+export const PeraButton = styled(WalletButton)`
+    background-color: yellow;
+`;
+
+export const DeflyButton = styled(WalletButton)`
+    background-color: black;
+`;
+
 export const WalletText = styled.div`
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 18px;
     line-height: 20px;
     display: flex;
     align-items: center;
