@@ -21,7 +21,7 @@ export const WalletHeader = styled.div`
 `;
 
 export const WalletModalContainer = styled.div<{ finishedOpening: boolean }>`
-    width: 400px;
+    width: 350px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -48,7 +48,7 @@ export const WalletButton = styled.div`
     padding: 24px;
 
     width: 100%;
-    height: 76px;
+    height: 60px;
 
     background: var(--backgroundModal);
     border-radius: 25px;
@@ -70,7 +70,7 @@ export const WalletText = styled.div`
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 20px;
     line-height: 20px;
     display: flex;
     align-items: center;

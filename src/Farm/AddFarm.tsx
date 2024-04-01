@@ -755,8 +755,8 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             <InfoCard
                 title="Questions? We are here"
                 subtitle=""
-                linkText="x@metapunks.world"
-                link="mailto:x@metapunks.world"
+                linkText="team@cometa.wtf"
+                link="mailto:team@cometa.wtf"
                 style={{ width: '100%', height: 120, marginTop: 20 }}
             />
         </ModalContainer>
