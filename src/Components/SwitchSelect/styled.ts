@@ -21,25 +21,25 @@ export const MyVerifiedSwitchWrapper = styled.div`
 
     @media (max-width: 700px) {
         max-width: 700px;
-        width: 155px;
+        width: 170px;
         height: 30px;
-        margin-top: 10px;
+        margin-top: 0;
     }
 
     @media (max-width: 430px) {
-        margin-left: 10%;
+        margin-left: 0;
     }
 `;
 
 export const PoolStateWrapper = styled.div`
-    width: 150px;
+    width: 170px;
     height: 30px;
     margin-top: 10px;
     font-weight: 300;
 
     @media (max-width: 700px) {
-        margin-top: 12px;
-        margin-left: 2px;
+        margin-top: 0;
+        margin-left: 0;
     }
 `;
 
@@ -53,13 +53,7 @@ export const SwitchSelectWrapper = styled.div`
     @media (max-width: 700px) {
         width: 170px;
         height: 30px;
-        margin-top: 14px;
-        padding-left: 2px;
+        margin-top: 0;
+        padding-left: 0;
     }
-`;
-
-export const DropDownSortWrapper = styled.div`
-    margin-top: 15px;
-    margin-left: 18%;
-    padding-bottom: 10px;
 `;
