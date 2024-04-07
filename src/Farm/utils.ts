@@ -1,10 +1,11 @@
 import { BigNumberish } from '@ethersproject/bignumber';
+import { useState, useEffect } from 'react';
 import pact from '../imgs/dexes/pact.png';
 import tinyman from '../imgs/dexes/tinyman.png';
 import tinymanOld from '../imgs/dexes/tinymanOld.png';
 import humble from '../imgs/dexes/humble.png';
 import { reach } from '../AppContext';
-import { Contract, SubstituteType } from '../types';
+import { SubstituteType } from '../types';
 import { DexProvider } from '../dexes';
 import { Amount, DistributionInitialInfo, FarmInitialInfo, SomeContract } from '../common/store';
 
@@ -58,4 +59,45 @@ export const getDexIcon = (poolDex: DexProvider): Image | null => {
     }
 
     return null;
+};
+
+export const usePersistedState = <InitialValueType>(
+    key: string | null | undefined,
+    initialValue: InitialValueType
+): [InitialValueType, React.Dispatch<React.SetStateAction<InitialValueType>>] => {
+    const [storedValue, setStoredValue] = useState(() => {
+        if (!key) {
+            return initialValue;
+        }
+
+        try {
+            const item = window.localStorage.getItem(key);
+            return item != null ? JSON.parse(item) : initialValue;
+        } catch (error) {
+            return initialValue;
+        }
+    });
+
+    useEffect(() => {
+        if (key) {
+            try {
+                window.localStorage.setItem(key, JSON.stringify(storedValue));
+            } catch (error) {
+                //
+            }
+        }
+    }, [key, storedValue]);
+
+    return [storedValue, setStoredValue];
+};
+
+export const useWalletPersistedState = <InitialValueType>(
+    key: string | null | undefined,
+    initialValue: InitialValueType
+) => {
+    const [walletAddr] = useState(() => {
+        return localStorage.getItem('walletAddress');
+    });
+
+    return usePersistedState<InitialValueType>(walletAddr ? `${walletAddr}-${key}` : undefined, initialValue);
 };
