@@ -95,7 +95,6 @@ function App() {
     if (account?.networkAccount.addr) {
         user_address = account?.networkAccount.addr;
     }
-    console.log('user_address', user_address);
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
     const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm', user_address));
