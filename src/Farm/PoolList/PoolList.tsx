@@ -158,13 +158,6 @@ export function PoolList({
         setShowVerified(!showVerified);
     };
 
-    useEffect(() => {
-        const sortColumn = showEnded ? ColumnType.Stake : ColumnType.Tvl;
-        setSortKey(sortColumn);
-        setIsAscSort(false);
-        sortEvent({ type: sortColumn, asc: false });
-    }, [showEnded]);
-
     return (
         <div>
             <PoolTopLineContainer>
