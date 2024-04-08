@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { theme } from '../theme';
 
 export const FarmContainer = styled.div`
     display: flex;
@@ -56,7 +57,7 @@ export const GovImg = styled.img`
 
 export const PoolSearchInput = styled.input`
     height: 30px;
-    width: 170px;
+    width: 140px;
     padding: 10px;
     margin: 10px 0;
     color: white;
@@ -66,9 +67,9 @@ export const PoolSearchInput = styled.input`
 
     text-align: center;
     font-family: 'Montserrat';
-    font-size: 14px;
+    font-size: 13px;
 
-    border: 1px solid lightgreen;
+    border: 1px solid ${theme.lightGray};
     border-radius: 15px;
 
     @media (max-width: 860px) {

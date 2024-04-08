@@ -156,8 +156,8 @@ export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
     margin: auto;
     background: linear-gradient(27deg, #dddddd 30.29%, ${theme.niceGreen} 67%);
     font-family: 'Montserrat';
-    font-weight: 700;
-    font-size: 21px;
+    font-weight: 500;
+    font-size: 22px;
     color: black;
     border: none;
     border-radius: 4px;
