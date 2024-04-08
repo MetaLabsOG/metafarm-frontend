@@ -71,6 +71,16 @@ export const PoolInfoMobileContainer = styled.div`
     }
 `;
 
+export const PoolPropertyName = styled.div`
+    padding-left: 10px;
+    color: white;
+`;
+
+export const PoolPropertyValue = styled.div`
+    padding-right: 10px;
+    color: white;
+`;
+
 export const PoolInfoValue = styled.div<{ width?: string }>`
     display: flex;
     flex-direction: column;
@@ -204,12 +214,25 @@ export const PoolLoadingAnimation = styled.img`
 `;
 
 export const RewardUSDValue = styled.div`
+    color: white;
+
     @media (max-width: 1120px) {
         text-align: right;
     }
 `;
 
 export const RewardTokenValue = styled.div`
+    white-space: nowrap;
+    font-size: 13px;
+    color: #8bff74; // light green tODO: to constants
+    display: flex;
+
+    @media (max-width: 1120px) {
+        text-align: right;
+    }
+`;
+
+export const ZeroRewardTokenValue = styled.div`
     white-space: nowrap;
     font-size: 13px;
     color: var(--gray);

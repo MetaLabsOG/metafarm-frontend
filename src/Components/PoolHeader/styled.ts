@@ -28,10 +28,10 @@ export const PoolTitle = styled.div`
     white-space: nowrap;
     font-family: 'Korona One';
     font-size: 14px;
+    color: white;
 
     @media (max-width: 1120px) {
         font-size: 15px;
-        color: white;
     }
 `;
 

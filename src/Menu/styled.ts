@@ -2,19 +2,17 @@ import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
 export const MenuItem = styled(NavLink)`
-    color: var(--white);
-    cursor: pointer;
-    position: relative;
-    //font-size: 14px;
+    color: white;
     text-decoration: none;
-    text-transform: uppercase;
+    text-transform: capitalize;
     font-family: 'Korona One';
+    //font-family: 'Montserrat';
     font-style: normal;
-    font-weight: 400;
-    font-size: 13px;
+    font-weight: 300;
+    font-size: 16px;
     line-height: 12px;
     letter-spacing: 0.08em;
-    text-align: center;
+
     :hover {
         color: var(--lightGreen);
         text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
@@ -68,7 +66,7 @@ export const Burger = styled.img`
 export const MainMenu = styled.div`
     display: flex;
     padding-left: 30px;
-    padding-right: 20px;
+    padding-right: 0;
     width: 100%;
     align-items: center;
     margin: auto;
@@ -118,10 +116,10 @@ export const ExchangeRate = styled.div`
     font-family: 'Montserrat', serif;
     font-size: 12px;
     width: 60px;
-    text-align: left;
     margin: auto;
+    right: 0;
     padding-left: 10px;
-    color: var(--white); //#009427;
+    color: white;
 `;
 
 export const BurgerMenuContainer = styled.div`
