@@ -89,7 +89,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                     <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                 </PoolPropertyValue>
             </PoolInfoValue>
-            <StakeButtonMobile disabled={!contractState.local}>Manage</StakeButtonMobile>
+            <StakeButtonMobile disabled={!contractState.local}>{dex === null ? 'Stake!' : 'Farm!'}</StakeButtonMobile>
             <TimingMobile>{timing}</TimingMobile>
         </PoolInfoMobileContainer>
     );
