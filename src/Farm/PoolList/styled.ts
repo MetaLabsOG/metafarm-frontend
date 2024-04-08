@@ -34,6 +34,46 @@ export const PoolListHeaderElement = styled.div<{ width?: string }>`
     }
 `;
 
+export const DesktopFilterContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+
+    @media (max-width: 700px) {
+        display: none;
+    }
+`;
+
+export const MobileFilterContainer = styled.div`
+    display: none;
+
+    @media (max-width: 700px) {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+`;
+
+export const MobileFilterRow = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 325px;
+`;
+
+export const VerticalSpacer = styled.div<{ space?: string }>`
+    height: ${({ space }) => space};
+    width: 100%;
+`;
+
+export const HorizontalSpacer = styled.div<{ space?: string }>`
+    padding-left: ${({ space }) => space};
+`;
+
 export const PoolListContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -57,7 +97,7 @@ export const PoolListContainer = styled.div`
     }
 
     @media (max-width: 700px) {
-        margin-top: 50px;
+        margin-top: 36px;
     }
 `;
 
@@ -66,7 +106,6 @@ export const PoolFiltersContainer = styled.div`
     gap: 20px;
     justify-content: flex-end;
     margin-bottom: 5px;
-    margin-right: 10px;
 
     @media (max-width: 1120px) {
         justify-content: center;
@@ -117,7 +156,6 @@ export const AddFarmButtonContainer = styled.a`
     :hover {
         cursor: pointer;
         color: gray;
-        
     }
 
     @media (max-width: 922px) {
@@ -136,11 +174,11 @@ export const AddFarmButtonContainer = styled.a`
         text-align: center;
         border-radius: 15px;
         font-size: 12px;
-        padding: 5px 15px 5px 15px;
+        padding: 6px 15px 6px 15px;
         font-weight: 300;
-        width: 130px;
-        height: 27px;
-        margin-top: 10px;
+        width: 140px;
+        height: 30px;
+        margin-top: 0;
 
         :hover {
             cursor: pointer;
@@ -158,9 +196,10 @@ export const SwitchersContainer = styled.a`
     }
 
     @media (max-width: 700px) {
+        width: 50%;
         display: flex;
         flex-direction: column-reverse;
-        padding-left: 17px;
+        padding-left: 0px;
         padding-top: 5px;
         gap: 0px;
     }

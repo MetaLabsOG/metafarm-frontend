@@ -10,8 +10,9 @@ export const AmountContainer = styled.div`
 
     @media (max-width: 1120px) {
         //width: 320px;
-        justify-content: center;
+        justify-content: space-between;
         perspective: 1000px;
+        width: 30%;
     }
 `;
 
@@ -58,7 +59,7 @@ export const BalanceList = styled.div`
     }
 
     @media (max-width: 700px) {
-        width: 320px;
+        width: 325px;
         height: 80px;
         justify-content: center;
         line-height: 18px;

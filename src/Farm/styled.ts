@@ -6,7 +6,7 @@ export const FarmContainer = styled.div`
     align-items: center;
     width: 1114px;
     height: 100%;
-    margin-top: 40px;
+    margin-top: 35px;
     font-family: 'Montserrat';
 `;
 
@@ -71,7 +71,7 @@ export const PoolSearchInput = styled.input`
     border-radius: 15px;
 
     @media (max-width: 860px) {
-        width: 120px;
+        width: 140px;
     }
 
     @media (max-width: 820px) {
@@ -80,12 +80,12 @@ export const PoolSearchInput = styled.input`
 
     @media (max-width: 700px) {
         display: flex;
-        width: 90%;
+        width: 140px;
+        margin: 0;
+        padding: 0;
         border-radius: 15px;
-        margin-left: 25px;
-        height: 27px;
+        height: 30px;
         text-align: left;
-        margin-top: 20px;
         font-size: 12px;
         text-align: center;
     }
@@ -93,9 +93,5 @@ export const PoolSearchInput = styled.input`
     &:focus {
         outline: none;
         border-color: #90ee90;
-    }
-
-    @media (max-width: 430px) {
-        width: 125px;
     }
 `;
