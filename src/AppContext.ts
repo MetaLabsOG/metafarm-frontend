@@ -53,6 +53,8 @@ export const FARM_BENEFICIARY_ADDR = process.env.REACT_APP_BENEFICIARY_ADDR;
 export const FARM_CREATION_FEE = process.env.REACT_APP_FARM_CREATION_FEE;
 export const FARM_FLAT_ALGO_CREATION_FEE = process.env.REACT_APP_FARM_FLAT_ALGO_CREATION_FEE;
 
+export const API_CONTRACTS_MAX_COUNT = process.env.API_CONTRACTS_MAX_COUNT;
+
 const ALAMMEX_API_KEY = process.env.REACT_APP_ALAMMEX_API_KEY;
 
 export const deflexClient =
