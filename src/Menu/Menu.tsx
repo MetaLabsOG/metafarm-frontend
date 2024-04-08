@@ -6,7 +6,7 @@ import algo_logo from '../imgs/algo_token.svg';
 import burger from '../imgs/burger.svg';
 import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
 import { ConnectWallet } from '../wallet/ConnectWallet';
-import { ALGONET, META_TOKEN_ID, TESTNET } from '../AppContext';
+import { ALGONET, isMobile, META_TOKEN_ID, TESTNET } from '../AppContext';
 import { getTokenLink } from '../Farm/PoolList/Pool/utils';
 import {
     MenuItem,
@@ -25,13 +25,16 @@ import {
 const formatPrice = (price: number | null): string => (price === null ? '0.00' : price.toFixed(2));
 
 function MenuItems() {
+    const leftPadding = isMobile() ? 0 : 15;
     return (
         <>
-            <MenuItem to="/swap">swap</MenuItem>
+            <MenuItem to="/swap" style={{ paddingLeft: leftPadding }}>
+                swap
+            </MenuItem>
             <MenuItem to="/farm">farm</MenuItem>
             <MenuItem to="/stake">stake</MenuItem>
             {ALGONET === TESTNET && <MenuItem to="/laas">laas</MenuItem>}
-            <MenuItem to="/metapunks">metapunks</MenuItem>
+            <MenuItem to="/metapunks">NFTs</MenuItem>
         </>
     );
 }

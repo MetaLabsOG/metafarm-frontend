@@ -31,7 +31,7 @@ export const AmountTitle = styled.div`
 `;
 
 export const AmountValue = styled.div`
-    color: var(--white);
+    color: white;
     font-style: normal;
     font-weight: 600;
     font-size: 18px;

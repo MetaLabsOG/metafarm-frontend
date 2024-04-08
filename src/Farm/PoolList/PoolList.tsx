@@ -208,7 +208,7 @@ export function PoolList({
                             <PoolListHeaderElement
                                 key={key}
                                 onClick={() => onColumnClick(ColumnType[key])}
-                                style={{ color: sortKey === ColumnType[key] ? theme.lightGray : theme.gray }}
+                                style={{ color: sortKey === ColumnType[key] ? theme.pureWhite : theme.gray }}
                             >
                                 {ColumnType[key]}
                             </PoolListHeaderElement>

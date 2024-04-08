@@ -2,7 +2,14 @@ import { FC } from 'react';
 import ReactTooltip from 'react-tooltip';
 import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
 import info from '../../../imgs/info.svg';
-import { PoolInfoMobileContainer, PoolInfoValue, StakeButtonMobile, TimingMobile } from './styled';
+import {
+    PoolInfoMobileContainer,
+    PoolInfoValue,
+    PoolPropertyName,
+    PoolPropertyValue,
+    StakeButtonMobile,
+    TimingMobile,
+} from './styled';
 import { convertAmountToUSD, numberRound } from './utils';
 import { getAPRTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
 
@@ -43,14 +50,14 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 nftRewards={nftRewards}
             />
             <PoolInfoValue style={{ marginTop: '30px' }}>
-                <div style={{ paddingLeft: 10 }}>TVL</div>
-                <div style={{ color: 'white', paddingRight: 10 }}>
+                <PoolPropertyName>TVL</PoolPropertyName>
+                <PoolPropertyValue>
                     ${numberRound(convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked))}
-                </div>
+                </PoolPropertyValue>
             </PoolInfoValue>
             <PoolInfoValue style={{ marginBottom: '30px' }}>
-                <div style={{ paddingLeft: 10 }}>APR</div>{' '}
-                <div
+                <PoolPropertyName>APR</PoolPropertyName>
+                <PoolPropertyValue
                     style={{
                         color: 'white',
                         display: 'flex',
@@ -68,19 +75,19 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                         src={info}
                     />
                     <ReactTooltip clickable place="top" type="light" effect="solid" />
-                </div>
+                </PoolPropertyValue>
             </PoolInfoValue>
             <PoolInfoValue>
-                <div style={{ paddingLeft: 10 }}>My Stake</div>
-                <div style={{ color: 'white', paddingRight: 10 }}>
+                <PoolPropertyName>My Stake</PoolPropertyName>
+                <PoolPropertyValue>
                     <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
-                </div>
+                </PoolPropertyValue>
             </PoolInfoValue>
             <PoolInfoValue>
-                <div style={{ paddingLeft: 10 }}>Reward</div>
-                <div style={{ color: 'white', paddingRight: 10 }}>
+                <PoolPropertyName>Reward</PoolPropertyName>
+                <PoolPropertyValue>
                     <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
-                </div>
+                </PoolPropertyValue>
             </PoolInfoValue>
             <StakeButtonMobile disabled={!contractState.local}>MANAGE</StakeButtonMobile>
             <TimingMobile>{timing}</TimingMobile>

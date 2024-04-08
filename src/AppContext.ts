@@ -45,7 +45,12 @@ export const META_TOKEN_ID = META_TOKEN_IDS[ALGONET];
 export const USDC_TOKEN_ID = USDC_TOKEN_IDS[ALGONET];
 export const USDT_TOKEN_ID = USDT_TOKEN_IDS[ALGONET];
 
-export const IS_MOBILE = window.innerWidth <= 768;
+export const MOBILE_SCREEN_WIDTH_THRESHOLD = 768;
+export function isMobile(): boolean {
+    return window.innerWidth <= MOBILE_SCREEN_WIDTH_THRESHOLD;
+}
+
+export const IS_MOBILE = isMobile();
 console.log('Is mobile:', IS_MOBILE);
 
 export const FARM_BENEFICIARY_ADDR = process.env.REACT_APP_BENEFICIARY_ADDR;
