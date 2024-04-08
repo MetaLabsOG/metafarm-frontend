@@ -20,6 +20,7 @@ import {
     BurgerMenuContainer,
     MenuItemsBurger,
     ExchangeRatesBurger,
+    AssetPriceWithLogo,
 } from './styled';
 
 const formatPrice = (price: number | null): string => (price === null ? '0.00' : price.toFixed(2));
@@ -42,14 +43,14 @@ function MenuItems() {
 function ExchangeRates({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) {
     return (
         <>
-            <a target="_blank" href={getTokenLink(0)} rel="noreferrer">
+            <AssetPriceWithLogo href={getTokenLink(0)}>
                 <Logo src={algo_logo} alt="logo" height="24px" />
-            </a>
-            <ExchangeRate>${formatPrice(ALGOPrice)}</ExchangeRate>
-            <a target="_blank" href={getTokenLink(META_TOKEN_ID)} rel="noreferrer">
+                <ExchangeRate>${formatPrice(ALGOPrice)}</ExchangeRate>
+            </AssetPriceWithLogo>
+            <AssetPriceWithLogo style={{ paddingRight: 30 }} href={getTokenLink(META_TOKEN_ID)}>
                 <Logo src={meta_logo} alt="logo" height="24px" />
-            </a>
-            <ExchangeRate>${formatPrice(METAPrice?.price ?? 0)}</ExchangeRate>
+                <ExchangeRate>${formatPrice(METAPrice?.price ?? 0)}</ExchangeRate>
+            </AssetPriceWithLogo>
         </>
     );
 }

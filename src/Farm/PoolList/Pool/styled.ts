@@ -151,15 +151,15 @@ export const ArrowIconsWrapper = styled.div`
 `;
 
 export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
-    width: 100%;
-    height: 44px;
+    width: 70%;
+    height: 40px;
     margin: auto;
-    background: linear-gradient(270deg, #06a903 1.29%, #00ff29 100%);
-    font-family: 'Korona One';
-    font-size: 16px;
-    text-transform: uppercase;
+    background: linear-gradient(27deg, #dddddd 30.29%, ${theme.niceGreen} 67%);
+    font-family: 'Montserrat';
+    font-weight: 700;
+    font-size: 21px;
     color: black;
-    border: 1px solid #03a100;
+    border: none;
     border-radius: 4px;
     cursor: pointer;
 

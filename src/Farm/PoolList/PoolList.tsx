@@ -182,7 +182,7 @@ export function PoolList({
                         </DesktopOnly>
                         <MobileOnly>
                             <PoolSearchInput
-                                placeholder="Pool search"
+                                placeholder="Find token pools..."
                                 value={poolSearch}
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
                             />
@@ -193,7 +193,7 @@ export function PoolList({
                         <SwitchSelectPools onChange={onChangePoolType} isEnabled={showMyPools} />
                         <DesktopOnly>
                             <PoolSearchInput
-                                placeholder="Pool search"
+                                placeholder="Find token pools..."
                                 value={poolSearch}
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
                             />

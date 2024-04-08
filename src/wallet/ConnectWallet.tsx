@@ -7,6 +7,7 @@ import { useUnit } from 'effector-react';
 import { logEvent, LogName } from '../logEvent';
 import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
+import { PrettyButtonContainer, WalletActionButton } from '../common/styled';
 import { notify } from '../Components/Notification';
 import { customWalletFallback, WalletType } from './customWalletFallback';
 import { ConnectWalletModal } from './ConnectWalletModal';
@@ -79,6 +80,10 @@ const disconnectWallet = () => {
     }
 };
 
+function shortenAddress(address: string): string {
+    return address.slice(0, 4) + '...' + address.slice(-4);
+}
+
 export function ConnectWallet({
     buttonClassName = 'connect_wallet',
     style,
@@ -136,36 +141,36 @@ export function ConnectWallet({
                     </button>
                 ) : (
                     <>
-                        <a href="/" onClick={toggleDropdown}>
-                            <h1 className="account_info">{walletNfd ?? account.networkAccount.addr}</h1>
-                        </a>
+                        <PrettyButtonContainer href="/" onClick={toggleDropdown}>
+                            {walletNfd ?? shortenAddress(account.networkAccount.addr)}
+                        </PrettyButtonContainer>
                         <div
                             className="account_dropdown_container"
                             style={{
                                 display: accDropdownOpen ? 'flex' : 'none',
                             }}
                         >
-                            <a
+                            <WalletActionButton
                                 target="_blank"
                                 href={'https://allo.info/account/' + account.networkAccount.addr}
                                 rel="noreferrer"
                                 style={{ textDecoration: 'none' }}
                             >
                                 <div className="account_item">Account Review</div>
-                            </a>
+                            </WalletActionButton>
                             {ALGONET === TESTNET && (
-                                <a
+                                <WalletActionButton
                                     target="_blank"
                                     href="https://dispenser.testnet.aws.algodev.network/"
                                     rel="noreferrer"
                                     style={{ textDecoration: 'none' }}
                                 >
                                     <div className="account_item">Get testnet ALGOs</div>
-                                </a>
+                                </WalletActionButton>
                             )}
-                            <a href="/" style={{ textDecoration: 'none' }} onClick={disconnect}>
+                            <WalletActionButton href="/" style={{ textDecoration: 'none' }} onClick={disconnect}>
                                 <div className="account_item">Disconnect</div>
-                            </a>
+                            </WalletActionButton>
                         </div>
                     </>
                 )}

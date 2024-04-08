@@ -2,8 +2,8 @@
     justify-content: right;
     display: flex;
     position: relative;
-    padding-left: 10px;
-    padding-right: 0;
+    padding-left: 0;
+    padding-right: 30px;
     padding-top: 16px;
     margin-top: -16px;
 }
@@ -17,12 +17,11 @@
 }
 
 .account_dropdown_container {
-    width: 100%;
+    width: 180px;
     padding: 10px 10px 10px 10px;
-    padding-top: 50px;
     position: absolute;
-    left: 0;
-    top: 5px;
+    right: 20px;
+    top: 50px;
     font-size: 14px;
     background-color: var(--backgroundColor);
     z-index: 0;
@@ -34,8 +33,8 @@
 
 @media (max-width: 490px) {
     .account_dropdown_container {
-        top: -10px;
-        padding-top: 40px;
+        top: 40px;
+        right: 0;
     }
 }
 
