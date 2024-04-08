@@ -1,16 +1,16 @@
 import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
+import { WalletActionButton } from '../common/styled';
+
 export const MenuItem = styled(NavLink)`
     color: white;
     text-decoration: none;
     text-transform: capitalize;
-    font-family: 'Korona One';
-    //font-family: 'Montserrat';
+    font-family: 'Montserrat';
     font-style: normal;
-    font-weight: 200;
-    font-size: 15px;
-    line-height: 12px;
+    font-weight: 600;
+    font-size: 17px;
     letter-spacing: 0.08em;
 
     :hover {
@@ -28,7 +28,7 @@ export const MenuItemsContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 400px;
+    width: 350px;
     margin-left: 20px;
     margin-top: 3px;
     @media (max-width: 979px) {
@@ -84,7 +84,7 @@ export const MenuContainer = styled.div`
     left: 0;
     position: fixed;
     width: 100%;
-    height: 50px;
+    height: 55px;
     display: flex;
     justify-content: space-between;
     flex-direction: column;
@@ -112,11 +112,18 @@ export const ExchangeRatesBurger = styled.div`
     }
 `;
 
-export const ExchangeRate = styled.div`
+export const AssetPriceWithLogo = styled(WalletActionButton)`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 10px;
+    padding-right: 10px;
+`;
+
+export const ExchangeRate = styled.a`
     font-family: 'Montserrat', serif;
-    font-size: 14px;
-    font-weight: 300;
-    width: 60px;
+    font-size: 13px;
+    font-weight: 500;
     margin: auto;
     right: 0;
     padding-left: 5px;

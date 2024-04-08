@@ -7,7 +7,6 @@ import { Balance } from './Balance';
 import { PoolList } from './PoolList';
 import { $sortedPoolsWithStats, initializeFarmContract } from './store';
 import { BalanceContainer, FarmContainer, GovImg } from './styled';
-// import { getTokenLink } from './PoolList/Pool/utils';
 
 export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
     if (window.innerWidth <= 1120) {
@@ -32,7 +31,7 @@ export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
     );
 };
 
-const renderSliseAd = () => (
+export const renderSliseAd = () => (
     <SliseAd
         style={{ minWidth: '270px', width: '270px', height: '90px' }}
         slotId="banner"
@@ -41,17 +40,35 @@ const renderSliseAd = () => (
     />
 );
 
+export const renderGovPromo = () => (
+    <a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">
+        <GovImg alt="Governance" src={governance} />
+    </a>
+);
+
+function flipCoin(): boolean {
+    const randomNumber = Math.random();
+    return randomNumber < 0.5;
+}
+
+const showSliseAd = flipCoin();
+
+export const renderRandomAd = (): JSX.Element => {
+    if (showSliseAd) {
+        return renderSliseAd();
+    } else {
+        return renderGovPromo();
+    }
+};
+
 export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
         <BalanceContainer>
             <Balance kind={'farm' as FarmType} />
-            <a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">
-                <GovImg alt="Governance" src={governance} />
-            </a>
-            {/*{window.innerWidth > 700 && renderSliseAd()}*/}
+            {window.innerWidth > 700 && renderRandomAd()}
         </BalanceContainer>
         <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
         <InfoCards addFarmType="farm" />
-        {window.innerWidth <= 700 && renderSliseAd()}
+        {window.innerWidth <= 700 && renderRandomAd()}
     </FarmContainer>
 ));

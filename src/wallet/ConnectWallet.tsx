@@ -3,12 +3,11 @@ import { useModal } from 'react-hooks-use-modal';
 import { detect } from 'detect-browser';
 
 import '../css/wallet.css';
-import styled from 'styled-components';
 import { useUnit } from 'effector-react';
-import { theme } from '../theme';
 import { logEvent, LogName } from '../logEvent';
 import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
+import { PrettyButtonContainer, WalletActionButton } from '../common/styled';
 import { notify } from '../Components/Notification';
 import { customWalletFallback, WalletType } from './customWalletFallback';
 import { ConnectWalletModal } from './ConnectWalletModal';
@@ -81,57 +80,9 @@ const disconnectWallet = () => {
     }
 };
 
-const PrettyButtonContainer = styled.a`
-    //color: ${theme.lightGreen};
-    color: ${theme.pureWhite};
-    //border: 1px solid #90ee90;
-    border: 2px solid ${theme.pureWhite};
-    text-decoration: none;
-    //background-color: transparent;
-    background-color: revert;
-    outline: none;
-    border-radius: 15px;
-    font-family: 'Korona One';
-    font-size: 13px;
-    font-weight: 10;
-    //font-family: 'Montserrat';
-    //font-size: 15px;
-    //font-weight: 400;
-    //height: 32px;
-    padding: 5px 13px 5px 13px;
-    height: 32px;
-
-    :hover {
-        cursor: pointer;
-        color: gray;
-    }
-
-    //@media (max-width: 922px) {
-    //    font-size: 13px;
-    //    padding: 6px 15px 6px 15px;
-    //    height: 30px;
-    //}
-    //
-    //@media (max-width: 872px) {
-    //    font-size: 13px;
-    //    padding: 6px 14px 6px 14px;
-    //    height: 30px;
-    //}
-
-    @media (max-width: 700px) {
-        //text-align: center;
-        //border-radius: 15px;
-        //font-size: 12px;
-        //padding: 6px 15px 6px 15px;
-        //font-weight: 300;
-        //width: 140px;
-        //height: 30px;
-        //margin-top: 0;
-        :hover {
-            cursor: pointer;
-        }
-    }
-`;
+function shortenAddress(address: string): string {
+    return address.slice(0, 4) + '...' + address.slice(-4);
+}
 
 export function ConnectWallet({
     buttonClassName = 'connect_wallet',
@@ -190,8 +141,8 @@ export function ConnectWallet({
                     </button>
                 ) : (
                     <>
-                        <PrettyButtonContainer onClick={toggleDropdown}>
-                            {walletNfd ?? account.networkAccount.addr}
+                        <PrettyButtonContainer href="/" onClick={toggleDropdown}>
+                            {walletNfd ?? shortenAddress(account.networkAccount.addr)}
                         </PrettyButtonContainer>
                         <div
                             className="account_dropdown_container"
@@ -199,27 +150,27 @@ export function ConnectWallet({
                                 display: accDropdownOpen ? 'flex' : 'none',
                             }}
                         >
-                            <a
+                            <WalletActionButton
                                 target="_blank"
                                 href={'https://allo.info/account/' + account.networkAccount.addr}
                                 rel="noreferrer"
                                 style={{ textDecoration: 'none' }}
                             >
                                 <div className="account_item">Account Review</div>
-                            </a>
+                            </WalletActionButton>
                             {ALGONET === TESTNET && (
-                                <a
+                                <WalletActionButton
                                     target="_blank"
                                     href="https://dispenser.testnet.aws.algodev.network/"
                                     rel="noreferrer"
                                     style={{ textDecoration: 'none' }}
                                 >
                                     <div className="account_item">Get testnet ALGOs</div>
-                                </a>
+                                </WalletActionButton>
                             )}
-                            <a href="/" style={{ textDecoration: 'none' }} onClick={disconnect}>
+                            <WalletActionButton href="/" style={{ textDecoration: 'none' }} onClick={disconnect}>
                                 <div className="account_item">Disconnect</div>
-                            </a>
+                            </WalletActionButton>
                         </div>
                     </>
                 )}

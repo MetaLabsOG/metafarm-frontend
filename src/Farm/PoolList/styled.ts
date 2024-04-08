@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { PrettyButtonContainer } from '../../common/styled';
+import { theme } from '../../theme';
 
 export const PoolListHeader = styled.div`
     display: flex;
@@ -139,51 +141,15 @@ export const PoolTopLineContainer = styled.div`
     }
 `;
 
-export const AddFarmButtonContainer = styled.a`
-    color: white;
-    border: 1px solid #90ee90;
+export const AddFarmButtonContainer = styled(PrettyButtonContainer)`
+    color: ${theme.lightGray};
+    border: 1px solid ${theme.lightGray};
     text-decoration: none;
     background-color: transparent;
     outline: none;
-    border-radius: 15px;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 300;
-    padding: 5px 15px 5px 15px;
-    padding-bottom: 5px;
-    width: 100%;
     height: 30px;
-
-    :hover {
-        cursor: pointer;
-        color: gray;
-    }
-
-    @media (max-width: 922px) {
-        font-size: 13px;
-        padding: 6px 15px 6px 15px;
-        height: 30px;
-    }
-
-    @media (max-width: 872px) {
-        font-size: 13px;
-        padding: 6px 14px 6px 14px;
-        height: 30px;
-    }
-
-    @media (max-width: 700px) {
-        text-align: center;
-        border-radius: 15px;
-        font-size: 12px;
-        padding: 6px 15px 6px 15px;
-        font-weight: 300;
-        width: 140px;
-        height: 30px;
-        margin-top: 0;
-
-        :hover {
-            cursor: pointer;
-        }
-    }
 `;
 
 export const SwitchersContainer = styled.a`

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { theme } from '../../theme';
 
 export const PoolHeaderContainer = styled.div`
     font-family: 'Montserrat';
@@ -43,7 +44,7 @@ export const PoolSubtitlesContainer = styled.div`
 
 export const PoolSubtitle = styled.div`
     white-space: nowrap;
-    color: #8bff74; // light green
+    color: ${theme.niceGreen}; // light green
     font-family: 'Korona One';
     font-size: 12px;
 

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { theme } from '../theme';
 
 export const NFTCard = styled.div`
     border-radius: 16px;
@@ -201,4 +202,38 @@ export const WelcomeText = styled.div`
     width: 100%;
     padding: 10px;
     color: var(--newWhite);
+`;
+
+export const WalletActionButton = styled.a`
+    text-decoration: none;
+
+    :hover {
+        color: var(--lightGreen);
+        text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
+    }
+
+    &.active {
+        color: var(--lightGreen);
+        text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
+    }
+
+    :hover,
+    :focus,
+    :active {
+        text-decoration: none;
+    }
+`;
+
+export const PrettyButtonContainer = styled(WalletActionButton)`
+    color: ${theme.pureWhite};
+    border: 2px solid ${theme.pureWhite};
+    text-decoration: none;
+    background-color: transparent;
+    outline: none;
+    border-radius: 15px;
+    font-family: 'Montserrat';
+    font-size: 16px;
+    font-weight: 500;
+    height: 35px;
+    padding: 5px 13px 5px 13px;
 `;

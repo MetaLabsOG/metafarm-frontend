@@ -56,7 +56,7 @@ export const GovImg = styled.img`
 
 export const PoolSearchInput = styled.input`
     height: 30px;
-    width: 150px;
+    width: 170px;
     padding: 10px;
     margin: 10px 0;
     color: white;
@@ -64,8 +64,9 @@ export const PoolSearchInput = styled.input`
     flex-shrink: 0;
     color-scheme: dark;
 
+    text-align: center;
     font-family: 'Montserrat';
-    font-size: 16px;
+    font-size: 14px;
 
     border: 1px solid lightgreen;
     border-radius: 15px;
@@ -85,9 +86,7 @@ export const PoolSearchInput = styled.input`
         padding: 0;
         border-radius: 15px;
         height: 30px;
-        text-align: left;
         font-size: 12px;
-        text-align: center;
     }
 
     &:focus {
