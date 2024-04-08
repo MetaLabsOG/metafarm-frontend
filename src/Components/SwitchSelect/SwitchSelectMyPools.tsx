@@ -7,7 +7,7 @@ interface SwitchSelectProps {
     value: any;
 }
 
-export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange }) => {
+export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ value, onChange }) => {
     const options = [
         {
             label: 'All',
@@ -20,7 +20,7 @@ export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange }) => 
             selectedBackgroundColor: '#90ee90',
         },
     ];
-    const initialSelectedIndex = options.findIndex(({ label }) => label === 'All');
+    const initialSelectedIndex = options.findIndex(({ value: optionValue }) => optionValue === value);
 
     const handleSelectorChange = (newValue: any) => {
         onChange(newValue.value);

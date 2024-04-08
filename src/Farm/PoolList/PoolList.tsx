@@ -12,6 +12,7 @@ import { VerifiedSwitchDesktop } from '../../Components/SwitchSelect/VerifiedSwi
 import DropdownButton from '../../Components/DropdownButton/Dropdown';
 
 import { $networkTime, ContractInfo, FarmType } from '../../common/store';
+import { useWalletPersistedState } from '../utils';
 import { PoolSearchInput } from '../styled';
 
 import {
@@ -77,12 +78,12 @@ export function PoolList({
     const query = useQuery();
     const priorityPoolId = query.get('pool_id');
     const currentBlock = useUnit($networkTime);
-    const [sortKey, setSortKey] = useState<ColumnType>(ColumnType.Tvl);
-    const [isAscSort, setIsAscSort] = useState(false);
-    const [showVerified, setShowVerified] = useState(false);
-    const [showEnded, setShowEnded] = useState(false);
-    const [poolSearch, setPoolSearch] = useState('');
-    const [showMyPools, setShowMyPools] = useState(false);
+    const [sortKey, setSortKey] = useWalletPersistedState<ColumnType>('sortKey', ColumnType.Tvl);
+    const [isAscSort, setIsAscSort] = useWalletPersistedState('isAscSort', false);
+    const [showVerified, setShowVerified] = useWalletPersistedState('showVerified', false);
+    const [showEnded, setShowEnded] = useWalletPersistedState('showEnded', false);
+    const [poolSearch, setPoolSearch] = useWalletPersistedState('poolSearch', '');
+    const [showMyPools, setShowMyPools] = useWalletPersistedState('showMyPools', false);
 
     const poolComponents = pools
         .filter((pws: PoolWithStats) => {
