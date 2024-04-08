@@ -3,24 +3,24 @@ import SwitchSelector from 'react-switch-selector';
 import { SwitchSelectWrapper } from './styled';
 
 interface SwitchSelectProps {
-    onChange: (value: any) => void;
-    value: any;
+    onChange: (value: boolean) => void;
+    isEnabled: boolean;
 }
 
-export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ value, onChange }) => {
+export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEnabled }) => {
     const options = [
         {
             label: 'All',
-            value: true, // Indicates showing user's pools
+            value: false,
             selectedBackgroundColor: '#90ee90',
         },
         {
             label: 'My Pools',
-            value: false, // Indicates showing all pools
+            value: true,
             selectedBackgroundColor: '#90ee90',
         },
     ];
-    const initialSelectedIndex = options.findIndex(({ value: optionValue }) => optionValue === value);
+    const initialSelectedIndex = options.findIndex(({ value }) => value === isEnabled);
 
     const handleSelectorChange = (newValue: any) => {
         onChange(newValue.value);
