@@ -1,18 +1,16 @@
 import axios from 'axios';
-import pactsdk, { ListPoolsOptions } from '@pactfi/pactsdk';
+import pactsdk from '@pactfi/pactsdk';
 
 import packages from '../../package.json';
 import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
 import { AssetId, ContractType } from '../common/store/types';
-import { ALGONET, TESTNET } from '../AppContext';
+import { ALGONET, API_CONTRACTS_MAX_COUNT, TESTNET } from '../AppContext';
 import { nonConcurrent } from '../common/store/utils';
 import { logEvent, LogName } from '../logEvent';
-import { pactDex } from '../dexes';
 import { StakingAsset } from '../Farm/AddFarm';
 import * as MiniHumble from '../dexes/humbleReexports';
 import { TokenOptionType } from '../Components/Select/types';
 import { NftLottery } from '../Swap/NftWinModal';
-import { blocksToText } from '../Farm/PoolList/Pool/PoolInfo';
 
 export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -99,9 +97,17 @@ export async function getContracts(
     type: string,
     user_address: string | undefined = undefined
 ): Promise<JsonWithBignum> {
-    const include_param_str = user_address ? `&include_address_pools=${user_address}` : '';
+    const params: { [key: string]: any } = {
+        type: type,
+    };
+    if (user_address !== undefined) {
+        params['include_address_pools'] = user_address;
+    }
+    if (API_CONTRACTS_MAX_COUNT !== undefined) {
+        params['max_count'] = API_CONTRACTS_MAX_COUNT;
+    }
     return instance
-        .get<Json>(`/contracts?type=${type}${include_param_str}`)
+        .get<Json>(`/contracts`, { params })
         .then(({ data }) => resolveBignums(data))
         .catch((error) => {
             console.log('ERR', error);

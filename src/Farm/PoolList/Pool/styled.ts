@@ -75,7 +75,6 @@ export const PoolInfoValue = styled.div<{ width?: string }>`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-right: 20px;
     width: ${({ width }) => width};
     white-space: nowrap;
     font-family: 'Montserrat';
@@ -212,10 +211,11 @@ export const RewardUSDValue = styled.div`
 
 export const RewardTokenValue = styled.div`
     white-space: nowrap;
-    //font-size: 14px;
+    font-size: 13px;
     color: var(--gray);
+    display: flex;
+
     @media (max-width: 1120px) {
-        font-size: 14px;
         text-align: right;
     }
 `;
