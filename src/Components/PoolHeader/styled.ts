@@ -55,25 +55,28 @@ export const PoolSubtitle = styled.div`
 export const LpTokensIconsWrapper = styled.div`
     display: flex;
     position: relative;
-    height: 40px;
-    width: 85px;
+    height: 50px;
+    width: 100px;
 `;
 
 export const LPTokensIcon = styled.div<{ first?: boolean; isWhite?: boolean }>`
     position: absolute;
-    left: ${({ first }) => (first ? '0' : '30px')};
+    left: ${({ first }) => (first ? '0' : '35px')};
     height: 100%;
-    //width: 40px;
     border: 0 solid;
-    border-radius: 40px;
+    border-radius: 50px;
     background-color: ${({ isWhite }) => (isWhite ? 'white' : 'black')};
+
+    @media (max-width: 1120px) {
+        left: ${({ first }) => (first ? '0px' : '35px')};
+    }
 `;
 
 export const DexIcon = styled.img`
     position: absolute;
-    left: 59px;
+    left: 70px;
     background-color: white;
-    height: 16px;
+    height: 20px;
     border-radius: 5px;
 `;
 
