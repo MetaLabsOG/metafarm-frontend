@@ -30,8 +30,9 @@ import {
 } from '../common/store';
 import { nonConcurrent } from '../common/store/utils';
 import { AllDefined, Backend } from '../types';
-import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
+import { LPTokenInfo, DexProvider, makeDex, PoolInfo } from '../dexes';
 import { fromSmallestUnits, YEAR } from '../common/lib';
+import { getLpState } from '../providers/apiProvider';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 import { PoolState } from './PoolList/Pool/types';
 import { ColumnType } from './PoolList/PoolList';
@@ -60,6 +61,24 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
     return 'MOCK';
 }
 
+export async function getLPTokenInfoBackend(asset: Asset, provider: DexProvider): Promise<Priced<LPTokenInfo>> {
+    const lpState = await getLpState(asset.id);
+    return {
+        ...asset,
+        poolId: lpState.id,
+        asset1: lpState.asset1_id,
+        asset2: lpState.asset2_id,
+        liquidityAsset: asset.id,
+        asset1Reserve: BigInt(lpState.asset1_reserve),
+        asset2Reserve: BigInt(lpState.asset2_reserve),
+        totalLiquidity: BigInt(lpState.issued_tokens),
+        poolDex: provider,
+        dexFeeApr: 0, // TODO
+        price: lpState.token_price_usd,
+        priceInAlgo: lpState.token_price,
+    };
+}
+
 export async function getLPTokenInfo(
     asset: Asset,
     algoPrice: number | null,
@@ -68,6 +87,11 @@ export async function getLPTokenInfo(
     if (provider === undefined) {
         provider = detectAssetProvider(asset);
     }
+    if (provider === 'PT') {
+        // Pact pools fix
+        return await getLPTokenInfoBackend(asset, provider);
+    }
+
     if (algoPrice === null) {
         algoPrice = await fetchAlgoPriceFx();
     }
@@ -84,7 +108,6 @@ export async function getLPTokenInfo(
         const priceInAlgo = (await algoPool.getSwap(firstAsset, BigInt(10 ** firstAsset.decimals), 0.01)).price;
         fstAssetPrice = algoPrice * priceInAlgo;
     }
-
     const asset1Reserve = fromSmallestUnits(firstAsset, poolInfo.asset1Reserve);
     const totalLiquidity = fromSmallestUnits(asset, poolInfo.totalLiquidity);
     const price = (asset1Reserve / totalLiquidity) * fstAssetPrice * 2;

@@ -1,11 +1,9 @@
 import { useUnit } from 'effector-react';
-import { Event } from 'effector';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PoolWithStats, sortPools } from '../store';
 import swapArrow from '../../imgs/swapArrow.svg';
 import { theme } from '../../theme';
-import { SwitchSelect } from '../../Components/SwitchSelect/SwitchSelect';
 import { SwitchSelectPools } from '../../Components/SwitchSelect/SwitchSelectMyPools';
 import { PoolStateSwitcher } from '../../Components/SwitchSelect/PoolStateSwitcher';
 import { VerifiedSwitch } from '../../Components/SwitchSelect/VerifiedSwitch';
@@ -28,8 +26,11 @@ import {
     SwitchersContainer,
     SwitchersAndSearchContainer,
     TopTwoButtonsMobileContainer,
-    DesktopOnly,
-    MobileOnly,
+    DesktopFilterContainer,
+    MobileFilterContainer,
+    MobileFilterRow,
+    VerticalSpacer,
+    HorizontalSpacer,
 } from './styled';
 import { Pool } from './Pool';
 
@@ -76,7 +77,6 @@ export function PoolList({
 }) {
     const query = useQuery();
     const priorityPoolId = query.get('pool_id');
-
     const currentBlock = useUnit($networkTime);
     const [sortKey, setSortKey] = useWalletPersistedState<ColumnType>('sortKey', ColumnType.Tvl);
     const [isAscSort, setIsAscSort] = useWalletPersistedState('isAscSort', false);
@@ -126,7 +126,6 @@ export function PoolList({
                 initEvent={initEvent}
             />
         ));
-
     const sortEvent = useUnit(sortPools);
 
     useEffect(() => {
@@ -163,52 +162,71 @@ export function PoolList({
     return (
         <div>
             <PoolTopLineContainer>
-                <TopTwoButtonsMobileContainer>
-                    <AddFarmButton addFarmType={poolType} />
-                    <MobileOnly>
+                <MobileFilterContainer>
+                    <MobileFilterRow>
+                        <AddFarmButton addFarmType={poolType} />
+
+                        <HorizontalSpacer space="12px" />
+
                         <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
-                    </MobileOnly>
-                    <DesktopOnly />
-                </TopTwoButtonsMobileContainer>
-                <PoolFiltersContainer>
-                    <SwitchersContainer>
-                        <MobileOnly>
-                            <DropdownButton
-                                onColumnClick={onColumnClick}
-                                sortKey={sortKey}
-                                isAscSort={isAscSort}
-                                swapArrow={swapArrow}
-                                theme={theme}
-                            />
-                        </MobileOnly>
-                        <DesktopOnly>
+                    </MobileFilterRow>
+
+                    <VerticalSpacer space="15px" />
+
+                    <MobileFilterRow>
+                        <PoolSearchInput
+                            placeholder="Pool search"
+                            value={poolSearch}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
+                        />
+
+                        <HorizontalSpacer space="12px" />
+
+                        <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
+                    </MobileFilterRow>
+
+                    <VerticalSpacer space="15px" />
+
+                    <MobileFilterRow>
+                        <DropdownButton
+                            onColumnClick={onColumnClick}
+                            sortKey={sortKey}
+                            isAscSort={isAscSort}
+                            swapArrow={swapArrow}
+                            theme={theme}
+                        />
+
+                        <HorizontalSpacer space="12px" />
+
+                        <SwitchSelectPools onChange={onChangePoolType} value={!showMyPools} />
+                    </MobileFilterRow>
+                </MobileFilterContainer>
+
+                <DesktopFilterContainer>
+                    <TopTwoButtonsMobileContainer>
+                        <AddFarmButton addFarmType={poolType} />
+                    </TopTwoButtonsMobileContainer>
+
+                    <PoolFiltersContainer>
+                        <SwitchersContainer>
                             <VerifiedSwitchDesktop onChange={onVerifiedButton} switchStatus={showVerified} />
-                        </DesktopOnly>
-                        {/* previous switcher which was good <SwitchSelect
+                            {/* previous switcher which was good <SwitchSelect
                                 switchStatus={showVerified}
                                 onChange={setShowVerified}
                                 switchText={'Verified only'}
                             /> Previous switcher which was good*/}
-                        <MobileOnly>
+                        </SwitchersContainer>
+                        <SwitchersAndSearchContainer>
+                            <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
+                            <SwitchSelectPools onChange={onChangePoolType} value={!showMyPools} />
                             <PoolSearchInput
                                 placeholder="Pool search"
                                 value={poolSearch}
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
                             />
-                        </MobileOnly>
-                    </SwitchersContainer>
-                    <SwitchersAndSearchContainer>
-                        <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
-                        <SwitchSelectPools onChange={onChangePoolType} value={!showMyPools} />
-                        <DesktopOnly>
-                            <PoolSearchInput
-                                placeholder="Pool search"
-                                value={poolSearch}
-                                onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
-                            />
-                        </DesktopOnly>
-                    </SwitchersAndSearchContainer>
-                </PoolFiltersContainer>
+                        </SwitchersAndSearchContainer>
+                    </PoolFiltersContainer>
+                </DesktopFilterContainer>
             </PoolTopLineContainer>
             <PoolListContainer>
                 <PoolListHeader>

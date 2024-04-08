@@ -19,9 +19,9 @@ export const PoolContainer = styled.div`
     }
 
     @media (max-width: 1120px) {
-        width: 320px;
+        width: 325px;
         height: 420px;
-        margin-bottom: 30px;
+        margin-bottom: 12px;
         justify-content: center;
 
         perspective: 1000px;

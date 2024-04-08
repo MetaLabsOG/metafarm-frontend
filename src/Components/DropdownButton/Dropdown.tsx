@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ColumnType } from '../../Farm/PoolList/PoolList';
-import { DropDownSortWrapper } from '../SwitchSelect/styled';
 
 interface DropdownButtonProps {
     onColumnClick: (key: ColumnType) => void;
@@ -47,18 +46,19 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
     }, [isOpen]);
 
     return (
-        <DropDownSortWrapper>
-            <div style={{ position: 'relative', marginLeft: '1px', paddingTop: '3px' }} ref={dropdownRef}>
+        <div>
+            <div style={{ position: 'relative' }} ref={dropdownRef}>
                 {isOpen ? (
                     <button
                         onClick={toggleDropdown}
                         style={{
+                            height: 30,
                             backgroundColor: 'transparent',
                             color: 'gray',
                             fontSize: '12px',
                             borderRadius: '20px',
-                            padding: '5px 15px',
-                            width: '120px',
+                            padding: '7px 15px',
+                            width: '140px',
                             border: 'lightgreen 1px solid',
                             cursor: 'pointer',
                             outline: 'none',
@@ -72,12 +72,13 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                     <button
                         onClick={toggleDropdown}
                         style={{
+                            height: 30,
                             backgroundColor: 'transparent',
                             color: 'white',
                             borderRadius: '15px',
                             fontSize: '12px',
-                            padding: '5px 15px',
-                            width: '120px',
+                            padding: '7px 15px',
+                            width: '140px',
                             border: 'lightgreen 1px solid',
                             cursor: 'pointer',
                             outline: 'none',
@@ -144,7 +145,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                     </div>
                 )}
             </div>
-        </DropDownSortWrapper>
+        </div>
     );
 };
 
