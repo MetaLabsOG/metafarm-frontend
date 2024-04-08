@@ -143,7 +143,7 @@ export const AddFarmButtonContainer = styled.a`
     color: white;
     border: 1px solid #90ee90;
     text-decoration: none;
-    background-color: transparent,
+    background-color: transparent;
     outline: none;
     border-radius: 15px;
     font-size: 15px;

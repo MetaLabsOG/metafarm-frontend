@@ -2,7 +2,7 @@ import { createComponent, useUnit } from 'effector-react';
 import { SliseAd } from '@slise/embed-react';
 import { FarmType } from '../common/store';
 import { InfoCard } from '../Components/InfoCard/InfoCard';
-// import governance from '../imgs/folks.jpeg';
+import governance from '../imgs/folks.jpeg';
 import { Balance } from './Balance';
 import { PoolList } from './PoolList';
 import { $sortedPoolsWithStats, initializeFarmContract } from './store';
@@ -45,10 +45,10 @@ export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
         <BalanceContainer>
             <Balance kind={'farm' as FarmType} />
-            {/*<a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">*/}
-            {/*    <GovImg alt="Governance" src={governance} />*/}
-            {/*</a>*/}
-            {window.innerWidth > 700 && renderSliseAd()}
+            <a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">
+                <GovImg alt="Governance" src={governance} />
+            </a>
+            {/*{window.innerWidth > 700 && renderSliseAd()}*/}
         </BalanceContainer>
         <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
         <InfoCards addFarmType="farm" />

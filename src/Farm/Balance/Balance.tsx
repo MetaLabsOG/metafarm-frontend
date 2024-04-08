@@ -19,7 +19,7 @@ export function Balance({ kind }: BalanceProps) {
     const aggregates = useUnit(kindToAggregates[kind]);
     return (
         <BalanceList>
-            <Amount title="TVL" value={aggregates.tvl} />
+            <Amount title="Staking TVL" value={aggregates.tvl} />
             <Amount title="My Stake" value={aggregates.totalUserStake} />
             <Amount title="My Reward" value={aggregates.totalPendingReward} />
         </BalanceList>

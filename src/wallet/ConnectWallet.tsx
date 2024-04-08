@@ -3,7 +3,9 @@ import { useModal } from 'react-hooks-use-modal';
 import { detect } from 'detect-browser';
 
 import '../css/wallet.css';
+import styled from 'styled-components';
 import { useUnit } from 'effector-react';
+import { theme } from '../theme';
 import { logEvent, LogName } from '../logEvent';
 import { $account, setAccount } from '../common/store';
 import { ALGONET, reach, TESTNET } from '../AppContext';
@@ -79,6 +81,58 @@ const disconnectWallet = () => {
     }
 };
 
+const PrettyButtonContainer = styled.a`
+    //color: ${theme.lightGreen};
+    color: ${theme.pureWhite};
+    //border: 1px solid #90ee90;
+    border: 2px solid ${theme.pureWhite};
+    text-decoration: none;
+    //background-color: transparent;
+    background-color: revert;
+    outline: none;
+    border-radius: 15px;
+    font-family: 'Korona One';
+    font-size: 13px;
+    font-weight: 10;
+    //font-family: 'Montserrat';
+    //font-size: 15px;
+    //font-weight: 400;
+    //height: 32px;
+    padding: 5px 13px 5px 13px;
+    height: 32px;
+
+    :hover {
+        cursor: pointer;
+        color: gray;
+    }
+
+    //@media (max-width: 922px) {
+    //    font-size: 13px;
+    //    padding: 6px 15px 6px 15px;
+    //    height: 30px;
+    //}
+    //
+    //@media (max-width: 872px) {
+    //    font-size: 13px;
+    //    padding: 6px 14px 6px 14px;
+    //    height: 30px;
+    //}
+
+    @media (max-width: 700px) {
+        //text-align: center;
+        //border-radius: 15px;
+        //font-size: 12px;
+        //padding: 6px 15px 6px 15px;
+        //font-weight: 300;
+        //width: 140px;
+        //height: 30px;
+        //margin-top: 0;
+        :hover {
+            cursor: pointer;
+        }
+    }
+`;
+
 export function ConnectWallet({
     buttonClassName = 'connect_wallet',
     style,
@@ -136,9 +190,9 @@ export function ConnectWallet({
                     </button>
                 ) : (
                     <>
-                        <a href="/" onClick={toggleDropdown}>
-                            <h1 className="account_info">{walletNfd ?? account.networkAccount.addr}</h1>
-                        </a>
+                        <PrettyButtonContainer onClick={toggleDropdown}>
+                            {walletNfd ?? account.networkAccount.addr}
+                        </PrettyButtonContainer>
                         <div
                             className="account_dropdown_container"
                             style={{

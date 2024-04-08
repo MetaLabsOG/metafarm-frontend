@@ -8,8 +8,8 @@ export const MenuItem = styled(NavLink)`
     font-family: 'Korona One';
     //font-family: 'Montserrat';
     font-style: normal;
-    font-weight: 300;
-    font-size: 16px;
+    font-weight: 200;
+    font-size: 15px;
     line-height: 12px;
     letter-spacing: 0.08em;
 
@@ -114,11 +114,12 @@ export const ExchangeRatesBurger = styled.div`
 
 export const ExchangeRate = styled.div`
     font-family: 'Montserrat', serif;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 300;
     width: 60px;
     margin: auto;
     right: 0;
-    padding-left: 10px;
+    padding-left: 5px;
     color: white;
 `;
 
