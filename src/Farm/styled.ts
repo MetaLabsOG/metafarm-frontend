@@ -73,6 +73,7 @@ export const PoolSearchInput = styled.input`
 
     @media (max-width: 860px) {
         width: 140px;
+        width: 140px;
     }
 
     @media (max-width: 820px) {
@@ -81,6 +82,9 @@ export const PoolSearchInput = styled.input`
 
     @media (max-width: 700px) {
         display: flex;
+        width: 140px;
+        margin: 0;
+        padding: 0;
         width: 140px;
         margin: 0;
         padding: 0;

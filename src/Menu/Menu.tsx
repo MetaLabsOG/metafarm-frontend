@@ -16,6 +16,7 @@ import {
     ExchangeRate,
     MainMenu,
     Logo,
+    LogoWithMargin,
     Burger,
     BurgerMenuContainer,
     MenuItemsBurger,
@@ -95,7 +96,7 @@ export function Menu() {
             <MenuContainer>
                 <MainMenu>
                     <MenuItem to="/">
-                        <Logo src={logo} alt="logo" height="40px" />
+                        <LogoWithMargin src={logo} alt="logo" height="40px" />
                     </MenuItem>
                     <Burger
                         src={burger}
