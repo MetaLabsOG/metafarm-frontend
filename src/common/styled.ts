@@ -226,14 +226,14 @@ export const WalletActionButton = styled.a`
 
 export const PrettyButtonContainer = styled(WalletActionButton)`
     color: ${theme.pureWhite};
-    border: 2px solid ${theme.pureWhite};
+    border: 2px solid ${theme.newLightGray};
     text-decoration: none;
     background-color: transparent;
     outline: none;
     border-radius: 15px;
     font-family: 'Montserrat';
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 500;
-    height: 35px;
+    height: 32px;
     padding: 5px 13px 5px 13px;
 `;

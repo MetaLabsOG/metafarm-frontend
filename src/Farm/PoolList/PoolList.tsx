@@ -94,11 +94,10 @@ export function PoolList({
                 return pws.pool.id === Number(priorityPoolId);
             }
 
-            //test of filter for my pools
-            if (showMyPools && pws.dollarInfo.userStake <= 0) {
+            // my pools = stake > 0 or reward > 0
+            if (showMyPools && pws.dollarInfo.userStake <= 0 && pws.dollarInfo.pendingReward <= 0) {
                 return false;
             }
-            //test ends here
 
             if (
                 pws.pool.info.description &&
@@ -182,7 +181,7 @@ export function PoolList({
                         </DesktopOnly>
                         <MobileOnly>
                             <PoolSearchInput
-                                placeholder="Find token pools..."
+                                placeholder="Search token..."
                                 value={poolSearch}
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
                             />
@@ -193,7 +192,7 @@ export function PoolList({
                         <SwitchSelectPools onChange={onChangePoolType} isEnabled={showMyPools} />
                         <DesktopOnly>
                             <PoolSearchInput
-                                placeholder="Find token pools..."
+                                placeholder="Search token..."
                                 value={poolSearch}
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
                             />

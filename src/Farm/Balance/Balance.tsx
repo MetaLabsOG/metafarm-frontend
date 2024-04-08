@@ -17,9 +17,10 @@ type BalanceProps = {
 
 export function Balance({ kind }: BalanceProps) {
     const aggregates = useUnit(kindToAggregates[kind]);
+    const tvlName = (kind === 'farm' ? 'Farm' : 'Stake') + ' TVL';
     return (
         <BalanceList>
-            <Amount title="Staking TVL" value={aggregates.tvl} />
+            <Amount title={tvlName} value={aggregates.tvl} />
             <Amount title="My Stake" value={aggregates.totalUserStake} />
             <Amount title="My Reward" value={aggregates.totalPendingReward} />
         </BalanceList>

@@ -39,7 +39,7 @@ export const onClickClaim = async (
     setNft: Dispatch<SetStateAction<NftLottery | null>>
 ) => {
     // Check NFT winning
-    const nft = await checkClaimLottery(account?.networkAccount.addr ?? '', contractId).catch(() => null);
+    // const nft = await checkClaimLottery(account?.networkAccount.addr ?? '', contractId).catch(() => null);
     const amount = fromSmallestUnits(rewardTokenInfo, microAmount);
     logFarmActionData(account, 'CLAIM', amount, stakeTokenInfo, rewardTokenInfo);
     try {
@@ -49,9 +49,9 @@ export const onClickClaim = async (
             await batchOptIn(reach, account.networkAccount.addr, [Number(rewardTokenInfo.id)], true);
         }
         await ctc.apis.claim();
-        if (nft) {
-            setNft(nft);
-        }
+        // if (nft) {
+        //     setNft(nft);
+        // }
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
         console.log(error_message);
