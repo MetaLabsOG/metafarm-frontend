@@ -67,8 +67,8 @@ export const Burger = styled.img`
 
 export const MainMenu = styled.div`
     display: flex;
-    padding-left: 40px;
-    padding-right: 40px;
+    padding-left: 30px;
+    padding-right: 20px;
     width: 100%;
     align-items: center;
     margin: auto;

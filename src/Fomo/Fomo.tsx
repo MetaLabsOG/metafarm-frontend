@@ -12,7 +12,7 @@ import { Timer } from './Timer';
 import { Status } from '../Status';
 import { batchOptIn } from '../batchOptIn';
 import { getContracts } from '../providers/apiProvider';
-import { getAssetInfo } from '../providers/algoExploerProvider';
+import { getAssetInfo } from '../providers/algoExplorerProvider';
 import { logEvent, LogName } from '../logEvent';
 import { AlgoIcon } from '../imgs/algo';
 import {

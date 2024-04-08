@@ -26,20 +26,29 @@ export const PoolInfo = styled.div`
 export const PoolTitle = styled.div`
     display: flex;
     white-space: nowrap;
+    font-family: 'Korona One';
+    font-size: 14px;
 
     @media (max-width: 1120px) {
-        font-family: 'Korona One';
+        font-size: 15px;
         color: white;
     }
 `;
 
-export const PoolSubtitle = styled.div`
+export const PoolSubtitlesContainer = styled.div`
     display: flex;
+    justify-content: left;
+    width: 100%;
+`;
+
+export const PoolSubtitle = styled.div`
     white-space: nowrap;
+    color: #8bff74; // light green
+    font-family: 'Korona One';
+    font-size: 12px;
 
     @media (max-width: 1120px) {
-        font-family: 'Korona One';
-        color: var(--green);
+        font-size: 13px;
     }
 `;
 

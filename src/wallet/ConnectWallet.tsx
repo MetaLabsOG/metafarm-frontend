@@ -10,15 +10,13 @@ import { ALGONET, reach, TESTNET } from '../AppContext';
 import { notify } from '../Components/Notification';
 import { customWalletFallback, WalletType } from './customWalletFallback';
 import { ConnectWalletModal } from './ConnectWalletModal';
+import { clearWalletData, getWalletNfd, getWalletType, updateWalletAddress, updateWalletType } from './info';
 
 export const BROWSER = detect();
 const browserInfoString =
     BROWSER === null
         ? 'unknown'
         : `${BROWSER.name} ${BROWSER.version ?? 'UNKNOWN_VERSION'} ${BROWSER.os ?? 'UNKNOWN_OS'}`;
-
-const WALLET_TYPE_KEY = 'connectedWalletType';
-const WALLET_ADDRESS = 'walletAddress';
 
 export const connectWallet = (walletType: WalletType) => {
     reach.clearProvider();
@@ -47,8 +45,8 @@ export const connectWallet = (walletType: WalletType) => {
                 },
                 LogName.WALLET
             );
-            localStorage.setItem(WALLET_TYPE_KEY, walletType);
-            localStorage.setItem(WALLET_ADDRESS, acc.networkAccount.addr);
+            updateWalletType(walletType);
+            updateWalletAddress(acc.networkAccount.addr);
 
             return acc;
         })
@@ -69,7 +67,7 @@ export const connectWallet = (walletType: WalletType) => {
 
 const disconnectWallet = () => {
     const finalDisconnect = () => {
-        localStorage.removeItem(WALLET_TYPE_KEY);
+        clearWalletData();
         window.location.reload();
     };
 
@@ -92,10 +90,11 @@ export function ConnectWallet({
     const [Modal, open, close, isOpen] = useModal('root');
     const [accDropdownOpen, setAccDropdownOpen] = useState(false);
     const prefix = ALGONET === TESTNET ? 'testnet.' : '';
+    const [walletNfd, setWalletNfd] = useState<string | undefined>(undefined);
 
     // check local state once when the element is rendered first
     useEffect(() => {
-        const connectedWallet = localStorage.getItem(WALLET_TYPE_KEY);
+        const connectedWallet = getWalletType();
         if (connectedWallet !== null && !window.algorand) {
             connectWallet(connectedWallet as WalletType);
         }
@@ -106,6 +105,14 @@ export function ConnectWallet({
             accDropdownOpen && setAccDropdownOpen(!accDropdownOpen);
         });
     }, [accDropdownOpen]);
+
+    useEffect(() => {
+        getWalletNfd()
+            .then(setWalletNfd)
+            .catch((error) => {
+                console.error(`Failed to fetch options: ${String(error)}`);
+            });
+    }, [account]);
 
     const toggleDropdown: MouseEventHandler<HTMLAnchorElement> = (e) => {
         e.preventDefault();
@@ -130,7 +137,7 @@ export function ConnectWallet({
                 ) : (
                     <>
                         <a href="/" onClick={toggleDropdown}>
-                            <h1 className="account_info">{account.networkAccount.addr}</h1>
+                            <h1 className="account_info">{walletNfd ?? account.networkAccount.addr}</h1>
                         </a>
                         <div
                             className="account_dropdown_container"

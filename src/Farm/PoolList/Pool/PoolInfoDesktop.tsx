@@ -63,7 +63,7 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedA
                         convertAmountToUSD(pricedAlgo, algoReward)
                 )}
             </RewardUSDValue>
-            <RewardTokenValue>
+            <RewardTokenValue style={{ paddingTop: 5 }}>
                 {numberRound(fromSmallestUnits(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
             </RewardTokenValue>
             {contractState.initial.totalAlgoRewardAmount && (

@@ -1,9 +1,9 @@
 .wallet_container {
-    justify-content: center;
+    justify-content: right;
     display: flex;
     position: relative;
     padding-left: 10px;
-    padding-right: 10px;
+    padding-right: 0;
     padding-top: 16px;
     margin-top: -16px;
 }
@@ -61,7 +61,7 @@
 .account_info {
     position: relative;
     font-family: Montserrat;
-    font-size: 14px;
+    font-size: 15px;
     color: var(--lightGreen);
     width: 180px;
     text-overflow: ellipsis;
@@ -75,7 +75,7 @@
 .account_item {
     color: var(--lightGray);
     font-family: Montserrat;
-    font-size: 16px;
+    font-size: 15px;
     padding: 10px;
     height: 40px;
 }

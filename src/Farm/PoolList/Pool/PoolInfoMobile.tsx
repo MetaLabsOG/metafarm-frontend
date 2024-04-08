@@ -43,14 +43,22 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 nftRewards={nftRewards}
             />
             <PoolInfoValue style={{ marginTop: '30px' }}>
-                <div>TVL</div>
-                <div style={{ color: 'white' }}>
+                <div style={{ paddingLeft: 10 }}>TVL</div>
+                <div style={{ color: 'white', paddingRight: 10 }}>
                     ${numberRound(convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked))}
                 </div>
             </PoolInfoValue>
             <PoolInfoValue style={{ marginBottom: '30px' }}>
-                <div>APR</div>{' '}
-                <div style={{ color: 'white', display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+                <div style={{ paddingLeft: 10 }}>APR</div>{' '}
+                <div
+                    style={{
+                        color: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        whiteSpace: 'nowrap',
+                        paddingRight: 10,
+                    }}
+                >
                     {numberRound(APR.total)}%
                     <img
                         data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
@@ -63,14 +71,14 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 </div>
             </PoolInfoValue>
             <PoolInfoValue>
-                <div>MY STAKE</div>
-                <div style={{ color: 'white' }}>
+                <div style={{ paddingLeft: 10 }}>My Stake</div>
+                <div style={{ color: 'white', paddingRight: 10 }}>
                     <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>
             <PoolInfoValue>
-                <div>REWARD</div>
-                <div style={{ color: 'white' }}>
+                <div style={{ paddingLeft: 10 }}>Reward</div>
+                <div style={{ color: 'white', paddingRight: 10 }}>
                     <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
             </PoolInfoValue>

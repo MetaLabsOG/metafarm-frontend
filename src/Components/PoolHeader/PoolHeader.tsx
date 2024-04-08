@@ -16,6 +16,7 @@ import {
     PoolTitle,
     PoolSubtitle,
     Game,
+    PoolSubtitlesContainer,
 } from './styled';
 
 // KOSTYL for GARD....
@@ -101,6 +102,7 @@ export function PoolHeader({
     isGame: boolean;
     nftRewards: boolean;
 }) {
+    const rewards = `${rewardTokenName}${algoRewards ? ' + ALGO' : ''}${nftRewards ? ' + 🎁 NFT' : ''}`;
     return (
         <PoolHeaderContainer>
             <TokensIcons asset1_id={asset1_id} asset2_id={asset2_id} dex={dex} isGame={isGame} />
@@ -109,11 +111,9 @@ export function PoolHeader({
                     <PoolTitle style={{ marginRight: '5px' }}>{pool_name}</PoolTitle>
                     {isVerified && <img data-tip="Verified by Cometa" alt="" height="14px" src={verified} />}
                 </div>
-                <div style={{ display: 'flex' }}>
-                    <PoolSubtitle>EARN {rewardTokenName}</PoolSubtitle>
-                    {algoRewards && <PoolSubtitle style={{ marginLeft: '3px' }}>+ ALGO</PoolSubtitle>}
-                    {nftRewards && <PoolSubtitle style={{ marginLeft: '3px' }}>+ 🎁 NFT</PoolSubtitle>}
-                </div>
+                <PoolSubtitlesContainer>
+                    <PoolSubtitle>Earn {rewards}</PoolSubtitle>
+                </PoolSubtitlesContainer>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                     <ContractLockSuffix>{lock}</ContractLockSuffix>
                     {lock && (
