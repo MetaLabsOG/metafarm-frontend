@@ -181,7 +181,7 @@ export function PoolList({
 
                     <MobileFilterRow>
                         <PoolSearchInput
-                            placeholder="Find token pools..."
+                            placeholder="Search token..."
                             value={poolSearch}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
                         />
