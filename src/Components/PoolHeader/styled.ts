@@ -37,7 +37,9 @@ export const PoolTitle = styled.div`
 `;
 
 export const PoolSubtitlesContainer = styled.div`
+    padding-top: 3px;
     display: flex;
+    padding-bottom: 3px;
     justify-content: left;
     width: 100%;
 `;

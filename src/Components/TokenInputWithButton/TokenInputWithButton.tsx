@@ -69,7 +69,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     const [showConfetti, setShowConfetti] = useState(false);
 
     const buttonType = buttonName.toLowerCase();
-    const balanceField = buttonType === 'stake' ? 'Balance' : 'Staked';
+    const balanceField = buttonType === 'stake' ? 'Balance' : 'In Pool';
 
     const [WarningModal, openWarningModal, closeWarningModal] = useModal('root');
     const warningText =

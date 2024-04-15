@@ -1,6 +1,5 @@
 import { useUnit } from 'effector-react';
-import React, { ChangeEvent, useEffect } from 'react';
-
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PoolWithStats, sortPools } from '../store';
 import swapArrow from '../../imgs/swapArrow.svg';
@@ -36,12 +35,12 @@ import {
 import { Pool } from './Pool';
 
 export enum ColumnType {
-    Name = 'POOL',
+    Name = 'Pool',
     Tvl = 'TVL',
     Apr = 'APR',
-    Stake = 'MY STAKE',
-    Reward = 'REWARDS',
-    Ends = 'ENDS IN',
+    Stake = 'Staked',
+    Reward = 'Reward',
+    Ends = 'Ends',
 }
 
 export const POOL_COLUMN_WIDTH: Record<ColumnType, string> = {
@@ -85,7 +84,7 @@ export function PoolList({
     const [showVerified, setShowVerified] = useWalletPersistedState('showVerified', false);
     const [showEnded, setShowEnded] = useWalletPersistedState('showEnded', false);
     const [poolSearch, setPoolSearch] = useWalletPersistedState('poolSearch', '');
-    const [showMyPools, setShowMyPools] = useWalletPersistedState('showMyPools', false);
+    const [showMyPools, setShowMyPools] = useState(false);
 
     const poolComponents = pools
         .filter((pws: PoolWithStats) => {
@@ -98,11 +97,10 @@ export function PoolList({
                 return pws.pool.id === Number(priorityPoolId);
             }
 
-            //test of filter for my pools
-            if (showMyPools && pws.dollarInfo.userStake <= 0) {
+            // my pools = stake > 0 or reward > 0
+            if (showMyPools && pws.dollarInfo.userStake <= 0 && pws.dollarInfo.pendingReward <= 0) {
                 return false;
             }
-            //test ends here
 
             if (
                 pws.pool.info.description &&
@@ -219,12 +217,11 @@ export function PoolList({
                         <SwitchersContainer>
                             <VerifiedSwitchDesktop onChange={onVerifiedButton} switchStatus={showVerified} />
                         </SwitchersContainer>
-
                         <SwitchersAndSearchContainer>
                             <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
                             <SwitchSelectPools onChange={onChangePoolType} isEnabled={showMyPools} />
                             <PoolSearchInput
-                                placeholder="Find token pools..."
+                                placeholder="Search token..."
                                 value={poolSearch}
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
                             />

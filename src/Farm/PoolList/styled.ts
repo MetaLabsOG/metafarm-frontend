@@ -213,7 +213,6 @@ export const TopTwoButtonsMobileContainer = styled.a`
     @media (max-width: 885px) {
         display: flex;
         flex-direction: row;
-        align-items: left;
         justify-content: left;
     }
 

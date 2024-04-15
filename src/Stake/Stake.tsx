@@ -35,9 +35,6 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
         <FarmContainer>
             <BalanceContainer>
                 <Balance kind={'distribution' as FarmType} />
-                {/*<a target="_blank" href="https://app.folks.finance/algo-liquid-governance?ref=cometa" rel="noreferrer">*/}
-                {/*    <GovImg alt="Governance" src={governance} />*/}
-                {/*</a>*/}
                 {window.innerWidth > 700 && renderSliseAd()}
             </BalanceContainer>
             <PoolList pools={state} poolType="stake" initEvent={initStakeOrDistr} />
