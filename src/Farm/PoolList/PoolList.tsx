@@ -1,5 +1,5 @@
 import { useUnit } from 'effector-react';
-import React, { ChangeEvent, useEffect } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PoolWithStats, sortPools } from '../store';
 import swapArrow from '../../imgs/swapArrow.svg';
@@ -32,12 +32,12 @@ import {
 import { Pool } from './Pool';
 
 export enum ColumnType {
-    Name = 'POOL',
+    Name = 'Pool',
     Tvl = 'TVL',
     Apr = 'APR',
-    Stake = 'MY STAKE',
-    Reward = 'REWARDS',
-    Ends = 'ENDS IN',
+    Stake = 'Staked',
+    Reward = 'Reward',
+    Ends = 'Ends',
 }
 
 export const POOL_COLUMN_WIDTH: Record<ColumnType, string> = {
@@ -81,7 +81,7 @@ export function PoolList({
     const [showVerified, setShowVerified] = useWalletPersistedState('showVerified', false);
     const [showEnded, setShowEnded] = useWalletPersistedState('showEnded', false);
     const [poolSearch, setPoolSearch] = useWalletPersistedState('poolSearch', '');
-    const [showMyPools, setShowMyPools] = useWalletPersistedState('showMyPools', false);
+    const [showMyPools, setShowMyPools] = useState(false);
 
     const poolComponents = pools
         .filter((pws: PoolWithStats) => {

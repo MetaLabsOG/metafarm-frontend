@@ -78,7 +78,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 </PoolPropertyValue>
             </PoolInfoValue>
             <PoolInfoValue>
-                <PoolPropertyName>My Stake</PoolPropertyName>
+                <PoolPropertyName>Staked</PoolPropertyName>
                 <PoolPropertyValue>
                     <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
                 </PoolPropertyValue>

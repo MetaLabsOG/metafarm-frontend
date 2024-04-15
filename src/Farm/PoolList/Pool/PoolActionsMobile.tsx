@@ -59,14 +59,14 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 token={stakedToken}
                 tokenMicroBalance={stakedTokenBalance}
                 balanceSuffix={balanceSuffix}
-                buttonName="STAKE"
+                buttonName="Stake"
                 optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.stake}
                 hasLock={hasLock}
                 isAutoClaim={isAutoClaim}
             />
             <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
-                <div>MY STAKE</div>
+                <div style={{ fontSize: 20 }}>Staked</div>
                 <div style={{ color: 'white' }}>
                     <StakeValue contractState={contractState} tokenInfo={stakedToken} pricedAlgo={pricedAlgo} />
                 </div>
@@ -75,14 +75,14 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 token={stakedToken}
                 tokenMicroBalance={contractState.local.staked}
                 balanceSuffix={balanceSuffix}
-                buttonName="WITHDRAW"
+                buttonName="Withdraw"
                 optInId={rewardTokenInfo.id}
                 actionEffect={ctc.apis.unstake}
                 hasLock={hasLock}
                 isAutoClaim={isAutoClaim}
             />
             <PoolInfoValue style={{ paddingLeft: '20px', paddingRight: '20px' }}>
-                <div>REWARD</div>
+                <div style={{ fontSize: 20 }}>Reward</div>
                 <div style={{ color: 'white' }}>
                     <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                 </div>
@@ -91,7 +91,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 <div>
                     <PacmanButton
                         style={!canClaim ? { visibility: 'hidden' } : {}}
-                        buttonText="CLAIM"
+                        buttonText="Claim"
                         buttonStyle="claim_button"
                         isInactive={!isActiveClaim}
                         onClickAction={async () =>
@@ -110,7 +110,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 </div>
                 {canStake && canClaim && account && isCompoundEnabled(stakedToken, rewardTokenInfo.id) && (
                     <PacmanButton
-                        buttonText="COMPOUND"
+                        buttonText="Compound"
                         buttonStyle="claim_button"
                         isInactive={!isActiveClaim}
                         onClickAction={async () =>
