@@ -91,7 +91,7 @@ export const PoolListContainer = styled.div`
         display: flex;
         flex-wrap: wrap;
         flex-direction: row;
-        justify-content: center;
+        justify-content: space-between;
         gap: 20px;
         align-items: center;
         min-width: unset;
@@ -100,6 +100,8 @@ export const PoolListContainer = styled.div`
 
     @media (max-width: 700px) {
         margin-top: 36px;
+        justify-content: center;
+        gap: 0;
     }
 `;
 
@@ -150,6 +152,11 @@ export const AddFarmButtonContainer = styled(PrettyButtonContainer)`
     font-size: 14px;
     font-weight: 300;
     height: 30px;
+    text-align: center;
+
+    @media (max-width: 700px) {
+        width: 140px;
+    }
 `;
 
 export const SwitchersContainer = styled.a`
@@ -162,6 +169,7 @@ export const SwitchersContainer = styled.a`
     }
 
     @media (max-width: 700px) {
+        width: 50%;
         width: 50%;
         display: flex;
         flex-direction: column-reverse;

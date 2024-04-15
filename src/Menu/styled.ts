@@ -30,7 +30,6 @@ export const MenuItemsContainer = styled.div`
     justify-content: space-between;
     width: 350px;
     margin-left: 20px;
-    margin-top: 3px;
     @media (max-width: 979px) {
         display: none;
     }
@@ -44,6 +43,12 @@ export const MenuItemsBurger = styled.div`
     width: 500px;
     padding: 20px;
     gap: 30px;
+`;
+
+export const LogoWithMargin = styled.img`
+    margin: auto;
+    display: flex;
+    margin-bottom: 3px;
 `;
 
 export const Logo = styled.img`

@@ -5,7 +5,6 @@ export const MyVerifiedSwitchWrapper = styled.div`
     height: 30px;
     margin-top: 9px;
     font-family: 'Montserrat';
-    margin-left: 5%;
     font-weight: 300;
 
     @media (max-width: 1120px) {

@@ -11,6 +11,7 @@
 @media (max-width: 490px) {
     .wallet_container {
         padding-top: 0;
+				padding-right: 0;
         margin: auto;
         order: 2;
     }

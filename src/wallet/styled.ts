@@ -51,7 +51,7 @@ export const WalletButton = styled.div`
     height: 60px;
 
     background: var(--backgroundModal);
-    border-radius: 25px;
+    border-radius: 30px;
 
     :hover {
         background-color: var(--backgroundHover);

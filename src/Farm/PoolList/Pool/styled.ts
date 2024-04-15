@@ -19,11 +19,8 @@ export const PoolContainer = styled.div`
     }
 
     @media (max-width: 1120px) {
-        width: 325px;
         height: 420px;
-        margin-bottom: 12px;
         justify-content: center;
-
         perspective: 1000px;
         transition: transform 0.6s;
         transform-style: preserve-3d;
@@ -32,6 +29,15 @@ export const PoolContainer = styled.div`
         :hover {
             background: var(--backgroundCard);
         }
+    }
+
+		@media (max-width: 1120px) and (min-width: 701px) {
+			flex: 1 1 calc(50% - 20px);
+			margin-bottom: 0;
+	  }
+
+    @media (max-width: 700px) {
+        width 325px;
     }
 `;
 
@@ -57,8 +63,8 @@ export const PoolInfoDesktopContainer = styled.div`
 export const PoolInfoMobileContainer = styled.div`
     color: ${(props) => props.theme.white};
     width: 100%;
-    padding-left: 40px;
-    padding-right: 40px;
+    padding-left: 28px;
+    padding-right: 28px;
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: normal;
@@ -162,6 +168,7 @@ export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
     border: none;
     border-radius: 10px;
     cursor: pointer;
+    margin-top: 8px;
 
     :disabled {
         background: grey;
