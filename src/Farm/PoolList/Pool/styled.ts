@@ -72,12 +72,12 @@ export const PoolInfoMobileContainer = styled.div`
 `;
 
 export const PoolPropertyName = styled.div`
-    padding-left: 10px;
+    padding-left: 15px;
     color: white;
 `;
 
 export const PoolPropertyValue = styled.div`
-    padding-right: 10px;
+    padding-right: 6px;
     color: white;
 `;
 
@@ -153,14 +153,14 @@ export const ArrowIconsWrapper = styled.div`
 export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
     width: 70%;
     height: 40px;
-    margin: auto;
+    margin: 10px auto auto;
     background: ${theme.lightGreen};
     font-family: 'Korona One';
     font-weight: 500;
     font-size: 20px;
     color: black;
     border: none;
-    border-radius: 4px;
+    border-radius: 10px;
     cursor: pointer;
 
     :disabled {

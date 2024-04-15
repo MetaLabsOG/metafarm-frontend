@@ -51,7 +51,7 @@
     background-color: inherit;
     color: white;
     border: 1px solid #B6B9BD;
-    font-size: 12px;
+    font-size: 13px;
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -131,7 +131,7 @@
     border-radius: 0 4px 4px 0;
     cursor: pointer;
     font-family: 'Korona One';
-    font-size: 12px;
+    font-size: 13px;
     border: 1px solid #B6B9BD;
 
     transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;

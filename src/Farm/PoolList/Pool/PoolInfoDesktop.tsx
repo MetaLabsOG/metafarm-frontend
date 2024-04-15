@@ -74,8 +74,13 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedA
                     {numberRound(fromSmallestUnits(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
                 </ZeroRewardTokenValue>
             )}
-            {contractState.initial.totalAlgoRewardAmount && (
+            {algoReward > 0 && (
                 <RewardTokenValue>{numberRound(fromSmallestUnits(pricedAlgo, algoReward))} ALGO</RewardTokenValue>
+            )}
+            {!algoReward && contractState.initial.totalAlgoRewardAmount && (
+                <ZeroRewardTokenValue>
+                    {numberRound(fromSmallestUnits(pricedAlgo, algoReward))} ALGO
+                </ZeroRewardTokenValue>
             )}
         </>
     );
@@ -137,13 +142,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Apr]}>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                     <PoolPropertyValue>{numberRound(APR.total)}%</PoolPropertyValue>
-                    <img
-                        data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
-                        style={{ marginLeft: '3px' }}
-                        alt="APR info"
-                        height="14px"
-                        src={info}
-                    />
+                    <img data-tip={getAPRTip(APR, rewardTokenInfo.unitName)} alt="APR info" height="14px" src={info} />
                     <ReactTooltip clickable place="top" type="light" effect="solid" />
                 </div>
             </PoolInfoValue>
