@@ -14,8 +14,6 @@ import {
     Priced,
     allAssetsLoaded,
     registerAsset,
-    registerPricedAsset,
-    $algoUsdPrice,
     fetchAsset,
     ALGO_ASSET,
     $pricedAssets,
@@ -25,6 +23,7 @@ import {
     hasLocalState,
     Time,
     $meanRoundDuration,
+    $pricedAlgo,
 } from '../common/store';
 import { getPricedLpInfo, getPricedLpInfos, PricedLpInfo } from '../providers/flexApiProvider';
 import { nonConcurrent } from '../common/store/utils';
@@ -39,25 +38,6 @@ const FARM_BACKENDS = {
     '17.2.4': farmBackend_17_2_4 as Backend,
     '17.2.5': farmBackend_17_2_5 as Backend,
 };
-
-// TODO: this function is a huge costyl
-export function detectAssetProvider({ name }: { name: string }): DexProvider {
-    if (name.includes('TinymanPool2.0')) {
-        return 'T3';
-    }
-    name = name.toLowerCase();
-    if (name.includes('tinyman')) {
-        return 'T2';
-    }
-    if (name.includes('humble')) {
-        return 'H2';
-    }
-    if (name.includes('liquidity') || name.includes('pact')) {
-        return 'PT';
-    }
-
-    return 'MOCK';
-}
 
 function formatPricedLPInfo(lpInfo: PricedLpInfo, asset: Asset): Priced<LPTokenInfo> {
     return {
@@ -176,7 +156,7 @@ const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) =>
 // Automatically fetch LP token infos when general info about them gets fetched the first time
 sample({
     clock: allAssetsLoaded,
-    source: { lpTokens: $lpTokenIds, algoPrice: $algoUsdPrice },
+    source: { lpTokens: $lpTokenIds, algoPrice: $pricedAlgo.map((algo) => algo?.price ?? null) },
     fn: ({ lpTokens, algoPrice }) => ({ lpTokenIds: lpTokens.toArray(), algoPrice }),
     target: getLPTokenInfosFx,
 });
@@ -185,15 +165,6 @@ $farmPools.watch((farms) => {
     const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
     for (const s of farmStates) {
         registerAsset(s.initial.stakeToken);
-        registerPricedAsset(s.initial.rewardToken);
-    }
-});
-
-$stakePools.watch((farms) => {
-    const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
-    for (const s of farmStates) {
-        registerPricedAsset(s.initial.stakeToken);
-        registerPricedAsset(s.initial.rewardToken);
     }
 });
 
@@ -307,7 +278,7 @@ export function createAprs<T extends FarmType>(
         $pools,
         $networkTime,
         $meanRoundDuration,
-        $algoUsdPrice,
+        $pricedAlgo,
         $stakeTokens,
         $farmRewardTokens,
         (pools, time, meanRoundDuration, algoPrice, stakingTokens, farmRewardTokens) =>
@@ -350,7 +321,7 @@ export function createAprs<T extends FarmType>(
 
                     const algoRewardAPR =
                         totalStakedUSD && algoPrice
-                            ? ((algoRewardPerBlock * algoPrice * blocksInAYear) / totalStakedUSD) * 100
+                            ? ((algoRewardPerBlock * algoPrice.price * blocksInAYear) / totalStakedUSD) * 100
                             : 0;
 
                     const feesAPR = ((stakeTokenInfo as Priced<LPTokenInfo>).dexFeeApr ?? 0) * 100;

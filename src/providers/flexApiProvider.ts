@@ -32,6 +32,15 @@ export type PricedLpInfo = {
     swap_fee_apr?: number;
 };
 
+export type AssetPriceInfo = {
+    asset_id: number;
+    asset_name: string;
+    price_usd: number;
+    price_algo: number;
+    last_update_round: number;
+    seconds_since_update?: number;
+};
+
 export async function getPricedLpInfo(lp_token_id: number): Promise<PricedLpInfo> {
     return await instance
         .post<PricedLpInfo>(`/lp/state/priced?lp_token_id=${lp_token_id}`)
@@ -69,6 +78,26 @@ export async function getAsset(asset_id: number): Promise<AssetDetails> {
 export async function getAllAssets(asset_ids: number[] | null = null): Promise<AssetDetails[]> {
     try {
         const response = await instance.post<AssetDetails[]>(`/assets`, { ids: asset_ids });
+        return response.data;
+    } catch (error) {
+        console.error('Failed to fetch assets from API:', error);
+        throw error; // Rethrow the error to be handled by the effect
+    }
+}
+
+export async function getPrice(asset_id: number): Promise<AssetPriceInfo> {
+    return await instance
+        .post<AssetPriceInfo>(`/asset/price?asset_id=${asset_id}`)
+        .then(({ data }) => data)
+        .catch((error) => {
+            console.log('ERR', error);
+            throw error;
+        });
+}
+
+export async function getAllPrices(asset_ids: number[] | null = null): Promise<AssetPriceInfo[]> {
+    try {
+        const response = await instance.post<AssetPriceInfo[]>(`/assets/price`, { ids: asset_ids });
         return response.data;
     } catch (error) {
         console.error('Failed to fetch assets from API:', error);
