@@ -1,72 +1,60 @@
 import { createStore, createEffect, createEvent, combine, sample, Store } from 'effector';
 
 import { Map } from 'immutable';
-import { getSwapCostSomewhere } from '../../dexes';
-import { META_TOKEN_ID } from '../../AppContext';
-import { SLIPPAGE } from '../../Swap/Swap';
-import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
+import { AssetPriceInfo, getAllPrices } from '../../providers/flexApiProvider';
+import { $assets, ALGO_ASSET } from './assets';
 import { Asset, AssetId, Priced } from './types';
 import { nonConcurrent } from './utils';
+import { doEachTick } from './time';
 
-export const fetchAssetPriceFx = createEffect(
-    nonConcurrent(async (asset: Asset): Promise<number> => {
-        if (asset.id === 0) {
-            return 1;
+export const fetchAllPricesFx = createEffect(
+    nonConcurrent(async (): Promise<AssetPriceInfo[]> => {
+        console.log('Inside fetchAllPricesFx');
+        try {
+            const prices = await getAllPrices();
+            console.log('Prices fetched:', prices);
+            return prices;
+        } catch (error) {
+            console.error('Failed to fetch prices:', error);
+            return []; // Return an empty array in case of failure
         }
-        const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, BigInt(10 ** asset.decimals), SLIPPAGE);
-        return swapQuote.price;
     })
 );
 
-export const $assetAlgoPrices = createStore(Map<AssetId, number>()).on(
-    fetchAssetPriceFx.done,
-    (prices, { params, result }) => prices.set(params.id, result)
+export const $assetPrices = createStore(Map<AssetId, AssetPriceInfo>()).on(
+    fetchAllPricesFx.doneData,
+    (prices, newPrices) => {
+        return newPrices.reduce((acc, price) => acc.set(price.asset_id, price), prices);
+    }
 );
 
-// Bool flags needed to not fetch swap prices of LP tokens for example
-export const requireAssetPrice = createEvent<AssetId>();
-export const $assetIsPriced = createStore(Map<AssetId, boolean>()).on(requireAssetPrice, (as, id) => as.set(id, true));
+void doEachTick(60_000, fetchAllPricesFx);
 
-export const registerPricedAsset = createEvent<AssetId>();
-sample({
-    clock: registerPricedAsset,
-    target: [registerAsset, requireAssetPrice],
-});
-
-registerPricedAsset(META_TOKEN_ID);
-
-// Automatically fetch necessary assets prices when info about them is getting loaded first time
-sample({
-    clock: assetLoaded,
-    source: $assetIsPriced,
-    filter: (pricedFlags, asset) => pricedFlags.get(asset.id, false),
-    fn: (_, asset) => asset,
-    target: fetchAssetPriceFx,
-});
-
-fetchAssetPriceFx.fail.watch((v) => {
-    console.log('ASSET PRICE FETCHING FAILED', v);
-});
-
-export const $pricedAssets: Store<Map<AssetId, Priced<Asset>>> = combine(
-    $pricedAlgo,
-    $assetAlgoPrices,
-    $assets,
-    (pricedAlgo: Priced<Asset> | null, assetAlgoPrices: Map<AssetId, number>, assets: Map<AssetId, Asset>) => {
-        if (pricedAlgo === null) {
-            return Map<AssetId, Priced<Asset>>(); // Empty map, because cannot price anything without algo price
+export const $pricedAssets: Store<Map<AssetId, Priced<Asset>>> = combine($assets, $assetPrices, (assets, prices) => {
+    return assets.map((asset) => {
+        const price = prices.get(asset.id);
+        if (!price) {
+            return {
+                ...asset,
+                price: 0,
+                priceInAlgo: 0,
+            };
         }
+        return {
+            ...asset,
+            price: price.price_usd,
+            priceInAlgo: price.price_algo,
+        };
+    });
+});
 
-        return assetAlgoPrices
-            .map((priceInAlgo, assetId) => {
-                const asset = assets.get(assetId);
-                if (!asset) {
-                    throw new Error(`impossible: having price ${priceInAlgo} for unfetched asset ${assetId}`);
-                }
-
-                const price = priceInAlgo * pricedAlgo.price;
-                return { ...asset, priceInAlgo, price };
-            })
-            .set(0, pricedAlgo);
+export const $pricedAlgo: Store<Priced<Asset> | null> = combine(
+    $assets.map((as) => as.get(0, ALGO_ASSET)),
+    $assetPrices.map((prices) => prices.get(0)),
+    (algoAsset, algoPrice) => {
+        if (algoPrice) {
+            return { ...algoAsset, price: algoPrice.price_usd, priceInAlgo: 1 };
+        }
+        return null;
     }
 );

@@ -101,3 +101,21 @@ export const useWalletPersistedState = <InitialValueType>(
 
     return usePersistedState<InitialValueType>(walletAddr ? `${walletAddr}-${key}` : undefined, initialValue);
 };
+
+export function detectAssetProvider({ name }: { name: string }): DexProvider {
+    if (name.includes('TinymanPool2.0')) {
+        return 'T3';
+    }
+    name = name.toLowerCase();
+    if (name.includes('tinyman')) {
+        return 'T2';
+    }
+    if (name.includes('humble')) {
+        return 'H2';
+    }
+    if (name.includes('liquidity') || name.includes('pact')) {
+        return 'PT';
+    }
+
+    return 'MOCK';
+}

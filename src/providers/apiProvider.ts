@@ -115,34 +115,6 @@ export async function getContracts(
         });
 }
 
-export type LpState = {
-    id: number;
-    token_id: number;
-    asset1_id: number;
-    asset2_id: number;
-    dex_provider: string;
-    address: string;
-
-    asset1_reserve: number;
-    asset2_reserve: number;
-    issued_tokens: number;
-
-    token_price: number;
-    token_price_usd: number;
-    swap_fee_apr?: number;
-};
-
-export async function getLpState(lp_id: number): Promise<LpState> {
-    const res = await instance
-        .post<LpState>(`/info/lp/state?lp_token_id=${lp_id}`)
-        .then(({ data }) => data)
-        .catch((error) => {
-            console.log('ERR', error);
-            throw error;
-        });
-    return res;
-}
-
 export async function getPoolInfo(asset1: number, asset2: number): Promise<PoolInfo> {
     return instance.get<PoolInfo>(`/pool?asset_1_id=${asset1}&asset_2_id=${asset2}`).then(({ data }) => data);
 }

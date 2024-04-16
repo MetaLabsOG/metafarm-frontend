@@ -1,8 +1,7 @@
 import { algod, ALGONET, TESTNET } from '../AppContext';
 import { AppId, Asset, AssetId, Amount, fetchAsset, ALGO_ASSET } from '../common/store';
-import { WalletTransactionGroup } from '../types';
 
-import { Dex, PoolInfo, SwapQuote, MintQuote, DexProvider, DexPool } from './common';
+import { Dex, SwapQuote, DexProvider, DexPool } from './common';
 import { PactDex } from './pact';
 import { TinymanDex } from './tinyman';
 import { HumbleDex } from './humble';

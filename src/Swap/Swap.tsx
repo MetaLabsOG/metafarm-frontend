@@ -1,21 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useUnit } from 'effector-react';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { useModal } from 'react-hooks-use-modal';
-import { func } from 'prop-types';
 import { DeflexQuote } from '@deflex/deflex-sdk-js';
 import { theme } from '../theme';
 import { ALGONET, deflexClient, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
-import {
-    $account,
-    $balances,
-    Amount,
-    Asset,
-    AssetId,
-    fetchAsset,
-    fetchAssetPriceFx,
-    refreshAccountInfo,
-} from '../common/store';
+import { $account, $balances, Amount, Asset, AssetId, fetchAsset, refreshAccountInfo } from '../common/store';
 
 import { logEvent, LogName } from '../logEvent';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
@@ -23,7 +12,6 @@ import {
     algoexplorerTxLink,
     fromSmallestUnits,
     getSmallestUnits,
-    parseTxs,
     SentTxError,
     signAndPostTxnGroups,
 } from '../common/lib';

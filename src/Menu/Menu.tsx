@@ -4,7 +4,7 @@ import logo from '../imgs/logo.png';
 import meta_logo from '../imgs/meta_token.svg';
 import algo_logo from '../imgs/algo_token.svg';
 import burger from '../imgs/burger.svg';
-import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
+import { $pricedAlgo, $pricedAssets, Asset, Priced } from '../common/store';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { ALGONET, isMobile, META_TOKEN_ID, TESTNET } from '../AppContext';
 import { getTokenLink } from '../Farm/PoolList/Pool/utils';
@@ -70,7 +70,7 @@ function BurgerMenu({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPr
 }
 
 export function Menu() {
-    const ALGOPrice = useUnit($algoUsdPrice);
+    const ALGOPrice = useUnit($pricedAlgo)?.price ?? null;
     const METAPrice = useStoreMap($pricedAssets, (as) => as.get(META_TOKEN_ID, null));
     const [isBurgerOpen, setIsBurgerOpen] = useState(false);
 

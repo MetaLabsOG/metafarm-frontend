@@ -1,14 +1,11 @@
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
-
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import { useEffect, useState } from 'react';
 import { useModal, ModalProvider } from 'react-hooks-use-modal';
-import { useStoreMap, useUnit } from 'effector-react';
+import { useStore, useStoreMap, useUnit } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
 import ReactGA from 'react-ga';
 import GlobalStyle from './common/globalStyles';
@@ -21,7 +18,7 @@ import { Zap } from './Zap';
 import { MetaDAO } from './MetaDAO';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
-import { $account, ContractInfo, fetchAllPricesFx } from './common/store';
+import { $account, ContractInfo, fetchAllAssetsFx, fetchAllPricesFx } from './common/store';
 import { Stake } from './Stake/Stake';
 
 import './css/index.css';
@@ -34,19 +31,18 @@ import { Footer } from './Menu/Footer';
 import { notify } from './Components/Notification';
 import { AddFarm } from './Farm/AddFarm';
 import { LaaS } from './LaaS/LaaS';
-import { setLaasPoolInfos } from './LaaS/store';
 import { AddLaaS } from './LaaS/AddLaaS';
 import { Metapunks } from './Metapunks/Metapunks';
 
-Sentry.init({
-    dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',
-    integrations: [new BrowserTracing()],
-
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
-    tracesSampleRate: 1,
-});
+// Sentry.init({
+//     dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',
+//     integrations: [new BrowserTracing()],
+//
+//     // Set tracesSampleRate to 1.0 to capture 100%
+//     // of transactions for performance monitoring.
+//     // We recommend adjusting this value in production
+//     tracesSampleRate: 1,
+// });
 ReactGA.initialize('G-P19KGXJGTP');
 
 // TODO
@@ -65,6 +61,7 @@ window.open = (function (open) {
 const queryClient = new QueryClient();
 
 void fetchAllPricesFx();
+void fetchAllAssetsFx();
 
 const WELCOME_MODAL_KEY = `welcome_cosmaud`;
 

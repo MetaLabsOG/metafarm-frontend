@@ -4,7 +4,7 @@ import { backend as distribution_17_0_4 } from 'metalabs-distribution-17_0_4';
 import { backend as distribution_17_0_5 } from 'metalabs-distribution-17_0_5';
 
 import { combine, Store } from 'effector';
-import { buildContractsStore, registerPricedAsset, $networkTime, $pricedAssets, Contract } from '../common/store';
+import { buildContractsStore, $networkTime, $pricedAssets, Contract } from '../common/store';
 import {
     $stakePools,
     $farmStakeTokens,
@@ -42,7 +42,7 @@ export const $allStakePools = combine(
 
 $contractStatesWithCache.watch((states) =>
     states.valueSeq().forEach((s) => {
-        registerPricedAsset(s.initial.token);
+        // registerPricedAsset(s.initial.token);
     })
 );
 

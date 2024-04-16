@@ -8,18 +8,14 @@ import { ascend, descend, min, Ord, sort, zip, zipWith } from 'ramda';
 import {
     Asset,
     AssetId,
-    assetId,
     buildContractsStore,
     ContractState,
     Amount,
     Priced,
-    assetLoaded,
+    allAssetsLoaded,
     registerAsset,
-    registerPricedAsset,
-    $algoUsdPrice,
     fetchAsset,
     ALGO_ASSET,
-    fetchAlgoPriceFx,
     $pricedAssets,
     $networkTime,
     Contract,
@@ -27,12 +23,13 @@ import {
     hasLocalState,
     Time,
     $meanRoundDuration,
+    $pricedAlgo,
 } from '../common/store';
+import { getPricedLpInfo, getPricedLpInfos, PricedLpInfo } from '../providers/flexApiProvider';
 import { nonConcurrent } from '../common/store/utils';
 import { AllDefined, Backend } from '../types';
-import { LPTokenInfo, DexProvider, makeDex, PoolInfo } from '../dexes';
+import { LPTokenInfo, DexProvider } from '../dexes';
 import { fromSmallestUnits, YEAR } from '../common/lib';
-import { getLpState } from '../providers/apiProvider';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 import { PoolState } from './PoolList/Pool/types';
 import { ColumnType } from './PoolList/PoolList';
@@ -42,76 +39,36 @@ const FARM_BACKENDS = {
     '17.2.5': farmBackend_17_2_5 as Backend,
 };
 
-// TODO: this function is a huge costyl
-export function detectAssetProvider({ name }: { name: string }): DexProvider {
-    if (name.includes('TinymanPool2.0')) {
-        return 'T3';
-    }
-    name = name.toLowerCase();
-    if (name.includes('tinyman')) {
-        return 'T2';
-    }
-    if (name.includes('humble')) {
-        return 'H2';
-    }
-    if (name.includes('liquidity') || name.includes('pact')) {
-        return 'PT';
-    }
-
-    return 'MOCK';
-}
-
-export async function getLPTokenInfoBackend(asset: Asset, provider: DexProvider): Promise<Priced<LPTokenInfo>> {
-    const lpState = await getLpState(asset.id);
+function formatPricedLPInfo(lpInfo: PricedLpInfo, asset: Asset): Priced<LPTokenInfo> {
     return {
         ...asset,
-        poolId: lpState.id,
-        asset1: lpState.asset1_id,
-        asset2: lpState.asset2_id,
+        poolId: lpInfo.id,
+        asset1: lpInfo.asset1_id,
+        asset2: lpInfo.asset2_id,
         liquidityAsset: asset.id,
-        asset1Reserve: BigInt(lpState.asset1_reserve),
-        asset2Reserve: BigInt(lpState.asset2_reserve),
-        totalLiquidity: BigInt(lpState.issued_tokens),
-        poolDex: provider,
-        dexFeeApr: 0, // TODO
-        price: lpState.token_price_usd,
-        priceInAlgo: lpState.token_price,
+        asset1Reserve: BigInt(lpInfo.asset1_reserve_micros),
+        asset2Reserve: BigInt(lpInfo.asset2_reserve_micros),
+        totalLiquidity: BigInt(lpInfo.issued_tokens_micros),
+        poolDex: lpInfo.dex_provider,
+        dexFeeApr: lpInfo.swap_fee_apr || 0, // TODO
+        price: lpInfo.token_price_usd,
+        priceInAlgo: lpInfo.token_price_algo,
     };
 }
 
-export async function getLPTokenInfo(
-    asset: Asset,
-    algoPrice: number | null,
-    provider?: DexProvider
-): Promise<Priced<LPTokenInfo>> {
-    if (provider === undefined) {
-        provider = detectAssetProvider(asset);
-    }
-    if (provider === 'PT') {
-        // Pact pools fix
-        return await getLPTokenInfoBackend(asset, provider);
-    }
+export async function getLPTokenInfoBackend(asset: Asset): Promise<Priced<LPTokenInfo>> {
+    const lpInfo = await getPricedLpInfo(asset.id);
+    return formatPricedLPInfo(lpInfo, asset);
+}
 
-    if (algoPrice === null) {
-        algoPrice = await fetchAlgoPriceFx();
+export async function getManyLPInfosBackend(): Promise<Priced<LPTokenInfo>[]> {
+    const lpInfos = await getPricedLpInfos();
+    const processedInfos = [];
+    for (const lpInfo of lpInfos) {
+        const asset = await fetchAsset(lpInfo.token_id);
+        processedInfos.push(formatPricedLPInfo(lpInfo, asset));
     }
-
-    const dex = makeDex(provider);
-    const poolInfo = await dex.getPoolByAddress(asset.creator).catch(() => dex.getPoolByAddress(asset.reserve));
-
-    const firstAsset = await fetchAsset(poolInfo.asset1);
-    let fstAssetPrice;
-    if (poolInfo.asset1 === 0) {
-        fstAssetPrice = algoPrice;
-    } else {
-        const algoPool = await dex.getPoolByAssets(firstAsset, ALGO_ASSET);
-        const priceInAlgo = (await algoPool.getSwap(firstAsset, BigInt(10 ** firstAsset.decimals), 0.01)).price;
-        fstAssetPrice = algoPrice * priceInAlgo;
-    }
-    const asset1Reserve = fromSmallestUnits(firstAsset, poolInfo.asset1Reserve);
-    const totalLiquidity = fromSmallestUnits(asset, poolInfo.totalLiquidity);
-    const price = (asset1Reserve / totalLiquidity) * fstAssetPrice * 2;
-    return { ...asset, ...poolInfo, price, priceInAlgo: price / algoPrice };
+    return processedInfos;
 }
 
 const BIG_NUM = BigInt('1000000000000000000');
@@ -176,21 +133,20 @@ type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
 
 export const $lpTokenInfos = createStore<LPTokenStore>(Map());
 
-export const getLPTokenInfoFx = createEffect(
+export const getLPTokenInfosFx = createEffect(
     nonConcurrent(
-        async ({
-            asset,
-            provider,
-            algoPrice,
-        }: {
-            asset: Asset;
-            provider: DexProvider | undefined;
-            algoPrice: number | null;
-        }) => getLPTokenInfo(asset, algoPrice, provider)
+        async ({ lpTokenIds, algoPrice }: { lpTokenIds: AssetId[]; algoPrice: number | null }) =>
+            await getManyLPInfosBackend()
     )
 );
 
-$lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
+$lpTokenInfos.on(getLPTokenInfosFx.done, (state, { result }) => {
+    let newState = state;
+    for (const lpTokenInfo of result) {
+        newState = newState.set(lpTokenInfo.id, lpTokenInfo);
+    }
+    return newState;
+});
 
 const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) => {
     const newIds = Set(pools.filter((pool) => pool.state !== null).map((pool) => pool.state!.initial.stakeToken));
@@ -199,26 +155,16 @@ const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) =>
 
 // Automatically fetch LP token infos when general info about them gets fetched the first time
 sample({
-    clock: assetLoaded,
-    source: { lpTokens: $lpTokenIds, algoPrice: $algoUsdPrice },
-    filter: ({ lpTokens }, asset) => lpTokens.has(asset.id),
-    fn: ({ algoPrice }, asset) => ({ asset, algoPrice, provider: undefined }),
-    target: getLPTokenInfoFx,
+    clock: allAssetsLoaded,
+    source: { lpTokens: $lpTokenIds, algoPrice: $pricedAlgo.map((algo) => algo?.price ?? null) },
+    fn: ({ lpTokens, algoPrice }) => ({ lpTokenIds: lpTokens.toArray(), algoPrice }),
+    target: getLPTokenInfosFx,
 });
 
 $farmPools.watch((farms) => {
     const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
     for (const s of farmStates) {
         registerAsset(s.initial.stakeToken);
-        registerPricedAsset(s.initial.rewardToken);
-    }
-});
-
-$stakePools.watch((farms) => {
-    const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
-    for (const s of farmStates) {
-        registerPricedAsset(s.initial.stakeToken);
-        registerPricedAsset(s.initial.rewardToken);
     }
 });
 
@@ -332,7 +278,7 @@ export function createAprs<T extends FarmType>(
         $pools,
         $networkTime,
         $meanRoundDuration,
-        $algoUsdPrice,
+        $pricedAlgo,
         $stakeTokens,
         $farmRewardTokens,
         (pools, time, meanRoundDuration, algoPrice, stakingTokens, farmRewardTokens) =>
@@ -375,7 +321,7 @@ export function createAprs<T extends FarmType>(
 
                     const algoRewardAPR =
                         totalStakedUSD && algoPrice
-                            ? ((algoRewardPerBlock * algoPrice * blocksInAYear) / totalStakedUSD) * 100
+                            ? ((algoRewardPerBlock * algoPrice.price * blocksInAYear) / totalStakedUSD) * 100
                             : 0;
 
                     const feesAPR = ((stakeTokenInfo as Priced<LPTokenInfo>).dexFeeApr ?? 0) * 100;
