@@ -12,7 +12,7 @@ import {
     ContractState,
     Amount,
     Priced,
-    assetLoaded,
+    allAssetsLoaded,
     registerAsset,
     registerPricedAsset,
     $algoUsdPrice,
@@ -26,11 +26,11 @@ import {
     Time,
     $meanRoundDuration,
 } from '../common/store';
+import { getPricedLpInfo, getPricedLpInfos, PricedLpInfo } from '../providers/flexApiProvider';
 import { nonConcurrent } from '../common/store/utils';
 import { AllDefined, Backend } from '../types';
 import { LPTokenInfo, DexProvider } from '../dexes';
 import { fromSmallestUnits, YEAR } from '../common/lib';
-import { getPricedLpInfo, getPricedLpInfos, PricedLpInfo } from '../providers/apiProvider';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 import { PoolState } from './PoolList/Pool/types';
 import { ColumnType } from './PoolList/PoolList';
@@ -153,33 +153,10 @@ type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
 
 export const $lpTokenInfos = createStore<LPTokenStore>(Map());
 
-// export const getLPTokenInfoFx = createEffect(
-//     nonConcurrent(
-//         async ({
-//             asset,
-//             provider,
-//             algoPrice,
-//         }: {
-//             asset: Asset;
-//             provider: DexProvider | undefined;
-//             algoPrice: number | null;
-//         }) => getLPTokenInfoBackend(asset)
-//     )
-// );
-//
-// $lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
-//
-// sample({
-//     clock: assetLoaded,
-//     source: { lpTokens: $lpTokenIds, algoPrice: $algoUsdPrice },
-//     filter: ({ lpTokens }, asset) => lpTokens.has(asset.id),
-//     fn: ({ algoPrice }, asset) => ({ asset, algoPrice, provider: undefined }),
-//     target: getLPTokenInfoFx,
-// });
-
 export const getLPTokenInfosFx = createEffect(
-    nonConcurrent(async ({ lpTokenIds, algoPrice }: { lpTokenIds: AssetId[]; algoPrice: number | null }) =>
-        getManyLPInfosBackend()
+    nonConcurrent(
+        async ({ lpTokenIds, algoPrice }: { lpTokenIds: AssetId[]; algoPrice: number | null }) =>
+            await getManyLPInfosBackend()
     )
 );
 
@@ -198,7 +175,7 @@ const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) =>
 
 // Automatically fetch LP token infos when general info about them gets fetched the first time
 sample({
-    clock: assetLoaded,
+    clock: allAssetsLoaded,
     source: { lpTokens: $lpTokenIds, algoPrice: $algoUsdPrice },
     fn: ({ lpTokens, algoPrice }) => ({ lpTokenIds: lpTokens.toArray(), algoPrice }),
     target: getLPTokenInfosFx,

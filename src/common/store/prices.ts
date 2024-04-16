@@ -4,7 +4,7 @@ import { Map } from 'immutable';
 import { getSwapCostSomewhere } from '../../dexes';
 import { META_TOKEN_ID } from '../../AppContext';
 import { SLIPPAGE } from '../../Swap/Swap';
-import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
+import { $assets, ALGO_ASSET, $pricedAlgo, registerAsset, assetLoaded } from './assets';
 import { Asset, AssetId, Priced } from './types';
 import { nonConcurrent } from './utils';
 

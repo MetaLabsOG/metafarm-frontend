@@ -11,7 +11,6 @@ import { StakingAsset } from '../Farm/AddFarm';
 import * as MiniHumble from '../dexes/humbleReexports';
 import { TokenOptionType } from '../Components/Select/types';
 import { NftLottery } from '../Swap/NftWinModal';
-import { DexProvider } from '../dexes';
 
 export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -116,50 +115,6 @@ export async function getContracts(
         });
 }
 
-export type PricedLpInfo = {
-    id: number;
-    token_id: number;
-    asset1_id: number;
-    asset2_id: number;
-    dex_provider: DexProvider;
-    address: string;
-
-    asset1_reserve_micros: number;
-    asset2_reserve_micros: number;
-    issued_tokens_micros: number;
-
-    asset1_reserve: number;
-    asset2_reserve: number;
-    issued_tokens: number;
-
-    token_price_algo: number;
-    token_price_usd: number;
-    swap_fee_apr?: number;
-};
-
-export async function getPricedLpInfo(lp_token_id: number): Promise<PricedLpInfo> {
-    return await instance
-        .post<PricedLpInfo>(`/lp/state/priced?lp_token_id=${lp_token_id}`)
-        .then(({ data }) => data)
-        .catch((error) => {
-            console.log('ERR', error);
-            throw error;
-        });
-}
-
-export async function getPricedLpInfos(lp_token_ids?: number[]): Promise<PricedLpInfo[]> {
-    const params: { [key: string]: any } = {};
-    if (lp_token_ids) {
-        params['lp_token_ids'] = lp_token_ids;
-    }
-    return await instance
-        .post<PricedLpInfo[]>(`/lp/states/priced`, params)
-        .then(({ data }) => data)
-        .catch((error) => {
-            console.log('ERR', error);
-            throw error;
-        });
-}
 export async function getPoolInfo(asset1: number, asset2: number): Promise<PoolInfo> {
     return instance.get<PoolInfo>(`/pool?asset_1_id=${asset1}&asset_2_id=${asset2}`).then(({ data }) => data);
 }
