@@ -149,6 +149,11 @@
       "last 1 safari version"
     ]
   },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
+  },
   "devDependencies": {
     "@types/canvas-confetti": "^1",
     "@types/jest": "^28.1.6",

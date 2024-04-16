@@ -78,12 +78,12 @@ export const PoolInfoMobileContainer = styled.div`
 `;
 
 export const PoolPropertyName = styled.div`
-    padding-left: 15px;
+    padding-left: 9%;
     color: white;
 `;
 
 export const PoolPropertyValue = styled.div`
-    padding-right: 6px;
+    padding-right: 7%;
     color: white;
 `;
 

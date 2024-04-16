@@ -63,7 +63,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                         display: 'flex',
                         alignItems: 'center',
                         whiteSpace: 'nowrap',
-                        paddingRight: 10,
+                        paddingRight: '7%',
                     }}
                 >
                     {numberRound(APR.total)}%

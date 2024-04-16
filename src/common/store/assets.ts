@@ -71,7 +71,6 @@ export const fetchAllAssetsFx = createEffect(
 export const allAssetsLoaded = fetchAllAssetsFx.doneData;
 
 export const fetchAsset = async (assetId: AssetId): Promise<Asset> => {
-    console.log('fetching asset with id:', assetId);
     // eslint-disable-next-line effector/no-getState
     const assets = $assets.getState();
     const saved = assets.get(assetId, null);
