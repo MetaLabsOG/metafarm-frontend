@@ -8,7 +8,6 @@ import { ascend, descend, min, Ord, sort, zip, zipWith } from 'ramda';
 import {
     Asset,
     AssetId,
-    assetId,
     buildContractsStore,
     ContractState,
     Amount,
@@ -19,7 +18,6 @@ import {
     $algoUsdPrice,
     fetchAsset,
     ALGO_ASSET,
-    fetchAlgoPriceFx,
     $pricedAssets,
     $networkTime,
     Contract,
@@ -30,9 +28,9 @@ import {
 } from '../common/store';
 import { nonConcurrent } from '../common/store/utils';
 import { AllDefined, Backend } from '../types';
-import { LPTokenInfo, DexProvider, makeDex, PoolInfo } from '../dexes';
+import { LPTokenInfo, DexProvider } from '../dexes';
 import { fromSmallestUnits, YEAR } from '../common/lib';
-import { getLpState } from '../providers/apiProvider';
+import { getPricedLpInfo, getPricedLpInfos, PricedLpInfo } from '../providers/apiProvider';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 import { PoolState } from './PoolList/Pool/types';
 import { ColumnType } from './PoolList/PoolList';
@@ -61,57 +59,36 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
     return 'MOCK';
 }
 
-export async function getLPTokenInfoBackend(asset: Asset, provider: DexProvider): Promise<Priced<LPTokenInfo>> {
-    const lpState = await getLpState(asset.id);
+function formatPricedLPInfo(lpInfo: PricedLpInfo, asset: Asset): Priced<LPTokenInfo> {
     return {
         ...asset,
-        poolId: lpState.id,
-        asset1: lpState.asset1_id,
-        asset2: lpState.asset2_id,
+        poolId: lpInfo.id,
+        asset1: lpInfo.asset1_id,
+        asset2: lpInfo.asset2_id,
         liquidityAsset: asset.id,
-        asset1Reserve: BigInt(lpState.asset1_reserve),
-        asset2Reserve: BigInt(lpState.asset2_reserve),
-        totalLiquidity: BigInt(lpState.issued_tokens),
-        poolDex: provider,
-        dexFeeApr: 0, // TODO
-        price: lpState.token_price_usd,
-        priceInAlgo: lpState.token_price,
+        asset1Reserve: BigInt(lpInfo.asset1_reserve_micros),
+        asset2Reserve: BigInt(lpInfo.asset2_reserve_micros),
+        totalLiquidity: BigInt(lpInfo.issued_tokens_micros),
+        poolDex: lpInfo.dex_provider,
+        dexFeeApr: lpInfo.swap_fee_apr || 0, // TODO
+        price: lpInfo.token_price_usd,
+        priceInAlgo: lpInfo.token_price_algo,
     };
 }
 
-export async function getLPTokenInfo(
-    asset: Asset,
-    algoPrice: number | null,
-    provider?: DexProvider
-): Promise<Priced<LPTokenInfo>> {
-    if (provider === undefined) {
-        provider = detectAssetProvider(asset);
-    }
-    if (provider === 'PT') {
-        // Pact pools fix
-        return await getLPTokenInfoBackend(asset, provider);
-    }
+export async function getLPTokenInfoBackend(asset: Asset): Promise<Priced<LPTokenInfo>> {
+    const lpInfo = await getPricedLpInfo(asset.id);
+    return formatPricedLPInfo(lpInfo, asset);
+}
 
-    if (algoPrice === null) {
-        algoPrice = await fetchAlgoPriceFx();
+export async function getManyLPInfosBackend(): Promise<Priced<LPTokenInfo>[]> {
+    const lpInfos = await getPricedLpInfos();
+    const processedInfos = [];
+    for (const lpInfo of lpInfos) {
+        const asset = await fetchAsset(lpInfo.token_id);
+        processedInfos.push(formatPricedLPInfo(lpInfo, asset));
     }
-
-    const dex = makeDex(provider);
-    const poolInfo = await dex.getPoolByAddress(asset.creator).catch(() => dex.getPoolByAddress(asset.reserve));
-
-    const firstAsset = await fetchAsset(poolInfo.asset1);
-    let fstAssetPrice;
-    if (poolInfo.asset1 === 0) {
-        fstAssetPrice = algoPrice;
-    } else {
-        const algoPool = await dex.getPoolByAssets(firstAsset, ALGO_ASSET);
-        const priceInAlgo = (await algoPool.getSwap(firstAsset, BigInt(10 ** firstAsset.decimals), 0.01)).price;
-        fstAssetPrice = algoPrice * priceInAlgo;
-    }
-    const asset1Reserve = fromSmallestUnits(firstAsset, poolInfo.asset1Reserve);
-    const totalLiquidity = fromSmallestUnits(asset, poolInfo.totalLiquidity);
-    const price = (asset1Reserve / totalLiquidity) * fstAssetPrice * 2;
-    return { ...asset, ...poolInfo, price, priceInAlgo: price / algoPrice };
+    return processedInfos;
 }
 
 const BIG_NUM = BigInt('1000000000000000000');
@@ -176,21 +153,43 @@ type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
 
 export const $lpTokenInfos = createStore<LPTokenStore>(Map());
 
-export const getLPTokenInfoFx = createEffect(
-    nonConcurrent(
-        async ({
-            asset,
-            provider,
-            algoPrice,
-        }: {
-            asset: Asset;
-            provider: DexProvider | undefined;
-            algoPrice: number | null;
-        }) => getLPTokenInfo(asset, algoPrice, provider)
+// export const getLPTokenInfoFx = createEffect(
+//     nonConcurrent(
+//         async ({
+//             asset,
+//             provider,
+//             algoPrice,
+//         }: {
+//             asset: Asset;
+//             provider: DexProvider | undefined;
+//             algoPrice: number | null;
+//         }) => getLPTokenInfoBackend(asset)
+//     )
+// );
+//
+// $lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
+//
+// sample({
+//     clock: assetLoaded,
+//     source: { lpTokens: $lpTokenIds, algoPrice: $algoUsdPrice },
+//     filter: ({ lpTokens }, asset) => lpTokens.has(asset.id),
+//     fn: ({ algoPrice }, asset) => ({ asset, algoPrice, provider: undefined }),
+//     target: getLPTokenInfoFx,
+// });
+
+export const getLPTokenInfosFx = createEffect(
+    nonConcurrent(async ({ lpTokenIds, algoPrice }: { lpTokenIds: AssetId[]; algoPrice: number | null }) =>
+        getManyLPInfosBackend()
     )
 );
 
-$lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
+$lpTokenInfos.on(getLPTokenInfosFx.done, (state, { result }) => {
+    let newState = state;
+    for (const lpTokenInfo of result) {
+        newState = newState.set(lpTokenInfo.id, lpTokenInfo);
+    }
+    return newState;
+});
 
 const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) => {
     const newIds = Set(pools.filter((pool) => pool.state !== null).map((pool) => pool.state!.initial.stakeToken));
@@ -201,9 +200,8 @@ const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) =>
 sample({
     clock: assetLoaded,
     source: { lpTokens: $lpTokenIds, algoPrice: $algoUsdPrice },
-    filter: ({ lpTokens }, asset) => lpTokens.has(asset.id),
-    fn: ({ algoPrice }, asset) => ({ asset, algoPrice, provider: undefined }),
-    target: getLPTokenInfoFx,
+    fn: ({ lpTokens, algoPrice }) => ({ lpTokenIds: lpTokens.toArray(), algoPrice }),
+    target: getLPTokenInfosFx,
 });
 
 $farmPools.watch((farms) => {
