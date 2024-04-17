@@ -30,7 +30,7 @@ import {
 } from '../common/store';
 import { nonConcurrent } from '../common/store/utils';
 import { AllDefined, Backend } from '../types';
-import { LPTokenInfo, DexProvider, makeDex, PoolInfo } from '../dexes';
+import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
 import { fromSmallestUnits, YEAR } from '../common/lib';
 import { getLpState } from '../providers/apiProvider';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
@@ -62,21 +62,26 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
 }
 
 export async function getLPTokenInfoBackend(asset: Asset, provider: DexProvider): Promise<Priced<LPTokenInfo>> {
-    const lpState = await getLpState(asset.id);
-    return {
-        ...asset,
-        poolId: lpState.id,
-        asset1: lpState.asset1_id,
-        asset2: lpState.asset2_id,
-        liquidityAsset: asset.id,
-        asset1Reserve: BigInt(lpState.asset1_reserve),
-        asset2Reserve: BigInt(lpState.asset2_reserve),
-        totalLiquidity: BigInt(lpState.issued_tokens),
-        poolDex: provider,
-        dexFeeApr: 0, // TODO
-        price: lpState.token_price_usd,
-        priceInAlgo: lpState.token_price,
-    };
+    try {
+        const lpState = await getLpState(asset.id);
+        return {
+            ...asset,
+            poolId: lpState.id,
+            asset1: lpState.asset1_id,
+            asset2: lpState.asset2_id,
+            liquidityAsset: asset.id,
+            asset1Reserve: BigInt(lpState.asset1_reserve_micros),
+            asset2Reserve: BigInt(lpState.asset2_reserve_micros),
+            totalLiquidity: BigInt(lpState.issued_tokens_micros),
+            poolDex: provider,
+            dexFeeApr: lpState.swap_fee_apr || 0,
+            price: lpState.token_price_usd,
+            priceInAlgo: lpState.token_price_algo,
+        };
+    } catch (e) {
+        console.error(`Failed to get LP token ${asset.id} info`, e);
+        throw e;
+    }
 }
 
 export async function getLPTokenInfo(
@@ -353,7 +358,6 @@ export function createAprs<T extends FarmType>(
                             total: 0,
                         };
                     }
-
                     const blocksInAYear = YEAR / meanRoundDuration;
                     const stakePrice = stakeTokenInfo.price;
                     const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!

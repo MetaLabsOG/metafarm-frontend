@@ -364,7 +364,7 @@ export class Tinyman2Dex extends Dex {
         try {
             return new Tinyman2Pool(this, accountInfo, tinymanPoolData[0]);
         } catch (e) {
-            console.log('No tinyman2 pool found', e);
+            console.log(`No tinyman2 pool found for address ${poolAddress}`, e);
             throw new Error(`No Tinyman2 pool for address ${poolAddress} is found`);
         }
     }
