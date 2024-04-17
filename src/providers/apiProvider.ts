@@ -123,24 +123,48 @@ export type LpState = {
     dex_provider: string;
     address: string;
 
+    asset1_reserve_micros: number;
+    asset2_reserve_micros: number;
+    issued_tokens_micros: number;
+
     asset1_reserve: number;
     asset2_reserve: number;
     issued_tokens: number;
 
-    token_price: number;
+    token_price_algo: number;
     token_price_usd: number;
     swap_fee_apr?: number;
+
+    last_updated_round: number;
 };
 
 export async function getLpState(lp_id: number): Promise<LpState> {
-    const res = await instance
-        .post<LpState>(`/info/lp/state?lp_token_id=${lp_id}`)
+    return await instance
+        .post<LpState>(`/lp/state/priced?lp_token_id=${lp_id}`)
         .then(({ data }) => data)
         .catch((error) => {
             console.log('ERR', error);
             throw error;
         });
-    return res;
+}
+
+export type AssetPriceInfo = {
+    asset_id: number;
+    asset_name: string;
+    price_usd: number;
+    price_algo: number;
+    last_update_round: number;
+    seconds_since_update: number;
+};
+
+export async function getAssetPrice(asset_id: number): Promise<AssetPriceInfo> {
+    return await instance
+        .post<AssetPriceInfo>(`/asset/price?asset_id=${asset_id}`)
+        .then(({ data }) => data)
+        .catch((error) => {
+            console.log('ERR', error);
+            throw error;
+        });
 }
 
 export async function getPoolInfo(asset1: number, asset2: number): Promise<PoolInfo> {

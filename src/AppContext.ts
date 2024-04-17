@@ -45,6 +45,8 @@ export const META_TOKEN_ID = META_TOKEN_IDS[ALGONET];
 export const USDC_TOKEN_ID = USDC_TOKEN_IDS[ALGONET];
 export const USDT_TOKEN_ID = USDT_TOKEN_IDS[ALGONET];
 
+export const BDNRI_TOKEN_ID = 1696994742;
+
 export const MOBILE_SCREEN_WIDTH_THRESHOLD = 768;
 export function isMobile(): boolean {
     return window.innerWidth <= MOBILE_SCREEN_WIDTH_THRESHOLD;

@@ -2,8 +2,9 @@ import { createStore, createEffect, createEvent, combine, sample, Store } from '
 
 import { Map } from 'immutable';
 import { getSwapCostSomewhere } from '../../dexes';
-import { META_TOKEN_ID } from '../../AppContext';
+import { BDNRI_TOKEN_ID, META_TOKEN_ID } from '../../AppContext';
 import { SLIPPAGE } from '../../Swap/Swap';
+import { getAssetPrice } from '../../providers/apiProvider';
 import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
 import { Asset, AssetId, Priced } from './types';
 import { nonConcurrent } from './utils';
@@ -13,8 +14,17 @@ export const fetchAssetPriceFx = createEffect(
         if (asset.id === 0) {
             return 1;
         }
-        const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, BigInt(10 ** asset.decimals), SLIPPAGE);
-        return swapQuote.price;
+        try {
+            if (asset.id === BDNRI_TOKEN_ID) {
+                const priceInfo = await getAssetPrice(asset.id);
+                return priceInfo.price_algo;
+            }
+            const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, BigInt(10 ** asset.decimals), SLIPPAGE);
+            return swapQuote.price;
+        } catch (e) {
+            console.error('Failed to fetch price for asset', asset, e);
+            return 0;
+        }
     })
 );
 
