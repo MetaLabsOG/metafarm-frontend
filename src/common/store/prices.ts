@@ -16,6 +16,7 @@ export const fetchAssetPriceFx = createEffect(
         }
         try {
             if (asset.id === BDNRI_TOKEN_ID) {
+                // TODO: test bdNRI prices and remove when it works fine
                 const priceInfo = await getAssetPrice(asset.id);
                 return priceInfo.price_algo;
             }
