@@ -429,15 +429,14 @@ function getTinymanPoolOptions(selectedOption?: SelectOptionType) {
 function getPactPoolOptions(selectedOption?: SelectOptionType) {
     return async (query: string) => {
         const pactPools = await getPactPools(20, query);
-
         const options: PoolOptionType[] = pactPools.map((pool) => ({
-            value: pool.pool_asset.algoid,
+            value: Number(pool.pool_asset.on_chain_id).toString(),
             name: `${pool.primary_asset.unit_name}-${pool.secondary_asset.unit_name} LP`,
-            poolId: Number(pool.appid),
+            poolId: Number(pool.id),
             poolDex: 'PT',
-            asset1: Number(pool.primary_asset.algoid),
-            asset2: Number(pool.secondary_asset.algoid),
-            liquidityAsset: Number(pool.pool_asset.algoid),
+            asset1: Number(pool.primary_asset.on_chain_id),
+            asset2: Number(pool.secondary_asset.on_chain_id),
+            liquidityAsset: Number(pool.pool_asset.on_chain_id),
             asset1Reserve: BigInt(0),
             asset2Reserve: BigInt(0),
             totalLiquidity: BigInt(Math.round(Number(pool.tvl_usd))),

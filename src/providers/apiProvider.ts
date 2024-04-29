@@ -106,6 +106,13 @@ export async function getContracts(
     if (API_CONTRACTS_MAX_COUNT !== undefined) {
         params['max_count'] = API_CONTRACTS_MAX_COUNT;
     }
+
+    // TODO: remove after testing
+    // ...
+    // ...
+    // params['max_count'] = 5;
+    // params['new_first'] = true;
+
     return instance
         .get<Json>(`/contracts`, { params })
         .then(({ data }) => resolveBignums(data))
@@ -286,7 +293,7 @@ export const getTinymanPools = nonConcurrent(async (limit: number, search = '', 
     return pools.results;
 });
 
-export const getPactPools = nonConcurrent(async (limit: number, search = ''): Promise<pactsdk.ApiPool[]> => {
+export const getPactPools = nonConcurrent(async (limit: number, search = ''): Promise<any[]> => {
     // const response = await pactDex.pact.listPools();
     const prefix = ALGONET === TESTNET ? 'testnet.' : '';
     let pactUrl = `https://api.${prefix}pact.fi/api/pools?limit=${limit}&offset=0&ordering=-tvl_usd`;
