@@ -20,7 +20,7 @@ export const isCompoundEnabled = (lpTokenInfo: Priced<LPTokenInfo> | Priced<Asse
     if (!isLPTokenInfo(lpTokenInfo)) {
         return true;
     }
-    if (!['T2', 'PT'].includes(lpTokenInfo.poolDex)) {
+    if (!['T2'].includes(lpTokenInfo.poolDex)) {
         return false;
     }
     return reward_asset_id === lpTokenInfo.asset1 || reward_asset_id === lpTokenInfo.asset2;
