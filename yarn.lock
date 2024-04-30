@@ -5073,6 +5073,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vestigefi/widgets@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@vestigefi/widgets@npm:1.0.0"
+  peerDependencies:
+    react: ^16.0.0
+  checksum: d8c635f768b0b8fbb4838454019ecca3467fc7cdb6738bda859c1d174c8c0e9d052bc73ba68011448b408d57800d78c2394e343cf5522ff29fe3dab9a8b9b7cc
+  languageName: node
+  linkType: hard
+
 "@walletconnect/browser-utils@npm:^1.7.4, @walletconnect/browser-utils@npm:^1.7.8":
   version: 1.7.8
   resolution: "@walletconnect/browser-utils@npm:1.7.8"
@@ -13322,6 +13331,7 @@ __metadata:
     "@types/xo": "npm:^0"
     "@typescript-eslint/eslint-plugin": "npm:^5.31.0"
     "@typescript-eslint/parser": "npm:^5.31.0"
+    "@vestigefi/widgets": "npm:^1.0.0"
     "@walletconnect/encoding": "npm:^1.0.1"
     algosdk: "npm:1.19.0"
     axios: "npm:^0.27.2"
