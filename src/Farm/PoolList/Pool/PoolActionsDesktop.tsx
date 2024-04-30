@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, FC, SetStateAction } from 'react';
 import { useUnit } from 'effector-react';
 import { ALGONET, TESTNET } from '../../../AppContext';
 import { LPTokenInfo } from '../../../dexes';
@@ -22,8 +22,7 @@ export const getLPTokenAction = (lpToken: LPTokenInfo, openModal: () => void) =>
     if (lpToken.poolDex === 'PT') {
         // TODO: fix modal, IT'S EASY, just change api call
         return () => {
-            // window.open(`https://app.pact.fi/add-liquidity/${lpToken.poolId}`, '_blank'); // TODO: get proper app id, now it is pool id
-            window.open(`https://app.pact.fi/add-liquidity/`, '_blank');
+            window.open(`https://app.pact.fi/add-liquidity/${lpToken.poolId}`, '_blank');
         };
     } else if (lpToken.poolDex === 'T2') {
         return openModal;
