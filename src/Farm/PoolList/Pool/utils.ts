@@ -47,7 +47,20 @@ export const getAssetLogoUrl = (input_asset_id: number) => {
     if (asset_id in assetData) {
         return assetData[asset_id].logo.png;
     }
-    return `https://asa-list.tinyman.org/assets/${asset_id}/icon.png`;
+    return null;
+};
+
+export const getLocalAssetIcon = (assetId: number): string | null => {
+    try {
+        return require(`../../../imgs/icons/${assetId}.png`);
+    } catch (error) {
+        return null;
+    }
+};
+
+export const getAssetLogo = (input_asset_id: number) => {
+    const assetLogo = getLocalAssetIcon(input_asset_id) || getAssetLogoUrl(input_asset_id);
+    return assetLogo || require(`../../../imgs/icons/default.svg`);
 };
 
 export const isLPTokenInfo = (tokenInfo: Priced<Asset> | Priced<LPTokenInfo>): tokenInfo is Priced<LPTokenInfo> => {

@@ -1,5 +1,5 @@
 import ReactTooltip from 'react-tooltip';
-import { getAssetLogoUrl, getTokenLink } from '../../Farm/PoolList/Pool/utils';
+import { getAssetLogo, getTokenLink } from '../../Farm/PoolList/Pool/utils';
 import verified from '../../imgs/verified.svg';
 import info from '../../imgs/info.svg';
 import game from '../../imgs/game.png';
@@ -33,10 +33,9 @@ export function TokensIcons({
     dex: DexProvider | null;
     isGame?: boolean;
 }) {
-    const asset1_logo = getAssetLogoUrl(asset1_id);
-    const asset2_logo = getAssetLogoUrl(asset2_id);
+    const asset1_logo = getAssetLogo(asset1_id);
+    const asset2_logo = getAssetLogo(asset2_id);
     const dexIcon = dex ? getDexIcon(dex) : null;
-
     return (
         <div>
             <LpTokensIconsWrapper>
