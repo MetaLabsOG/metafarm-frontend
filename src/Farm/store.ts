@@ -13,7 +13,6 @@ import {
     ContractState,
     Amount,
     Priced,
-    assetLoaded,
     registerAsset,
     registerPricedAsset,
     $algoUsdPrice,
@@ -27,12 +26,13 @@ import {
     hasLocalState,
     Time,
     $meanRoundDuration,
+    assetLoaded,
 } from '../common/store';
+import { getLpState } from '../providers/flexApiProvider';
 import { nonConcurrent } from '../common/store/utils';
 import { AllDefined, Backend } from '../types';
 import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
 import { fromSmallestUnits, YEAR } from '../common/lib';
-import { getLpState } from '../providers/apiProvider';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 import { PoolState } from './PoolList/Pool/types';
 import { ColumnType } from './PoolList/PoolList';
