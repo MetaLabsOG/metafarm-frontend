@@ -45,6 +45,10 @@ export const ALGO_ASSET: Asset = {
 
 const fetchAssetFx = createEffect(
     nonConcurrent(async (id: AssetId): Promise<Asset> => {
+        const savedAssetString = localStorage.getItem(`asset_${id}`);
+        if (savedAssetString) {
+            return JSON.parse(savedAssetString) as Asset;
+        }
         const { params } = await algod.getAssetByID(id).do();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { creator, reserve, decimals } = params;
@@ -52,19 +56,40 @@ const fetchAssetFx = createEffect(
         const name = params['name'] ?? Buffer.from(params['name-b64'], 'base64').toString();
         const unit_name = params['unit-name'] ?? Buffer.from(params['unit-name-b64'], 'base64').toString();
 
-        return {
+        const asset: Asset = {
             id,
             name: name as string,
             unitName: unit_name as string,
             creator: creator as string,
             reserve: reserve as string,
             decimals: decimals as number,
-        } as Asset;
+        };
+
+        // Save the fetched asset to local storage
+        localStorage.setItem(`asset_${id}`, JSON.stringify(asset));
+
+        return asset;
     })
 );
 
 export const assetLoaded = fetchAssetFx.doneData;
-export const $assets = createStore(Map<AssetId, Asset>().set(0, ALGO_ASSET)).on(assetLoaded, (assets, a) =>
+
+const loadAssetsFromLocalStorage = (): Map<AssetId, Asset> => {
+    const assets = Map<AssetId, Asset>();
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('asset_')) {
+            const assetString = localStorage.getItem(key);
+            if (assetString) {
+                const asset = JSON.parse(assetString) as Asset;
+                assets.set(asset.id, asset);
+            }
+        }
+    }
+    return assets;
+};
+
+export const $assets = createStore(loadAssetsFromLocalStorage().set(0, ALGO_ASSET)).on(assetLoaded, (assets, a) =>
     assets.set(a.id, a)
 );
 
@@ -94,6 +119,13 @@ sample({
  * @returns Promise with asset
  */
 export const fetchAsset = async (id: AssetId): Promise<Asset> => {
+    // Check if the asset is already in local storage
+    const savedAssetString = localStorage.getItem(`asset_${id}`);
+    if (savedAssetString) {
+        return JSON.parse(savedAssetString) as Asset;
+    }
+
+    // If not found in local storage, fetch from the store or API
     const saved = await fetchStore($assets.map((assets) => assets.get(id, null)));
     if (saved) return saved;
     return fetchAssetFx(id);
@@ -137,6 +169,9 @@ export const fetchAllPricesFx = createEffect(async () => {
 
 // Re-fetch prices once in say, 1 minute
 void doEachTick(60_000, fetchAllPricesFx);
+
+// Re-fetch $ALGO price once in say, 1 second
+void doEachTick(1_000, fetchAlgoPriceFx);
 
 export const $pricedAlgo: Store<Priced<Asset> | null> = combine(
     $assets.map((as) => as.get(0, ALGO_ASSET)),
