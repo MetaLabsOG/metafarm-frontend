@@ -1,3 +1,4 @@
+import { Chart } from '@vestigefi/widgets';
 import styled from 'styled-components';
 import { theme } from '../theme';
 
@@ -71,7 +72,6 @@ export const Heading2 = styled.h2`
 export const ModalContainer = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     background: var(--background);
     border-radius: 10px;
@@ -85,6 +85,17 @@ export const ModalContainer = styled.div`
 
     @media (max-width: 390px) {
         padding: 15px;
+    }
+`;
+
+export const SwapChartContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    @media (max-width: 990px) {
+        flex-direction: column;
     }
 `;
 
@@ -236,4 +247,16 @@ export const PrettyButtonContainer = styled(WalletActionButton)`
     font-weight: 500;
     height: 32px;
     padding: 5px 13px 5px 13px;
+`;
+
+export const StyledVestigeChart = styled(Chart)`
+    border-radius: 15px;
+    display: flex;
+    margin-left: 30px;
+    border: 1px solid ${theme.darkGray};
+
+    @media (max-width: 890px) {
+        width: 400px;
+        height: 450px;
+    }
 `;

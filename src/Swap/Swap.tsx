@@ -1,21 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useUnit } from 'effector-react';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { useModal } from 'react-hooks-use-modal';
-import { func } from 'prop-types';
 import { DeflexQuote } from '@deflex/deflex-sdk-js';
 import { theme } from '../theme';
 import { ALGONET, deflexClient, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
-import {
-    $account,
-    $balances,
-    Amount,
-    Asset,
-    AssetId,
-    fetchAsset,
-    fetchAssetPriceFx,
-    refreshAccountInfo,
-} from '../common/store';
+import { $account, $balances, Amount, Asset, AssetId, fetchAsset, refreshAccountInfo } from '../common/store';
 
 import { logEvent, LogName } from '../logEvent';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
@@ -23,13 +12,21 @@ import {
     algoexplorerTxLink,
     fromSmallestUnits,
     getSmallestUnits,
-    parseTxs,
     SentTxError,
     signAndPostTxnGroups,
 } from '../common/lib';
 import { TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
-import { DexName, ModalContainer, ModalSubtitle, ModalTitle, SwapArrow, SwapContainer } from '../common/styled';
+import {
+    DexName,
+    ModalContainer,
+    ModalSubtitle,
+    ModalTitle,
+    StyledVestigeChart,
+    SwapArrow,
+    SwapChartContainer,
+    SwapContainer,
+} from '../common/styled';
 import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
 import { BestSwap, Mint, tinymanDex, Zap } from '../dexes';
@@ -488,45 +485,54 @@ export function Swap() {
     }
 
     return (
-        <ModalContainer>
-            <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>OPTIMAL SWAP</ModalTitle>
-            <ModalSubtitle>we find the optimal route to swap your token</ModalSubtitle>
-            <SelectInputGroup
-                options={options}
-                selectedOption={token1}
-                inputData={token1Amount}
-                setInputData={setToken1Amount}
-                selectOnChange={select1OnChange}
-                inputOnChange={input1OnChange}
+        <SwapChartContainer>
+            <ModalContainer>
+                <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>OPTIMAL SWAP</ModalTitle>
+                <ModalSubtitle>we find the optimal route to swap your token</ModalSubtitle>
+                <SelectInputGroup
+                    options={options}
+                    selectedOption={token1}
+                    inputData={token1Amount}
+                    setInputData={setToken1Amount}
+                    selectOnChange={select1OnChange}
+                    inputOnChange={input1OnChange}
+                />
+                <SwapContainer>
+                    <SwapArrow alt="arrow" src={swap} onClick={swapTokens} />
+                </SwapContainer>
+                <SelectInputGroup
+                    options={options}
+                    selectedOption={token2}
+                    inputData={token2Amount}
+                    setInputData={setToken2Amount}
+                    selectOnChange={select2OnChange}
+                    inputOnChange={() => {}}
+                    inputDisabled={true}
+                />
+                <BestTokenPrice
+                    isLoading={isLoading}
+                    token1Amount={token1Amount}
+                    swapInfo={bestSwap}
+                    token1={token1}
+                    token2={token2}
+                />
+                <PacmanButton
+                    buttonText="SWAP"
+                    buttonStyle="swap_button"
+                    onClickAction={SwapButtonOnClick}
+                    style={{ marginTop: 20 }}
+                />
+                <a target="_blank" href="https://www.deflex.fi/" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                    <DexName>via Deflex</DexName>
+                </a>
+            </ModalContainer>
+            <StyledVestigeChart
+                assetId={token2.id != 0 ? token2.id : token1.id}
+                currency={'USD'}
+                interval={'1h'}
+                width={600}
+                height={450}
             />
-            <SwapContainer>
-                <SwapArrow alt="arrow" src={swap} onClick={swapTokens} />
-            </SwapContainer>
-            <SelectInputGroup
-                options={options}
-                selectedOption={token2}
-                inputData={token2Amount}
-                setInputData={setToken2Amount}
-                selectOnChange={select2OnChange}
-                inputOnChange={() => {}}
-                inputDisabled={true}
-            />
-            <BestTokenPrice
-                isLoading={isLoading}
-                token1Amount={token1Amount}
-                swapInfo={bestSwap}
-                token1={token1}
-                token2={token2}
-            />
-            <PacmanButton
-                buttonText="SWAP"
-                buttonStyle="swap_button"
-                onClickAction={SwapButtonOnClick}
-                style={{ marginTop: 20 }}
-            />
-            <a target="_blank" href="https://www.deflex.fi/" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                <DexName>via Deflex</DexName>
-            </a>
-        </ModalContainer>
+        </SwapChartContainer>
     );
 }
