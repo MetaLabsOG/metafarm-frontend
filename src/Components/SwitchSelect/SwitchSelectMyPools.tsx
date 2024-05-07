@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import SwitchSelector from 'react-switch-selector';
 import { SwitchSelectWrapper } from './styled';
 
@@ -20,11 +20,19 @@ export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEna
             selectedBackgroundColor: '#90ee90',
         },
     ];
-    const initialSelectedIndex = options.findIndex(({ value }) => value === isEnabled);
+
+    const init = options.findIndex(({ value }) => value === isEnabled);
+    const [initialSelectedIndex, setInitialSelectedIndex] = useState(init);
 
     const handleSelectorChange = (newValue: any) => {
         onChange(newValue.value);
     };
+
+    useEffect(() => {
+        const val = options.findIndex(({ value }) => value === isEnabled);
+
+        setInitialSelectedIndex(val);
+    }, [isEnabled]);
 
     return (
         <SwitchSelectWrapper>
@@ -36,6 +44,7 @@ export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEna
                 fontColor={'white'}
                 selectedFontColor="black"
                 name="PoolSwitchSelector"
+                forcedSelectedIndex={initialSelectedIndex}
             />
         </SwitchSelectWrapper>
     );
