@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import SwitchSelector from 'react-switch-selector';
 import PropTypes from 'prop-types';
 import { PoolStateWrapper } from './styled';
@@ -25,11 +26,17 @@ export const PoolStateSwitcher: React.FC<PoolStateSwitcherProps> = ({ switchStat
         switchStatus: PropTypes.bool.isRequired,
         onChange: PropTypes.func.isRequired,
     };
+    const init = options.findIndex(({ value }) => value === switchStatus);
+    const [initialSelectedIndex, setInitialSelectedIndex] = useState(init);
     const handleChange = (newValue: any) => {
         onChange(newValue.value);
     };
 
-    const initialSelectedIndex = options.findIndex(({ value }) => value === switchStatus);
+    useEffect(() => {
+        const val = options.findIndex(({ value }) => value === switchStatus);
+
+        setInitialSelectedIndex(val);
+    }, [switchStatus]);
 
     return (
         <PoolStateWrapper>
@@ -41,6 +48,7 @@ export const PoolStateSwitcher: React.FC<PoolStateSwitcherProps> = ({ switchStat
                 fontColor={'white'}
                 selectedFontColor="black"
                 name="LiveSwitchSelector"
+                forcedSelectedIndex={initialSelectedIndex}
             />
         </PoolStateWrapper>
     );
