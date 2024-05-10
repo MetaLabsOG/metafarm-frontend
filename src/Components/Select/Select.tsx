@@ -24,6 +24,7 @@ import {
     Loupe,
 } from './styled';
 import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
+import useFilteredTokenOptions from './hooks';
 
 export enum SelectType {
     tokenSelect,
@@ -169,33 +170,14 @@ function SelectOption({
 export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange, getOptions, style }) => {
     const [SelectModal, openSelectModal, closeSelectModal] = useModal('root');
     const [tokenSearchInput, setTokenSearchInput] = useState<string>('');
-    const [currentOptions, setCurrentOptions] = useState<SelectOptionType[]>(options);
-
-    useEffect(() => {
-        setCurrentOptions(options);
-    }, [options]);
-
-    useEffect(() => {
-        if (getOptions) {
-            getOptions(selectedOption)(tokenSearchInput).then((options) => {
-                setCurrentOptions(options);
-            });
-        } else {
-            setCurrentOptions(
-                options.filter((option) => option.name.toLowerCase().includes(tokenSearchInput.toLowerCase()))
-            );
-        }
-    }, [tokenSearchInput]);
+    const currentOptions = useFilteredTokenOptions(options, tokenSearchInput, getOptions, selectedOption);
 
     useEffect(() => {
         const keydownHandler = (e: KeyboardEvent) => {
             e.key === 'Escape' && closeSelectModal();
         };
         window.addEventListener('keydown', keydownHandler);
-
-        return () => {
-            window.removeEventListener('keydown', keydownHandler);
-        };
+        return () => window.removeEventListener('keydown', keydownHandler);
     }, []);
 
     return (
@@ -211,11 +193,9 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
                     <SelectSearch
                         placeholder="Search token name"
                         value={tokenSearchInput}
-                        onChange={(e) => {
-                            setTokenSearchInput(e.target.value);
-                        }}
+                        onChange={(e) => setTokenSearchInput(e.target.value)}
                     />
-                    {currentOptions.slice(0, 10).map((option) => (
+                    {currentOptions?.slice(0, 10).map((option: SelectOptionType) => (
                         <SelectOptionContainer
                             key={option.name}
                             onClick={() => {
