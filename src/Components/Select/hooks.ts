@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useUnit } from 'effector-react';
 import { algod } from '../../AppContext';
+import { Amount, AssetId, $balances } from '../../common/store';
 import { SelectOptionType } from './types';
 
-async function getAssetByID(assetID: number) {
+async function getAssetByID(assetID: number, balances: Record<AssetId, Amount> | null) {
     try {
         const response = await algod.getAssetByID(assetID).do();
         const asset: SelectOptionType = {
@@ -10,7 +12,7 @@ async function getAssetByID(assetID: number) {
             id: response?.index,
             name: response?.params.name,
             unitName: response?.params['unit-name'],
-            balance: 0,
+            balance: Number(balances?.[assetID] ?? 0) / Math.pow(10, response?.params?.decimals),
             decimals: response?.params.decimals,
             creator: '',
             reserve: '',
@@ -21,7 +23,11 @@ async function getAssetByID(assetID: number) {
     }
 }
 
-async function filterOptions(tokenSearchInput: string, options: SelectOptionType[]) {
+async function filterOptions(
+    tokenSearchInput: string,
+    options: SelectOptionType[],
+    balances: Record<AssetId, Amount> | null
+) {
     if (tokenSearchInput.length === 0) {
         return options;
     }
@@ -30,10 +36,9 @@ async function filterOptions(tokenSearchInput: string, options: SelectOptionType
     const isNumericInput = !isNaN(inputAsNumber);
 
     if (isNumericInput) {
-        const asset = await getAssetByID(inputAsNumber);
+        const asset = await getAssetByID(inputAsNumber, balances || null);
         return asset || options;
     }
-
     return (
         options.filter((option: any) => option.name.toLowerCase().includes(tokenSearchInput.toLowerCase())) || options
     );
@@ -45,6 +50,7 @@ const useFilteredTokenOptions = (
     getOptions?: ((selectedOption: SelectOptionType) => (query: string) => Promise<SelectOptionType[]>) | undefined,
     selectedOption?: SelectOptionType
 ) => {
+    const balances = useUnit($balances);
     const [currentOptions, setCurrentOptions] = useState<SelectOptionType[]>(options);
 
     useEffect(() => {
@@ -53,7 +59,7 @@ const useFilteredTokenOptions = (
                 return options;
             });
         } else {
-            filterOptions(tokenSearchInput, options).then((options) => {
+            filterOptions(tokenSearchInput, options, balances).then((options) => {
                 setCurrentOptions(options);
             });
         }

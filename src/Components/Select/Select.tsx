@@ -191,7 +191,7 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
                     <ModalCloseButton src={closeButton} alt="close" onClick={closeSelectModal} />
                     <Loupe alt="search" src={loupe} />
                     <SelectSearch
-                        placeholder="Search token name"
+                        placeholder="Search token name or ASA ID"
                         value={tokenSearchInput}
                         onChange={(e) => setTokenSearchInput(e.target.value)}
                     />

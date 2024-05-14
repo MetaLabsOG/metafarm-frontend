@@ -10,6 +10,7 @@ import {
     AssetId,
 } from '../../../common/store';
 import { DexProvider, LPTokenInfo, makeDex, tinyman2Dex, tinymanDex } from '../../../dexes';
+import defaultLogo from '../../../imgs/icons/default.svg';
 import { ALGONET, MAINNET, TESTNET } from '../../../AppContext';
 import { PoolState } from './types';
 
@@ -47,7 +48,7 @@ export const getAssetLogoUrl = (input_asset_id: number) => {
     if (asset_id in assetData) {
         return assetData[asset_id].logo.png;
     }
-    return null;
+    return defaultLogo || null;
 };
 
 export const getLocalAssetIcon = (assetId: number): string | null => {

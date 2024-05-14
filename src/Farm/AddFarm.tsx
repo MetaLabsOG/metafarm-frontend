@@ -608,13 +608,6 @@ export function AddFarm({ type }: { type: AddFarmType }) {
 
     return (
         <ModalContainer>
-            <InfoCard
-                title="Can't find your token?"
-                subtitle=""
-                linkText="Add token here"
-                link="https://github.com/tinymanorg/asa-list"
-                style={{ width: '100%', height: 120, marginBottom: 20 }}
-            />
             <ModalTitle style={{ textAlign: 'center' }}>ADD {type.toString().toUpperCase()}</ModalTitle>
             {type === 'farm' && (
                 <>
