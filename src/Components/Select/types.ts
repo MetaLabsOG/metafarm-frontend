@@ -15,3 +15,14 @@ export interface SelectProps {
     getOptions?: (selectedOption: SelectOptionType) => (query: string) => Promise<SelectOptionType[]>;
     style?: React.CSSProperties;
 }
+
+export interface AssetResponse {
+    index: number;
+    params: {
+        name: string;
+        'unit-name': string;
+        decimals: number;
+        creator: string;
+        reserve: string;
+    };
+}
