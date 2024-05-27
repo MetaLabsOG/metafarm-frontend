@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useModal } from 'react-hooks-use-modal';
 import { formatNumber } from '../../common/lib';
-import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
+import { getAssetLogo } from '../../Farm/PoolList/Pool/utils';
 import { getDexName } from '../../Farm/utils';
 import tokenPlaceholder from '../../imgs/tokenPlaceholder.svg';
 import select from '../../imgs/select.svg';
@@ -24,6 +24,7 @@ import {
     Loupe,
 } from './styled';
 import { PoolOptionType, SelectOptionType, SelectProps, TokenOptionType } from './types';
+import useFilteredTokenOptions from './hooks';
 
 export enum SelectType {
     tokenSelect,
@@ -61,7 +62,7 @@ function TokenOption({ option, showAdditionalInfo }: { option: TokenOptionType; 
         <OptionContainer>
             <TokenIcon
                 alt=""
-                src={getAssetLogoUrl(option.id)}
+                src={getAssetLogo(option.id)}
                 onError={({ currentTarget }) => {
                     currentTarget.onerror = null; // prevents looping
                     currentTarget.src = tokenPlaceholder;
@@ -88,7 +89,7 @@ function PoolOption({ option }: { option: PoolOptionType }) {
             <LpIcons>
                 <LpIcon
                     alt=""
-                    src={getAssetLogoUrl(option.asset1)}
+                    src={getAssetLogo(option.asset1)}
                     onError={({ currentTarget }) => {
                         currentTarget.onerror = null; // prevents looping
                         currentTarget.src = tokenPlaceholder;
@@ -97,7 +98,7 @@ function PoolOption({ option }: { option: PoolOptionType }) {
                 <LpIcon
                     style={{ left: '16px' }}
                     alt=""
-                    src={getAssetLogoUrl(option.asset2)}
+                    src={getAssetLogo(option.asset2)}
                     onError={({ currentTarget }) => {
                         currentTarget.onerror = null; // prevents looping
                         currentTarget.src = tokenPlaceholder;
@@ -125,7 +126,7 @@ function SelectInputGroupOption({ option }: { option: TokenOptionType }) {
                 className="tokenIcon"
                 width="32"
                 height="32"
-                src={getAssetLogoUrl(option.id)}
+                src={getAssetLogo(option.id)}
                 onError={({ currentTarget }) => {
                     currentTarget.onerror = null; // prevents looping
                     currentTarget.src = tokenPlaceholder;
@@ -169,33 +170,14 @@ function SelectOption({
 export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange, getOptions, style }) => {
     const [SelectModal, openSelectModal, closeSelectModal] = useModal('root');
     const [tokenSearchInput, setTokenSearchInput] = useState<string>('');
-    const [currentOptions, setCurrentOptions] = useState<SelectOptionType[]>(options);
-
-    useEffect(() => {
-        setCurrentOptions(options);
-    }, [options]);
-
-    useEffect(() => {
-        if (getOptions) {
-            getOptions(selectedOption)(tokenSearchInput).then((options) => {
-                setCurrentOptions(options);
-            });
-        } else {
-            setCurrentOptions(
-                options.filter((option) => option.name.toLowerCase().includes(tokenSearchInput.toLowerCase()))
-            );
-        }
-    }, [tokenSearchInput]);
+    const currentOptions = useFilteredTokenOptions(options, tokenSearchInput, getOptions, selectedOption);
 
     useEffect(() => {
         const keydownHandler = (e: KeyboardEvent) => {
             e.key === 'Escape' && closeSelectModal();
         };
         window.addEventListener('keydown', keydownHandler);
-
-        return () => {
-            window.removeEventListener('keydown', keydownHandler);
-        };
+        return () => window.removeEventListener('keydown', keydownHandler);
     }, []);
 
     return (
@@ -209,13 +191,11 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
                     <ModalCloseButton src={closeButton} alt="close" onClick={closeSelectModal} />
                     <Loupe alt="search" src={loupe} />
                     <SelectSearch
-                        placeholder="Search token name"
+                        placeholder="Search token name or ASA ID"
                         value={tokenSearchInput}
-                        onChange={(e) => {
-                            setTokenSearchInput(e.target.value);
-                        }}
+                        onChange={(e) => setTokenSearchInput(e.target.value)}
                     />
-                    {currentOptions.slice(0, 10).map((option) => (
+                    {currentOptions?.slice(0, 10).map((option: SelectOptionType) => (
                         <SelectOptionContainer
                             key={option.name}
                             onClick={() => {
