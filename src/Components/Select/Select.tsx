@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useModal } from 'react-hooks-use-modal';
 import { formatNumber } from '../../common/lib';
-import { getAssetLogoUrl } from '../../Farm/PoolList/Pool/utils';
+import { getAssetLogo } from '../../Farm/PoolList/Pool/utils';
 import { getDexName } from '../../Farm/utils';
 import tokenPlaceholder from '../../imgs/tokenPlaceholder.svg';
 import select from '../../imgs/select.svg';
@@ -62,7 +62,7 @@ function TokenOption({ option, showAdditionalInfo }: { option: TokenOptionType; 
         <OptionContainer>
             <TokenIcon
                 alt=""
-                src={getAssetLogoUrl(option.id)}
+                src={getAssetLogo(option.id)}
                 onError={({ currentTarget }) => {
                     currentTarget.onerror = null; // prevents looping
                     currentTarget.src = tokenPlaceholder;
@@ -89,7 +89,7 @@ function PoolOption({ option }: { option: PoolOptionType }) {
             <LpIcons>
                 <LpIcon
                     alt=""
-                    src={getAssetLogoUrl(option.asset1)}
+                    src={getAssetLogo(option.asset1)}
                     onError={({ currentTarget }) => {
                         currentTarget.onerror = null; // prevents looping
                         currentTarget.src = tokenPlaceholder;
@@ -98,7 +98,7 @@ function PoolOption({ option }: { option: PoolOptionType }) {
                 <LpIcon
                     style={{ left: '16px' }}
                     alt=""
-                    src={getAssetLogoUrl(option.asset2)}
+                    src={getAssetLogo(option.asset2)}
                     onError={({ currentTarget }) => {
                         currentTarget.onerror = null; // prevents looping
                         currentTarget.src = tokenPlaceholder;
@@ -126,7 +126,7 @@ function SelectInputGroupOption({ option }: { option: TokenOptionType }) {
                 className="tokenIcon"
                 width="32"
                 height="32"
-                src={getAssetLogoUrl(option.id)}
+                src={getAssetLogo(option.id)}
                 onError={({ currentTarget }) => {
                     currentTarget.onerror = null; // prevents looping
                     currentTarget.src = tokenPlaceholder;
