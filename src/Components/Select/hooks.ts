@@ -7,7 +7,7 @@ import { AssetResponse, SelectOptionType } from './types';
 async function getAssetByID(
     assetID: number,
     balances: Record<AssetId, Amount> | null
-): Promise<SelectOptionType[] | null> {
+): Promise<SelectOptionType | null> {
     try {
         const response: AssetResponse = await (algod.getAssetByID(assetID).do() as Promise<AssetResponse>);
         const asset: SelectOptionType = {
@@ -20,7 +20,7 @@ async function getAssetByID(
             creator: response?.params?.creator,
             reserve: response?.params?.reserve,
         };
-        return [asset];
+        return asset;
     } catch (error) {
         console.error('Error fetching asset:', error);
         return null;
@@ -39,7 +39,10 @@ async function filterOptions(
 
     if (isNumericInput) {
         const asset = await getAssetByID(inputAsNumber, balances);
-        return asset || options;
+        if (asset) {
+            return [{ ...asset, isUnverified: true }];
+        }
+        return options;
     }
 
     return options.filter((option) => option.name.toLowerCase().includes(tokenSearchInput.toLowerCase())) || options;

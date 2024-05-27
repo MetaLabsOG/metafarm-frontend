@@ -33,7 +33,13 @@ import { DAY, formatDecimalsMeaningful, getSmallestUnits, unsafeFromBigint } fro
 import { deployContractToBackend, getPactPools, getTinymanPools, getHumblePools } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
-import { FARM_BENEFICIARY_ADDR, FARM_CREATION_FEE, FARM_FLAT_ALGO_CREATION_FEE } from '../AppContext';
+import {
+    FARM_BENEFICIARY_ADDR,
+    FARM_CREATION_FEE,
+    FARM_FLAT_ALGO_CREATION_FEE,
+    UNVERIFIED_FARM_CREATION_FEE,
+    UNVERIFIED_FARM_FLAT_ALGO_CREATION_FEE,
+} from '../AppContext';
 import { Contract, Backend } from '../types';
 import { expBackoff } from '../common/store/utils';
 import { logEvent, LogName } from '../logEvent';
@@ -59,6 +65,7 @@ export type AddFarmType = 'farm' | 'stake';
 export type StakingAsset = {
     id: AssetId;
     name: string;
+    isUnverified?: boolean;
     dex?: DexProvider;
     asset1_id?: number;
     asset2_id?: number;
@@ -71,6 +78,14 @@ export const deltaBlocks = (startTime: Time, endTime: Time, meanRoundDuration: n
 export const daysToBlocks = (days: number, meanRoundDuration: number) => {
     return Math.floor((days * DAY) / meanRoundDuration);
 };
+
+function getFlatAlgoFee(stakeToken: StakingAsset) {
+    return stakeToken.isUnverified ? UNVERIFIED_FARM_FLAT_ALGO_CREATION_FEE : FARM_FLAT_ALGO_CREATION_FEE;
+}
+
+function getFee(stakeToken: StakingAsset) {
+    return stakeToken.isUnverified ? UNVERIFIED_FARM_CREATION_FEE : FARM_CREATION_FEE;
+}
 
 const checkFarmParams = (
     stakeToken: StakingAsset,
@@ -108,13 +123,14 @@ const checkFarmParams = (
         return false;
     }
 
-    const minAlgoBalance = Number(FARM_FLAT_ALGO_CREATION_FEE) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE;
+    const flatAlgoFee = getFlatAlgoFee(stakeToken);
+    const minAlgoBalance = Number(flatAlgoFee) + extraAlgoRewardAmount + MIN_ALLOWED_ALGO_BALANCE;
     if (!Number.isNaN(algoToken.balance) && algoToken.balance < minAlgoBalance) {
         const needAlgo = minAlgoBalance - algoToken.balance;
         notify(
             `Not enough ALGO. Please deposit at least ${Math.round(needAlgo)} ALGO to proceed.
             Some ALGOs are reserved by Algorand Network. 
-            Creation fee is ${FARM_FLAT_ALGO_CREATION_FEE} ALGO. 
+            Creation fee is ${flatAlgoFee} ALGO. 
             So minimum balance to create the pool is ${minAlgoBalance}.`,
             'warning'
         );
@@ -143,7 +159,9 @@ const getContractAndParams = (
 ): [Contract, InitialFarmState | InitialDistributionState] => {
     const totalRewardAmount = unsafeFromBigint(getSmallestUnits(rewardToken, rewardAmount));
     const totalAlgoRewardAmount = unsafeFromBigint(getSmallestUnits(ALGO_ASSET, extraAlgoRewardAmount));
-    const flatAlgoCreationFee = unsafeFromBigint(getSmallestUnits(ALGO_ASSET, Number(FARM_FLAT_ALGO_CREATION_FEE)));
+    const flatAlgoFeeAmount = getFlatAlgoFee(stakeToken);
+    const flatAlgoCreationFee = unsafeFromBigint(getSmallestUnits(ALGO_ASSET, Number(flatAlgoFeeAmount)));
+    const creationFee = getFee(stakeToken);
 
     console.log(
         'Start create ' + contractType,
@@ -159,7 +177,7 @@ const getContractAndParams = (
         const ctc = account.contract(farmBackend as Backend);
         const contractParameters: InitialFarmState = {
             beneficiary: FARM_BENEFICIARY_ADDR ?? '',
-            creationFee: FARM_CREATION_FEE ?? 0,
+            creationFee: creationFee ?? 0,
             stakeToken: stakeToken.id,
             rewardToken: rewardToken.id,
             beginBlock,
@@ -175,7 +193,7 @@ const getContractAndParams = (
     const ctc = account.contract(distributionBackend as Backend);
     const contractParameters: InitialDistributionState = {
         beneficiary: FARM_BENEFICIARY_ADDR ?? '',
-        creationFee: FARM_CREATION_FEE ?? 0,
+        creationFee: creationFee ?? 0,
         token: stakeToken.id,
         beginBlock,
         endBlock,
@@ -344,7 +362,9 @@ function PoolInfo({
     algoTokenRewards: number;
     selectedPool: PoolOptionType;
 }) {
-    const farmCreationFee = (rewardAmount * Number(FARM_CREATION_FEE ?? 0)) / 10_000;
+    const creationFee = getFee(stakingAsset);
+    const farmCreationFee = (rewardAmount * Number(creationFee ?? 0)) / 10_000;
+    const farmCreationAlgoFee = getFlatAlgoFee(stakingAsset);
     const startTime = calculateTimeByBlock(currentBlock, beginBlock, meanRoundDuration);
     const endTime = calculateTimeByBlock(currentBlock, endBlock, meanRoundDuration);
 
@@ -390,9 +410,7 @@ function PoolInfo({
             <InfoRow title="Lock period blocks" value={lockPeriodBlocks} style={{ marginBottom: '20px' }} />
             <InfoRow
                 title="Creation fee"
-                value={
-                    farmCreationFee + ' ' + rewardToken.unitName + '  + ' + (FARM_FLAT_ALGO_CREATION_FEE ?? 0) + ' ALGO'
-                }
+                value={farmCreationFee + ' ' + rewardToken.unitName + '  + ' + (farmCreationAlgoFee ?? 0) + ' ALGO'}
             />
         </InfoPanel>
     );
@@ -506,6 +524,7 @@ function getStakingAsset(
         return {
             id: selectedToken.id,
             name: selectedToken.unitName,
+            isUnverified: selectedToken.isUnverified,
         };
     }
     return {
