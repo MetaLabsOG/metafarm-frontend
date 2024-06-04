@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -x
 
 echo "Installing Node.js 18.12.0"
 curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
