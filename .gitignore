@@ -28,8 +28,7 @@ yarn-error.log*
 reach
 .reach
 .vscode
-# TODO: not sure if it shall be included?
-Dockerfile
+
 # TODO: not sure if it shall be included?
 .dockerignore
 
