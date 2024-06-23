@@ -1,6 +1,6 @@
 FROM node:18.12.0
 
-WORKDIR /app
+WORKDIR /
 COPY package.json yarn.lock .yarnrc.yml ./
 
 RUN corepack enable && corepack prepare yarn@4.2.2 --activate && yarn install
