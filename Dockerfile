@@ -1,6 +1,6 @@
 FROM node:18.12.0
 
-WORKDIR /app
+#WORKDIR /app
 COPY . .
 
 RUN chmod +x install_prod.sh
