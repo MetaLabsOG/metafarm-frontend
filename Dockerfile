@@ -1,12 +1,14 @@
 FROM node:18.12.0
 
-#WORKDIR /app
+WORKDIR /app
+COPY package.json yarn.lock .yarnrc.yml ./
+
+RUN corepack enable && corepack prepare yarn@4.2.2 --activate && yarn install
+
 COPY . .
 
-RUN chmod +x install_prod.sh
-RUN ./install_prod.sh
-
-RUN yarn build
+RUN yarn install
+RUN yarn prod
 
 EXPOSE 3000
 
