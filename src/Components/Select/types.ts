@@ -4,7 +4,7 @@ import { SelectType } from './Select';
 import React from '.store/@types-react-npm-18.0.15-5275c78b86/package';
 
 export type PoolOptionType = PoolInfo & { value: string; name: string };
-export type TokenOptionType = Asset & { value: string; balance: number };
+export type TokenOptionType = Asset & { value: string; balance: number; isUnverified?: boolean };
 export type SelectOptionType = TokenOptionType | PoolOptionType;
 
 export interface SelectProps {
@@ -14,4 +14,15 @@ export interface SelectProps {
     selectOnChange: any;
     getOptions?: (selectedOption: SelectOptionType) => (query: string) => Promise<SelectOptionType[]>;
     style?: React.CSSProperties;
+}
+
+export interface AssetResponse {
+    index: number;
+    params: {
+        name: string;
+        'unit-name': string;
+        decimals: number;
+        creator: string;
+        reserve: string;
+    };
 }

@@ -232,6 +232,7 @@ export const deployContractToBackend = async (
         description: description,
         metadata: {
             stake_token_id: stakeToken.id,
+            is_unverified: stakeToken.isUnverified,
             dex: stakeToken.dex,
             asset1_id: stakeToken.asset1_id,
             asset2_id: stakeToken.asset2_id,
