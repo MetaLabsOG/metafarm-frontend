@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const WalletHeader = styled.div`
-    font-family: 'Korona One';
+    font-family: 'Matadina';
     font-style: normal;
     font-weight: 400;
     font-size: 20px;
@@ -54,7 +54,7 @@ export const WalletButton = styled.div`
     border-radius: 30px;
 
     :hover {
-        background-color: var(--backgroundHover);
+        background-color: var(--backgroundModalHover);
     }
 `;
 

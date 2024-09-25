@@ -12,7 +12,7 @@ export const PoolListHeader = styled.div`
     padding-right: 40px;
     padding-left: 20px;
 
-    font-family: 'Montserrat';
+    font-family: 'Maxipower';
     font-style: normal;
     font-weight: 400;
     font-size: 14px;
@@ -145,7 +145,8 @@ export const PoolTopLineContainer = styled.div`
 
 export const AddFarmButtonContainer = styled(PrettyButtonContainer)`
     color: ${theme.lightGray};
-    border: 1px solid ${theme.lightGray};
+    border: 1px solid #cf74af;
+    font-family: 'MaxiPower';
     text-decoration: none;
     background-color: transparent;
     outline: none;

@@ -31,12 +31,12 @@ function MenuItems() {
     return (
         <>
             <MenuItem to="/swap" style={{ paddingLeft: leftPadding }}>
-                swap
+                SWAP
             </MenuItem>
-            <MenuItem to="/farm">farm</MenuItem>
-            <MenuItem to="/stake">stake</MenuItem>
+            <MenuItem to="/farm">FARM</MenuItem>
+            <MenuItem to="/stake">STAKE</MenuItem>
             {ALGONET === TESTNET && <MenuItem to="/laas">laas</MenuItem>}
-            <MenuItem to="/metapunks">NFTs</MenuItem>
+            {/* <MenuItem to="/metapunks">NFTs</MenuItem> */}
         </>
     );
 }

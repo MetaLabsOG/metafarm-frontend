@@ -66,10 +66,10 @@ export const PoolSearchInput = styled.input`
     color-scheme: dark;
 
     text-align: center;
-    font-family: 'Montserrat';
-    font-size: 13px;
+    font-family: 'MaxiPower';
+    font-size: 11px;
 
-    border: 1px solid ${theme.lightGray};
+    border: 1px solid #90ee90;
     border-radius: 15px;
 
     @media (max-width: 860px) {

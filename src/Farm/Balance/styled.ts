@@ -20,7 +20,7 @@ export const AmountTitle = styled.div`
     color: var(--gray);
     margin-bottom: 12px;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 20px;
     text-align: center;
     letter-spacing: 0.02em;
@@ -34,7 +34,7 @@ export const AmountValue = styled.div`
     color: white;
     font-style: normal;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 22px;
     text-align: center;
     letter-spacing: 0.08em;
@@ -45,13 +45,11 @@ export const BalanceList = styled.div`
     display: flex;
     justify-content: space-evenly;
     background-color: var(--backgroundCard);
-    height: 91px;
+    height: 100px;
     align-items: center;
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: normal;
-    font-size: 18px;
-    line-height: 22px;
+    font-family: 'Maxipower';
+    font-size: 14px;
+
     text-align: center;
     border-radius: 10px;
 

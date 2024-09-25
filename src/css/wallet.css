@@ -40,23 +40,40 @@
 }
 
 .connect_wallet {
-    width: 155px;
+    width: 160px;
     height: 30px;
     margin-left: auto;
-    background: linear-gradient(270deg, #06a903 1.29%, #00ff29 100%);
-    font-family: 'Korona One';
-    font-size: 10px;
+    background: #5cfc3c;
+    font-family: 'Matadina';
+    font-size: 9px;
     text-transform: uppercase;
-    color: black;
-    border: 1px solid var(--darkGreen);
+    color: #B8368C;
     border-radius: 4px;
     cursor: pointer;
+    border: olive;
+    position: relative; /* Необходимо для корректного позиционирования псевдоэлемента */
+    overflow: hidden; /* Скрываем выходящие за границы псевдоэлементы */
 }
 
 .connect_wallet:hover {
-    color: green;
-    background: black;
+    color: #5cfc3c;
+    background: #B8368C;
 }
+
+/* Псевдоэлемент с наложением зернистости */
+.connect_wallet::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/wcAAwAB/etiFHYAAAAASUVORK5CYII='); /* Пример зернистой текстуры, закодированной в base64 */
+    opacity: 0.3; /* Прозрачность текстуры */
+    z-index: 1; /* Псевдоэлемент выше контента кнопки */
+}
+
 
 .account_info {
     position: relative;

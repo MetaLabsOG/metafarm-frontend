@@ -93,10 +93,10 @@ export const PoolInfoValue = styled.div<{ width?: string }>`
     justify-content: center;
     width: ${({ width }) => width};
     white-space: nowrap;
-    font-family: 'Montserrat';
+    font-family: 'MaxiPower';
     font-style: normal;
     font-weight: 500;
-    font-size: 18px;
+    font-size: 14px;
     line-height: 22px;
     color: var(--lightGray);
 

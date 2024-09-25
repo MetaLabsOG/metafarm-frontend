@@ -7,15 +7,15 @@ export const MenuItem = styled(NavLink)`
     color: white;
     text-decoration: none;
     text-transform: capitalize;
-    font-family: 'Montserrat';
+    font-family: 'Matadina';
     font-style: normal;
     font-weight: 600;
-    font-size: 17px;
-    letter-spacing: 0.08em;
+    font-size: 16px;
+    letter-spacing: 0.04em;
 
     :hover {
         color: var(--lightGreen);
-        text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
+        text-shadow: 0 4px 28px #b8368c, 0 2px 10px rgba(29, 247, 3, 0.3);
     }
 
     &.active {
@@ -28,8 +28,8 @@ export const MenuItemsContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 350px;
-    margin-left: 20px;
+    width: 370px;
+    margin-left: 40px;
     @media (max-width: 979px) {
         display: none;
     }

@@ -24,6 +24,35 @@
   src: url('../fonts/Montserrat-VariableFont_wght.ttf');
 }
 
+@font-face {
+    font-family: 'Formatek';
+    src: url('../fonts/Formatek.ttf');
+  }
+
+  @font-face {
+    font-family: 'SF';
+    src: url('../fonts/SF.OTF');
+  }
+  @font-face {
+    font-family: 'Nobus';
+    src: url('../fonts/Nobus.otf');
+  }
+
+  @font-face {
+    font-family: 'Matadina';
+    src: url('../fonts/Matadina.otf');
+  }
+
+  @font-face {
+    font-family: 'Redfive';
+    src: url('../fonts/Redfive.ttf');
+  }
+
+  @font-face {
+    font-family: 'MaxiPower';
+    src: url('../fonts/MaxiPower.otf');
+  }
+
 * {
     margin: 0;
     padding: 0;

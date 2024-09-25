@@ -27,7 +27,7 @@ export const PoolInfo = styled.div`
 export const PoolTitle = styled.div`
     display: flex;
     white-space: nowrap;
-    font-family: 'Korona One';
+    font-family: 'MaxiPower';
     font-size: 14px;
     color: white;
 
@@ -47,7 +47,7 @@ export const PoolSubtitlesContainer = styled.div`
 export const PoolSubtitle = styled.div`
     white-space: nowrap;
     color: ${theme.niceGreen}; // light green
-    font-family: 'Korona One';
+    font-family: 'MaxiPower';
     font-size: 12px;
 
     @media (max-width: 1120px) {

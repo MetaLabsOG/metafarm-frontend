@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 
 export const MyVerifiedSwitchWrapper = styled.div`
-    width: 180px;
+    width: 190px;
     height: 30px;
     margin-top: 9px;
-    font-family: 'Montserrat';
+    font-family: 'MaxiPower';
     font-weight: 300;
 
     @media (max-width: 1120px) {
@@ -35,6 +35,7 @@ export const PoolStateWrapper = styled.div`
     height: 30px;
     margin-top: 10px;
     font-weight: 300;
+    font-family: 'MaxiPower';
 
     @media (max-width: 700px) {
         margin-top: 0;
@@ -43,10 +44,10 @@ export const PoolStateWrapper = styled.div`
 `;
 
 export const SwitchSelectWrapper = styled.div`
-    width: 180px;
+    width: 200px;
     height: 30px;
     margin-top: 10px;
-    font-family: Montserrat;
+    font-family: 'MaxiPower';
     font-weight: 300;
 
     @media (max-width: 700px) {
