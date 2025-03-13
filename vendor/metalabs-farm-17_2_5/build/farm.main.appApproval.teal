@@ -1,0 +1,3399 @@
+#pragma version 6
+// resource: R_Txn
+int 0
+store 0 // GV_txnCounter :: UInt
+txn ApplicationID
+bz alloc
+byte base64()
+app_global_get
+dup
+int 0
+extract_uint64
+store 1 // GV_currentStep :: UInt
+dup
+int 8
+extract_uint64
+store 2 // GV_currentTime :: UInt
+int 16
+extract_uint64
+store 8 // GV_companion :: Contract
+txn OnCompletion
+int OptIn
+==
+bz normal
+// checked on completion
+txn Sender
+byte base64(AA==)
+int 60
+bzero
+app_local_put
+b checkSize
+normal:
+txna ApplicationArgs 0
+btoi
+preamble:
+dup
+bz publish
+api:
+int 0
+store 4 // GV_argTime :: UInt
+int 1
+store 6 // GV_wasMeth :: Bool
+dup
+int 2716143984
+<
+bnz l5_method_lt_2716143984
+dup
+int 3431115673
+<
+bnz l6_method_lt_3431115673
+dup
+int 4101994871
+<
+bnz l7_method_lt_4101994871
+int 4101994871
+==
+assert
+
+  // { l1_recalculateRewards
+  l1_recalculateRewards:
+  // API: recalculateRewards()(uint64,uint64,uint64,uint256)
+  //  i(4101994871) h(f47f7977) b64(9H95dw==)
+  byte base64()
+  store 255 // v8038 :: Tuple()
+  byte base64(AQ==)
+  load 255 // v8038 :: Tuple()
+  concat
+  int 8
+  bzero
+  concat
+  b publish4
+  // l1_recalculateRewards }
+
+l7_method_lt_4101994871:
+int 3431115673
+==
+assert
+
+  // { l0_claim
+  l0_claim:
+  // API: claim()uint64
+  //  i(3431115673) h(cc82ab99) b64(zIKrmQ==)
+  byte base64()
+  store 255 // v8039 :: Tuple()
+  byte base64(AA==)
+  load 255 // v8039 :: Tuple()
+  concat
+  int 8
+  bzero
+  concat
+  b publish4
+  // l0_claim }
+
+l6_method_lt_3431115673:
+dup
+int 3191167125
+<
+bnz l8_method_lt_3191167125
+int 3191167125
+==
+assert
+
+  // { l9_global
+  l9_global:
+  // View: global()(uint64,uint64,uint256,uint64)
+  //  i(3191167125) h(be355895) b64(vjVYlQ==)
+  load 1 // GV_currentStep :: UInt
+  dup
+  int 5
+  <
+  bnz l10_viewStep_lt_5
+  int 5
+  ==
+  assert
+
+    // { global_5
+    byte base64(AA==)
+    app_global_get
+    byte base64(AQ==)
+    app_global_get
+    concat
+    dup
+    store 3 // GV_svs :: Null
+    extract 153 8
+    load 3 // GV_svs :: Null
+    extract 105 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 113 32
+    concat
+    load 3 // GV_svs :: Null
+    extract 145 8
+    concat
+    store 7 // GV_apiRet :: Null
+    b apiReturn_check
+    // global_5 }
+
+  l10_viewStep_lt_5:
+  int 3
+  ==
+  assert
+
+    // { global_3
+    byte base64(AA==)
+    app_global_get
+    byte base64(AQ==)
+    app_global_get
+    concat
+    dup
+    store 3 // GV_svs :: Null
+    extract 144 8
+    load 3 // GV_svs :: Null
+    extract 96 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 104 32
+    concat
+    load 3 // GV_svs :: Null
+    extract 136 8
+    concat
+    store 7 // GV_apiRet :: Null
+    b apiReturn_check
+    // global_3 }
+
+  // l9_global }
+
+l8_method_lt_3191167125:
+int 2716143984
+==
+assert
+
+  // { l4_unstake
+  l4_unstake:
+  // API: unstake(uint64)uint64
+  //  i(2716143984) h(a1e51170) b64(oeURcA==)
+  txna ApplicationArgs 1
+  store 255 // v8044 :: Tuple(UInt)
+  byte base64(BA==)
+  load 255 // v8044 :: Tuple(UInt)
+  concat
+  b publish4
+  // l4_unstake }
+
+l5_method_lt_2716143984:
+dup
+int 1626837219
+<
+bnz l11_method_lt_1626837219
+dup
+int 2510915047
+<
+bnz l12_method_lt_2510915047
+int 2510915047
+==
+assert
+
+  // { l3_stake
+  l3_stake:
+  // API: stake(uint64)uint64
+  //  i(2510915047) h(95a985e7) b64(lamF5w==)
+  txna ApplicationArgs 1
+  store 255 // v8045 :: Tuple(UInt)
+  byte base64(Aw==)
+  load 255 // v8045 :: Tuple(UInt)
+  concat
+  b publish4
+  // l3_stake }
+
+l12_method_lt_2510915047:
+int 1626837219
+==
+assert
+
+  // { l13_initial
+  l13_initial:
+  // View: initial()(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)
+  //  i(1626837219) h(60f790e3) b64(YPeQ4w==)
+  load 1 // GV_currentStep :: UInt
+  dup
+  int 5
+  <
+  bnz l14_viewStep_lt_5
+  int 5
+  ==
+  assert
+
+    // { initial_5
+    byte base64(AA==)
+    app_global_get
+    byte base64(AQ==)
+    app_global_get
+    concat
+    dup
+    store 3 // GV_svs :: Null
+    extract 32 8
+    load 3 // GV_svs :: Null
+    extract 40 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 48 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 56 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 64 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 80 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 88 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 72 8
+    concat
+    store 7 // GV_apiRet :: Null
+    b apiReturn_check
+    // initial_5 }
+
+  l14_viewStep_lt_5:
+  int 3
+  ==
+  assert
+
+    // { initial_3
+    byte base64(AA==)
+    app_global_get
+    byte base64(AQ==)
+    app_global_get
+    concat
+    dup
+    store 3 // GV_svs :: Null
+    extract 32 8
+    load 3 // GV_svs :: Null
+    extract 40 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 48 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 56 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 64 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 80 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 88 8
+    concat
+    load 3 // GV_svs :: Null
+    extract 72 8
+    concat
+    store 7 // GV_apiRet :: Null
+    b apiReturn_check
+    // initial_3 }
+
+  // l13_initial }
+
+l11_method_lt_1626837219:
+dup
+int 1103045452
+<
+bnz l15_method_lt_1103045452
+int 1103045452
+==
+assert
+
+  // { l2_setTime
+  l2_setTime:
+  // API: setTime(uint64)(uint64,uint64,uint64,uint256)
+  //  i(1103045452) h(41bf234c) b64(Qb8jTA==)
+  txna ApplicationArgs 1
+  store 255 // v8050 :: Tuple(UInt)
+  byte base64(Ag==)
+  load 255 // v8050 :: Tuple(UInt)
+  concat
+  b publish4
+  // l2_setTime }
+
+l15_method_lt_1103045452:
+int 1008374487
+==
+assert
+
+  // { l16_local
+  l16_local:
+  // View: local(address)(uint64,uint64,uint64,uint256)
+  //  i(1008374487) h(3c1a92d7) b64(PBqS1w==)
+  load 1 // GV_currentStep :: UInt
+  dup
+  int 5
+  <
+  bnz l17_viewStep_lt_5
+  int 5
+  ==
+  assert
+
+    // { local_5
+    txna ApplicationArgs 1
+    store 255 // v1669 :: Address
+    int 0
+    // resource: R_Account
+    load 255 // v1669 :: Address
+    callsub l18_LF_cMapLoad
+    extract 0 9
+    dup
+    store 254 // fromSome object
+    int 1
+    extract_uint64
+    load 254 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    int 0
+    load 255 // v1669 :: Address
+    callsub l18_LF_cMapLoad
+    extract 9 9
+    dup
+    store 254 // fromSome object
+    int 1
+    extract_uint64
+    load 254 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    concat
+    int 0
+    load 255 // v1669 :: Address
+    callsub l18_LF_cMapLoad
+    extract 18 9
+    dup
+    store 254 // fromSome object
+    int 1
+    extract_uint64
+    load 254 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    concat
+    global ZeroAddress
+    load 255 // v1669 :: Address
+    callsub l18_LF_cMapLoad
+    extract 27 33
+    dup
+    store 254 // fromSome object
+    extract 1 32
+    load 254 // fromSome object
+    int 0
+    getbyte
+    select
+    concat
+    store 7 // GV_apiRet :: Null
+    b apiReturn_check
+    // local_5 }
+
+  l17_viewStep_lt_5:
+  int 3
+  ==
+  assert
+
+    // { local_3
+    txna ApplicationArgs 1
+    store 255 // v4418 :: Address
+    int 0
+    // resource: R_Account
+    load 255 // v4418 :: Address
+    callsub l18_LF_cMapLoad
+    extract 0 9
+    dup
+    store 254 // fromSome object
+    int 1
+    extract_uint64
+    load 254 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    int 0
+    load 255 // v4418 :: Address
+    callsub l18_LF_cMapLoad
+    extract 9 9
+    dup
+    store 254 // fromSome object
+    int 1
+    extract_uint64
+    load 254 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    concat
+    int 0
+    load 255 // v4418 :: Address
+    callsub l18_LF_cMapLoad
+    extract 18 9
+    dup
+    store 254 // fromSome object
+    int 1
+    extract_uint64
+    load 254 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    concat
+    global ZeroAddress
+    load 255 // v4418 :: Address
+    callsub l18_LF_cMapLoad
+    extract 27 33
+    dup
+    store 254 // fromSome object
+    extract 1 32
+    load 254 // fromSome object
+    int 0
+    getbyte
+    select
+    concat
+    store 7 // GV_apiRet :: Null
+    b apiReturn_check
+    // local_3 }
+
+  // l16_local }
+
+publish:
+txna ApplicationArgs 2
+btoi
+store 4 // GV_argTime :: UInt
+txna ApplicationArgs 3
+txna ApplicationArgs 1
+btoi
+dup
+int 3
+<
+bnz l19_publish_lt_3
+dup
+int 4
+<
+bnz l20_publish_lt_4
+int 4
+==
+assert
+
+  // { publish4
+  publish4:
+  // CompanionLabel False "publish4"
+  // check step
+  int 5
+  load 1 // GV_currentStep :: UInt
+  ==
+  assert
+  // check time
+  load 4 // GV_argTime :: UInt
+  dup
+  int 0
+  ==
+  swap
+  load 2 // GV_currentTime :: UInt
+  ==
+  ||
+  assert
+  byte base64(AA==)
+  app_global_get
+  byte base64(AQ==)
+  app_global_get
+  concat
+  dup
+  store 3 // GV_svs :: Null
+  dup
+  dup2
+  dup2
+  dup2
+  dup2
+  dup2
+  dup2
+  dup2
+  dup
+  extract 0 32
+  store 255 // Creator/1597 :: Address
+  int 32
+  extract_uint64
+  store 254 // stakeToken/1598 :: Token
+  int 40
+  extract_uint64
+  store 253 // rewardToken/1599 :: Token
+  int 48
+  extract_uint64
+  store 252 // beginBlock/1600 :: UInt
+  int 56
+  extract_uint64
+  store 251 // endBlock/1601 :: UInt
+  int 64
+  extract_uint64
+  store 250 // rewardPerBlock/1602 :: UInt
+  int 72
+  extract_uint64
+  store 249 // lockLengthBlocks/1603 :: UInt
+  int 80
+  extract_uint64
+  store 248 // stakeFee/1604 :: UInt
+  int 88
+  extract_uint64
+  store 247 // unstakeFee/1605 :: UInt
+  extract 96 1
+  btoi
+  store 246 // isDevEnv/1606 :: Bool
+  int 97
+  extract_uint64
+  store 245 // currentBlock/1646 :: UInt
+  int 105
+  extract_uint64
+  store 244 // lastUpdateBlock/1647 :: UInt
+  extract 113 32
+  store 243 // rewardPerTokenStored/1648 :: UInt256
+  int 145
+  extract_uint64
+  store 242 // rewardsPaid/1649 :: UInt
+  int 153
+  extract_uint64
+  store 241 // totalStaked/1650 :: UInt
+  extract 161 34
+  store 240 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+  int 195
+  extract_uint64
+  store 239 // netBalance/1658 :: UInt
+  dup
+  store 5 // GV_argMsg :: Null
+  store 238 // .fork163.msg/1863 :: Data({"claim0_163": Tuple(), "recalculateRewards0_163": Tuple(), "setTime0_163": Tuple(UInt), "stake0_163": Tuple(UInt), "unstake0_163": Tuple(UInt)})
+  byte base64(1Y4dqw==)
+  load 238 // .fork163.msg/1863 :: Data({"claim0_163": Tuple(), "recalculateRewards0_163": Tuple(), "setTime0_163": Tuple(UInt), "stake0_163": Tuple(UInt), "unstake0_163": Tuple(UInt)})
+  concat
+  log // up to 13 bytes
+  load 238 // .fork163.msg/1863 :: Data({"claim0_163": Tuple(), "recalculateRewards0_163": Tuple(), "setTime0_163": Tuple(UInt), "stake0_163": Tuple(UInt), "unstake0_163": Tuple(UInt)})
+  int 0
+  getbyte
+  dup
+  int 2
+  <
+  bnz l21_Switch_lt_2
+  dup
+  int 3
+  <
+  bnz l22_Switch_lt_3
+  dup
+  int 4
+  <
+  bnz l23_Switch_lt_4
+  int 4
+  ==
+  assert
+
+    // { l24_Switch_unstake0_163
+    l24_Switch_unstake0_163:
+    load 238 // .fork163.msg/1863 :: Data({"claim0_163": Tuple(), "recalculateRewards0_163": Tuple(), "setTime0_163": Tuple(UInt), "stake0_163": Tuple(UInt), "unstake0_163": Tuple(UInt)})
+    extract 1 8
+    store 237 // data_id/3906 :: Tuple(UInt)
+    // CompanionLabel True "api_unstake"
+    api_unstake:
+    itxn_begin
+    int 0
+    itxn_field Fee
+    int appl
+    itxn_field TypeEnum
+    load 8 // GV_companion :: Contract
+    // resource: R_App
+    itxn_field ApplicationID
+    itxn_submit
+    // cost credit: 3
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 240 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    dup
+    store 236 // tokInfo/3983 :: Tuple(UInt, UInt, Bool)
+    extract 0 8
+    load 236 // tokInfo/3983 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 236 // tokInfo/3983 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    load 240 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    concat
+    store 235 // tokInfos'/3991 :: Array(Tuple(UInt, UInt, Bool), 2)
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 235 // tokInfos'/3991 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    store 234 // tokInfo/3992 :: Tuple(UInt, UInt, Bool)
+    load 235 // tokInfos'/3991 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    load 234 // tokInfo/3992 :: Tuple(UInt, UInt, Bool)
+    extract 0 8
+    load 234 // tokInfo/3992 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 234 // tokInfo/3992 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    concat
+    store 233 // tokInfos'/4000 :: Array(Tuple(UInt, UInt, Bool), 2)
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 237 // data_id/3906 :: Tuple(UInt)
+    btoi
+    store 232 // toUnstake/4288 :: UInt
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 0 9
+    dup
+    store 230 // fromSome object
+    int 1
+    extract_uint64
+    load 230 // fromSome object
+    int 0
+    getbyte
+    select
+    store 231 // v4290 :: UInt
+    load 232 // toUnstake/4288 :: UInt
+    load 231 // v4290 :: UInt
+    <=
+    assert
+    // ^ Claim: tried to unstake more than staked on record
+    // at ./farm.rsh:313:14:application
+    // at ./farm.rsh:312:29:application call to [unknown function] (defined at: ./farm.rsh:312:29:function exp)
+    load 233 // tokInfos'/4000 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    dup
+    store 230 // tokInfo/4292 :: Tuple(UInt, UInt, Bool)
+    int 0
+    extract_uint64
+    store 229 // v4293 :: UInt
+    load 232 // toUnstake/4288 :: UInt
+    load 229 // v4293 :: UInt
+    <=
+    assert
+    // ^ Claim: tried to unstake more than contract has
+    // at ./farm.rsh:314:14:application
+    // at ./farm.rsh:312:29:application call to [unknown function] (defined at: ./farm.rsh:312:29:function exp)
+    load 246 // isDevEnv/1606 :: Bool
+    bz l25_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 227 // v4298 :: UInt
+    b l26_localIfK
+    l25_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 227 // v4298 :: UInt
+    l26_localIfK:
+    load 246 // isDevEnv/1606 :: Bool
+    bz l27_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 226 // v4303 :: UInt
+    b l28_localIfK
+    l27_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 226 // v4303 :: UInt
+    l28_localIfK:
+    load 241 // totalStaked/1650 :: UInt
+    int 0
+    ==
+    bz l29_localIfF
+    load 243 // rewardPerTokenStored/1648 :: UInt256
+    store 228 // rewardPerTokenStored/4297 :: UInt256
+    b l30_localIfK
+    l29_localIfF:
+    load 243 // rewardPerTokenStored/1648 :: UInt256
+    int 24
+    bzero
+    load 251 // endBlock/1601 :: UInt
+    load 226 // v4303 :: UInt
+    load 227 // v4298 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    <
+    select
+    load 244 // lastUpdateBlock/1647 :: UInt
+    -
+    itob
+    concat
+    int 24
+    bzero
+    load 250 // rewardPerBlock/1602 :: UInt
+    itob
+    concat
+    b*
+    callsub l31_LF_checkUInt256ResultLen
+    byte base64(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADeC2s6dkAAA=)
+    b*
+    callsub l31_LF_checkUInt256ResultLen
+    int 24
+    bzero
+    load 241 // totalStaked/1650 :: UInt
+    itob
+    concat
+    b/
+    callsub l31_LF_checkUInt256ResultLen
+    b+
+    callsub l31_LF_checkUInt256ResultLen
+    store 228 // rewardPerTokenStored/4297 :: UInt256
+    l30_localIfK:
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    int 24
+    bzero
+    load 231 // v4290 :: UInt
+    itob
+    concat
+    load 228 // rewardPerTokenStored/4297 :: UInt256
+    global ZeroAddress
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 27 33
+    dup
+    store 225 // fromSome object
+    extract 1 32
+    load 225 // fromSome object
+    int 0
+    getbyte
+    select
+    b-
+    callsub l31_LF_checkUInt256ResultLen
+    b*
+    callsub l31_LF_checkUInt256ResultLen
+    byte base64(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADeC2s6dkAAA=)
+    b/
+    callsub l31_LF_checkUInt256ResultLen
+    dup
+    dup2
+    int 16
+    extract_uint64
+    int 0
+    ==
+    assert
+    int 8
+    extract_uint64
+    int 0
+    ==
+    assert
+    int 0
+    extract_uint64
+    int 0
+    ==
+    assert
+    int 24
+    extract_uint64
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 9 9
+    dup
+    store 225 // fromSome object
+    int 1
+    extract_uint64
+    load 225 // fromSome object
+    int 0
+    getbyte
+    select
+    +
+    itob
+    concat
+    store 225 // spliceNew
+    dup
+    extract 0 9
+    load 225 // spliceNew
+    concat
+    swap
+    extract 18 42
+    concat
+    app_local_put
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 228 // rewardPerTokenStored/4297 :: UInt256
+    concat
+    store 225 // spliceNew
+    extract 0 27
+    load 225 // spliceNew
+    concat
+    app_local_put
+    load 246 // isDevEnv/1606 :: Bool
+    bz l32_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 225 // v4329 :: UInt
+    b l33_localIfK
+    l32_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 225 // v4329 :: UInt
+    l33_localIfK:
+    load 246 // isDevEnv/1606 :: Bool
+    bz l34_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 224 // v4334 :: UInt
+    b l35_localIfK
+    l34_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 224 // v4334 :: UInt
+    l35_localIfK:
+    load 251 // endBlock/1601 :: UInt
+    load 224 // v4334 :: UInt
+    load 225 // v4329 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    <
+    select
+    store 223 // lastUpdateBlock/4338 :: UInt
+    load 246 // isDevEnv/1606 :: Bool
+    bz l36_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 222 // v4343 :: UInt
+    b l37_localIfK
+    l36_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 222 // v4343 :: UInt
+    l37_localIfK:
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 18 9
+    dup
+    store 221 // fromSome object
+    int 1
+    extract_uint64
+    load 221 // fromSome object
+    int 0
+    getbyte
+    select
+    load 249 // lockLengthBlocks/1603 :: UInt
+    +
+    load 222 // v4343 :: UInt
+    <=
+    bz l38_ifF
+    load 246 // isDevEnv/1606 :: Bool
+    bz l39_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 221 // v4383 :: UInt
+    b l40_localIfK
+    l39_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 221 // v4383 :: UInt
+    l40_localIfK:
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 221 // v4383 :: UInt
+    itob
+    concat
+    store 220 // spliceNew
+    dup
+    extract 0 18
+    load 220 // spliceNew
+    concat
+    swap
+    extract 27 33
+    concat
+    app_local_put
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 231 // v4290 :: UInt
+    load 232 // toUnstake/4288 :: UInt
+    -
+    itob
+    concat
+    store 220 // spliceNew
+    extract 9 51
+    load 220 // spliceNew
+    swap
+    concat
+    app_local_put
+    load 232 // toUnstake/4288 :: UInt
+    dup
+    load 247 // unstakeFee/1605 :: UInt
+    *
+    int 1000000
+    /
+    -
+    store 220 // v4391 :: UInt
+
+      // { makeTxn
+      itxn_begin
+      int 0
+      itxn_field Fee
+      load 220 // v4391 :: UInt
+      itxn_field AssetAmount
+      int axfer
+      itxn_field TypeEnum
+      txn Sender
+      itxn_field AssetReceiver
+      // resource: R_Asset
+      load 254 // stakeToken/1598 :: Token
+      itxn_field XferAsset
+      itxn_submit
+      // makeTxn }
+
+    byte base64(0WlzKQ==)
+    txn Sender
+    concat
+    load 232 // toUnstake/4288 :: UInt
+    itob
+    concat
+    log // up to 44 bytes
+    byte base64(AAAAAAAAEMA=)
+    load 232 // toUnstake/4288 :: UInt
+    itob
+    concat
+    log // up to 16 bytes
+    load 232 // toUnstake/4288 :: UInt
+    itob
+    store 7 // GV_apiRet :: Null
+    load 246 // isDevEnv/1606 :: Bool
+    bz l41_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 219 // currentBlock/4411 :: UInt
+    b l42_localIfK
+    l41_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 219 // currentBlock/4411 :: UInt
+    l42_localIfK:
+    load 255 // Creator/1597 :: Address
+    load 254 // stakeToken/1598 :: Token
+    load 253 // rewardToken/1599 :: Token
+    load 252 // beginBlock/1600 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    load 250 // rewardPerBlock/1602 :: UInt
+    load 249 // lockLengthBlocks/1603 :: UInt
+    load 248 // stakeFee/1604 :: UInt
+    load 247 // unstakeFee/1605 :: UInt
+    load 246 // isDevEnv/1606 :: Bool
+    load 219 // currentBlock/4411 :: UInt
+    load 223 // lastUpdateBlock/4338 :: UInt
+    load 228 // rewardPerTokenStored/4297 :: UInt256
+    load 242 // rewardsPaid/1649 :: UInt
+    load 241 // totalStaked/1650 :: UInt
+    load 232 // toUnstake/4288 :: UInt
+    -
+    global Round
+    load 229 // v4293 :: UInt
+    load 220 // v4391 :: UInt
+    -
+    itob
+    load 230 // tokInfo/4292 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 230 // tokInfo/4292 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    load 233 // tokInfos'/4000 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    concat
+    load 239 // netBalance/1658 :: UInt
+    b loopBody2
+    l38_ifF:
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQAAAAAAAAAA)
+    store 221 // spliceNew
+    dup
+    extract 0 9
+    load 221 // spliceNew
+    concat
+    swap
+    extract 18 42
+    concat
+    app_local_put
+    load 246 // isDevEnv/1606 :: Bool
+    bz l43_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 221 // v4350 :: UInt
+    b l44_localIfK
+    l43_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 221 // v4350 :: UInt
+    l44_localIfK:
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 221 // v4350 :: UInt
+    itob
+    concat
+    store 220 // spliceNew
+    dup
+    extract 0 18
+    load 220 // spliceNew
+    concat
+    swap
+    extract 27 33
+    concat
+    app_local_put
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 231 // v4290 :: UInt
+    load 232 // toUnstake/4288 :: UInt
+    -
+    itob
+    concat
+    store 220 // spliceNew
+    extract 9 51
+    load 220 // spliceNew
+    swap
+    concat
+    app_local_put
+    load 232 // toUnstake/4288 :: UInt
+    dup
+    load 247 // unstakeFee/1605 :: UInt
+    *
+    int 1000000
+    /
+    -
+    store 220 // v4358 :: UInt
+
+      // { makeTxn
+      itxn_begin
+      int 0
+      itxn_field Fee
+      load 220 // v4358 :: UInt
+      itxn_field AssetAmount
+      int axfer
+      itxn_field TypeEnum
+      txn Sender
+      itxn_field AssetReceiver
+      // resource: R_Asset
+      load 254 // stakeToken/1598 :: Token
+      itxn_field XferAsset
+      itxn_submit
+      // makeTxn }
+
+    byte base64(0WlzKQ==)
+    txn Sender
+    concat
+    load 232 // toUnstake/4288 :: UInt
+    itob
+    concat
+    log // up to 44 bytes
+    byte base64(AAAAAAAAEMA=)
+    load 232 // toUnstake/4288 :: UInt
+    itob
+    concat
+    log // up to 16 bytes
+    load 232 // toUnstake/4288 :: UInt
+    itob
+    store 7 // GV_apiRet :: Null
+    load 246 // isDevEnv/1606 :: Bool
+    bz l45_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 219 // currentBlock/4378 :: UInt
+    b l46_localIfK
+    l45_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 219 // currentBlock/4378 :: UInt
+    l46_localIfK:
+    load 255 // Creator/1597 :: Address
+    load 254 // stakeToken/1598 :: Token
+    load 253 // rewardToken/1599 :: Token
+    load 252 // beginBlock/1600 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    load 250 // rewardPerBlock/1602 :: UInt
+    load 249 // lockLengthBlocks/1603 :: UInt
+    load 248 // stakeFee/1604 :: UInt
+    load 247 // unstakeFee/1605 :: UInt
+    load 246 // isDevEnv/1606 :: Bool
+    load 219 // currentBlock/4378 :: UInt
+    load 223 // lastUpdateBlock/4338 :: UInt
+    load 228 // rewardPerTokenStored/4297 :: UInt256
+    load 242 // rewardsPaid/1649 :: UInt
+    load 241 // totalStaked/1650 :: UInt
+    load 232 // toUnstake/4288 :: UInt
+    -
+    global Round
+    load 229 // v4293 :: UInt
+    load 220 // v4358 :: UInt
+    -
+    itob
+    load 230 // tokInfo/4292 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 230 // tokInfo/4292 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    load 233 // tokInfos'/4000 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    concat
+    load 239 // netBalance/1658 :: UInt
+    b loopBody2
+    // l24_Switch_unstake0_163 }
+
+  l23_Switch_lt_4:
+  pop
+
+    // { l47_Switch_stake0_163
+    l47_Switch_stake0_163:
+    load 238 // .fork163.msg/1863 :: Data({"claim0_163": Tuple(), "recalculateRewards0_163": Tuple(), "setTime0_163": Tuple(UInt), "stake0_163": Tuple(UInt), "unstake0_163": Tuple(UInt)})
+    extract 1 8
+    store 237 // data_id/3396 :: Tuple(UInt)
+    // CompanionLabel True "api_stake"
+    api_stake:
+    itxn_begin
+    int 0
+    itxn_field Fee
+    int appl
+    itxn_field TypeEnum
+    load 8 // GV_companion :: Contract
+    // resource: R_App
+    itxn_field ApplicationID
+    itxn_submit
+    // cost credit: 3
+    load 237 // data_id/3396 :: Tuple(UInt)
+    btoi
+    store 236 // toStake/3429 :: UInt
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 240 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    dup
+    store 235 // tokInfo/3473 :: Tuple(UInt, UInt, Bool)
+    int 0
+    extract_uint64
+    load 236 // toStake/3429 :: UInt
+    +
+    itob
+    load 235 // tokInfo/3473 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 235 // tokInfo/3473 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    load 240 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    concat
+    store 234 // tokInfos'/3481 :: Array(Tuple(UInt, UInt, Bool), 2)
+
+      // { checkTxn
+      load 236 // toStake/3429 :: UInt
+      load 254 // stakeToken/1598 :: Token
+      callsub l48_LF_checkTxn_tok
+      // checkTxn }
+
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 234 // tokInfos'/3481 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    store 233 // tokInfo/3482 :: Tuple(UInt, UInt, Bool)
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 245 // currentBlock/1646 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    <=
+    assert
+    // ^ Claim: cannot stake when no rewards left
+    // at ./farm.rsh:286:14:application
+    // at ./farm.rsh:285:27:application call to [unknown function] (defined at: ./farm.rsh:285:27:function exp)
+    load 236 // toStake/3429 :: UInt
+    dup
+    load 248 // stakeFee/1604 :: UInt
+    *
+    int 1000000
+    /
+    -
+    store 232 // toStakeMinusFees/3713 :: UInt
+    load 246 // isDevEnv/1606 :: Bool
+    bz l49_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 230 // v3715 :: UInt
+    b l50_localIfK
+    l49_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 230 // v3715 :: UInt
+    l50_localIfK:
+    load 246 // isDevEnv/1606 :: Bool
+    bz l51_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 229 // v3720 :: UInt
+    b l52_localIfK
+    l51_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 229 // v3720 :: UInt
+    l52_localIfK:
+    load 241 // totalStaked/1650 :: UInt
+    int 0
+    ==
+    bz l53_localIfF
+    load 243 // rewardPerTokenStored/1648 :: UInt256
+    store 231 // rewardPerTokenStored/3714 :: UInt256
+    b l54_localIfK
+    l53_localIfF:
+    load 243 // rewardPerTokenStored/1648 :: UInt256
+    int 24
+    bzero
+    load 251 // endBlock/1601 :: UInt
+    load 229 // v3720 :: UInt
+    load 230 // v3715 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    <
+    select
+    load 244 // lastUpdateBlock/1647 :: UInt
+    -
+    itob
+    concat
+    int 24
+    bzero
+    load 250 // rewardPerBlock/1602 :: UInt
+    itob
+    concat
+    b*
+    callsub l31_LF_checkUInt256ResultLen
+    byte base64(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADeC2s6dkAAA=)
+    b*
+    callsub l31_LF_checkUInt256ResultLen
+    int 24
+    bzero
+    load 241 // totalStaked/1650 :: UInt
+    itob
+    concat
+    b/
+    callsub l31_LF_checkUInt256ResultLen
+    b+
+    callsub l31_LF_checkUInt256ResultLen
+    store 231 // rewardPerTokenStored/3714 :: UInt256
+    l54_localIfK:
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 0 9
+    dup
+    store 227 // fromSome object
+    int 1
+    extract_uint64
+    load 227 // fromSome object
+    int 0
+    getbyte
+    select
+    store 228 // v3735 :: UInt
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    int 24
+    bzero
+    load 228 // v3735 :: UInt
+    itob
+    concat
+    load 231 // rewardPerTokenStored/3714 :: UInt256
+    global ZeroAddress
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 27 33
+    dup
+    store 227 // fromSome object
+    extract 1 32
+    load 227 // fromSome object
+    int 0
+    getbyte
+    select
+    b-
+    callsub l31_LF_checkUInt256ResultLen
+    b*
+    callsub l31_LF_checkUInt256ResultLen
+    byte base64(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADeC2s6dkAAA=)
+    b/
+    callsub l31_LF_checkUInt256ResultLen
+    dup
+    dup2
+    int 16
+    extract_uint64
+    int 0
+    ==
+    assert
+    int 8
+    extract_uint64
+    int 0
+    ==
+    assert
+    int 0
+    extract_uint64
+    int 0
+    ==
+    assert
+    int 24
+    extract_uint64
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 9 9
+    dup
+    store 227 // fromSome object
+    int 1
+    extract_uint64
+    load 227 // fromSome object
+    int 0
+    getbyte
+    select
+    +
+    itob
+    concat
+    store 227 // spliceNew
+    dup
+    extract 0 9
+    load 227 // spliceNew
+    concat
+    swap
+    extract 18 42
+    concat
+    app_local_put
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 231 // rewardPerTokenStored/3714 :: UInt256
+    concat
+    store 227 // spliceNew
+    extract 0 27
+    load 227 // spliceNew
+    concat
+    app_local_put
+    load 246 // isDevEnv/1606 :: Bool
+    bz l55_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 227 // v3746 :: UInt
+    b l56_localIfK
+    l55_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 227 // v3746 :: UInt
+    l56_localIfK:
+    load 246 // isDevEnv/1606 :: Bool
+    bz l57_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 226 // v3751 :: UInt
+    b l58_localIfK
+    l57_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 226 // v3751 :: UInt
+    l58_localIfK:
+    load 246 // isDevEnv/1606 :: Bool
+    bz l59_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 225 // v3757 :: UInt
+    b l60_localIfK
+    l59_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 225 // v3757 :: UInt
+    l60_localIfK:
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 225 // v3757 :: UInt
+    itob
+    concat
+    store 224 // spliceNew
+    dup
+    extract 0 18
+    load 224 // spliceNew
+    concat
+    swap
+    extract 27 33
+    concat
+    app_local_put
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 228 // v3735 :: UInt
+    load 232 // toStakeMinusFees/3713 :: UInt
+    +
+    itob
+    concat
+    store 224 // spliceNew
+    extract 9 51
+    load 224 // spliceNew
+    swap
+    concat
+    app_local_put
+    byte base64(MY+lDg==)
+    txn Sender
+    concat
+    load 232 // toStakeMinusFees/3713 :: UInt
+    itob
+    concat
+    log // up to 44 bytes
+    byte base64(AAAAAAAADoE=)
+    load 232 // toStakeMinusFees/3713 :: UInt
+    itob
+    concat
+    log // up to 16 bytes
+    load 232 // toStakeMinusFees/3713 :: UInt
+    itob
+    store 7 // GV_apiRet :: Null
+    load 246 // isDevEnv/1606 :: Bool
+    bz l61_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 224 // currentBlock/3772 :: UInt
+    b l62_localIfK
+    l61_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 224 // currentBlock/3772 :: UInt
+    l62_localIfK:
+    load 255 // Creator/1597 :: Address
+    load 254 // stakeToken/1598 :: Token
+    load 253 // rewardToken/1599 :: Token
+    load 252 // beginBlock/1600 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    load 250 // rewardPerBlock/1602 :: UInt
+    load 249 // lockLengthBlocks/1603 :: UInt
+    load 248 // stakeFee/1604 :: UInt
+    load 247 // unstakeFee/1605 :: UInt
+    load 246 // isDevEnv/1606 :: Bool
+    load 224 // currentBlock/3772 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    load 226 // v3751 :: UInt
+    load 227 // v3746 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    <
+    select
+    load 231 // rewardPerTokenStored/3714 :: UInt256
+    load 242 // rewardsPaid/1649 :: UInt
+    load 241 // totalStaked/1650 :: UInt
+    load 232 // toStakeMinusFees/3713 :: UInt
+    +
+    global Round
+    load 234 // tokInfos'/3481 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    load 233 // tokInfo/3482 :: Tuple(UInt, UInt, Bool)
+    extract 0 8
+    load 233 // tokInfo/3482 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 233 // tokInfo/3482 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    concat
+    load 239 // netBalance/1658 :: UInt
+    b loopBody2
+    // l47_Switch_stake0_163 }
+
+  l22_Switch_lt_3:
+  pop
+
+    // { l63_Switch_setTime0_163
+    l63_Switch_setTime0_163:
+    load 238 // .fork163.msg/1863 :: Data({"claim0_163": Tuple(), "recalculateRewards0_163": Tuple(), "setTime0_163": Tuple(UInt), "stake0_163": Tuple(UInt), "unstake0_163": Tuple(UInt)})
+    extract 1 8
+    store 237 // data_id/2886 :: Tuple(UInt)
+    // CompanionLabel True "api_setTime"
+    api_setTime:
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 240 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    dup
+    store 236 // tokInfo/2963 :: Tuple(UInt, UInt, Bool)
+    extract 0 8
+    load 236 // tokInfo/2963 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 236 // tokInfo/2963 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    load 240 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    concat
+    store 235 // tokInfos'/2971 :: Array(Tuple(UInt, UInt, Bool), 2)
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 235 // tokInfos'/2971 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    store 234 // tokInfo/2972 :: Tuple(UInt, UInt, Bool)
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 237 // data_id/2886 :: Tuple(UInt)
+    btoi
+    store 233 // currentBlock/3175 :: UInt
+    load 246 // isDevEnv/1606 :: Bool
+    assert
+    // ^ Claim
+    // at ./farm.rsh:393:14:application
+    // at ./farm.rsh:392:25:application call to [unknown function] (defined at: ./farm.rsh:392:25:function exp)
+    load 233 // currentBlock/3175 :: UInt
+    load 245 // currentBlock/1646 :: UInt
+    >=
+    assert
+    // ^ Claim
+    // at ./farm.rsh:394:14:application
+    // at ./farm.rsh:392:25:application call to [unknown function] (defined at: ./farm.rsh:392:25:function exp)
+    byte base64(AAAAAAAADHE=)
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 0 9
+    dup
+    store 232 // fromSome object
+    int 1
+    extract_uint64
+    load 232 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 9 9
+    dup
+    store 232 // fromSome object
+    int 1
+    extract_uint64
+    load 232 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    concat
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 18 9
+    dup
+    store 232 // fromSome object
+    int 1
+    extract_uint64
+    load 232 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    concat
+    global ZeroAddress
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 27 33
+    dup
+    store 232 // fromSome object
+    extract 1 32
+    load 232 // fromSome object
+    int 0
+    getbyte
+    select
+    concat
+    concat
+    log // up to 64 bytes
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 0 9
+    dup
+    store 232 // fromSome object
+    int 1
+    extract_uint64
+    load 232 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 9 9
+    dup
+    store 232 // fromSome object
+    int 1
+    extract_uint64
+    load 232 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    concat
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 18 9
+    dup
+    store 232 // fromSome object
+    int 1
+    extract_uint64
+    load 232 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    concat
+    global ZeroAddress
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 27 33
+    dup
+    store 232 // fromSome object
+    extract 1 32
+    load 232 // fromSome object
+    int 0
+    getbyte
+    select
+    concat
+    store 7 // GV_apiRet :: Null
+    load 255 // Creator/1597 :: Address
+    load 254 // stakeToken/1598 :: Token
+    load 253 // rewardToken/1599 :: Token
+    load 252 // beginBlock/1600 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    load 250 // rewardPerBlock/1602 :: UInt
+    load 249 // lockLengthBlocks/1603 :: UInt
+    load 248 // stakeFee/1604 :: UInt
+    load 247 // unstakeFee/1605 :: UInt
+    load 246 // isDevEnv/1606 :: Bool
+    load 233 // currentBlock/3175 :: UInt
+    load 244 // lastUpdateBlock/1647 :: UInt
+    load 243 // rewardPerTokenStored/1648 :: UInt256
+    load 242 // rewardsPaid/1649 :: UInt
+    load 241 // totalStaked/1650 :: UInt
+    global Round
+    load 235 // tokInfos'/2971 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    load 234 // tokInfo/2972 :: Tuple(UInt, UInt, Bool)
+    extract 0 8
+    load 234 // tokInfo/2972 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 234 // tokInfo/2972 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    concat
+    load 239 // netBalance/1658 :: UInt
+    b loopBody2
+    // l63_Switch_setTime0_163 }
+
+  l21_Switch_lt_2:
+  dup
+  int 1
+  <
+  bnz l64_Switch_lt_1
+  pop
+
+    // { l65_Switch_recalculateRewards0_163
+    l65_Switch_recalculateRewards0_163:
+    // CompanionLabel True "api_recalculateRewards"
+    api_recalculateRewards:
+    itxn_begin
+    int 0
+    itxn_field Fee
+    int appl
+    itxn_field TypeEnum
+    load 8 // GV_companion :: Contract
+    // resource: R_App
+    itxn_field ApplicationID
+    itxn_submit
+    // cost credit: 3
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 240 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    dup
+    store 237 // tokInfo/2453 :: Tuple(UInt, UInt, Bool)
+    extract 0 8
+    load 237 // tokInfo/2453 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 237 // tokInfo/2453 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    load 240 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    concat
+    store 236 // tokInfos'/2461 :: Array(Tuple(UInt, UInt, Bool), 2)
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 236 // tokInfos'/2461 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    store 235 // tokInfo/2462 :: Tuple(UInt, UInt, Bool)
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 246 // isDevEnv/1606 :: Bool
+    bz l66_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 233 // v2598 :: UInt
+    b l67_localIfK
+    l66_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 233 // v2598 :: UInt
+    l67_localIfK:
+    load 246 // isDevEnv/1606 :: Bool
+    bz l68_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 232 // v2603 :: UInt
+    b l69_localIfK
+    l68_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 232 // v2603 :: UInt
+    l69_localIfK:
+    load 241 // totalStaked/1650 :: UInt
+    int 0
+    ==
+    bz l70_localIfF
+    load 243 // rewardPerTokenStored/1648 :: UInt256
+    store 234 // rewardPerTokenStored/2597 :: UInt256
+    b l71_localIfK
+    l70_localIfF:
+    load 243 // rewardPerTokenStored/1648 :: UInt256
+    int 24
+    bzero
+    load 251 // endBlock/1601 :: UInt
+    load 232 // v2603 :: UInt
+    load 233 // v2598 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    <
+    select
+    load 244 // lastUpdateBlock/1647 :: UInt
+    -
+    itob
+    concat
+    int 24
+    bzero
+    load 250 // rewardPerBlock/1602 :: UInt
+    itob
+    concat
+    b*
+    callsub l31_LF_checkUInt256ResultLen
+    byte base64(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADeC2s6dkAAA=)
+    b*
+    callsub l31_LF_checkUInt256ResultLen
+    int 24
+    bzero
+    load 241 // totalStaked/1650 :: UInt
+    itob
+    concat
+    b/
+    callsub l31_LF_checkUInt256ResultLen
+    b+
+    callsub l31_LF_checkUInt256ResultLen
+    store 234 // rewardPerTokenStored/2597 :: UInt256
+    l71_localIfK:
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 0 9
+    dup
+    store 230 // fromSome object
+    int 1
+    extract_uint64
+    load 230 // fromSome object
+    int 0
+    getbyte
+    select
+    store 231 // v2618 :: UInt
+    int 24
+    bzero
+    load 231 // v2618 :: UInt
+    itob
+    concat
+    load 234 // rewardPerTokenStored/2597 :: UInt256
+    global ZeroAddress
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 27 33
+    dup
+    store 229 // fromSome object
+    extract 1 32
+    load 229 // fromSome object
+    int 0
+    getbyte
+    select
+    b-
+    callsub l31_LF_checkUInt256ResultLen
+    b*
+    callsub l31_LF_checkUInt256ResultLen
+    byte base64(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADeC2s6dkAAA=)
+    b/
+    callsub l31_LF_checkUInt256ResultLen
+    dup
+    dup2
+    int 16
+    extract_uint64
+    int 0
+    ==
+    assert
+    int 8
+    extract_uint64
+    int 0
+    ==
+    assert
+    int 0
+    extract_uint64
+    int 0
+    ==
+    assert
+    int 24
+    extract_uint64
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 9 9
+    dup
+    store 229 // fromSome object
+    int 1
+    extract_uint64
+    load 229 // fromSome object
+    int 0
+    getbyte
+    select
+    +
+    store 230 // v2628 :: UInt
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 230 // v2628 :: UInt
+    itob
+    concat
+    store 229 // spliceNew
+    dup
+    extract 0 9
+    load 229 // spliceNew
+    concat
+    swap
+    extract 18 42
+    concat
+    app_local_put
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 234 // rewardPerTokenStored/2597 :: UInt256
+    concat
+    store 229 // spliceNew
+    extract 0 27
+    load 229 // spliceNew
+    concat
+    app_local_put
+    load 246 // isDevEnv/1606 :: Bool
+    bz l72_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 229 // v2629 :: UInt
+    b l73_localIfK
+    l72_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 229 // v2629 :: UInt
+    l73_localIfK:
+    load 246 // isDevEnv/1606 :: Bool
+    bz l74_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 228 // v2634 :: UInt
+    b l75_localIfK
+    l74_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 228 // v2634 :: UInt
+    l75_localIfK:
+    byte base64(AAAAAAAAClg=)
+    load 231 // v2618 :: UInt
+    itob
+    load 230 // v2628 :: UInt
+    itob
+    concat
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 18 9
+    dup
+    store 227 // fromSome object
+    int 1
+    extract_uint64
+    load 227 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    concat
+    load 234 // rewardPerTokenStored/2597 :: UInt256
+    concat
+    concat
+    log // up to 64 bytes
+    load 231 // v2618 :: UInt
+    itob
+    load 230 // v2628 :: UInt
+    itob
+    concat
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 18 9
+    dup
+    store 227 // fromSome object
+    int 1
+    extract_uint64
+    load 227 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    concat
+    load 234 // rewardPerTokenStored/2597 :: UInt256
+    concat
+    store 7 // GV_apiRet :: Null
+    load 246 // isDevEnv/1606 :: Bool
+    bz l76_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 227 // currentBlock/2659 :: UInt
+    b l77_localIfK
+    l76_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 227 // currentBlock/2659 :: UInt
+    l77_localIfK:
+    load 255 // Creator/1597 :: Address
+    load 254 // stakeToken/1598 :: Token
+    load 253 // rewardToken/1599 :: Token
+    load 252 // beginBlock/1600 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    load 250 // rewardPerBlock/1602 :: UInt
+    load 249 // lockLengthBlocks/1603 :: UInt
+    load 248 // stakeFee/1604 :: UInt
+    load 247 // unstakeFee/1605 :: UInt
+    load 246 // isDevEnv/1606 :: Bool
+    load 227 // currentBlock/2659 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    load 228 // v2634 :: UInt
+    load 229 // v2629 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    <
+    select
+    load 234 // rewardPerTokenStored/2597 :: UInt256
+    load 242 // rewardsPaid/1649 :: UInt
+    load 241 // totalStaked/1650 :: UInt
+    global Round
+    load 236 // tokInfos'/2461 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    load 235 // tokInfo/2462 :: Tuple(UInt, UInt, Bool)
+    extract 0 8
+    load 235 // tokInfo/2462 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 235 // tokInfo/2462 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    concat
+    load 239 // netBalance/1658 :: UInt
+    b loopBody2
+    // l65_Switch_recalculateRewards0_163 }
+
+  l64_Switch_lt_1:
+  pop
+
+    // { l78_Switch_claim0_163
+    l78_Switch_claim0_163:
+    // CompanionLabel True "api_claim"
+    api_claim:
+    itxn_begin
+    int 0
+    itxn_field Fee
+    int appl
+    itxn_field TypeEnum
+    load 8 // GV_companion :: Contract
+    // resource: R_App
+    itxn_field ApplicationID
+    itxn_submit
+    // cost credit: 3
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 240 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    dup
+    store 237 // tokInfo/1943 :: Tuple(UInt, UInt, Bool)
+    extract 0 8
+    load 237 // tokInfo/1943 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 237 // tokInfo/1943 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    load 240 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    concat
+    store 236 // tokInfos'/1951 :: Array(Tuple(UInt, UInt, Bool), 2)
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    load 236 // tokInfos'/1951 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    store 235 // tokInfo/1952 :: Tuple(UInt, UInt, Bool)
+    load 236 // tokInfos'/1951 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    load 235 // tokInfo/1952 :: Tuple(UInt, UInt, Bool)
+    extract 0 8
+    load 235 // tokInfo/1952 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 235 // tokInfo/1952 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    concat
+    store 234 // tokInfos'/1960 :: Array(Tuple(UInt, UInt, Bool), 2)
+    // ^ CheckPay
+    // at ./farm.rsh:196:21:dot
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 9 9
+    dup
+    store 232 // fromSome object
+    int 1
+    extract_uint64
+    load 232 // fromSome object
+    int 0
+    getbyte
+    select
+    store 233 // v1963 :: UInt
+    load 234 // tokInfos'/1960 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    dup
+    store 232 // tokInfo/1964 :: Tuple(UInt, UInt, Bool)
+    int 0
+    extract_uint64
+    store 231 // v1965 :: UInt
+    load 233 // v1963 :: UInt
+    load 231 // v1965 :: UInt
+    <
+    assert
+    // ^ Claim: tried to claim more than contract has
+    // at ./farm.rsh:350:16:application
+    // at ./farm.rsh:349:18:application call to [unknown function] (defined at: ./farm.rsh:349:18:function exp)
+    load 246 // isDevEnv/1606 :: Bool
+    bz l79_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 229 // v1968 :: UInt
+    b l80_localIfK
+    l79_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 229 // v1968 :: UInt
+    l80_localIfK:
+    load 246 // isDevEnv/1606 :: Bool
+    bz l81_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 228 // v1973 :: UInt
+    b l82_localIfK
+    l81_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 228 // v1973 :: UInt
+    l82_localIfK:
+    load 241 // totalStaked/1650 :: UInt
+    int 0
+    ==
+    bz l83_localIfF
+    load 243 // rewardPerTokenStored/1648 :: UInt256
+    store 230 // newRewardPerTokenStored/1967 :: UInt256
+    b l84_localIfK
+    l83_localIfF:
+    load 243 // rewardPerTokenStored/1648 :: UInt256
+    int 24
+    bzero
+    load 251 // endBlock/1601 :: UInt
+    load 228 // v1973 :: UInt
+    load 229 // v1968 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    <
+    select
+    load 244 // lastUpdateBlock/1647 :: UInt
+    -
+    itob
+    concat
+    int 24
+    bzero
+    load 250 // rewardPerBlock/1602 :: UInt
+    itob
+    concat
+    b*
+    callsub l31_LF_checkUInt256ResultLen
+    byte base64(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADeC2s6dkAAA=)
+    b*
+    callsub l31_LF_checkUInt256ResultLen
+    int 24
+    bzero
+    load 241 // totalStaked/1650 :: UInt
+    itob
+    concat
+    b/
+    callsub l31_LF_checkUInt256ResultLen
+    b+
+    callsub l31_LF_checkUInt256ResultLen
+    store 230 // newRewardPerTokenStored/1967 :: UInt256
+    l84_localIfK:
+    int 24
+    bzero
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 0 9
+    dup
+    store 226 // fromSome object
+    int 1
+    extract_uint64
+    load 226 // fromSome object
+    int 0
+    getbyte
+    select
+    itob
+    concat
+    load 230 // newRewardPerTokenStored/1967 :: UInt256
+    global ZeroAddress
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 27 33
+    dup
+    store 226 // fromSome object
+    extract 1 32
+    load 226 // fromSome object
+    int 0
+    getbyte
+    select
+    b-
+    callsub l31_LF_checkUInt256ResultLen
+    b*
+    callsub l31_LF_checkUInt256ResultLen
+    byte base64(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADeC2s6dkAAA=)
+    b/
+    callsub l31_LF_checkUInt256ResultLen
+    dup
+    dup2
+    int 16
+    extract_uint64
+    int 0
+    ==
+    assert
+    int 8
+    extract_uint64
+    int 0
+    ==
+    assert
+    int 0
+    extract_uint64
+    int 0
+    ==
+    assert
+    int 24
+    extract_uint64
+    load 233 // v1963 :: UInt
+    +
+    store 227 // v1998 :: UInt
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 227 // v1998 :: UInt
+    itob
+    concat
+    store 226 // spliceNew
+    dup
+    extract 0 9
+    load 226 // spliceNew
+    concat
+    swap
+    extract 18 42
+    concat
+    app_local_put
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 230 // newRewardPerTokenStored/1967 :: UInt256
+    concat
+    store 226 // spliceNew
+    extract 0 27
+    load 226 // spliceNew
+    concat
+    app_local_put
+    load 246 // isDevEnv/1606 :: Bool
+    bz l85_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 226 // v1999 :: UInt
+    b l86_localIfK
+    l85_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 226 // v1999 :: UInt
+    l86_localIfK:
+    load 246 // isDevEnv/1606 :: Bool
+    bz l87_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 225 // v2004 :: UInt
+    b l88_localIfK
+    l87_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 225 // v2004 :: UInt
+    l88_localIfK:
+    load 251 // endBlock/1601 :: UInt
+    load 225 // v2004 :: UInt
+    load 226 // v1999 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    <
+    select
+    store 224 // newlastUpdateBlock/2008 :: UInt
+    load 246 // isDevEnv/1606 :: Bool
+    bz l89_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 223 // v2013 :: UInt
+    b l90_localIfK
+    l89_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 223 // v2013 :: UInt
+    l90_localIfK:
+    int 0
+    txn Sender
+    callsub l18_LF_cMapLoad
+    extract 18 9
+    dup
+    store 222 // fromSome object
+    int 1
+    extract_uint64
+    load 222 // fromSome object
+    int 0
+    getbyte
+    select
+    load 249 // lockLengthBlocks/1603 :: UInt
+    +
+    load 223 // v2013 :: UInt
+    <=
+    bz l91_ifF
+    load 246 // isDevEnv/1606 :: Bool
+    bz l92_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 222 // v2018 :: UInt
+    b l93_localIfK
+    l92_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 222 // v2018 :: UInt
+    l93_localIfK:
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQ==)
+    load 222 // v2018 :: UInt
+    itob
+    concat
+    store 221 // spliceNew
+    dup
+    extract 0 18
+    load 221 // spliceNew
+    concat
+    swap
+    extract 27 33
+    concat
+    app_local_put
+    txn Sender
+    byte base64(AA==)
+    txn Sender
+    callsub l18_LF_cMapLoad
+    byte base64(AQAAAAAAAAAA)
+    store 221 // spliceNew
+    dup
+    extract 0 9
+    load 221 // spliceNew
+    concat
+    swap
+    extract 18 42
+    concat
+    app_local_put
+    byte base64(AAAAAAAAB+g=)
+    load 227 // v1998 :: UInt
+    itob
+    concat
+    log // up to 16 bytes
+    load 227 // v1998 :: UInt
+    itob
+    store 7 // GV_apiRet :: Null
+    load 227 // v1998 :: UInt
+    load 231 // v1965 :: UInt
+    <
+    bz l94_ifF
+
+      // { makeTxn
+      itxn_begin
+      int 0
+      itxn_field Fee
+      load 227 // v1998 :: UInt
+      itxn_field AssetAmount
+      int axfer
+      itxn_field TypeEnum
+      txn Sender
+      itxn_field AssetReceiver
+      // resource: R_Asset
+      load 253 // rewardToken/1599 :: Token
+      itxn_field XferAsset
+      itxn_submit
+      // makeTxn }
+
+    byte base64(5SLx1w==)
+    txn Sender
+    concat
+    log // up to 36 bytes
+    load 246 // isDevEnv/1606 :: Bool
+    bz l95_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 221 // v2046 :: UInt
+    b l96_localIfK
+    l95_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 221 // v2046 :: UInt
+    l96_localIfK:
+    load 255 // Creator/1597 :: Address
+    load 254 // stakeToken/1598 :: Token
+    load 253 // rewardToken/1599 :: Token
+    load 252 // beginBlock/1600 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    load 250 // rewardPerBlock/1602 :: UInt
+    load 249 // lockLengthBlocks/1603 :: UInt
+    load 248 // stakeFee/1604 :: UInt
+    load 247 // unstakeFee/1605 :: UInt
+    load 246 // isDevEnv/1606 :: Bool
+    load 221 // v2046 :: UInt
+    load 224 // newlastUpdateBlock/2008 :: UInt
+    load 230 // newRewardPerTokenStored/1967 :: UInt256
+    load 242 // rewardsPaid/1649 :: UInt
+    load 227 // v1998 :: UInt
+    +
+    load 241 // totalStaked/1650 :: UInt
+    global Round
+    load 234 // tokInfos'/1960 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    load 231 // v1965 :: UInt
+    load 227 // v1998 :: UInt
+    -
+    itob
+    load 232 // tokInfo/1964 :: Tuple(UInt, UInt, Bool)
+    extract 8 8
+    concat
+    load 232 // tokInfo/1964 :: Tuple(UInt, UInt, Bool)
+    extract 16 1
+    concat
+    concat
+    load 239 // netBalance/1658 :: UInt
+    b loopBody2
+    l94_ifF:
+    byte base64(5SLx1w==)
+    txn Sender
+    concat
+    log // up to 36 bytes
+    load 246 // isDevEnv/1606 :: Bool
+    bz l97_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 221 // v2058 :: UInt
+    b l98_localIfK
+    l97_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 221 // v2058 :: UInt
+    l98_localIfK:
+    load 255 // Creator/1597 :: Address
+    load 254 // stakeToken/1598 :: Token
+    load 253 // rewardToken/1599 :: Token
+    load 252 // beginBlock/1600 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    load 250 // rewardPerBlock/1602 :: UInt
+    load 249 // lockLengthBlocks/1603 :: UInt
+    load 248 // stakeFee/1604 :: UInt
+    load 247 // unstakeFee/1605 :: UInt
+    load 246 // isDevEnv/1606 :: Bool
+    load 221 // v2058 :: UInt
+    load 224 // newlastUpdateBlock/2008 :: UInt
+    load 230 // newRewardPerTokenStored/1967 :: UInt256
+    load 242 // rewardsPaid/1649 :: UInt
+    load 227 // v1998 :: UInt
+    +
+    load 241 // totalStaked/1650 :: UInt
+    global Round
+    load 234 // tokInfos'/1960 :: Array(Tuple(UInt, UInt, Bool), 2)
+    load 239 // netBalance/1658 :: UInt
+    b loopBody2
+    l91_ifF:
+    byte base64(AAAAAAAACBUAAAAAAAAAAA==)
+    log // up to 16 bytes
+    int 8
+    bzero
+    store 7 // GV_apiRet :: Null
+    load 246 // isDevEnv/1606 :: Bool
+    bz l99_localIfF
+    load 245 // currentBlock/1646 :: UInt
+    store 222 // v2075 :: UInt
+    b l100_localIfK
+    l99_localIfF:
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    global Round
+    load 245 // currentBlock/1646 :: UInt
+    <
+    select
+    store 222 // v2075 :: UInt
+    l100_localIfK:
+    load 255 // Creator/1597 :: Address
+    load 254 // stakeToken/1598 :: Token
+    load 253 // rewardToken/1599 :: Token
+    load 252 // beginBlock/1600 :: UInt
+    load 251 // endBlock/1601 :: UInt
+    load 250 // rewardPerBlock/1602 :: UInt
+    load 249 // lockLengthBlocks/1603 :: UInt
+    load 248 // stakeFee/1604 :: UInt
+    load 247 // unstakeFee/1605 :: UInt
+    load 246 // isDevEnv/1606 :: Bool
+    load 222 // v2075 :: UInt
+    load 224 // newlastUpdateBlock/2008 :: UInt
+    load 230 // newRewardPerTokenStored/1967 :: UInt256
+    load 242 // rewardsPaid/1649 :: UInt
+    load 241 // totalStaked/1650 :: UInt
+    global Round
+    load 234 // tokInfos'/1960 :: Array(Tuple(UInt, UInt, Bool), 2)
+    load 239 // netBalance/1658 :: UInt
+    b loopBody2
+    // l78_Switch_claim0_163 }
+
+  // publish4 }
+
+l20_publish_lt_4:
+pop
+
+  // { publish3
+  publish3:
+  // CompanionLabel False "publish3"
+  // check step
+  int 3
+  load 1 // GV_currentStep :: UInt
+  ==
+  assert
+  // check time
+  load 4 // GV_argTime :: UInt
+  dup
+  int 0
+  ==
+  swap
+  load 2 // GV_currentTime :: UInt
+  ==
+  ||
+  assert
+  byte base64(AA==)
+  app_global_get
+  byte base64(AQ==)
+  app_global_get
+  concat
+  dup
+  store 3 // GV_svs :: Null
+  dup
+  dup2
+  extract 0 32
+  store 255 // Creator/1597 :: Address
+  int 32
+  extract_uint64
+  store 254 // stakeToken/1598 :: Token
+  int 40
+  extract_uint64
+  store 253 // rewardToken/1599 :: Token
+  extract 152 34
+  store 252 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+  byte base64(p2XEtA==)
+  log // up to 4 bytes
+  // ^ CheckPay
+  // at ./farm.rsh:407:11:dot
+
+    // { makeTxn
+    itxn_begin
+    int 0
+    itxn_field Fee
+    load 3 // GV_svs :: Null
+    int 186
+    extract_uint64
+    itxn_field Amount
+    int pay
+    itxn_field TypeEnum
+    // resource: R_Account
+    load 255 // Creator/1597 :: Address
+    itxn_field Receiver
+    itxn_submit
+    // makeTxn }
+
+
+    // { makeTxn
+    itxn_begin
+    int 0
+    itxn_field Fee
+    load 252 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 17 17
+    int 0
+    extract_uint64
+    itxn_field AssetAmount
+    int axfer
+    itxn_field TypeEnum
+    load 255 // Creator/1597 :: Address
+    itxn_field AssetReceiver
+    // resource: R_Asset
+    load 253 // rewardToken/1599 :: Token
+    itxn_field XferAsset
+    itxn_submit
+    // makeTxn }
+
+
+    // { makeTxn
+    itxn_begin
+    int 0
+    itxn_field Fee
+    load 252 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+    extract 0 17
+    int 0
+    extract_uint64
+    itxn_field AssetAmount
+    int axfer
+    itxn_field TypeEnum
+    load 255 // Creator/1597 :: Address
+    itxn_field AssetReceiver
+    // resource: R_Asset
+    load 254 // stakeToken/1598 :: Token
+    itxn_field XferAsset
+    itxn_submit
+    // makeTxn }
+
+
+    // { makeTxn
+    itxn_begin
+    int 0
+    itxn_field Fee
+    int 0
+    itxn_field AssetAmount
+    int axfer
+    itxn_field TypeEnum
+    global CreatorAddress
+    itxn_field AssetCloseTo
+    global CurrentApplicationAddress
+    itxn_field AssetReceiver
+    load 253 // rewardToken/1599 :: Token
+    itxn_field XferAsset
+    itxn_submit
+    // makeTxn }
+
+
+    // { makeTxn
+    itxn_begin
+    int 0
+    itxn_field Fee
+    int 0
+    itxn_field AssetAmount
+    int axfer
+    itxn_field TypeEnum
+    global CreatorAddress
+    itxn_field AssetCloseTo
+    global CurrentApplicationAddress
+    itxn_field AssetReceiver
+    load 254 // stakeToken/1598 :: Token
+    itxn_field XferAsset
+    itxn_submit
+    // makeTxn }
+
+  // CompanionDeletePre
+  // resource: R_App
+  b updateStateHalt
+  // publish3 }
+
+l19_publish_lt_3:
+dup
+int 1
+<
+bnz l101_publish_lt_1
+int 1
+==
+assert
+
+  // { publish1
+  publish1:
+  // CompanionLabel False "publish1"
+  // check step
+  int 1
+  load 1 // GV_currentStep :: UInt
+  ==
+  assert
+  // check time
+  load 4 // GV_argTime :: UInt
+  dup
+  int 0
+  ==
+  swap
+  load 2 // GV_currentTime :: UInt
+  ==
+  ||
+  assert
+  byte base64(AA==)
+  app_global_get
+  byte base64(AQ==)
+  app_global_get
+  concat
+  dup
+  store 3 // GV_svs :: Null
+  dup
+  dup2
+  dup
+  extract 0 32
+  store 255 // Creator/1597 :: Address
+  int 40
+  extract_uint64
+  store 254 // rewardToken/1599 :: Token
+  extract 96 1
+  btoi
+  store 253 // isDevEnv/1606 :: Bool
+  extract 97 34
+  store 252 // tokInfos'/1623 :: Array(Tuple(UInt, UInt, Bool), 2)
+  int 131
+  extract_uint64
+  store 251 // totalRewardAmount/1626 :: UInt
+  byte base64(mouRdA==)
+  log // up to 4 bytes
+  // ^ CheckPay
+  // at ./farm.rsh:158:11:dot
+  load 252 // tokInfos'/1623 :: Array(Tuple(UInt, UInt, Bool), 2)
+  extract 17 17
+  store 250 // tokInfo/1630 :: Tuple(UInt, UInt, Bool)
+
+    // { checkTxn
+    load 251 // totalRewardAmount/1626 :: UInt
+    load 254 // rewardToken/1599 :: Token
+    callsub l48_LF_checkTxn_tok
+    // checkTxn }
+
+  // ^ CheckPay
+  // at ./farm.rsh:158:11:dot
+  load 255 // Creator/1597 :: Address
+  txn Sender
+  ==
+  assert
+  // ^ Claim: sender correct
+  // at ./farm.rsh:158:11:dot
+  load 255 // Creator/1597 :: Address
+  load 3 // GV_svs :: Null
+  int 32
+  extract_uint64
+  load 254 // rewardToken/1599 :: Token
+  load 3 // GV_svs :: Null
+  int 48
+  extract_uint64
+  load 3 // GV_svs :: Null
+  int 56
+  extract_uint64
+  load 3 // GV_svs :: Null
+  int 64
+  extract_uint64
+  load 3 // GV_svs :: Null
+  int 72
+  extract_uint64
+  load 3 // GV_svs :: Null
+  int 80
+  extract_uint64
+  load 3 // GV_svs :: Null
+  int 88
+  extract_uint64
+  load 253 // isDevEnv/1606 :: Bool
+  global Round
+  int 0
+  load 253 // isDevEnv/1606 :: Bool
+  select
+  int 0
+  global ZeroAddress
+  int 0
+  int 0
+  global Round
+  load 252 // tokInfos'/1623 :: Array(Tuple(UInt, UInt, Bool), 2)
+  extract 0 17
+  load 250 // tokInfo/1630 :: Tuple(UInt, UInt, Bool)
+  int 0
+  extract_uint64
+  load 251 // totalRewardAmount/1626 :: UInt
+  +
+  itob
+  load 250 // tokInfo/1630 :: Tuple(UInt, UInt, Bool)
+  extract 8 8
+  concat
+  load 250 // tokInfo/1630 :: Tuple(UInt, UInt, Bool)
+  extract 16 1
+  concat
+  concat
+  int 0
+  b loopBody2
+  // publish1 }
+
+l101_publish_lt_1:
+pop
+
+  // { publish0
+  publish0:
+  // CompanionCreate
+
+    // { checkTxn
+    int 200000
+    callsub l102_LF_checkTxn_net
+    // checkTxn }
+
+  // ^ CheckPay
+  // at ./farm.rsh:144:11:dot
+  itxn_begin
+  int 0
+  itxn_field Fee
+  int appl
+  itxn_field TypeEnum
+  int 0
+  // resource: R_App
+  itxn_field ApplicationID
+  byte base64(BjEAMgkS)
+  itxn_field ApprovalProgram
+  byte base64(Bg==)
+  itxn_field ClearStateProgram
+  itxn_submit
+  // cost credit: 3
+  itxn CreatedApplicationID
+  store 8 // GV_companion :: Contract
+  // CompanionLabel False "publish0"
+  // check step
+  int 0
+  load 1 // GV_currentStep :: UInt
+  ==
+  assert
+  // check time
+  load 4 // GV_argTime :: UInt
+  dup
+  int 0
+  ==
+  swap
+  load 2 // GV_currentTime :: UInt
+  ==
+  ||
+  assert
+  dup
+  store 5 // GV_argMsg :: Null
+  dup
+  dup2
+  dup2
+  dup2
+  dup
+  int 0
+  extract_uint64
+  store 255 // stakeToken/1598 :: Token
+  int 8
+  extract_uint64
+  store 254 // rewardToken/1599 :: Token
+  int 16
+  extract_uint64
+  store 253 // beginBlock/1600 :: UInt
+  int 24
+  extract_uint64
+  store 252 // endBlock/1601 :: UInt
+  int 32
+  extract_uint64
+  store 251 // rewardPerBlock/1602 :: UInt
+  int 40
+  extract_uint64
+  store 250 // lockLengthBlocks/1603 :: UInt
+  int 48
+  extract_uint64
+  store 249 // stakeFee/1604 :: UInt
+  int 56
+  extract_uint64
+  store 248 // unstakeFee/1605 :: UInt
+  extract 64 1
+  btoi
+  store 247 // isDevEnv/1606 :: Bool
+  byte base64(ppKjJA==)
+  load 255 // stakeToken/1598 :: Token
+  itob
+  concat
+  load 254 // rewardToken/1599 :: Token
+  itob
+  concat
+  load 253 // beginBlock/1600 :: UInt
+  itob
+  concat
+  load 252 // endBlock/1601 :: UInt
+  itob
+  concat
+  load 251 // rewardPerBlock/1602 :: UInt
+  itob
+  concat
+  load 250 // lockLengthBlocks/1603 :: UInt
+  itob
+  concat
+  load 249 // stakeFee/1604 :: UInt
+  itob
+  concat
+  load 248 // unstakeFee/1605 :: UInt
+  itob
+  concat
+  load 247 // isDevEnv/1606 :: Bool
+  itob
+  substring 7 8
+  concat
+  log // up to 69 bytes
+  int 17
+  bzero
+  dup
+  store 246 // initialInfo/1566 :: Tuple(UInt, UInt, Bool)
+  dup
+  concat
+  store 245 // tokInfos/1567 :: Array(Tuple(UInt, UInt, Bool), 2)
+  load 255 // stakeToken/1598 :: Token
+  load 254 // rewardToken/1599 :: Token
+  !=
+  assert
+  // ^ Claim: non-network tokens distinct
+  // at ./farm.rsh:144:11:dot
+  load 245 // tokInfos/1567 :: Array(Tuple(UInt, UInt, Bool), 2)
+  extract 0 17
+  store 244 // tokInfo/1611 :: Tuple(UInt, UInt, Bool)
+  int 8
+  bzero
+  load 244 // tokInfo/1611 :: Tuple(UInt, UInt, Bool)
+  extract 8 8
+  concat
+  load 244 // tokInfo/1611 :: Tuple(UInt, UInt, Bool)
+  extract 16 1
+  concat
+  load 245 // tokInfos/1567 :: Array(Tuple(UInt, UInt, Bool), 2)
+  extract 17 17
+  concat
+  store 243 // tokInfos'/1616 :: Array(Tuple(UInt, UInt, Bool), 2)
+
+    // { TokenInit
+
+      // { checkTxn
+      int 100000
+      callsub l102_LF_checkTxn_net
+      // checkTxn }
+
+
+      // { makeTxn
+      itxn_begin
+      int 0
+      itxn_field Fee
+      int 0
+      itxn_field AssetAmount
+      int axfer
+      itxn_field TypeEnum
+      global CurrentApplicationAddress
+      itxn_field AssetReceiver
+      // resource: R_Asset
+      load 255 // stakeToken/1598 :: Token
+      itxn_field XferAsset
+      itxn_submit
+      // makeTxn }
+
+    // TokenInit }
+
+  load 243 // tokInfos'/1616 :: Array(Tuple(UInt, UInt, Bool), 2)
+  extract 17 17
+  store 242 // tokInfo/1618 :: Tuple(UInt, UInt, Bool)
+  load 243 // tokInfos'/1616 :: Array(Tuple(UInt, UInt, Bool), 2)
+  extract 0 17
+  int 8
+  bzero
+  load 242 // tokInfo/1618 :: Tuple(UInt, UInt, Bool)
+  extract 8 8
+  concat
+  load 242 // tokInfo/1618 :: Tuple(UInt, UInt, Bool)
+  extract 16 1
+  concat
+  concat
+  store 241 // tokInfos'/1623 :: Array(Tuple(UInt, UInt, Bool), 2)
+
+    // { TokenInit
+
+      // { checkTxn
+      int 100000
+      callsub l102_LF_checkTxn_net
+      // checkTxn }
+
+
+      // { makeTxn
+      itxn_begin
+      int 0
+      itxn_field Fee
+      int 0
+      itxn_field AssetAmount
+      int axfer
+      itxn_field TypeEnum
+      global CurrentApplicationAddress
+      itxn_field AssetReceiver
+      // resource: R_Asset
+      load 254 // rewardToken/1599 :: Token
+      itxn_field XferAsset
+      itxn_submit
+      // makeTxn }
+
+    // TokenInit }
+
+  // ^ CheckPay
+  // at ./farm.rsh:144:11:dot
+  load 252 // endBlock/1601 :: UInt
+  load 253 // beginBlock/1600 :: UInt
+  -
+  load 251 // rewardPerBlock/1602 :: UInt
+  *
+  store 240 // totalRewardAmount/1626 :: UInt
+  txn Sender
+  load 255 // stakeToken/1598 :: Token
+  itob
+  concat
+  load 254 // rewardToken/1599 :: Token
+  itob
+  concat
+  load 253 // beginBlock/1600 :: UInt
+  itob
+  concat
+  load 252 // endBlock/1601 :: UInt
+  itob
+  concat
+  load 251 // rewardPerBlock/1602 :: UInt
+  itob
+  concat
+  load 250 // lockLengthBlocks/1603 :: UInt
+  itob
+  concat
+  load 249 // stakeFee/1604 :: UInt
+  itob
+  concat
+  load 248 // unstakeFee/1605 :: UInt
+  itob
+  concat
+  load 247 // isDevEnv/1606 :: Bool
+  itob
+  substring 7 8
+  concat
+  load 241 // tokInfos'/1623 :: Array(Tuple(UInt, UInt, Bool), 2)
+  concat
+  load 240 // totalRewardAmount/1626 :: UInt
+  itob
+  concat
+  byte base64(AA==)
+  dig 1
+  extract 0 127
+  app_global_put
+  byte base64(AQ==)
+  dig 1
+  extract 127 12
+  app_global_put
+  pop
+  int 1
+  store 1 // GV_currentStep :: UInt
+  global Round
+  store 2 // GV_currentTime :: UInt
+  b updateStateNoOp
+  // publish0 }
+
+
+  // { loopBody2
+  loopBody2:
+  store 255 // netBalance/1658 :: UInt
+  store 254 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+  store 253 // thisConsensusTime/1651 :: UInt
+  store 252 // totalStaked/1650 :: UInt
+  store 251 // rewardsPaid/1649 :: UInt
+  store 250 // rewardPerTokenStored/1648 :: UInt256
+  store 249 // lastUpdateBlock/1647 :: UInt
+  store 248 // currentBlock/1646 :: UInt
+  store 247 // isDevEnv/1606 :: Bool
+  store 246 // unstakeFee/1605 :: UInt
+  store 245 // stakeFee/1604 :: UInt
+  store 244 // lockLengthBlocks/1603 :: UInt
+  store 243 // rewardPerBlock/1602 :: UInt
+  store 242 // endBlock/1601 :: UInt
+  store 241 // beginBlock/1600 :: UInt
+  store 240 // rewardToken/1599 :: Token
+  store 239 // stakeToken/1598 :: Token
+  dup
+  store 238 // Creator/1597 :: Address
+  load 239 // stakeToken/1598 :: Token
+  itob
+  concat
+  load 240 // rewardToken/1599 :: Token
+  itob
+  concat
+  load 241 // beginBlock/1600 :: UInt
+  itob
+  concat
+  load 242 // endBlock/1601 :: UInt
+  itob
+  concat
+  load 243 // rewardPerBlock/1602 :: UInt
+  itob
+  concat
+  load 244 // lockLengthBlocks/1603 :: UInt
+  itob
+  concat
+  load 245 // stakeFee/1604 :: UInt
+  itob
+  concat
+  load 246 // unstakeFee/1605 :: UInt
+  itob
+  concat
+  load 247 // isDevEnv/1606 :: Bool
+  itob
+  substring 7 8
+  concat
+  load 248 // currentBlock/1646 :: UInt
+  itob
+  concat
+  load 249 // lastUpdateBlock/1647 :: UInt
+  itob
+  concat
+  load 250 // rewardPerTokenStored/1648 :: UInt256
+  concat
+  load 251 // rewardsPaid/1649 :: UInt
+  itob
+  concat
+  load 252 // totalStaked/1650 :: UInt
+  itob
+  concat
+  load 254 // tokenInfos/1657 :: Array(Tuple(UInt, UInt, Bool), 2)
+  concat
+  load 255 // netBalance/1658 :: UInt
+  itob
+  concat
+  byte base64(AA==)
+  dig 1
+  extract 0 127
+  app_global_put
+  byte base64(AQ==)
+  dig 1
+  extract 127 76
+  app_global_put
+  pop
+  int 5
+  store 1 // GV_currentStep :: UInt
+  global Round
+  store 2 // GV_currentTime :: UInt
+  b updateStateNoOp
+  // loopBody2 }
+
+updateStateHalt:
+txn OnCompletion
+int DeleteApplication
+==
+assert
+// checked on completion
+// CompanionDelete
+itxn_begin
+int 0
+itxn_field Fee
+int appl
+itxn_field TypeEnum
+load 8 // GV_companion :: Contract
+itxn_field ApplicationID
+int DeleteApplication
+itxn_field OnCompletion
+itxn_submit
+// cost credit: 3
+
+  // { makeTxn
+  itxn_begin
+  int 0
+  itxn_field Fee
+  int 0
+  itxn_field Amount
+  int pay
+  itxn_field TypeEnum
+  global CreatorAddress
+  itxn_field CloseRemainderTo
+  global CurrentApplicationAddress
+  itxn_field Receiver
+  itxn_submit
+  // makeTxn }
+
+b updateState
+updateStateNoOp:
+txn OnCompletion
+int NoOp
+==
+assert
+// checked on completion
+updateState:
+byte base64()
+load 1 // GV_currentStep :: UInt
+itob
+load 2 // GV_currentTime :: UInt
+itob
+load 8 // GV_companion :: Contract
+itob
+concat
+concat
+app_global_put
+load 6 // GV_wasMeth :: Bool
+bz checkSize
+apiReturn_noCheck:
+byte base64(FR98dQ==)
+load 7 // GV_apiRet :: Null
+concat
+log // up to 68 bytes
+checkSize:
+load 0 // GV_txnCounter :: UInt
+dup
+int 1
++
+global GroupSize
+==
+assert
+txn GroupIndex
+==
+assert
+done:
+int 1
+return
+apiReturn_check:
+txn OnCompletion
+int NoOp
+==
+assert
+// checked on completion
+b apiReturn_noCheck
+alloc:
+int 0
+txn GlobalNumUint
+==
+assert
+int 3
+txn GlobalNumByteSlice
+==
+assert
+int 0
+txn LocalNumUint
+==
+assert
+int 1
+txn LocalNumByteSlice
+==
+assert
+int 0
+store 1 // GV_currentStep :: UInt
+int 0
+store 2 // GV_currentTime :: UInt
+int 0
+store 8 // GV_companion :: Contract
+b updateStateNoOp
+l18_LF_cMapLoad:
+dup
+txn ApplicationID
+app_opted_in
+bnz l103_mapLoadDo
+l104_mapLoadDef:
+pop
+int 60
+bzero
+retsub
+l103_mapLoadDo:
+byte base64(AA==)
+app_local_get
+retsub
+l102_LF_checkTxn_net:
+// resource: R_Txn
+load 0 // GV_txnCounter :: UInt
+dup
+dup2
+int 1
++
+store 0 // GV_txnCounter :: UInt
+gtxns Receiver
+global CurrentApplicationAddress
+==
+assert
+gtxns TypeEnum
+int pay
+==
+assert
+gtxns Amount
+==
+assert
+retsub
+l48_LF_checkTxn_tok:
+// resource: R_Txn
+load 0 // GV_txnCounter :: UInt
+dup
+dup2
+dup
+int 1
++
+store 0 // GV_txnCounter :: UInt
+gtxns AssetReceiver
+global CurrentApplicationAddress
+==
+assert
+gtxns TypeEnum
+int axfer
+==
+assert
+gtxns XferAsset
+uncover 2
+==
+assert
+gtxns AssetAmount
+==
+assert
+retsub
+l31_LF_checkUInt256ResultLen:
+dup
+len
+int 32
+swap
+-
+bzero
+swap
+concat
+retsub

@@ -1,9 +1,11 @@
-// @ts-expect-error No provided type bindings in contracts package
-import { backend as distribution_17_0_4 } from 'metalabs-distribution-17_0_4';
-// @ts-expect-error No provided type bindings in contracts package
-import { backend as distribution_17_0_5 } from 'metalabs-distribution-17_0_5';
-
 import { combine, Store } from 'effector';
+
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-ignore
+import { backend as distribution_17_0_4 } from '../vendor/metalabs-distribution-17_0_4';
+// @ts-ignore
+import { backend as distribution_17_0_5 } from '../vendor/metalabs-distribution-17_0_5';
+
 import { buildContractsStore, registerPricedAsset, $networkTime, $pricedAssets, Contract } from '../common/store';
 import {
     $stakePools,

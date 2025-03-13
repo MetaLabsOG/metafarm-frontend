@@ -1,0 +1,8 @@
+* It is not possible to have rewardToken == stakeToken due to reach limitations. Possible ways to solve are:
+    a) have maybeRewardToken which may be null. Cumbersome :(
+    b) have two different contracts. Probably will cause problems later :(
+* Native tokens (ALGO) are handled differently in Reach. So for now it does not support ALGO staking/rewards.
+* Maps are not trusted on Algorand, they can be set to 0. Therefore we can't trust rewardPerTokenPaid.
+* There is no way to change reward rate of pool when it is running.
+* Ideally we would like to split total META emission among many pools using multipliers.
+* There is no way to close pool early.

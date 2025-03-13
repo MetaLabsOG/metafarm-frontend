@@ -1,0 +1,27 @@
+{
+  "name": "@metalabsog/farm",
+  "description": "Yield farming smart contract in Reach",
+  "version": "17.2.5",
+  "dependencies": {
+    "@metalabsog/common": "^17.0.0",
+    "@reach-sh/stdlib": "0.1.11-rc.0",
+    "bent": "^7.3.12",
+    "inquirer": "^8.2.1",
+    "loglevel": "^1.8.0"
+  },
+  "devDependencies": {
+    "seedrandom": "^3.0.5"
+  },
+  "gitHead": "e6a9d23f496f70689096fe019c1235c60e56b0f0",
+  "license": "MIT",
+  "main": "index.mjs",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": "MetaLabsOG/cometa-contracts.git",
+  "scripts": {
+    "cli": "node cli.mjs",
+    "compile": "REACH_NO_WARN=true reach compile",
+    "test": "REACH_CONNECTOR_MODE=ALGO REACH_NO_WARN=true npx jest --forceExit"
+  }
+}

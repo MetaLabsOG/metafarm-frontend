@@ -77,3 +77,31 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+# Metafarm Frontend
+
+## Vendored Dependencies
+
+To address build issues on the DigitalOcean server, we've vendored the following dependencies:
+
+- `metalabs-distribution-17_0_4` (from `@metalabsog/distribution@17.0.4`)
+- `metalabs-distribution-17_0_5` (from `@metalabsog/distribution@17.0.5`)
+- `metalabs-farm-17_2_4` (from `@metalabsog/farm@17.2.4`)
+- `metalabs-farm-17_2_5` (from `@metalabsog/farm@17.2.5`)
+- `js-conflux-sdk` (from `https://github.com/reach-sh/js-conflux-sdk.git#commit=6df5f0538c2077a7e29f0be08205b937499a1040`)
+
+These packages are now stored in the `src/vendor` directory and imported directly from there.
+
+## Building the Project
+
+To build the project:
+
+```bash
+# Install dependencies
+yarn install
+
+# Build for production
+yarn build
+```
+
+If you encounter build issues related to missing dependencies, you may need to vendor additional packages following the same pattern.

@@ -56,12 +56,8 @@
     "html-webpack-plugin": "^5.5.0",
     "identity-obj-proxy": "^3.0.0",
     "immutable": "^4.1.0",
-    "js-conflux-sdk": "^2.3.0",
     "loader": "^2.1.1",
-    "metalabs-distribution-17_0_4": "npm:@metalabsog/distribution@17.0.4",
-    "metalabs-distribution-17_0_5": "npm:@metalabsog/distribution@17.0.5",
-    "metalabs-farm-17_2_4": "npm:@metalabsog/farm@17.2.4",
-    "metalabs-farm-17_2_5": "npm:@metalabsog/farm@17.2.5",
+    "loglevel": "^1.9.2",
     "mini-css-extract-plugin": "^2.6.1",
     "object-hash": "^3.0.0",
     "patronum": "^1.9.0",
@@ -114,20 +110,27 @@
   "overrides": {
     "@algo-builder/web": {
       "algosdk": "1.19.0"
+    },
+    "@reach-sh/stdlib": {
+      "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
     }
   },
   "pnpm": {
     "overrides": {
       "@algo-builder/web": {
         "algosdk": "1.19.0"
+      },
+      "@reach-sh/stdlib": {
+        "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
       }
     }
   },
   "resolutions": {
-    "@algo-builder/web/algosdk": "1.19.0"
+    "@algo-builder/web/algosdk": "1.19.0",
+    "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
   },
   "scripts": {
-    "start": "GENERATE_SOURCEMAP=false node scripts/start.js",
+    "start": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true GENERATE_SOURCEMAP=false node scripts/start.js",
     "build": "GENERATE_SOURCEMAP=false node scripts/build.js",
     "prod": "env-cmd -f .env.prod yarn build",
     "dev": "env-cmd -f .env.dev yarn build",

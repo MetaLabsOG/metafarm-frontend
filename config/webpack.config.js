@@ -297,7 +297,7 @@ module.exports = function (webpackEnv) {
       // We placed these paths second because we want `node_modules` to "win"
       // if there are any conflicts. This matches Node resolution mechanism.
       // https://github.com/facebook/create-react-app/issues/253
-      modules: ['node_modules', paths.appNodeModules].concat(
+      modules: ['node_modules', paths.appNodeModules, path.resolve(paths.appPath, 'vendor')].concat(
         modules.additionalModulePaths || []
       ),
       // These are the reasonable defaults supported by the Node ecosystem.
@@ -318,6 +318,7 @@ module.exports = function (webpackEnv) {
           'react-dom$': 'react-dom/profiling',
           'scheduler/tracing': 'scheduler/tracing-profiling',
         }),
+        'js-conflux-sdk': path.resolve(paths.appSrc, 'vendor/js-conflux-sdk'),
         ...(modules.webpackAliases || {}),
       },
       plugins: [

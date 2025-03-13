@@ -1,14 +1,16 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
-import pactsdk from '@pactfi/pactsdk';
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-expect-error
-import { backend as farmBackend } from 'metalabs-farm-17_2_5';
-// @ts-expect-error No provided type bindings in contracts package
-import { backend as distributionBackend } from 'metalabs-distribution-17_0_5';
 import { Account } from '@reach-sh/stdlib/ALGO';
+import { AxiosError } from 'axios';
 import { useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
-import { AxiosError } from 'axios';
+import pactsdk from '@pactfi/pactsdk';
+
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-ignore
+import { backend as farmBackend } from '../vendor/metalabs-farm-17_2_5';
+// @ts-ignore
+import { backend as distributionBackend } from '../vendor/metalabs-distribution-17_0_5';
+
 import { getTokens } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { POOL_OPTION, Select, SelectType, TOKEN_OPTION } from '../Components/Select/Select';

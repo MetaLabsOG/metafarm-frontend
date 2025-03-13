@@ -1,0 +1,23 @@
+{
+  "name": "@metalabsog/distribution",
+  "description": "Distrubition smart contract in Reach",
+  "version": "17.0.5",
+  "dependencies": {
+    "@metalabsog/common": "^17.0.0",
+    "@reach-sh/stdlib": "0.1.11-rc.0",
+    "inquirer": "^8.2.1",
+    "loglevel": "^1.8.0"
+  },
+  "license": "MIT",
+  "main": "index.mjs",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": "MetaLabsOG/cometa-contracts.git",
+  "scripts": {
+    "cli": "node cli.mjs",
+    "compile": "reach compile",
+    "test": "npx jest --forceExit"
+  },
+  "gitHead": "e6a9d23f496f70689096fe019c1235c60e56b0f0"
+}

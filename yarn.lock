@@ -1621,7 +1621,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@conflux-dev/conflux-address-js@npm:1.3.16, @conflux-dev/conflux-address-js@npm:^1.0.0":
+"@conflux-dev/conflux-address-js@npm:^1.0.0":
   version: 1.3.16
   resolution: "@conflux-dev/conflux-address-js@npm:1.3.16"
   dependencies:
@@ -2034,13 +2034,6 @@ __metadata:
   version: 5.6.0
   resolution: "@ethersproject/logger@npm:5.6.0"
   checksum: 0748820c6f51ffdf11375e80043d4f140a645391037d3d2cb35c24272e967b49f28709095410335a9e5ab6e01fd91589fbef7a8501622b14d7c4292cbe919083
-  languageName: node
-  linkType: hard
-
-"@ethersproject/logger@npm:^5.5.0":
-  version: 5.7.0
-  resolution: "@ethersproject/logger@npm:5.7.0"
-  checksum: 41ef0d49aad3677c36d0e79a6e2346ec13cf378cc6a042cfbc0d76aca6bce0b9f7362cb3fa4d60572e2e24df12edc378e5d8bbf1e33f8234c142e09552c87f8a
   languageName: node
   linkType: hard
 
@@ -5703,15 +5696,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"abi-util-lite@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "abi-util-lite@npm:0.1.0"
-  dependencies:
-    "@ethersproject/logger": "npm:^5.5.0"
-  checksum: 36ca72e84407597202fee27f39401ec6ccc420a9250da9e5ad8767060471f750ebbb1d05e2bd615bc2c574edc1cad998fd764e11d9aefe10128baf1706c0964c
-  languageName: node
-  linkType: hard
-
 "accepts@npm:~1.3.4, accepts@npm:~1.3.5, accepts@npm:~1.3.8":
   version: 1.3.8
   resolution: "accepts@npm:1.3.8"
@@ -6582,17 +6566,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bent@npm:^7.3.12":
-  version: 7.3.12
-  resolution: "bent@npm:7.3.12"
-  dependencies:
-    bytesish: "npm:^0.4.1"
-    caseless: "npm:~0.12.0"
-    is-stream: "npm:^2.0.0"
-  checksum: 4b0744357d9078433698b092cb44fda77981c57cc981004439400993f4d08b64b9508c4444960f3c31132f7cb7cd7946c1737c410dcc3568acd7fa4058b8c096
-  languageName: node
-  linkType: hard
-
 "bfj@npm:^7.0.2":
   version: 7.0.2
   resolution: "bfj@npm:7.0.2"
@@ -6697,7 +6670,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bn.js@npm:^5.2.0, bn.js@npm:^5.2.1":
+"bn.js@npm:^5.2.1":
   version: 5.2.1
   resolution: "bn.js@npm:5.2.1"
   checksum: 0c272b6eeda35a4d2a3bcf5f0cae54080eb876f5aa10789f67322ad891a27dc99f179b4362e1b5fc2e42c408fd8e0014afed4fdf30e4f346561302ea588fd095
@@ -6980,13 +6953,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bytesish@npm:^0.4.1":
-  version: 0.4.4
-  resolution: "bytesish@npm:0.4.4"
-  checksum: 26690250697b7494a2aa71a48317d12c09f5db15024dd258c032bc0b5912ea5e3c075a857de931c0a7d1b346cfb6e1b05e91bd6bb22906b094385c53657735a2
-  languageName: node
-  linkType: hard
-
 "cacache@npm:^16.0.0, cacache@npm:^16.0.6, cacache@npm:^16.1.0":
   version: 16.1.1
   resolution: "cacache@npm:16.1.1"
@@ -7135,13 +7101,6 @@ __metadata:
   version: 2.4.0
   resolution: "case-sensitive-paths-webpack-plugin@npm:2.4.0"
   checksum: 8885f0f2068d6bef1ae8d29ad36ce64ba2c2a48117b521b0f896948082621257b9b7299c22535343c1d39e884941ae9f31484473d32e1e73e23540c7dae8a23e
-  languageName: node
-  linkType: hard
-
-"caseless@npm:~0.12.0":
-  version: 0.12.0
-  resolution: "caseless@npm:0.12.0"
-  checksum: 33c585c818defa51505672e3957409b0f27d760dd711536d36a782627651d5c0cd3dc02b96b45ed702cd78bb88148e7949eb2aad7b1c4e4274fe70184d789c52
   languageName: node
   linkType: hard
 
@@ -7538,7 +7497,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^8.0.0, commander@npm:^8.3.0":
+"commander@npm:^8.3.0":
   version: 8.3.0
   resolution: "commander@npm:8.3.0"
   checksum: 94dba589da4444bc07d60537438ce36bbf78b52b18bb720fb3727a3b589cb27b53171065742e6e442962e273976f034ca7475cc5517d92c7033fae2f6ed50e76
@@ -11485,7 +11444,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inquirer@npm:^8.2.1, inquirer@npm:^8.2.4":
+"inquirer@npm:^8.2.4":
   version: 8.2.4
   resolution: "inquirer@npm:8.2.4"
   dependencies:
@@ -12598,9 +12557,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-conflux-sdk@git+https://github.com/reach-sh/js-conflux-sdk.git#v1_6_0_blockNumber":
+"js-conflux-sdk@file:./src/vendor/js-conflux-sdk::locator=metafarm-frontend%40workspace%3A.":
   version: 1.6.0
-  resolution: "js-conflux-sdk@https://github.com/reach-sh/js-conflux-sdk.git#commit=6df5f0538c2077a7e29f0be08205b937499a1040"
+  resolution: "js-conflux-sdk@file:./src/vendor/js-conflux-sdk#./src/vendor/js-conflux-sdk::hash=ce9293&locator=metafarm-frontend%40workspace%3A."
   dependencies:
     "@babel/runtime": "npm:^7.8.4"
     "@conflux-dev/conflux-address-js": "npm:^1.0.0"
@@ -12611,30 +12570,7 @@ __metadata:
     secp256k1: "npm:^3.7.1"
     superagent: "npm:^5.1.0"
     websocket: "npm:^1.0.31"
-  checksum: a87ce5448c917fe2d6ea0eb01f5f8d0e228c89ff6cee5349e65a2043e1de7bda24866216df7a0319313f786d54ccf98f985011b8d5ebca27fa10dc1830929b7f
-  languageName: node
-  linkType: hard
-
-"js-conflux-sdk@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "js-conflux-sdk@npm:2.3.0"
-  dependencies:
-    "@conflux-dev/conflux-address-js": "npm:1.3.16"
-    abi-util-lite: "npm:^0.1.0"
-    big.js: "npm:^5.2.2"
-    commander: "npm:^8.0.0"
-    keccak: "npm:^2.0.0"
-    lodash: "npm:^4.17.19"
-    rlp: "npm:^2.2.7"
-    scrypt-js: "npm:^3.0.1"
-    secp256k1: "npm:^3.7.1"
-    superagent: "npm:^6.1.0"
-    websocket: "npm:^1.0.31"
-  bin:
-    cfxjs: bin/cfxjs.js
-    rpc: bin/rpc.js
-    sponsor: bin/sponsor.js
-  checksum: 54df0ddc27995e0f5f6ebe4efa25b8ce16864fb8cfe059b074e1342ccd0cc41a18a802e02ca0e9f404f071caa6c96db09357c757abda3d75a597f7a506a8b835
+  checksum: 44cd95c9c10722c5be7d82406ab714e41205f4cfd6cba2331247bfbd893bbd8cec9e43a05b74188d7e8781940b395363062e9488954de95fb719a4be15a089e6
   languageName: node
   linkType: hard
 
@@ -13306,6 +13242,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"loglevel@npm:^1.9.2":
+  version: 1.9.2
+  resolution: "loglevel@npm:1.9.2"
+  checksum: d288ccc1da1147fa42306c515cf66c3f0f368ab8c1c648a12b5573b454643df477d7a1c395389d233ec66ab414c0793395118b2f3154a06a7bd31bdd33b3fb01
+  languageName: node
+  linkType: hard
+
 "loose-envify@npm:^1.1.0, loose-envify@npm:^1.4.0":
   version: 1.4.0
   resolution: "loose-envify@npm:1.4.0"
@@ -13679,14 +13622,10 @@ __metadata:
     jest: "npm:^28.1.3"
     jest-resolve: "npm:^28.1.3"
     jest-watch-typeahead: "npm:^2.0.0"
-    js-conflux-sdk: "npm:^2.3.0"
     lerna: "npm:^5.3.0"
     lint-staged: "npm:^13.0.3"
     loader: "npm:^2.1.1"
-    metalabs-distribution-17_0_4: "npm:@metalabsog/distribution@17.0.4"
-    metalabs-distribution-17_0_5: "npm:@metalabsog/distribution@17.0.5"
-    metalabs-farm-17_2_4: "npm:@metalabsog/farm@17.2.4"
-    metalabs-farm-17_2_5: "npm:@metalabsog/farm@17.2.5"
+    loglevel: "npm:^1.9.2"
     mini-css-extract-plugin: "npm:^2.6.1"
     object-hash: "npm:^3.0.0"
     path-browserify: "npm:^1.0.1"
@@ -13745,56 +13684,6 @@ __metadata:
     xo-summary: "npm:^1.0.1"
   languageName: unknown
   linkType: soft
-
-"metalabs-distribution-17_0_4@npm:@metalabsog/distribution@17.0.4":
-  version: 17.0.4
-  resolution: "@metalabsog/distribution@npm:17.0.4::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40MetaLabsOG%2Fdistribution%2F17.0.4%2F740a65ed9a344767e8d9f15510179e0da1eab23e"
-  dependencies:
-    "@metalabsog/common": "npm:^17.0.0"
-    "@reach-sh/stdlib": "npm:0.1.11-rc.0"
-    inquirer: "npm:^8.2.1"
-    loglevel: "npm:^1.8.0"
-  checksum: ab2fd8dfe4dbdd21e13e210a51b3e0e87852245ae6503102d01f5f6c885f2009f6268caa59cf8ce1deb3e5d7a1853f05fe3ea900f62d4bc06279d0e9db2dcb51
-  languageName: node
-  linkType: hard
-
-"metalabs-distribution-17_0_5@npm:@metalabsog/distribution@17.0.5":
-  version: 17.0.5
-  resolution: "@metalabsog/distribution@npm:17.0.5::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40MetaLabsOG%2Fdistribution%2F17.0.5%2Fdc2feeb04c4423cfff5d57bb85ff9b795ac39fba"
-  dependencies:
-    "@metalabsog/common": "npm:^17.0.0"
-    "@reach-sh/stdlib": "npm:0.1.11-rc.0"
-    inquirer: "npm:^8.2.1"
-    loglevel: "npm:^1.8.0"
-  checksum: 22249b5401eef1e2f8ea9516d84faecaca4fe0d4d762915698d1a34ab004dbb9342b117c3097954393ede7522b2686a576a89021a2c3172581a0bebe888154db
-  languageName: node
-  linkType: hard
-
-"metalabs-farm-17_2_4@npm:@metalabsog/farm@17.2.4":
-  version: 17.2.4
-  resolution: "@metalabsog/farm@npm:17.2.4::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40MetaLabsOG%2Ffarm%2F17.2.4%2F589bab54db25afd0dc351c9ecd78865b4457b3a1"
-  dependencies:
-    "@metalabsog/common": "npm:^17.0.0"
-    "@reach-sh/stdlib": "npm:0.1.11-rc.0"
-    bent: "npm:^7.3.12"
-    inquirer: "npm:^8.2.1"
-    loglevel: "npm:^1.8.0"
-  checksum: 28101655baf739854362a17f3c447f247d0b5e06c058ce8674e6bf6fa6705e4b17dba5b09b634b04823b982f6d89e25522388bccb54cceee642f8fbf50fb5905
-  languageName: node
-  linkType: hard
-
-"metalabs-farm-17_2_5@npm:@metalabsog/farm@17.2.5":
-  version: 17.2.5
-  resolution: "@metalabsog/farm@npm:17.2.5::__archiveUrl=https%3A%2F%2Fnpm.pkg.github.com%2Fdownload%2F%40MetaLabsOG%2Ffarm%2F17.2.5%2F411ca89df1060be74b63805f01e443c00b40670c"
-  dependencies:
-    "@metalabsog/common": "npm:^17.0.0"
-    "@reach-sh/stdlib": "npm:0.1.11-rc.0"
-    bent: "npm:^7.3.12"
-    inquirer: "npm:^8.2.1"
-    loglevel: "npm:^1.8.0"
-  checksum: 5a25f74618f38e97d4967dcf47f53eb98cb682903eef4c3d26a5fd48f5ade0e0efce2de750f9164601d9e1eb80eb7bcb23de41d89c2dc85caa326989937a8e4f
-  languageName: node
-  linkType: hard
 
 "methods@npm:^1.1.2, methods@npm:~1.1.2":
   version: 1.1.2
@@ -17218,17 +17107,6 @@ __metadata:
     hash-base: "npm:^3.0.0"
     inherits: "npm:^2.0.1"
   checksum: 4541eb0cc604d08c00681d03e1648911d52a2c0f944df01673420c1bf7f94722e0b604e40a7c5bf1a037efbcf4de906235ed3e6ae0f7b967eab66bec8eff8436
-  languageName: node
-  linkType: hard
-
-"rlp@npm:^2.2.7":
-  version: 2.2.7
-  resolution: "rlp@npm:2.2.7"
-  dependencies:
-    bn.js: "npm:^5.2.0"
-  bin:
-    rlp: bin/rlp
-  checksum: b3cdf5caafaabe6bdb507c81cf4358fc7045c67a03dc1628a1b91fd56af7dad689835fc92f580884a66591457d8ea99793e7b82137d5f338ed28d936b2f140de
   languageName: node
   linkType: hard
 

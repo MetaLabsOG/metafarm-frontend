@@ -1,10 +1,13 @@
-// @ts-expect-error No provided type bindings in contracts package
-import { backend as farmBackend_17_2_4 } from 'metalabs-farm-17_2_4';
-// @ts-expect-error No provided type bindings in contracts package
-import { backend as farmBackend_17_2_5 } from 'metalabs-farm-17_2_5';
 import { Map, Set } from 'immutable';
 import { createEffect, createStore, sample, combine, Store, createEvent, restore } from 'effector';
 import { ascend, descend, min, Ord, sort, zip, zipWith } from 'ramda';
+
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-ignore
+import { backend as farmBackend_17_2_4 } from '../vendor/metalabs-farm-17_2_4';
+// @ts-ignore
+import { backend as farmBackend_17_2_5 } from '../vendor/metalabs-farm-17_2_5';
+
 import {
     Asset,
     AssetId,
