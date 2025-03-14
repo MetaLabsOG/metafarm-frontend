@@ -26,7 +26,7 @@
     "@types/react-tooltip": "^4.2.4",
     "@vestigefi/widgets": "^1.0.0",
     "@walletconnect/encoding": "^1.0.1",
-    "algosdk": "1.19.0",
+    "algosdk": "^2.7.0",
     "axios": "^0.27.2",
     "babel-loader": "^8.2.5",
     "babel-plugin-named-asset-import": "^0.3.8",
@@ -109,7 +109,7 @@
   },
   "overrides": {
     "@algo-builder/web": {
-      "algosdk": "1.19.0"
+      "algosdk": "^2.7.0"
     },
     "@reach-sh/stdlib": {
       "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
@@ -118,7 +118,7 @@
   "pnpm": {
     "overrides": {
       "@algo-builder/web": {
-        "algosdk": "1.19.0"
+        "algosdk": "^2.7.0"
       },
       "@reach-sh/stdlib": {
         "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
@@ -126,7 +126,7 @@
     }
   },
   "resolutions": {
-    "@algo-builder/web/algosdk": "1.19.0",
+    "@algo-builder/web/algosdk": "^2.7.0",
     "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
   },
   "scripts": {
@@ -201,11 +201,12 @@
     "stylelint": "^14.9.1",
     "stylelint-config-prettier": "^9.0.3",
     "util": "^0.12.4",
+    "webpack": "^5.91.0",
     "xo": "^0.51.0",
     "xo-summary": "^1.0.1"
   },
   "engines": {
-    "node": "^16.4.2"
+    "node": "^18.17.0"
   },
   "resolve": {
     "fallback": {
@@ -270,5 +271,6 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix"
-  }
+  },
+  "packageManager": "yarn@4.7.0"
 }
