@@ -164,9 +164,9 @@
   },
   "scripts": {
     "start": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true GENERATE_SOURCEMAP=false node scripts/start.js",
-    "build": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true GENERATE_SOURCEMAP=false node scripts/build.js",
-    "prod": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true env-cmd -f .env.prod yarn build",
-    "dev": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true env-cmd -f .env.dev yarn build",
+    "build": "CI=false DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true GENERATE_SOURCEMAP=false node scripts/build.js",
+    "prod": "CI=false DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true env-cmd -f .env.prod yarn build",
+    "dev": "CI=false DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true env-cmd -f .env.dev yarn build",
     "test": "node scripts/test.js",
     "postinstall": "husky install",
     "lint": "xo src",
@@ -239,7 +239,8 @@
     "xo-summary": "^1.0.1"
   },
   "engines": {
-    "node": "^18.17.0"
+    "node": "^18.17.0",
+    "yarn": "1.22.22"
   },
   "resolve": {
     "fallback": {
