@@ -31,6 +31,25 @@ if (fs.existsSync(confluxSdkSrc)) {
   process.exit(1);
 }
 
+// Copy metalabs-common to node_modules
+const commonSrc = path.join(vendorDir, 'metalabs-common-17_0_0');
+const commonDest = path.join(nodeModulesDir, '@metalabsog/common');
+
+if (fs.existsSync(commonSrc)) {
+  console.log('Setting up vendored @metalabsog/common...');
+  
+  // Remove existing directory if it exists
+  if (fs.existsSync(commonDest)) {
+    fs.removeSync(commonDest);
+  }
+  
+  // Copy the directory
+  fs.copySync(commonSrc, commonDest);
+  console.log('Successfully copied @metalabsog/common to node_modules');
+} else {
+  console.warn('Could not find vendored @metalabsog/common at', commonSrc);
+}
+
 // Install husky if it exists
 try {
   if (fs.existsSync(path.join(rootDir, '.husky'))) {
