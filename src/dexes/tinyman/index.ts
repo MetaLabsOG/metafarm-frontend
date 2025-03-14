@@ -331,10 +331,10 @@ export class TinymanDex extends Dex {
         [MAINNET]: 552635992,
     };
 
-    algod: algosdk.Algodv2;
+    algod: any;
     validatorAppId: AppId;
 
-    constructor(algod: algosdk.Algodv2) {
+    constructor(algod: any) {
         super();
         this.algod = algod;
         this.validatorAppId = TinymanDex.VALIDATOR_APP_ID[ALGONET];
