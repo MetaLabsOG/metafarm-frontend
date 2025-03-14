@@ -130,30 +130,6 @@
       "react-dom": "^18.3.1"
     }
   },
-  "pnpm": {
-    "overrides": {
-      "@algo-builder/web": {
-        "algosdk": "^2.7.0"
-      },
-      "@reach-sh/stdlib": {
-        "js-conflux-sdk": "1.6.0"
-      },
-      "@google/model-viewer": {
-        "three": "^0.164.1"
-      },
-      "@blockshake/defly-connect": {
-        "algosdk": "^2.7.0"
-      },
-      "@vestigefi/widgets": {
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1"
-      },
-      "react-hooks-use-modal": {
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1"
-      }
-    }
-  },
   "resolutions": {
     "@algo-builder/web/algosdk": "^2.7.0",
     "js-conflux-sdk": "1.6.0",
@@ -241,7 +217,7 @@
   },
   "engines": {
     "node": "^18.17.0",
-    "yarn": "1.22.22"
+    "yarn": "^1.22.0"
   },
   "resolve": {
     "fallback": {
