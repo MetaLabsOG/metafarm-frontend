@@ -35,7 +35,7 @@ export type AllBignums<T> = T extends number | bigint
 
 // TODO: there should be a better way to add new contract types
 // We should explore the possibility of providing types from the _contract packages_.
-export type ContractType = 'farm' | 'crowdsale' | 'distribution' | 'laas';
+export type ContractType = 'farm' | 'distribution' | 'laas';
 // | 'fomo'
 
 export type FarmType = 'farm' | 'distribution';
@@ -87,24 +87,21 @@ export type ContractMetadata = {
     laas: { verified?: boolean };
 };
 
-type InitialInfo = {
+export type InitialInfo = {
     farm: FarmInitialInfo;
     distribution: DistributionInitialInfo;
-    crowdsale: CrowdsaleInitialInfo;
     laas: LaasInitialInfo;
+    whitelist: string[];
 };
 
-type GlobalInfo = {
+export type GlobalInfo = {
     farm: FarmGlobalInfo;
     distribution: FarmGlobalInfo;
-    crowdsale: CrowdsaleGlobalInfo;
     laas: LaasGlobalInfo;
 };
 
-type LocalInfo = {
+export type LocalInfo = {
     farm: FarmLocalInfo;
-    distribution: FarmLocalInfo;
-    crowdsale: CrowdsaleLocalInfo;
     laas: LaasLocalInfo;
 };
 
@@ -146,24 +143,6 @@ export type FarmLocalInfo = {
     staked: Amount;
     lockTimestamp: Time; // Lock BEGINS from this block
     rewardPerTokenPaid: Amount;
-};
-
-// Crowdsale types
-
-type CrowdsaleInitialInfo = {
-    soldToken: AssetId;
-    totalAmount: Amount;
-    rate: [Amount, Amount];
-    individualCap: Amount;
-};
-
-type CrowdsaleGlobalInfo = {
-    sold: Amount;
-    revoked: boolean;
-};
-
-type CrowdsaleLocalInfo = {
-    alreadyBought: Amount;
 };
 
 // LaaS types
@@ -346,17 +325,6 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
                 //@ts-ignore
                 return parseFarmLocalInfo(obj);
             }
-        } else if (contractType === 'crowdsale') {
-            if (viewType === 'initial') {
-                //@ts-ignore
-                return parseCrowdsaleInitialInfo(obj);
-            } else if (viewType === 'global') {
-                //@ts-ignore
-                return parseCrowdsaleGlobalInfo(obj);
-            } else {
-                //@ts-ignore
-                return parseCrowdsaleLocalInfo(obj);
-            }
         } else if (contractType === 'laas') {
             // no parsing, everything is produced as necessary
             if (viewType === 'initial') {
@@ -375,3 +343,33 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
     };
 }
 /* eslint-enable */
+
+export function parseInitialInfo(contractType: ContractType, obj: any): InitialInfo {
+    if (contractType === 'farm') {
+        // ... existing farm code ...
+    } else if (contractType === 'distribution') {
+        // ... existing distribution code ...
+    } else {
+        // ... existing laas code ...
+    }
+}
+
+export function parseGlobalInfo(contractType: ContractType, obj: any): GlobalInfo {
+    if (contractType === 'farm') {
+        // ... existing farm code ...
+    } else if (contractType === 'distribution') {
+        // ... existing distribution code ...
+    } else {
+        // ... existing laas code ...
+    }
+}
+
+export function parseLocalInfo(contractType: ContractType, obj: any): LocalInfo {
+    if (contractType === 'farm') {
+        // ... existing farm code ...
+    } else if (contractType === 'distribution') {
+        // ... existing distribution code ...
+    } else {
+        // ... existing laas code ...
+    }
+}

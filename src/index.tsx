@@ -143,7 +143,6 @@ function App() {
                                 <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
                                 <Route path="/meta-dao" element={<MetaDAO />} />
                                 <Route path="/metapunks" element={<Metapunks />} />
-                                {/*<Route path="/tokensale" element={<Crowdsale />} />*/}
                                 <Route path="/addfarm" element={<AddFarm type="farm" />} />
                                 <Route path="/addstake" element={<AddFarm type="stake" />} />
                                 <Route path="/addlaas" element={<AddLaaS />} />
