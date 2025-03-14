@@ -11,43 +11,45 @@ if (!fs.existsSync(nodeModulesDir)) {
   fs.mkdirSync(nodeModulesDir, { recursive: true });
 }
 
-// Copy js-conflux-sdk to node_modules
-const confluxSdkSrc = path.join(vendorDir, 'js-conflux-sdk');
-const confluxSdkDest = path.join(nodeModulesDir, 'js-conflux-sdk');
-
-if (fs.existsSync(confluxSdkSrc)) {
-  console.log('Setting up vendored js-conflux-sdk...');
-  
-  // Remove existing directory if it exists
-  if (fs.existsSync(confluxSdkDest)) {
-    fs.removeSync(confluxSdkDest);
+// List of packages to copy
+const packages = [
+  {
+    src: 'js-conflux-sdk',
+    dest: 'js-conflux-sdk'
+  },
+  {
+    src: 'metalabs-common-17_0_0',
+    dest: '@metalabsog/common'
+  },
+  {
+    src: 'metalabs-metafomo-17_0_0',
+    dest: '@metalabsog/metafomo'
   }
-  
-  // Copy the directory
-  fs.copySync(confluxSdkSrc, confluxSdkDest);
-  console.log('Successfully copied js-conflux-sdk to node_modules');
-} else {
-  console.error('Could not find vendored js-conflux-sdk at', confluxSdkSrc);
-  process.exit(1);
-}
+];
 
-// Copy metalabs-common to node_modules
-const commonSrc = path.join(vendorDir, 'metalabs-common-17_0_0');
-const commonDest = path.join(nodeModulesDir, '@metalabsog/common');
+// Copy each package
+for (const pkg of packages) {
+  const srcPath = path.join(vendorDir, pkg.src);
+  const destPath = path.join(nodeModulesDir, pkg.dest);
 
-if (fs.existsSync(commonSrc)) {
-  console.log('Setting up vendored @metalabsog/common...');
-  
-  // Remove existing directory if it exists
-  if (fs.existsSync(commonDest)) {
-    fs.removeSync(commonDest);
+  if (fs.existsSync(srcPath)) {
+    console.log(`Setting up vendored ${pkg.src}...`);
+    
+    // Remove existing directory if it exists
+    if (fs.existsSync(destPath)) {
+      fs.removeSync(destPath);
+    }
+    
+    // Create parent directory if needed
+    fs.mkdirpSync(path.dirname(destPath));
+    
+    // Copy the directory
+    fs.copySync(srcPath, destPath);
+    console.log(`Successfully copied ${pkg.src} to ${pkg.dest}`);
+  } else {
+    console.error(`Could not find vendored package at ${srcPath}`);
+    process.exit(1);
   }
-  
-  // Copy the directory
-  fs.copySync(commonSrc, commonDest);
-  console.log('Successfully copied @metalabsog/common to node_modules');
-} else {
-  console.warn('Could not find vendored @metalabsog/common at', commonSrc);
 }
 
 // Install husky if it exists
