@@ -113,6 +113,9 @@
     },
     "@reach-sh/stdlib": {
       "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
+    },
+    "@google/model-viewer": {
+      "three": "^0.164.1"
     }
   },
   "pnpm": {
@@ -122,6 +125,9 @@
       },
       "@reach-sh/stdlib": {
         "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
+      },
+      "@google/model-viewer": {
+        "three": "^0.164.1"
       }
     }
   },
@@ -271,6 +277,5 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix"
-  },
-  "packageManager": "yarn@4.7.0"
+  }
 }
