@@ -56,6 +56,7 @@
     "html-webpack-plugin": "^5.5.0",
     "identity-obj-proxy": "^3.0.0",
     "immutable": "^4.1.0",
+    "js-conflux-sdk": "1.6.0",
     "loader": "^2.1.1",
     "loglevel": "^1.9.2",
     "mini-css-extract-plugin": "^2.6.1",
@@ -112,7 +113,7 @@
       "algosdk": "^2.7.0"
     },
     "@reach-sh/stdlib": {
-      "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
+      "js-conflux-sdk": "1.6.0"
     },
     "@google/model-viewer": {
       "three": "^0.164.1"
@@ -135,7 +136,7 @@
         "algosdk": "^2.7.0"
       },
       "@reach-sh/stdlib": {
-        "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
+        "js-conflux-sdk": "1.6.0"
       },
       "@google/model-viewer": {
         "three": "^0.164.1"
@@ -155,7 +156,7 @@
   },
   "resolutions": {
     "@algo-builder/web/algosdk": "^2.7.0",
-    "js-conflux-sdk": "./src/vendor/js-conflux-sdk",
+    "js-conflux-sdk": "1.6.0",
     "@blockshake/defly-connect/algosdk": "^2.7.0",
     "@vestigefi/widgets/react": "^18.3.1",
     "@vestigefi/widgets/react-dom": "^18.3.1",
@@ -168,7 +169,7 @@
     "prod": "CI=false DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true env-cmd -f .env.prod yarn build",
     "dev": "CI=false DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true env-cmd -f .env.dev yarn build",
     "test": "node scripts/test.js",
-    "postinstall": "husky install",
+    "postinstall": "node scripts/setup-vendor.js",
     "lint": "xo src",
     "lint-summary": "xo src | xo-summary"
   },
