@@ -116,6 +116,17 @@
     },
     "@google/model-viewer": {
       "three": "^0.164.1"
+    },
+    "@blockshake/defly-connect": {
+      "algosdk": "^2.7.0"
+    },
+    "@vestigefi/widgets": {
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1"
+    },
+    "react-hooks-use-modal": {
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1"
     }
   },
   "pnpm": {
@@ -128,18 +139,34 @@
       },
       "@google/model-viewer": {
         "three": "^0.164.1"
+      },
+      "@blockshake/defly-connect": {
+        "algosdk": "^2.7.0"
+      },
+      "@vestigefi/widgets": {
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
+      },
+      "react-hooks-use-modal": {
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
       }
     }
   },
   "resolutions": {
     "@algo-builder/web/algosdk": "^2.7.0",
-    "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
+    "js-conflux-sdk": "./src/vendor/js-conflux-sdk",
+    "@blockshake/defly-connect/algosdk": "^2.7.0",
+    "@vestigefi/widgets/react": "^18.3.1",
+    "@vestigefi/widgets/react-dom": "^18.3.1",
+    "react-hooks-use-modal/react": "^18.3.1",
+    "react-hooks-use-modal/react-dom": "^18.3.1"
   },
   "scripts": {
     "start": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true GENERATE_SOURCEMAP=false node scripts/start.js",
-    "build": "GENERATE_SOURCEMAP=false node scripts/build.js",
-    "prod": "env-cmd -f .env.prod yarn build",
-    "dev": "env-cmd -f .env.dev yarn build",
+    "build": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true GENERATE_SOURCEMAP=false node scripts/build.js",
+    "prod": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true env-cmd -f .env.prod yarn build",
+    "dev": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true env-cmd -f .env.dev yarn build",
     "test": "node scripts/test.js",
     "postinstall": "husky install",
     "lint": "xo src",
