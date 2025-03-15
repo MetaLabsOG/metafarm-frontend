@@ -105,7 +105,10 @@
     "webpack": "^5.91.0",
     "webpack-dev-server": "^4.9.3",
     "webpack-manifest-plugin": "^5.0.0",
-    "workbox-webpack-plugin": "^6.5.4"
+    "workbox-webpack-plugin": "^6.5.4",
+    "ajv": "^8.12.0",
+    "ajv-keywords": "^5.1.0",
+    "ajv-formats": "^2.1.1"
   },
   "overrides": {
     "@algo-builder/web": {
@@ -128,17 +131,6 @@
       "react": "^18.3.1",
       "react-dom": "^18.3.1"
     }
-  },
-  "resolutions": {
-    "@algo-builder/web/algosdk": "^2.7.0",
-    "js-conflux-sdk": "1.6.0",
-    "@blockshake/defly-connect/algosdk": "^2.7.0",
-    "@vestigefi/widgets/react": "^18.3.1",
-    "@vestigefi/widgets/react-dom": "^18.3.1",
-    "react-hooks-use-modal/react": "^18.3.1",
-    "react-hooks-use-modal/react-dom": "^18.3.1",
-    "ajv": "^8.12.0",
-    "ajv-keywords": "^5.1.0"
   },
   "scripts": {
     "start": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true GENERATE_SOURCEMAP=false node scripts/start.js",

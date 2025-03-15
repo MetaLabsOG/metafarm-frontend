@@ -1,14 +1,17 @@
 {
   "name": "@metalabsog/common",
+  "description": "Common files for Cometa smart contracts",
   "version": "17.0.0",
-  "private": true,
-  "main": "index.js",
   "dependencies": {
-    "@reach-sh/stdlib": "0.1.11-rc.5",
-    "algosdk": "^2.7.0",
-    "axios": "^0.27.2",
-    "ethers": "^5.6.9",
-    "js-conflux-sdk": "1.6.0",
-    "ramda": "^0.28.0"
-  }
-} 
+    "@reach-sh/stdlib": "0.1.11-rc.0",
+    "ethers": "^5.6.4",
+    "loglevel": "^1.8.0"
+  },
+  "gitHead": "e30c74b7c78a3028b240e179e56d08f20987d121",
+  "license": "MIT",
+  "main": "index.mjs",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": "MetaLabsOG/cometa-contracts.git"
+}
