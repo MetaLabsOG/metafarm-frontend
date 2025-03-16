@@ -108,7 +108,8 @@
     "workbox-webpack-plugin": "^6.5.4",
     "ajv": "^8.12.0",
     "ajv-keywords": "^5.1.0",
-    "ajv-formats": "^2.1.1"
+    "ajv-formats": "^2.1.1",
+    "path-browserify": "^1.0.1"
   },
   "overrides": {
     "@algo-builder/web": {
@@ -198,7 +199,6 @@
     "jest-watch-typeahead": "^2.0.0",
     "lerna": "^5.3.0",
     "lint-staged": "^13.0.3",
-    "path-browserify": "^1.0.1",
     "prettier": "2.7.1",
     "react-error-overlay": "6.0.11",
     "stylelint": "^14.9.1",
