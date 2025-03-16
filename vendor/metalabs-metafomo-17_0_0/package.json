@@ -3,7 +3,7 @@
   "description": "METAFOMO gamefied token sale contract",
   "version": "17.0.0",
   "dependencies": {
-    "@metalabsog/common": "^17.0.0",
+    "@metalabsog/common": "file:../metalabs-common-17_0_0",
     "@reach-sh/stdlib": "0.1.11-rc.0"
   },
   "gitHead": "e30c74b7c78a3028b240e179e56d08f20987d121",
