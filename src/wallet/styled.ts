@@ -31,8 +31,8 @@ export const WalletModalContainer = styled.div<{ finishedOpening: boolean }>`
     background-color: var(--backgroundCard);
     border-radius: 20px;
 
-    transform: ${(finishedOpening) => `translate3d(0px, ${finishedOpening ? '0' : '100'}px, 0px)`};
-    opacity: ${(finishedOpening) => (finishedOpening ? 100 : 0)};
+    transform: ${(props) => `translate3d(0px, ${props.finishedOpening ? '0' : '100'}px, 0px)`};
+    opacity: ${(props) => (props.finishedOpening ? 100 : 0)};
     transition: transform 500ms cubic-bezier(0, 0, 0.25, 1) 0s, opacity 500ms cubic-bezier(0, 0, 0.25, 1) 0s;
 
     @media (max-width: 450px) {
@@ -58,12 +58,58 @@ export const WalletButton = styled.div`
     }
 `;
 
-export const PeraButton = styled(WalletButton)`
-    background-color: yellow;
+export const PeraButton = styled.button`
+    background-color: white;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 10px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    &:focus {
+        outline: 2px solid var(--lightGreen, #5cfc3c);
+    }
+    
+    &:focus:not(:focus-visible) {
+        outline: none;
+    }
 `;
 
-export const DeflyButton = styled(WalletButton)`
+export const DeflyButton = styled.button`
     background-color: black;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 10px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    &:focus {
+        outline: 2px solid var(--lightGreen, #5cfc3c);
+    }
+    
+    &:focus:not(:focus-visible) {
+        outline: none;
+    }
 `;
 
 export const WalletText = styled.div`
