@@ -3,6 +3,9 @@ FROM node:18-alpine AS builder
 # Set working directory
 WORKDIR /app
 
+# Install git for dependencies that require it
+RUN apk add --no-cache git
+
 # Install dependencies first (for better caching)
 COPY package.json yarn.lock ./
 COPY src/vendor ./src/vendor
