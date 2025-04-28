@@ -200,7 +200,15 @@ module.exports = function (webpackEnv) {
       : isEnvDevelopment && 'cheap-module-source-map',
     // These are the "entry points" to our application.
     // This means they will be the "root" imports that are included in JS bundle.
-    entry: paths.appIndexJs,
+    entry: {
+      main: [
+        // Include the polyfills before your app code
+        require.resolve('buffer/'),
+        require.resolve('process/browser'),
+        // Then include your app's entry point
+        paths.appIndexJs,
+      ],
+    },
     output: {
       // The build folder.
       path: paths.appBuild,
@@ -341,6 +349,11 @@ module.exports = function (webpackEnv) {
         'buffer': require.resolve('buffer/'),
         'path': require.resolve('path-browserify'),
         'util': require.resolve('util/'),
+        'process': require.resolve('process/browser'),
+        'stream': require.resolve('stream-browserify'),
+        'assert': require.resolve('assert/'),
+        'fs': false,
+        'os': require.resolve('os-browserify/browser'),
       }
     },
     module: {
@@ -617,6 +630,11 @@ module.exports = function (webpackEnv) {
       // during a production build.
       // Otherwise React will be compiled in the very slow development mode.
       new webpack.DefinePlugin(env.stringified),
+      // Explicitly provide Buffer for any module that needs it
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer'],
+        process: 'process/browser',
+      }),
       // Experimental hot reloading for React .
       // https://github.com/facebook/react/tree/main/packages/react-refresh
       isEnvDevelopment &&

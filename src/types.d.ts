@@ -44,6 +44,8 @@ declare global {
             signTxns: (txns: WalletTransaction[], options?: any) => Promise<string[]>;
             disconnect: () => Promise<void>;
         };
+        Buffer: typeof global.Buffer;
+        process: typeof NodeJS.Process;
     }
 }
 
