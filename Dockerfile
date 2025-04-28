@@ -6,13 +6,16 @@ WORKDIR /app
 # Install git for dependencies that require it
 RUN apk add --no-cache git
 
-# Install dependencies first (for better caching)
+# Copy package files and scripts first
 COPY package.json yarn.lock ./
+COPY scripts ./scripts
 COPY src/vendor ./src/vendor
+
+# Install dependencies
 RUN yarn config set network-timeout 600000 && \
     yarn install --frozen-lockfile --network-timeout 600000
 
-# Copy source
+# Copy remaining source
 COPY . .
 
 # Build
