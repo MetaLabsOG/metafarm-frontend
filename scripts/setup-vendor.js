@@ -21,10 +21,6 @@ const packages = [
     src: 'metalabs-common-17_0_0',
     dest: '@metalabsog/common'
   },
-  {
-    src: 'metalabs-metafomo-17_0_0',
-    dest: '@metalabsog/metafomo'
-  }
 ];
 
 // Copy each package

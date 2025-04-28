@@ -2739,18 +2739,12 @@
   dependencies:
     "@lit-labs/ssr-dom-shim" "^1.0.0"
 
-"@metalabsog/common@^17.0.0", "@metalabsog/common@file:./src/vendor/metalabs-common-17_0_0":
+"@metalabsog/common@file:./src/vendor/metalabs-common-17_0_0":
   version "17.0.0"
   dependencies:
     "@reach-sh/stdlib" "0.1.11-rc.0"
     ethers "^5.6.4"
     loglevel "^1.8.0"
-
-"@metalabsog/metafomo@file:./src/vendor/metalabs-metafomo-17_0_0":
-  version "17.0.0"
-  dependencies:
-    "@metalabsog/common" "^17.0.0"
-    "@reach-sh/stdlib" "0.1.11-rc.0"
 
 "@monogrid/gainmap-js@^3.0.1":
   version "3.1.0"
