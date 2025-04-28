@@ -1,0 +1,28 @@
+name: metafarm-frontend
+services:
+- environment_slug: node-js
+  github:
+    branch: master-ai-fix-please
+    deploy_on_push: true
+  dockerfile_path: Dockerfile
+  http_port: 3000
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  name: metafarm-frontend
+  source_dir: /
+  envs:
+  - key: NODE_ENV
+    value: production
+    scope: RUN_TIME
+  - key: PORT
+    value: "3000"
+    scope: RUN_TIME
+  routes:
+  - path: /
+  health_check:
+    http_path: /
+    initial_delay_seconds: 10
+    period_seconds: 3
+    timeout_seconds: 5
+    success_threshold: 1
+    failure_threshold: 3 
