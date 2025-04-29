@@ -28,22 +28,11 @@ yarn-error.log*
 reach
 .reach
 .vscode
-# TODO: not sure if it shall be included?
-Dockerfile
-# TODO: not sure if it shall be included?
-.dockerignore
 
 # yarn stuff
 .yarn/*
-!.yarn/cache
-!.yarn/patches
-!.yarn/plugins
 !.yarn/releases
-!.yarn/sdks
-!.yarn/versionsy
-# Swap the comments on the following lines if you don't wish to use zero-installs
-# Documentation here: https://yarnpkg.com/features/zero-installs
-!.yarn/cache
-#.pnp.*
+!.yarn/plugins
+.pnp.*
 
 *.zip

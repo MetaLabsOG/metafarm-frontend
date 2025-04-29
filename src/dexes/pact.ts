@@ -156,10 +156,10 @@ export class PactPool implements DexPool {
  * Subset of Pact API implementation
  */
 export class PactDex extends Dex {
-    algod: algosdk.Algodv2;
+    algod: any; // Use any type to avoid version mismatch
     pact: pactsdk.PactClient;
 
-    constructor(algod: algosdk.Algodv2) {
+    constructor(algod: any) {
         super();
         this.algod = algod;
         this.pact = new pactsdk.PactClient(

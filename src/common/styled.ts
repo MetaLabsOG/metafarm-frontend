@@ -130,9 +130,19 @@ export const ModalCloseButton = styled.img`
     position: absolute;
     right: 15px;
     top: 15px;
+    outline: none;
 
     :hover {
         cursor: pointer;
+    }
+    
+    :focus {
+        outline: 2px solid var(--lightGreen, #5cfc3c);
+        border-radius: 4px;
+    }
+    
+    :focus:not(:focus-visible) {
+        outline: none;
     }
 `;
 

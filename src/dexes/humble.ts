@@ -86,9 +86,9 @@ export class HumblePool implements DexPool {
  * Wrapper for Humble SDK
  */
 export class HumbleDex extends Dex {
-    private algod: algosdk.Algodv2;
+    private algod: any;
 
-    constructor(algod: algosdk.Algodv2) {
+    constructor(algod: any) {
         super();
         this.algod = algod;
     }

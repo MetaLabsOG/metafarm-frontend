@@ -1,0 +1,21 @@
+{
+  "name": "@metalabsog/metafomo",
+  "description": "METAFOMO gamefied token sale contract",
+  "version": "17.0.0",
+  "dependencies": {
+    "@metalabsog/common": "^17.0.0",
+    "@reach-sh/stdlib": "0.1.11-rc.0"
+  },
+  "gitHead": "e30c74b7c78a3028b240e179e56d08f20987d121",
+  "license": "MIT",
+  "main": "index.mjs",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "repository": "MetaLabsOG/cometa-contracts.git",
+  "scripts": {
+    "cli": "node cli.mjs",
+    "compile": "reach compile",
+    "test": "npx jest --forceExit"
+  }
+}

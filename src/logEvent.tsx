@@ -8,7 +8,6 @@ import { BROWSER } from './wallet/ConnectWallet';
 export enum LogName {
     WALLET,
     ERRORS,
-    FOMO,
     SWAP,
     ZAP,
     FARM,

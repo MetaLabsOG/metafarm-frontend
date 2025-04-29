@@ -1,8 +1,8 @@
-import { stdlib, configureUsersAndTokens, deployStandardContract } from "@metalabsog/common";
+import * as backend from "./build/index.main.mjs";
+import { stdlib, deployStandardContract, configureUsersAndTokens } from "@metalabsog/common";
 import { BigNumber } from "ethers";
 import log from "loglevel";
 import * as reachLib from "@reach-sh/stdlib";
-import * as backend from "./build/index.main.mjs";
 
 /**
  * Initializes a smart contract.

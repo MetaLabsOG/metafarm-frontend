@@ -92,12 +92,18 @@ export function ConnectWallet({
     style?: CSSProperties;
 }) {
     const account = useUnit($account);
-    const [Modal, open, close, isOpen] = useModal('root');
+    const [Modal, open, close, isOpen] = useModal('root', {
+        focusTrapOptions: {
+            fallbackFocus: () => document.body,
+            delayInitialFocus: true,
+            allowOutsideClick: true,
+            escapeDeactivates: true
+        }
+    });
     const [accDropdownOpen, setAccDropdownOpen] = useState(false);
     const prefix = ALGONET === TESTNET ? 'testnet.' : '';
     const [walletNfd, setWalletNfd] = useState<string | undefined>(undefined);
 
-    // check local state once when the element is rendered first
     useEffect(() => {
         const connectedWallet = getWalletType();
         if (connectedWallet !== null && !window.algorand) {

@@ -337,10 +337,10 @@ export class Tinyman2Dex extends Dex {
         [MAINNET]: 1002541853,
     };
 
-    algod: algosdk.Algodv2;
+    algod: any; // Use any type to avoid version mismatch
     validatorAppId: AppId;
 
-    constructor(algod: algosdk.Algodv2) {
+    constructor(algod: any) {
         super();
         this.algod = algod;
         this.validatorAppId = Tinyman2Dex.VALIDATOR_APP_ID[ALGONET];

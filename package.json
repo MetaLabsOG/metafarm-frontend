@@ -11,9 +11,7 @@
     "@deflex/deflex-sdk-js": "^2.0.5",
     "@ethersproject/bignumber": "^5.6.2",
     "@google/model-viewer": "^3.2.1",
-    "@metalabsog/common": "^17.0.0",
-    "@metalabsog/crowdsale": "17.0.0",
-    "@metalabsog/metafomo": "17.0.0",
+    "@metalabsog/common": "file:./src/vendor/metalabs-common-17_0_0",
     "@pactfi/pactsdk": "^0.5.0",
     "@perawallet/connect": "^1.3.4",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
@@ -26,7 +24,11 @@
     "@types/react-tooltip": "^4.2.4",
     "@vestigefi/widgets": "^1.0.0",
     "@walletconnect/encoding": "^1.0.1",
+    "ajv": "^8.12.0",
+    "ajv-formats": "^2.1.1",
+    "ajv-keywords": "^5.1.0",
     "algosdk": "^2.7.0",
+    "assert": "^2.1.0",
     "axios": "^0.27.2",
     "babel-loader": "^8.2.5",
     "babel-plugin-named-asset-import": "^0.3.8",
@@ -56,16 +58,20 @@
     "html-webpack-plugin": "^5.5.0",
     "identity-obj-proxy": "^3.0.0",
     "immutable": "^4.1.0",
+    "js-conflux-sdk": "1.6.0",
     "loader": "^2.1.1",
     "loglevel": "^1.9.2",
     "mini-css-extract-plugin": "^2.6.1",
     "object-hash": "^3.0.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
     "patronum": "^1.9.0",
     "postcss": "^8.4.14",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^7.0.1",
     "postcss-normalize": "^10.0.1",
     "postcss-preset-env": "^7.7.2",
+    "process": "^0.11.10",
     "prompts": "^2.4.2",
     "prop-types": "^15.8.1",
     "ramda": "^0.28.0",
@@ -92,6 +98,7 @@
     "sass-loader": "^13.0.2",
     "semver": "^7.3.7",
     "source-map-loader": "^4.0.0",
+    "stream-browserify": "^3.0.0",
     "style-loader": "^3.3.1",
     "styled-components": "^5.3.5",
     "superagent": "^8.0.0",
@@ -112,30 +119,30 @@
       "algosdk": "^2.7.0"
     },
     "@reach-sh/stdlib": {
-      "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
+      "js-conflux-sdk": "1.6.0"
+    },
+    "@google/model-viewer": {
+      "three": "^0.164.1"
+    },
+    "@blockshake/defly-connect": {
+      "algosdk": "^2.7.0"
+    },
+    "@vestigefi/widgets": {
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1"
+    },
+    "react-hooks-use-modal": {
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1"
     }
-  },
-  "pnpm": {
-    "overrides": {
-      "@algo-builder/web": {
-        "algosdk": "^2.7.0"
-      },
-      "@reach-sh/stdlib": {
-        "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
-      }
-    }
-  },
-  "resolutions": {
-    "@algo-builder/web/algosdk": "^2.7.0",
-    "js-conflux-sdk": "./src/vendor/js-conflux-sdk"
   },
   "scripts": {
     "start": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true GENERATE_SOURCEMAP=false node scripts/start.js",
-    "build": "GENERATE_SOURCEMAP=false node scripts/build.js",
-    "prod": "env-cmd -f .env.prod yarn build",
-    "dev": "env-cmd -f .env.dev yarn build",
+    "build": "CI=false DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true GENERATE_SOURCEMAP=false node scripts/build.js",
+    "prod": "CI=false DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true env-cmd -f .env.prod yarn build",
+    "dev": "CI=false DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true env-cmd -f .env.dev yarn build",
     "test": "node scripts/test.js",
-    "postinstall": "husky install",
+    "postinstall": "node scripts/setup-vendor.js",
     "lint": "xo src",
     "lint-summary": "xo src | xo-summary"
   },
@@ -195,18 +202,18 @@
     "jest-watch-typeahead": "^2.0.0",
     "lerna": "^5.3.0",
     "lint-staged": "^13.0.3",
-    "path-browserify": "^1.0.1",
     "prettier": "2.7.1",
     "react-error-overlay": "6.0.11",
     "stylelint": "^14.9.1",
     "stylelint-config-prettier": "^9.0.3",
-    "util": "^0.12.4",
+    "util": "^0.12.5",
     "webpack": "^5.91.0",
     "xo": "^0.51.0",
     "xo-summary": "^1.0.1"
   },
   "engines": {
-    "node": "^18.17.0"
+    "node": "^18.17.0",
+    "yarn": "^1.22.0"
   },
   "resolve": {
     "fallback": {
@@ -271,6 +278,5 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix"
-  },
-  "packageManager": "yarn@4.7.0"
+  }
 }

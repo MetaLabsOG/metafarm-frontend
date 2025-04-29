@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import './css/fomo.css';
 
 export class Status extends React.Component {
     constructor(props) {

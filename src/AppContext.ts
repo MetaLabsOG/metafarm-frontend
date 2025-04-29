@@ -9,7 +9,8 @@ export type NetworkName = 'TestNet' | 'MainNet';
 export const reach: ReachStdlib = loadStdlibShimmed(process.env);
 export const reachDefaultProvider: Provider = makeProviderByEnv(process.env);
 
-export const algod: algosdk.Algodv2 = reachDefaultProvider.algodClient;
+// Type assertion to handle algosdk version mismatch
+export const algod = reachDefaultProvider.algodClient as unknown as algosdk.Algodv2;
 export const { indexer } = reachDefaultProvider;
 
 export const METAWALLET = 'METAWEJ6MAPBIZBKZBX2RTGVEG4SFTB5BRJRKL3UYVXA6TT5YVWUAXV6PU';
