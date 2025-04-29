@@ -139,22 +139,21 @@ export const fetchAlgoPriceFx = createEffect(
     nonConcurrent(async () => {
         try {
             const rate = await getAlgoRateFromVestige();
-            if (!rate) {
-                throw new Error(`Failed to fetch ALGO price from Vestige`);
+            if (rate !== null) {
+                return Number(rate.price);
+            } else {
+                console.warn('Failed to fetch ALGO price from Vestige, returning default 0.24.');
+                return 0.24; // Default value if rate is null
             }
-
-            return Number(rate.price);
         } catch (error) {
-            console.warn('Failed to get price from Vestige, piggybacking on Pact. Error was:', error);
-            const ALGO = 0;
-            const pool = await pactDex.getMostLiquidPool(ALGO, USDT_TOKEN_ID);
-
-            return pool.calculator.primaryAssetPrice;
+            // Catch any unexpected errors during the fetch or processing
+            console.error('Unexpected error fetching ALGO price from Vestige:', error);
+            return 0.24; // Default value on unexpected error
         }
     })
 );
 
-export const $algoUsdPrice = restore(fetchAlgoPriceFx.doneData, null);
+export const $algoUsdPrice = restore(fetchAlgoPriceFx.doneData, 0.24); // Initialize with default
 
 export const fetchAllPricesFx = createEffect(async () => {
     //console.log('fetching prices...');

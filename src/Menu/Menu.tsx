@@ -50,7 +50,7 @@ function ExchangeRates({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; MET
             </AssetPriceWithLogo>
             <AssetPriceWithLogo style={{ paddingRight: 30 }} href={getTokenLink(META_TOKEN_ID)}>
                 <Logo src={meta_logo} alt="logo" height="24px" />
-                <ExchangeRate>${formatPrice(METAPrice?.price ?? 0)}</ExchangeRate>
+                <ExchangeRate>${(METAPrice?.price ?? 0).toFixed(3)}</ExchangeRate>
             </AssetPriceWithLogo>
         </>
     );
