@@ -63,12 +63,12 @@ export const renderRandomAd = (): JSX.Element => {
 
 export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
     <FarmContainer>
+        {window.innerWidth <= 700 && renderSliseAd()}
         <BalanceContainer>
             <Balance kind={'farm' as FarmType} />
             {window.innerWidth > 700 && renderSliseAd()}
         </BalanceContainer>
         <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
         <InfoCards addFarmType="farm" />
-        {window.innerWidth <= 700 && renderSliseAd()}
     </FarmContainer>
 ));
