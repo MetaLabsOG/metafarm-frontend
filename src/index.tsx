@@ -22,6 +22,7 @@ import { Swap } from './Swap';
 import { Zap } from './Zap';
 
 import { MetaDAO } from './MetaDAO';
+import PriceTest from './pages/PriceTest';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
 import { $account, ContractInfo, fetchAllPricesFx } from './common/store';
@@ -149,6 +150,7 @@ function App() {
                                 <Route path="/addfarm" element={<AddFarm type="farm" />} />
                                 <Route path="/addstake" element={<AddFarm type="stake" />} />
                                 <Route path="/addlaas" element={<AddLaaS />} />
+                                <Route path="/price-test" element={<PriceTest />} />
                             </Routes>
                         </ContentContainer>
                         <Modal>

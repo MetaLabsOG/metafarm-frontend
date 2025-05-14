@@ -1,8 +1,5 @@
 import axios from 'axios';
-import pactsdk, { Asset, Pool } from '@pactfi/pactsdk';
-import { algod, GOBTC_TOKEN_ID, USDT_TOKEN_ID } from '../AppContext';
-
-const pact = new pactsdk.PactClient(algod);
+import { AssetId } from '../common/store/types';
 
 type Rate = {
     currency: string;
@@ -22,4 +19,14 @@ export async function getAlgoRateFromVestige(): Promise<Rate | null> {
             console.error(`Failed to fetch ALGO price: ${error}`);
             return null;
         });
+}
+
+export async function getAssetRateFromVestige(assetId: AssetId): Promise<number | null> {
+    try {
+        const response = await instance.get<{ price: number }>(`asset/${assetId}/price`, {});
+        return response.data.price;
+    } catch (error) {
+        console.error(`Failed to fetch asset ${assetId} price from Vestige:`, error);
+        return null;
+    }
 }

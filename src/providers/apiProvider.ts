@@ -122,57 +122,9 @@ export async function getContracts(
         });
 }
 
-export type LpState = {
-    id: number;
-    token_id: number;
-    asset1_id: number;
-    asset2_id: number;
-    dex_provider: string;
-    address: string;
+// LP token price calculation is now handled by tinymanPriceProvider.ts
 
-    asset1_reserve_micros: number;
-    asset2_reserve_micros: number;
-    issued_tokens_micros: number;
-
-    asset1_reserve: number;
-    asset2_reserve: number;
-    issued_tokens: number;
-
-    token_price_algo: number;
-    token_price_usd: number;
-    swap_fee_apr?: number;
-
-    last_updated_round: number;
-};
-
-export async function getLpState(lp_id: number): Promise<LpState> {
-    return await instance
-        .post<LpState>(`/lp/state/priced?lp_token_id=${lp_id}`)
-        .then(({ data }) => data)
-        .catch((error) => {
-            console.log('ERR', error);
-            throw error;
-        });
-}
-
-export type AssetPriceInfo = {
-    asset_id: number;
-    asset_name: string;
-    price_usd: number;
-    price_algo: number;
-    last_update_round: number;
-    seconds_since_update: number;
-};
-
-export async function getAssetPrice(asset_id: number): Promise<AssetPriceInfo> {
-    return await instance
-        .post<AssetPriceInfo>(`/asset/price?asset_id=${asset_id}`)
-        .then(({ data }) => data)
-        .catch((error) => {
-            console.log('ERR', error);
-            throw error;
-        });
-}
+// Price fetching is now handled by tinymanPriceProvider.ts
 
 export async function getPoolInfo(asset1: number, asset2: number): Promise<PoolInfo> {
     return instance.get<PoolInfo>(`/pool?asset_1_id=${asset1}&asset_2_id=${asset2}`).then(({ data }) => data);

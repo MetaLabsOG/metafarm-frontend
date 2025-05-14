@@ -35,10 +35,11 @@ import { nonConcurrent } from '../common/store/utils';
 import { AllDefined, Backend } from '../types';
 import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
 import { fromSmallestUnits, YEAR } from '../common/lib';
-import { getLpState } from '../providers/apiProvider';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 import { PoolState } from './PoolList/Pool/types';
 import { ColumnType } from './PoolList/PoolList';
+import { cachePrice, getCachedPrice } from '../common/priceCache';
+import { calculateLPTokenPrice } from '../providers/tinymanPriceProvider';
 
 const FARM_BACKENDS = {
     '17.2.4': farmBackend_17_2_4 as Backend,
@@ -64,29 +65,6 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
     return 'MOCK';
 }
 
-export async function getLPTokenInfoBackend(asset: Asset, provider: DexProvider): Promise<Priced<LPTokenInfo>> {
-    try {
-        const lpState = await getLpState(asset.id);
-        return {
-            ...asset,
-            poolId: lpState.id,
-            asset1: lpState.asset1_id,
-            asset2: lpState.asset2_id,
-            liquidityAsset: asset.id,
-            asset1Reserve: BigInt(lpState.asset1_reserve_micros),
-            asset2Reserve: BigInt(lpState.asset2_reserve_micros),
-            totalLiquidity: BigInt(lpState.issued_tokens_micros),
-            poolDex: provider,
-            dexFeeApr: lpState.swap_fee_apr || 0,
-            price: lpState.token_price_usd,
-            priceInAlgo: lpState.token_price_algo,
-        };
-    } catch (e) {
-        console.error(`Failed to get LP token ${asset.id} info`, e);
-        throw e;
-    }
-}
-
 export async function getLPTokenInfo(
     asset: Asset,
     algoPrice: number | null,
@@ -95,31 +73,83 @@ export async function getLPTokenInfo(
     if (provider === undefined) {
         provider = detectAssetProvider(asset);
     }
-    // if (provider === 'PT') {
-    // Pact pools fix
-    return await getLPTokenInfoBackend(asset, provider);
-    // }
 
-    // if (algoPrice === null) {
-    //     algoPrice = await fetchAlgoPriceFx();
-    // }
-    //
-    // const dex = makeDex(provider);
-    // const poolInfo = await dex.getPoolByAddress(asset.creator).catch(() => dex.getPoolByAddress(asset.reserve));
-    //
-    // const firstAsset = await fetchAsset(poolInfo.asset1);
-    // let fstAssetPrice;
-    // if (poolInfo.asset1 === 0) {
-    //     fstAssetPrice = algoPrice;
-    // } else {
-    //     const algoPool = await dex.getPoolByAssets(firstAsset, ALGO_ASSET);
-    //     const priceInAlgo = (await algoPool.getSwap(firstAsset, BigInt(10 ** firstAsset.decimals), 0.01)).price;
-    //     fstAssetPrice = algoPrice * priceInAlgo;
-    // }
-    // const asset1Reserve = fromSmallestUnits(firstAsset, poolInfo.asset1Reserve);
-    // const totalLiquidity = fromSmallestUnits(asset, poolInfo.totalLiquidity);
-    // const price = (asset1Reserve / totalLiquidity) * fstAssetPrice * 2;
-    // return { ...asset, ...poolInfo, price, priceInAlgo: price / algoPrice };
+    try {
+        // Try to get from cache first
+        const cachedPrice = getCachedPrice(asset.id);
+        if (cachedPrice && cachedPrice.priceInAlgo && cachedPrice.priceInUsd && algoPrice) {
+            console.log(`Using cached LP token price for ${asset.id}: ${cachedPrice.priceInAlgo.price} ALGO`);
+
+            // Get the pool information from the DEX
+            const dex = makeDex(provider);
+            const pool = await dex.getPoolByAssets(asset, 0); // 0 is ALGO_ASSET
+
+            return {
+                ...asset,
+                poolId: pool.poolId,
+                asset1: pool.asset1,
+                asset2: pool.asset2,
+                liquidityAsset: asset.id,
+                asset1Reserve: pool.asset1Reserve,
+                asset2Reserve: pool.asset2Reserve,
+                totalLiquidity: pool.totalLiquidity,
+                poolDex: provider,
+                dexFeeApr: pool.dexFeeApr || 0,
+                price: cachedPrice.priceInUsd.price,
+                priceInAlgo: cachedPrice.priceInAlgo.price,
+            };
+        }
+
+        // If not in cache, calculate the price
+        const dex = makeDex(provider);
+        const pool = await dex.getPoolByAssets(asset, 0); // 0 is ALGO_ASSET
+
+        // Get the assets in the pool
+        const asset1 = await fetchAsset(pool.asset1);
+        const asset2 = await fetchAsset(pool.asset2);
+
+        if (!algoPrice) {
+            throw new Error('ALGO price is required to calculate LP token price');
+        }
+
+        // Calculate the LP token price
+        const lpPrice = await calculateLPTokenPrice(
+            asset,
+            asset1,
+            asset2,
+            pool.asset1Reserve,
+            pool.asset2Reserve,
+            pool.totalLiquidity,
+            algoPrice
+        );
+
+        if (!lpPrice) {
+            throw new Error('Failed to calculate LP token price');
+        }
+
+        // Cache the price
+        cachePrice(asset.id, lpPrice.priceInAlgo, lpPrice.priceInUsd);
+
+        return {
+            ...asset,
+            poolId: pool.poolId,
+            asset1: pool.asset1,
+            asset2: pool.asset2,
+            liquidityAsset: asset.id,
+            asset1Reserve: pool.asset1Reserve,
+            asset2Reserve: pool.asset2Reserve,
+            totalLiquidity: pool.totalLiquidity,
+            poolDex: provider,
+            dexFeeApr: pool.dexFeeApr || 0,
+            price: lpPrice.priceInUsd,
+            priceInAlgo: lpPrice.priceInAlgo,
+        };
+    } catch (e) {
+        console.error(`Failed to get LP token ${asset.id} info`, e);
+        throw e;
+    }
+
+    // Old LP token price calculation code has been replaced with the new implementation above
 }
 
 const BIG_NUM = BigInt('1000000000000000000');
