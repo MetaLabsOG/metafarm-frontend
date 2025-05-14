@@ -7,6 +7,7 @@ import { Balance } from './Balance';
 import { PoolList } from './PoolList';
 import { $sortedPoolsWithStats, initializeFarmContract } from './store';
 import { BalanceContainer, FarmContainer, GovImg } from './styled';
+import { LoadingSpinner } from '../Components/LoadingSpinner';
 
 export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
     if (window.innerWidth <= 1120) {
@@ -61,14 +62,26 @@ export const renderRandomAd = (): JSX.Element => {
     }
 };
 
-export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => (
-    <FarmContainer>
-        {window.innerWidth <= 700 && renderSliseAd()}
-        <BalanceContainer>
-            <Balance kind={'farm' as FarmType} />
-            {window.innerWidth > 700 && renderSliseAd()}
-        </BalanceContainer>
-        <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
-        <InfoCards addFarmType="farm" />
-    </FarmContainer>
-));
+export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => {
+    const isLoading = !state || state.length === 0;
+
+    return (
+        <FarmContainer>
+            {window.innerWidth <= 700 && renderSliseAd()}
+            <BalanceContainer>
+                <Balance kind={'farm' as FarmType} />
+                {window.innerWidth > 700 && renderSliseAd()}
+            </BalanceContainer>
+
+            <LoadingSpinner
+                isLoading={isLoading}
+                text="Loading farm pools..."
+                size="medium"
+            >
+                <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
+            </LoadingSpinner>
+
+            <InfoCards addFarmType="farm" />
+        </FarmContainer>
+    );
+});

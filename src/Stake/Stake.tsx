@@ -8,6 +8,7 @@ import { InfoCards } from '../Farm/Farm';
 import { initializeFarmContract } from '../Farm/store';
 import governance from '../imgs/folks.jpeg';
 import { $sortedStakePoolsWithStats, initializeDistributionContract } from './store';
+import { LoadingSpinner } from '../Components/LoadingSpinner';
 
 export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state) => {
     const initStake = useUnit(initializeFarmContract);
@@ -31,13 +32,23 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
         />
     );
 
+    const isLoading = !state || state.length === 0;
+
     return (
         <FarmContainer>
             <BalanceContainer>
                 <Balance kind={'distribution' as FarmType} />
                 {window.innerWidth > 700 && renderSliseAd()}
             </BalanceContainer>
-            <PoolList pools={state} poolType="stake" initEvent={initStakeOrDistr} />
+
+            <LoadingSpinner
+                isLoading={isLoading}
+                text="Loading stake pools..."
+                size="medium"
+            >
+                <PoolList pools={state} poolType="stake" initEvent={initStakeOrDistr} />
+            </LoadingSpinner>
+
             <InfoCards addFarmType="stake" />
             {window.innerWidth <= 700 && renderSliseAd()}
         </FarmContainer>

@@ -19,6 +19,7 @@ import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
 import { PoolContainer, PoolLoadingAnimation } from './styled';
+import { LoadingSpinner } from '../../../Components/LoadingSpinner';
 import { getPoolState } from './utils';
 
 export function Pool({
@@ -47,11 +48,16 @@ export function Pool({
     }, [contract.info.id, contract.info.version, account]);
 
     const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
-    if (currentBlock === 0 || !contract.state || !is_info_loaded || !pricedAlgo) {
-        // console.log('WHY LOADING?', currentBlock, contract.state, rewardTokenInfo, stakeTokenInfo, pricedAlgo);
+    const isLoading = currentBlock === 0 || !contract.state || !is_info_loaded || !pricedAlgo;
+
+    if (isLoading) {
         return (
             <PoolContainer>
-                <PoolLoadingAnimation src={logo} style={{ opacity: '0.5' }} width="45px" height="45px" />
+                <LoadingSpinner
+                    isLoading={true}
+                    size="small"
+                    text="Loading pool data..."
+                />
             </PoolContainer>
         );
     }
@@ -71,6 +77,7 @@ export function Pool({
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
         return (
             <PoolContainer
+                className="pool-container"
                 style={{ transform: window.innerWidth <= 1120 && isOpen && !isSafari ? 'rotateY(180deg)' : '' }}
             >
                 <div
