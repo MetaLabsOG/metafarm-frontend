@@ -1,0 +1,6 @@
+2025/05/15-01:23:12.321 8af80 Reusing MANIFEST /Users/nikitagorokhov/cometa/dev/metafarm-frontend/.playwright/main_chrome_session/Default/Local Storage/leveldb/MANIFEST-000001
+2025/05/15-01:23:12.324 8af80 Recovering log #3
+2025/05/15-01:23:12.324 8af80 Reusing old log /Users/nikitagorokhov/cometa/dev/metafarm-frontend/.playwright/main_chrome_session/Default/Local Storage/leveldb/000003.log 
+2025/05/15-01:29:26.870 8af82 Level-0 table #5: started
+2025/05/15-01:29:26.873 8af82 Level-0 table #5: 15340 bytes OK
+2025/05/15-01:29:26.875 8af82 Delete type=0 #3

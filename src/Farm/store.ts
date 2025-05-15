@@ -40,6 +40,7 @@ import { PoolState } from './PoolList/Pool/types';
 import { ColumnType } from './PoolList/PoolList';
 import { cachePrice, getCachedPrice } from '../common/priceCache';
 import { calculateLPTokenPrice } from '../providers/tinymanPriceProvider';
+import { fetchLPTokenInfoFromBackendApi, BackendLPTokenInfo } from '../providers/apiProvider';
 
 const FARM_BACKENDS = {
     '17.2.4': farmBackend_17_2_4 as Backend,
@@ -66,30 +67,29 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
 }
 
 export async function getLPTokenInfo(
-    asset: Asset,
+    lpTokenAsset: Asset,
+    asset1Id: AssetId,
+    asset2Id: AssetId,
     algoPrice: number | null,
     provider?: DexProvider
 ): Promise<Priced<LPTokenInfo>> {
-    if (provider === undefined) {
-        provider = detectAssetProvider(asset);
-    }
-
     try {
-        // Try to get from cache first
-        const cachedPrice = getCachedPrice(asset.id);
+        // This is the primary logic using DEX SDKs
+        if (provider === undefined) {
+            provider = detectAssetProvider(lpTokenAsset);
+        }
+
+        const cachedPrice = getCachedPrice(lpTokenAsset.id);
         if (cachedPrice && cachedPrice.priceInAlgo && cachedPrice.priceInUsd && algoPrice) {
-            console.log(`Using cached LP token price for ${asset.id}: ${cachedPrice.priceInAlgo.price} ALGO`);
-
-            // Get the pool information from the DEX
+            console.log(`Using cached LP token price for ${lpTokenAsset.id}: ${cachedPrice.priceInAlgo.price} ALGO (DEX path)`);
             const dex = makeDex(provider);
-            const pool = await dex.getPoolByAssets(asset, 0); // 0 is ALGO_ASSET
-
+            const pool = await dex.getPoolByAssets(asset1Id, asset2Id);
             return {
-                ...asset,
+                ...lpTokenAsset,
                 poolId: pool.poolId,
                 asset1: pool.asset1,
                 asset2: pool.asset2,
-                liquidityAsset: asset.id,
+                liquidityAsset: lpTokenAsset.id,
                 asset1Reserve: pool.asset1Reserve,
                 asset2Reserve: pool.asset2Reserve,
                 totalLiquidity: pool.totalLiquidity,
@@ -100,23 +100,19 @@ export async function getLPTokenInfo(
             };
         }
 
-        // If not in cache, calculate the price
         const dex = makeDex(provider);
-        const pool = await dex.getPoolByAssets(asset, 0); // 0 is ALGO_ASSET
-
-        // Get the assets in the pool
-        const asset1 = await fetchAsset(pool.asset1);
-        const asset2 = await fetchAsset(pool.asset2);
+        const pool = await dex.getPoolByAssets(asset1Id, asset2Id);
+        const fetchedAsset1 = await fetchAsset(pool.asset1);
+        const fetchedAsset2 = await fetchAsset(pool.asset2);
 
         if (!algoPrice) {
-            throw new Error('ALGO price is required to calculate LP token price');
+            throw new Error('ALGO price is required to calculate LP token price (DEX path)');
         }
 
-        // Calculate the LP token price
         const lpPrice = await calculateLPTokenPrice(
-            asset,
-            asset1,
-            asset2,
+            lpTokenAsset,
+            fetchedAsset1,
+            fetchedAsset2,
             pool.asset1Reserve,
             pool.asset2Reserve,
             pool.totalLiquidity,
@@ -124,18 +120,16 @@ export async function getLPTokenInfo(
         );
 
         if (!lpPrice) {
-            throw new Error('Failed to calculate LP token price');
+            throw new Error('Failed to calculate LP token price (DEX path)');
         }
-
-        // Cache the price
-        cachePrice(asset.id, lpPrice.priceInAlgo, lpPrice.priceInUsd);
+        cachePrice(lpTokenAsset.id, lpPrice.priceInAlgo, lpPrice.priceInUsd);
 
         return {
-            ...asset,
+            ...lpTokenAsset,
             poolId: pool.poolId,
             asset1: pool.asset1,
             asset2: pool.asset2,
-            liquidityAsset: asset.id,
+            liquidityAsset: lpTokenAsset.id,
             asset1Reserve: pool.asset1Reserve,
             asset2Reserve: pool.asset2Reserve,
             totalLiquidity: pool.totalLiquidity,
@@ -144,12 +138,44 @@ export async function getLPTokenInfo(
             price: lpPrice.priceInUsd,
             priceInAlgo: lpPrice.priceInAlgo,
         };
-    } catch (e) {
-        console.error(`Failed to get LP token ${asset.id} info`, e);
-        throw e;
-    }
+    } catch (dexError) {
+        console.warn(`Primary DEX SDK method failed for LP token ${lpTokenAsset.id}:`, dexError);
+        console.log(`Attempting fallback to backend API for LP token ${lpTokenAsset.id}...`);
 
+        try {
+            const backendData = await fetchLPTokenInfoFromBackendApi(lpTokenAsset.id);
+            
+            // Ensure lpTokenAsset details (name, unitName, decimals, etc.) are preserved.
+            // The backend API provides prices and reserve info, but not necessarily full Asset details for the LP token itself.
+            const transformedData: Priced<LPTokenInfo> = {
+                ...lpTokenAsset, // Spread the original LP asset to keep its details
+                poolId: backendData.id, // Pool AppId from backend
+                asset1: backendData.asset1_id,
+                asset2: backendData.asset2_id,
+                liquidityAsset: backendData.token_id, // This should match lpTokenAsset.id
+                asset1Reserve: BigInt(Math.round(backendData.asset1_reserve_micros)),
+                asset2Reserve: BigInt(Math.round(backendData.asset2_reserve_micros)),
+                totalLiquidity: BigInt(Math.round(backendData.issued_tokens_micros)),
+                poolDex: backendData.dex_provider as DexProvider, // Cast, ensure this is a valid DexProvider string
+                dexFeeApr: backendData.swap_fee_apr || 0,
+                price: backendData.token_price_usd,
+                priceInAlgo: backendData.token_price_algo,
+            };
+            
+            // Optionally, cache this backend-derived price too
+            cachePrice(lpTokenAsset.id, transformedData.priceInAlgo, transformedData.price);
+            console.log(`Successfully fetched LP token ${lpTokenAsset.id} info from backend API fallback.`);
+            return transformedData;
+        } catch (fallbackError) {
+            console.error(`Fallback backend API method also failed for LP token ${lpTokenAsset.id}:`, fallbackError);
+            // Re-throw the original DEX error or a new combined error if more context is needed
+            // For now, re-throwing original to keep behavior somewhat consistent with prior error propagation
+            throw dexError; 
+        }
+    }
     // Old LP token price calculation code has been replaced with the new implementation above
+    // This comment seems out of place now, as the function has significant logic.
+    // Consider removing or updating it.
 }
 
 const BIG_NUM = BigInt('1000000000000000000');
@@ -217,18 +243,22 @@ export const $lpTokenInfos = createStore<LPTokenStore>(Map());
 export const getLPTokenInfoFx = createEffect(
     nonConcurrent(
         async ({
-            asset,
+            lpTokenAsset,
+            asset1Id,
+            asset2Id,
             provider,
             algoPrice,
         }: {
-            asset: Asset;
+            lpTokenAsset: Asset;
+            asset1Id: AssetId;
+            asset2Id: AssetId;
             provider: DexProvider | undefined;
             algoPrice: number | null;
-        }) => getLPTokenInfo(asset, algoPrice, provider)
+        }) => getLPTokenInfo(lpTokenAsset, asset1Id, asset2Id, algoPrice, provider)
     )
 );
 
-$lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
+$lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.lpTokenAsset), result));
 
 const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) => {
     const newIds = Set(pools.filter((pool) => pool.state !== null).map((pool) => pool.state!.initial.stakeToken));
@@ -238,9 +268,29 @@ const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) =>
 // Automatically fetch LP token infos when general info about them gets fetched the first time
 sample({
     clock: assetLoaded,
-    source: { lpTokens: $lpTokenIds, algoPrice: $algoUsdPrice },
-    filter: ({ lpTokens }, asset) => lpTokens.has(asset.id),
-    fn: ({ algoPrice }, asset) => ({ asset, algoPrice, provider: undefined }),
+    source: { farmPools: $farmPools, algoPrice: $algoUsdPrice }, // Added farmPools to source
+    filter: ({ farmPools }, lpTokenAsset) => {
+        // Check if the loaded asset is an LP token for any of the farm pools
+        return farmPools.some(pool => pool.state?.initial.stakeToken === lpTokenAsset.id && pool.info.metadata.dex);
+    },
+    fn: ({ farmPools, algoPrice }, lpTokenAsset) => {
+        const pool = farmPools.find(p => p.state?.initial.stakeToken === lpTokenAsset.id);
+        if (!pool || !pool.info.metadata.asset1_id || !pool.info.metadata.asset2_id) {
+            // This should ideally not happen if filter is correct
+            console.error('Could not find pool or metadata for LP token:', lpTokenAsset.id);
+            // How to handle this error case? For now, let's prevent calling the effect.
+            // Though Effector's filter should prevent this `fn` from running.
+            // To satisfy type-checker for target, we'd need to return a valid payload or have filter be more robust.
+            // However, the filter *should* ensure `pool` is found and has `dex`.
+            // Let's throw to make it obvious if this case is hit.
+            throw new Error(`Critical: Pool metadata not found for LP token ${lpTokenAsset.id} after filter passed.`);
+        }
+        const asset1Id = Number(pool.info.metadata.asset1_id);
+        const asset2Id = Number(pool.info.metadata.asset2_id);
+        const provider = pool.info.metadata.dex as DexProvider; // Assuming metadata.dex is a valid DexProvider
+
+        return { lpTokenAsset, asset1Id, asset2Id, algoPrice, provider };
+    },
     target: getLPTokenInfoFx,
 });
 

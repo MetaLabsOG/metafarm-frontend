@@ -80,7 +80,16 @@ export type ContractInfo<T extends ContractType> = {
 };
 
 export type ContractMetadata = {
-    farm: { dex?: string; verified?: boolean };
+    farm: {
+        dex?: string;
+        verified?: boolean;
+        stake_token_id?: string;
+        asset1_id?: string;
+        asset2_id?: string;
+        reward_token_id?: number;
+        reward_token_name?: string;
+        reward_token_decimals?: number;
+    };
     distribution: { verified?: boolean };
     crowdsale: { whitelist: string[] };
     fomo: unknown;
@@ -102,6 +111,7 @@ export type GlobalInfo = {
 
 export type LocalInfo = {
     farm: FarmLocalInfo;
+    distribution: FarmLocalInfo;
     laas: LaasLocalInfo;
 };
 
