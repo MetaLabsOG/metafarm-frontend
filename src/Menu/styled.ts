@@ -1,9 +1,21 @@
 import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
+import { css, keyframes } from 'styled-components';
 
 import { WalletActionButton } from '../common/styled';
 
-export const MenuItem = styled(NavLink)`
+// Add global keyframes for wobble animation
+const wobble = keyframes`
+  0% { transform: none; }
+  15% { transform: translateX(-2px) rotate(-2deg); }
+  30% { transform: translateX(3px) rotate(2deg); }
+  45% { transform: translateX(-3px) rotate(-1deg); }
+  60% { transform: translateX(2px) rotate(1deg); }
+  75% { transform: translateX(-1px) rotate(-1deg); }
+  100% { transform: none; }
+`;
+
+export const MenuItem = styled(NavLink as any)`
     color: white;
     text-decoration: none;
     text-transform: capitalize;
@@ -16,6 +28,7 @@ export const MenuItem = styled(NavLink)`
     :hover {
         color: var(--lightGreen);
         text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
+        animation: ${wobble} 0.5s;
     }
 
     &.active {
@@ -123,9 +136,12 @@ export const AssetPriceWithLogo = styled(WalletActionButton)`
     align-items: center;
     padding-left: 10px;
     padding-right: 10px;
+    :hover {
+        animation: ${wobble} 0.5s;
+    }
 `;
 
-export const ExchangeRate = styled.a`
+export const ExchangeRate = styled.span`
     font-family: 'Montserrat', serif;
     font-size: 13px;
     font-weight: 500;
