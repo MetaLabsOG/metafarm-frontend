@@ -111,7 +111,7 @@ export const MenuContainer = styled.div`
     justify-content: space-between;
     flex-direction: column;
     z-index: 10;
-    background: rgba(30, 30, 30, 0.5); /* More transparent */
+    background: rgba(30, 30, 30, 0.01); /* More transparent */
     backdrop-filter: blur(8px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);

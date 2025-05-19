@@ -80,7 +80,7 @@ export const PoolListContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: rgba(30, 30, 30, 0.4);
+    background-color: rgba(30, 30, 30, 0.1);
     backdrop-filter: blur(5px);
     width: 80%;
     min-width: 1114px;

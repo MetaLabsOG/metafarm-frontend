@@ -9,7 +9,7 @@ const GradientPoolContainer = styled(PoolContainer)`
     135deg,
     rgba(81, 221, 78, 0.03) 0%,
     rgba(54, 54, 54, 0.03) 50%
-  ), rgba(44, 44, 44, 0.4);
+  ), rgba(44, 44, 44, 0.1);
 
   /* Add backdrop blur for transparency effect */
   backdrop-filter: blur(8px);
@@ -27,7 +27,7 @@ const GradientPoolContainer = styled(PoolContainer)`
       135deg,
       rgba(81, 221, 78, 0.05) 0%,
       rgba(54, 54, 54, 0.05) 50%
-    ), rgba(44, 44, 44, 0.5);
+    ), rgba(44, 44, 44, 0.1);
 
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25),
                 0 0 30px rgba(81, 221, 78, 0.05);
