@@ -6,13 +6,11 @@ import {
     PoolInfoMobileContainer,
     PoolInfoValue,
     PoolInfoGrid,
-    PoolInfoGridCell,
-    PoolInfoGridCellSmall,
     PoolPropertyName,
     PoolPropertyValue,
-    StakeButtonMobile,
     TimingMobile,
 } from './styled';
+import { GradientGridCell, GradientStakeButton } from './GradientPoolCard';
 import { convertAmountToUSD, numberRound } from './utils';
 import { getAPRTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
 
@@ -52,14 +50,14 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 nftRewards={nftRewards}
             />
             <PoolInfoGrid>
-                <PoolInfoGridCell>
+                <GradientGridCell>
                     <PoolPropertyName>TVL</PoolPropertyName>
                     <PoolPropertyValue>
                         ${numberRound(convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked))}
                     </PoolPropertyValue>
-                </PoolInfoGridCell>
+                </GradientGridCell>
 
-                <PoolInfoGridCell>
+                <GradientGridCell>
                     <PoolPropertyName>APR</PoolPropertyName>
                     <PoolPropertyValue>
                         <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -74,23 +72,23 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                             <ReactTooltip clickable place="top" type="light" effect="solid" />
                         </span>
                     </PoolPropertyValue>
-                </PoolInfoGridCell>
+                </GradientGridCell>
 
-                <PoolInfoGridCellSmall>
+                <GradientGridCell>
                     <PoolPropertyName>Staked</PoolPropertyName>
                     <PoolPropertyValue>
                         <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
                     </PoolPropertyValue>
-                </PoolInfoGridCellSmall>
+                </GradientGridCell>
 
-                <PoolInfoGridCellSmall>
+                <GradientGridCell>
                     <PoolPropertyName>Reward</PoolPropertyName>
                     <PoolPropertyValue>
                         <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                     </PoolPropertyValue>
-                </PoolInfoGridCellSmall>
+                </GradientGridCell>
             </PoolInfoGrid>
-            <StakeButtonMobile disabled={!contractState.local}>Stake</StakeButtonMobile>
+            <GradientStakeButton disabled={!contractState.local}>Stake</GradientStakeButton>
             <TimingMobile>{timing}</TimingMobile>
         </PoolInfoMobileContainer>
     );

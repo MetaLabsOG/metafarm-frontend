@@ -18,7 +18,8 @@ import { ConnectWalletModal } from '../../../wallet/ConnectWalletModal';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
-import { PoolContainer, PoolLoadingAnimation } from './styled';
+import { PoolLoadingAnimation } from './styled';
+import { GradientPoolContainer } from './GradientPoolCard';
 import { LoadingSpinner } from '../../../Components/LoadingSpinner';
 import { getPoolState } from './utils';
 
@@ -52,13 +53,13 @@ export function Pool({
 
     if (isLoading) {
         return (
-            <PoolContainer>
+            <GradientPoolContainer>
                 <LoadingSpinner
                     isLoading={true}
                     size="small"
                     text="Loading pool data..."
                 />
-            </PoolContainer>
+            </GradientPoolContainer>
         );
     }
 
@@ -79,7 +80,7 @@ export function Pool({
         const showMobileActions = window.innerWidth <= 1120 && isOpen;
 
         return (
-            <PoolContainer
+            <GradientPoolContainer
                 className="pool-container"
                 style={{
                     transform: showMobileActions && !isSafari ? 'rotateY(180deg)' : '',
@@ -131,7 +132,7 @@ export function Pool({
                 <ConnectWallet>
                     <ConnectWalletModal closeModal={closeConnectWallet} isModalOpen={isConnectWalletOpen} />
                 </ConnectWallet>
-            </PoolContainer>
+            </GradientPoolContainer>
         );
     }
 
