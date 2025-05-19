@@ -83,85 +83,92 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
 
     return (
         <PoolActionsDesktopContainer>
-            <TokenInfo>
-                {isLPTokenInfo(stakedToken) && canStake && (
-                    <Button
-                        style={{ color: 'white' }}
-                        buttonText="Get LP Tokens"
-                        onClick={getLPTokenAction(stakedToken, openZapModal)}
-                    />
-                )}
-                {!isLPTokenInfo(stakedToken) && canStake && (
-                    <a target="_blank" href={'https://app.cometa.farm/swap'} rel="noreferrer">
+            <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <TokenInfo>
+                    {isLPTokenInfo(stakedToken) && canStake && (
                         <Button
                             style={{ color: 'white' }}
-                            buttonText={'Get ' + stakedToken.unitName}
-                            onClick={() => {}}
+                            buttonText="Get LP Tokens"
+                            onClick={getLPTokenAction(stakedToken, openZapModal)}
                         />
-                    </a>
-                )}
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
-                        <ContractLink>Сontract</ContractLink>
-                    </a>
-                    {isLPTokenInfo(stakedToken) && (
-                        <a target="_blank" href={getDestroyLPLink(stakedToken)} rel="noreferrer">
-                            <ContractLink>Destroy LP</ContractLink>
+                    )}
+                    {!isLPTokenInfo(stakedToken) && canStake && (
+                        <a target="_blank" href={'https://app.cometa.farm/swap'} rel="noreferrer">
+                            <Button
+                                style={{ color: 'white' }}
+                                buttonText={'Get ' + stakedToken.unitName}
+                                onClick={() => {}}
+                            />
                         </a>
                     )}
-                </div>
-            </TokenInfo>
-            <TokenInputWithButton
-                style={!canStake ? { visibility: 'hidden' } : {}}
-                token={stakedToken}
-                tokenMicroBalance={stakedTokenBalance}
-                balanceSuffix={balanceSuffix}
-                buttonName="Stake"
-                optInId={rewardTokenInfo.id}
-                actionEffect={ctc.apis.stake}
-                hasLock={hasLock}
-                isAutoClaim={isAutoClaim}
-            />
-            <TokenInputWithButton
-                token={stakedToken}
-                tokenMicroBalance={contractState.local.staked}
-                balanceSuffix={balanceSuffix}
-                buttonName="Withdraw"
-                optInId={rewardTokenInfo.id}
-                actionEffect={ctc.apis.unstake}
-                hasLock={hasLock}
-                isAutoClaim={isAutoClaim}
-            />
-            <div>
-                <PacmanButton
-                    style={!canClaim ? { visibility: 'hidden' } : {}}
-                    buttonText="Claim"
-                    buttonStyle="claim_button"
-                    isInactive={!isActiveClaim}
-                    onClickAction={async () =>
-                        onClickClaim(
-                            account,
-                            ctc,
-                            stakedToken,
-                            rewardTokenInfo,
-                            contractState.local.reward,
-                            contractId,
-                            setNft
-                        )
-                    }
-                />
-                <UnlockTimer unlockTimer={unlockTimer} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
+                            <ContractLink>Сontract</ContractLink>
+                        </a>
+                        {isLPTokenInfo(stakedToken) && (
+                            <a target="_blank" href={getDestroyLPLink(stakedToken)} rel="noreferrer">
+                                <ContractLink>Destroy LP</ContractLink>
+                            </a>
+                        )}
+                    </div>
+                </TokenInfo>
             </div>
-            {canStake && canClaim && account && isCompoundEnabled(stakedToken, rewardTokenInfo.id) && (
-                <PacmanButton
-                    buttonText="Compound"
-                    buttonStyle="claim_button"
-                    isInactive={!isActiveClaim}
-                    onClickAction={async () =>
-                        runCompound(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
-                    }
-                />
-            )}
+
+            <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', gap: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: '1' }}>
+                    <TokenInputWithButton
+                        style={!canStake ? { visibility: 'hidden' } : {}}
+                        token={stakedToken}
+                        tokenMicroBalance={stakedTokenBalance}
+                        balanceSuffix={balanceSuffix}
+                        buttonName="Stake"
+                        optInId={rewardTokenInfo.id}
+                        actionEffect={ctc.apis.stake}
+                        hasLock={hasLock}
+                        isAutoClaim={isAutoClaim}
+                    />
+                    <TokenInputWithButton
+                        token={stakedToken}
+                        tokenMicroBalance={contractState.local.staked}
+                        balanceSuffix={balanceSuffix}
+                        buttonName="Withdraw"
+                        optInId={rewardTokenInfo.id}
+                        actionEffect={ctc.apis.unstake}
+                        hasLock={hasLock}
+                        isAutoClaim={isAutoClaim}
+                    />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', minWidth: '150px' }}>
+                    <PacmanButton
+                        style={!canClaim ? { visibility: 'hidden' } : {}}
+                        buttonText="Claim"
+                        buttonStyle="claim_button"
+                        isInactive={!isActiveClaim}
+                        onClickAction={async () =>
+                            onClickClaim(
+                                account,
+                                ctc,
+                                stakedToken,
+                                rewardTokenInfo,
+                                contractState.local.reward,
+                                contractId,
+                                setNft
+                            )
+                        }
+                    />
+                    <UnlockTimer unlockTimer={unlockTimer} />
+                    {canStake && canClaim && account && isCompoundEnabled(stakedToken, rewardTokenInfo.id) && (
+                        <PacmanButton
+                            buttonText="Compound"
+                            buttonStyle="claim_button"
+                            isInactive={!isActiveClaim}
+                            onClickAction={async () =>
+                                runCompound(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
+                            }
+                        />
+                    )}
+                </div>
+            </div>
         </PoolActionsDesktopContainer>
     );
 };

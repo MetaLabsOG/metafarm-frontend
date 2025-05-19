@@ -35,7 +35,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
 }) => {
     const account = useUnit($account);
     return (
-        <PoolActionsMobileContainer style={{ display: 'block' }}> {/* Override the default display:none */}
+        <PoolActionsMobileContainer>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}> {/* Reduced from 30px */}
                 <ButtonBackMobile
                     src={arrowBack}

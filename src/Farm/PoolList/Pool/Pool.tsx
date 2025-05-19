@@ -78,14 +78,19 @@ export function Pool({
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
         // Determine if we should show the mobile action view
         const showMobileActions = window.innerWidth <= 1120 && isOpen;
+        // For desktop, we show actions differently
+        const isDesktop = window.innerWidth > 1120;
+        const showDesktopActions = isDesktop && isOpen;
 
         return (
             <GradientPoolContainer
                 className="pool-container"
                 style={{
                     transform: showMobileActions && !isSafari ? 'rotateY(180deg)' : '',
-                    height: showMobileActions ? '420px' : 'auto' // Only set fixed height when actions are visible
+                    height: showMobileActions ? '420px' : 'auto', // Only set fixed height when actions are visible
+                    cursor: 'pointer' // Add cursor pointer to indicate clickable area
                 }}
+                onClick={onPoolClick} // Move onClick to the container level
             >
                 <div
                     style={{
@@ -93,7 +98,6 @@ export function Pool({
                         transform: showMobileActions && !isSafari ? 'rotateY(180deg)' : '',
                         display: showMobileActions ? 'none' : 'block' // Hide info when actions are visible
                     }}
-                    onClick={onPoolClick}
                 >
                     <PoolInfo
                         isOpen={isOpen}
@@ -106,13 +110,32 @@ export function Pool({
                         poolMetadata={contract.info.metadata}
                         apr={pws.apr}
                     />
+
+                    {/* Show desktop actions below the pool info when open */}
+                    {isDesktop && contract.ctc !== null && hasLocalState(contract.state) && showDesktopActions && (
+                        <PoolActions
+                            poolState={poolState}
+                            ctc={contract.ctc}
+                            contractState={contract.state}
+                            stakeTokenInfo={stakeTokenInfo}
+                            rewardTokenInfo={rewardTokenInfo}
+                            setIsZapModalOpen={setIsOpen}
+                            currentBlock={currentBlock}
+                            contractId={contract.id}
+                            contractVersion={contract.info.version}
+                            pricedAlgo={pricedAlgo}
+                        />
+                    )}
                 </div>
-                {contract.ctc !== null && hasLocalState(contract.state) && (
+
+                {/* Mobile actions with flip animation */}
+                {!isDesktop && contract.ctc !== null && hasLocalState(contract.state) && (
                     <div
                         style={{
                             backfaceVisibility: 'hidden',
                             transform: showMobileActions && !isSafari ? 'rotateY(180deg)' : '',
-                            display: showMobileActions ? 'block' : 'none' // Only show actions when needed
+                            display: showMobileActions ? 'block' : 'none', // Only show actions when needed
+                            zIndex: showMobileActions ? 2 : 0 // Ensure actions are on top when visible
                         }}
                     >
                         <PoolActions

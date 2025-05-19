@@ -138,6 +138,8 @@ export const PoolActionsDesktopContainer = styled.div`
     display: flex;
     margin-top: 38px;
     gap: 25px;
+    width: 100%;
+    padding: 0 20px;
 
     @media (max-width: 1120px) {
         display: none;
@@ -211,7 +213,7 @@ export const PoolActionsMobileContainer = styled.div`
     margin-top: 0;
     padding-right: 15px;
     padding-left: 15px;
-    display: none; /* Hide by default, will be shown when needed */
+    /* Removed display: none to allow inline style to work properly */
 
     @media (min-width: 1120px) {
         display: none;
