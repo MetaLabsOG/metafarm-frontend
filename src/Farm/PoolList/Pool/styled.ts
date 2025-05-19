@@ -8,14 +8,20 @@ export const PoolContainer = styled.div`
     height: auto;
     margin-bottom: 8px; /* Reduced from 16px */
     color: var(--gray);
-    background-color: var(--backgroundModal);
     width: 95%;
     font-size: 14px;
     padding: 20px 0 20px 0;
     border-radius: 10px;
+    background: linear-gradient(270deg, rgba(81, 221, 78, 0.08) 0%, rgba(54, 54, 54, 0.08) 30.46%), var(--backgroundModal);
+    backdrop-filter: blur-md;
+    backdrop-saturate: 150%;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    will-change: transform;
+    translate: z-0;
 
     :hover {
-        background: linear-gradient(270deg, rgba(81, 221, 78, 0.06) 0%, rgba(54, 54, 54, 0.06) 30.46%), #363636;
+        background: linear-gradient(270deg, rgba(81, 221, 78, 0.12) 0%, rgba(54, 54, 54, 0.12) 30.46%), var(--backgroundModal);
     }
 
     @media (max-width: 1120px) {
@@ -25,10 +31,10 @@ export const PoolContainer = styled.div`
         perspective: 1000px;
         transition: transform 0.6s;
         transform-style: preserve-3d;
-        background-color: var(--backgroundCard);
+        background: linear-gradient(270deg, rgba(81, 221, 78, 0.08) 0%, rgba(54, 54, 54, 0.08) 30.46%), var(--backgroundCard);
 
         :hover {
-            background: var(--backgroundCard);
+            background: linear-gradient(270deg, rgba(81, 221, 78, 0.12) 0%, rgba(54, 54, 54, 0.12) 30.46%), var(--backgroundCard);
         }
     }
 
@@ -79,15 +85,26 @@ export const PoolInfoMobileContainer = styled.div`
 `;
 
 export const PoolPropertyName = styled.div`
-    padding-left: 8px;
-    color: white;
-    font-size: 14px;
+    color: var(--lightGray);
+    font-size: 13px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 400;
 `;
 
 export const PoolPropertyValue = styled.div`
-    padding-right: 4px;
     color: white;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 16px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+
+    /* Apply green color to dollar values */
+    &:has(> span:first-child:contains('$')),
+    &:has(> div:first-child:contains('$')) {
+        color: #8bff74;
+        text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
+    }
 `;
 
 export const PoolInfoValue = styled.div<{ width?: string }>`
@@ -226,10 +243,12 @@ export const PoolLoadingAnimation = styled.img`
 `;
 
 export const RewardUSDValue = styled.div`
-    color: white;
+    color: #8bff74;
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
 
     @media (max-width: 1120px) {
-        text-align: right;
+        text-align: center;
     }
 `;
 
@@ -238,9 +257,12 @@ export const RewardTokenValue = styled.div`
     font-size: 13px;
     color: #8bff74; // light green tODO: to constants
     display: flex;
+    font-weight: 500;
+    text-shadow: 0 0 8px rgba(139, 255, 116, 0.2);
 
     @media (max-width: 1120px) {
-        text-align: right;
+        text-align: center;
+        justify-content: center;
     }
 `;
 
@@ -251,7 +273,8 @@ export const ZeroRewardTokenValue = styled.div`
     display: flex;
 
     @media (max-width: 1120px) {
-        text-align: right;
+        text-align: center;
+        justify-content: center;
     }
 `;
 
@@ -282,14 +305,32 @@ export const PoolInfoGrid = styled.div`
 `;
 
 export const PoolInfoGridCell = styled(PoolInfoValue)`
-    background-color: rgba(0, 0, 0, 0.3);
+    background: linear-gradient(270deg, rgba(81, 221, 78, 0.05) 0%, rgba(54, 54, 54, 0.05) 30.46%), rgba(0, 0, 0, 0.3);
     border-radius: 6px;
-    padding: 4px 4px; /* Reduced from 6px */
+    padding: 8px 6px;
     margin: 0;
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    height: 28px; /* Reduced from 32px */
+    height: auto;
+    min-height: 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(270deg, rgba(81, 221, 78, 0.02) 0%, rgba(54, 54, 54, 0.02) 30.46%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+
+    &:hover::before {
+        opacity: 1;
+    }
 
     @media (max-width: 1120px) {
         margin-bottom: 0;
@@ -299,6 +340,6 @@ export const PoolInfoGridCell = styled(PoolInfoValue)`
 export const PoolInfoGridCellSmall = styled(PoolInfoGridCell)`
     font-size: 90%;
     color: #a1a1a1;
-    background-color: rgba(0, 0, 0, 0.2);
-    height: 26px; /* Reduced from 28px */
+    background: linear-gradient(270deg, rgba(81, 221, 78, 0.03) 0%, rgba(54, 54, 54, 0.03) 30.46%), rgba(0, 0, 0, 0.2);
+    min-height: 55px;
 `;

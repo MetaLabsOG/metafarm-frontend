@@ -61,24 +61,18 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
 
                 <PoolInfoGridCell>
                     <PoolPropertyName>APR</PoolPropertyName>
-                    <PoolPropertyValue
-                        style={{
-                            color: 'white',
-                            display: 'flex',
-                            alignItems: 'center',
-                            whiteSpace: 'nowrap',
-                            paddingRight: 10,
-                        }}
-                    >
-                        {numberRound(APR.total)}%
-                        <img
-                            data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
-                            style={{ marginLeft: '3px' }}
-                            alt="APR info"
-                            height="14px"
-                            src={info}
-                        />
-                        <ReactTooltip clickable place="top" type="light" effect="solid" />
+                    <PoolPropertyValue>
+                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {numberRound(APR.total)}%
+                            <img
+                                data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
+                                style={{ marginLeft: '3px' }}
+                                alt="APR info"
+                                height="14px"
+                                src={info}
+                            />
+                            <ReactTooltip clickable place="top" type="light" effect="solid" />
+                        </span>
                     </PoolPropertyValue>
                 </PoolInfoGridCell>
 
