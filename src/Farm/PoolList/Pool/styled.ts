@@ -12,16 +12,18 @@ export const PoolContainer = styled.div`
     font-size: 14px;
     padding: 20px 0 20px 0;
     border-radius: 10px;
-    background: linear-gradient(270deg, rgba(81, 221, 78, 0.08) 0%, rgba(54, 54, 54, 0.08) 30.46%), var(--backgroundModal);
-    backdrop-filter: blur-md;
+    background: linear-gradient(270deg, rgba(81, 221, 78, 0.03) 0%, rgba(54, 54, 54, 0.03) 30.46%), rgba(44, 44, 44, 0.4);
+    backdrop-filter: blur(8px);
     backdrop-saturate: 150%;
     border: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
     will-change: transform;
     translate: z-0;
+    transition: all 0.3s ease;
 
     :hover {
-        background: linear-gradient(270deg, rgba(81, 221, 78, 0.12) 0%, rgba(54, 54, 54, 0.12) 30.46%), var(--backgroundModal);
+        background: linear-gradient(270deg, rgba(81, 221, 78, 0.05) 0%, rgba(54, 54, 54, 0.05) 30.46%), rgba(44, 44, 44, 0.5);
+        transform: translateY(-2px);
     }
 
     @media (max-width: 1120px) {
@@ -29,12 +31,13 @@ export const PoolContainer = styled.div`
         min-height: 180px; /* Set minimum height for compact view */
         justify-content: center;
         perspective: 1000px;
-        transition: transform 0.6s;
+        transition: all 0.3s ease;
         transform-style: preserve-3d;
-        background: linear-gradient(270deg, rgba(81, 221, 78, 0.08) 0%, rgba(54, 54, 54, 0.08) 30.46%), var(--backgroundCard);
+        background: linear-gradient(270deg, rgba(81, 221, 78, 0.03) 0%, rgba(54, 54, 54, 0.03) 30.46%), rgba(30, 30, 30, 0.4);
 
         :hover {
-            background: linear-gradient(270deg, rgba(81, 221, 78, 0.12) 0%, rgba(54, 54, 54, 0.12) 30.46%), var(--backgroundCard);
+            background: linear-gradient(270deg, rgba(81, 221, 78, 0.05) 0%, rgba(54, 54, 54, 0.05) 30.46%), rgba(30, 30, 30, 0.5);
+            transform: translateY(-2px);
         }
     }
 

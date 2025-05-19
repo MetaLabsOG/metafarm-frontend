@@ -80,13 +80,19 @@ export const PoolListContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: var(--backgroundCard);
+    background-color: rgba(30, 30, 30, 0.4);
+    backdrop-filter: blur(5px);
     width: 80%;
     min-width: 1114px;
     border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 
     @media (max-width: 1120px) {
         background-color: transparent;
+        backdrop-filter: none;
+        border: none;
+        box-shadow: none;
         margin-top: 0;
         display: flex;
         flex-wrap: wrap;

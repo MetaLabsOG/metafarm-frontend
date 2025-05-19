@@ -62,11 +62,13 @@ export const LogoWithMargin = styled.img`
     margin: auto;
     display: flex;
     margin-bottom: 3px;
+    height: 32px; /* Reduced from 40px */
 `;
 
 export const Logo = styled.img`
     margin: auto;
     display: flex;
+    height: 24px; /* Ensure consistent height */
 `;
 
 export const Burger = styled.img`
@@ -87,7 +89,9 @@ export const MainMenu = styled.div`
     padding-right: 0;
     width: 100%;
     align-items: center;
-    margin: auto;
+    height: 100%;
+    margin: 0;
+
     @media (max-width: 640px) {
         margin: auto;
     }
@@ -107,13 +111,18 @@ export const MenuContainer = styled.div`
     justify-content: space-between;
     flex-direction: column;
     z-index: 10;
-    background: var(--backgroundCard);
+    background: rgba(30, 30, 30, 0.5); /* More transparent */
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 `;
 
 export const ExchangeRatesContainer = styled.div`
     display: flex;
     justify-content: center;
+    align-items: center;
     margin-left: auto;
+    height: 100%;
     @media (max-width: 490px) {
         display: none;
     }
@@ -136,6 +145,8 @@ export const AssetPriceWithLogo = styled(WalletActionButton)`
     align-items: center;
     padding-left: 10px;
     padding-right: 10px;
+    height: 32px;
+    margin: 0 5px;
     :hover {
         animation: ${wobble} 0.5s;
     }
@@ -156,10 +167,12 @@ export const BurgerMenuContainer = styled.div`
     width: 100%;
     position: fixed;
     left: 0;
-    background: var(--backgroundCard);
+    background: rgba(30, 30, 30, 0.8);
+    backdrop-filter: blur(8px);
     padding-left: 20px;
     z-index: 10;
     padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 `;
 
 export const FooterContainer = styled.div`
@@ -171,6 +184,11 @@ export const FooterContainer = styled.div`
     margin-bottom: 10px;
     padding: 15px 30px 15px 30px;
     font-family: 'Montserrat', serif;
+    background: rgba(30, 30, 30, 0.5);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 5;
+    position: relative;
 
     @media (max-width: 640px) {
         flex-direction: column;

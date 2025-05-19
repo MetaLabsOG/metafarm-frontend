@@ -7,13 +7,16 @@ const GradientPoolContainer = styled(PoolContainer)`
   /* Base gradient background */
   background: linear-gradient(
     135deg,
-    rgba(81, 221, 78, 0.08) 0%,
-    rgba(54, 54, 54, 0.08) 50%
-  ), var(--backgroundModal);
+    rgba(81, 221, 78, 0.03) 0%,
+    rgba(54, 54, 54, 0.03) 50%
+  ), rgba(44, 44, 44, 0.4);
+
+  /* Add backdrop blur for transparency effect */
+  backdrop-filter: blur(8px);
 
   /* Add subtle glow effect */
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2),
-              0 0 20px rgba(81, 221, 78, 0.05);
+              0 0 20px rgba(81, 221, 78, 0.03);
 
   /* Smooth transition for hover effects */
   transition: all 0.3s ease;
@@ -22,12 +25,12 @@ const GradientPoolContainer = styled(PoolContainer)`
   &:hover {
     background: linear-gradient(
       135deg,
-      rgba(81, 221, 78, 0.12) 0%,
-      rgba(54, 54, 54, 0.12) 50%
-    ), var(--backgroundModal);
+      rgba(81, 221, 78, 0.05) 0%,
+      rgba(54, 54, 54, 0.05) 50%
+    ), rgba(44, 44, 44, 0.5);
 
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25),
-                0 0 30px rgba(81, 221, 78, 0.08);
+                0 0 30px rgba(81, 221, 78, 0.05);
 
     transform: translateY(-2px);
   }
@@ -36,16 +39,16 @@ const GradientPoolContainer = styled(PoolContainer)`
   @media (max-width: 1120px) {
     background: linear-gradient(
       135deg,
-      rgba(81, 221, 78, 0.08) 0%,
-      rgba(54, 54, 54, 0.08) 50%
-    ), var(--backgroundCard);
+      rgba(81, 221, 78, 0.03) 0%,
+      rgba(54, 54, 54, 0.03) 50%
+    ), rgba(30, 30, 30, 0.4);
 
     &:hover {
       background: linear-gradient(
         135deg,
-        rgba(81, 221, 78, 0.12) 0%,
-        rgba(54, 54, 54, 0.12) 50%
-      ), var(--backgroundCard);
+        rgba(81, 221, 78, 0.05) 0%,
+        rgba(54, 54, 54, 0.05) 50%
+      ), rgba(30, 30, 30, 0.5);
     }
   }
 `;
