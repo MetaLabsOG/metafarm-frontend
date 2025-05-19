@@ -5,6 +5,9 @@ import info from '../../../imgs/info.svg';
 import {
     PoolInfoMobileContainer,
     PoolInfoValue,
+    PoolInfoGrid,
+    PoolInfoGridCell,
+    PoolInfoGridCellSmall,
     PoolPropertyName,
     PoolPropertyValue,
     StakeButtonMobile,
@@ -25,15 +28,14 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     APR,
     timing,
     contractLockSuffix,
-    isOpen,
+    isOpen: _isOpen, // Renamed to avoid unused variable warning
     dex,
     isVerified,
     isGame,
     nftRewards,
 }) => {
-    if (contractState.local && isOpen) {
-        return null;
-    }
+    // We don't need to return null anymore since the parent component handles visibility
+    // This component will always be rendered but might be hidden by the parent
 
     return (
         <PoolInfoMobileContainer>
@@ -49,46 +51,51 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 isGame={isGame}
                 nftRewards={nftRewards}
             />
-            <PoolInfoValue style={{ marginTop: '30px' }}>
-                <PoolPropertyName>TVL</PoolPropertyName>
-                <PoolPropertyValue>
-                    ${numberRound(convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked))}
-                </PoolPropertyValue>
-            </PoolInfoValue>
-            <PoolInfoValue style={{ marginBottom: '30px' }}>
-                <PoolPropertyName>APR</PoolPropertyName>
-                <PoolPropertyValue
-                    style={{
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        whiteSpace: 'nowrap',
-                        paddingRight: 10,
-                    }}
-                >
-                    {numberRound(APR.total)}%
-                    <img
-                        data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
-                        style={{ marginLeft: '3px' }}
-                        alt="APR info"
-                        height="14px"
-                        src={info}
-                    />
-                    <ReactTooltip clickable place="top" type="light" effect="solid" />
-                </PoolPropertyValue>
-            </PoolInfoValue>
-            <PoolInfoValue>
-                <PoolPropertyName>Staked</PoolPropertyName>
-                <PoolPropertyValue>
-                    <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
-                </PoolPropertyValue>
-            </PoolInfoValue>
-            <PoolInfoValue>
-                <PoolPropertyName>Reward</PoolPropertyName>
-                <PoolPropertyValue>
-                    <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
-                </PoolPropertyValue>
-            </PoolInfoValue>
+            <PoolInfoGrid>
+                <PoolInfoGridCell>
+                    <PoolPropertyName>TVL</PoolPropertyName>
+                    <PoolPropertyValue>
+                        ${numberRound(convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked))}
+                    </PoolPropertyValue>
+                </PoolInfoGridCell>
+
+                <PoolInfoGridCell>
+                    <PoolPropertyName>APR</PoolPropertyName>
+                    <PoolPropertyValue
+                        style={{
+                            color: 'white',
+                            display: 'flex',
+                            alignItems: 'center',
+                            whiteSpace: 'nowrap',
+                            paddingRight: 10,
+                        }}
+                    >
+                        {numberRound(APR.total)}%
+                        <img
+                            data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
+                            style={{ marginLeft: '3px' }}
+                            alt="APR info"
+                            height="14px"
+                            src={info}
+                        />
+                        <ReactTooltip clickable place="top" type="light" effect="solid" />
+                    </PoolPropertyValue>
+                </PoolInfoGridCell>
+
+                <PoolInfoGridCellSmall>
+                    <PoolPropertyName>Staked</PoolPropertyName>
+                    <PoolPropertyValue>
+                        <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
+                    </PoolPropertyValue>
+                </PoolInfoGridCellSmall>
+
+                <PoolInfoGridCellSmall>
+                    <PoolPropertyName>Reward</PoolPropertyName>
+                    <PoolPropertyValue>
+                        <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
+                    </PoolPropertyValue>
+                </PoolInfoGridCellSmall>
+            </PoolInfoGrid>
             <StakeButtonMobile disabled={!contractState.local}>Stake</StakeButtonMobile>
             <TimingMobile>{timing}</TimingMobile>
         </PoolInfoMobileContainer>

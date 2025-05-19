@@ -6,7 +6,7 @@ export const PoolContainer = styled.div`
     flex-direction: column;
     justify-content: space-between;
     height: auto;
-    margin-bottom: 16px;
+    margin-bottom: 8px; /* Reduced from 16px */
     color: var(--gray);
     background-color: var(--backgroundModal);
     width: 95%;
@@ -19,7 +19,8 @@ export const PoolContainer = styled.div`
     }
 
     @media (max-width: 1120px) {
-        height: 420px;
+        height: auto; /* Changed from fixed 420px to auto */
+        min-height: 180px; /* Set minimum height for compact view */
         justify-content: center;
         perspective: 1000px;
         transition: transform 0.6s;
@@ -31,13 +32,13 @@ export const PoolContainer = styled.div`
         }
     }
 
-		@media (max-width: 1120px) and (min-width: 701px) {
-			flex: 1 1 calc(50% - 20px);
-			margin-bottom: 0;
-	  }
+    @media (max-width: 1120px) and (min-width: 701px) {
+        flex: 1 1 calc(50% - 20px);
+        margin-bottom: 8px; /* Reduced from 0 */
+    }
 
     @media (max-width: 700px) {
-        width 325px;
+        width: 325px;
     }
 `;
 
@@ -63,13 +64,13 @@ export const PoolInfoDesktopContainer = styled.div`
 export const PoolInfoMobileContainer = styled.div`
     color: ${(props) => props.theme.white};
     width: 100%;
-    padding-left: 28px;
-    padding-right: 28px;
+    padding-left: 20px;
+    padding-right: 20px;
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: normal;
-    line-height: 22px;
-    font-size: 17px;
+    line-height: 18px;
+    font-size: 16px;
     text-align: center;
 
     @media (min-width: 1120px) {
@@ -78,13 +79,15 @@ export const PoolInfoMobileContainer = styled.div`
 `;
 
 export const PoolPropertyName = styled.div`
-    padding-left: 15px;
+    padding-left: 8px;
     color: white;
+    font-size: 14px;
 `;
 
 export const PoolPropertyValue = styled.div`
-    padding-right: 6px;
+    padding-right: 4px;
     color: white;
+    font-weight: 500;
 `;
 
 export const PoolInfoValue = styled.div<{ width?: string }>`
@@ -157,18 +160,18 @@ export const ArrowIconsWrapper = styled.div`
 `;
 
 export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
-    width: 70%;
-    height: 40px;
-    margin: 10px auto auto;
+    width: 50%; /* Reduced from 60% */
+    height: 30px; /* Reduced from 34px */
+    margin: 6px auto 0; /* Reduced from 8px */
     background: ${theme.lightGreen};
     font-family: 'Korona One';
     font-weight: 500;
-    font-size: 20px;
+    font-size: 16px; /* Reduced from 18px */
     color: black;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
-    margin-top: 8px;
+    transition: all 0.2s ease;
 
     :disabled {
         background: grey;
@@ -178,6 +181,7 @@ export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
     :not(:disabled):hover {
         color: green;
         background: black;
+        transform: scale(1.03);
     }
 `;
 
@@ -187,6 +191,7 @@ export const PoolActionsMobileContainer = styled.div`
     margin-top: 0;
     padding-right: 15px;
     padding-left: 15px;
+    display: none; /* Hide by default, will be shown when needed */
 
     @media (min-width: 1120px) {
         display: none;
@@ -255,8 +260,9 @@ export const TimingMobile = styled.div`
     display: flex;
     justify-content: center;
     gap: 3px;
-    font-size: 15px;
-    margin-top: 10px;
+    font-size: 12px; /* Reduced from 13px */
+    margin-top: 4px; /* Reduced from 6px */
+    opacity: 0.8;
 `;
 
 export const ContractLink = styled.div`
@@ -264,4 +270,35 @@ export const ContractLink = styled.div`
     font-size: 13px;
     text-decoration: underline;
     color: var(--gray);
+`;
+
+export const PoolInfoGrid = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 6px; /* Reduced from 8px */
+    width: 100%;
+    margin: 8px 0; /* Reduced from 10px */
+`;
+
+export const PoolInfoGridCell = styled(PoolInfoValue)`
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    padding: 4px 4px; /* Reduced from 6px */
+    margin: 0;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 28px; /* Reduced from 32px */
+
+    @media (max-width: 1120px) {
+        margin-bottom: 0;
+    }
+`;
+
+export const PoolInfoGridCellSmall = styled(PoolInfoGridCell)`
+    font-size: 90%;
+    color: #a1a1a1;
+    background-color: rgba(0, 0, 0, 0.2);
+    height: 26px; /* Reduced from 28px */
 `;

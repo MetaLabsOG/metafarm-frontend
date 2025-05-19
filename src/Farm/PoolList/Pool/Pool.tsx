@@ -75,15 +75,22 @@ export function Pool({
     };
 
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
+        // Determine if we should show the mobile action view
+        const showMobileActions = window.innerWidth <= 1120 && isOpen;
+
         return (
             <PoolContainer
                 className="pool-container"
-                style={{ transform: window.innerWidth <= 1120 && isOpen && !isSafari ? 'rotateY(180deg)' : '' }}
+                style={{
+                    transform: showMobileActions && !isSafari ? 'rotateY(180deg)' : '',
+                    height: showMobileActions ? '420px' : 'auto' // Only set fixed height when actions are visible
+                }}
             >
                 <div
                     style={{
                         backfaceVisibility: 'hidden',
-                        transform: window.innerWidth <= 1120 && isOpen && !isSafari ? 'rotateY(180deg)' : '',
+                        transform: showMobileActions && !isSafari ? 'rotateY(180deg)' : '',
+                        display: showMobileActions ? 'none' : 'block' // Hide info when actions are visible
                     }}
                     onClick={onPoolClick}
                 >
@@ -99,11 +106,12 @@ export function Pool({
                         apr={pws.apr}
                     />
                 </div>
-                {contract.ctc !== null && hasLocalState(contract.state) && isOpen && (
+                {contract.ctc !== null && hasLocalState(contract.state) && (
                     <div
                         style={{
                             backfaceVisibility: 'hidden',
-                            transform: window.innerWidth <= 1120 && isOpen && !isSafari ? 'rotateY(180deg)' : '',
+                            transform: showMobileActions && !isSafari ? 'rotateY(180deg)' : '',
+                            display: showMobileActions ? 'block' : 'none' // Only show actions when needed
                         }}
                     >
                         <PoolActions
