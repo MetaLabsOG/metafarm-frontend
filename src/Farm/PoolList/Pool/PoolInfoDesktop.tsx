@@ -48,41 +48,56 @@ export interface ValueProps {
     pricedAlgo: Priced<Asset>;
 }
 
+export const getRewardTip = (contractState: ContractState<FarmType>, tokenInfo: Priced<Asset> | Priced<LPTokenInfo>, pricedAlgo: Priced<Asset>) => {
+    if (!contractState.local) {
+        return '';
+    }
+
+    const algoReward = calculateAlgoReward(contractState.initial, contractState.local.reward);
+
+    let tip = '';
+
+    // Add token reward info
+    if (contractState.local.reward >= 0) {
+        tip += `${numberRound(fromSmallestUnits(tokenInfo, contractState.local.reward))} ${tokenInfo.unitName}`;
+    }
+
+    // Add ALGO reward info if applicable
+    if (contractState.initial.totalAlgoRewardAmount) {
+        if (tip) tip += '<br />';
+        tip += `${numberRound(fromSmallestUnits(pricedAlgo, algoReward))} ALGO`;
+    }
+
+    return tip;
+};
+
 export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedAlgo }) => {
     if (!contractState.local) {
         return <div>—</div>;
     }
 
     const algoReward = calculateAlgoReward(contractState.initial, contractState.local.reward);
+    const rewardTip = getRewardTip(contractState, tokenInfo, pricedAlgo);
+    const usdValue = numberRound(
+        convertAmountToUSD(tokenInfo, contractState.local.reward) +
+        convertAmountToUSD(pricedAlgo, algoReward)
+    );
 
     return (
-        <>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <RewardUSDValue>
-                $
-                {numberRound(
-                    convertAmountToUSD(tokenInfo, contractState.local.reward) +
-                        convertAmountToUSD(pricedAlgo, algoReward)
-                )}
+                ${usdValue}
             </RewardUSDValue>
-            {contractState.local.reward > 0 && (
-                <RewardTokenValue style={{ paddingTop: 5 }}>
-                    {numberRound(fromSmallestUnits(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
-                </RewardTokenValue>
-            )}
-            {!contractState.local.reward && (
-                <ZeroRewardTokenValue style={{ paddingTop: 5 }}>
-                    {numberRound(fromSmallestUnits(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
-                </ZeroRewardTokenValue>
-            )}
-            {algoReward > 0 && (
-                <RewardTokenValue>{numberRound(fromSmallestUnits(pricedAlgo, algoReward))} ALGO</RewardTokenValue>
-            )}
-            {!algoReward && contractState.initial.totalAlgoRewardAmount && (
-                <ZeroRewardTokenValue>
-                    {numberRound(fromSmallestUnits(pricedAlgo, algoReward))} ALGO
-                </ZeroRewardTokenValue>
-            )}
-        </>
+            <img
+                data-tip={rewardTip}
+                data-html="true"
+                style={{ marginLeft: '3px' }}
+                alt="Reward info"
+                height="14px"
+                src={info}
+            />
+            <ReactTooltip clickable place="top" type="light" effect="solid" />
+        </div>
     );
 };
 

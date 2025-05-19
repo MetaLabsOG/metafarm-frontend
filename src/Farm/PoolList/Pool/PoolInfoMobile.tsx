@@ -12,7 +12,7 @@ import {
 } from './styled';
 import { GradientGridCell, GradientStakeButton } from './GradientPoolCard';
 import { convertAmountToUSD, numberRound } from './utils';
-import { getAPRTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
+import { getAPRTip, getRewardTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
 
 export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,

@@ -6,7 +6,7 @@ export const PoolContainer = styled.div`
     flex-direction: column;
     justify-content: space-between;
     height: auto;
-    margin-bottom: 8px; /* Reduced from 16px */
+    margin-bottom: 16px; /* Increased spacing between cards */
     color: var(--gray);
     width: 95%;
     font-size: 14px;
@@ -40,7 +40,7 @@ export const PoolContainer = styled.div`
 
     @media (max-width: 1120px) and (min-width: 701px) {
         flex: 1 1 calc(50% - 20px);
-        margin-bottom: 8px; /* Reduced from 0 */
+        margin-bottom: 16px; /* Increased spacing between cards */
     }
 
     @media (max-width: 700px) {
