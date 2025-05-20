@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { theme } from '../theme';
 
 export const FarmContainer = styled.div`
     display: flex;
@@ -67,19 +66,20 @@ export const PoolSearchInput = styled.input`
     padding: 10px;
     margin: 10px 0;
     color: white;
-    background-color: transparent;
+    background-color: rgba(30, 30, 30, 0.4);
     flex-shrink: 0;
     color-scheme: dark;
+    backdrop-filter: blur(4px);
 
     text-align: center;
     font-family: 'Montserrat';
     font-size: 13px;
 
-    border: 1px solid ${theme.lightGray};
+    border: 1px solid rgba(125, 125, 125, 0.4);
     border-radius: 15px;
+    transition: all 0.3s ease;
 
     @media (max-width: 860px) {
-        width: 140px;
         width: 140px;
     }
 
@@ -92,9 +92,6 @@ export const PoolSearchInput = styled.input`
         width: 140px;
         margin: 0;
         padding: 0;
-        width: 140px;
-        margin: 0;
-        padding: 0;
         border-radius: 15px;
         height: 30px;
         font-size: 12px;
@@ -103,5 +100,10 @@ export const PoolSearchInput = styled.input`
     &:focus {
         outline: none;
         border-color: #90ee90;
+        background-color: rgba(30, 30, 30, 0.6);
+    }
+
+    &:hover {
+        border-color: rgba(144, 238, 144, 0.5);
     }
 `;

@@ -118,7 +118,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
 
                         <GradientGridCell>
                             <PoolPropertyName>Reward</PoolPropertyName>
-                            <PoolPropertyValue>
+                            <PoolPropertyValue style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                 <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                             </PoolPropertyValue>
                         </GradientGridCell>

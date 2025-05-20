@@ -88,19 +88,18 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedA
             justifyContent: 'center',
             width: '100%',
             position: 'relative',
-            left: '-10px' // Adjust to center under REWARD header
         }}>
             <RewardUSDValue>
                 ${usdValue}
+                <img
+                    data-tip={rewardTip}
+                    data-html="true"
+                    style={{ marginLeft: '2px' }}
+                    alt="Reward info"
+                    height="14px"
+                    src={info}
+                />
             </RewardUSDValue>
-            <img
-                data-tip={rewardTip}
-                data-html="true"
-                style={{ marginLeft: '3px' }}
-                alt="Reward info"
-                height="14px"
-                src={info}
-            />
             <ReactTooltip clickable place="top" type="light" effect="solid" />
         </div>
     );

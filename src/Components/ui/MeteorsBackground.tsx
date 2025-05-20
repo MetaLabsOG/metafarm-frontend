@@ -36,7 +36,7 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
     <BackgroundContainer>
       {/* Meteors background */}
       <MeteorsContainer>
-        <Meteors number={100} />
+        <Meteors number={150} />
       </MeteorsContainer>
 
       {/* Content with transparency */}

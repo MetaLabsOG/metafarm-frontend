@@ -126,6 +126,17 @@ const GradientStakeButton = styled(StakeButtonMobile)`
   /* Smooth transition for hover effects */
   transition: all 0.3s ease;
 
+  /* Wobble animation for hover */
+  @keyframes wobble {
+    0% { transform: translateX(0); }
+    15% { transform: translateX(-5px) rotate(-1deg); }
+    30% { transform: translateX(4px) rotate(1deg); }
+    45% { transform: translateX(-3px) rotate(-0.5deg); }
+    60% { transform: translateX(2px) rotate(0.5deg); }
+    75% { transform: translateX(-1px) rotate(-0.25deg); }
+    100% { transform: translateX(0); }
+  }
+
   /* Enhanced hover effect */
   &:not(:disabled):hover {
     background: linear-gradient(
@@ -137,6 +148,7 @@ const GradientStakeButton = styled(StakeButtonMobile)`
     box-shadow: 0 4px 12px rgba(81, 221, 78, 0.5);
     transform: translateY(-1px) scale(1.03);
     color: black;
+    animation: wobble 1s ease;
   }
 
   /* Disabled state */

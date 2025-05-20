@@ -100,6 +100,7 @@ export const PoolPropertyName = styled.div`
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 400;
+    text-shadow: 0 0 8px rgba(200, 200, 200, 0.1);
 `;
 
 export const PoolPropertyValue = styled.div`
@@ -107,12 +108,19 @@ export const PoolPropertyValue = styled.div`
     font-weight: 600;
     font-size: 16px;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
 
     /* Apply green color to dollar values */
     &:has(> span:first-child:contains('$')),
     &:has(> div:first-child:contains('$')) {
         color: #8bff74;
         text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
+    }
+
+    /* Add subtle animation on hover */
+    &:hover {
+        transform: translateY(-1px);
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
     }
 `;
 
@@ -259,6 +267,9 @@ export const RewardUSDValue = styled.div`
     text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
     text-align: center;
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     @media (max-width: 1120px) {
         text-align: center;
@@ -274,6 +285,7 @@ export const RewardTokenValue = styled.div`
     text-shadow: 0 0 8px rgba(139, 255, 116, 0.2);
     text-align: center;
     justify-content: center;
+    align-items: center;
     width: 100%;
 
     @media (max-width: 1120px) {
