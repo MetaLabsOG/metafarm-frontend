@@ -1,7 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Meteors } from "./meteors-styled";
-import { DESKTOP_METEOR_COUNT, MOBILE_METEOR_COUNT } from "../../constants/meteors";
+import {
+  DEFAULT_METEOR_COUNT,
+  DESKTOP_METEOR_COUNT,
+  MOBILE_METEOR_COUNT,
+  LOW_END_METEOR_COUNT
+} from "../../constants/meteors";
+import { isLowEndDevice } from "../../utils/performance";
 
 const BackgroundContainer = styled.div`
   position: relative;
@@ -33,26 +39,51 @@ interface MeteorsBackgroundProps {
 }
 
 export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }) => {
-  const [isMobile, setIsMobile] = useState(false);
+  // Use a ref for the timeout to avoid TypeScript errors with window properties
+  const resizeTimeoutRef = useRef<number | null>(null);
+  const [meteorCount, setMeteorCount] = useState(DEFAULT_METEOR_COUNT);
 
   useEffect(() => {
-    // Check if the device is mobile (screen width less than 768px)
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    // Function to determine device type and set appropriate meteor count
+    const checkDeviceCapabilities = () => {
+      // Check if it's a low-end device first
+      if (isLowEndDevice()) {
+        setMeteorCount(LOW_END_METEOR_COUNT);
+        return;
+      }
+
+      // Then check if it's mobile based on screen width
+      const isMobileDevice = window.innerWidth < 768;
+      if (isMobileDevice) {
+        setMeteorCount(MOBILE_METEOR_COUNT);
+      } else {
+        setMeteorCount(DESKTOP_METEOR_COUNT);
+      }
     };
 
     // Initial check
-    checkMobile();
+    checkDeviceCapabilities();
 
-    // Add event listener for window resize
-    window.addEventListener('resize', checkMobile);
+    // Add event listener for window resize with debounce
+    const handleResize = () => {
+      // Clear any existing timeout
+      if (resizeTimeoutRef.current !== null) {
+        window.clearTimeout(resizeTimeoutRef.current);
+      }
+      // Set new timeout
+      resizeTimeoutRef.current = window.setTimeout(checkDeviceCapabilities, 250);
+    };
+
+    window.addEventListener('resize', handleResize);
 
     // Cleanup
-    return () => window.removeEventListener('resize', checkMobile);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (resizeTimeoutRef.current !== null) {
+        window.clearTimeout(resizeTimeoutRef.current);
+      }
+    };
   }, []);
-
-  // Use different meteor counts based on device type
-  const meteorCount = isMobile ? MOBILE_METEOR_COUNT : DESKTOP_METEOR_COUNT;
 
   return (
     <BackgroundContainer>
