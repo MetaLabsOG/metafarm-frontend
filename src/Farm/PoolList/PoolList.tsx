@@ -48,7 +48,7 @@ export const POOL_COLUMN_WIDTH: Record<ColumnType, string> = {
     [ColumnType.Tvl]: '130px',
     [ColumnType.Apr]: '130px',
     [ColumnType.Stake]: '138px',
-    [ColumnType.Reward]: '180px',
+    [ColumnType.Reward]: '150px', // Adjusted width for better alignment
     [ColumnType.Ends]: '120px',
 };
 

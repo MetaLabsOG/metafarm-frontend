@@ -12,8 +12,8 @@ const MeteorSpan = styled.span`
   height: 2px;
   width: 2px;
   border-radius: 9999px;
-  background-color: #a3a3a3;
-  box-shadow: 0 0 4px 2px rgba(255, 255, 255, 0.1);
+  background-color: #8bff74; /* Changed from #a3a3a3 to green */
+  box-shadow: 0 0 4px 2px rgba(139, 255, 116, 0.2);
   transform: rotate(215deg);
   animation: ${meteorEffect} 5s linear infinite;
   z-index: 0;
@@ -25,7 +25,7 @@ const MeteorSpan = styled.span`
     transform: translateY(-50%);
     width: 150px;
     height: 1px;
-    background: linear-gradient(to right, rgba(163, 163, 163, 0.8), transparent);
+    background: linear-gradient(to right, rgba(139, 255, 116, 0.8), transparent);
   }
 `;
 

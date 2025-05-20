@@ -9,12 +9,12 @@ export const FarmContainer = styled.div`
     height: 100%;
     margin-top: 35px;
     font-family: 'Montserrat';
-    background-color: rgba(18, 18, 18, 0.4);
-    backdrop-filter: blur(5px);
+    background-color: transparent;
+    backdrop-filter: none;
     border-radius: 10px;
     padding: 20px;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    border: none;
+    box-shadow: none;
 `;
 
 export const DateInput = styled.input`

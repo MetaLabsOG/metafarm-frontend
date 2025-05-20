@@ -12,17 +12,17 @@ export const PoolContainer = styled.div`
     font-size: 14px;
     padding: 20px 0 20px 0;
     border-radius: 10px;
-    background: linear-gradient(270deg, rgba(81, 221, 78, 0.03) 0%, rgba(54, 54, 54, 0.03) 30.46%), rgba(44, 44, 44, 0.2);
+    background: linear-gradient(270deg, rgba(54, 54, 54, 0.01) 0%, rgba(54, 54, 54, 0.01) 30.46%), rgba(20, 20, 20, 0.1);
     backdrop-filter: blur(8px);
     backdrop-saturate: 150%;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     will-change: transform;
     translate: z-0;
     transition: all 0.3s ease;
 
     :hover {
-        background: linear-gradient(270deg, rgba(81, 221, 78, 0.05) 0%, rgba(54, 54, 54, 0.05) 30.46%), rgba(44, 44, 44, 0.2);
+        background: linear-gradient(270deg, rgba(54, 54, 54, 0.02) 0%, rgba(54, 54, 54, 0.02) 30.46%), rgba(20, 20, 20, 0.5);
         transform: translateY(-2px);
     }
 
@@ -33,10 +33,10 @@ export const PoolContainer = styled.div`
         perspective: 1000px;
         transition: all 0.3s ease;
         transform-style: preserve-3d;
-        background: linear-gradient(270deg, rgba(81, 221, 78, 0.03) 0%, rgba(54, 54, 54, 0.03) 30.46%), rgba(30, 30, 30, 0.4);
+        background: linear-gradient(270deg, rgba(54, 54, 54, 0.01) 0%, rgba(54, 54, 54, 0.01) 30.46%), rgba(20, 20, 20, 0.4);
 
         :hover {
-            background: linear-gradient(270deg, rgba(81, 221, 78, 0.05) 0%, rgba(54, 54, 54, 0.05) 30.46%), rgba(30, 30, 30, 0.5);
+            background: linear-gradient(270deg, rgba(54, 54, 54, 0.02) 0%, rgba(54, 54, 54, 0.02) 30.46%), rgba(20, 20, 20, 0.5);
             transform: translateY(-2px);
         }
     }
@@ -251,6 +251,8 @@ export const RewardUSDValue = styled.div`
     color: #8bff74;
     font-weight: 600;
     text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
+    text-align: center;
+    width: 100%;
 
     @media (max-width: 1120px) {
         text-align: center;
@@ -264,6 +266,9 @@ export const RewardTokenValue = styled.div`
     display: flex;
     font-weight: 500;
     text-shadow: 0 0 8px rgba(139, 255, 116, 0.2);
+    text-align: center;
+    justify-content: center;
+    width: 100%;
 
     @media (max-width: 1120px) {
         text-align: center;
@@ -276,6 +281,9 @@ export const ZeroRewardTokenValue = styled.div`
     font-size: 13px;
     color: var(--gray);
     display: flex;
+    text-align: center;
+    justify-content: center;
+    width: 100%;
 
     @media (max-width: 1120px) {
         text-align: center;

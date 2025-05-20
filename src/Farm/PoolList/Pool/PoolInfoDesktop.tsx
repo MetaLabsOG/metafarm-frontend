@@ -17,8 +17,6 @@ import {
     PoolInfoValue,
     Pacman,
     RewardUSDValue,
-    RewardTokenValue,
-    ZeroRewardTokenValue,
     PoolPropertyValue,
 } from './styled';
 import { calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
@@ -73,7 +71,7 @@ export const getRewardTip = (contractState: ContractState<FarmType>, tokenInfo: 
 
 export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedAlgo }) => {
     if (!contractState.local) {
-        return <div>—</div>;
+        return <div style={{ textAlign: 'center', width: '100%', display: 'flex', justifyContent: 'center' }}>—</div>;
     }
 
     const algoReward = calculateAlgoReward(contractState.initial, contractState.local.reward);
@@ -84,7 +82,14 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedA
     );
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            position: 'relative',
+            left: '-10px' // Adjust to center under REWARD header
+        }}>
             <RewardUSDValue>
                 ${usdValue}
             </RewardUSDValue>

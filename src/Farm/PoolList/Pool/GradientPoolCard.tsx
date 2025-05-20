@@ -7,16 +7,16 @@ const GradientPoolContainer = styled(PoolContainer)`
   /* Base gradient background */
   background: linear-gradient(
     135deg,
-    rgba(81, 221, 78, 0.03) 0%,
-    rgba(54, 54, 54, 0.03) 50%
-  ), rgba(44, 44, 44, 0.4); /* Increased opacity for better interaction */
+    rgba(54, 54, 54, 0.01) 0%,
+    rgba(54, 54, 54, 0.01) 50%
+  ), rgba(20, 20, 20, 0.3); /* Much more transparent */
 
   /* Add backdrop blur for transparency effect */
   backdrop-filter: blur(8px);
 
   /* Add subtle glow effect */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2),
-              0 0 20px rgba(81, 221, 78, 0.03);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1),
+              0 0 20px rgba(0, 0, 0, 0.05);
 
   /* Smooth transition for hover effects */
   transition: all 0.3s ease;
@@ -25,12 +25,12 @@ const GradientPoolContainer = styled(PoolContainer)`
   &:hover {
     background: linear-gradient(
       135deg,
-      rgba(81, 221, 78, 0.05) 0%,
-      rgba(54, 54, 54, 0.05) 50%
-    ), rgba(44, 44, 44, 0.5); /* Increased opacity for better interaction */
+      rgba(54, 54, 54, 0.02) 0%,
+      rgba(54, 54, 54, 0.02) 50%
+    ), rgba(20, 20, 20, 0.1); /* More transparent on hover */
 
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25),
-                0 0 30px rgba(81, 221, 78, 0.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15),
+                0 0 30px rgba(0, 0, 0, 0.1);
 
     transform: translateY(-2px);
   }
@@ -39,16 +39,16 @@ const GradientPoolContainer = styled(PoolContainer)`
   @media (max-width: 1120px) {
     background: linear-gradient(
       135deg,
-      rgba(81, 221, 78, 0.03) 0%,
-      rgba(54, 54, 54, 0.03) 50%
-    ), rgba(30, 30, 30, 0.6); /* Increased opacity for better interaction */
+      rgba(54, 54, 54, 0.01) 0%,
+      rgba(54, 54, 54, 0.01) 50%
+    ), rgba(20, 20, 20, 0.3); /* Much more transparent */
 
     &:hover {
       background: linear-gradient(
         135deg,
-        rgba(81, 221, 78, 0.05) 0%,
-        rgba(54, 54, 54, 0.05) 50%
-      ), rgba(30, 30, 30, 0.7); /* Increased opacity for better interaction */
+        rgba(54, 54, 54, 0.02) 0%,
+        rgba(54, 54, 54, 0.02) 50%
+      ), rgba(20, 20, 20, 0.4); /* More transparent on hover */
     }
   }
 `;
@@ -57,9 +57,9 @@ const GradientPoolContainer = styled(PoolContainer)`
 const GradientGridCell = styled.div`
   background: linear-gradient(
     135deg,
-    rgba(81, 221, 78, 0.05) 0%,
-    rgba(54, 54, 54, 0.05) 50%
-  ), rgba(0, 0, 0, 0.3);
+    rgba(54, 54, 54, 0.01) 0%,
+    rgba(54, 54, 54, 0.01) 50%
+  ), rgba(0, 0, 0, 0.25); /* Much more transparent background */
 
   border-radius: 6px;
   padding: 8px 6px;
@@ -81,7 +81,7 @@ const GradientGridCell = styled.div`
     inset: 0;
     background: linear-gradient(
       135deg,
-      rgba(81, 221, 78, 0.02) 0%,
+      rgba(54, 54, 54, 0.02) 0%,
       rgba(54, 54, 54, 0.02) 50%
     );
     opacity: 0;
