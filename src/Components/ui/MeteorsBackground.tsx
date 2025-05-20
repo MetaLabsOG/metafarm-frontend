@@ -16,8 +16,18 @@ const BackgroundContainer = styled.div`
   width: 100%;
   height: 100%;
   min-height: 100vh;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to allow background to repeat when scrolling */
   background-color: #121212;
+
+  @media (max-width: 768px) {
+    background-image: url('/assets/mobile_background_blurred.png');
+    background-repeat: repeat-y; /* Ensure vertical repetition */
+    background-size: 100% auto;
+    background-position: center top;
+    background-attachment: scroll; /* Allow background to scroll with content */
+    min-height: 100%;
+    height: auto; /* Allow container to expand with content */
+  }
 `;
 
 const MeteorsContainer = styled.div`
@@ -34,6 +44,11 @@ const ContentContainer = styled.div`
   z-index: 10;
   width: 100%;
   height: 100%;
+
+  @media (max-width: 768px) {
+    /* Ensure content doesn't hide the repeating background */
+    background-color: transparent;
+  }
 `;
 
 interface MeteorsBackgroundProps {
