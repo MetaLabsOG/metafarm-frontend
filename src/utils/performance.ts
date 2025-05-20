@@ -11,7 +11,7 @@ export const DEBOUNCE_TIMES = {
 export const PERFORMANCE_THRESHOLDS = {
   // If FPS drops below this value, reduce effects
   fpsThreshold: 30,
-  
+
   // If memory usage is above this percentage, reduce effects
   memoryThreshold: 80
 };
@@ -34,13 +34,13 @@ export function debounce<T extends (...args: any[]) => any>(
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: ReturnType<typeof setTimeout> | null = null;
-  
+
   return function(...args: Parameters<T>): void {
     const later = () => {
       timeout = null;
       func(...args);
     };
-    
+
     if (timeout !== null) {
       clearTimeout(timeout);
     }
@@ -59,7 +59,7 @@ export function throttle<T extends (...args: any[]) => any>(
   limit: number
 ): (...args: Parameters<T>) => void {
   let inThrottle = false;
-  
+
   return function(...args: Parameters<T>): void {
     if (!inThrottle) {
       func(...args);
@@ -82,38 +82,29 @@ export function isLowEndDevice(): boolean {
       return true;
     }
   }
-  
+
   // Check for device memory API
   if (typeof navigator !== 'undefined' && (navigator as any).deviceMemory) {
     if ((navigator as any).deviceMemory <= 2) {
       return true;
     }
   }
-  
-  // Check for iOS devices (which can struggle with many animations)
-  if (typeof navigator !== 'undefined' && navigator.userAgent) {
-    const ua = navigator.userAgent.toLowerCase();
-    if (
-      ua.includes('iphone') || 
-      ua.includes('ipad') || 
-      ua.includes('ipod')
-    ) {
-      return true;
-    }
-  }
-  
+
+  // Note: We handle iOS devices separately in the MeteorsBackground component
+  // to apply iOS-specific settings
+
   // Fallback to user agent sniffing for older/budget mobile devices
   if (typeof navigator !== 'undefined' && navigator.userAgent) {
     const ua = navigator.userAgent.toLowerCase();
     if (
-      ua.includes('android 4') || 
-      ua.includes('android 5') || 
+      ua.includes('android 4') ||
+      ua.includes('android 5') ||
       ua.includes('mobile') && !ua.includes('chrome')
     ) {
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -125,12 +116,12 @@ export function getPerformanceMode(): 'high' | 'medium' | 'low' {
   if (isLowEndDevice()) {
     return 'low';
   }
-  
+
   // Check if it's a mobile device
   if (typeof window !== 'undefined' && window.innerWidth < 768) {
     return 'medium';
   }
-  
+
   return 'high';
 }
 
@@ -140,7 +131,7 @@ export function getPerformanceMode(): 'high' | 'medium' | 'low' {
  */
 export function getAnimationThrottleFactor(): number {
   const mode = getPerformanceMode();
-  
+
   switch (mode) {
     case 'low':
       return ANIMATION_THROTTLE.lowEnd;

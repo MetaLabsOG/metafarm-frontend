@@ -1,13 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Meteors } from "./meteors-styled";
+import { MeteorToggle } from "./MeteorToggle";
 import {
   DEFAULT_METEOR_COUNT,
   DESKTOP_METEOR_COUNT,
   MOBILE_METEOR_COUNT,
-  LOW_END_METEOR_COUNT
+  LOW_END_METEOR_COUNT,
+  IOS_METEOR_COUNT
 } from "../../constants/meteors";
 import { isLowEndDevice } from "../../utils/performance";
+import {
+  getMeteorAnimationEnabled,
+  getMeteorCountOverride,
+  setMeteorCountOverride
+} from "../../utils/userPreferences";
 
 const BackgroundContainer = styled.div`
   position: relative;
@@ -42,11 +49,34 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
   // Use a ref for the timeout to avoid TypeScript errors with window properties
   const resizeTimeoutRef = useRef<number | null>(null);
   const [meteorCount, setMeteorCount] = useState(DEFAULT_METEOR_COUNT);
+  const [meteorsEnabled, setMeteorsEnabled] = useState(() => getMeteorAnimationEnabled());
+
+  // Function to check if device is iOS
+  const isIosDevice = (): boolean => {
+    if (typeof navigator !== 'undefined' && navigator.userAgent) {
+      const ua = navigator.userAgent.toLowerCase();
+      return ua.includes('iphone') || ua.includes('ipad') || ua.includes('ipod');
+    }
+    return false;
+  };
 
   useEffect(() => {
     // Function to determine device type and set appropriate meteor count
     const checkDeviceCapabilities = () => {
-      // Check if it's a low-end device first
+      // Check for user override first
+      const userOverride = getMeteorCountOverride();
+      if (userOverride !== null) {
+        setMeteorCount(userOverride);
+        return;
+      }
+
+      // Check if it's an iOS device
+      if (isIosDevice()) {
+        setMeteorCount(IOS_METEOR_COUNT);
+        return;
+      }
+
+      // Check if it's a low-end device
       if (isLowEndDevice()) {
         setMeteorCount(LOW_END_METEOR_COUNT);
         return;
@@ -85,17 +115,27 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
     };
   }, []);
 
+  // Handle toggle change
+  const handleToggleChange = (enabled: boolean) => {
+    setMeteorsEnabled(enabled);
+  };
+
   return (
     <BackgroundContainer>
-      {/* Meteors background */}
-      <MeteorsContainer>
-        <Meteors number={meteorCount} />
-      </MeteorsContainer>
+      {/* Meteors background - only render if enabled */}
+      {meteorsEnabled && (
+        <MeteorsContainer>
+          <Meteors number={meteorCount} />
+        </MeteorsContainer>
+      )}
 
       {/* Content with transparency */}
       <ContentContainer>
         {children}
       </ContentContainer>
+
+      {/* Toggle for meteor animation */}
+      <MeteorToggle onChange={handleToggleChange} />
     </BackgroundContainer>
   );
 };
