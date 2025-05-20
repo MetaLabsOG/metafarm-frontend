@@ -97,12 +97,19 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                             {numberRound(APR.total)}%
                             <img
                                 data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
-                                style={{ marginLeft: '3px' }}
+                                style={{ marginLeft: '5px', opacity: 0.8 }}
                                 alt="APR info"
                                 height="14px"
                                 src={info}
                             />
-                            <ReactTooltip clickable place="top" type="light" effect="solid" />
+                            <ReactTooltip
+                                clickable
+                                place="top"
+                                type="light"
+                                effect="solid"
+                                className="custom-tooltip"
+                                backgroundColor="rgba(255, 255, 255, 0.9)"
+                            />
                         </span>
                     </PoolPropertyValue>
                 </GradientGridCell>

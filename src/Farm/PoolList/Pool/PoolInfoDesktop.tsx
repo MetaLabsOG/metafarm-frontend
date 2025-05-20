@@ -88,19 +88,27 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedA
             justifyContent: 'center',
             width: '100%',
             position: 'relative',
+            textAlign: 'center',
         }}>
             <RewardUSDValue>
                 ${usdValue}
                 <img
                     data-tip={rewardTip}
                     data-html="true"
-                    style={{ marginLeft: '2px' }}
+                    style={{ marginLeft: '5px', opacity: 0.8 }}
                     alt="Reward info"
                     height="14px"
                     src={info}
                 />
             </RewardUSDValue>
-            <ReactTooltip clickable place="top" type="light" effect="solid" />
+            <ReactTooltip
+                clickable
+                place="top"
+                type="light"
+                effect="solid"
+                className="custom-tooltip"
+                backgroundColor="rgba(255, 255, 255, 0.9)"
+            />
         </div>
     );
 };
@@ -161,8 +169,21 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Apr]}>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                     <PoolPropertyValue>{numberRound(APR.total)}%</PoolPropertyValue>
-                    <img data-tip={getAPRTip(APR, rewardTokenInfo.unitName)} alt="APR info" height="14px" src={info} />
-                    <ReactTooltip clickable place="top" type="light" effect="solid" />
+                    <img
+                        data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
+                        alt="APR info"
+                        height="14px"
+                        src={info}
+                        style={{ marginLeft: '5px', opacity: 0.8 }}
+                    />
+                    <ReactTooltip
+                        clickable
+                        place="top"
+                        type="light"
+                        effect="solid"
+                        className="custom-tooltip"
+                        backgroundColor="rgba(255, 255, 255, 0.9)"
+                    />
                 </div>
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Stake]}>
