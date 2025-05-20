@@ -11,18 +11,20 @@ const METEOR_ENABLED_KEY = 'cometa_meteor_enabled';
  */
 export function getMeteorAnimationEnabled(): boolean {
   try {
-    // For iOS and mobile devices, default to disabled
-    const isIos = isIosDevice();
-    const isMobile = isMobileDevice();
-    
     // Check if there's a stored preference
     const stored = localStorage.getItem(METEOR_ENABLED_KEY);
-    
+
+    // For iOS and mobile devices, always default to disabled
+    const isIos = isIosDevice();
+    const isMobile = isMobileDevice();
+
     if (stored === null) {
-      // If no preference is stored, default to disabled for iOS and mobile
+      // If no preference is stored:
+      // - Enable for desktop
+      // - Disable for mobile and iOS
       return !(isIos || isMobile);
     }
-    
+
     // Otherwise, return the stored preference
     return stored === 'true';
   } catch (error) {
