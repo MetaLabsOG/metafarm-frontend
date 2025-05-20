@@ -13,6 +13,22 @@ import {
 import { GradientGridCell, GradientStakeButton } from './GradientPoolCard';
 import { convertAmountToUSD, numberRound } from './utils';
 import { getAPRTip, getRewardTip, PoolInfoDesktopProps, RewardValues, StakeValue } from './PoolInfoDesktop';
+import styled from 'styled-components';
+
+// Create a compact grid for when we only show TVL and APR
+const CompactPoolInfoGrid = styled(PoolInfoGrid)`
+    grid-template-rows: auto;
+    margin: 6px 0; /* Reduced margin for compact view */
+`;
+
+// Create a compact container with reduced height
+const CompactPoolInfoMobileContainer = styled(PoolInfoMobileContainer)`
+    @media (max-width: 1120px) {
+        & + button {
+            margin-top: 0; /* Reduce space between grid and button */
+        }
+    }
+`;
 
 export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     account,
@@ -32,11 +48,28 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
     isGame,
     nftRewards,
 }) => {
-    // We don't need to return null anymore since the parent component handles visibility
-    // This component will always be rendered but might be hidden by the parent
+    // Check if we have staked or reward values
+    const hasStakedValue = contractState.local && Number(convertAmountToUSD(stakeTokenInfo, contractState.local.staked)) > 0;
+    const hasRewardValue = contractState.local && (() => {
+        const algoReward = contractState.initial.totalAlgoRewardAmount > 0
+            ? (contractState.local.reward * contractState.initial.totalAlgoRewardAmount) / contractState.initial.totalRewardAmount
+            : 0;
+        const totalRewardUSD = Number(convertAmountToUSD(rewardTokenInfo, contractState.local.reward)) +
+                              Number(convertAmountToUSD(pricedAlgo, algoReward));
+        return totalRewardUSD > 0;
+    })();
+
+    // Determine if we should show the staked and reward rows
+    const showStakedAndReward = hasStakedValue || hasRewardValue;
+
+    // Use the appropriate grid component based on whether we're showing all rows
+    const GridComponent = showStakedAndReward ? PoolInfoGrid : CompactPoolInfoGrid;
+
+    // Choose the appropriate container based on whether we're showing all rows
+    const Container = showStakedAndReward ? PoolInfoMobileContainer : CompactPoolInfoMobileContainer;
 
     return (
-        <PoolInfoMobileContainer>
+        <Container>
             <PoolHeader
                 asset1_id={asset1_id}
                 asset2_id={asset2_id}
@@ -49,7 +82,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 isGame={isGame}
                 nftRewards={nftRewards}
             />
-            <PoolInfoGrid>
+            <GridComponent>
                 <GradientGridCell>
                     <PoolPropertyName>TVL</PoolPropertyName>
                     <PoolPropertyValue>
@@ -74,22 +107,26 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                     </PoolPropertyValue>
                 </GradientGridCell>
 
-                <GradientGridCell>
-                    <PoolPropertyName>Staked</PoolPropertyName>
-                    <PoolPropertyValue>
-                        <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
-                    </PoolPropertyValue>
-                </GradientGridCell>
+                {showStakedAndReward && (
+                    <>
+                        <GradientGridCell>
+                            <PoolPropertyName>Staked</PoolPropertyName>
+                            <PoolPropertyValue>
+                                <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
+                            </PoolPropertyValue>
+                        </GradientGridCell>
 
-                <GradientGridCell>
-                    <PoolPropertyName>Reward</PoolPropertyName>
-                    <PoolPropertyValue>
-                        <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
-                    </PoolPropertyValue>
-                </GradientGridCell>
-            </PoolInfoGrid>
+                        <GradientGridCell>
+                            <PoolPropertyName>Reward</PoolPropertyName>
+                            <PoolPropertyValue>
+                                <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
+                            </PoolPropertyValue>
+                        </GradientGridCell>
+                    </>
+                )}
+            </GridComponent>
             <GradientStakeButton disabled={!contractState.local}>Stake</GradientStakeButton>
             <TimingMobile>{timing}</TimingMobile>
-        </PoolInfoMobileContainer>
+        </Container>
     );
 };

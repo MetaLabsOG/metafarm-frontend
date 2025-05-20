@@ -21,7 +21,7 @@ import { PoolActions } from './PoolActions';
 import { PoolLoadingAnimation } from './styled';
 import { GradientPoolContainer } from './GradientPoolCard';
 import { LoadingSpinner } from '../../../Components/LoadingSpinner';
-import { getPoolState } from './utils';
+import { convertAmountToUSD, getPoolState } from './utils';
 
 export function Pool({
     pws,
@@ -82,9 +82,24 @@ export function Pool({
         const isDesktop = window.innerWidth > 1120;
         const showDesktopActions = isDesktop && isOpen;
 
+        // Check if we have staked or reward values to determine if we should use compact view
+        const hasStakedValue = contract.state.local && Number(convertAmountToUSD(stakeTokenInfo, contract.state.local.staked)) > 0;
+        const hasRewardValue = contract.state.local && (() => {
+            if (!contract.state.local) return false;
+            const algoReward = contract.state.initial.totalAlgoRewardAmount > 0
+                ? (contract.state.local.reward * contract.state.initial.totalAlgoRewardAmount) / contract.state.initial.totalRewardAmount
+                : 0;
+            const totalRewardUSD = Number(convertAmountToUSD(rewardTokenInfo, contract.state.local.reward)) +
+                                  Number(convertAmountToUSD(pricedAlgo, algoReward));
+            return totalRewardUSD > 0;
+        })();
+
+        // Determine if we should use compact view (no staked/reward values)
+        const useCompactView = !hasStakedValue && !hasRewardValue;
+
         return (
             <GradientPoolContainer
-                className="pool-container"
+                className={`pool-container ${useCompactView ? 'compact' : ''}`}
                 style={{
                     transform: showMobileActions && !isSafari ? 'rotateY(180deg)' : '',
                     height: showMobileActions ? '420px' : 'auto', // Only set fixed height when actions are visible

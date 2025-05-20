@@ -35,6 +35,12 @@ export const PoolContainer = styled.div`
         transform-style: preserve-3d;
         background: linear-gradient(270deg, rgba(54, 54, 54, 0.01) 0%, rgba(54, 54, 54, 0.01) 30.46%), rgba(20, 20, 20, 0.4);
 
+        /* Compact view for pools with no staked/reward values */
+        &.compact {
+            min-height: 150px; /* Reduced height for compact view */
+            padding-bottom: 15px; /* Reduced padding for compact view */
+        }
+
         :hover {
             background: linear-gradient(270deg, rgba(54, 54, 54, 0.02) 0%, rgba(54, 54, 54, 0.02) 30.46%), rgba(20, 20, 20, 0.5);
             transform: translateY(-2px);

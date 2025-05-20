@@ -53,6 +53,13 @@ const GradientPoolContainer = styled(PoolContainer)`
   }
 `;
 
+// Enhanced pool container for compact view (no staked/reward rows)
+const CompactGradientPoolContainer = styled(GradientPoolContainer)`
+  @media (max-width: 1120px) {
+    min-height: 150px; /* Reduced height for compact view */
+  }
+`;
+
 // Enhanced grid cell with gradient background
 const GradientGridCell = styled.div`
   background: linear-gradient(
@@ -95,8 +102,13 @@ const GradientGridCell = styled.div`
 `;
 
 // Wrapper component that applies the gradient styling
-const GradientPoolCard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <GradientPoolContainer>{children}</GradientPoolContainer>;
+const GradientPoolCard: React.FC<{
+  children: React.ReactNode;
+  isCompact?: boolean;
+}> = ({ children, isCompact = false }) => {
+  return isCompact
+    ? <CompactGradientPoolContainer>{children}</CompactGradientPoolContainer>
+    : <GradientPoolContainer>{children}</GradientPoolContainer>;
 };
 
 // Enhanced stake button with gradient styling
@@ -139,4 +151,10 @@ const GradientStakeButton = styled(StakeButtonMobile)`
   }
 `;
 
-export { GradientPoolContainer, GradientGridCell, GradientPoolCard, GradientStakeButton };
+export {
+  GradientPoolContainer,
+  CompactGradientPoolContainer,
+  GradientGridCell,
+  GradientPoolCard,
+  GradientStakeButton
+};
