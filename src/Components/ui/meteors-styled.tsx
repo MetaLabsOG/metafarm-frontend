@@ -1,13 +1,24 @@
 import React, { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
 
-const meteorEffect = keyframes`
+// Define different keyframes for desktop and mobile
+const meteorEffectDesktop = keyframes`
   0% { transform: rotate(215deg) translateX(0); opacity: 1; }
   70% { opacity: 1; }
   100% { transform: rotate(215deg) translateX(-1500px); opacity: 0; }
 `;
 
-const MeteorSpan = styled.span`
+// Simpler animation for mobile with shorter distance
+const meteorEffectMobile = keyframes`
+  0% { transform: rotate(215deg) translateX(0); opacity: 1; }
+  100% { transform: rotate(215deg) translateX(-500px); opacity: 0; }
+`;
+
+// We'll use these in the styled component with media queries
+
+const MeteorSpan = styled.span.attrs({
+  className: 'meteor-element'
+})`
   position: fixed;
   height: 2px;
   width: 2px;
@@ -15,8 +26,21 @@ const MeteorSpan = styled.span`
   background-color: #05ff00; /* Brighter green */
   box-shadow: 0 0 6px 3px rgba(5, 255, 0, 0.3);
   transform: rotate(215deg);
-  animation: ${meteorEffect} 5s linear infinite;
+  animation: ${meteorEffectDesktop} 5s linear infinite;
   z-index: 0;
+
+  @media (max-width: 768px) {
+    /* Simplified meteor for mobile */
+    box-shadow: none;
+    height: 1px;
+    width: 1px;
+    animation: ${meteorEffectMobile} 3s linear infinite; /* Faster animation for mobile */
+
+    &::before {
+      width: 50px; /* Shorter trail for mobile */
+      background: linear-gradient(to right, rgba(5, 255, 0, 0.7), transparent);
+    }
+  }
 
   &::before {
     content: '';
@@ -39,19 +63,35 @@ export const Meteors = ({
     width: typeof window !== 'undefined' ? window.innerWidth : 1000
   });
 
+  // Reduce number of meteors on mobile
+  const [actualNumber, setActualNumber] = useState(number);
+
   useEffect(() => {
     const handleResize = () => {
-      setDimensions({
+      const newDimensions = {
         height: window.innerHeight,
         width: window.innerWidth
-      });
+      };
+      setDimensions(newDimensions);
+
+      // Adjust number of meteors based on screen size
+      if (newDimensions.width <= 768) {
+        // Use a much smaller number for mobile
+        setActualNumber(Math.min(5, number));
+      } else {
+        setActualNumber(number);
+      }
     };
+
+    // Initial check
+    handleResize();
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [number]);
 
-  const meteors = new Array(number).fill(true);
+  // Create array with reduced number of meteors
+  const meteors = new Array(actualNumber).fill(true);
 
   return (
     <>

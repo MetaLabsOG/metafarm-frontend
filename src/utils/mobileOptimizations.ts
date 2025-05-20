@@ -104,9 +104,10 @@ export function injectMobileOptimizations(): void {
     ${getDisableHoverCSS()}
 
     @media (max-width: 768px) {
-      /* Disable backdrop filters */
+      /* Completely disable backdrop filters on mobile */
       * {
         backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
       }
 
       /* Simplify box shadows */
@@ -114,10 +115,40 @@ export function injectMobileOptimizations(): void {
         box-shadow: none !important;
       }
 
+      /* Optimize animations and transitions */
+      * {
+        transition-duration: 0.1s !important;
+        transition-property: opacity !important;
+        will-change: auto !important;
+      }
+
       /* Disable animations on hover */
       *:hover {
         transform: none !important;
-        animation: none !important;
+        transition: none !important;
+      }
+
+      /* Disable complex CSS properties */
+      * {
+        filter: none !important;
+        text-shadow: none !important;
+      }
+
+      /* Use solid colors instead of gradients */
+      [style*="gradient"] {
+        background: rgba(20, 20, 20, 0.5) !important;
+      }
+
+      /* Disable keyframe animations - EXCEPT for meteor animations */
+      @keyframes none {
+        0% { opacity: 1; }
+        100% { opacity: 1; }
+      }
+
+      /* Apply 'none' animation to elements with animations - EXCEPT for meteor animations */
+      [style*="animation"]:not([class*="meteor"]),
+      [class*="animate"]:not([class*="meteor"]) {
+        animation-name: none !important;
       }
     }
   `;

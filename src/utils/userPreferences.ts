@@ -25,7 +25,12 @@ export function getMeteorAnimationEnabled(): boolean {
       return !(isIos || isMobile);
     }
 
-    // Otherwise, return the stored preference
+    // For mobile and iOS, always return false regardless of stored preference
+    if (isIos || isMobile) {
+      return false;
+    }
+
+    // Otherwise, return the stored preference (for desktop only)
     return stored === 'true';
   } catch (error) {
     // Default to disabled if localStorage fails
