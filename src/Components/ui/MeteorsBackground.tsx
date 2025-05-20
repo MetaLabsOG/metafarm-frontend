@@ -9,6 +9,7 @@ import {
   IOS_METEOR_COUNT
 } from "../../constants/meteors";
 import { isLowEndDevice } from "../../utils/performance";
+import { getMeteorAnimationEnabled } from "../../utils/userPreferences";
 
 const BackgroundContainer = styled.div`
   position: relative;
@@ -43,6 +44,7 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
   // Use a ref for the timeout to avoid TypeScript errors with window properties
   const resizeTimeoutRef = useRef<number | null>(null);
   const [meteorCount, setMeteorCount] = useState(DEFAULT_METEOR_COUNT);
+  const [meteorsEnabled, setMeteorsEnabled] = useState(() => getMeteorAnimationEnabled());
 
   // Function to check if device is iOS
   const isIosDevice = (): boolean => {
@@ -52,6 +54,21 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
     }
     return false;
   };
+
+  // Listen for changes to meteor animation preference
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'cometa_meteor_enabled') {
+        setMeteorsEnabled(e.newValue === 'true');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   useEffect(() => {
     // Function to determine device type and set appropriate meteor count
@@ -101,12 +118,28 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
     };
   }, []);
 
+  // Check for meteor animation preference changes
+  useEffect(() => {
+    const checkMeteorPreference = () => {
+      setMeteorsEnabled(getMeteorAnimationEnabled());
+    };
+
+    // Check every second for changes
+    const intervalId = setInterval(checkMeteorPreference, 1000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
   return (
     <BackgroundContainer>
-      {/* Meteors background */}
-      <MeteorsContainer>
-        <Meteors number={meteorCount} />
-      </MeteorsContainer>
+      {/* Meteors background - only render if enabled */}
+      {meteorsEnabled && (
+        <MeteorsContainer>
+          <Meteors number={meteorCount} />
+        </MeteorsContainer>
+      )}
 
       {/* Content with transparency */}
       <ContentContainer>

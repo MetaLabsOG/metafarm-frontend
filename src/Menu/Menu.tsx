@@ -8,6 +8,7 @@ import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { ALGONET, isMobile, META_TOKEN_ID, TESTNET } from '../AppContext';
 import { getTokenLink } from '../Farm/PoolList/Pool/utils';
+import { MeteorToggle } from '../Components/ui/MeteorToggle';
 import {
     MenuItem,
     MenuContainer,
@@ -57,10 +58,18 @@ function ExchangeRates({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; MET
 }
 
 function BurgerMenu({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) {
+    // Handle meteor toggle change
+    const handleMeteorToggleChange = (enabled: boolean) => {
+        // The toggle component handles the state internally
+        console.log('Meteor animation toggled:', enabled);
+    };
+
     return (
         <BurgerMenuContainer>
             <MenuItemsBurger>
                 <MenuItems />
+                {/* Add Comet Rain toggle */}
+                <MeteorToggle onChange={handleMeteorToggleChange} />
             </MenuItemsBurger>
             <ExchangeRatesBurger>
                 <ExchangeRates ALGOPrice={ALGOPrice} METAPrice={METAPrice} />
