@@ -177,7 +177,7 @@ export function PoolList({
                         <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
                     </MobileFilterRow>
 
-                    <VerticalSpacer space="20px" />
+                    <VerticalSpacer space="12px" />
 
                     <MobileFilterRow>
                         <PoolSearchInput
@@ -191,7 +191,7 @@ export function PoolList({
                         <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
                     </MobileFilterRow>
 
-                    <VerticalSpacer space="20px" />
+                    <VerticalSpacer space="12px" />
 
                     <MobileFilterRow>
                         <DropdownButton

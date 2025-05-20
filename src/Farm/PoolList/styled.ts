@@ -57,6 +57,13 @@ export const MobileFilterContainer = styled.div`
         width: 100%;
         padding-left: 20px;
         padding-right: 20px;
+        background-color: rgba(30, 30, 30, 0.2);
+        backdrop-filter: blur(4px);
+        border-radius: 16px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        transition: all 0.3s ease;
+        border: none; /* Made border invisible */
     }
 `;
 
@@ -65,6 +72,11 @@ export const MobileFilterRow = styled.div`
     flex-direction: row;
     justify-content: space-between;
     width: 325px;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+    }
 `;
 
 export const VerticalSpacer = styled.div<{ space?: string }>`

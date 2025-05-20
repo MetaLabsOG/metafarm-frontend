@@ -66,7 +66,7 @@ export const PoolSearchInput = styled.input`
     padding: 10px;
     margin: 10px 0;
     color: white;
-    background-color: rgba(30, 30, 30, 0.4);
+    background-color: rgba(30, 30, 30, 0.25);
     flex-shrink: 0;
     color-scheme: dark;
     backdrop-filter: blur(4px);
@@ -75,9 +75,10 @@ export const PoolSearchInput = styled.input`
     font-family: 'Montserrat';
     font-size: 13px;
 
-    border: 1px solid rgba(125, 125, 125, 0.4);
+    border: 1px solid rgba(125, 125, 125, 0.2);
     border-radius: 15px;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 
     @media (max-width: 860px) {
         width: 140px;
@@ -91,19 +92,22 @@ export const PoolSearchInput = styled.input`
         display: flex;
         width: 140px;
         margin: 0;
-        padding: 0;
+        padding: 0 10px;
         border-radius: 15px;
         height: 30px;
         font-size: 12px;
+        background-color: rgba(30, 30, 30, 0.25);
     }
 
     &:focus {
         outline: none;
         border-color: #90ee90;
-        background-color: rgba(30, 30, 30, 0.6);
+        background-color: rgba(30, 30, 30, 0.4);
+        box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.1);
     }
 
     &:hover {
         border-color: rgba(144, 238, 144, 0.5);
+        transform: translateY(-1px);
     }
 `;

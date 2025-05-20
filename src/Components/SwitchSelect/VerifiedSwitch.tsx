@@ -33,9 +33,10 @@ export const VerifiedSwitch: React.FC<SwitchSelectProps> = ({ onChange, switchSt
                 onChange={handleChange}
                 options={options}
                 initialSelectedIndex={initialSelectedIndex}
-                backgroundColor={'rgba(30, 30, 30, 0.1)'}
+                backgroundColor={'rgba(30, 30, 30, 0.25)'}
                 fontColor={'white'}
                 selectedFontColor="#1e1e1e"
+                // borderColor and fontSize removed due to type errors
                 name="VerifiedSwitcherSelect"
             />
         </MyVerifiedSwitchWrapper>
