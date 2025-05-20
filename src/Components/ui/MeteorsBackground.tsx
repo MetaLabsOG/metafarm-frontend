@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Meteors } from "./meteors-styled";
-import { MeteorToggle } from "./MeteorToggle";
 import {
   DEFAULT_METEOR_COUNT,
   DESKTOP_METEOR_COUNT,
@@ -10,11 +9,6 @@ import {
   IOS_METEOR_COUNT
 } from "../../constants/meteors";
 import { isLowEndDevice } from "../../utils/performance";
-import {
-  getMeteorAnimationEnabled,
-  getMeteorCountOverride,
-  setMeteorCountOverride
-} from "../../utils/userPreferences";
 
 const BackgroundContainer = styled.div`
   position: relative;
@@ -49,7 +43,6 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
   // Use a ref for the timeout to avoid TypeScript errors with window properties
   const resizeTimeoutRef = useRef<number | null>(null);
   const [meteorCount, setMeteorCount] = useState(DEFAULT_METEOR_COUNT);
-  const [meteorsEnabled, setMeteorsEnabled] = useState(() => getMeteorAnimationEnabled());
 
   // Function to check if device is iOS
   const isIosDevice = (): boolean => {
@@ -63,13 +56,6 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
   useEffect(() => {
     // Function to determine device type and set appropriate meteor count
     const checkDeviceCapabilities = () => {
-      // Check for user override first
-      const userOverride = getMeteorCountOverride();
-      if (userOverride !== null) {
-        setMeteorCount(userOverride);
-        return;
-      }
-
       // Check if it's an iOS device
       if (isIosDevice()) {
         setMeteorCount(IOS_METEOR_COUNT);
@@ -115,27 +101,17 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
     };
   }, []);
 
-  // Handle toggle change
-  const handleToggleChange = (enabled: boolean) => {
-    setMeteorsEnabled(enabled);
-  };
-
   return (
     <BackgroundContainer>
-      {/* Meteors background - only render if enabled */}
-      {meteorsEnabled && (
-        <MeteorsContainer>
-          <Meteors number={meteorCount} />
-        </MeteorsContainer>
-      )}
+      {/* Meteors background */}
+      <MeteorsContainer>
+        <Meteors number={meteorCount} />
+      </MeteorsContainer>
 
       {/* Content with transparency */}
       <ContentContainer>
         {children}
       </ContentContainer>
-
-      {/* Toggle for meteor animation */}
-      <MeteorToggle onChange={handleToggleChange} />
     </BackgroundContainer>
   );
 };

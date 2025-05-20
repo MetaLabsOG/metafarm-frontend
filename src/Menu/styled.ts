@@ -1,8 +1,14 @@
-import styled from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { NavLink } from 'react-router-dom';
-import { css, keyframes } from 'styled-components';
 
 import { WalletActionButton } from '../common/styled';
+import {
+  getOptimizedBackdropFilter,
+  getOptimizedBoxShadow,
+  getOptimizedGradient,
+  isMobileDevice,
+  isTouchDevice
+} from '../utils/mobileOptimizations';
 
 // Add global keyframes for wobble animation
 const wobble = keyframes`
@@ -25,12 +31,16 @@ export const MenuItem = styled(NavLink as any)`
     font-size: 17px;
     letter-spacing: 0.08em;
 
-    :hover {
-        color: var(--lightGreen);
-        text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
-        animation: ${wobble} 0.5s;
-    }
+    /* Hover effects only on non-touch devices */
+    ${!isTouchDevice() && css`
+        :hover {
+            color: var(--lightGreen);
+            text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
+            animation: ${wobble} 0.5s;
+        }
+    `}
 
+    /* Always show active state */
     &.active {
         color: var(--lightGreen);
         text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
@@ -111,10 +121,10 @@ export const MenuContainer = styled.div`
     justify-content: space-between;
     flex-direction: column;
     z-index: 10;
-    background: rgba(30, 30, 30, 0.01); /* More transparent */
-    backdrop-filter: blur(8px);
+    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.01)', 'rgba(30, 30, 30, 0.7)')}; /* More solid on mobile */
+    backdrop-filter: ${getOptimizedBackdropFilter('blur(8px)')};
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: ${getOptimizedBoxShadow('0 4px 12px rgba(0, 0, 0, 0.1)')};
 `;
 
 export const ExchangeRatesContainer = styled.div`
@@ -147,9 +157,13 @@ export const AssetPriceWithLogo = styled(WalletActionButton)`
     padding-right: 10px;
     height: 32px;
     margin: 0 5px;
-    :hover {
-        animation: ${wobble} 0.5s;
-    }
+
+    /* Hover animation only on non-touch devices */
+    ${!isTouchDevice() && css`
+        :hover {
+            animation: ${wobble} 0.5s;
+        }
+    `}
 `;
 
 export const ExchangeRate = styled.span`
@@ -167,8 +181,8 @@ export const BurgerMenuContainer = styled.div`
     width: 100%;
     position: fixed;
     left: 0;
-    background: rgba(30, 30, 30, 0.8);
-    backdrop-filter: blur(8px);
+    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.8)', 'rgba(30, 30, 30, 0.95)')}; /* More solid on mobile */
+    backdrop-filter: ${getOptimizedBackdropFilter('blur(8px)')};
     padding-left: 20px;
     z-index: 10;
     padding-bottom: 20px;
@@ -184,8 +198,8 @@ export const FooterContainer = styled.div`
     margin-bottom: 10px;
     padding: 15px 30px 15px 30px;
     font-family: 'Montserrat', serif;
-    background: rgba(30, 30, 30, 0.5);
-    backdrop-filter: blur(8px);
+    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.5)', 'rgba(30, 30, 30, 0.8)')}; /* More solid on mobile */
+    backdrop-filter: ${getOptimizedBackdropFilter('blur(8px)')};
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     z-index: 5;
     position: relative;

@@ -16,6 +16,7 @@ import { Flip, ToastContainer } from 'react-toastify';
 import ReactGA from 'react-ga';
 import GlobalStyle from './common/globalStyles';
 import { MeteorsBackground } from './Components/ui/MeteorsBackground';
+import { injectMobileOptimizations } from './utils/mobileOptimizations';
 
 import { Menu } from './Menu';
 import { Farm } from './Farm';
@@ -107,6 +108,11 @@ function App() {
     const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution', user_address));
 
     const [Modal, openWelcomeModal] = useModal('root');
+
+    // Inject mobile optimizations on app load
+    useEffect(() => {
+        injectMobileOptimizations();
+    }, []);
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
