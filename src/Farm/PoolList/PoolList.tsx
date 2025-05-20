@@ -47,9 +47,9 @@ export const POOL_COLUMN_WIDTH: Record<ColumnType, string> = {
     [ColumnType.Name]: '300px',
     [ColumnType.Tvl]: '130px',
     [ColumnType.Apr]: '130px',
-    [ColumnType.Stake]: '138px',
+    [ColumnType.Stake]: '120px',
     [ColumnType.Reward]: '150px', // Adjusted width for better alignment
-    [ColumnType.Ends]: '120px',
+    [ColumnType.Ends]: '170px',
 };
 
 const AddFarmButton = ({ addFarmType }: { addFarmType: string }) => {

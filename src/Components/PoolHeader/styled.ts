@@ -29,11 +29,11 @@ export const PoolTitle = styled.div`
     display: flex;
     white-space: nowrap;
     font-family: 'Korona One';
-    font-size: 14px;
+    font-size: 12px;
     color: white;
 
     @media (max-width: 1120px) {
-        font-size: 14px;
+        font-size: 12px;
     }
 `;
 
@@ -49,10 +49,10 @@ export const PoolSubtitle = styled.div`
     white-space: nowrap;
     color: ${theme.niceGreen}; // light green
     font-family: 'Korona One';
-    font-size: 11px;
+    font-size: 10px;
 
     @media (max-width: 1120px) {
-        font-size: 12px;
+        font-size: 10px;
     }
 `;
 

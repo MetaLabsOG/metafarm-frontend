@@ -12,18 +12,20 @@ export const PoolContainer = styled.div`
     font-size: 14px;
     padding: 20px 0 20px 0;
     border-radius: 10px;
-    background: linear-gradient(270deg, rgba(54, 54, 54, 0.01) 0%, rgba(54, 54, 54, 0.01) 30.46%), rgba(20, 20, 20, 0.1);
+    background: linear-gradient(270deg, rgba(54, 54, 54, 0.01) 0%, rgba(54, 54, 54, 0.01) 30.46%), rgba(20, 20, 20, 0.05);
     backdrop-filter: blur(8px);
     backdrop-saturate: 150%;
     border: 1px solid rgba(0, 0, 0, 0.2);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     will-change: transform;
-    translate: z-0;
     transition: all 0.3s ease;
+    translate: z-0;
 
-    :hover {
-        background: linear-gradient(270deg, rgba(54, 54, 54, 0.02) 0%, rgba(54, 54, 54, 0.02) 30.46%), rgba(20, 20, 20, 0.5);
+    &:hover {
         transform: translateY(-2px);
+        box-shadow: 0 12px 20px rgba(0, 255, 41, 0.1);
+        border: 1px solid rgba(66, 201, 63, 0.2);
+        background: linear-gradient(270deg, rgba(54, 54, 54, 0.02) 0%, rgba(54, 54, 54, 0.02) 30.46%), rgba(20, 20, 20, 0.1);
     }
 
     @media (max-width: 1120px) {
