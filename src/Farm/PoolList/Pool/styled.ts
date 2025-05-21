@@ -8,9 +8,9 @@ export const PoolContainer = styled.div`
     height: auto;
     margin-bottom: 16px; /* Increased spacing between cards */
     color: var(--gray);
-    width: 95%;
+    width: 98%; /* Increased from 95% */
     font-size: 14px;
-    padding: 20px 0 20px 0;
+    padding: 15px 0 15px 0; /* Reduced vertical padding from 20px to 15px */
     border-radius: 10px;
     background: linear-gradient(270deg, rgba(10, 10, 10, 0.01) 0%, rgba(10, 10, 10, 0.01) 30.46%), rgba(10, 10, 10, 0.05);
     backdrop-filter: blur(8px);
@@ -55,12 +55,12 @@ export const PoolContainer = styled.div`
     }
 
     @media (max-width: 700px) {
-        width: calc(50% - 3px); /* Further adjusted to fit two cards per row with a smaller gap */
-        max-width: 49%; /* Slightly increased percentage */
-        margin: 0 0 10px; /* Reduced bottom margin */
-        flex: 0 0 calc(50% - 3px); /* Force two cards per row with smaller gap */
+        width: calc(50% - 2px); /* Further adjusted to fit two cards per row with a smaller gap */
+        max-width: 49.5%; /* Slightly increased percentage */
+        margin: 0 0 8px; /* Reduced bottom margin */
+        flex: 0 0 calc(50% - 2px); /* Force two cards per row with smaller gap */
         box-sizing: border-box; /* Include padding in width calculation */
-        padding: 12px 0 12px 0; /* Further reduced padding for mobile */
+        padding: 10px 0 10px 0; /* Further reduced padding for mobile */
         min-width: 0; /* Prevent overflow */
     }
 `;
@@ -87,8 +87,8 @@ export const PoolInfoDesktopContainer = styled.div`
 export const PoolInfoMobileContainer = styled.div`
     color: ${(props) => props.theme.white};
     width: 100%;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: 2px; /* Reduced from 5px */
+    padding-right: 2px; /* Reduced from 5px */
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: normal;
@@ -104,8 +104,8 @@ export const PoolInfoMobileContainer = styled.div`
     }
 
     @media (max-width: 700px) {
-        padding-left: 2px;
-        padding-right: 2px;
+        padding-left: 1px; /* Reduced from 2px */
+        padding-right: 1px; /* Reduced from 2px */
         font-size: 11px;
         line-height: 13px;
         width: 100%;
@@ -460,7 +460,7 @@ export const PoolInfoGrid = styled.div`
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
     gap: 8px;
-    width: 90%;
+    width: 95%; /* Increased from 90% */
     margin: 12px auto;
     box-sizing: border-box;
     position: relative;
@@ -486,7 +486,7 @@ export const PoolInfoGrid = styled.div`
     @media (max-width: 700px) {
         gap: 6px;
         margin: 8px auto;
-        width: 94%;
+        width: 98%; /* Increased from 94% */
 
         &::after {
             left: 3%;

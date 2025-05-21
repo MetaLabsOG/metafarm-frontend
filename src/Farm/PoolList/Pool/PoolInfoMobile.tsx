@@ -19,7 +19,7 @@ import styled from 'styled-components';
 const CompactPoolInfoGrid = styled(PoolInfoGrid)`
     grid-template-rows: auto;
     margin: 10px auto;
-    width: 85%;
+    width: 95%; /* Increased from 85% */
 
     /* Remove the divider since we only have one row */
     &::after {
@@ -29,21 +29,24 @@ const CompactPoolInfoGrid = styled(PoolInfoGrid)`
     @media (max-width: 700px) {
         margin: 6px auto;
         gap: 6px;
-        width: 90%;
+        width: 98%; /* Increased from 90% */
     }
 `;
 
 // Create a compact container with reduced height
 const CompactPoolInfoMobileContainer = styled(PoolInfoMobileContainer)`
     @media (max-width: 1120px) {
+        padding-left: 1px; /* Minimal padding */
+        padding-right: 1px; /* Minimal padding */
+
         & + button {
             margin-top: 0; /* Reduce space between grid and button */
         }
     }
 
     @media (max-width: 700px) {
-        padding-left: 2px; /* Minimal padding for mobile */
-        padding-right: 2px; /* Minimal padding for mobile */
+        padding-left: 0; /* No padding for mobile */
+        padding-right: 0; /* No padding for mobile */
 
         & + button {
             margin-top: 0; /* No margin between grid and button */
