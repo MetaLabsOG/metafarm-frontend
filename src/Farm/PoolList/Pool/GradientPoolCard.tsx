@@ -74,8 +74,10 @@ const CompactGradientPoolContainer = styled(GradientPoolContainer)`
   }
 
   @media (max-width: 700px) {
-    min-height: 120px; /* Further reduced height for mobile */
-    padding: 10px 0; /* Reduced padding */
+    min-height: 110px; /* Further reduced height for mobile */
+    padding: 8px 0; /* Reduced padding */
+    width: calc(50% - 4px); /* Ensure width matches parent */
+    max-width: 48%; /* Use percentage instead of fixed width */
   }
 `;
 
@@ -122,10 +124,11 @@ const GradientGridCell = styled.div`
   `}
 
   @media (max-width: 700px) {
-    padding: 4px 3px; /* Reduced padding for mobile */
-    min-height: 40px; /* Reduced height for mobile */
+    padding: 3px 2px; /* Further reduced padding for mobile */
+    min-height: 36px; /* Further reduced height for mobile */
     background: rgba(0, 0, 0, 0.25); /* Simplified background for performance */
     border-radius: 4px; /* Smaller border radius */
+    font-size: 11px; /* Smaller font size for mobile */
   }
 `;
 

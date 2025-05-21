@@ -9,7 +9,7 @@ import { PoolState } from './types';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
 import { PoolInfoMobile } from './PoolInfoMobile';
 
-export const blocksToText = (blocks: number, meanRoundDuration: number) => {
+export const blocksToText = (blocks: number, meanRoundDuration: number, isMobile = false) => {
     const diffSecs = Math.abs(blocks) * meanRoundDuration;
     let resTimeUnit = MINUTE;
     if (diffSecs > DAY) {
@@ -18,10 +18,18 @@ export const blocksToText = (blocks: number, meanRoundDuration: number) => {
         resTimeUnit = HOUR;
     }
 
-    const resTimeSuffix = resTimeUnit === DAY ? 'day' : resTimeUnit === HOUR ? 'hour' : 'minute';
     const timeUnits = Math.round(diffSecs / resTimeUnit);
     const suffix = timeUnits > 1 ? 's' : '';
-    return `${timeUnits} ${resTimeSuffix}${suffix}`;
+
+    if (isMobile) {
+        // Abbreviated format for mobile
+        const resTimeSuffix = resTimeUnit === DAY ? 'd' : resTimeUnit === HOUR ? 'h' : 'm';
+        return `${timeUnits}${resTimeSuffix}`;
+    } else {
+        // Full format for desktop
+        const resTimeSuffix = resTimeUnit === DAY ? 'day' : resTimeUnit === HOUR ? 'hour' : 'minute';
+        return `${timeUnits} ${resTimeSuffix}${suffix}`;
+    }
 };
 
 const calculateTiming = (
@@ -76,8 +84,9 @@ export function PoolInfo({
     const asset2_id = isFarm ? stakeTokenInfo.asset2 : rewardTokenInfo.id;
     const pool_name = isFarm ? formatLPTokenName(stakeTokenInfo) + ' LP' : 'Stake ' + stakeTokenInfo.unitName;
     // TODO: separate 0 from undefined in lpTokenInfo.asset
+    const isMobileView = window.innerWidth <= 700;
     const contractLockSuffix = contractState.initial.lockLengthBlocks
-        ? 'with ' + blocksToText(Number(contractState.initial.lockLengthBlocks), meanRoundDuration) + ' lock'
+        ? 'with ' + blocksToText(Number(contractState.initial.lockLengthBlocks), meanRoundDuration, isMobileView) + ' lock'
         : '';
 
     const dex = isFarm ? stakeTokenInfo.poolDex : null;

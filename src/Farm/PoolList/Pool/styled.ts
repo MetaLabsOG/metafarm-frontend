@@ -55,9 +55,13 @@ export const PoolContainer = styled.div`
     }
 
     @media (max-width: 700px) {
-        width: calc(50% - 8px); /* Adjust to fit two cards per row with a small gap */
-        max-width: 170px; /* Limit maximum width */
-        margin: 0 4px 12px; /* Add horizontal margin and reduce bottom margin */
+        width: calc(50% - 3px); /* Further adjusted to fit two cards per row with a smaller gap */
+        max-width: 49%; /* Slightly increased percentage */
+        margin: 0 0 10px; /* Reduced bottom margin */
+        flex: 0 0 calc(50% - 3px); /* Force two cards per row with smaller gap */
+        box-sizing: border-box; /* Include padding in width calculation */
+        padding: 12px 0 12px 0; /* Further reduced padding for mobile */
+        min-width: 0; /* Prevent overflow */
     }
 `;
 
@@ -97,8 +101,12 @@ export const PoolInfoMobileContainer = styled.div`
     }
 
     @media (max-width: 700px) {
-        padding-left: 5px; /* Further reduced for mobile */
-        padding-right: 5px; /* Further reduced for mobile */
+        padding-left: 2px; /* Further reduced for mobile */
+        padding-right: 2px; /* Further reduced for mobile */
+        font-size: 11px; /* Further reduced font size */
+        line-height: 13px; /* Reduced line height */
+        width: 100%; /* Ensure full width */
+        box-sizing: border-box; /* Include padding in width calculation */
     }
 `;
 
@@ -384,8 +392,10 @@ export const PoolInfoGrid = styled.div`
     margin: 8px 0; /* Reduced from 10px */
 
     @media (max-width: 700px) {
-        gap: 4px; /* Further reduced gap for mobile */
-        margin: 5px 0; /* Reduced margin for mobile */
+        gap: 2px; /* Further reduced gap for mobile */
+        margin: 3px 0; /* Reduced margin for mobile */
+        width: 100%; /* Ensure full width */
+        box-sizing: border-box; /* Include padding in width calculation */
     }
 `;
 
@@ -422,9 +432,10 @@ export const PoolInfoGridCell = styled(PoolInfoValue)`
     }
 
     @media (max-width: 700px) {
-        padding: 5px 3px; /* Reduced padding for mobile */
-        min-height: 45px; /* Reduced height for mobile */
+        padding: 4px 2px; /* Further reduced padding for mobile */
+        min-height: 40px; /* Further reduced height for mobile */
         background: rgba(0, 0, 0, 0.3); /* Simplified background for performance */
+        font-size: 11px; /* Smaller font size for mobile */
 
         /* Disable hover effect on mobile */
         &::before {
