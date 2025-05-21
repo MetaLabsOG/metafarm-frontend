@@ -47,9 +47,9 @@ export const POOL_COLUMN_WIDTH: Record<ColumnType, string> = {
     [ColumnType.Name]: '300px',
     [ColumnType.Tvl]: '130px',
     [ColumnType.Apr]: '130px',
-    [ColumnType.Stake]: '138px',
-    [ColumnType.Reward]: '180px',
-    [ColumnType.Ends]: '120px',
+    [ColumnType.Stake]: '120px',
+    [ColumnType.Reward]: '150px', // Adjusted width for better alignment
+    [ColumnType.Ends]: '170px',
 };
 
 const AddFarmButton = ({ addFarmType }: { addFarmType: string }) => {
@@ -177,7 +177,7 @@ export function PoolList({
                         <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
                     </MobileFilterRow>
 
-                    <VerticalSpacer space="20px" />
+                    <VerticalSpacer space="12px" />
 
                     <MobileFilterRow>
                         <PoolSearchInput
@@ -191,7 +191,7 @@ export function PoolList({
                         <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
                     </MobileFilterRow>
 
-                    <VerticalSpacer space="20px" />
+                    <VerticalSpacer space="12px" />
 
                     <MobileFilterRow>
                         <DropdownButton

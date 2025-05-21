@@ -5,11 +5,12 @@ export const PoolHeaderContainer = styled.div`
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: normal;
-    font-size: 16px;
-    line-height: 20px;
+    font-size: 15px;
+    line-height: 18px;
     display: flex;
     align-items: center;
     color: ${(props) => props.theme.white};
+    margin-bottom: 5px;
 
     @media (max-width: 1120px) {
         justify-content: center;
@@ -28,18 +29,18 @@ export const PoolTitle = styled.div`
     display: flex;
     white-space: nowrap;
     font-family: 'Korona One';
-    font-size: 14px;
+    font-size: 12px;
     color: white;
 
     @media (max-width: 1120px) {
-        font-size: 15px;
+        font-size: 12px;
     }
 `;
 
 export const PoolSubtitlesContainer = styled.div`
-    padding-top: 3px;
+    padding-top: 2px;
     display: flex;
-    padding-bottom: 3px;
+    padding-bottom: 2px;
     justify-content: left;
     width: 100%;
 `;
@@ -48,55 +49,55 @@ export const PoolSubtitle = styled.div`
     white-space: nowrap;
     color: ${theme.niceGreen}; // light green
     font-family: 'Korona One';
-    font-size: 12px;
+    font-size: 10px;
 
     @media (max-width: 1120px) {
-        font-size: 13px;
+        font-size: 10px;
     }
 `;
 
 export const LpTokensIconsWrapper = styled.div`
     display: flex;
     position: relative;
-    height: 50px;
-    width: 100px;
+    height: 40px;
+    width: 80px;
 `;
 
 export const LPTokensIcon = styled.div<{ first?: boolean; isWhite?: boolean }>`
     position: absolute;
-    left: ${({ first }) => (first ? '0' : '35px')};
+    left: ${({ first }) => (first ? '0' : '28px')};
     height: 100%;
     border: 0 solid;
     border-radius: 50px;
     background-color: ${({ isWhite }) => (isWhite ? 'white' : 'black')};
 
     @media (max-width: 1120px) {
-        left: ${({ first }) => (first ? '0px' : '35px')};
+        left: ${({ first }) => (first ? '0px' : '28px')};
     }
 `;
 
 export const DexIcon = styled.img`
     position: absolute;
-    left: 70px;
+    left: 56px;
     background-color: white;
-    height: 20px;
-    border-radius: 5px;
+    height: 16px;
+    border-radius: 4px;
 `;
 
 export const Game = styled.img`
     position: absolute;
-    left: 59px;
-    height: 20px;
-    border-radius: 5px;
+    left: 48px;
+    height: 16px;
+    border-radius: 4px;
     background-color: white;
 `;
 
 export const ContractLockSuffix = styled.div`
-    font-size: 12px;
+    font-size: 11px;
     margin-right: 3px;
     color: var(--gray);
     @media (max-width: 1120px) {
-        color: white;
+        color: #cccccc;
     }
 `;
 

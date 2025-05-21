@@ -17,8 +17,6 @@ import {
     PoolInfoValue,
     Pacman,
     RewardUSDValue,
-    RewardTokenValue,
-    ZeroRewardTokenValue,
     PoolPropertyValue,
 } from './styled';
 import { calculateAlgoReward, convertAmountToUSD, numberRound } from './utils';
@@ -48,41 +46,70 @@ export interface ValueProps {
     pricedAlgo: Priced<Asset>;
 }
 
-export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedAlgo }) => {
+export const getRewardTip = (contractState: ContractState<FarmType>, tokenInfo: Priced<Asset> | Priced<LPTokenInfo>, pricedAlgo: Priced<Asset>) => {
     if (!contractState.local) {
-        return <div>—</div>;
+        return '';
     }
 
     const algoReward = calculateAlgoReward(contractState.initial, contractState.local.reward);
 
+    let tip = '';
+
+    // Add token reward info
+    if (contractState.local.reward >= 0) {
+        tip += `${numberRound(fromSmallestUnits(tokenInfo, contractState.local.reward))} ${tokenInfo.unitName}`;
+    }
+
+    // Add ALGO reward info if applicable
+    if (contractState.initial.totalAlgoRewardAmount) {
+        if (tip) tip += '<br />';
+        tip += `${numberRound(fromSmallestUnits(pricedAlgo, algoReward))} ALGO`;
+    }
+
+    return tip;
+};
+
+export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedAlgo }) => {
+    if (!contractState.local) {
+        return <div style={{ textAlign: 'center', width: '100%', display: 'flex', justifyContent: 'center' }}>—</div>;
+    }
+
+    const algoReward = calculateAlgoReward(contractState.initial, contractState.local.reward);
+    const rewardTip = getRewardTip(contractState, tokenInfo, pricedAlgo);
+    const usdValue = numberRound(
+        convertAmountToUSD(tokenInfo, contractState.local.reward) +
+        convertAmountToUSD(pricedAlgo, algoReward)
+    );
+
     return (
-        <>
+        <div style={{
+            display: 'flex',
+            alignItems: 'start',
+            justifyContent: 'left',
+            width: '60%',
+            position: 'relative',
+            textAlign: 'start',
+        }}>
             <RewardUSDValue>
-                $
-                {numberRound(
-                    convertAmountToUSD(tokenInfo, contractState.local.reward) +
-                        convertAmountToUSD(pricedAlgo, algoReward)
-                )}
+                ${usdValue}
+                <img
+                    data-tip={rewardTip}
+                    data-html="true"
+                    style={{ marginLeft: '5px', opacity: 0.8 }}
+                    alt="Reward info"
+                    height="14px"
+                    src={info}
+                />
             </RewardUSDValue>
-            {contractState.local.reward > 0 && (
-                <RewardTokenValue style={{ paddingTop: 5 }}>
-                    {numberRound(fromSmallestUnits(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
-                </RewardTokenValue>
-            )}
-            {!contractState.local.reward && (
-                <ZeroRewardTokenValue style={{ paddingTop: 5 }}>
-                    {numberRound(fromSmallestUnits(tokenInfo, contractState.local.reward))} {tokenInfo.unitName}
-                </ZeroRewardTokenValue>
-            )}
-            {algoReward > 0 && (
-                <RewardTokenValue>{numberRound(fromSmallestUnits(pricedAlgo, algoReward))} ALGO</RewardTokenValue>
-            )}
-            {!algoReward && contractState.initial.totalAlgoRewardAmount && (
-                <ZeroRewardTokenValue>
-                    {numberRound(fromSmallestUnits(pricedAlgo, algoReward))} ALGO
-                </ZeroRewardTokenValue>
-            )}
-        </>
+            <ReactTooltip
+                clickable
+                place="top"
+                type="light"
+                effect="solid"
+                className="custom-tooltip"
+                backgroundColor="rgba(255, 255, 255, 0.9)"
+            />
+        </div>
     );
 };
 
@@ -142,8 +169,21 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Apr]}>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
                     <PoolPropertyValue>{numberRound(APR.total)}%</PoolPropertyValue>
-                    <img data-tip={getAPRTip(APR, rewardTokenInfo.unitName)} alt="APR info" height="14px" src={info} />
-                    <ReactTooltip clickable place="top" type="light" effect="solid" />
+                    <img
+                        data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
+                        alt="APR info"
+                        height="14px"
+                        src={info}
+                        style={{ marginLeft: '5px', opacity: 0.8 }}
+                    />
+                    <ReactTooltip
+                        clickable
+                        place="top"
+                        type="light"
+                        effect="solid"
+                        className="custom-tooltip"
+                        backgroundColor="rgba(255, 255, 255, 0.9)"
+                    />
                 </div>
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Stake]}>

@@ -3,7 +3,7 @@ import pactsdk from '@pactfi/pactsdk';
 
 import packages from '../../package.json';
 import { Json, JsonWithBignum, resolveBignums } from '../common/lib';
-import { AssetId, ContractType } from '../common/store/types';
+import { Asset as StoreAsset, AssetId, Priced, ContractType } from '../common/store';
 import { ALGONET, API_CONTRACTS_MAX_COUNT, TESTNET } from '../AppContext';
 import { nonConcurrent } from '../common/store/utils';
 import { logEvent, LogName } from '../logEvent';
@@ -11,6 +11,7 @@ import { StakingAsset } from '../Farm/AddFarm';
 import * as MiniHumble from '../dexes/humbleReexports';
 import { TokenOptionType } from '../Components/Select/types';
 import { NftLottery } from '../Swap/NftWinModal';
+import { DexProvider } from '../dexes';
 
 export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
@@ -122,57 +123,9 @@ export async function getContracts(
         });
 }
 
-export type LpState = {
-    id: number;
-    token_id: number;
-    asset1_id: number;
-    asset2_id: number;
-    dex_provider: string;
-    address: string;
+// LP token price calculation is now handled by tinymanPriceProvider.ts
 
-    asset1_reserve_micros: number;
-    asset2_reserve_micros: number;
-    issued_tokens_micros: number;
-
-    asset1_reserve: number;
-    asset2_reserve: number;
-    issued_tokens: number;
-
-    token_price_algo: number;
-    token_price_usd: number;
-    swap_fee_apr?: number;
-
-    last_updated_round: number;
-};
-
-export async function getLpState(lp_id: number): Promise<LpState> {
-    return await instance
-        .post<LpState>(`/lp/state/priced?lp_token_id=${lp_id}`)
-        .then(({ data }) => data)
-        .catch((error) => {
-            console.log('ERR', error);
-            throw error;
-        });
-}
-
-export type AssetPriceInfo = {
-    asset_id: number;
-    asset_name: string;
-    price_usd: number;
-    price_algo: number;
-    last_update_round: number;
-    seconds_since_update: number;
-};
-
-export async function getAssetPrice(asset_id: number): Promise<AssetPriceInfo> {
-    return await instance
-        .post<AssetPriceInfo>(`/asset/price?asset_id=${asset_id}`)
-        .then(({ data }) => data)
-        .catch((error) => {
-            console.log('ERR', error);
-            throw error;
-        });
-}
+// Price fetching is now handled by tinymanPriceProvider.ts
 
 export async function getPoolInfo(asset1: number, asset2: number): Promise<PoolInfo> {
     return instance.get<PoolInfo>(`/pool?asset_1_id=${asset1}&asset_2_id=${asset2}`).then(({ data }) => data);
@@ -341,4 +294,42 @@ export async function checkClaimLottery(address: string, pool_id: number): Promi
     };
 
     return instance.post(`lottery/staking?address=${address}&pool_id=${pool_id}`).then(({ data }) => data);
+}
+
+// Add this interface for the backend API response
+export interface BackendLPTokenInfo {
+    id: number; // Pool AppId
+    token_id: number; // LP token ID
+    asset1_id: number;
+    asset2_id: number;
+    dex_provider: string;
+    address: string; // Pool address
+    asset1_reserve_micros: number;
+    asset2_reserve_micros: number;
+    issued_tokens_micros: number;
+    asset1_reserve?: number;
+    asset2_reserve?: number;
+    issued_tokens?: number;
+    token_price_algo: number;
+    token_price_usd: number;
+    last_updated_round: number;
+    swap_fee_apr: number | null;
+    seconds_since_update: number;
+}
+
+export async function fetchLPTokenInfoFromBackendApi(lpTokenId: AssetId): Promise<BackendLPTokenInfo> {
+    const url = `https://api.cometa.farm/lp/state/priced?lp_token_id=${lpTokenId}`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+        });
+        if (!response.ok) {
+            throw new Error(`Backend API request failed with status ${response.status} for LP token ${lpTokenId}`);
+        }
+        const data = await response.json();
+        return data as BackendLPTokenInfo;
+    } catch (error) {
+        console.error(`Failed to fetch LP token info from backend API for ${lpTokenId}:`, error);
+        throw error; // Re-throw to be caught by the caller
+    }
 }

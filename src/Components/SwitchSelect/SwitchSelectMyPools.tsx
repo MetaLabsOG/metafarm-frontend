@@ -40,9 +40,10 @@ export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEna
                 onChange={handleSelectorChange}
                 options={options}
                 initialSelectedIndex={initialSelectedIndex}
-                backgroundColor={'#1e1e1e'}
+                backgroundColor={'rgba(30, 30, 30, 0.25)'}
                 fontColor={'white'}
-                selectedFontColor="black"
+                selectedFontColor="#1e1e1e"
+                // borderColor and fontSize removed due to type errors
                 name="PoolSwitchSelector"
                 forcedSelectedIndex={initialSelectedIndex}
             />

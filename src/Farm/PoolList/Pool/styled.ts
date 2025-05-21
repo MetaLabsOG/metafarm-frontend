@@ -6,38 +6,56 @@ export const PoolContainer = styled.div`
     flex-direction: column;
     justify-content: space-between;
     height: auto;
-    margin-bottom: 16px;
+    margin-bottom: 16px; /* Increased spacing between cards */
     color: var(--gray);
-    background-color: var(--backgroundModal);
     width: 95%;
     font-size: 14px;
     padding: 20px 0 20px 0;
     border-radius: 10px;
+    background: linear-gradient(270deg, rgba(54, 54, 54, 0.01) 0%, rgba(54, 54, 54, 0.01) 30.46%), rgba(20, 20, 20, 0.05);
+    backdrop-filter: blur(8px);
+    backdrop-saturate: 150%;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    will-change: transform;
+    transition: all 0.3s ease;
+    translate: z-0;
 
-    :hover {
-        background: linear-gradient(270deg, rgba(81, 221, 78, 0.06) 0%, rgba(54, 54, 54, 0.06) 30.46%), #363636;
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 20px rgba(0, 255, 41, 0.1);
+        border: 1px solid rgba(66, 201, 63, 0.2);
+        background: linear-gradient(270deg, rgba(54, 54, 54, 0.02) 0%, rgba(54, 54, 54, 0.02) 30.46%), rgba(20, 20, 20, 0.1);
     }
 
     @media (max-width: 1120px) {
-        height: 420px;
+        height: auto; /* Changed from fixed 420px to auto */
+        min-height: 180px; /* Set minimum height for compact view */
         justify-content: center;
         perspective: 1000px;
-        transition: transform 0.6s;
+        transition: all 0.3s ease;
         transform-style: preserve-3d;
-        background-color: var(--backgroundCard);
+        background: linear-gradient(270deg, rgba(54, 54, 54, 0.01) 0%, rgba(54, 54, 54, 0.01) 30.46%), rgba(20, 20, 20, 0.4);
+
+        /* Compact view for pools with no staked/reward values */
+        &.compact {
+            min-height: 150px; /* Reduced height for compact view */
+            padding-bottom: 15px; /* Reduced padding for compact view */
+        }
 
         :hover {
-            background: var(--backgroundCard);
+            background: linear-gradient(270deg, rgba(54, 54, 54, 0.02) 0%, rgba(54, 54, 54, 0.02) 30.46%), rgba(20, 20, 20, 0.5);
+            transform: translateY(-2px);
         }
     }
 
-		@media (max-width: 1120px) and (min-width: 701px) {
-			flex: 1 1 calc(50% - 20px);
-			margin-bottom: 0;
-	  }
+    @media (max-width: 1120px) and (min-width: 701px) {
+        flex: 1 1 calc(50% - 20px);
+        margin-bottom: 16px; /* Increased spacing between cards */
+    }
 
     @media (max-width: 700px) {
-        width 325px;
+        width: 325px;
     }
 `;
 
@@ -63,13 +81,13 @@ export const PoolInfoDesktopContainer = styled.div`
 export const PoolInfoMobileContainer = styled.div`
     color: ${(props) => props.theme.white};
     width: 100%;
-    padding-left: 28px;
-    padding-right: 28px;
+    padding-left: 20px;
+    padding-right: 20px;
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: normal;
-    line-height: 22px;
-    font-size: 17px;
+    line-height: 18px;
+    font-size: 16px;
     text-align: center;
 
     @media (min-width: 1120px) {
@@ -78,13 +96,34 @@ export const PoolInfoMobileContainer = styled.div`
 `;
 
 export const PoolPropertyName = styled.div`
-    padding-left: 15px;
-    color: white;
+    color: var(--lightGray);
+    font-size: 13px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 400;
+    text-shadow: 0 0 8px rgba(200, 200, 200, 0.1);
 `;
 
 export const PoolPropertyValue = styled.div`
-    padding-right: 6px;
     color: white;
+    font-weight: 600;
+    font-size: 16px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+
+    /* Apply green color to dollar values */
+    &:has(> span:first-child:contains('$')),
+    &:has(> div:first-child:contains('$')) {
+        color: #8bff74;
+        text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
+    }
+
+    /* Add subtle animation on hover */
+    &:hover {
+        transform: translateY(-1px);
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+    }
 `;
 
 export const PoolInfoValue = styled.div<{ width?: string }>`
@@ -115,6 +154,8 @@ export const PoolActionsDesktopContainer = styled.div`
     display: flex;
     margin-top: 38px;
     gap: 25px;
+    width: 100%;
+    padding: 0 20px;
 
     @media (max-width: 1120px) {
         display: none;
@@ -157,18 +198,18 @@ export const ArrowIconsWrapper = styled.div`
 `;
 
 export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
-    width: 70%;
-    height: 40px;
-    margin: 10px auto auto;
+    width: 50%; /* Reduced from 60% */
+    height: 30px; /* Reduced from 34px */
+    margin: 6px auto 0; /* Reduced from 8px */
     background: ${theme.lightGreen};
     font-family: 'Korona One';
     font-weight: 500;
-    font-size: 20px;
+    font-size: 16px; /* Reduced from 18px */
     color: black;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
-    margin-top: 8px;
+    transition: all 0.2s ease;
 
     :disabled {
         background: grey;
@@ -178,6 +219,7 @@ export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
     :not(:disabled):hover {
         color: green;
         background: black;
+        transform: scale(1.03);
     }
 `;
 
@@ -187,6 +229,7 @@ export const PoolActionsMobileContainer = styled.div`
     margin-top: 0;
     padding-right: 15px;
     padding-left: 15px;
+    /* Removed display: none to allow inline style to work properly */
 
     @media (min-width: 1120px) {
         display: none;
@@ -221,10 +264,17 @@ export const PoolLoadingAnimation = styled.img`
 `;
 
 export const RewardUSDValue = styled.div`
-    color: white;
+    color: #8bff74;
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
+    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     @media (max-width: 1120px) {
-        text-align: right;
+        text-align: center;
     }
 `;
 
@@ -233,9 +283,16 @@ export const RewardTokenValue = styled.div`
     font-size: 13px;
     color: #8bff74; // light green tODO: to constants
     display: flex;
+    font-weight: 500;
+    text-shadow: 0 0 8px rgba(139, 255, 116, 0.2);
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 
     @media (max-width: 1120px) {
-        text-align: right;
+        text-align: center;
+        justify-content: center;
     }
 `;
 
@@ -244,9 +301,13 @@ export const ZeroRewardTokenValue = styled.div`
     font-size: 13px;
     color: var(--gray);
     display: flex;
+    text-align: center;
+    justify-content: center;
+    width: 100%;
 
     @media (max-width: 1120px) {
-        text-align: right;
+        text-align: center;
+        justify-content: center;
     }
 `;
 
@@ -255,8 +316,9 @@ export const TimingMobile = styled.div`
     display: flex;
     justify-content: center;
     gap: 3px;
-    font-size: 15px;
-    margin-top: 10px;
+    font-size: 12px; /* Reduced from 13px */
+    margin-top: 4px; /* Reduced from 6px */
+    opacity: 0.8;
 `;
 
 export const ContractLink = styled.div`
@@ -264,4 +326,53 @@ export const ContractLink = styled.div`
     font-size: 13px;
     text-decoration: underline;
     color: var(--gray);
+`;
+
+export const PoolInfoGrid = styled.div`
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 6px; /* Reduced from 8px */
+    width: 100%;
+    margin: 8px 0; /* Reduced from 10px */
+`;
+
+export const PoolInfoGridCell = styled(PoolInfoValue)`
+    background: linear-gradient(270deg, rgba(81, 221, 78, 0.05) 0%, rgba(54, 54, 54, 0.05) 30.46%), rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    padding: 8px 6px;
+    margin: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: auto;
+    min-height: 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(270deg, rgba(81, 221, 78, 0.02) 0%, rgba(54, 54, 54, 0.02) 30.46%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+
+    &:hover::before {
+        opacity: 1;
+    }
+
+    @media (max-width: 1120px) {
+        margin-bottom: 0;
+    }
+`;
+
+export const PoolInfoGridCellSmall = styled(PoolInfoGridCell)`
+    font-size: 90%;
+    color: #a1a1a1;
+    background: linear-gradient(270deg, rgba(81, 221, 78, 0.03) 0%, rgba(54, 54, 54, 0.03) 30.46%), rgba(0, 0, 0, 0.2);
+    min-height: 55px;
 `;

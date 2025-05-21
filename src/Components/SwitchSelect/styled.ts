@@ -6,6 +6,11 @@ export const MyVerifiedSwitchWrapper = styled.div`
     margin-top: 9px;
     font-family: 'Montserrat';
     font-weight: 300;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+    }
 
     @media (max-width: 1120px) {
         width: 155px;
@@ -35,6 +40,11 @@ export const PoolStateWrapper = styled.div`
     height: 30px;
     margin-top: 10px;
     font-weight: 300;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+    }
 
     @media (max-width: 700px) {
         margin-top: 0;
@@ -48,6 +58,11 @@ export const SwitchSelectWrapper = styled.div`
     margin-top: 10px;
     font-family: Montserrat;
     font-weight: 300;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+    }
 
     @media (max-width: 700px) {
         width: 170px;

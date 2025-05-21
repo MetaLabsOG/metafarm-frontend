@@ -15,6 +15,8 @@ import { useStoreMap, useUnit } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
 import ReactGA from 'react-ga';
 import GlobalStyle from './common/globalStyles';
+import { MeteorsBackground } from './Components/ui/MeteorsBackground';
+import { injectMobileOptimizations } from './utils/mobileOptimizations';
 
 import { Menu } from './Menu';
 import { Farm } from './Farm';
@@ -22,12 +24,14 @@ import { Swap } from './Swap';
 import { Zap } from './Zap';
 
 import { MetaDAO } from './MetaDAO';
+import PriceTest from './pages/PriceTest';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
 import { $account, ContractInfo, fetchAllPricesFx } from './common/store';
 import { Stake } from './Stake/Stake';
 
 import './css/index.css';
+import './css/tailwind.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { setPoolInfos } from './Farm/store';
 import { getContracts } from './providers/apiProvider';
@@ -105,6 +109,11 @@ function App() {
 
     const [Modal, openWelcomeModal] = useModal('root');
 
+    // Inject mobile optimizations on app load
+    useEffect(() => {
+        injectMobileOptimizations();
+    }, []);
+
     useEffect(() => {
         if (farmsFetch.isSuccess) {
             const data = farmsFetch.data! as Array<ContractInfo<'farm'>>;
@@ -133,28 +142,31 @@ function App() {
             <ToastContainer limit={3} theme="colored" position="bottom-right" transition={Flip} />
             <ThemeProvider theme={theme}>
                 <ModalProvider preventScroll components={modalComponents}>
-                    <Container>
-                        <Menu />
-                        <ContentContainer>
-                            <Routes>
-                                <Route path="/" element={<Farm />} />
-                                {/*<Route path="/fomo" element={<Fomo />} />*/}
-                                <Route path="/laas" element={<LaaS />} />
-                                <Route path="/farm" element={<Farm />} />
-                                <Route path="/stake" element={<Stake />} />
-                                <Route path="/swap" element={<Swap />} />
-                                <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
-                                <Route path="/meta-dao" element={<MetaDAO />} />
-                                <Route path="/metapunks" element={<Metapunks />} />
-                                <Route path="/addfarm" element={<AddFarm type="farm" />} />
-                                <Route path="/addstake" element={<AddFarm type="stake" />} />
-                                <Route path="/addlaas" element={<AddLaaS />} />
-                            </Routes>
-                        </ContentContainer>
-                        <Modal>
-                            <WelcomeModal />
-                        </Modal>
-                    </Container>
+                    <MeteorsBackground>
+                        <Container>
+                            <Menu />
+                            <ContentContainer>
+                                <Routes>
+                                    <Route path="/" element={<Farm />} />
+                                    {/*<Route path="/fomo" element={<Fomo />} />*/}
+                                    <Route path="/laas" element={<LaaS />} />
+                                    <Route path="/farm" element={<Farm />} />
+                                    <Route path="/stake" element={<Stake />} />
+                                    <Route path="/swap" element={<Swap />} />
+                                    <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
+                                    <Route path="/meta-dao" element={<MetaDAO />} />
+                                    <Route path="/metapunks" element={<Metapunks />} />
+                                    <Route path="/addfarm" element={<AddFarm type="farm" />} />
+                                    <Route path="/addstake" element={<AddFarm type="stake" />} />
+                                    <Route path="/addlaas" element={<AddLaaS />} />
+                                    <Route path="/price-test" element={<PriceTest />} />
+                                </Routes>
+                            </ContentContainer>
+                            <Modal>
+                                <WelcomeModal />
+                            </Modal>
+                        </Container>
+                    </MeteorsBackground>
                 </ModalProvider>
                 <Footer />
             </ThemeProvider>

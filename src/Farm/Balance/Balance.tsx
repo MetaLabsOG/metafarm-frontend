@@ -21,8 +21,8 @@ export function Balance({ kind }: BalanceProps) {
     return (
         <BalanceList>
             <Amount title={tvlName} value={aggregates.tvl} />
-            <Amount title="My Stakes" value={aggregates.totalUserStake} />
-            <Amount title="My Rewards" value={aggregates.totalPendingReward} />
+            <Amount title="My Stake" value={aggregates.totalUserStake} />
+            <Amount title="My Earn" value={aggregates.totalPendingReward} />
         </BalanceList>
     );
 }
