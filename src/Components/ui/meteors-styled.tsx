@@ -58,29 +58,33 @@ export const Meteors = ({
 }: {
   number?: number;
 }) => {
+  // Check if we're on mobile - if so, return nothing
+  if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+    return null;
+  }
+
   const [dimensions, setDimensions] = useState({
     height: typeof window !== 'undefined' ? window.innerHeight : 1000,
     width: typeof window !== 'undefined' ? window.innerWidth : 1000
   });
 
-  // Reduce number of meteors on mobile
+  // Only for desktop
   const [actualNumber, setActualNumber] = useState(number);
 
   useEffect(() => {
     const handleResize = () => {
+      // If window resizes to mobile size, return nothing
+      if (window.innerWidth <= 768) {
+        setActualNumber(0);
+        return;
+      }
+
       const newDimensions = {
         height: window.innerHeight,
         width: window.innerWidth
       };
       setDimensions(newDimensions);
-
-      // Adjust number of meteors based on screen size
-      if (newDimensions.width <= 768) {
-        // Use a much smaller number for mobile
-        setActualNumber(Math.min(5, number));
-      } else {
-        setActualNumber(number);
-      }
+      setActualNumber(number);
     };
 
     // Initial check
@@ -90,7 +94,12 @@ export const Meteors = ({
     return () => window.removeEventListener('resize', handleResize);
   }, [number]);
 
-  // Create array with reduced number of meteors
+  // If no meteors to show, return nothing
+  if (actualNumber <= 0) {
+    return null;
+  }
+
+  // Create array with meteors
   const meteors = new Array(actualNumber).fill(true);
 
   return (

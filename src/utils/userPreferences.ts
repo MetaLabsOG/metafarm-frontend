@@ -11,28 +11,26 @@ const METEOR_ENABLED_KEY = 'cometa_meteor_enabled';
  */
 export function getMeteorAnimationEnabled(): boolean {
   try {
-    // Check if there's a stored preference
-    const stored = localStorage.getItem(METEOR_ENABLED_KEY);
-
-    // For iOS devices, always default to disabled
-    const isIos = isIosDevice();
-
-    // For mobile devices, default to disabled
+    // Check if it's a mobile device
     const isMobile = isMobileDevice();
 
-    if (stored === null) {
-      // If no preference is stored:
-      // - Disable for mobile and iOS devices
-      // - Enable for desktop devices
-      return !isIos && !isMobile;
-    }
+    // Check if it's an iOS device
+    const isIos = isIosDevice();
 
-    // For iOS, always return false regardless of stored preference
-    if (isIos) {
+    // ALWAYS disable for mobile and iOS devices regardless of user preference
+    if (isMobile || isIos) {
       return false;
     }
 
-    // Otherwise, return the stored preference
+    // For desktop devices, check stored preference
+    const stored = localStorage.getItem(METEOR_ENABLED_KEY);
+
+    // If no preference is stored, enable for desktop by default
+    if (stored === null) {
+      return true;
+    }
+
+    // Otherwise, return the stored preference for desktop only
     return stored === 'true';
   } catch (error) {
     // Default to disabled if localStorage fails
@@ -46,6 +44,19 @@ export function getMeteorAnimationEnabled(): boolean {
  */
 export function setMeteorAnimationEnabled(enabled: boolean): void {
   try {
+    // Check if it's a mobile device
+    const isMobile = isMobileDevice();
+
+    // Check if it's an iOS device
+    const isIos = isIosDevice();
+
+    // For mobile or iOS devices, always force disable regardless of requested state
+    if (isMobile || isIos) {
+      localStorage.setItem(METEOR_ENABLED_KEY, 'false');
+      return;
+    }
+
+    // Only allow setting preference for desktop devices
     localStorage.setItem(METEOR_ENABLED_KEY, enabled.toString());
   } catch (error) {
     console.warn('Failed to save meteor animation preference', error);

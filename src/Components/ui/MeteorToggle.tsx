@@ -75,10 +75,15 @@ export const MeteorToggle: React.FC<MeteorToggleProps> = ({ onChange }) => {
     }
   };
 
+  // Don't render the toggle at all on mobile devices
+  if (isMobile) {
+    return null;
+  }
+
   return (
     <ToggleContainer onClick={handleToggle}>
       <ToggleSwitch enabled={enabled} />
-      <ToggleText>{isMobile ? "Comet Rain" : "Comets FANCY Effect"}</ToggleText>
+      <ToggleText>Comets FANCY Effect</ToggleText>
     </ToggleContainer>
   );
 };

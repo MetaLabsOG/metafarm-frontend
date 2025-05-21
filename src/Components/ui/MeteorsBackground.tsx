@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
+// Import Meteors component but only use it for desktop
 import { Meteors } from "./meteors-styled";
 import {
   DEFAULT_METEOR_COUNT,
-  DESKTOP_METEOR_COUNT,
-  MOBILE_METEOR_COUNT,
-  LOW_END_METEOR_COUNT,
-  IOS_METEOR_COUNT
+  DESKTOP_METEOR_COUNT
 } from "../../constants/meteors";
 import { isLowEndDevice } from "../../utils/performance";
 
@@ -78,11 +76,12 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
 
-      // Disable meteors by default for mobile devices and iOS devices
+      // ALWAYS disable meteors for mobile devices and iOS devices
+      // Only enable for desktop devices
       const enabled = !mobile && !isIosDevice();
       setMeteorsEnabled(enabled);
 
-      // Update localStorage to match current state
+      // Force update localStorage to match this policy
       localStorage.setItem('cometa_meteor_enabled', enabled.toString());
     };
 
@@ -96,42 +95,28 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
     };
   }, []);
 
-  // Check for user preferences
+  // Force disable on resize for mobile
   useEffect(() => {
-    // Get user preference from localStorage
-    try {
-      const storedPreference = localStorage.getItem('cometa_meteor_enabled');
-      if (storedPreference !== null) {
-        // If user has explicitly set a preference, respect it
-        // But still enforce disabled for iOS devices
-        const shouldEnable = storedPreference === 'true' && !isIosDevice();
-        setMeteorsEnabled(shouldEnable);
-      }
-    } catch (error) {
-      console.warn('Failed to read meteor animation preference', error);
+    if (isMobile) {
+      setMeteorsEnabled(false);
+      localStorage.setItem('cometa_meteor_enabled', 'false');
     }
   }, [isMobile]);
 
   useEffect(() => {
     // Function to determine device type and set appropriate meteor count
+    // Only relevant for desktop devices since mobile will never show meteors
     const checkDeviceCapabilities = () => {
-      // Check if it's an iOS device
-      if (isIosDevice()) {
-        setMeteorCount(IOS_METEOR_COUNT);
+      // Skip all checks for mobile devices
+      if (window.innerWidth < 768 || isIosDevice()) {
         return;
       }
 
-      // Check if it's a low-end device
+      // For desktop: check if it's a low-end device
       if (isLowEndDevice()) {
-        setMeteorCount(LOW_END_METEOR_COUNT);
-        return;
-      }
-
-      // Then check if it's mobile based on screen width
-      const isMobileDevice = window.innerWidth < 768;
-      if (isMobileDevice) {
-        setMeteorCount(MOBILE_METEOR_COUNT);
+        setMeteorCount(DEFAULT_METEOR_COUNT);
       } else {
+        // Regular desktop device
         setMeteorCount(DESKTOP_METEOR_COUNT);
       }
     };
@@ -162,8 +147,8 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
 
   return (
     <BackgroundContainer>
-      {/* Meteors background - only render if enabled */}
-      {meteorsEnabled && (
+      {/* Meteors background - only render if enabled AND not on mobile */}
+      {meteorsEnabled && !isMobile && (
         <MeteorsContainer>
           <Meteors number={meteorCount} />
         </MeteorsContainer>
