@@ -123,8 +123,9 @@ export const PoolListContainer = styled.div`
 
     @media (max-width: 700px) {
         margin-top: 36px;
-        justify-content: center;
-        gap: 0;
+        justify-content: space-between; /* Changed from center to space-between */
+        gap: 8px; /* Add small gap between cards */
+        padding: 0 8px; /* Add padding on the sides */
     }
 `;
 

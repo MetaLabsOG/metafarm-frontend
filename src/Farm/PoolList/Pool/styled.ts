@@ -55,7 +55,9 @@ export const PoolContainer = styled.div`
     }
 
     @media (max-width: 700px) {
-        width: 325px;
+        width: calc(50% - 8px); /* Adjust to fit two cards per row with a small gap */
+        max-width: 170px; /* Limit maximum width */
+        margin: 0 4px 12px; /* Add horizontal margin and reduce bottom margin */
     }
 `;
 
@@ -81,17 +83,22 @@ export const PoolInfoDesktopContainer = styled.div`
 export const PoolInfoMobileContainer = styled.div`
     color: ${(props) => props.theme.white};
     width: 100%;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-left: 10px; /* Reduced from 20px */
+    padding-right: 10px; /* Reduced from 20px */
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: normal;
-    line-height: 18px;
-    font-size: 16px;
+    line-height: 16px; /* Reduced from 18px */
+    font-size: 14px; /* Reduced from 16px */
     text-align: center;
 
     @media (min-width: 1120px) {
         display: none;
+    }
+
+    @media (max-width: 700px) {
+        padding-left: 5px; /* Further reduced for mobile */
+        padding-right: 5px; /* Further reduced for mobile */
     }
 `;
 
@@ -103,6 +110,12 @@ export const PoolPropertyName = styled.div`
     letter-spacing: 0.5px;
     font-weight: 400;
     text-shadow: 0 0 8px rgba(200, 200, 200, 0.1);
+
+    @media (max-width: 700px) {
+        font-size: 11px; /* Smaller font for mobile */
+        margin-bottom: 2px; /* Reduced margin */
+        letter-spacing: 0.3px; /* Reduced letter spacing */
+    }
 `;
 
 export const PoolPropertyValue = styled.div`
@@ -123,6 +136,18 @@ export const PoolPropertyValue = styled.div`
     &:hover {
         transform: translateY(-1px);
         text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+    }
+
+    @media (max-width: 700px) {
+        font-size: 13px; /* Smaller font for mobile */
+        font-weight: 500; /* Slightly reduced weight */
+        text-shadow: none; /* Remove text shadow for performance */
+
+        /* Disable hover animation on mobile */
+        &:hover {
+            transform: none;
+            text-shadow: none;
+        }
     }
 `;
 
@@ -223,6 +248,20 @@ export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
         transform: scale(1.03);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
+
+    @media (max-width: 700px) {
+        width: 70%; /* Wider button for better tap target */
+        height: 24px; /* Reduced height for mobile */
+        font-size: 13px; /* Smaller font for mobile */
+        margin: 4px auto 0; /* Reduced margin */
+        border-radius: 6px; /* Smaller border radius */
+        box-shadow: none; /* Remove shadow for performance */
+
+        :not(:disabled):hover {
+            transform: none; /* Disable hover effect on mobile */
+            box-shadow: none;
+        }
+    }
 `;
 
 export const PoolActionsMobileContainer = styled.div`
@@ -321,6 +360,12 @@ export const TimingMobile = styled.div`
     font-size: 12px; /* Reduced from 13px */
     margin-top: 4px; /* Reduced from 6px */
     opacity: 0.8;
+
+    @media (max-width: 700px) {
+        font-size: 10px; /* Smaller font for mobile */
+        margin-top: 2px; /* Reduced margin */
+        opacity: 0.7; /* Slightly more transparent */
+    }
 `;
 
 export const ContractLink = styled.div`
@@ -337,6 +382,11 @@ export const PoolInfoGrid = styled.div`
     gap: 6px; /* Reduced from 8px */
     width: 100%;
     margin: 8px 0; /* Reduced from 10px */
+
+    @media (max-width: 700px) {
+        gap: 4px; /* Further reduced gap for mobile */
+        margin: 5px 0; /* Reduced margin for mobile */
+    }
 `;
 
 export const PoolInfoGridCell = styled(PoolInfoValue)`
@@ -369,6 +419,17 @@ export const PoolInfoGridCell = styled(PoolInfoValue)`
 
     @media (max-width: 1120px) {
         margin-bottom: 0;
+    }
+
+    @media (max-width: 700px) {
+        padding: 5px 3px; /* Reduced padding for mobile */
+        min-height: 45px; /* Reduced height for mobile */
+        background: rgba(0, 0, 0, 0.3); /* Simplified background for performance */
+
+        /* Disable hover effect on mobile */
+        &::before {
+            display: none;
+        }
     }
 `;
 

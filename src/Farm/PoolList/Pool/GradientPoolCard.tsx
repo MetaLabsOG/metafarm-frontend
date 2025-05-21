@@ -72,6 +72,11 @@ const CompactGradientPoolContainer = styled(GradientPoolContainer)`
   @media (max-width: 1120px) {
     min-height: 150px; /* Reduced height for compact view */
   }
+
+  @media (max-width: 700px) {
+    min-height: 120px; /* Further reduced height for mobile */
+    padding: 10px 0; /* Reduced padding */
+  }
 `;
 
 // Enhanced grid cell with gradient background
@@ -115,6 +120,13 @@ const GradientGridCell = styled.div`
       opacity: 1;
     }
   `}
+
+  @media (max-width: 700px) {
+    padding: 4px 3px; /* Reduced padding for mobile */
+    min-height: 40px; /* Reduced height for mobile */
+    background: rgba(0, 0, 0, 0.25); /* Simplified background for performance */
+    border-radius: 4px; /* Smaller border radius */
+  }
 `;
 
 // Wrapper component that applies the gradient styling
@@ -182,6 +194,21 @@ const GradientStakeButton = styled(StakeButtonMobile)`
     )`, 'rgba(100, 100, 100, 0.5)')};
     color: rgba(200, 200, 200, 0.7);
     box-shadow: none;
+  }
+
+  /* Mobile-specific styling */
+  @media (max-width: 700px) {
+    width: 60%; /* Adjusted width for mobile */
+    height: 22px; /* Reduced height for mobile */
+    font-size: 12px; /* Smaller font for mobile */
+    margin: 3px auto 0; /* Reduced margin */
+    padding: 0; /* Remove padding */
+    background: rgba(144, 238, 144, 0.85); /* Simplified background */
+    box-shadow: none; /* Remove shadow for performance */
+
+    &:disabled {
+      background: rgba(100, 100, 100, 0.5); /* Simplified disabled background */
+    }
   }
 `;
 
