@@ -74,8 +74,10 @@ export const PoolSearchInput = styled.input`
     text-align: center;
     font-family: 'Montserrat';
     font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
 
-    border: 1px solid rgba(125, 125, 125, 0.2);
+    border: 1px solid rgba(144, 238, 144, 0.3);
     border-radius: 15px;
     transition: all 0.3s ease;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -103,11 +105,16 @@ export const PoolSearchInput = styled.input`
         outline: none;
         border-color: #90ee90;
         background-color: rgba(30, 30, 30, 0.4);
-        box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.1);
+        box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.2);
     }
 
     &:hover {
         border-color: rgba(144, 238, 144, 0.5);
         transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    &::placeholder {
+        color: rgba(255, 255, 255, 0.6);
     }
 `;

@@ -58,12 +58,18 @@ export const MobileFilterContainer = styled.div`
         padding-left: 20px;
         padding-right: 20px;
         background-color: rgba(30, 30, 30, 0.2);
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(6px);
         border-radius: 16px;
         padding-top: 15px;
         padding-bottom: 15px;
         transition: all 0.3s ease;
-        border: none; /* Made border invisible */
+        border: 1px solid rgba(144, 238, 144, 0.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    &:hover {
+        border-color: rgba(144, 238, 144, 0.25);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
     }
 `;
 
@@ -72,7 +78,7 @@ export const MobileFilterRow = styled.div`
     flex-direction: row;
     justify-content: space-between;
     width: 325px;
-    transition: transform 0.2s ease;
+    transition: all 0.3s ease;
 
     &:hover {
         transform: translateY(-1px);

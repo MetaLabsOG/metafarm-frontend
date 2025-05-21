@@ -5,17 +5,21 @@ export const MyVerifiedSwitchWrapper = styled.div`
     height: 30px;
     margin-top: 9px;
     font-family: 'Montserrat';
-    font-weight: 300;
-    transition: transform 0.2s ease;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: all 0.3s ease;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 
     &:hover {
         transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     @media (max-width: 1120px) {
         width: 155px;
         font-size: 13px;
-        font-weight: 300;
         height: 32px;
     }
 
@@ -39,11 +43,17 @@ export const PoolStateWrapper = styled.div`
     width: 170px;
     height: 30px;
     margin-top: 10px;
-    font-weight: 300;
-    transition: transform 0.2s ease;
+    font-family: 'Montserrat';
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: all 0.3s ease;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 
     &:hover {
         transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     @media (max-width: 700px) {
@@ -56,12 +66,17 @@ export const SwitchSelectWrapper = styled.div`
     width: 180px;
     height: 30px;
     margin-top: 10px;
-    font-family: Montserrat;
-    font-weight: 300;
-    transition: transform 0.2s ease;
+    font-family: 'Montserrat';
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: all 0.3s ease;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 
     &:hover {
         transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     @media (max-width: 700px) {

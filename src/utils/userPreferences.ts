@@ -14,23 +14,21 @@ export function getMeteorAnimationEnabled(): boolean {
     // Check if there's a stored preference
     const stored = localStorage.getItem(METEOR_ENABLED_KEY);
 
-    // For iOS and mobile devices, always default to disabled
+    // For iOS devices, always default to disabled
     const isIos = isIosDevice();
-    const isMobile = isMobileDevice();
 
     if (stored === null) {
       // If no preference is stored:
-      // - Enable for desktop
-      // - Disable for mobile and iOS
-      return !(isIos || isMobile);
+      // - Enable for all devices except iOS
+      return !isIos;
     }
 
-    // For mobile and iOS, always return false regardless of stored preference
-    if (isIos || isMobile) {
+    // For iOS, always return false regardless of stored preference
+    if (isIos) {
       return false;
     }
 
-    // Otherwise, return the stored preference (for desktop only)
+    // Otherwise, return the stored preference
     return stored === 'true';
   } catch (error) {
     // Default to disabled if localStorage fails

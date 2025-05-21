@@ -129,15 +129,15 @@ const GradientPoolCard: React.FC<{
 
 // Enhanced stake button with gradient styling
 const GradientStakeButton = styled(StakeButtonMobile)`
-  /* Base gradient background */
+  /* Base gradient background - match filter color #90ee90 */
   background: ${getOptimizedGradient(`linear-gradient(
     135deg,
-    rgba(139, 255, 116, 0.9) 0%,
-    rgba(81, 221, 78, 0.9) 100%
-  )`, 'rgba(81, 221, 78, 0.9)')};
+    rgba(144, 238, 144, 0.9) 0%,
+    rgba(144, 238, 144, 0.8) 100%
+  )`, 'rgba(144, 238, 144, 0.85)')};
 
   /* Add subtle glow effect */
-  box-shadow: ${getOptimizedBoxShadow('0 2px 8px rgba(81, 221, 78, 0.3)')};
+  box-shadow: ${getOptimizedBoxShadow('0 2px 8px rgba(144, 238, 144, 0.3)')};
 
   /* Smooth transition for hover effects - disabled on mobile */
   transition: ${isMobileDevice() ? 'none' : 'all 0.3s ease'};
@@ -158,17 +158,17 @@ const GradientStakeButton = styled(StakeButtonMobile)`
   /* Enhanced hover effect - only on desktop */
   &:not(:disabled):hover {
     ${isMobileDevice() ? css`
-      background: rgba(81, 221, 78, 0.9);
+      background: rgba(144, 238, 144, 0.8);
     ` : css`
       background: linear-gradient(
         135deg,
-        rgba(81, 221, 78, 1) 0%,
-        rgba(5, 255, 0, 1) 100%
+        rgba(144, 238, 144, 1) 0%,
+        rgba(144, 238, 144, 0.9) 100%
       );
 
-      box-shadow: 0 4px 12px rgba(81, 221, 78, 0.5);
+      box-shadow: 0 4px 12px rgba(144, 238, 144, 0.5);
       transform: translateY(-1px) scale(1.03);
-      color: black;
+      color: #1e1e1e;
       animation: wobble 1s ease;
     `}
   }

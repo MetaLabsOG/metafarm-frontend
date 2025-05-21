@@ -201,15 +201,16 @@ export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
     width: 50%; /* Reduced from 60% */
     height: 30px; /* Reduced from 34px */
     margin: 6px auto 0; /* Reduced from 8px */
-    background: ${theme.lightGreen};
+    background: #90ee90; /* Match filter color */
     font-family: 'Korona One';
     font-weight: 500;
     font-size: 16px; /* Reduced from 18px */
-    color: black;
+    color: #1e1e1e; /* Dark text for better contrast */
     border: none;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
     :disabled {
         background: grey;
@@ -217,9 +218,10 @@ export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
     }
 
     :not(:disabled):hover {
-        color: green;
-        background: black;
+        color: #1e1e1e;
+        background: rgba(144, 238, 144, 0.8);
         transform: scale(1.03);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 `;
 

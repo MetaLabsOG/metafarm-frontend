@@ -77,10 +77,12 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                             backgroundColor: 'rgba(30, 30, 30, 0.25)',
                             color: 'white',
                             borderRadius: '15px',
-                            fontSize: '12px',
+                            fontSize: '13px',
+                            fontWeight: 500,
+                            letterSpacing: '0.02em',
                             padding: '7px 15px',
                             width: '140px',
-                            border: 'rgba(125, 125, 125, 0.2) 1px solid',
+                            border: 'rgba(144, 238, 144, 0.3) 1px solid',
                             cursor: 'pointer',
                             outline: 'none',
                             transition: 'all 0.3s ease',
@@ -104,7 +106,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                             left: 0,
                             borderRadius: '12px',
                             backdropFilter: 'blur(8px)',
-                            border: '1px solid rgba(125, 125, 125, 0.2)',
+                            border: '1px solid rgba(144, 238, 144, 0.2)',
                             padding: '5px',
                         }}
                     >
@@ -127,20 +129,27 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                                         cursor: 'pointer',
                                         color: 'white',
                                         fontFamily: 'Montserrat',
+                                        fontWeight: 500,
+                                        letterSpacing: '0.02em',
                                         marginTop: '2px',
                                         borderRadius: '8px',
                                         transition: 'all 0.2s ease',
                                         backgroundColor: sortKey === type ? 'rgba(144, 238, 144, 0.2)' : 'transparent',
+                                        boxShadow: sortKey === type ? '0 1px 3px rgba(0, 0, 0, 0.1)' : 'none',
                                     }}
                                     onMouseEnter={(e) => {
                                         e.currentTarget.style.backgroundColor = sortKey === type
                                             ? 'rgba(144, 238, 144, 0.3)'
                                             : 'rgba(255, 255, 255, 0.1)';
+                                        e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.15)';
                                     }}
                                     onMouseLeave={(e) => {
                                         e.currentTarget.style.backgroundColor = sortKey === type
                                             ? 'rgba(144, 238, 144, 0.2)'
                                             : 'transparent';
+                                        e.currentTarget.style.boxShadow = sortKey === type
+                                            ? '0 1px 3px rgba(0, 0, 0, 0.1)'
+                                            : 'none';
                                     }}
                                 >
                                     {getDisplayText(type)}

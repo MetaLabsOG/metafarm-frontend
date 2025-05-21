@@ -13,11 +13,19 @@ export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEna
             label: 'All',
             value: false,
             selectedBackgroundColor: '#90ee90',
+            selectedFontColor: '#1e1e1e',
+            fontColor: 'white',
+            fontSize: '13px',
+            fontWeight: 500,
         },
         {
             label: 'My Pools',
             value: true,
             selectedBackgroundColor: '#90ee90',
+            selectedFontColor: '#1e1e1e',
+            fontColor: 'white',
+            fontSize: '13px',
+            fontWeight: 500,
         },
     ];
 

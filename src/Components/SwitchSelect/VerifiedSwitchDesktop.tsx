@@ -13,11 +13,19 @@ export const VerifiedSwitchDesktop: React.FC<SwitchSelectProps> = ({ onChange, s
             label: 'All',
             value: false,
             selectedBackgroundColor: '#90ee90',
+            selectedFontColor: '#1e1e1e',
+            fontColor: 'white',
+            fontSize: '13px',
+            fontWeight: 500,
         },
         {
             label: 'Verified',
             value: true,
             selectedBackgroundColor: '#90ee90',
+            selectedFontColor: '#1e1e1e',
+            fontColor: 'white',
+            fontSize: '13px',
+            fontWeight: 500,
         },
     ];
 

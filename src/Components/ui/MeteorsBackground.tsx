@@ -79,14 +79,12 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
       setIsMobile(mobile);
 
       // Set meteors enabled based on device type
-      // Always enable for desktop, always disable for mobile
-      const enabled = !mobile && !isIosDevice();
+      // Enable for all devices except iOS
+      const enabled = !isIosDevice();
       setMeteorsEnabled(enabled);
 
       // Also update localStorage to match current state
-      if (enabled) {
-        localStorage.setItem('cometa_meteor_enabled', 'true');
-      }
+      localStorage.setItem('cometa_meteor_enabled', enabled.toString());
     };
 
     // Initial check

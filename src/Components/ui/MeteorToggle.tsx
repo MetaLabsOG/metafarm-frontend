@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { getMeteorAnimationEnabled, setMeteorAnimationEnabled } from "../../utils/userPreferences";
 
@@ -27,7 +27,7 @@ const ToggleSwitch = styled.div<{ enabled: boolean }>`
   border-radius: 10px;
   position: relative;
   transition: background-color 0.3s ease;
-  
+
   &:after {
     content: '';
     position: absolute;
@@ -46,8 +46,25 @@ interface MeteorToggleProps {
 }
 
 export const MeteorToggle: React.FC<MeteorToggleProps> = ({ onChange }) => {
-  const [enabled, setEnabled] = React.useState(() => getMeteorAnimationEnabled());
-  
+  const [enabled, setEnabled] = useState(() => getMeteorAnimationEnabled());
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Check if mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Add resize listener
+    window.addEventListener('resize', checkMobile);
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent closing the burger menu
     const newState = !enabled;
@@ -57,11 +74,11 @@ export const MeteorToggle: React.FC<MeteorToggleProps> = ({ onChange }) => {
       onChange(newState);
     }
   };
-  
+
   return (
     <ToggleContainer onClick={handleToggle}>
       <ToggleSwitch enabled={enabled} />
-      <ToggleText>Comets FANCY Effect</ToggleText>
+      <ToggleText>{isMobile ? "Comet Rain" : "Comets FANCY Effect"}</ToggleText>
     </ToggleContainer>
   );
 };

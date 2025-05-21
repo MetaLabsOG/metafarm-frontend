@@ -13,11 +13,19 @@ const options = [
         label: 'Live',
         value: false,
         selectedBackgroundColor: '#90ee90',
+        selectedFontColor: '#1e1e1e',
+        fontColor: 'white',
+        fontSize: '13px',
+        fontWeight: 500,
     },
     {
         label: 'Ended',
         value: true,
         selectedBackgroundColor: '#90ee90',
+        selectedFontColor: '#1e1e1e',
+        fontColor: 'white',
+        fontSize: '13px',
+        fontWeight: 500,
     },
 ];
 
