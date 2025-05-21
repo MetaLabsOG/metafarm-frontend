@@ -12,7 +12,7 @@ export const PoolContainer = styled.div`
     font-size: 14px;
     padding: 20px 0 20px 0;
     border-radius: 10px;
-    background: linear-gradient(270deg, rgba(54, 54, 54, 0.01) 0%, rgba(54, 54, 54, 0.01) 30.46%), rgba(20, 20, 20, 0.05);
+    background: linear-gradient(270deg, rgba(10, 10, 10, 0.01) 0%, rgba(10, 10, 10, 0.01) 30.46%), rgba(10, 10, 10, 0.05);
     backdrop-filter: blur(8px);
     backdrop-saturate: 150%;
     border: 1px solid rgba(0, 0, 0, 0.2);
@@ -25,7 +25,7 @@ export const PoolContainer = styled.div`
         transform: translateY(-2px);
         box-shadow: 0 12px 20px rgba(0, 255, 41, 0.1);
         border: 1px solid rgba(66, 201, 63, 0.2);
-        background: linear-gradient(270deg, rgba(54, 54, 54, 0.02) 0%, rgba(54, 54, 54, 0.02) 30.46%), rgba(20, 20, 20, 0.1);
+        background: linear-gradient(270deg, rgba(10, 10, 10, 0.02) 0%, rgba(10, 10, 10, 0.02) 30.46%), rgba(10, 10, 10, 0.1);
     }
 
     @media (max-width: 1120px) {
@@ -35,7 +35,7 @@ export const PoolContainer = styled.div`
         perspective: 1000px;
         transition: all 0.3s ease;
         transform-style: preserve-3d;
-        background: linear-gradient(270deg, rgba(54, 54, 54, 0.01) 0%, rgba(54, 54, 54, 0.01) 30.46%), rgba(20, 20, 20, 0.4);
+        background: linear-gradient(270deg, rgba(10, 10, 10, 0.01) 0%, rgba(10, 10, 10, 0.01) 30.46%), rgba(10, 10, 10, 0.2);
 
         /* Compact view for pools with no staked/reward values */
         &.compact {
@@ -44,7 +44,7 @@ export const PoolContainer = styled.div`
         }
 
         :hover {
-            background: linear-gradient(270deg, rgba(54, 54, 54, 0.02) 0%, rgba(54, 54, 54, 0.02) 30.46%), rgba(20, 20, 20, 0.5);
+            background: linear-gradient(270deg, rgba(10, 10, 10, 0.02) 0%, rgba(10, 10, 10, 0.02) 30.46%), rgba(10, 10, 10, 0.25);
             transform: translateY(-2px);
         }
     }
@@ -129,7 +129,7 @@ export const PoolPropertyName = styled.div`
 export const PoolPropertyValue = styled.div`
     color: white;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 15px; /* Reduced from 16px */
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
 
@@ -147,7 +147,7 @@ export const PoolPropertyValue = styled.div`
     }
 
     @media (max-width: 700px) {
-        font-size: 13px; /* Smaller font for mobile */
+        font-size: 11px; /* Further reduced from 13px */
         font-weight: 500; /* Slightly reduced weight */
         text-shadow: none; /* Remove text shadow for performance */
 
@@ -400,7 +400,7 @@ export const PoolInfoGrid = styled.div`
 `;
 
 export const PoolInfoGridCell = styled(PoolInfoValue)`
-    background: linear-gradient(270deg, rgba(81, 221, 78, 0.05) 0%, rgba(54, 54, 54, 0.05) 30.46%), rgba(0, 0, 0, 0.3);
+    background: linear-gradient(270deg, rgba(81, 221, 78, 0.03) 0%, rgba(10, 10, 10, 0.03) 30.46%), rgba(0, 0, 0, 0.15);
     border-radius: 6px;
     padding: 8px 6px;
     margin: 0;
@@ -434,7 +434,7 @@ export const PoolInfoGridCell = styled(PoolInfoValue)`
     @media (max-width: 700px) {
         padding: 4px 2px; /* Further reduced padding for mobile */
         min-height: 40px; /* Further reduced height for mobile */
-        background: rgba(0, 0, 0, 0.3); /* Simplified background for performance */
+        background: rgba(0, 0, 0, 0.15); /* Simplified background for performance */
         font-size: 11px; /* Smaller font size for mobile */
 
         /* Disable hover effect on mobile */
@@ -447,6 +447,6 @@ export const PoolInfoGridCell = styled(PoolInfoValue)`
 export const PoolInfoGridCellSmall = styled(PoolInfoGridCell)`
     font-size: 90%;
     color: #a1a1a1;
-    background: linear-gradient(270deg, rgba(81, 221, 78, 0.03) 0%, rgba(54, 54, 54, 0.03) 30.46%), rgba(0, 0, 0, 0.2);
+    background: linear-gradient(270deg, rgba(81, 221, 78, 0.02) 0%, rgba(10, 10, 10, 0.02) 30.46%), rgba(0, 0, 0, 0.1);
     min-height: 55px;
 `;

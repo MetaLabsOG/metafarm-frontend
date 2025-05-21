@@ -96,13 +96,13 @@ export const LogoWithMargin = styled.img`
     margin: auto;
     display: flex;
     margin-bottom: 3px;
-    height: 32px; /* Reduced from 40px */
+    height: 28px; /* Further reduced from 32px */
 `;
 
 export const Logo = styled.img`
     margin: auto;
     display: flex;
-    height: 24px; /* Ensure consistent height */
+    height: 20px; /* Reduced from 24px */
 `;
 
 export const Burger = styled.img`
@@ -145,7 +145,7 @@ export const MenuContainer = styled.div`
     justify-content: space-between;
     flex-direction: column;
     z-index: 10;
-    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.2)', 'rgba(30, 30, 30, 0.3)')}; /* More transparent */
+    background: ${getOptimizedGradient('rgba(10, 10, 10, 0.1)', 'rgba(10, 10, 10, 0.15)')}; /* Almost black and more transparent */
     backdrop-filter: ${getOptimizedBackdropFilter('blur(10px)')};
     border-bottom: none; /* Made border invisible */
     box-shadow: ${getOptimizedBoxShadow('0 8px 24px rgba(0, 0, 0, 0.15)')};
@@ -160,7 +160,7 @@ export const MenuContainer = styled.div`
         height: 1px;
         background: linear-gradient(90deg,
             rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.05) 50%,
+            rgba(255, 255, 255, 0.03) 50%,
             rgba(255, 255, 255, 0) 100%);
     }
 `;

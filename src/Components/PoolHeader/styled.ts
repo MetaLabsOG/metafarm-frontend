@@ -36,15 +36,15 @@ export const PoolTitle = styled.div`
     display: flex;
     white-space: nowrap;
     font-family: 'Korona One';
-    font-size: 12px;
+    font-size: 11px; /* Reduced from 12px */
     color: white;
 
     @media (max-width: 1120px) {
-        font-size: 12px;
+        font-size: 11px; /* Reduced from 12px */
     }
 
     @media (max-width: 700px) {
-        font-size: 9px; /* Even smaller font for mobile */
+        font-size: 8px; /* Further reduced from 9px */
         max-width: 70px; /* Further limit width */
         overflow: hidden;
         text-overflow: ellipsis; /* Add ellipsis for overflow */
@@ -85,12 +85,12 @@ export const PoolSubtitle = styled.div`
 export const LpTokensIconsWrapper = styled.div`
     display: flex;
     position: relative;
-    height: 40px;
-    width: 80px;
+    height: 36px; /* Reduced from 40px */
+    width: 72px; /* Reduced from 80px */
 
     @media (max-width: 700px) {
-        height: 32px; /* Smaller height for mobile */
-        width: 64px; /* Smaller width for mobile */
+        height: 28px; /* Further reduced from 32px */
+        width: 56px; /* Further reduced from 64px */
     }
 `;
 

@@ -57,7 +57,7 @@ export const MobileFilterContainer = styled.div`
         width: 100%;
         padding-left: 20px;
         padding-right: 20px;
-        background-color: rgba(30, 30, 30, 0.2);
+        background-color: rgba(10, 10, 10, 0.15); /* Almost black and more transparent */
         backdrop-filter: blur(6px);
         border-radius: 16px;
         padding-top: 15px;

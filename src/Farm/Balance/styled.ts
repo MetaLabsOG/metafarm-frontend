@@ -107,7 +107,7 @@ export const BalanceList = styled.div`
     width: 100%;
     display: flex;
     justify-content: space-evenly;
-    background: rgba(20, 20, 20, 0.25);
+    background: rgba(10, 10, 10, 0.15); /* Almost black and more transparent */
     backdrop-filter: blur(10px);
     backdrop-saturate: 150%;
     height: 91px;
@@ -120,7 +120,7 @@ export const BalanceList = styled.div`
     text-align: center;
     border-radius: 16px;
     border: none; /* Made border invisible */
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -134,12 +134,12 @@ export const BalanceList = styled.div`
         height: 1px;
         background: linear-gradient(90deg,
             rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.03) 50%,
             rgba(255, 255, 255, 0) 100%);
     }
 
     &:hover {
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
         transform: translateY(-2px);
     }
 
@@ -148,7 +148,7 @@ export const BalanceList = styled.div`
         height: 80px;
         justify-content: center;
         line-height: 18px;
-        background: rgba(20, 20, 20, 0.25);
+        background: rgba(10, 10, 10, 0.15); /* Almost black and more transparent */
         backdrop-filter: blur(10px);
         perspective: 1000px;
         transition: transform 0.6s;

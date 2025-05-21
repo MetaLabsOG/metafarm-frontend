@@ -13,9 +13,9 @@ const GradientPoolContainer = styled(PoolContainer)`
   /* Base gradient background */
   background: ${getOptimizedGradient(`linear-gradient(
     135deg,
-    rgba(54, 54, 54, 0.01) 0%,
-    rgba(54, 54, 54, 0.01) 50%
-  ), rgba(20, 20, 20, 0.3)`, 'rgba(20, 20, 20, 0.5)')};
+    rgba(10, 10, 10, 0.01) 0%,
+    rgba(10, 10, 10, 0.01) 50%
+  ), rgba(10, 10, 10, 0.15)`, 'rgba(10, 10, 10, 0.2)')};
 
   /* Add backdrop blur for transparency effect */
   backdrop-filter: ${getOptimizedBackdropFilter('blur(8px)')};
@@ -31,9 +31,9 @@ const GradientPoolContainer = styled(PoolContainer)`
     &:hover {
       background: linear-gradient(
         135deg,
-        rgba(54, 54, 54, 0.02) 0%,
-        rgba(54, 54, 54, 0.02) 50%
-      ), rgba(20, 20, 20, 0.1);
+        rgba(10, 10, 10, 0.02) 0%,
+        rgba(10, 10, 10, 0.02) 50%
+      ), rgba(10, 10, 10, 0.1);
 
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15),
                   0 0 30px rgba(0, 0, 0, 0.1);
@@ -46,22 +46,22 @@ const GradientPoolContainer = styled(PoolContainer)`
   @media (max-width: 1120px) {
     background: ${getOptimizedGradient(`linear-gradient(
       135deg,
-      rgba(54, 54, 54, 0.01) 0%,
-      rgba(54, 54, 54, 0.01) 50%
-    ), rgba(20, 20, 20, 0.3)`, 'rgba(20, 20, 20, 0.5)')};
+      rgba(10, 10, 10, 0.01) 0%,
+      rgba(10, 10, 10, 0.01) 50%
+    ), rgba(10, 10, 10, 0.15)`, 'rgba(10, 10, 10, 0.2)')};
 
     /* Hover effects disabled on mobile */
     &:hover {
       ${isMobileDevice() ? css`
-        background: rgba(20, 20, 20, 0.5);
+        background: rgba(10, 10, 10, 0.2);
         transform: none;
         box-shadow: none;
       ` : css`
         background: linear-gradient(
           135deg,
-          rgba(54, 54, 54, 0.02) 0%,
-          rgba(54, 54, 54, 0.02) 50%
-        ), rgba(20, 20, 20, 0.4);
+          rgba(10, 10, 10, 0.02) 0%,
+          rgba(10, 10, 10, 0.02) 50%
+        ), rgba(10, 10, 10, 0.15);
       `}
     }
   }
@@ -85,9 +85,9 @@ const CompactGradientPoolContainer = styled(GradientPoolContainer)`
 const GradientGridCell = styled.div`
   background: ${getOptimizedGradient(`linear-gradient(
     135deg,
-    rgba(54, 54, 54, 0.01) 0%,
-    rgba(54, 54, 54, 0.01) 50%
-  ), rgba(0, 0, 0, 0.25)`, 'rgba(0, 0, 0, 0.3)')};
+    rgba(10, 10, 10, 0.01) 0%,
+    rgba(10, 10, 10, 0.01) 50%
+  ), rgba(0, 0, 0, 0.15)`, 'rgba(0, 0, 0, 0.2)')};
 
   border-radius: 6px;
   padding: 8px 6px;
@@ -110,8 +110,8 @@ const GradientGridCell = styled.div`
       inset: 0;
       background: linear-gradient(
         135deg,
-        rgba(54, 54, 54, 0.02) 0%,
-        rgba(54, 54, 54, 0.02) 50%
+        rgba(10, 10, 10, 0.02) 0%,
+        rgba(10, 10, 10, 0.02) 50%
       );
       opacity: 0;
       transition: opacity 0.3s;
@@ -126,7 +126,7 @@ const GradientGridCell = styled.div`
   @media (max-width: 700px) {
     padding: 3px 2px; /* Further reduced padding for mobile */
     min-height: 36px; /* Further reduced height for mobile */
-    background: rgba(0, 0, 0, 0.25); /* Simplified background for performance */
+    background: rgba(0, 0, 0, 0.15); /* Simplified background for performance */
     border-radius: 4px; /* Smaller border radius */
     font-size: 11px; /* Smaller font size for mobile */
   }
