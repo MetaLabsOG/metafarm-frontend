@@ -53,18 +53,17 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                         onClick={toggleDropdown}
                         style={{
                             height: 30,
-                            backgroundColor: 'rgba(30, 30, 30, 0.25)',
-                            color: 'white',
+                            backgroundColor: 'transparent',
+                            color: 'gray',
                             fontSize: '12px',
-                            borderRadius: '15px',
+                            borderRadius: '20px',
                             padding: '7px 15px',
                             width: '140px',
-                            border: 'rgba(125, 125, 125, 0.2) 1px solid',
+                            border: 'lightgreen 1px solid',
                             cursor: 'pointer',
                             outline: 'none',
-                            transition: 'all 0.3s ease',
+                            transition: 'background-color 0.5s',
                             fontFamily: 'Montserrat',
-                            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
                         }}
                     >
                         Sort By
@@ -74,18 +73,17 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                         onClick={toggleDropdown}
                         style={{
                             height: 30,
-                            backgroundColor: 'rgba(30, 30, 30, 0.25)',
+                            backgroundColor: 'transparent',
                             color: 'white',
                             borderRadius: '15px',
                             fontSize: '12px',
                             padding: '7px 15px',
                             width: '140px',
-                            border: 'rgba(125, 125, 125, 0.2) 1px solid',
+                            border: 'lightgreen 1px solid',
                             cursor: 'pointer',
                             outline: 'none',
-                            transition: 'all 0.3s ease',
+                            transition: 'background-color 0.5s',
                             fontFamily: 'Montserrat',
-                            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
                         }}
                     >
                         Sort By ↓
@@ -96,16 +94,13 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                         style={{
                             position: 'absolute',
                             zIndex: 100,
-                            backgroundColor: 'rgba(30, 30, 30, 0.9)',
+                            backgroundColor: 'white',
                             fontSize: '13px',
-                            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
+                            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
                             width: '100%',
                             top: '120%',
                             left: 0,
-                            borderRadius: '12px',
-                            backdropFilter: 'blur(8px)',
-                            border: '1px solid rgba(125, 125, 125, 0.2)',
-                            padding: '5px',
+                            borderRadius: '8px',
                         }}
                     >
                         {displayTypes.map((type) => (
@@ -123,24 +118,11 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                                         display: 'flex',
                                         justifyContent: 'space-between',
                                         alignItems: 'center',
-                                        padding: '8px 10px',
+                                        padding: '5px 5px',
                                         cursor: 'pointer',
-                                        color: 'white',
+                                        color: theme.lightGray,
                                         fontFamily: 'Montserrat',
-                                        marginTop: '2px',
-                                        borderRadius: '8px',
-                                        transition: 'all 0.2s ease',
-                                        backgroundColor: sortKey === type ? 'rgba(144, 238, 144, 0.2)' : 'transparent',
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = sortKey === type
-                                            ? 'rgba(144, 238, 144, 0.3)'
-                                            : 'rgba(255, 255, 255, 0.1)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = sortKey === type
-                                            ? 'rgba(144, 238, 144, 0.2)'
-                                            : 'transparent';
+                                        marginTop: '10px',
                                     }}
                                 >
                                     {getDisplayText(type)}

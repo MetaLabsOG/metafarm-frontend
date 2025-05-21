@@ -1,38 +1,27 @@
 import { createStore, createEffect, createEvent, combine, sample, Store } from 'effector';
 
 import { Map } from 'immutable';
-import { META_TOKEN_ID } from '../../AppContext';
+import { getSwapCostSomewhere } from '../../dexes';
+import { BDNRI_TOKEN_ID, META_TOKEN_ID } from '../../AppContext';
+import { SLIPPAGE } from '../../Swap/Swap';
+import { getAssetPrice } from '../../providers/apiProvider';
 import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
 import { Asset, AssetId, Priced } from './types';
 import { nonConcurrent } from './utils';
-import { getAssetPriceInAlgo } from '../../providers/tinymanPriceProvider';
-import { cachePrice, getCachedPrice } from '../priceCache';
 
 export const fetchAssetPriceFx = createEffect(
     nonConcurrent(async (asset: Asset): Promise<number> => {
         if (asset.id === 0) {
             return 1;
         }
-
         try {
-            // Try to get price from cache first
-            const cachedPrice = getCachedPrice(asset.id);
-            if (cachedPrice) {
-                console.log(`Using cached price for asset ${asset.id}: ${cachedPrice.priceInAlgo.price}`);
-                return cachedPrice.priceInAlgo.price;
+            if (asset.id === BDNRI_TOKEN_ID) {
+                // TODO: test bdNRI prices and remove when it works fine
+                const priceInfo = await getAssetPrice(asset.id);
+                return priceInfo.price_algo;
             }
-
-            // If not in cache, fetch from Tinyman or Vestige
-            const priceInAlgo = await getAssetPriceInAlgo(asset);
-
-            if (priceInAlgo !== null) {
-                // Cache the price
-                cachePrice(asset.id, priceInAlgo);
-                return priceInAlgo;
-            }
-
-            console.error(`Failed to fetch price for asset ${asset.id} from all sources`);
-            return 0;
+            const swapQuote = await getSwapCostSomewhere(asset, ALGO_ASSET, BigInt(10 ** asset.decimals), SLIPPAGE);
+            return swapQuote.price;
         } catch (e) {
             console.error('Failed to fetch price for asset', asset, e);
             return 0;

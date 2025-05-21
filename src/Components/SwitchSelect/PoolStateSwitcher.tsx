@@ -44,10 +44,9 @@ export const PoolStateSwitcher: React.FC<PoolStateSwitcherProps> = ({ switchStat
                 onChange={handleChange}
                 options={options}
                 initialSelectedIndex={initialSelectedIndex}
-                backgroundColor={'rgba(30, 30, 30, 0.25)'}
+                backgroundColor={'#1e1e1e'}
                 fontColor={'white'}
-                selectedFontColor="#1e1e1e"
-                // borderColor and fontSize removed due to type errors
+                selectedFontColor="black"
                 name="LiveSwitchSelector"
                 forcedSelectedIndex={initialSelectedIndex}
             />

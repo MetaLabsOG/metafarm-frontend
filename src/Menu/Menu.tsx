@@ -8,7 +8,6 @@ import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { ALGONET, isMobile, META_TOKEN_ID, TESTNET } from '../AppContext';
 import { getTokenLink } from '../Farm/PoolList/Pool/utils';
-
 import {
     MenuItem,
     MenuContainer,
@@ -25,16 +24,7 @@ import {
     AssetPriceWithLogo,
 } from './styled';
 
-const formatPrice = (price: number | null): { formatted: string; isNonZero: boolean } => {
-    if (price === null) return { formatted: '0.00', isNonZero: false };
-
-    // For values less than 1, show 3 decimal places, otherwise 2
-    const decimalPlaces = price < 1 ? 3 : 2;
-    const formatted = price.toFixed(decimalPlaces);
-    const isNonZero = price > 0;
-
-    return { formatted, isNonZero };
-};
+const formatPrice = (price: number | null): string => (price === null ? '0.00' : price.toFixed(2));
 
 function MenuItems() {
     const leftPadding = isMobile() ? 0 : 15;
@@ -52,23 +42,15 @@ function MenuItems() {
 }
 
 function ExchangeRates({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) {
-    const algoFormatted = formatPrice(ALGOPrice);
-    const metaPrice = METAPrice?.price ?? 0;
-    const metaFormatted = formatPrice(metaPrice);
-
     return (
         <>
             <AssetPriceWithLogo href={getTokenLink(0)}>
                 <Logo src={algo_logo} alt="logo" height="24px" />
-                <ExchangeRate className={algoFormatted.isNonZero ? 'non-zero' : ''}>
-                    ${algoFormatted.formatted}
-                </ExchangeRate>
+                <ExchangeRate>${formatPrice(ALGOPrice)}</ExchangeRate>
             </AssetPriceWithLogo>
             <AssetPriceWithLogo style={{ paddingRight: 30 }} href={getTokenLink(META_TOKEN_ID)}>
                 <Logo src={meta_logo} alt="logo" height="24px" />
-                <ExchangeRate className={metaFormatted.isNonZero ? 'non-zero' : ''}>
-                    ${metaFormatted.formatted}
-                </ExchangeRate>
+                <ExchangeRate>${(METAPrice?.price ?? 0).toFixed(3)}</ExchangeRate>
             </AssetPriceWithLogo>
         </>
     );

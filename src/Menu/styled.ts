@@ -1,73 +1,26 @@
-import styled, { css, keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
 import { WalletActionButton } from '../common/styled';
-import {
-  getOptimizedBackdropFilter,
-  getOptimizedBoxShadow,
-  getOptimizedGradient,
-  isMobileDevice,
-  isTouchDevice
-} from '../utils/mobileOptimizations';
 
-// Add global keyframes for wobble animation
-const wobble = keyframes`
-  0% { transform: none; }
-  15% { transform: translateX(-2px) rotate(-2deg); }
-  30% { transform: translateX(3px) rotate(2deg); }
-  45% { transform: translateX(-3px) rotate(-1deg); }
-  60% { transform: translateX(2px) rotate(1deg); }
-  75% { transform: translateX(-1px) rotate(-1deg); }
-  100% { transform: none; }
-`;
-
-export const MenuItem = styled(NavLink as any)`
+export const MenuItem = styled(NavLink)`
     color: white;
     text-decoration: none;
-    text-transform: uppercase;
-    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    text-transform: capitalize;
+    font-family: 'Montserrat';
     font-style: normal;
     font-weight: 600;
-    font-size: 15px;
-    letter-spacing: 0.06em;
-    position: relative;
-    padding: 5px 0;
-    transition: all 0.3s ease;
+    font-size: 17px;
+    letter-spacing: 0.08em;
 
-    &::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        width: 0;
-        height: 2px;
-        background: rgba(144, 238, 144, 0.7);
-        transition: width 0.3s ease, left 0.3s ease;
+    :hover {
+        color: var(--lightGreen);
+        text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
     }
 
-    /* Hover effects only on non-touch devices */
-    ${!isTouchDevice() && css`
-        :hover {
-            color: var(--lightGreen);
-            text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
-            animation: ${wobble} 0.5s;
-
-            &::after {
-                width: 80%;
-                left: 10%;
-            }
-        }
-    `}
-
-    /* Always show active state */
     &.active {
         color: var(--lightGreen);
         text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
-
-        &::after {
-            width: 80%;
-            left: 10%;
-        }
     }
 `;
 
@@ -96,13 +49,11 @@ export const LogoWithMargin = styled.img`
     margin: auto;
     display: flex;
     margin-bottom: 3px;
-    height: 32px; /* Reduced from 40px */
 `;
 
 export const Logo = styled.img`
     margin: auto;
     display: flex;
-    height: 24px; /* Ensure consistent height */
 `;
 
 export const Burger = styled.img`
@@ -123,9 +74,7 @@ export const MainMenu = styled.div`
     padding-right: 0;
     width: 100%;
     align-items: center;
-    height: 100%;
-    margin: 0;
-
+    margin: auto;
     @media (max-width: 640px) {
         margin: auto;
     }
@@ -145,32 +94,13 @@ export const MenuContainer = styled.div`
     justify-content: space-between;
     flex-direction: column;
     z-index: 10;
-    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.2)', 'rgba(30, 30, 30, 0.3)')}; /* More transparent */
-    backdrop-filter: ${getOptimizedBackdropFilter('blur(10px)')};
-    border-bottom: none; /* Made border invisible */
-    box-shadow: ${getOptimizedBoxShadow('0 8px 24px rgba(0, 0, 0, 0.15)')};
-    transition: all 0.3s ease;
-
-    &::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.05) 50%,
-            rgba(255, 255, 255, 0) 100%);
-    }
+    background: var(--backgroundCard);
 `;
 
 export const ExchangeRatesContainer = styled.div`
     display: flex;
     justify-content: center;
-    align-items: center;
     margin-left: auto;
-    height: 100%;
     @media (max-width: 490px) {
         display: none;
     }
@@ -193,34 +123,16 @@ export const AssetPriceWithLogo = styled(WalletActionButton)`
     align-items: center;
     padding-left: 10px;
     padding-right: 10px;
-    height: 32px;
-    margin: 0 5px;
-
-    /* Hover animation only on non-touch devices */
-    ${!isTouchDevice() && css`
-        :hover {
-            animation: ${wobble} 0.5s;
-        }
-    `}
 `;
 
-export const ExchangeRate = styled.span`
-    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+export const ExchangeRate = styled.a`
+    font-family: 'Montserrat', serif;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 500;
     margin: auto;
     right: 0;
     padding-left: 5px;
     color: white;
-    letter-spacing: 0.02em;
-    font-feature-settings: "tnum" on, "lnum" on;
-    transition: all 0.3s ease;
-
-    /* Add green color for non-zero values */
-    &.non-zero {
-        color: rgba(144, 238, 144, 0.9);
-        text-shadow: 0 0 10px rgba(144, 238, 144, 0.3);
-    }
 `;
 
 export const BurgerMenuContainer = styled.div`
@@ -228,26 +140,10 @@ export const BurgerMenuContainer = styled.div`
     width: 100%;
     position: fixed;
     left: 0;
-    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.3)', 'rgba(30, 30, 30, 0.4)')}; /* More transparent */
-    backdrop-filter: ${getOptimizedBackdropFilter('blur(10px)')};
+    background: var(--backgroundCard);
     padding-left: 20px;
     z-index: 10;
     padding-bottom: 20px;
-    border-bottom: none; /* Made border invisible */
-    box-shadow: ${getOptimizedBoxShadow('0 8px 24px rgba(0, 0, 0, 0.15)')};
-
-    &::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.05) 50%,
-            rgba(255, 255, 255, 0) 100%);
-    }
 `;
 
 export const FooterContainer = styled.div`
@@ -259,11 +155,6 @@ export const FooterContainer = styled.div`
     margin-bottom: 10px;
     padding: 15px 30px 15px 30px;
     font-family: 'Montserrat', serif;
-    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.5)', 'rgba(30, 30, 30, 0.8)')}; /* More solid on mobile */
-    backdrop-filter: ${getOptimizedBackdropFilter('blur(8px)')};
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    z-index: 5;
-    position: relative;
 
     @media (max-width: 640px) {
         flex-direction: column;

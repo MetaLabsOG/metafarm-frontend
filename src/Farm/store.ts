@@ -35,12 +35,10 @@ import { nonConcurrent } from '../common/store/utils';
 import { AllDefined, Backend } from '../types';
 import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
 import { fromSmallestUnits, YEAR } from '../common/lib';
+import { getLpState } from '../providers/apiProvider';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 import { PoolState } from './PoolList/Pool/types';
 import { ColumnType } from './PoolList/PoolList';
-import { cachePrice, getCachedPrice } from '../common/priceCache';
-import { calculateLPTokenPrice } from '../providers/tinymanPriceProvider';
-import { fetchLPTokenInfoFromBackendApi, BackendLPTokenInfo } from '../providers/apiProvider';
 
 const FARM_BACKENDS = {
     '17.2.4': farmBackend_17_2_4 as Backend,
@@ -66,116 +64,62 @@ export function detectAssetProvider({ name }: { name: string }): DexProvider {
     return 'MOCK';
 }
 
+export async function getLPTokenInfoBackend(asset: Asset, provider: DexProvider): Promise<Priced<LPTokenInfo>> {
+    try {
+        const lpState = await getLpState(asset.id);
+        return {
+            ...asset,
+            poolId: lpState.id,
+            asset1: lpState.asset1_id,
+            asset2: lpState.asset2_id,
+            liquidityAsset: asset.id,
+            asset1Reserve: BigInt(lpState.asset1_reserve_micros),
+            asset2Reserve: BigInt(lpState.asset2_reserve_micros),
+            totalLiquidity: BigInt(lpState.issued_tokens_micros),
+            poolDex: provider,
+            dexFeeApr: lpState.swap_fee_apr || 0,
+            price: lpState.token_price_usd,
+            priceInAlgo: lpState.token_price_algo,
+        };
+    } catch (e) {
+        console.error(`Failed to get LP token ${asset.id} info`, e);
+        throw e;
+    }
+}
+
 export async function getLPTokenInfo(
-    lpTokenAsset: Asset,
-    asset1Id: AssetId,
-    asset2Id: AssetId,
+    asset: Asset,
     algoPrice: number | null,
     provider?: DexProvider
 ): Promise<Priced<LPTokenInfo>> {
-    try {
-        // This is the primary logic using DEX SDKs
-        if (provider === undefined) {
-            provider = detectAssetProvider(lpTokenAsset);
-        }
-
-        const cachedPrice = getCachedPrice(lpTokenAsset.id);
-        if (cachedPrice && cachedPrice.priceInAlgo && cachedPrice.priceInUsd && algoPrice) {
-            console.log(`Using cached LP token price for ${lpTokenAsset.id}: ${cachedPrice.priceInAlgo.price} ALGO (DEX path)`);
-            const dex = makeDex(provider);
-            const pool = await dex.getPoolByAssets(asset1Id, asset2Id);
-            return {
-                ...lpTokenAsset,
-                poolId: pool.poolId,
-                asset1: pool.asset1,
-                asset2: pool.asset2,
-                liquidityAsset: lpTokenAsset.id,
-                asset1Reserve: pool.asset1Reserve,
-                asset2Reserve: pool.asset2Reserve,
-                totalLiquidity: pool.totalLiquidity,
-                poolDex: provider,
-                dexFeeApr: pool.dexFeeApr || 0,
-                price: cachedPrice.priceInUsd.price,
-                priceInAlgo: cachedPrice.priceInAlgo.price,
-            };
-        }
-
-        const dex = makeDex(provider);
-        const pool = await dex.getPoolByAssets(asset1Id, asset2Id);
-        const fetchedAsset1 = await fetchAsset(pool.asset1);
-        const fetchedAsset2 = await fetchAsset(pool.asset2);
-
-        if (!algoPrice) {
-            throw new Error('ALGO price is required to calculate LP token price (DEX path)');
-        }
-
-        const lpPrice = await calculateLPTokenPrice(
-            lpTokenAsset,
-            fetchedAsset1,
-            fetchedAsset2,
-            pool.asset1Reserve,
-            pool.asset2Reserve,
-            pool.totalLiquidity,
-            algoPrice
-        );
-
-        if (!lpPrice) {
-            throw new Error('Failed to calculate LP token price (DEX path)');
-        }
-        cachePrice(lpTokenAsset.id, lpPrice.priceInAlgo, lpPrice.priceInUsd);
-
-        return {
-            ...lpTokenAsset,
-            poolId: pool.poolId,
-            asset1: pool.asset1,
-            asset2: pool.asset2,
-            liquidityAsset: lpTokenAsset.id,
-            asset1Reserve: pool.asset1Reserve,
-            asset2Reserve: pool.asset2Reserve,
-            totalLiquidity: pool.totalLiquidity,
-            poolDex: provider,
-            dexFeeApr: pool.dexFeeApr || 0,
-            price: lpPrice.priceInUsd,
-            priceInAlgo: lpPrice.priceInAlgo,
-        };
-    } catch (dexError) {
-        console.warn(`Primary DEX SDK method failed for LP token ${lpTokenAsset.id}:`, dexError);
-        console.log(`Attempting fallback to backend API for LP token ${lpTokenAsset.id}...`);
-
-        try {
-            const backendData = await fetchLPTokenInfoFromBackendApi(lpTokenAsset.id);
-            
-            // Ensure lpTokenAsset details (name, unitName, decimals, etc.) are preserved.
-            // The backend API provides prices and reserve info, but not necessarily full Asset details for the LP token itself.
-            const transformedData: Priced<LPTokenInfo> = {
-                ...lpTokenAsset, // Spread the original LP asset to keep its details
-                poolId: backendData.id, // Pool AppId from backend
-                asset1: backendData.asset1_id,
-                asset2: backendData.asset2_id,
-                liquidityAsset: backendData.token_id, // This should match lpTokenAsset.id
-                asset1Reserve: BigInt(Math.round(backendData.asset1_reserve_micros)),
-                asset2Reserve: BigInt(Math.round(backendData.asset2_reserve_micros)),
-                totalLiquidity: BigInt(Math.round(backendData.issued_tokens_micros)),
-                poolDex: backendData.dex_provider as DexProvider, // Cast, ensure this is a valid DexProvider string
-                dexFeeApr: backendData.swap_fee_apr || 0,
-                price: backendData.token_price_usd,
-                priceInAlgo: backendData.token_price_algo,
-            };
-            
-            // Optionally, cache this backend-derived price too
-            cachePrice(lpTokenAsset.id, transformedData.priceInAlgo, transformedData.price);
-            console.log(`Successfully fetched LP token ${lpTokenAsset.id} info from backend API fallback.`);
-            return transformedData;
-        } catch (fallbackError) {
-            console.error(`Fallback backend API method also failed for LP token ${lpTokenAsset.id}:`, fallbackError);
-            // Re-throw the original DEX error or a new combined error if more context is needed
-            // For now, re-throwing original to keep behavior somewhat consistent with prior error propagation
-            throw dexError; 
-        }
+    if (provider === undefined) {
+        provider = detectAssetProvider(asset);
     }
-    // Old LP token price calculation code has been replaced with the new implementation above
-    // This comment seems out of place now, as the function has significant logic.
-    // Consider removing or updating it.
+    // if (provider === 'PT') {
+    // Pact pools fix
+    return await getLPTokenInfoBackend(asset, provider);
+    // }
+
+    // if (algoPrice === null) {
+    //     algoPrice = await fetchAlgoPriceFx();
+    // }
+    //
+    // const dex = makeDex(provider);
+    // const poolInfo = await dex.getPoolByAddress(asset.creator).catch(() => dex.getPoolByAddress(asset.reserve));
+    //
+    // const firstAsset = await fetchAsset(poolInfo.asset1);
+    // let fstAssetPrice;
+    // if (poolInfo.asset1 === 0) {
+    //     fstAssetPrice = algoPrice;
+    // } else {
+    //     const algoPool = await dex.getPoolByAssets(firstAsset, ALGO_ASSET);
+    //     const priceInAlgo = (await algoPool.getSwap(firstAsset, BigInt(10 ** firstAsset.decimals), 0.01)).price;
+    //     fstAssetPrice = algoPrice * priceInAlgo;
+    // }
+    // const asset1Reserve = fromSmallestUnits(firstAsset, poolInfo.asset1Reserve);
+    // const totalLiquidity = fromSmallestUnits(asset, poolInfo.totalLiquidity);
+    // const price = (asset1Reserve / totalLiquidity) * fstAssetPrice * 2;
+    // return { ...asset, ...poolInfo, price, priceInAlgo: price / algoPrice };
 }
 
 const BIG_NUM = BigInt('1000000000000000000');
@@ -243,22 +187,18 @@ export const $lpTokenInfos = createStore<LPTokenStore>(Map());
 export const getLPTokenInfoFx = createEffect(
     nonConcurrent(
         async ({
-            lpTokenAsset,
-            asset1Id,
-            asset2Id,
+            asset,
             provider,
             algoPrice,
         }: {
-            lpTokenAsset: Asset;
-            asset1Id: AssetId;
-            asset2Id: AssetId;
+            asset: Asset;
             provider: DexProvider | undefined;
             algoPrice: number | null;
-        }) => getLPTokenInfo(lpTokenAsset, asset1Id, asset2Id, algoPrice, provider)
+        }) => getLPTokenInfo(asset, algoPrice, provider)
     )
 );
 
-$lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.lpTokenAsset), result));
+$lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.asset), result));
 
 const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) => {
     const newIds = Set(pools.filter((pool) => pool.state !== null).map((pool) => pool.state!.initial.stakeToken));
@@ -268,29 +208,9 @@ const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) =>
 // Automatically fetch LP token infos when general info about them gets fetched the first time
 sample({
     clock: assetLoaded,
-    source: { farmPools: $farmPools, algoPrice: $algoUsdPrice }, // Added farmPools to source
-    filter: ({ farmPools }, lpTokenAsset) => {
-        // Check if the loaded asset is an LP token for any of the farm pools
-        return farmPools.some(pool => pool.state?.initial.stakeToken === lpTokenAsset.id && pool.info.metadata.dex);
-    },
-    fn: ({ farmPools, algoPrice }, lpTokenAsset) => {
-        const pool = farmPools.find(p => p.state?.initial.stakeToken === lpTokenAsset.id);
-        if (!pool || !pool.info.metadata.asset1_id || !pool.info.metadata.asset2_id) {
-            // This should ideally not happen if filter is correct
-            console.error('Could not find pool or metadata for LP token:', lpTokenAsset.id);
-            // How to handle this error case? For now, let's prevent calling the effect.
-            // Though Effector's filter should prevent this `fn` from running.
-            // To satisfy type-checker for target, we'd need to return a valid payload or have filter be more robust.
-            // However, the filter *should* ensure `pool` is found and has `dex`.
-            // Let's throw to make it obvious if this case is hit.
-            throw new Error(`Critical: Pool metadata not found for LP token ${lpTokenAsset.id} after filter passed.`);
-        }
-        const asset1Id = Number(pool.info.metadata.asset1_id);
-        const asset2Id = Number(pool.info.metadata.asset2_id);
-        const provider = pool.info.metadata.dex as DexProvider; // Assuming metadata.dex is a valid DexProvider
-
-        return { lpTokenAsset, asset1Id, asset2Id, algoPrice, provider };
-    },
+    source: { lpTokens: $lpTokenIds, algoPrice: $algoUsdPrice },
+    filter: ({ lpTokens }, asset) => lpTokens.has(asset.id),
+    fn: ({ algoPrice }, asset) => ({ asset, algoPrice, provider: undefined }),
     target: getLPTokenInfoFx,
 });
 

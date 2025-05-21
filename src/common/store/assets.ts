@@ -7,7 +7,6 @@ import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
 import { nonConcurrent, fetchStore } from './utils';
 import { doEachTick } from './time';
-import { cachePrice, getCachedPrice } from '../priceCache';
 
 // Main event to add the asset, adds it to all of the relevant stores
 export const registerAsset = createEvent<AssetId>();
@@ -139,20 +138,9 @@ export const fetchAsset = async (id: AssetId): Promise<Asset> => {
 export const fetchAlgoPriceFx = createEffect(
     nonConcurrent(async () => {
         try {
-            // Try to get price from cache first
-            const cachedPrice = getCachedPrice(0);
-            if (cachedPrice && cachedPrice.priceInUsd) {
-                console.log(`Using cached ALGO price: ${cachedPrice.priceInUsd.price}`);
-                return cachedPrice.priceInUsd.price;
-            }
-
-            // If not in cache, fetch from Vestige
             const rate = await getAlgoRateFromVestige();
             if (rate !== null) {
-                const price = Number(rate.price);
-                // Cache the price
-                cachePrice(0, 1, price);
-                return price;
+                return Number(rate.price);
             } else {
                 console.warn('Failed to fetch ALGO price from Vestige, returning default 0.24.');
                 return 0.24; // Default value if rate is null
@@ -178,8 +166,11 @@ export const fetchAllPricesFx = createEffect(async () => {
         });
 });
 
-// Re-fetch prices once every 3 minutes (same as cache TTL)
-void doEachTick(3 * 60 * 1000, fetchAllPricesFx);
+// Re-fetch prices once in say, 1 minute
+void doEachTick(60_000, fetchAllPricesFx);
+
+// Re-fetch $ALGO price once in say, 1 second
+void doEachTick(1_000, fetchAlgoPriceFx);
 
 export const $pricedAlgo: Store<Priced<Asset> | null> = combine(
     $assets.map((as) => as.get(0, ALGO_ASSET)),

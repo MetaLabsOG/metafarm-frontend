@@ -1,3 +1,4 @@
+import { Chart } from '@vestigefi/widgets';
 import styled from 'styled-components';
 import { theme } from '../theme';
 
@@ -134,12 +135,12 @@ export const ModalCloseButton = styled.img`
     :hover {
         cursor: pointer;
     }
-
+    
     :focus {
         outline: 2px solid var(--lightGreen, #5cfc3c);
         border-radius: 4px;
     }
-
+    
     :focus:not(:focus-visible) {
         outline: none;
     }
@@ -248,7 +249,7 @@ export const PrettyButtonContainer = styled(WalletActionButton)`
     color: ${theme.pureWhite};
     border: 2px solid ${theme.newLightGray};
     text-decoration: none;
-    background-color: rgba(30, 30, 30, 0.5);
+    background-color: transparent;
     outline: none;
     border-radius: 15px;
     font-family: 'Montserrat';
@@ -256,19 +257,9 @@ export const PrettyButtonContainer = styled(WalletActionButton)`
     font-weight: 500;
     height: 32px;
     padding: 5px 13px 5px 13px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 10px;
-    backdrop-filter: blur(5px);
-
-    &:hover {
-        background-color: rgba(30, 30, 30, 0.7);
-        border-color: ${theme.lightGreen};
-    }
 `;
 
-export const StyledVestigeChart = styled.div`
+export const StyledVestigeChart = styled(Chart)`
     border-radius: 15px;
     display: flex;
     margin-left: 30px;

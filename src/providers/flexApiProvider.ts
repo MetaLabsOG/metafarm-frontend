@@ -1,7 +1,52 @@
 import { AssetId } from '../common/store';
 import { instance } from './apiProvider';
 
-// LP token price calculation is now handled by tinymanPriceProvider.ts
+export type LpState = {
+    id: number;
+    token_id: number;
+    asset1_id: number;
+    asset2_id: number;
+    dex_provider: string;
+    address: string;
+
+    asset1_reserve_micros: number;
+    asset2_reserve_micros: number;
+    issued_tokens_micros: number;
+
+    asset1_reserve: number;
+    asset2_reserve: number;
+    issued_tokens: number;
+
+    token_price_algo: number;
+    token_price_usd: number;
+    swap_fee_apr?: number;
+
+    last_updated_round: number;
+};
+
+export async function getLpState(lp_id: number): Promise<LpState> {
+    return await instance
+        .post<LpState>(`/lp/state/priced?lp_token_id=${lp_id}`)
+        .then(({ data }) => data)
+        .catch((error) => {
+            console.log('ERR', error);
+            throw error;
+        });
+}
+
+export async function getAllLpStates(lp_token_ids?: number[]): Promise<LpState[]> {
+    const params: { [key: string]: any } = {};
+    if (lp_token_ids) {
+        params['lp_token_ids'] = lp_token_ids;
+    }
+    return await instance
+        .post<LpState[]>(`/lp/states/`, params)
+        .then(({ data }) => data)
+        .catch((error) => {
+            console.log('ERR', error);
+            throw error;
+        });
+}
 
 export type AssetDetails = {
     id: AssetId;

@@ -5,7 +5,6 @@ import { DeflexQuote } from '@deflex/deflex-sdk-js';
 import { theme } from '../theme';
 import { ALGONET, deflexClient, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
 import { $account, $balances, Amount, Asset, AssetId, fetchAsset, refreshAccountInfo } from '../common/store';
-import { LoadingSpinner } from '../Components/LoadingSpinner';
 
 import { logEvent, LogName } from '../logEvent';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
@@ -374,24 +373,17 @@ function BestTokenPrice({
     const pricePerToken = Number.parseFloat(token1Amount) > 0 ? best_swap / Number.parseFloat(token1Amount) : 0;
 
     return (
-        <LoadingSpinner
-            isLoading={isLoading}
-            text="Calculating best swap..."
-            size="small"
-            overlay={true}
-        >
-            <div style={{ minHeight: '152px' }}>
-                <InfoRow
-                    title="Minimum received"
-                    value={numberRound(best_swap * (1 - SLIPPAGE)) + ' ' + token2.unitName}
-                    valueStyle={{ fontSize: '16px', color: theme.newWhite, fontWeight: 600 }}
-                />
-                <InfoRow title="Price" value={`${numberRound(pricePerToken)} ${token2.unitName} per ${token1.unitName}`} />
-                <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
-                <InfoRow title="Price impact" value={`${numberRound(priceImpact * 100)}%`} />
-                {/*<InfoRow title="Route" value={best_path} />*/}
-            </div>
-        </LoadingSpinner>
+        <InfoPanel isLoading={isLoading} minHeight={152}>
+            <InfoRow
+                title="Minimum received"
+                value={numberRound(best_swap * (1 - SLIPPAGE)) + ' ' + token2.unitName}
+                valueStyle={{ fontSize: '16px', color: theme.newWhite, fontWeight: 600 }}
+            />
+            <InfoRow title="Price" value={`${numberRound(pricePerToken)} ${token2.unitName} per ${token1.unitName}`} />
+            <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
+            <InfoRow title="Price impact" value={`${numberRound(priceImpact * 100)}%`} />
+            {/*<InfoRow title="Route" value={best_path} />*/}
+        </InfoPanel>
     );
 }
 
