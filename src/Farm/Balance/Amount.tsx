@@ -40,8 +40,8 @@ export function Amount({ title, value }: AmountPropsType) {
             maximumFractionDigits: decimalPlaces
         }).format(amount);
 
-        // For non-zero values, add a subtle green color
-        const isNonZero = amount > 0;
+        // All values will be white now
+        const isNonZero = false;
 
         return { formatted, isNonZero };
     };
@@ -52,7 +52,7 @@ export function Amount({ title, value }: AmountPropsType) {
         <AmountContainer>
             <AmountTitle>{title}</AmountTitle>
             <AmountValue
-                className={`${isAnimating ? 'pulse' : ''} ${isNonZero || title === "My Stake" ? 'non-zero' : ''}`}
+                className={isAnimating ? 'pulse' : ''}
             >
                 {formatted}
             </AmountValue>

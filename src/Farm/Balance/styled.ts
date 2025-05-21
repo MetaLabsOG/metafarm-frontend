@@ -108,18 +108,9 @@ export const AmountValue = styled.div`
     }
 
     &.non-zero {
-        color: #8bff74;
-        text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
-        animation: amount-green-glow 3s infinite alternate;
-    }
-
-    @keyframes amount-green-glow {
-        0% {
-            text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
-        }
-        100% {
-            text-shadow: 0 0 18px rgba(139, 255, 116, 0.6);
-        }
+        color: white;
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+        animation: amount-glow 3s infinite alternate;
     }
 `;
 
