@@ -89,7 +89,7 @@ export const AmountValue = styled.div`
     font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
 
     ${AmountContainer}:hover & {
-        text-shadow: 0 0 15px rgba(144, 238, 144, 0.5);
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
         transform: scale(1.05);
     }
 
@@ -98,8 +98,8 @@ export const AmountValue = styled.div`
     }
 
     &.non-zero {
-        color: rgba(144, 238, 144, 0.9);
-        text-shadow: 0 0 10px rgba(144, 238, 144, 0.3);
+        color: white;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
     }
 `;
 

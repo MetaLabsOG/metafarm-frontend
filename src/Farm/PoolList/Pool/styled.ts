@@ -87,51 +87,74 @@ export const PoolInfoDesktopContainer = styled.div`
 export const PoolInfoMobileContainer = styled.div`
     color: ${(props) => props.theme.white};
     width: 100%;
-    padding-left: 10px; /* Reduced from 20px */
-    padding-right: 10px; /* Reduced from 20px */
+    padding-left: 5px;
+    padding-right: 5px;
     font-family: 'Montserrat';
     font-style: normal;
     font-weight: normal;
-    line-height: 16px; /* Reduced from 18px */
-    font-size: 14px; /* Reduced from 16px */
+    line-height: 16px;
+    font-size: 14px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
     @media (min-width: 1120px) {
         display: none;
     }
 
     @media (max-width: 700px) {
-        padding-left: 2px; /* Further reduced for mobile */
-        padding-right: 2px; /* Further reduced for mobile */
-        font-size: 11px; /* Further reduced font size */
-        line-height: 13px; /* Reduced line height */
-        width: 100%; /* Ensure full width */
-        box-sizing: border-box; /* Include padding in width calculation */
+        padding-left: 2px;
+        padding-right: 2px;
+        font-size: 11px;
+        line-height: 13px;
+        width: 100%;
+        box-sizing: border-box;
     }
 `;
 
 export const PoolPropertyName = styled.div`
-    color: var(--lightGray);
-    font-size: 13px;
-    margin-bottom: 4px;
+    color: rgba(200, 200, 200, 0.9);
+    font-size: 10px;
+    margin-bottom: 2px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 400;
-    text-shadow: 0 0 8px rgba(200, 200, 200, 0.1);
+    letter-spacing: 0.7px;
+    font-weight: 500;
+    text-shadow: 0 0 8px rgba(200, 200, 200, 0.15);
+    position: relative;
+
+    /* Add subtle underline */
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 25px;
+        height: 1px;
+        background: rgba(150, 150, 150, 0.3);
+    }
 
     @media (max-width: 700px) {
-        font-size: 11px; /* Smaller font for mobile */
-        margin-bottom: 2px; /* Reduced margin */
-        letter-spacing: 0.3px; /* Reduced letter spacing */
+        font-size: 8px;
+        margin-bottom: 2px;
+        letter-spacing: 0.5px;
+
+        &::after {
+            width: 18px;
+            bottom: -1px;
+        }
     }
 `;
 
 export const PoolPropertyValue = styled.div`
     color: white;
-    font-weight: 600;
-    font-size: 15px; /* Reduced from 16px */
+    font-weight: 700;
+    font-size: 16px;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     transition: all 0.3s ease;
+    margin-top: 3px;
+    letter-spacing: 0.3px;
 
     /* Apply green color to dollar values */
     &:has(> span:first-child:contains('$')),
@@ -147,14 +170,15 @@ export const PoolPropertyValue = styled.div`
     }
 
     @media (max-width: 700px) {
-        font-size: 11px; /* Further reduced from 13px */
-        font-weight: 500; /* Slightly reduced weight */
-        text-shadow: none; /* Remove text shadow for performance */
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 2px;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 
-        /* Disable hover animation on mobile */
+        /* Simplified hover for mobile */
         &:hover {
-            transform: none;
-            text-shadow: none;
+            transform: translateY(-1px);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
     }
 `;
@@ -387,15 +411,39 @@ export const PoolInfoGrid = styled.div`
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
-    gap: 6px; /* Reduced from 8px */
-    width: 100%;
-    margin: 8px 0; /* Reduced from 10px */
+    gap: 8px;
+    width: 90%;
+    margin: 12px auto;
+    box-sizing: border-box;
+    position: relative;
+
+    /* Add subtle divider between rows */
+    &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 5%;
+        right: 5%;
+        height: 1px;
+        background: linear-gradient(
+            90deg,
+            rgba(40, 40, 40, 0) 0%,
+            rgba(60, 60, 60, 0.3) 50%,
+            rgba(40, 40, 40, 0) 100%
+        );
+        z-index: 0;
+        pointer-events: none;
+    }
 
     @media (max-width: 700px) {
-        gap: 2px; /* Further reduced gap for mobile */
-        margin: 3px 0; /* Reduced margin for mobile */
-        width: 100%; /* Ensure full width */
-        box-sizing: border-box; /* Include padding in width calculation */
+        gap: 6px;
+        margin: 8px auto;
+        width: 94%;
+
+        &::after {
+            left: 3%;
+            right: 3%;
+        }
     }
 `;
 

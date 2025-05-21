@@ -63,7 +63,7 @@ export const MobileFilterContainer = styled.div`
         padding-top: 15px;
         padding-bottom: 15px;
         transition: all 0.3s ease;
-        border: none; /* Made border invisible */
+        border: 1px solid rgba(80, 80, 80, 0.7); /* Dark gray border */
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
@@ -175,7 +175,7 @@ export const PoolTopLineContainer = styled.div`
 
 export const AddFarmButtonContainer = styled(PrettyButtonContainer)`
     color: white;
-    border: 1px solid rgba(144, 238, 144, 0.7);
+    border: 2px solid rgba(255, 255, 255, 0.9);
     text-decoration: none;
     background-color: transparent;
     outline: none;
@@ -186,11 +186,13 @@ export const AddFarmButtonContainer = styled(PrettyButtonContainer)`
     text-align: center;
     font-family: 'Montserrat';
     transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 
     &:hover {
-        border-color: rgba(144, 238, 144, 0.9);
+        border-color: rgba(255, 255, 255, 1);
         transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
     }
 
     @media (max-width: 700px) {

@@ -216,10 +216,10 @@ export const ExchangeRate = styled.span`
     font-feature-settings: "tnum" on, "lnum" on;
     transition: all 0.3s ease;
 
-    /* Add green color for non-zero values */
+    /* White color for all values with subtle text shadow */
     &.non-zero {
-        color: rgba(144, 238, 144, 0.9);
-        text-shadow: 0 0 10px rgba(144, 238, 144, 0.3);
+        color: white;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
     }
 `;
 

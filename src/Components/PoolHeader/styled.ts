@@ -29,108 +29,131 @@ export const PoolInfo = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: flex-start;
-    margin-left: 5px;
+    margin-left: 14px;
+    margin-top: 4px;
+
+    @media (max-width: 700px) {
+        margin-left: 12px;
+        margin-top: 3px;
+    }
 `;
 
 export const PoolTitle = styled.div`
     display: flex;
-    white-space: nowrap;
     font-family: 'Korona One';
-    font-size: 11px; /* Reduced from 12px */
+    font-size: 12px;
     color: white;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+    letter-spacing: 0.2px;
+    font-weight: 500;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 
     @media (max-width: 1120px) {
-        font-size: 11px; /* Reduced from 12px */
+        font-size: 10px;
+        max-width: 140px;
+        line-height: 1.1;
     }
 
     @media (max-width: 700px) {
-        font-size: 8px; /* Further reduced from 9px */
-        max-width: 70px; /* Further limit width */
-        overflow: hidden;
-        text-overflow: ellipsis; /* Add ellipsis for overflow */
-        white-space: nowrap;
-        letter-spacing: -0.2px; /* Tighter letter spacing */
-        margin-bottom: 1px; /* Add small margin bottom */
+        font-size: 9px;
+        max-width: 90px;
+        line-height: 1.1;
+        letter-spacing: 0;
     }
 `;
 
 export const PoolSubtitlesContainer = styled.div`
-    padding-top: 2px;
+    padding-top: 5px;
     display: flex;
-    padding-bottom: 2px;
+    padding-bottom: 1px;
     justify-content: left;
     width: 100%;
+    margin-top: 3px;
 `;
 
 export const PoolSubtitle = styled.div`
-    white-space: nowrap;
     color: ${theme.niceGreen}; // light green
     font-family: 'Korona One';
-    font-size: 10px;
+    font-size: 8px;
+    line-height: 1.1;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+    max-width: 160px;
+    letter-spacing: 0;
 
     @media (max-width: 1120px) {
-        font-size: 10px;
+        font-size: 7px;
+        max-width: 140px;
     }
 
     @media (max-width: 700px) {
-        font-size: 8px; /* Even smaller font for mobile */
-        max-width: 70px; /* Further limit width */
-        overflow: hidden;
-        text-overflow: ellipsis; /* Add ellipsis for overflow */
-        letter-spacing: -0.1px; /* Tighter letter spacing */
-        opacity: 0.9; /* Slightly transparent */
+        font-size: 6px;
+        max-width: 90px;
+        line-height: 1;
+        letter-spacing: -0.1px;
     }
 `;
 
 export const LpTokensIconsWrapper = styled.div`
     display: flex;
     position: relative;
-    height: 36px; /* Reduced from 40px */
-    width: 72px; /* Reduced from 80px */
+    height: 32px; /* Reduced from 36px */
+    width: 64px; /* Reduced from 72px */
 
     @media (max-width: 700px) {
-        height: 28px; /* Further reduced from 32px */
-        width: 56px; /* Further reduced from 64px */
+        height: 24px; /* Further reduced from 28px */
+        width: 48px; /* Further reduced from 56px */
     }
 `;
 
 export const LPTokensIcon = styled.div<{ first?: boolean; isWhite?: boolean }>`
     position: absolute;
-    left: ${({ first }) => (first ? '0' : '28px')};
+    left: ${({ first }) => (first ? '0' : '24px')};
     height: 100%;
     border: 0 solid;
     border-radius: 50px;
     background-color: ${({ isWhite }) => (isWhite ? 'white' : 'black')};
 
     @media (max-width: 1120px) {
-        left: ${({ first }) => (first ? '0px' : '28px')};
+        left: ${({ first }) => (first ? '0px' : '24px')};
     }
 
     @media (max-width: 700px) {
-        left: ${({ first }) => (first ? '0px' : '22px')}; /* Adjust position for mobile */
+        left: ${({ first }) => (first ? '0px' : '18px')}; /* Adjust position for mobile */
     }
 `;
 
 export const DexIcon = styled.img`
     position: absolute;
-    left: 56px;
+    left: 48px;
     background-color: white;
-    height: 16px;
+    height: 14px;
     border-radius: 4px;
 
     @media (max-width: 700px) {
-        left: 44px; /* Adjust position for mobile */
-        height: 12px; /* Smaller height for mobile */
+        left: 36px; /* Adjust position for mobile */
+        height: 10px; /* Smaller height for mobile */
         border-radius: 3px; /* Smaller border radius */
     }
 `;
 
 export const Game = styled.img`
     position: absolute;
-    left: 48px;
-    height: 16px;
+    left: 42px;
+    height: 14px;
     border-radius: 4px;
     background-color: white;
+
+    @media (max-width: 700px) {
+        left: 36px;
+        height: 10px;
+        border-radius: 3px;
+    }
 `;
 
 export const ContractLockSuffix = styled.div`

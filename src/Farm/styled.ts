@@ -77,7 +77,7 @@ export const PoolSearchInput = styled.input`
     font-weight: 500;
     letter-spacing: 0.02em;
 
-    border: 1px solid rgba(144, 238, 144, 0.3);
+    border: 1px solid rgba(80, 80, 80, 0.7);
     border-radius: 15px;
     transition: all 0.3s ease;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -99,17 +99,18 @@ export const PoolSearchInput = styled.input`
         height: 30px;
         font-size: 12px;
         background-color: rgba(30, 30, 30, 0.25);
+        border: 1px solid rgba(80, 80, 80, 0.7);
     }
 
     &:focus {
         outline: none;
-        border-color: #90ee90;
+        border-color: rgba(100, 100, 100, 0.9);
         background-color: rgba(30, 30, 30, 0.4);
-        box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.2);
+        box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.2);
     }
 
     &:hover {
-        border-color: rgba(144, 238, 144, 0.5);
+        border-color: rgba(120, 120, 120, 0.8);
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }

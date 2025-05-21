@@ -18,11 +18,18 @@ import styled from 'styled-components';
 // Create a compact grid for when we only show TVL and APR
 const CompactPoolInfoGrid = styled(PoolInfoGrid)`
     grid-template-rows: auto;
-    margin: 6px 0; /* Reduced margin for compact view */
+    margin: 10px auto;
+    width: 85%;
+
+    /* Remove the divider since we only have one row */
+    &::after {
+        display: none;
+    }
 
     @media (max-width: 700px) {
-        margin: 3px 0; /* Further reduced margin for mobile */
-        gap: 3px; /* Smaller gap for mobile */
+        margin: 6px auto;
+        gap: 6px;
+        width: 90%;
     }
 `;
 
@@ -107,7 +114,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 <GradientGridCell>
                     <PoolPropertyName>APR</PoolPropertyName>
                     <PoolPropertyValue>
-                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ display: 'flex', alignItems: 'right', justifyContent: 'center' }}>
                             {numberRound(APR.total)}%
                             <img
                                 data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}

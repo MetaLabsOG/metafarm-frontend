@@ -44,8 +44,8 @@ export function TokensIcons({
                         {asset1_logo && (
                             <img
                                 alt=""
-                                width="40px"
-                                height="40px"
+                                width="32px"
+                                height="32px"
                                 src={asset1_logo}
                                 onError={({ currentTarget }) => {
                                     currentTarget.onerror = null; // prevents looping
@@ -60,8 +60,8 @@ export function TokensIcons({
                         {asset2_logo && (
                             <img
                                 alt=""
-                                width="40px"
-                                height="40px"
+                                width="32px"
+                                height="32px"
                                 src={asset2_logo}
                                 onError={({ currentTarget }) => {
                                     currentTarget.onerror = null; // prevents looping
