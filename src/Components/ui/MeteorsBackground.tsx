@@ -78,13 +78,12 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
 
-      // Always enable meteors by default
-      // Only disable for iOS devices
-      const enabled = !isIosDevice();
+      // Disable meteors by default for mobile devices and iOS devices
+      const enabled = !mobile && !isIosDevice();
       setMeteorsEnabled(enabled);
 
-      // Also update localStorage to match current state
-      localStorage.setItem('cometa_meteor_enabled', 'true');
+      // Update localStorage to match current state
+      localStorage.setItem('cometa_meteor_enabled', enabled.toString());
     };
 
     // Initial check
@@ -97,11 +96,19 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
     };
   }, []);
 
-  // Always keep meteors enabled (except on iOS)
+  // Check for user preferences
   useEffect(() => {
-    // Force enabled state on component mount
-    if (!isIosDevice()) {
-      setMeteorsEnabled(true);
+    // Get user preference from localStorage
+    try {
+      const storedPreference = localStorage.getItem('cometa_meteor_enabled');
+      if (storedPreference !== null) {
+        // If user has explicitly set a preference, respect it
+        // But still enforce disabled for iOS devices
+        const shouldEnable = storedPreference === 'true' && !isIosDevice();
+        setMeteorsEnabled(shouldEnable);
+      }
+    } catch (error) {
+      console.warn('Failed to read meteor animation preference', error);
     }
   }, [isMobile]);
 

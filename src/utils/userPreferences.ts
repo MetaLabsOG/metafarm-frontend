@@ -17,10 +17,14 @@ export function getMeteorAnimationEnabled(): boolean {
     // For iOS devices, always default to disabled
     const isIos = isIosDevice();
 
+    // For mobile devices, default to disabled
+    const isMobile = isMobileDevice();
+
     if (stored === null) {
       // If no preference is stored:
-      // - Enable for all devices except iOS
-      return !isIos;
+      // - Disable for mobile and iOS devices
+      // - Enable for desktop devices
+      return !isIos && !isMobile;
     }
 
     // For iOS, always return false regardless of stored preference
