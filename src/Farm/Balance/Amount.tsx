@@ -52,7 +52,7 @@ export function Amount({ title, value }: AmountPropsType) {
         <AmountContainer>
             <AmountTitle>{title}</AmountTitle>
             <AmountValue
-                className={`${isAnimating ? 'pulse' : ''} ${isNonZero ? 'non-zero' : ''}`}
+                className={`${isAnimating ? 'pulse' : ''} ${isNonZero || title === "My Stake" ? 'non-zero' : ''}`}
             >
                 {formatted}
             </AmountValue>

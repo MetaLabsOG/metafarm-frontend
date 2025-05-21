@@ -55,7 +55,9 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                             height: 30,
                             backgroundColor: 'rgba(30, 30, 30, 0.25)',
                             color: 'white',
-                            fontSize: '12px',
+                            fontSize: '13px',
+                            fontWeight: 500,
+                            letterSpacing: '0.02em',
                             borderRadius: '15px',
                             padding: '7px 15px',
                             width: '140px',
@@ -67,7 +69,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                             boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
                         }}
                     >
-                        Sort By
+                       Sort By
                     </button>
                 ) : (
                     <button

@@ -8,7 +8,7 @@ import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { ALGONET, isMobile, META_TOKEN_ID, TESTNET } from '../AppContext';
 import { getTokenLink } from '../Farm/PoolList/Pool/utils';
-import { MeteorToggle } from '../Components/ui/MeteorToggle';
+
 
 import {
     MenuItem,
@@ -76,17 +76,12 @@ function ExchangeRates({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; MET
 }
 
 function BurgerMenu({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) {
-    const isMobileView = window.innerWidth < 768;
 
     return (
         <BurgerMenuContainer>
             <MenuItemsBurger>
                 <MenuItems />
-                {isMobileView && (
-                    <div style={{ marginTop: '20px', marginLeft: '10px' }}>
-                        <MeteorToggle />
-                    </div>
-                )}
+
             </MenuItemsBurger>
             <ExchangeRatesBurger>
                 <ExchangeRates ALGOPrice={ALGOPrice} METAPrice={METAPrice} />

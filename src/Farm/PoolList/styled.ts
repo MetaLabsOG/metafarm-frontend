@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { PrettyButtonContainer } from '../../common/styled';
-import { theme } from '../../theme';
 
 export const PoolListHeader = styled.div`
     display: flex;
@@ -41,6 +40,7 @@ export const DesktopFilterContainer = styled.div`
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    border: none; /* Made border invisible */
 
     @media (max-width: 700px) {
         display: none;
@@ -63,12 +63,11 @@ export const MobileFilterContainer = styled.div`
         padding-top: 15px;
         padding-bottom: 15px;
         transition: all 0.3s ease;
-        border: 1px solid rgba(144, 238, 144, 0.15);
+        border: none; /* Made border invisible */
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     &:hover {
-        border-color: rgba(144, 238, 144, 0.25);
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
     }
 `;
@@ -168,15 +167,24 @@ export const PoolTopLineContainer = styled.div`
 `;
 
 export const AddFarmButtonContainer = styled(PrettyButtonContainer)`
-    color: ${theme.lightGray};
-    border: 1px solid ${theme.lightGray};
+    color: white;
+    border: 1px solid rgba(144, 238, 144, 0.7);
     text-decoration: none;
     background-color: transparent;
     outline: none;
-    font-size: 14px;
-    font-weight: 300;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
     height: 30px;
     text-align: center;
+    font-family: 'Montserrat';
+    transition: all 0.3s ease;
+
+    &:hover {
+        border-color: rgba(144, 238, 144, 0.9);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
 
     @media (max-width: 700px) {
         width: 140px;
