@@ -63,7 +63,7 @@ export const MobileFilterContainer = styled.div`
         padding-top: 15px;
         padding-bottom: 15px;
         transition: all 0.3s ease;
-        border: 1px solid rgba(80, 80, 80, 0.7); /* Dark gray border */
+        border: none; /* Invisible border */
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 

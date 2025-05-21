@@ -61,12 +61,13 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                             borderRadius: '15px',
                             padding: '7px 15px',
                             width: '140px',
-                            border: 'rgba(125, 125, 125, 0.2) 1px solid',
+                            border: 'rgba(80, 80, 80, 0.7) 1px solid',
                             cursor: 'pointer',
                             outline: 'none',
                             transition: 'all 0.3s ease',
                             fontFamily: 'Montserrat',
                             boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
+                            textAlign: 'center',
                         }}
                     >
                        Sort By
@@ -84,12 +85,13 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                             letterSpacing: '0.02em',
                             padding: '7px 15px',
                             width: '140px',
-                            border: 'rgba(144, 238, 144, 0.3) 1px solid',
+                            border: 'rgba(80, 80, 80, 0.7) 1px solid',
                             cursor: 'pointer',
                             outline: 'none',
                             transition: 'all 0.3s ease',
                             fontFamily: 'Montserrat',
                             boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
+                            textAlign: 'center',
                         }}
                     >
                         Sort By ↓

@@ -151,34 +151,54 @@ export const PoolPropertyValue = styled.div`
     color: white;
     font-weight: 700;
     font-size: 16px;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
     transition: all 0.3s ease;
     margin-top: 3px;
     letter-spacing: 0.3px;
+    animation: subtle-glow 3s infinite alternate;
+
+    @keyframes subtle-glow {
+        0% {
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+        }
+        100% {
+            text-shadow: 0 0 18px rgba(255, 255, 255, 0.5);
+        }
+    }
 
     /* Apply green color to dollar values */
     &:has(> span:first-child:contains('$')),
     &:has(> div:first-child:contains('$')) {
         color: #8bff74;
-        text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
+        text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
+        animation: green-glow 3s infinite alternate;
+    }
+
+    @keyframes green-glow {
+        0% {
+            text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
+        }
+        100% {
+            text-shadow: 0 0 18px rgba(139, 255, 116, 0.6);
+        }
     }
 
     /* Add subtle animation on hover */
     &:hover {
         transform: translateY(-1px);
-        text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
     }
 
     @media (max-width: 700px) {
         font-size: 12px;
         font-weight: 600;
         margin-top: 2px;
-        text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 
         /* Simplified hover for mobile */
         &:hover {
             transform: translateY(-1px);
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
         }
     }
 `;
@@ -339,12 +359,26 @@ export const PoolLoadingAnimation = styled.img`
 export const RewardUSDValue = styled.div`
     color: #8bff74;
     font-weight: 600;
-    text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
+    text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
     text-align: center;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+    animation: reward-glow 3s infinite alternate;
+
+    @keyframes reward-glow {
+        0% {
+            text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
+        }
+        100% {
+            text-shadow: 0 0 18px rgba(139, 255, 116, 0.6);
+        }
+    }
+
+    &:hover {
+        text-shadow: 0 0 20px rgba(139, 255, 116, 0.7);
+    }
 
     @media (max-width: 1120px) {
         text-align: center;
@@ -357,11 +391,25 @@ export const RewardTokenValue = styled.div`
     color: #8bff74; // light green tODO: to constants
     display: flex;
     font-weight: 500;
-    text-shadow: 0 0 8px rgba(139, 255, 116, 0.2);
+    text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
     text-align: center;
     justify-content: center;
     align-items: center;
     width: 100%;
+    animation: token-glow 3s infinite alternate;
+
+    @keyframes token-glow {
+        0% {
+            text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
+        }
+        100% {
+            text-shadow: 0 0 15px rgba(139, 255, 116, 0.5);
+        }
+    }
+
+    &:hover {
+        text-shadow: 0 0 18px rgba(139, 255, 116, 0.6);
+    }
 
     @media (max-width: 1120px) {
         text-align: center;

@@ -83,13 +83,23 @@ export const AmountValue = styled.div`
     line-height: 22px;
     text-align: center;
     letter-spacing: 0.04em;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
     transition: all 0.3s ease;
     font-feature-settings: "tnum" on, "lnum" on;
     font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    animation: amount-glow 3s infinite alternate;
+
+    @keyframes amount-glow {
+        0% {
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+        }
+        100% {
+            text-shadow: 0 0 18px rgba(255, 255, 255, 0.6);
+        }
+    }
 
     ${AmountContainer}:hover & {
-        text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
         transform: scale(1.05);
     }
 
@@ -98,8 +108,18 @@ export const AmountValue = styled.div`
     }
 
     &.non-zero {
-        color: white;
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        color: #8bff74;
+        text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
+        animation: amount-green-glow 3s infinite alternate;
+    }
+
+    @keyframes amount-green-glow {
+        0% {
+            text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
+        }
+        100% {
+            text-shadow: 0 0 18px rgba(139, 255, 116, 0.6);
+        }
     }
 `;
 
