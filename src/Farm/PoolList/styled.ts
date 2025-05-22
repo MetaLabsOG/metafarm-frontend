@@ -20,7 +20,11 @@ export const PoolListHeader = styled.div`
     text-transform: uppercase;
 
     @media (max-width: 1120px) {
-        display: none;
+        display: none !important; /* Force hide on mobile */
+    }
+
+    @media (max-width: 700px) {
+        display: none !important; /* Force hide on small mobile */
     }
 `;
 
@@ -124,14 +128,22 @@ export const PoolListContainer = styled.div`
     @media (max-width: 700px) {
         margin-top: 36px;
         display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-between; /* Changed from center to space-between */
-        gap: 6px; /* Adjusted gap between cards */
+        flex-direction: column; /* Changed to column to ensure proper layout */
+        align-items: center; /* Center the content */
         padding: 0 2px; /* Further reduced padding on the sides */
         width: 100%; /* Ensure full width */
         box-sizing: border-box; /* Include padding in width calculation */
         max-width: 100%; /* Ensure container doesn't exceed viewport width */
+
+        /* Ensure the VirtualizedContainer inside gets proper styling */
+        & > div {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 6px;
+        }
     }
 `;
 

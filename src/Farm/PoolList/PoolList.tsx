@@ -1,5 +1,5 @@
 import { useUnit } from 'effector-react';
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PoolWithStats, sortPools } from '../store';
 import swapArrow from '../../imgs/swapArrow.svg';
@@ -14,6 +14,7 @@ import DropdownButton from '../../Components/DropdownButton/Dropdown';
 import { $networkTime, ContractInfo, FarmType } from '../../common/store';
 import { useWalletPersistedState } from '../utils';
 import { PoolSearchInput } from '../styled';
+import { VirtualizedPoolList } from './VirtualizedPoolList';
 
 import {
     AddFarmButtonContainer,
@@ -32,7 +33,7 @@ import {
     VerticalSpacer,
     HorizontalSpacer,
 } from './styled';
-import { Pool } from './Pool';
+// Pool component is now used in VirtualizedPoolList
 
 export enum ColumnType {
     Name = 'Pool',
@@ -86,8 +87,9 @@ export function PoolList({
     const [poolSearch, setPoolSearch] = useWalletPersistedState('poolSearch', '');
     const [showMyPools, setShowMyPools] = useState(false);
 
-    const poolComponents = pools
-        .filter((pws: PoolWithStats) => {
+    // Filter pools based on user criteria
+    const filteredPools = useMemo(() => {
+        return pools.filter((pws: PoolWithStats) => {
             if (currentBlock === 0) {
                 // Current time is not updated yet. Do not try to show the pools
                 return false;
@@ -117,15 +119,8 @@ export function PoolList({
             const statusFilter = showEnded ? currentBlock > endBlock : currentBlock <= endBlock;
             isShown = isShown && statusFilter;
             return isShown;
-        })
-        .map((pws: PoolWithStats) => (
-            <Pool
-                key={pws.pool.id}
-                pws={pws}
-                isForcedOpen={pws.pool.id === Number(priorityPoolId)}
-                initEvent={initEvent}
-            />
-        ));
+        });
+    }, [pools, currentBlock, priorityPoolId, showMyPools, poolSearch, showVerified, showEnded]);
     const sortEvent = useUnit(sortPools);
 
     useEffect(() => {
@@ -230,7 +225,8 @@ export function PoolList({
                 </DesktopFilterContainer>
             </PoolTopLineContainer>
             <PoolListContainer>
-                <PoolListHeader>
+                {/* Only show header on desktop */}
+                <PoolListHeader className="desktop-only-header">
                     {(Object.keys(ColumnType) as (keyof typeof ColumnType)[]).map((key) => (
                         <div key={key} style={{ display: 'flex', minWidth: POOL_COLUMN_WIDTH[ColumnType[key]] }}>
                             <PoolListHeaderElement
@@ -246,7 +242,11 @@ export function PoolList({
                         </div>
                     ))}
                 </PoolListHeader>
-                {poolComponents}
+                <VirtualizedPoolList
+                    filteredPools={filteredPools}
+                    initEvent={initEvent}
+                    priorityPoolId={priorityPoolId}
+                />
             </PoolListContainer>
         </div>
     );

@@ -19,6 +19,13 @@ const GlobalStyle = createGlobalStyle`
     height: 100%;
     min-height: 100vh;
   }
+
+  /* Hide column headers on mobile */
+  @media (max-width: 700px) {
+    .desktop-only-header {
+      display: none !important;
+    }
+  }
 `;
 
 export default GlobalStyle;

@@ -65,6 +65,15 @@ const GradientPoolContainer = styled(PoolContainer)`
       `}
     }
   }
+
+  /* Small mobile specific styling */
+  @media (max-width: 700px) {
+    width: calc(50% - 4px) !important; /* Force two cards per row with a small gap */
+    max-width: 49% !important; /* Ensure it doesn't exceed half the container width */
+    margin: 0 0 8px 0 !important; /* Reset margin to ensure proper spacing */
+    box-sizing: border-box !important; /* Include padding in width calculation */
+    flex: 0 0 calc(50% - 4px) !important; /* Force flex basis to be half the container minus gap */
+  }
 `;
 
 // Enhanced pool container for compact view (no staked/reward rows)
