@@ -11,11 +11,13 @@ import {
 // Enhanced pool container with gradient background
 const GradientPoolContainer = styled(PoolContainer)`
   /* Base gradient background */
-  background: ${getOptimizedGradient(`linear-gradient(
-    135deg,
-    rgba(10, 10, 10, 0.01) 0%,
-    rgba(10, 10, 10, 0.01) 50%
-  ), rgba(10, 10, 10, 0.15)`, 'rgba(10, 10, 10, 0.2)')};
+  background: ${isMobileDevice() 
+    ? 'rgba(10, 10, 10, 0.2)' 
+    : `linear-gradient(
+        135deg,
+        rgba(10, 10, 10, 0.01) 0%,
+        rgba(10, 10, 10, 0.01) 50%
+      ), rgba(10, 10, 10, 0.15)`};
 
   /* Add backdrop blur for transparency effect */
   backdrop-filter: ${getOptimizedBackdropFilter('blur(8px)')};
@@ -44,11 +46,11 @@ const GradientPoolContainer = styled(PoolContainer)`
 
   /* Mobile-specific styling */
   @media (max-width: 1120px) {
-    background: ${getOptimizedGradient(`linear-gradient(
+    background: ${isMobileDevice() ? 'rgba(10, 10, 10, 0.2)' : `linear-gradient(
       135deg,
       rgba(10, 10, 10, 0.01) 0%,
       rgba(10, 10, 10, 0.01) 50%
-    ), rgba(10, 10, 10, 0.15)`, 'rgba(10, 10, 10, 0.2)')};
+    ), rgba(10, 10, 10, 0.15)`};
 
     /* Hover effects disabled on mobile */
     &:hover {
@@ -92,11 +94,13 @@ const CompactGradientPoolContainer = styled(GradientPoolContainer)`
 
 // Enhanced grid cell with gradient background
 const GradientGridCell = styled.div`
-  background: ${getOptimizedGradient(`linear-gradient(
-    135deg,
-    rgba(10, 10, 10, 0.01) 0%,
-    rgba(10, 10, 10, 0.01) 50%
-  ), rgba(0, 0, 0, 0.15)`, 'rgba(0, 0, 0, 0.2)')};
+  background: ${isMobileDevice()
+    ? 'rgba(0, 0, 0, 0.2)'
+    : `linear-gradient(
+        135deg,
+        rgba(10, 10, 10, 0.01) 0%,
+        rgba(10, 10, 10, 0.01) 50%
+      ), rgba(0, 0, 0, 0.15)`};
 
   border-radius: 6px;
   padding: 8px 3px; /* Reduced horizontal padding from 6px to 3px */
@@ -166,7 +170,7 @@ const GradientStakeButton = styled(StakeButtonMobile)`
   /* Smooth transition for hover effects - disabled on mobile */
   transition: ${isMobileDevice() ? 'none' : 'all 0.3s ease'};
 
-  /* Wobble animation for hover - only on desktop */
+  /* Wobble animation for hover - only define on desktop */
   ${!isMobileDevice() && css`
     @keyframes wobble {
       0% { transform: translateX(0); }
@@ -177,13 +181,9 @@ const GradientStakeButton = styled(StakeButtonMobile)`
       75% { transform: translateX(-1px) rotate(-0.25deg); }
       100% { transform: translateX(0); }
     }
-  `}
 
-  /* Enhanced hover effect - only on desktop */
-  &:not(:disabled):hover {
-    ${isMobileDevice() ? css`
-      background: rgba(144, 238, 144, 0.8);
-    ` : css`
+    /* Enhanced hover effect - only on desktop */
+    &:not(:disabled):hover {
       background: linear-gradient(
         135deg,
         rgba(144, 238, 144, 1) 0%,
@@ -194,8 +194,15 @@ const GradientStakeButton = styled(StakeButtonMobile)`
       transform: translateY(-1px) scale(1.03);
       color: #1e1e1e;
       animation: wobble 1s ease;
-    `}
-  }
+    }
+  `}
+
+  /* Mobile hover state - simplified */
+  ${isMobileDevice() && css`
+    &:not(:disabled):hover {
+      background: rgba(144, 238, 144, 0.85);
+    }
+  `}
 
   /* Disabled state */
   &:disabled {

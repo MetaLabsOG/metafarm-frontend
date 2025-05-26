@@ -118,8 +118,9 @@ export function injectMobileOptimizations(): void {
       /* Optimize animations and transitions */
       * {
         transition-duration: 0.1s !important;
-        transition-property: opacity !important;
+        transition-property: opacity, visibility !important;
         will-change: auto !important;
+        animation-duration: 0s !important;
       }
 
       /* Disable animations on hover */
@@ -134,21 +135,48 @@ export function injectMobileOptimizations(): void {
         text-shadow: none !important;
       }
 
+      /* Disable all transforms to prevent GPU layer creation */
+      * {
+        transform: none !important;
+        -webkit-transform: none !important;
+      }
+
       /* Use solid colors instead of gradients */
       [style*="gradient"] {
         background: rgba(20, 20, 20, 0.5) !important;
       }
 
-      /* Disable keyframe animations - EXCEPT for meteor animations */
-      @keyframes none {
-        0% { opacity: 1; }
-        100% { opacity: 1; }
+      /* Disable ALL keyframe animations */
+      * {
+        animation: none !important;
+        -webkit-animation: none !important;
       }
 
-      /* Apply 'none' animation to elements with animations - EXCEPT for meteor animations */
-      [style*="animation"]:not([class*="meteor"]),
-      [class*="animate"]:not([class*="meteor"]) {
-        animation-name: none !important;
+      /* Reduce paint areas by disabling overflow hidden where not needed */
+      .pool-container {
+        overflow: visible !important;
+      }
+
+      /* Force hardware acceleration off for problematic elements */
+      .pool-container > div {
+        transform: translateZ(0) !important;
+        will-change: auto !important;
+      }
+
+      /* Disable perspective and 3D transforms completely */
+      * {
+        perspective: none !important;
+        transform-style: flat !important;
+        backface-visibility: visible !important;
+      }
+    }
+
+    /* iOS-specific optimizations */
+    @supports (-webkit-touch-callout: none) {
+      * {
+        -webkit-transform: translateZ(0);
+        -webkit-backface-visibility: hidden;
+        -webkit-perspective: 1000;
       }
     }
   `;

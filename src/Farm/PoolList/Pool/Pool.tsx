@@ -101,17 +101,20 @@ export function Pool({
             <GradientPoolContainer
                 className={`pool-container ${useCompactView ? 'compact' : ''}`}
                 style={{
-                    transform: showMobileActions && !isSafari ? 'rotateY(180deg)' : '',
                     height: showMobileActions ? '420px' : 'auto', // Only set fixed height when actions are visible
-                    cursor: 'pointer' // Add cursor pointer to indicate clickable area
+                    cursor: 'pointer', // Add cursor pointer to indicate clickable area
+                    position: 'relative',
+                    transition: 'height 0.3s ease'
                 }}
                 onClick={onPoolClick} // Move onClick to the container level
             >
                 <div
                     style={{
-                        backfaceVisibility: 'hidden',
-                        transform: showMobileActions && !isSafari ? 'rotateY(180deg)' : '',
-                        display: showMobileActions ? 'none' : 'block' // Hide info when actions are visible
+                        opacity: showMobileActions ? 0 : 1,
+                        visibility: showMobileActions ? 'hidden' : 'visible',
+                        transition: 'opacity 0.2s ease',
+                        position: showMobileActions ? 'absolute' : 'relative',
+                        width: '100%'
                     }}
                 >
                     <PoolInfo
@@ -143,14 +146,17 @@ export function Pool({
                     )}
                 </div>
 
-                {/* Mobile actions with flip animation */}
+                {/* Mobile actions with opacity animation */}
                 {!isDesktop && contract.ctc !== null && hasLocalState(contract.state) && (
                     <div
                         style={{
-                            backfaceVisibility: 'hidden',
-                            transform: showMobileActions && !isSafari ? 'rotateY(180deg)' : '',
-                            display: showMobileActions ? 'block' : 'none', // Only show actions when needed
-                            zIndex: showMobileActions ? 2 : 0 // Ensure actions are on top when visible
+                            opacity: showMobileActions ? 1 : 0,
+                            visibility: showMobileActions ? 'visible' : 'hidden',
+                            transition: 'opacity 0.2s ease',
+                            position: showMobileActions ? 'relative' : 'absolute',
+                            width: '100%',
+                            top: 0,
+                            left: 0
                         }}
                     >
                         <PoolActions
