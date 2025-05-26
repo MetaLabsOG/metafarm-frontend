@@ -109,7 +109,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
             <GridComponent>
                 <GradientGridCell>
                     <PoolPropertyName>TVL</PoolPropertyName>
-                    <PoolPropertyValue>
+                    <PoolPropertyValue isDollarValue>
                         ${numberRound(convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked))}
                     </PoolPropertyValue>
                 </GradientGridCell>
@@ -142,14 +142,14 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                     <>
                         <GradientGridCell>
                             <PoolPropertyName>Staked</PoolPropertyName>
-                            <PoolPropertyValue>
+                            <PoolPropertyValue isDollarValue>
                                 <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
                             </PoolPropertyValue>
                         </GradientGridCell>
 
                         <GradientGridCell>
                             <PoolPropertyName>Reward</PoolPropertyName>
-                            <PoolPropertyValue style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <PoolPropertyValue isDollarValue style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                 <RewardValues contractState={contractState} tokenInfo={rewardTokenInfo} pricedAlgo={pricedAlgo} />
                             </PoolPropertyValue>
                         </GradientGridCell>

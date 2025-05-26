@@ -162,7 +162,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                 />
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Tvl]}>
-                <PoolPropertyValue>
+                <PoolPropertyValue isDollarValue>
                     {`$${numberRound(convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked))}`}
                 </PoolPropertyValue>
             </PoolInfoValue>
@@ -187,7 +187,7 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                 </div>
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Stake]}>
-                <PoolPropertyValue>
+                <PoolPropertyValue isDollarValue>
                     <StakeValue contractState={contractState} tokenInfo={stakeTokenInfo} pricedAlgo={pricedAlgo} />
                 </PoolPropertyValue>
             </PoolInfoValue>

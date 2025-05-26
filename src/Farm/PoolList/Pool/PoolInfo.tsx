@@ -8,6 +8,7 @@ import { formatLPTokenName, isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
 import { PoolInfoMobile } from './PoolInfoMobile';
+import { useWindowSize } from '../../../hooks';
 
 export const blocksToText = (blocks: number, meanRoundDuration: number, isMobile = false) => {
     const diffSecs = Math.abs(blocks) * meanRoundDuration;
@@ -76,6 +77,7 @@ export function PoolInfo({
     const isFarm = isLPTokenInfo(stakeTokenInfo);
     const account = useUnit($account);
     const meanRoundDuration = useUnit($meanRoundDuration);
+    const { isMobile, isTablet } = useWindowSize();
     const { endBlock, beginBlock } = contractState.initial;
 
     const timing = calculateTiming(poolState, currentBlock, beginBlock, endBlock, meanRoundDuration);
@@ -84,14 +86,14 @@ export function PoolInfo({
     const asset2_id = isFarm ? stakeTokenInfo.asset2 : rewardTokenInfo.id;
     const pool_name = isFarm ? formatLPTokenName(stakeTokenInfo) : 'Stake ' + stakeTokenInfo.unitName;
     // TODO: separate 0 from undefined in lpTokenInfo.asset
-    const isMobileView = window.innerWidth <= 700;
+    const isMobileView = isMobile;
     const contractLockSuffix = contractState.initial.lockLengthBlocks
         ? 'with ' + blocksToText(Number(contractState.initial.lockLengthBlocks), meanRoundDuration, isMobileView) + ' lock'
         : '';
 
     const dex = isFarm ? stakeTokenInfo.poolDex : null;
 
-    return window.innerWidth <= 1120 ? (
+    return isMobile || isTablet ? (
         <PoolInfoMobile
             account={account}
             pricedAlgo={pricedAlgo}

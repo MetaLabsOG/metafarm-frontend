@@ -22,6 +22,7 @@ import { PoolLoadingAnimation } from './styled';
 import { GradientPoolContainer } from './GradientPoolCard';
 import { LoadingSpinner } from '../../../Components/LoadingSpinner';
 import { convertAmountToUSD, getPoolState } from './utils';
+import { useWindowSize } from '../../../hooks';
 
 export function Pool({
     pws,
@@ -40,6 +41,7 @@ export function Pool({
     const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null)) ?? stakeTokenInfo;
     const [ConnectWallet, openConnectWallet, closeConnectWallet, isConnectWalletOpen] = useModal('root');
     const [isOpen, setIsOpen] = useState(isForcedOpen ? true : false);
+    const { isDesktop, isTablet } = useWindowSize();
 
     const queryTimeUpdateEvent = useUnit(queryTimeUpdate);
 
@@ -77,9 +79,8 @@ export function Pool({
 
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
         // Determine if we should show the mobile action view
-        const showMobileActions = window.innerWidth <= 1120 && isOpen;
+        const showMobileActions = !isDesktop && isOpen;
         // For desktop, we show actions differently
-        const isDesktop = window.innerWidth > 1120;
         const showDesktopActions = isDesktop && isOpen;
 
         // Check if we have staked or reward values to determine if we should use compact view

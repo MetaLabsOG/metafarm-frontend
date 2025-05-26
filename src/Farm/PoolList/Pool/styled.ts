@@ -147,15 +147,17 @@ export const PoolPropertyName = styled.div`
     }
 `;
 
-export const PoolPropertyValue = styled.div`
-    color: white;
+export const PoolPropertyValue = styled.div<{ isDollarValue?: boolean }>`
+    color: ${props => props.isDollarValue ? '#8bff74' : 'white'};
     font-weight: 700;
     font-size: 16px;
-    text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+    text-shadow: ${props => props.isDollarValue 
+        ? '0 0 12px rgba(139, 255, 116, 0.4)' 
+        : '0 0 12px rgba(255, 255, 255, 0.3)'};
     transition: all 0.3s ease;
     margin-top: 3px;
     letter-spacing: 0.3px;
-    animation: subtle-glow 3s infinite alternate;
+    animation: ${props => props.isDollarValue ? 'green-glow' : 'subtle-glow'} 3s infinite alternate;
 
     @keyframes subtle-glow {
         0% {
@@ -164,14 +166,6 @@ export const PoolPropertyValue = styled.div`
         100% {
             text-shadow: 0 0 18px rgba(255, 255, 255, 0.5);
         }
-    }
-
-    /* Apply green color to dollar values */
-    &:has(> span:first-child:contains('$')),
-    &:has(> div:first-child:contains('$')) {
-        color: #8bff74;
-        text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
-        animation: green-glow 3s infinite alternate;
     }
 
     @keyframes green-glow {
@@ -186,27 +180,37 @@ export const PoolPropertyValue = styled.div`
     /* Add subtle animation on hover */
     &:hover {
         transform: translateY(-1px);
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+        text-shadow: ${props => props.isDollarValue 
+            ? '0 0 20px rgba(139, 255, 116, 0.7)' 
+            : '0 0 20px rgba(255, 255, 255, 0.6)'};
+    }
+
+    /* Respect user's motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+        animation: none !important;
+        transition: none !important;
+        
+        &:hover {
+            transform: none;
+        }
     }
 
     @media (max-width: 700px) {
         font-size: 12px;
         font-weight: 600;
         margin-top: 2px;
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        text-shadow: ${props => props.isDollarValue 
+            ? '0 0 10px rgba(139, 255, 116, 0.4)' 
+            : '0 0 10px rgba(255, 255, 255, 0.3)'};
         animation: none !important; /* Disable all animations on mobile */
         transition: none !important; /* Disable transitions */
 
         /* Simplified hover for mobile */
         &:hover {
             transform: none; /* Disable transform */
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Keep static shadow */
-        }
-
-        /* Disable green glow animation on mobile */
-        &:has(> span:first-child:contains('$')),
-        &:has(> div:first-child:contains('$')) {
-            animation: none !important;
+            text-shadow: ${props => props.isDollarValue 
+                ? '0 0 10px rgba(139, 255, 116, 0.4)' 
+                : '0 0 10px rgba(255, 255, 255, 0.3)'}; /* Keep static shadow */
         }
     }
 `;
@@ -365,6 +369,11 @@ export const PoolLoadingAnimation = styled.img`
         }
     }
 
+    @media (prefers-reduced-motion: reduce) {
+        animation: none !important;
+        margin-left: 45%; /* Center it statically */
+    }
+
     @media (max-width: 700px) {
         animation: none !important; /* Disable animation on mobile */
         margin-left: 45%; /* Center it statically */
@@ -393,6 +402,14 @@ export const RewardUSDValue = styled.div`
 
     &:hover {
         text-shadow: 0 0 20px rgba(139, 255, 116, 0.7);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none !important;
+        
+        &:hover {
+            text-shadow: 0 0 12px rgba(139, 255, 116, 0.4); /* Keep static shadow */
+        }
     }
 
     @media (max-width: 1120px) {
@@ -433,6 +450,14 @@ export const RewardTokenValue = styled.div`
 
     &:hover {
         text-shadow: 0 0 18px rgba(139, 255, 116, 0.6);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none !important;
+        
+        &:hover {
+            text-shadow: 0 0 10px rgba(139, 255, 116, 0.3); /* Keep static shadow */
+        }
     }
 
     @media (max-width: 1120px) {

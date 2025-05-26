@@ -28,6 +28,7 @@ import { PoolState } from './types';
 import { PoolActionsDesktop } from './PoolActionsDesktop';
 import { PoolActionsMobile } from './PoolActionsMobile';
 import { calculateUnlockTimeinSecs } from './UnlockTimer';
+import { useWindowSize } from '../../../hooks';
 
 export const onClickClaim = async (
     account: Account | null,
@@ -91,6 +92,7 @@ export function PoolActions({
     pricedAlgo: Priced<Asset>;
 }) {
     const isFarm = isLPTokenInfo(stakeTokenInfo);
+    const { isDesktop } = useWindowSize();
 
     const pendingClaim = useStore(ctc.apis.claim.pending);
     const meanRoundDuration = useUnit($meanRoundDuration);
@@ -133,7 +135,7 @@ export function PoolActions({
 
     return (
         <>
-            {window.innerWidth <= 1120 ? (
+            {!isDesktop ? (
                 <PoolActionsMobile
                     pricedAlgo={pricedAlgo}
                     stakedToken={stakeTokenInfo}
