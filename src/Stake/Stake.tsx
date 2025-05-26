@@ -36,6 +36,7 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
 
     return (
         <FarmContainer>
+            {window.innerWidth <= 700 && renderSliseAd()}
             <BalanceContainer>
                 <Balance kind={'distribution' as FarmType} />
                 {window.innerWidth > 700 && renderSliseAd()}
@@ -50,7 +51,6 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
             </LoadingSpinner>
 
             <InfoCards addFarmType="stake" />
-            {window.innerWidth <= 700 && renderSliseAd()}
         </FarmContainer>
     );
 });

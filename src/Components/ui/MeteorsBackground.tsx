@@ -22,10 +22,26 @@ const BackgroundContainer = styled.div`
     background-size: 100% auto;
     background-position: center top;
     background-attachment: scroll; /* Allow background to scroll with content */
-    min-height: 100%;
+    min-height: 100vh; /* Ensure minimum viewport height */
     height: auto; /* Allow container to expand with content */
     will-change: auto; /* Reset will-change to avoid memory issues */
     transform: translateZ(0); /* Use hardware acceleration but in a simple way */
+    
+    /* Ensure the background covers the entire scrollable area */
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url('/assets/background_2.png');
+      background-repeat: repeat-y;
+      background-size: 100% auto;
+      background-position: center top;
+      z-index: -1;
+      min-height: 100vh;
+    }
   }
 `;
 

@@ -145,7 +145,7 @@ export const MenuContainer = styled.div`
     justify-content: space-between;
     flex-direction: column;
     z-index: 10;
-    background: ${getOptimizedGradient('rgba(10, 10, 10, 0.1)', 'rgba(10, 10, 10, 0.15)')}; /* Almost black and more transparent */
+    background: ${getOptimizedGradient('rgba(10, 10, 10, 0.3)', 'rgba(10, 10, 10, 0.4)')}; /* Less transparent for better visibility */
     backdrop-filter: ${getOptimizedBackdropFilter('blur(10px)')};
     border-bottom: none; /* Made border invisible */
     box-shadow: ${getOptimizedBoxShadow('0 8px 24px rgba(0, 0, 0, 0.15)')};
@@ -228,7 +228,7 @@ export const BurgerMenuContainer = styled.div`
     width: 100%;
     position: fixed;
     left: 0;
-    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.3)', 'rgba(30, 30, 30, 0.4)')}; /* More transparent */
+    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.5)', 'rgba(30, 30, 30, 0.6)')}; /* Less transparent for better visibility */
     backdrop-filter: ${getOptimizedBackdropFilter('blur(10px)')};
     padding-left: 20px;
     z-index: 10;
