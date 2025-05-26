@@ -194,11 +194,19 @@ export const PoolPropertyValue = styled.div`
         font-weight: 600;
         margin-top: 2px;
         text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        animation: none !important; /* Disable all animations on mobile */
+        transition: none !important; /* Disable transitions */
 
         /* Simplified hover for mobile */
         &:hover {
-            transform: translateY(-1px);
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            transform: none; /* Disable transform */
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Keep static shadow */
+        }
+
+        /* Disable green glow animation on mobile */
+        &:has(> span:first-child:contains('$')),
+        &:has(> div:first-child:contains('$')) {
+            animation: none !important;
         }
     }
 `;
@@ -356,6 +364,11 @@ export const PoolLoadingAnimation = styled.img`
             margin-left: 90%;
         }
     }
+
+    @media (max-width: 700px) {
+        animation: none !important; /* Disable animation on mobile */
+        margin-left: 45%; /* Center it statically */
+    }
 `;
 
 export const RewardUSDValue = styled.div`
@@ -384,6 +397,15 @@ export const RewardUSDValue = styled.div`
 
     @media (max-width: 1120px) {
         text-align: center;
+    }
+
+    @media (max-width: 700px) {
+        animation: none !important; /* Disable animation on mobile */
+        text-shadow: 0 0 10px rgba(139, 255, 116, 0.4); /* Static shadow */
+        
+        &:hover {
+            text-shadow: 0 0 10px rgba(139, 255, 116, 0.4); /* No hover change */
+        }
     }
 `;
 
@@ -416,6 +438,15 @@ export const RewardTokenValue = styled.div`
     @media (max-width: 1120px) {
         text-align: center;
         justify-content: center;
+    }
+
+    @media (max-width: 700px) {
+        animation: none !important; /* Disable animation on mobile */
+        text-shadow: 0 0 8px rgba(139, 255, 116, 0.3); /* Lighter static shadow */
+        
+        &:hover {
+            text-shadow: 0 0 8px rgba(139, 255, 116, 0.3); /* No hover change */
+        }
     }
 `;
 

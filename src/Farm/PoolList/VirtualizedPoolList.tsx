@@ -8,10 +8,19 @@ import { DEBOUNCE_TIMES } from '../../utils/performance';
 // Default batch sizes for different environments
 const DEFAULT_BATCH_SIZE = 10;
 const DEFAULT_INITIAL_BATCH_SIZE = 20;
+const DEFAULT_MOBILE_INITIAL_BATCH_SIZE = 8; // Reduced for mobile performance
 
 // Get environment variables for batch sizes or use defaults
 const BATCH_SIZE = Number(process.env.REACT_APP_POOL_BATCH_SIZE) || DEFAULT_BATCH_SIZE;
 const INITIAL_BATCH_SIZE = Number(process.env.REACT_APP_POOL_INITIAL_BATCH_SIZE) || DEFAULT_INITIAL_BATCH_SIZE;
+
+// Determine initial batch size based on device type
+const getInitialBatchSize = () => {
+  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    return DEFAULT_MOBILE_INITIAL_BATCH_SIZE;
+  }
+  return INITIAL_BATCH_SIZE;
+};
 
 // Container for the virtualized list with proper styling
 const VirtualizedContainer = styled.div`
@@ -66,7 +75,7 @@ export const VirtualizedPoolList: React.FC<VirtualizedPoolListProps> = ({
 }) => {
   // State to track how many pools to render
   const [visibleCount, setVisibleCount] = useState(
-    priorityPoolId ? filteredPools.length : INITIAL_BATCH_SIZE
+    priorityPoolId ? filteredPools.length : getInitialBatchSize()
   );
 
   // State to track if we're loading more pools
@@ -158,11 +167,11 @@ export const VirtualizedPoolList: React.FC<VirtualizedPoolListProps> = ({
     // or if the filtered pools array has actually changed in length
     setVisibleCount(prev => {
       // If user has loaded more than initial batch, don't reset unless pools array changed
-      if (prev > INITIAL_BATCH_SIZE && prev <= filteredPools.length) {
+      if (prev > getInitialBatchSize() && prev <= filteredPools.length) {
         return prev; // Keep the current count
       }
       // Otherwise, reset to initial batch size
-      return Math.min(INITIAL_BATCH_SIZE, filteredPools.length);
+      return Math.min(getInitialBatchSize(), filteredPools.length);
     });
   }, [filteredPools.length, priorityPoolId]); // Only depend on length, not the entire array
 
