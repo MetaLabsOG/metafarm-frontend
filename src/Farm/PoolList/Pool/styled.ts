@@ -320,8 +320,10 @@ export const PoolActionsMobileContainer = styled.div`
     justify-content: left;
     width: 100%;
     margin-top: 0;
-    padding-right: 15px;
-    padding-left: 15px;
+    padding-right: 20px;
+    padding-left: 20px;
+    padding-top: 10px;
+    padding-bottom: 20px;
     /* Removed display: none to allow inline style to work properly */
 
     @media (min-width: 1120px) {

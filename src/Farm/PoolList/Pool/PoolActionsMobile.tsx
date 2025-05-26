@@ -36,7 +36,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     const account = useUnit($account);
     return (
         <PoolActionsMobileContainer>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}> {/* Reduced from 30px */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', alignItems: 'center' }}>
                 <ButtonBackMobile
                     src={arrowBack}
                     alt="BACK"
@@ -53,6 +53,21 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                         />
                     )}
                 </TokenInfo>
+                <div 
+                    style={{ 
+                        fontSize: '24px', 
+                        color: 'rgba(255, 255, 255, 0.6)',
+                        cursor: 'pointer',
+                        padding: '5px',
+                        marginRight: '10px',
+                        transition: 'color 0.2s ease'
+                    }}
+                    onClick={() => setIsZapModalOpen(false)}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.9)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)'}
+                >
+                    ×
+                </div>
             </div>
             <TokenInputWithButton
                 style={!canStake ? { visibility: 'hidden' } : {}}

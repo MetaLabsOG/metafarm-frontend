@@ -101,7 +101,6 @@ export function Pool({
             <GradientPoolContainer
                 className={`pool-container ${useCompactView ? 'compact' : ''}`}
                 style={{
-                    height: showMobileActions ? '420px' : 'auto', // Only set fixed height when actions are visible
                     cursor: 'pointer', // Add cursor pointer to indicate clickable area
                     position: 'relative',
                     transition: 'height 0.3s ease'
@@ -160,28 +159,53 @@ export function Pool({
                             opacity: showMobileActions ? 1 : 0,
                             visibility: showMobileActions ? 'visible' : 'hidden',
                             transition: 'opacity 0.2s ease',
-                            position: showMobileActions ? 'relative' : 'absolute',
-                            width: '100%',
+                            position: 'fixed',
                             top: 0,
-                            left: 0
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+                            zIndex: 1000,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '20px',
+                            overflowY: 'auto'
                         }}
                         onClick={(e) => {
-                            // Prevent clicks inside the actions from closing the view
-                            e.stopPropagation();
+                            // Close when clicking the backdrop
+                            if (e.target === e.currentTarget) {
+                                setIsOpen(false);
+                            }
                         }}
                     >
-                        <PoolActions
-                            poolState={poolState}
-                            ctc={contract.ctc}
-                            contractState={contract.state}
-                            stakeTokenInfo={stakeTokenInfo}
-                            rewardTokenInfo={rewardTokenInfo}
-                            setIsZapModalOpen={setIsOpen}
-                            currentBlock={currentBlock}
-                            contractId={contract.id}
-                            contractVersion={contract.info.version}
-                            pricedAlgo={pricedAlgo}
-                        />
+                        <div
+                            style={{
+                                backgroundColor: 'rgba(10, 10, 10, 0.98)',
+                                borderRadius: '16px',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
+                                width: '100%',
+                                maxWidth: '400px',
+                                maxHeight: '90vh',
+                                overflowY: 'auto',
+                                position: 'relative'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <PoolActions
+                                poolState={poolState}
+                                ctc={contract.ctc}
+                                contractState={contract.state}
+                                stakeTokenInfo={stakeTokenInfo}
+                                rewardTokenInfo={rewardTokenInfo}
+                                setIsZapModalOpen={setIsOpen}
+                                currentBlock={currentBlock}
+                                contractId={contract.id}
+                                contractVersion={contract.info.version}
+                                pricedAlgo={pricedAlgo}
+                            />
+                        </div>
                     </div>
                 )}
                 <ConnectWallet>
