@@ -154,9 +154,17 @@ export const VirtualizedPoolList: React.FC<VirtualizedPoolListProps> = ({
       return;
     }
 
-    // Otherwise, show the initial batch
-    setVisibleCount(prev => Math.min(INITIAL_BATCH_SIZE, filteredPools.length));
-  }, [filteredPools, priorityPoolId]);
+    // Only reset to initial batch if the user hasn't loaded more pools yet
+    // or if the filtered pools array has actually changed in length
+    setVisibleCount(prev => {
+      // If user has loaded more than initial batch, don't reset unless pools array changed
+      if (prev > INITIAL_BATCH_SIZE && prev <= filteredPools.length) {
+        return prev; // Keep the current count
+      }
+      // Otherwise, reset to initial batch size
+      return Math.min(INITIAL_BATCH_SIZE, filteredPools.length);
+    });
+  }, [filteredPools.length, priorityPoolId]); // Only depend on length, not the entire array
 
   // Render only the visible pools
   const visiblePools = filteredPools.slice(0, visibleCount);
