@@ -131,18 +131,25 @@ export function Pool({
 
                     {/* Show desktop actions below the pool info when open */}
                     {isDesktop && contract.ctc !== null && hasLocalState(contract.state) && showDesktopActions && (
-                        <PoolActions
-                            poolState={poolState}
-                            ctc={contract.ctc}
-                            contractState={contract.state}
-                            stakeTokenInfo={stakeTokenInfo}
-                            rewardTokenInfo={rewardTokenInfo}
-                            setIsZapModalOpen={setIsOpen}
-                            currentBlock={currentBlock}
-                            contractId={contract.id}
-                            contractVersion={contract.info.version}
-                            pricedAlgo={pricedAlgo}
-                        />
+                        <div
+                            onClick={(e) => {
+                                // Prevent clicks inside the actions from closing the view
+                                e.stopPropagation();
+                            }}
+                        >
+                            <PoolActions
+                                poolState={poolState}
+                                ctc={contract.ctc}
+                                contractState={contract.state}
+                                stakeTokenInfo={stakeTokenInfo}
+                                rewardTokenInfo={rewardTokenInfo}
+                                setIsZapModalOpen={setIsOpen}
+                                currentBlock={currentBlock}
+                                contractId={contract.id}
+                                contractVersion={contract.info.version}
+                                pricedAlgo={pricedAlgo}
+                            />
+                        </div>
                     )}
                 </div>
 
@@ -157,6 +164,10 @@ export function Pool({
                             width: '100%',
                             top: 0,
                             left: 0
+                        }}
+                        onClick={(e) => {
+                            // Prevent clicks inside the actions from closing the view
+                            e.stopPropagation();
                         }}
                     >
                         <PoolActions
