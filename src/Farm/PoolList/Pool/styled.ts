@@ -1,5 +1,21 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { theme } from '../../../theme';
+import { getPerformanceManager } from '../../../utils/performanceCache';
+
+// Get performance settings
+const getPerformanceSettings = () => {
+  try {
+    return getPerformanceManager().getSettings();
+  } catch {
+    // Fallback to conservative settings if performance manager fails
+    return {
+      animationsEnabled: false,
+      transitionsEnabled: false,
+      shadowsEnabled: false,
+      blurEnabled: false,
+    };
+  }
+};
 
 export const PoolContainer = styled.div`
     display: flex;
@@ -151,13 +167,24 @@ export const PoolPropertyValue = styled.div<{ isDollarValue?: boolean }>`
     color: ${props => props.isDollarValue ? '#8bff74' : 'white'};
     font-weight: 700;
     font-size: 16px;
-    text-shadow: ${props => props.isDollarValue 
-        ? '0 0 12px rgba(139, 255, 116, 0.4)' 
-        : '0 0 12px rgba(255, 255, 255, 0.3)'};
-    transition: all 0.3s ease;
+    text-shadow: ${props => {
+        const settings = getPerformanceSettings();
+        if (!settings.shadowsEnabled) return 'none';
+        return props.isDollarValue 
+            ? '0 0 12px rgba(139, 255, 116, 0.4)' 
+            : '0 0 12px rgba(255, 255, 255, 0.3)';
+    }};
+    transition: ${() => {
+        const settings = getPerformanceSettings();
+        return settings.transitionsEnabled ? 'all 0.3s ease' : 'none';
+    }};
     margin-top: 3px;
     letter-spacing: 0.3px;
-    animation: ${props => props.isDollarValue ? 'green-glow' : 'subtle-glow'} 3s infinite alternate;
+    animation: ${props => {
+        const settings = getPerformanceSettings();
+        if (!settings.animationsEnabled) return 'none';
+        return props.isDollarValue ? 'green-glow' : 'subtle-glow';
+    }} 3s infinite alternate;
 
     @keyframes subtle-glow {
         0% {
@@ -173,45 +200,20 @@ export const PoolPropertyValue = styled.div<{ isDollarValue?: boolean }>`
             text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
         }
         100% {
-            text-shadow: 0 0 18px rgba(139, 255, 116, 0.6);
+            text-shadow: 0 0 20px rgba(139, 255, 116, 0.7);
         }
     }
 
-    /* Add subtle animation on hover */
-    &:hover {
-        transform: translateY(-1px);
-        text-shadow: ${props => props.isDollarValue 
-            ? '0 0 20px rgba(139, 255, 116, 0.7)' 
-            : '0 0 20px rgba(255, 255, 255, 0.6)'};
-    }
-
-    /* Respect user's motion preferences */
     @media (prefers-reduced-motion: reduce) {
         animation: none !important;
         transition: none !important;
-        
-        &:hover {
-            transform: none;
-        }
+        text-shadow: ${props => props.isDollarValue ? '#8bff74' : 'rgba(255, 255, 255, 0.3)'} 0 0 0 !important;
     }
 
     @media (max-width: 700px) {
-        font-size: 12px;
-        font-weight: 600;
-        margin-top: 2px;
-        text-shadow: ${props => props.isDollarValue 
-            ? '0 0 10px rgba(139, 255, 116, 0.4)' 
-            : '0 0 10px rgba(255, 255, 255, 0.3)'};
-        animation: none !important; /* Disable all animations on mobile */
-        transition: none !important; /* Disable transitions */
-
-        /* Simplified hover for mobile */
-        &:hover {
-            transform: none; /* Disable transform */
-            text-shadow: ${props => props.isDollarValue 
-                ? '0 0 10px rgba(139, 255, 116, 0.4)' 
-                : '0 0 10px rgba(255, 255, 255, 0.3)'}; /* Keep static shadow */
-        }
+        animation: none !important;
+        transition: none !important;
+        text-shadow: none !important;
     }
 `;
 
@@ -604,3 +606,4 @@ export const PoolInfoGridCellSmall = styled(PoolInfoGridCell)`
     background: linear-gradient(270deg, rgba(81, 221, 78, 0.02) 0%, rgba(10, 10, 10, 0.02) 30.46%), rgba(0, 0, 0, 0.1);
     min-height: 55px;
 `;
+

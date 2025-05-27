@@ -1,1 +1,2 @@
-export { useWindowSize } from './useWindowSize'; 
+export { useWindowSize } from './useWindowSize';
+export { usePerformanceOptimization } from './usePerformanceOptimization'; 

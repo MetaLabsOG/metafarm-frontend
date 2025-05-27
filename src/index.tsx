@@ -17,6 +17,8 @@ import ReactGA from 'react-ga';
 import GlobalStyle from './common/globalStyles';
 import { MeteorsBackground } from './Components/ui/MeteorsBackground';
 import { injectMobileOptimizations } from './utils/mobileOptimizations';
+import { usePerformanceOptimization } from './hooks';
+import { PerformanceIndicator } from './Components/PerformanceIndicator';
 
 import { Menu } from './Menu';
 import { Farm } from './Farm';
@@ -94,6 +96,8 @@ const modalComponents = {
 
 function App() {
     const account = useUnit($account);
+    const { reportSuccessfulLoad, reportCrash, isFirstVisit, shouldUseConservativeMode } = usePerformanceOptimization();
+    
     const localstorageAddress = localStorage.getItem('walletAddress');
     let user_address: string | undefined = undefined;
     if (localstorageAddress) {
@@ -113,6 +117,37 @@ function App() {
     useEffect(() => {
         injectMobileOptimizations();
     }, []);
+
+    // Performance monitoring
+    useEffect(() => {
+        const handleLoad = () => {
+            reportSuccessfulLoad();
+        };
+
+        const handleError = (error: ErrorEvent) => {
+            console.error('App error:', error);
+            reportCrash();
+        };
+
+        const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            reportCrash();
+        };
+
+        // Report successful load when all critical resources are loaded
+        if (farmsFetch.isSuccess && distrFetch.isSuccess) {
+            handleLoad();
+        }
+
+        // Listen for errors
+        window.addEventListener('error', handleError);
+        window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+        return () => {
+            window.removeEventListener('error', handleError);
+            window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+        };
+    }, [farmsFetch.isSuccess, distrFetch.isSuccess, reportSuccessfulLoad, reportCrash]);
 
     useEffect(() => {
         if (farmsFetch.isSuccess) {
@@ -139,6 +174,7 @@ function App() {
     return (
         <>
             <GlobalStyle />
+            <PerformanceIndicator />
             <ToastContainer limit={3} theme="colored" position="bottom-right" transition={Flip} />
             <ThemeProvider theme={theme}>
                 <ModalProvider preventScroll components={modalComponents}>
