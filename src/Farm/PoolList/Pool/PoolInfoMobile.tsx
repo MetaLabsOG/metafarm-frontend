@@ -9,6 +9,7 @@ import {
     PoolPropertyName,
     PoolPropertyValue,
     TimingMobile,
+    APRPercentage,
 } from './styled';
 import { GradientGridCell, GradientStakeButton } from './GradientPoolCard';
 import { convertAmountToUSD, numberRound } from './utils';
@@ -117,8 +118,8 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                 <GradientGridCell>
                     <PoolPropertyName>APR</PoolPropertyName>
                     <PoolPropertyValue>
-                        <span style={{ display: 'flex', alignItems: 'right', justifyContent: 'center' }}>
-                            {numberRound(APR.total)}%
+                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <APRPercentage>{numberRound(APR.total)}%</APRPercentage>
                             <img
                                 data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
                                 style={{ marginLeft: '5px', opacity: 0.8 }}

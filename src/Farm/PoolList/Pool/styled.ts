@@ -138,6 +138,7 @@ export const PoolPropertyName = styled.div`
     font-weight: 500;
     text-shadow: 0 0 8px rgba(200, 200, 200, 0.15);
     position: relative;
+    text-align: center; /* Center the label text */
 
     /* Add subtle underline */
     &::after {
@@ -155,6 +156,7 @@ export const PoolPropertyName = styled.div`
         font-size: 8px;
         margin-bottom: 2px;
         letter-spacing: 0.5px;
+        text-align: center; /* Ensure center alignment on mobile */
 
         &::after {
             width: 18px;
@@ -164,14 +166,14 @@ export const PoolPropertyName = styled.div`
 `;
 
 export const PoolPropertyValue = styled.div<{ isDollarValue?: boolean }>`
-    color: ${props => props.isDollarValue ? '#8bff74' : 'white'};
+    color: ${props => props.isDollarValue ? 'white' : 'white'}; /* Make TVL values white */
     font-weight: 700;
-    font-size: 16px;
+    font-size: 18px; /* Make all values the same size - 18px for desktop */
     text-shadow: ${props => {
         const settings = getPerformanceSettings();
         if (!settings.shadowsEnabled) return 'none';
         return props.isDollarValue 
-            ? '0 0 12px rgba(139, 255, 116, 0.4)' 
+            ? 'none' /* Remove glow from dollar values */
             : '0 0 12px rgba(255, 255, 255, 0.3)';
     }};
     transition: ${() => {
@@ -180,10 +182,15 @@ export const PoolPropertyValue = styled.div<{ isDollarValue?: boolean }>`
     }};
     margin-top: 3px;
     letter-spacing: 0.3px;
+    text-align: center; /* Center the value text */
+    display: flex;
+    justify-content: center; /* Ensure proper centering */
+    align-items: center;
+    width: 100%;
     animation: ${props => {
         const settings = getPerformanceSettings();
-        if (!settings.animationsEnabled) return 'none';
-        return props.isDollarValue ? 'green-glow' : 'subtle-glow';
+        if (!settings.animationsEnabled || props.isDollarValue) return 'none'; /* No animation for dollar values */
+        return 'subtle-glow';
     }} 3s infinite alternate;
 
     @keyframes subtle-glow {
@@ -207,13 +214,21 @@ export const PoolPropertyValue = styled.div<{ isDollarValue?: boolean }>`
     @media (prefers-reduced-motion: reduce) {
         animation: none !important;
         transition: none !important;
-        text-shadow: ${props => props.isDollarValue ? '#8bff74' : 'rgba(255, 255, 255, 0.3)'} 0 0 0 !important;
+        text-shadow: ${props => props.isDollarValue ? 'none' : 'rgba(255, 255, 255, 0.3)'} 0 0 0 !important;
+    }
+
+    @media (max-width: 1120px) {
+        font-size: 16px; /* Slightly smaller for tablet */
+        text-align: center;
+        justify-content: center;
     }
 
     @media (max-width: 700px) {
         animation: none !important;
         transition: none !important;
         text-shadow: none !important;
+        font-size: ${props => props.isDollarValue ? '12px' : '14px'}; /* Even smaller on mobile */
+        text-align: center; /* Ensure center alignment on mobile */
     }
 `;
 
@@ -221,6 +236,7 @@ export const PoolInfoValue = styled.div<{ width?: string }>`
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center; /* Center align content */
     width: ${({ width }) => width};
     white-space: nowrap;
     font-family: 'Montserrat';
@@ -229,10 +245,12 @@ export const PoolInfoValue = styled.div<{ width?: string }>`
     font-size: 18px;
     line-height: 22px;
     color: var(--lightGray);
+    text-align: center; /* Ensure text is centered */
 
     @media (max-width: 1120px) {
         flex-direction: row;
         justify-content: space-between;
+        align-items: center; /* Keep center alignment for tablet */
         width: 100%;
         font-size: 18px;
         color: ${theme.gray};
@@ -385,6 +403,7 @@ export const PoolLoadingAnimation = styled.img`
 export const RewardUSDValue = styled.div`
     color: #8bff74;
     font-weight: 600;
+    font-size: 18px; /* Match other desktop values */
     text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
     text-align: center;
     width: 100%;
@@ -416,11 +435,13 @@ export const RewardUSDValue = styled.div`
 
     @media (max-width: 1120px) {
         text-align: center;
+        font-size: 16px; /* Slightly smaller for tablet */
     }
 
     @media (max-width: 700px) {
         animation: none !important; /* Disable animation on mobile */
         text-shadow: 0 0 10px rgba(139, 255, 116, 0.4); /* Static shadow */
+        font-size: 14px; /* Smaller for mobile */
         
         &:hover {
             text-shadow: 0 0 10px rgba(139, 255, 116, 0.4); /* No hover change */
@@ -605,5 +626,30 @@ export const PoolInfoGridCellSmall = styled(PoolInfoGridCell)`
     color: #a1a1a1;
     background: linear-gradient(270deg, rgba(81, 221, 78, 0.02) 0%, rgba(10, 10, 10, 0.02) 30.46%), rgba(0, 0, 0, 0.1);
     min-height: 55px;
+`;
+
+// Add new styled component for pool titles
+export const PoolTitle = styled.div`
+    font-weight: 700; /* Make pool titles bold */
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    margin-bottom: 4px;
+
+    @media (max-width: 700px) {
+        font-size: 14px;
+        font-weight: 700; /* Keep bold on mobile */
+        margin-bottom: 3px;
+    }
+`;
+
+// Update the APR percentage styling
+export const APRPercentage = styled.span`
+    font-size: 14px; /* Smaller font for APR percentage */
+    font-weight: 600;
+    
+    @media (max-width: 700px) {
+        font-size: 12px; /* Even smaller on mobile */
+    }
 `;
 

@@ -49,13 +49,14 @@ export const PoolTitle = styled.div`
     text-overflow: ellipsis;
     max-width: 160px;
     letter-spacing: 0.2px;
-    font-weight: 500;
+    font-weight: 700;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 
     @media (max-width: 1120px) {
         font-size: 10px;
         max-width: 140px;
         line-height: 1.1;
+        font-weight: 700;
     }
 
     @media (max-width: 700px) {
@@ -63,6 +64,7 @@ export const PoolTitle = styled.div`
         max-width: 90px;
         line-height: 1.1;
         letter-spacing: 0;
+        font-weight: 700;
     }
 `;
 

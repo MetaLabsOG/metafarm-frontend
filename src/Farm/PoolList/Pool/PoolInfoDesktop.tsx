@@ -84,11 +84,11 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedA
     return (
         <div style={{
             display: 'flex',
-            alignItems: 'start',
-            justifyContent: 'left',
-            width: '60%',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
             position: 'relative',
-            textAlign: 'start',
+            textAlign: 'center',
         }}>
             <RewardUSDValue>
                 ${usdValue}
