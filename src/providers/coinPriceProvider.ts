@@ -8,7 +8,7 @@ type Rate = {
 };
 
 const instance = axios.create({
-    baseURL: 'https://free-api.vestige.fi',
+    baseURL: 'https://api.vestigelabs.org',
 });
 
 export async function getAlgoRateFromVestige(): Promise<Rate | null> {
