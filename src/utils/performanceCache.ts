@@ -23,7 +23,7 @@ const DEVICE_CAPABILITY_KEY = 'cometa_device_capability';
 
 // Conservative settings for first-time visitors or struggling devices
 const CONSERVATIVE_SETTINGS: PerformanceSettings = {
-  batchSize: 5,
+  batchSize: 3, // Reduced from 5 to prevent mobile crashes
   animationsEnabled: false,
   transitionsEnabled: false,
   shadowsEnabled: false,
@@ -35,7 +35,7 @@ const CONSERVATIVE_SETTINGS: PerformanceSettings = {
 
 // Balanced settings for proven devices
 const BALANCED_SETTINGS: PerformanceSettings = {
-  batchSize: 10,
+  batchSize: 8, // Reduced from 10 for better mobile performance
   animationsEnabled: true,
   transitionsEnabled: true,
   shadowsEnabled: false,
@@ -131,8 +131,11 @@ class PerformanceManager {
   }
 
   private determineInitialSettings(): PerformanceSettings {
-    // Always start conservative for first-time visitors
-    if (this.capability.isFirstVisit) {
+    // Check if mobile device - force conservative settings
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    
+    // Always start conservative for first-time visitors or mobile devices
+    if (this.capability.isFirstVisit || isMobile) {
       return { ...CONSERVATIVE_SETTINGS };
     }
 

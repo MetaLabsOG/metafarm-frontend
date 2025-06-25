@@ -33,16 +33,7 @@ const ScoreText = styled.div`
 `;
 
 export function PerformanceIndicator() {
-  const { isFirstVisit, shouldUseConservativeMode, performanceScore } = usePerformanceOptimization();
-  
-  const showIndicator = isFirstVisit || shouldUseConservativeMode();
-  
-  if (!showIndicator) return null;
-  
-  return (
-    <IndicatorContainer show={showIndicator}>
-      {isFirstVisit ? '🚀 Optimizing for your device...' : '⚡ Performance mode'}
-      <ScoreText>Score: {performanceScore}/100</ScoreText>
-    </IndicatorContainer>
-  );
+  // Performance monitoring is still active in the background
+  // but we don't show the indicator to users anymore
+  return null;
 } 

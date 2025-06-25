@@ -10,23 +10,23 @@ import {
 
 // Enhanced pool container with gradient background
 const GradientPoolContainer = styled(PoolContainer)`
-  /* Base gradient background */
+  /* Force simple background on mobile */
   background: ${isMobileDevice() 
-    ? 'rgba(10, 10, 10, 0.2)' 
+    ? 'rgba(10, 10, 10, 0.2) !important' 
     : `linear-gradient(
         135deg,
         rgba(10, 10, 10, 0.01) 0%,
         rgba(10, 10, 10, 0.01) 50%
       ), rgba(10, 10, 10, 0.15)`};
 
-  /* Add backdrop blur for transparency effect */
-  backdrop-filter: ${getOptimizedBackdropFilter('blur(8px)')};
+  /* Ensure no backdrop blur on mobile */
+  backdrop-filter: ${isMobileDevice() ? 'none !important' : getOptimizedBackdropFilter('blur(8px)')};
 
-  /* Add subtle glow effect */
-  box-shadow: ${getOptimizedBoxShadow('0 8px 16px rgba(0, 0, 0, 0.1), 0 0 20px rgba(0, 0, 0, 0.05)')};
+  /* Remove box shadow on mobile completely */
+  box-shadow: ${isMobileDevice() ? 'none !important' : getOptimizedBoxShadow('0 8px 16px rgba(0, 0, 0, 0.1), 0 0 20px rgba(0, 0, 0, 0.05)')};
 
-  /* Smooth transition for hover effects - disabled on mobile */
-  transition: ${isMobileDevice() ? 'none' : 'all 0.3s ease'};
+  /* No transition on mobile */
+  transition: ${isMobileDevice() ? 'none !important' : 'all 0.3s ease'};
 
   /* Enhanced hover effect - only on desktop */
   ${!isMobileDevice() && css`

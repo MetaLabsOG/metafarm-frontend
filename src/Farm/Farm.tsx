@@ -1,5 +1,5 @@
 import { createComponent, useUnit } from 'effector-react';
-import { SliseAd } from '@slise/embed-react';
+// import { SliseAd } from '@slise/embed-react'; // Temporarily disabled due to loading errors
 import { FarmType } from '../common/store';
 import { InfoCard } from '../Components/InfoCard/InfoCard';
 import governance from '../imgs/folks.jpeg';
@@ -33,12 +33,14 @@ export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
 };
 
 export const renderSliseAd = () => (
-    <SliseAd
-        style={{ minWidth: '270px', width: '270px', height: '90px' }}
-        slotId="banner"
-        pub="pub-2"
-        format="270x90"
-    />
+    // Temporarily disabled Slise ad due to loading errors
+    // <SliseAd
+    //     style={{ minWidth: '270px', width: '270px', height: '90px' }}
+    //     slotId="banner"
+    //     pub="pub-2"
+    //     format="270x90"
+    // />
+    <div style={{ minWidth: '270px', width: '270px', height: '90px' }} /> // Placeholder
 );
 
 export const renderGovPromo = () => (

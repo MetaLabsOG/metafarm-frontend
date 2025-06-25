@@ -29,17 +29,32 @@ export const PoolContainer = styled.div`
     padding: 15px 0 15px 0; /* Reduced vertical padding from 20px to 15px */
     border-radius: 10px;
     background: linear-gradient(270deg, rgba(10, 10, 10, 0.01) 0%, rgba(10, 10, 10, 0.01) 30.46%), rgba(10, 10, 10, 0.05);
-    backdrop-filter: blur(8px);
+    backdrop-filter: ${() => {
+        const settings = getPerformanceSettings();
+        return settings.blurEnabled ? 'blur(8px)' : 'none';
+    }};
     backdrop-saturate: 150%;
     border: 1px solid rgba(0, 0, 0, 0.2);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    will-change: transform;
-    transition: all 0.3s ease;
+    box-shadow: ${() => {
+        const settings = getPerformanceSettings();
+        return settings.shadowsEnabled ? '0 8px 16px rgba(0, 0, 0, 0.1)' : 'none';
+    }};
+    /* Removed will-change to prevent GPU layer creation */
+    transition: ${() => {
+        const settings = getPerformanceSettings();
+        return settings.transitionsEnabled ? 'all 0.3s ease' : 'none';
+    }};
     translate: z-0;
 
     &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 20px rgba(0, 255, 41, 0.1);
+        transform: ${() => {
+            const settings = getPerformanceSettings();
+            return settings.animationsEnabled ? 'translateY(-2px)' : 'none';
+        }};
+        box-shadow: ${() => {
+            const settings = getPerformanceSettings();
+            return settings.shadowsEnabled ? '0 12px 20px rgba(0, 255, 41, 0.1)' : 'none';
+        }};
         border: 1px solid rgba(66, 201, 63, 0.2);
         background: linear-gradient(270deg, rgba(10, 10, 10, 0.02) 0%, rgba(10, 10, 10, 0.02) 30.46%), rgba(10, 10, 10, 0.1);
     }
@@ -48,10 +63,9 @@ export const PoolContainer = styled.div`
         height: auto; /* Changed from fixed 420px to auto */
         min-height: 180px; /* Set minimum height for compact view */
         justify-content: center;
-        perspective: 1000px;
-        transition: all 0.3s ease;
-        transform-style: preserve-3d;
-        background: linear-gradient(270deg, rgba(10, 10, 10, 0.01) 0%, rgba(10, 10, 10, 0.01) 30.46%), rgba(10, 10, 10, 0.2);
+        /* Removed perspective and transform-style for better performance */
+        transition: none;
+        background: rgba(10, 10, 10, 0.2); /* Simplified to solid color */
 
         /* Compact view for pools with no staked/reward values */
         &.compact {
@@ -60,8 +74,8 @@ export const PoolContainer = styled.div`
         }
 
         :hover {
-            background: linear-gradient(270deg, rgba(10, 10, 10, 0.02) 0%, rgba(10, 10, 10, 0.02) 30.46%), rgba(10, 10, 10, 0.25);
-            transform: translateY(-2px);
+            background: rgba(10, 10, 10, 0.25); /* Simplified hover background */
+            transform: none; /* Disabled transform on mobile */
         }
     }
 
@@ -78,6 +92,11 @@ export const PoolContainer = styled.div`
         box-sizing: border-box; /* Include padding in width calculation */
         padding: 10px 0 10px 0; /* Further reduced padding for mobile */
         min-width: 0; /* Prevent overflow */
+        /* Force disable expensive effects on mobile */
+        backdrop-filter: none !important;
+        box-shadow: none !important;
+        transition: none !important;
+        animation: none !important;
     }
 `;
 
