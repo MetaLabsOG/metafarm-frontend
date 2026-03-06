@@ -172,6 +172,14 @@ The app integrates with multiple DEXes on Algorand:
 - Performance scoring system adapts to device capabilities
 - Crash detection and recovery for struggling devices
 
+## Commit Discipline
+
+- Always commit after completing a task or logical unit of work — never leave finished work uncommitted
+- Use lowercase verb, concise English: `add`, `fix`, `update`, `remove`, `refactor`
+- Push after committing unless explicitly told not to
+- If changes need review, commit anyway — better to fix in a follow-up than leave uncommitted
+- Update task board status before committing the related work
+
 ## Task Board
 
 Tasks in `BOARD.md`. Format: pantheon.
