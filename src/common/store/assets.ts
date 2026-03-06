@@ -44,13 +44,33 @@ export const ALGO_ASSET: Asset = {
     decimals: 6,
 };
 
+// Concurrency limiter: max 5 parallel algod requests to avoid 429 rate limits
+const ALGOD_MAX_CONCURRENT = 5;
+let _algodInFlight = 0;
+const _algodQueue: Array<() => void> = [];
+
+async function withAlgodConcurrency<T>(fn: () => Promise<T>): Promise<T> {
+    if (_algodInFlight >= ALGOD_MAX_CONCURRENT) {
+        await new Promise<void>((resolve) => _algodQueue.push(resolve));
+    }
+    _algodInFlight++;
+    try {
+        return await fn();
+    } finally {
+        _algodInFlight--;
+        if (_algodQueue.length > 0) {
+            _algodQueue.shift()!();
+        }
+    }
+}
+
 const fetchAssetFx = createEffect(
     nonConcurrent(async (id: AssetId): Promise<Asset> => {
         const savedAssetString = localStorage.getItem(`asset_${id}`);
         if (savedAssetString) {
             return JSON.parse(savedAssetString) as Asset;
         }
-        const { params } = await algod.getAssetByID(id).do();
+        const { params } = await withAlgodConcurrency(() => algod.getAssetByID(id).do());
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { creator, reserve, decimals } = params;
 

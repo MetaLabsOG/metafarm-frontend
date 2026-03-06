@@ -144,7 +144,17 @@ function App() {
         };
 
         const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-            console.error('Unhandled promise rejection:', event.reason);
+            // Don't count API rate limits (429) or network errors as app crashes
+            const reason = event.reason;
+            const isNetworkError = reason?.response?.status === 429 ||
+                reason?.message?.includes('Too Many Requests') ||
+                reason?.message?.includes('Network Error') ||
+                reason?.message?.includes('Failed to fetch');
+            if (isNetworkError) {
+                console.warn('API rate limit or network error (not a crash):', reason?.message || reason);
+                return;
+            }
+            console.error('Unhandled promise rejection:', reason);
             reportCrash();
         };
 
@@ -163,17 +173,18 @@ function App() {
         };
     }, [farmsFetch.isSuccess, distrFetch.isSuccess, reportSuccessfulLoad, reportCrash]);
 
-    useEffect(() => {
-        if (farmsFetch.isSuccess && farmsFetch.data) {
-            const data = farmsFetch.data as Array<ContractInfo<'farm'>>;
-            setPoolInfosEvent(data);
-        }
-    }, [farmsFetch.isSuccess, farmsFetch.data]);
+    // Pre-populate enriched data FIRST, then set pool infos.
+    // Order matters: enriched pre-populates assets, prices, and LP states so that
+    // when setPoolInfos triggers registerAsset → assetAvailable → LP sample,
+    // the LP data is already in $lpTokenInfos and the sample skips DEX SDK calls.
+    const [enrichedLoaded, setEnrichedLoaded] = useState(false);
 
-    // Pre-populate assets, prices, and LP states from enriched endpoint to avoid per-asset HTTP requests
     useEffect(() => {
         getFarmEnriched().then((enriched) => {
-            if (!enriched) return;
+            if (!enriched) {
+                setEnrichedLoaded(true);
+                return;
+            }
 
             // Pre-populate asset details (avoids individual algod calls)
             const assetsList = Object.values(enriched.assets).map((a) => ({
@@ -207,8 +218,20 @@ function App() {
                     prePopulateLpTokenInfos(lpItems);
                 }
             }
+
+            setEnrichedLoaded(true);
+        }).catch(() => {
+            setEnrichedLoaded(true);
         });
     }, []);
+
+    // Set pool infos only AFTER enriched data is loaded to prevent DEX SDK cascade
+    useEffect(() => {
+        if (enrichedLoaded && farmsFetch.isSuccess && farmsFetch.data) {
+            const data = farmsFetch.data as Array<ContractInfo<'farm'>>;
+            setPoolInfosEvent(data);
+        }
+    }, [enrichedLoaded, farmsFetch.isSuccess, farmsFetch.data]);
 
     useEffect(() => {
         if (distrFetch.isSuccess && distrFetch.data) {
