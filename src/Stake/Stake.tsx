@@ -9,6 +9,7 @@ import { initializeFarmContract } from '../Farm/store';
 import governance from '../imgs/folks.jpeg';
 import { $sortedStakePoolsWithStats, initializeDistributionContract } from './store';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
+import { useWindowSize } from '../hooks';
 
 export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state) => {
     const initStake = useUnit(initializeFarmContract);
@@ -34,14 +35,15 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
         <div style={{ minWidth: '270px', width: '270px', height: '90px' }} /> // Placeholder
     );
 
+    const { isMobile } = useWindowSize();
     const isLoading = !state || state.length === 0;
 
     return (
         <FarmContainer>
-            {window.innerWidth <= 700 && renderSliseAd()}
+            {isMobile && renderSliseAd()}
             <BalanceContainer>
                 <Balance kind={'distribution' as FarmType} />
-                {window.innerWidth > 700 && renderSliseAd()}
+                {!isMobile && renderSliseAd()}
             </BalanceContainer>
 
             <LoadingSpinner

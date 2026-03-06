@@ -87,17 +87,6 @@ export const AmountValue = styled.div`
     transition: all 0.3s ease;
     font-feature-settings: "tnum" on, "lnum" on;
     font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
-    animation: amount-glow 3s infinite alternate;
-
-    @keyframes amount-glow {
-        0% {
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
-        }
-        100% {
-            text-shadow: 0 0 18px rgba(255, 255, 255, 0.6);
-        }
-    }
-
     ${AmountContainer}:hover & {
         text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
         transform: scale(1.05);
@@ -110,7 +99,6 @@ export const AmountValue = styled.div`
     &.non-zero {
         color: white;
         text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
-        animation: amount-glow 3s infinite alternate;
     }
 `;
 

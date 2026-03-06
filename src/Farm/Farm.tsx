@@ -10,9 +10,12 @@ import { BalanceContainer, FarmContainer, GovImg } from './styled';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
 import { Button } from '../Components/Button/Button';
 import { collectFees } from '../collectFees';
+import { useWindowSize } from '../hooks';
 
 export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
-    if (window.innerWidth <= 1120) {
+    const { isDesktop } = useWindowSize();
+
+    if (!isDesktop) {
         return null;
     }
 
@@ -68,15 +71,16 @@ export const renderRandomAd = (): JSX.Element => {
 
 export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => {
     const initEvent = useUnit(initializeFarmContract);
+    const { isMobile } = useWindowSize();
     const isLoading = !state || state.length === 0;
 
     return (
         <FarmContainer>
             <Button onClick={collectFees} buttonText={'COLLECT FEES'} />
-            {window.innerWidth <= 700 && renderSliseAd()}
+            {isMobile && renderSliseAd()}
             <BalanceContainer>
                 <Balance kind={'farm' as FarmType} />
-                {window.innerWidth > 700 && renderSliseAd()}
+                {!isMobile && renderSliseAd()}
             </BalanceContainer>
 
             <LoadingSpinner

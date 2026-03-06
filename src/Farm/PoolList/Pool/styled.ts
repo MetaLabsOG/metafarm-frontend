@@ -190,33 +190,8 @@ export const PoolPropertyValue = styled.div<{ isDollarValue?: boolean }>`
     justify-content: center; /* Ensure proper centering */
     align-items: center;
     width: 100%;
-    animation: ${props => {
-        if (!PERF.animationsEnabled || props.isDollarValue) return 'none';
-        return 'subtle-glow';
-    }} 3s infinite alternate;
-
-    @keyframes subtle-glow {
-        0% {
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
-        }
-        100% {
-            text-shadow: 0 0 18px rgba(255, 255, 255, 0.5);
-        }
-    }
-
-    @keyframes green-glow {
-        0% {
-            text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
-        }
-        100% {
-            text-shadow: 0 0 20px rgba(139, 255, 116, 0.7);
-        }
-    }
-
     @media (prefers-reduced-motion: reduce) {
-        animation: none !important;
         transition: none !important;
-        text-shadow: ${props => props.isDollarValue ? 'none' : 'rgba(255, 255, 255, 0.3)'} 0 0 0 !important;
     }
 
     @media (max-width: 1120px) {
@@ -226,11 +201,10 @@ export const PoolPropertyValue = styled.div<{ isDollarValue?: boolean }>`
     }
 
     @media (max-width: 700px) {
-        animation: none !important;
         transition: none !important;
         text-shadow: none !important;
-        font-size: ${props => props.isDollarValue ? '12px' : '14px'}; /* Even smaller on mobile */
-        text-align: center; /* Ensure center alignment on mobile */
+        font-size: ${props => props.isDollarValue ? '12px' : '14px'};
+        text-align: center;
     }
 `;
 
@@ -412,27 +386,8 @@ export const RewardUSDValue = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    animation: reward-glow 3s infinite alternate;
-
-    @keyframes reward-glow {
-        0% {
-            text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
-        }
-        100% {
-            text-shadow: 0 0 18px rgba(139, 255, 116, 0.6);
-        }
-    }
-
     &:hover {
         text-shadow: 0 0 20px rgba(139, 255, 116, 0.7);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        animation: none !important;
-        
-        &:hover {
-            text-shadow: 0 0 12px rgba(139, 255, 116, 0.4); /* Keep static shadow */
-        }
     }
 
     @media (max-width: 1120px) {
@@ -462,27 +417,8 @@ export const RewardTokenValue = styled.div`
     justify-content: center;
     align-items: center;
     width: 100%;
-    animation: token-glow 3s infinite alternate;
-
-    @keyframes token-glow {
-        0% {
-            text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
-        }
-        100% {
-            text-shadow: 0 0 15px rgba(139, 255, 116, 0.5);
-        }
-    }
-
     &:hover {
         text-shadow: 0 0 18px rgba(139, 255, 116, 0.6);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        animation: none !important;
-        
-        &:hover {
-            text-shadow: 0 0 10px rgba(139, 255, 116, 0.3); /* Keep static shadow */
-        }
     }
 
     @media (max-width: 1120px) {

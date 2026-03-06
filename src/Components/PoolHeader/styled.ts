@@ -187,13 +187,6 @@ export const AnimatedText = styled.div`
     text-fill-color: transparent;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: textclip 2s linear infinite;
     display: inline-block;
     white-space: nowrap;
-
-    @keyframes textclip {
-        to {
-            background-position: 200% center;
-        }
-    }
 `;
