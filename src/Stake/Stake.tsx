@@ -19,7 +19,7 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
         } else if (info.type === 'distribution') {
             initDistr(info);
         } else {
-            throw new Error(`Unsupported pool type type ${info.type}`);
+            console.error(`Unsupported pool type: ${info.type}`);
         }
     };
 

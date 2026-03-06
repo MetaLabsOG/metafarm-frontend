@@ -80,16 +80,20 @@ export const assetLoaded = fetchAssetFx.doneData;
 export const assetAvailable = createEvent<Asset>();
 
 const loadAssetsFromLocalStorage = (): Map<AssetId, Asset> => {
-    const assets = Map<AssetId, Asset>();
-    for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('asset_')) {
-            const assetString = localStorage.getItem(key);
-            if (assetString) {
-                const asset = JSON.parse(assetString) as Asset;
-                assets.set(asset.id, asset);
+    let assets = Map<AssetId, Asset>();
+    try {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('asset_')) {
+                const assetString = localStorage.getItem(key);
+                if (assetString) {
+                    const asset = JSON.parse(assetString) as Asset;
+                    assets = assets.set(asset.id, asset);
+                }
             }
         }
+    } catch (e) {
+        console.warn('Failed to load assets from localStorage:', e);
     }
     return assets;
 };

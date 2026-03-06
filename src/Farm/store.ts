@@ -508,6 +508,9 @@ export function createAprs<T extends FarmType>(
                     const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
                     const { totalRewardAmount, totalAlgoRewardAmount, beginBlock } = contractState.initial;
                     const totalBlocks = BigInt(endBlock - beginBlock);
+                    if (totalBlocks === BigInt(0)) {
+                        return { reward: 0, algoReward: 0, fees: 0, total: 0 };
+                    }
                     const totalRewardInSmallestUnits = fromSmallestUnits(rewardTokenInfo, totalRewardAmount);
 
                     const extraAlgoRewardPerBlock = totalAlgoRewardAmount / totalBlocks;
@@ -594,7 +597,7 @@ export const createSortedPoolsWithStats = ($source: Store<PoolWithStats[]>) => {
                 orderBy = (p) => Math.floor(p.apr.total);
                 break;
             default:
-                throw new Error(`Unsupported sort type, please make 'switch' exhaustive`);
+                orderBy = (p) => p.dollarInfo.tvl;
         }
 
         const ord = sortType.asc ? ascend : descend;

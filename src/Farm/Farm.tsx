@@ -67,6 +67,7 @@ export const renderRandomAd = (): JSX.Element => {
 };
 
 export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => {
+    const initEvent = useUnit(initializeFarmContract);
     const isLoading = !state || state.length === 0;
 
     return (
@@ -83,7 +84,7 @@ export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => {
                 text="Loading farm pools..."
                 size="medium"
             >
-                <PoolList pools={state} poolType="farm" initEvent={useUnit(initializeFarmContract)} />
+                <PoolList pools={state} poolType="farm" initEvent={initEvent} />
             </LoadingSpinner>
 
             <InfoCards addFarmType="farm" />

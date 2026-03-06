@@ -58,60 +58,61 @@ export const Meteors = ({
 }: {
   number?: number;
 }) => {
-  // Check if we're on mobile - if so, return nothing
-  if (typeof window !== 'undefined' && window.innerWidth <= 768) {
-    return null;
-  }
-
   const [dimensions, setDimensions] = useState({
     height: typeof window !== 'undefined' ? window.innerHeight : 1000,
     width: typeof window !== 'undefined' ? window.innerWidth : 1000
   });
 
-  // Only for desktop
-  const [actualNumber, setActualNumber] = useState(number);
+  const [actualNumber, setActualNumber] = useState(
+    typeof window !== 'undefined' && window.innerWidth <= 768 ? 0 : number
+  );
+
+  // Memoize meteor positions so they don't recalculate on every render
+  const meteors = React.useMemo(() =>
+    new Array(actualNumber).fill(null).map((_, idx) => ({
+      key: idx,
+      top: Math.floor(Math.random() * dimensions.height),
+      left: Math.floor(Math.random() * dimensions.width),
+      delay: Math.random() * 0.6 + 0.2,
+      duration: Math.floor(Math.random() * 8 + 2),
+    })),
+    [actualNumber, dimensions.height, dimensions.width]
+  );
 
   useEffect(() => {
     const handleResize = () => {
-      // If window resizes to mobile size, return nothing
       if (window.innerWidth <= 768) {
         setActualNumber(0);
         return;
       }
 
-      const newDimensions = {
+      setDimensions({
         height: window.innerHeight,
         width: window.innerWidth
-      };
-      setDimensions(newDimensions);
+      });
       setActualNumber(number);
     };
 
-    // Initial check
     handleResize();
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [number]);
 
-  // If no meteors to show, return nothing
   if (actualNumber <= 0) {
     return null;
   }
 
-  // Create array with meteors
-  const meteors = new Array(actualNumber).fill(true);
-
   return (
     <>
-      {meteors.map((_, idx) => (
+      {meteors.map((m) => (
         <MeteorSpan
-          key={"meteor" + idx}
+          key={"meteor" + m.key}
           style={{
-            top: Math.floor(Math.random() * dimensions.height) + "px",
-            left: Math.floor(Math.random() * dimensions.width) + "px",
-            animationDelay: Math.random() * (0.8 - 0.2) + 0.2 + "s",
-            animationDuration: Math.floor(Math.random() * (10 - 2) + 2) + "s",
+            top: m.top + "px",
+            left: m.left + "px",
+            animationDelay: m.delay + "s",
+            animationDuration: m.duration + "s",
           }}
         />
       ))}

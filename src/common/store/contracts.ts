@@ -247,8 +247,15 @@ export function buildContractsStore<T extends ContractType>(
     const $contractStateCaches = $contractInfos.map((infos) =>
         infos
             .reduce(
-                (states, info) =>
-                    info.metadata.cache ? states.set(info.id, parseBignumState(type, info.metadata.cache)) : states,
+                (states, info) => {
+                    if (!info.metadata.cache) return states;
+                    try {
+                        return states.set(info.id, parseBignumState(type, info.metadata.cache));
+                    } catch (e) {
+                        console.warn(`Failed to parse cache for contract ${info.id}:`, e);
+                        return states;
+                    }
+                },
                 Map<AppId, ContractState<T>>().asMutable()
             )
             .asImmutable()
@@ -292,7 +299,7 @@ export function buildContractsStore<T extends ContractType>(
                 return {
                     initial: await (ctc.views.initial as ViewVal)(),
                     global: await (ctc.views.global as ViewVal)(),
-                    local: await (ctc.views.local as ViewVal)(account!.networkAccount.addr),
+                    local: account ? await (ctc.views.local as ViewVal)(account.networkAccount.addr) : null,
                 };
             }
         )
