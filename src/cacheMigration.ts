@@ -5,15 +5,18 @@
  */
 
 // Bump this whenever a deploy needs a cache reset
-const CACHE_VERSION = '2';
+const CACHE_VERSION = '3';
 const CACHE_VERSION_KEY = 'cometa_cache_version';
 
 // Keys to preserve across cache resets (wallet state + user prefs)
 const PRESERVED_PREFIXES = [
     'walletAddress',
-    'walletType',
-    'wallet_nfd_name',
+    'connectedWalletType',
+    'walletNfdName',
+    'walletconnect',
     'cometa_meteor_enabled',
+    'cometa_device_capability',
+    'cometa_performance_cache',
     'welcome_',
 ];
 

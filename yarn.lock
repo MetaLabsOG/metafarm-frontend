@@ -1108,17 +1108,17 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@blockshake/defly-connect@^0.3.6":
-  version "0.3.6"
-  resolved "https://registry.yarnpkg.com/@blockshake/defly-connect/-/defly-connect-0.3.6.tgz#c5d25cb60a28cd8ccc16fdb328d222926a13d6e3"
-  integrity sha512-W3gD+GMw+y3zNPnkzU/LcWa6sMBE4tp8pM9hbTNP2vLtyjJUhMr+w6jus+dPxlJ9ZYykZH4M7VKkVxnQ3PWfIA==
+"@blockshake/defly-connect@1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@blockshake/defly-connect/-/defly-connect-1.2.1.tgz#355136403f2d2abb75c774830975acd853296922"
+  integrity sha512-T9wAjPTFdc8iRiDzTqmeBRCIroWLgXmqZHwnpzuchjYZXXqbnj+zge+HS7UaNunpxGVjDUNK1ah7OR6hEqtJoQ==
   dependencies:
-    "@json-rpc-tools/utils" "^1.7.6"
-    "@walletconnect/client" "^1.7.7"
-    bowser "^2.11.0"
+    "@likecoin/qr-code-styling" "^1.6.6"
+    "@walletconnect/client" "^1.8.0"
+    "@walletconnect/types" "^1.8.0"
+    bowser "2.11.0"
     buffer "^6.0.3"
-    lottie-react "^2.3.1"
-    react-qrcode-logo "^2.7.0"
+    lottie-web "^5.12.2"
 
 "@conflux-dev/conflux-address-js@^1.0.0":
   version "1.4.0"
@@ -2779,6 +2779,13 @@
     npmlog "^6.0.2"
     write-file-atomic "^4.0.1"
 
+"@likecoin/qr-code-styling@^1.6.6":
+  version "1.6.6"
+  resolved "https://registry.yarnpkg.com/@likecoin/qr-code-styling/-/qr-code-styling-1.6.6.tgz#f7783356224445b34087a039909b7ec923474030"
+  integrity sha512-RbGK/+20bJhFZR70r8MeDvfyz3W7U5zXpykSTYOYxZGyo6wC+Y4QnbUpL+YdAtzT2ZIFeCNOcRs2W2FNrKPoaA==
+  dependencies:
+    qrcode-generator "^1.4.3"
+
 "@lit-labs/ssr-dom-shim@^1.0.0", "@lit-labs/ssr-dom-shim@^1.1.0":
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/@lit-labs/ssr-dom-shim/-/ssr-dom-shim-1.3.0.tgz#a28799c463177d1a0b0e5cefdc173da5ac859eb4"
@@ -3216,10 +3223,10 @@
   resolved "https://registry.yarnpkg.com/@pedrouid/environment/-/environment-1.0.1.tgz#858f0f8a057340e0b250398b75ead77d6f4342ec"
   integrity sha512-HaW78NszGzRZd9SeoI3JD11JqY+lubnaOx7Pewj5pfjqWXOEATpeKIFb9Z4t2WBUK2iryiXX3lzWwmYWgUL0Ug==
 
-"@perawallet/connect@^1.3.4":
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/@perawallet/connect/-/connect-1.4.2.tgz#38c9fd916b4fec9bbcbdee21608ff6c24d6acd9a"
-  integrity sha512-LCdaWMm1PerIxnBWTkPVEfEbEJ+onfIfDK80+Nj//Rce//tLFzGU7kAxSU7Al70hrD1AvnYyXm2svFbsUzOa7w==
+"@perawallet/connect@1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@perawallet/connect/-/connect-1.5.1.tgz#5c1a5d5b0a91f9618fae49057e33d102c8301cca"
+  integrity sha512-+hsMGFpuh0wTUId0oBzkwW+eZJODy106OjwvbxGEdAV52ZL+Ip6oH5AuMt8iycf9ggX7lDGgqo1UAw8qU6/vBA==
   dependencies:
     "@evanhahn/lottie-web-light" "5.8.1"
     "@walletconnect/client" "^1.8.0"
@@ -3227,6 +3234,7 @@
     bowser "2.11.0"
     buffer "^6.0.3"
     qr-code-styling "1.6.0-rc.1"
+    tweetnacl-ts "^1.0.3"
 
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
@@ -4314,7 +4322,7 @@
     "@walletconnect/window-metadata" "1.0.0"
     detect-browser "5.2.0"
 
-"@walletconnect/client@^1.6.6", "@walletconnect/client@^1.7.3", "@walletconnect/client@^1.7.7", "@walletconnect/client@^1.8.0":
+"@walletconnect/client@^1.6.6", "@walletconnect/client@^1.7.3", "@walletconnect/client@^1.8.0":
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/@walletconnect/client/-/client-1.8.0.tgz#6f46b5499c7c861c651ff1ebe5da5b66225ca696"
   integrity sha512-svyBQ14NHx6Cs2j4TpkQaBI/2AF4+LXz64FojTjMtV4VMMhl81jSO1vNeg+yYhQzvjcGH/GpSwixjyCW0xFBOQ==
@@ -5452,7 +5460,7 @@ boolbase@^1.0.0:
   resolved "https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==
 
-bowser@2.11.0, bowser@^2.11.0:
+bowser@2.11.0:
   version "2.11.0"
   resolved "https://registry.yarnpkg.com/bowser/-/bowser-2.11.0.tgz#5ca3c35757a7aa5771500c70a73a9f91ef420a8f"
   integrity sha512-AlcaJBi/pqqJBIQ8U9Mcpc9i8Aqxn88Skv5d+xBX006BY5u8N3mGLHa5Lgppa7L/HfwgwLgZ6NYs+Ag6uUmJRA==
@@ -10805,11 +10813,6 @@ lodash.debounce@^4.0.8:
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
   integrity sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==
 
-lodash.isequal@^4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
-  integrity sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==
-
 lodash.ismatch@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/lodash.ismatch/-/lodash.ismatch-4.4.0.tgz#756cb5150ca3ba6f11085a78849645f188f85f37"
@@ -10876,17 +10879,10 @@ loose-envify@^1.1.0, loose-envify@^1.4.0:
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
-lottie-react@^2.3.1:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/lottie-react/-/lottie-react-2.4.1.tgz#4bd3f2a8a5e48edbd43c05ca5080fdd50f049d31"
-  integrity sha512-LQrH7jlkigIIv++wIyrOYFLHSKQpEY4zehPicL9bQsrt1rnoKRYCYgpCUe5maqylNtacy58/sQDZTkwMcTRxZw==
-  dependencies:
-    lottie-web "^5.10.2"
-
-lottie-web@^5.10.2:
-  version "5.12.2"
-  resolved "https://registry.yarnpkg.com/lottie-web/-/lottie-web-5.12.2.tgz#579ca9fe6d3fd9e352571edd3c0be162492f68e5"
-  integrity sha512-uvhvYPC8kGPjXT3MyKMrL3JitEAmDMp30lVkuq/590Mw9ok6pWcFCwXJveo0t5uqYw1UREQHofD+jVpdjBv8wg==
+lottie-web@^5.12.2:
+  version "5.13.0"
+  resolved "https://registry.yarnpkg.com/lottie-web/-/lottie-web-5.13.0.tgz#441d3df217cc8ba302338c3f168e1a3af0f221d3"
+  integrity sha512-+gfBXl6sxXMPe8tKQm7qzLnUy5DUPJPKIyRHwtpCpyUEYjHYRJC/5gjUvdkuO2c3JllrPtHXH5UJJK8LRYl5yQ==
 
 lower-case@^2.0.2:
   version "2.0.2"
@@ -13101,7 +13097,7 @@ qr-code-styling@1.6.0-rc.1:
   dependencies:
     qrcode-generator "^1.4.3"
 
-qrcode-generator@^1.4.1, qrcode-generator@^1.4.3:
+qrcode-generator@^1.4.3:
   version "1.4.4"
   resolved "https://registry.yarnpkg.com/qrcode-generator/-/qrcode-generator-1.4.4.tgz#63f771224854759329a99048806a53ed278740e7"
   integrity sha512-HM7yY8O2ilqhmULxGMpcHSF1EhJJ9yBj8gvDEuZ6M+KGJ0YY2hKpnXvRD+hZPLrDVck3ExIGhmPtSdcjC+guuw==
@@ -13303,14 +13299,6 @@ react-is@^18.0.0, react-is@^18.2.0:
   version "18.3.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.3.1.tgz#e83557dc12eae63a99e003a46388b1dcbb44db7e"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
-
-react-qrcode-logo@^2.7.0:
-  version "2.10.0"
-  resolved "https://registry.yarnpkg.com/react-qrcode-logo/-/react-qrcode-logo-2.10.0.tgz#1d29010f3c4f27860cc152b658a5c4e30c11b2f3"
-  integrity sha512-Q1+jLtcyDl5rLR29YdkXVLzYk62p3+541x00HxURVBQhs6SqFyEZZVhvkU/VQ082ytXa3GdCmGWMLK5z0Vhe7g==
-  dependencies:
-    lodash.isequal "^4.5.0"
-    qrcode-generator "^1.4.1"
 
 react-query@^3.39.2:
   version "3.39.3"
@@ -15201,7 +15189,7 @@ tsconfig-paths@^4.1.2:
     minimist "^1.2.6"
     strip-bom "^3.0.0"
 
-tslib@1.14.1, tslib@^1.8.1:
+tslib@1.14.1, tslib@^1, tslib@^1.8.1:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
@@ -15217,6 +15205,13 @@ tsutils@^3.21.0:
   integrity sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==
   dependencies:
     tslib "^1.8.1"
+
+tweetnacl-ts@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/tweetnacl-ts/-/tweetnacl-ts-1.0.3.tgz#ae4f31be6ca40e1b310f7fa47c0488ad71c0de7f"
+  integrity sha512-C5I/dWf6xjAXaCDlf84T4HvozU/8ycAlq5WRllF1hAeeq5390tfXD+bNas5bhEV0HMSOx8bsQYpLjPl8wfnEeQ==
+  dependencies:
+    tslib "^1"
 
 tweetnacl@^1.0.3:
   version "1.0.3"
