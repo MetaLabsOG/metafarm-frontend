@@ -33,7 +33,7 @@ export const LaaS = () => {
             const data = laasFetch.data! as Array<ContractInfo<'laas'>>;
             setLaasPoolInfosEvent(data);
         }
-    }, [laasFetch, setLaasPoolInfosEvent]);
+    }, [laasFetch.isSuccess, laasFetch.data, setLaasPoolInfosEvent]);
 
     return <LaaSInner />;
 };

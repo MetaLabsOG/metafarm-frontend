@@ -47,8 +47,11 @@ export async function getAlgoRateFromVestige(): Promise<Rate | null> {
 
 export async function getAssetRateFromVestige(assetId: AssetId): Promise<number | null> {
     try {
-        const response = await instance.get<{ price: number }>(`assets/price?asset_ids=${assetId}&network_id=0&denominating_asset_id=31566704`, {});
-        return response.data.price;
+        const response = await instance.get<VestigePriceResponse[]>(`assets/price?asset_ids=${assetId}&network_id=0&denominating_asset_id=31566704`);
+        if (response.data && response.data.length > 0) {
+            return response.data[0].price;
+        }
+        return null;
     } catch (error) {
         console.error(`Failed to fetch asset ${assetId} price from Vestige:`, error);
         return null;

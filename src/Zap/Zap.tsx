@@ -299,6 +299,9 @@ export function Zap({
             }
             console.log('[ZAP] res', res);
             setIsLoading(false);
+        }).catch((error) => {
+            console.error('[ZAP] Failed to load zap data:', error);
+            setIsLoading(false);
         });
     }
 

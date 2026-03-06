@@ -433,6 +433,9 @@ export function Swap() {
                 const best_swap = res ? res.amountOut : 0;
                 setToken2Amount(numberRound(best_swap));
                 setIsLoading(false);
+            }).catch((error) => {
+                console.error('[SWAP] Failed to get best swap:', error);
+                setIsLoading(false);
             });
         }, delay);
     }
