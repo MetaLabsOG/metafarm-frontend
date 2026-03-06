@@ -112,9 +112,13 @@ export function ConnectWallet({
     }, []);
 
     useEffect(() => {
-        window.addEventListener('click', () => {
-            accDropdownOpen && setAccDropdownOpen(!accDropdownOpen);
-        });
+        const handleClick = () => {
+            if (accDropdownOpen) {
+                setAccDropdownOpen(false);
+            }
+        };
+        window.addEventListener('click', handleClick);
+        return () => window.removeEventListener('click', handleClick);
     }, [accDropdownOpen]);
 
     useEffect(() => {

@@ -1,80 +1,58 @@
 import React from 'react';
-import styled, { css, keyframes } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { PoolContainer, StakeButtonMobile } from './styled';
-import {
-  getOptimizedBackdropFilter,
-  getOptimizedBoxShadow,
-  getOptimizedGradient,
-  isMobileDevice
-} from '../../../utils/mobileOptimizations';
 
 // Enhanced pool container with gradient background
 const GradientPoolContainer = styled(PoolContainer)`
-  /* Force simple background on mobile */
-  background: ${isMobileDevice() 
-    ? 'rgba(10, 10, 10, 0.2) !important' 
-    : `linear-gradient(
-        135deg,
-        rgba(10, 10, 10, 0.01) 0%,
-        rgba(10, 10, 10, 0.01) 50%
-      ), rgba(10, 10, 10, 0.15)`};
+  background: linear-gradient(
+    135deg,
+    rgba(10, 10, 10, 0.01) 0%,
+    rgba(10, 10, 10, 0.01) 50%
+  ), rgba(10, 10, 10, 0.15);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 
-  /* Ensure no backdrop blur on mobile */
-  backdrop-filter: ${isMobileDevice() ? 'none !important' : getOptimizedBackdropFilter('blur(8px)')};
-
-  /* Remove box shadow on mobile completely */
-  box-shadow: ${isMobileDevice() ? 'none !important' : getOptimizedBoxShadow('0 8px 16px rgba(0, 0, 0, 0.1), 0 0 20px rgba(0, 0, 0, 0.05)')};
-
-  /* No transition on mobile */
-  transition: ${isMobileDevice() ? 'none !important' : 'all 0.3s ease'};
-
-  /* Enhanced hover effect - only on desktop */
-  ${!isMobileDevice() && css`
-    &:hover {
-      background: linear-gradient(
-        135deg,
-        rgba(10, 10, 10, 0.02) 0%,
-        rgba(10, 10, 10, 0.02) 50%
-      ), rgba(10, 10, 10, 0.1);
-
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15),
-                  0 0 30px rgba(0, 0, 0, 0.1);
-
-      transform: translateY(-2px);
-    }
-  `}
-
-  /* Mobile-specific styling */
-  @media (max-width: 1120px) {
-    background: ${isMobileDevice() ? 'rgba(10, 10, 10, 0.2)' : `linear-gradient(
+  &:hover {
+    background: linear-gradient(
       135deg,
-      rgba(10, 10, 10, 0.01) 0%,
-      rgba(10, 10, 10, 0.01) 50%
-    ), rgba(10, 10, 10, 0.15)`};
+      rgba(10, 10, 10, 0.02) 0%,
+      rgba(10, 10, 10, 0.02) 50%
+    ), rgba(10, 10, 10, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), 0 0 30px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
 
-    /* Hover effects disabled on mobile */
+  /* Tablet */
+  @media (max-width: 1120px) {
+    background: rgba(10, 10, 10, 0.15);
+    backdrop-filter: none;
+    box-shadow: none;
+    transition: none;
+
     &:hover {
-      ${isMobileDevice() ? css`
-        background: rgba(10, 10, 10, 0.2);
-        transform: none;
-        box-shadow: none;
-      ` : css`
-        background: linear-gradient(
-          135deg,
-          rgba(10, 10, 10, 0.02) 0%,
-          rgba(10, 10, 10, 0.02) 50%
-        ), rgba(10, 10, 10, 0.15);
-      `}
+      transform: none;
+      box-shadow: none;
     }
   }
 
-  /* Small mobile specific styling */
+  /* Mobile — two cards per row */
   @media (max-width: 700px) {
-    width: calc(50% - 4px) !important; /* Force two cards per row with a small gap */
-    max-width: 49% !important; /* Ensure it doesn't exceed half the container width */
-    margin: 0 0 8px 0 !important; /* Reset margin to ensure proper spacing */
-    box-sizing: border-box !important; /* Include padding in width calculation */
-    flex: 0 0 calc(50% - 4px) !important; /* Force flex basis to be half the container minus gap */
+    background: rgba(10, 10, 10, 0.2);
+    backdrop-filter: none;
+    box-shadow: none;
+    transition: none;
+    width: calc(50% - 4px) !important;
+    max-width: 49% !important;
+    margin: 0 0 8px 0 !important;
+    box-sizing: border-box !important;
+    flex: 0 0 calc(50% - 4px) !important;
+
+    &:hover {
+      background: rgba(10, 10, 10, 0.2);
+      transform: none;
+      box-shadow: none;
+    }
   }
 `;
 
@@ -94,16 +72,13 @@ const CompactGradientPoolContainer = styled(GradientPoolContainer)`
 
 // Enhanced grid cell with gradient background
 const GradientGridCell = styled.div`
-  background: ${isMobileDevice()
-    ? 'rgba(0, 0, 0, 0.2)'
-    : `linear-gradient(
-        135deg,
-        rgba(10, 10, 10, 0.01) 0%,
-        rgba(10, 10, 10, 0.01) 50%
-      ), rgba(0, 0, 0, 0.15)`};
-
+  background: linear-gradient(
+    135deg,
+    rgba(10, 10, 10, 0.01) 0%,
+    rgba(10, 10, 10, 0.01) 50%
+  ), rgba(0, 0, 0, 0.15);
   border-radius: 6px;
-  padding: 8px 3px; /* Reduced horizontal padding from 6px to 3px */
+  padding: 8px 3px;
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -115,33 +90,31 @@ const GradientGridCell = styled.div`
   position: relative;
   overflow: hidden;
 
-  /* Add subtle hover effect - only on desktop */
-  ${!isMobileDevice() && css`
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        135deg,
-        rgba(10, 10, 10, 0.02) 0%,
-        rgba(10, 10, 10, 0.02) 50%
-      );
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
-    }
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(10, 10, 10, 0.02) 0%, rgba(10, 10, 10, 0.02) 50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
 
-    &:hover::before {
-      opacity: 1;
-    }
-  `}
+  &:hover::before {
+    opacity: 1;
+  }
+
+  @media (max-width: 1120px) {
+    &::before { display: none; }
+  }
 
   @media (max-width: 700px) {
-    padding: 3px 1px; /* Further reduced horizontal padding for mobile */
-    min-height: 36px; /* Further reduced height for mobile */
-    background: rgba(0, 0, 0, 0.15); /* Simplified background for performance */
-    border-radius: 4px; /* Smaller border radius */
-    font-size: 11px; /* Smaller font size for mobile */
+    padding: 3px 1px;
+    min-height: 36px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    font-size: 11px;
+    &::before { display: none; }
   }
 `;
 
@@ -155,78 +128,62 @@ const GradientPoolCard: React.FC<{
     : <GradientPoolContainer>{children}</GradientPoolContainer>;
 };
 
+const wobble = keyframes`
+  0% { transform: translateX(0); }
+  15% { transform: translateX(-5px) rotate(-1deg); }
+  30% { transform: translateX(4px) rotate(1deg); }
+  45% { transform: translateX(-3px) rotate(-0.5deg); }
+  60% { transform: translateX(2px) rotate(0.5deg); }
+  75% { transform: translateX(-1px) rotate(-0.25deg); }
+  100% { transform: translateX(0); }
+`;
+
 // Enhanced stake button with gradient styling
 const GradientStakeButton = styled(StakeButtonMobile)`
-  /* Base gradient background - match filter color #90ee90 */
-  background: ${getOptimizedGradient(`linear-gradient(
-    135deg,
-    rgba(144, 238, 144, 0.9) 0%,
-    rgba(144, 238, 144, 0.8) 100%
-  )`, 'rgba(144, 238, 144, 0.85)')};
+  background: linear-gradient(135deg, rgba(144, 238, 144, 0.9) 0%, rgba(144, 238, 144, 0.8) 100%);
+  box-shadow: 0 2px 8px rgba(144, 238, 144, 0.3);
+  transition: all 0.3s ease;
 
-  /* Add subtle glow effect */
-  box-shadow: ${getOptimizedBoxShadow('0 2px 8px rgba(144, 238, 144, 0.3)')};
+  &:not(:disabled):hover {
+    background: linear-gradient(135deg, rgba(144, 238, 144, 1) 0%, rgba(144, 238, 144, 0.9) 100%);
+    box-shadow: 0 4px 12px rgba(144, 238, 144, 0.5);
+    transform: translateY(-1px) scale(1.03);
+    color: #1e1e1e;
+    animation: ${wobble} 1s ease;
+  }
 
-  /* Smooth transition for hover effects - disabled on mobile */
-  transition: ${isMobileDevice() ? 'none' : 'all 0.3s ease'};
-
-  /* Wobble animation for hover - only define on desktop */
-  ${!isMobileDevice() && css`
-    @keyframes wobble {
-      0% { transform: translateX(0); }
-      15% { transform: translateX(-5px) rotate(-1deg); }
-      30% { transform: translateX(4px) rotate(1deg); }
-      45% { transform: translateX(-3px) rotate(-0.5deg); }
-      60% { transform: translateX(2px) rotate(0.5deg); }
-      75% { transform: translateX(-1px) rotate(-0.25deg); }
-      100% { transform: translateX(0); }
-    }
-
-    /* Enhanced hover effect - only on desktop */
-    &:not(:disabled):hover {
-      background: linear-gradient(
-        135deg,
-        rgba(144, 238, 144, 1) 0%,
-        rgba(144, 238, 144, 0.9) 100%
-      );
-
-      box-shadow: 0 4px 12px rgba(144, 238, 144, 0.5);
-      transform: translateY(-1px) scale(1.03);
-      color: #1e1e1e;
-      animation: wobble 1s ease;
-    }
-  `}
-
-  /* Mobile hover state - simplified */
-  ${isMobileDevice() && css`
-    &:not(:disabled):hover {
-      background: rgba(144, 238, 144, 0.85);
-    }
-  `}
-
-  /* Disabled state */
   &:disabled {
-    background: ${getOptimizedGradient(`linear-gradient(
-      135deg,
-      rgba(100, 100, 100, 0.5) 0%,
-      rgba(80, 80, 80, 0.5) 100%
-    )`, 'rgba(100, 100, 100, 0.5)')};
+    background: linear-gradient(135deg, rgba(100, 100, 100, 0.5) 0%, rgba(80, 80, 80, 0.5) 100%);
     color: rgba(200, 200, 200, 0.7);
     box-shadow: none;
   }
 
-  /* Mobile-specific styling */
+  @media (max-width: 1120px) {
+    transition: none;
+    &:not(:disabled):hover {
+      animation: none;
+      transform: none;
+    }
+  }
+
   @media (max-width: 700px) {
-    width: 60%; /* Adjusted width for mobile */
-    height: 22px; /* Reduced height for mobile */
-    font-size: 12px; /* Smaller font for mobile */
-    margin: 3px auto 0; /* Reduced margin */
-    padding: 0; /* Remove padding */
-    background: rgba(144, 238, 144, 0.85); /* Simplified background */
-    box-shadow: none; /* Remove shadow for performance */
+    width: 60%;
+    height: 22px;
+    font-size: 12px;
+    margin: 3px auto 0;
+    padding: 0;
+    background: rgba(144, 238, 144, 0.85);
+    box-shadow: none;
+    transition: none;
 
     &:disabled {
-      background: rgba(100, 100, 100, 0.5); /* Simplified disabled background */
+      background: rgba(100, 100, 100, 0.5);
+    }
+
+    &:not(:disabled):hover {
+      animation: none;
+      transform: none;
+      box-shadow: none;
     }
   }
 `;

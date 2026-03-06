@@ -1,10 +1,8 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import ReactDOM from 'react-dom';
 import { useStoreMap, useUnit } from 'effector-react';
-import { useModal } from 'react-hooks-use-modal';
 import { Status } from '../../../Status.js';
 import {
-    $networkTime,
-    queryTimeUpdate,
     hasLocalState,
     $pricedAlgo,
     ContractInfo,
@@ -12,46 +10,54 @@ import {
     $account,
 } from '../../../common/store';
 import { $stakingTokens } from '../../../Stake/store';
-import logo from '../../../imgs/logo.png';
-import { $farmRewardTokens, PoolWithStats } from '../../store';
-import { ConnectWalletModal } from '../../../wallet/ConnectWalletModal';
+import { $farmRewardTokens, PoolWithStats, recalculatedReward } from '../../store';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
-import { PoolLoadingAnimation } from './styled';
 import { GradientPoolContainer } from './GradientPoolCard';
 import { LoadingSpinner } from '../../../Components/LoadingSpinner';
 import { convertAmountToUSD, getPoolState } from './utils';
 import { useWindowSize } from '../../../hooks';
 
-export function Pool({
+function PoolInner({
     pws,
     isForcedOpen,
     initEvent,
+    currentBlock,
+    openConnectWallet,
 }: {
     pws: PoolWithStats;
     isForcedOpen?: boolean;
     initEvent: (payload: ContractInfo<FarmType>) => any;
+    currentBlock: number;
+    openConnectWallet: () => void;
 }) {
     const contract = pws.pool;
     const account = useUnit($account);
-    const currentBlock = useUnit($networkTime);
     const pricedAlgo = useUnit($pricedAlgo);
     const stakeTokenInfo = useStoreMap($stakingTokens, (tokens) => tokens.get(contract.id, null));
     const rewardTokenInfo = useStoreMap($farmRewardTokens, (tokens) => tokens.get(contract.id, null)) ?? stakeTokenInfo;
-    const [ConnectWallet, openConnectWallet, closeConnectWallet, isConnectWalletOpen] = useModal('root');
     const [isOpen, setIsOpen] = useState(isForcedOpen ? true : false);
-    const { isDesktop, isTablet } = useWindowSize();
+    const { isDesktop } = useWindowSize();
 
-    const queryTimeUpdateEvent = useUnit(queryTimeUpdate);
-
-    useEffect(queryTimeUpdateEvent, [contract, queryTimeUpdateEvent]);
     useEffect(() => {
         initEvent(contract.info);
     }, [contract.info.id, contract.info.version, account]);
 
+    // Project reward locally instead of in the store (avoids $networkTime cascade)
+    const projectedState = useMemo(() => {
+        if (!contract.state || !hasLocalState(contract.state)) return contract.state;
+        try {
+            const projectedReward = recalculatedReward(contract.state, currentBlock);
+            return { ...contract.state, local: { ...contract.state.local, reward: projectedReward } };
+        } catch (e) {
+            console.error(`recalculatedReward failed for contract ${contract.id}:`, e);
+            return contract.state;
+        }
+    }, [contract.state, currentBlock]);
+
     const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
-    const isLoading = currentBlock === 0 || !contract.state || !is_info_loaded || !pricedAlgo;
+    const isLoading = currentBlock === 0 || !projectedState || !is_info_loaded || !pricedAlgo;
 
     if (isLoading) {
         return (
@@ -65,9 +71,7 @@ export function Pool({
         );
     }
 
-    const poolState = getPoolState(currentBlock, contract.state.initial);
-
-    const isSafari = navigator.userAgent.toLowerCase().includes('safari');
+    const poolState = getPoolState(currentBlock, projectedState.initial);
 
     const onPoolClick = () => {
         if (contract.ctc === null) {
@@ -78,88 +82,41 @@ export function Pool({
     };
 
     if (poolState === PoolState.Running || poolState === PoolState.Upcoming || poolState === PoolState.Finished) {
-        // Determine if we should show the mobile action view
-        const showMobileActions = !isDesktop && isOpen;
-        // For desktop, we show actions differently
-        const showDesktopActions = isDesktop && isOpen;
-
-        // Check if we have staked or reward values to determine if we should use compact view
-        const hasStakedValue = contract.state.local && Number(convertAmountToUSD(stakeTokenInfo, contract.state.local.staked)) > 0;
-        const hasRewardValue = contract.state.local && (() => {
-            if (!contract.state.local) return false;
-            const algoReward = contract.state.initial.totalAlgoRewardAmount > 0
-                ? (contract.state.local.reward * contract.state.initial.totalAlgoRewardAmount) / contract.state.initial.totalRewardAmount
+        const hasStakedValue = projectedState.local && Number(convertAmountToUSD(stakeTokenInfo, projectedState.local.staked)) > 0;
+        const hasRewardValue = projectedState.local && (() => {
+            if (!projectedState.local) return false;
+            const algoReward = projectedState.initial.totalAlgoRewardAmount > 0
+                ? (projectedState.local.reward * projectedState.initial.totalAlgoRewardAmount) / projectedState.initial.totalRewardAmount
                 : 0;
-            const totalRewardUSD = Number(convertAmountToUSD(rewardTokenInfo, contract.state.local.reward)) +
+            const totalRewardUSD = Number(convertAmountToUSD(rewardTokenInfo, projectedState.local.reward)) +
                                   Number(convertAmountToUSD(pricedAlgo, algoReward));
             return totalRewardUSD > 0;
         })();
 
-        // Determine if we should use compact view (no staked/reward values)
         const useCompactView = !hasStakedValue && !hasRewardValue;
 
         return (
             <GradientPoolContainer
                 className={`pool-container ${useCompactView ? 'compact' : ''}`}
-                style={{
-                    cursor: 'pointer', // Add cursor pointer to indicate clickable area
-                    position: 'relative',
-                    transition: 'height 0.3s ease'
-                }}
-                onClick={onPoolClick} // Move onClick to the container level
+                style={{ cursor: 'pointer', position: 'relative' }}
+                onClick={onPoolClick}
             >
-                <div
-                    style={{
-                        opacity: showMobileActions ? 0 : 1,
-                        visibility: showMobileActions ? 'hidden' : 'visible',
-                        transition: 'opacity 0.2s ease',
-                        position: showMobileActions ? 'absolute' : 'relative',
-                        width: '100%'
-                    }}
-                >
-                    <PoolInfo
-                        isOpen={isOpen}
-                        contractState={contract.state}
-                        poolState={poolState}
-                        stakeTokenInfo={stakeTokenInfo}
-                        rewardTokenInfo={rewardTokenInfo}
-                        currentBlock={currentBlock}
-                        pricedAlgo={pricedAlgo}
-                        poolMetadata={contract.info.metadata}
-                        apr={pws.apr}
-                    />
+                <PoolInfo
+                    isOpen={isOpen}
+                    contractState={projectedState}
+                    poolState={poolState}
+                    stakeTokenInfo={stakeTokenInfo}
+                    rewardTokenInfo={rewardTokenInfo}
+                    currentBlock={currentBlock}
+                    pricedAlgo={pricedAlgo}
+                    poolMetadata={contract.info.metadata}
+                    apr={pws.apr}
+                />
 
-                    {/* Show desktop actions below the pool info when open */}
-                    {isDesktop && contract.ctc !== null && hasLocalState(contract.state) && showDesktopActions && (
-                        <div
-                            onClick={(e) => {
-                                // Prevent clicks inside the actions from closing the view
-                                e.stopPropagation();
-                            }}
-                        >
-                            <PoolActions
-                                poolState={poolState}
-                                ctc={contract.ctc}
-                                contractState={contract.state}
-                                stakeTokenInfo={stakeTokenInfo}
-                                rewardTokenInfo={rewardTokenInfo}
-                                setIsZapModalOpen={setIsOpen}
-                                currentBlock={currentBlock}
-                                contractId={contract.id}
-                                contractVersion={contract.info.version}
-                                pricedAlgo={pricedAlgo}
-                            />
-                        </div>
-                    )}
-                </div>
-
-                {/* Mobile actions with opacity animation */}
-                {!isDesktop && contract.ctc !== null && hasLocalState(contract.state) && (
+                {/* Actions modal via portal — escapes react-window transform context */}
+                {isOpen && contract.ctc !== null && hasLocalState(projectedState) && ReactDOM.createPortal(
                     <div
                         style={{
-                            opacity: showMobileActions ? 1 : 0,
-                            visibility: showMobileActions ? 'visible' : 'hidden',
-                            transition: 'opacity 0.2s ease',
                             position: 'fixed',
                             top: 0,
                             left: 0,
@@ -171,13 +128,11 @@ export function Pool({
                             alignItems: 'center',
                             justifyContent: 'center',
                             padding: '20px',
-                            overflowY: 'auto'
+                            overflowY: 'auto',
                         }}
                         onClick={(e) => {
-                            // Close when clicking the backdrop
-                            if (e.target === e.currentTarget) {
-                                setIsOpen(false);
-                            }
+                            e.stopPropagation();
+                            if (e.target === e.currentTarget) setIsOpen(false);
                         }}
                     >
                         <div
@@ -187,17 +142,16 @@ export function Pool({
                                 border: '1px solid rgba(255, 255, 255, 0.1)',
                                 boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
                                 width: '100%',
-                                maxWidth: '400px',
+                                maxWidth: isDesktop ? '600px' : '400px',
                                 maxHeight: '90vh',
                                 overflowY: 'auto',
-                                position: 'relative'
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
                             <PoolActions
                                 poolState={poolState}
                                 ctc={contract.ctc}
-                                contractState={contract.state}
+                                contractState={projectedState}
                                 stakeTokenInfo={stakeTokenInfo}
                                 rewardTokenInfo={rewardTokenInfo}
                                 setIsZapModalOpen={setIsOpen}
@@ -207,14 +161,31 @@ export function Pool({
                                 pricedAlgo={pricedAlgo}
                             />
                         </div>
-                    </div>
+                    </div>,
+                    document.body
                 )}
-                <ConnectWallet>
-                    <ConnectWalletModal closeModal={closeConnectWallet} isModalOpen={isConnectWalletOpen} />
-                </ConnectWallet>
             </GradientPoolContainer>
         );
     }
 
     return <Status status="Something is wrong, please contact us" showLoading={false} />;
 }
+
+export const Pool = React.memo(PoolInner, (prev, next) => {
+    if (prev.isForcedOpen !== next.isForcedOpen) return false;
+    if (prev.openConnectWallet !== next.openConnectWallet) return false;
+    if (prev.currentBlock !== next.currentBlock) return false;
+    if (prev.pws.pool.id !== next.pws.pool.id) return false;
+    if (prev.pws.apr.total !== next.pws.apr.total) return false;
+    if (prev.pws.dollarInfo.tvl !== next.pws.dollarInfo.tvl) return false;
+    if (prev.pws.dollarInfo.userStake !== next.pws.dollarInfo.userStake) return false;
+    if (prev.pws.dollarInfo.pendingReward !== next.pws.dollarInfo.pendingReward) return false;
+    const prevStaked = prev.pws.pool.state?.global?.totalStaked;
+    const nextStaked = next.pws.pool.state?.global?.totalStaked;
+    if (prevStaked !== nextStaked) return false;
+    const prevLocal = prev.pws.pool.state?.local;
+    const nextLocal = next.pws.pool.state?.local;
+    if (prevLocal?.staked !== nextLocal?.staked) return false;
+    if (prevLocal?.reward !== nextLocal?.reward) return false;
+    return true;
+});

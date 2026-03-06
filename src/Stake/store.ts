@@ -1,4 +1,4 @@
-import { combine, Store } from 'effector';
+import { combine, sample, Store } from 'effector';
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-ignore
@@ -6,11 +6,10 @@ import { backend as distribution_17_0_4 } from '../vendor/metalabs-distribution-
 // @ts-ignore
 import { backend as distribution_17_0_5 } from '../vendor/metalabs-distribution-17_0_5';
 
-import { buildContractsStore, registerPricedAsset, $networkTime, $pricedAssets, Contract } from '../common/store';
+import { buildContractsStore, registerPricedAsset, $pricedAssets, Contract } from '../common/store';
 import {
     $stakePools,
     $farmStakeTokens,
-    projectContracts,
     PoolAggregates,
     createAggregates,
     PoolDollarInfo,
@@ -32,7 +31,8 @@ const { $contracts, $contractStatesWithCache, setContractInfos, initializeContra
     DISTRIBUTION_BACKENDS
 );
 
-export const $distributionPools = combine($contracts, $networkTime, projectContracts);
+// $distributionPools no longer depends on $networkTime — reward projection moved to Pool component
+export const $distributionPools = $contracts;
 export const setDistributionPoolInfos = setContractInfos;
 export const initializeDistributionContract = initializeContract;
 
@@ -42,11 +42,22 @@ export const $allStakePools = combine(
         [...stakePools, ...distributionPools] as Array<Contract<'farm' | 'distribution'>>
 );
 
-$contractStatesWithCache.watch((states) =>
+const _registeredStakeAssets = new Set<number>();
+
+const _stakeStatesOnSet = sample({
+    clock: setContractInfos,
+    source: $contractStatesWithCache,
+    fn: (states) => states,
+});
+
+_stakeStatesOnSet.watch((states) => {
     states.valueSeq().forEach((s) => {
-        registerPricedAsset(s.initial.token);
-    })
-);
+        if (!_registeredStakeAssets.has(s.initial.token)) {
+            _registeredStakeAssets.add(s.initial.token);
+            registerPricedAsset(s.initial.token);
+        }
+    });
+});
 
 export const $distributedTokens = combine($pricedAssets, $contractStatesWithCache, (tokens, states) =>
     states.map((state, _) => tokens.get(state.initial.token, null))

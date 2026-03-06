@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ColumnType } from '../../Farm/PoolList/PoolList';
+import { ColumnType } from '../../Farm/PoolList/columns';
 
 interface DropdownButtonProps {
     onColumnClick: (key: ColumnType) => void;

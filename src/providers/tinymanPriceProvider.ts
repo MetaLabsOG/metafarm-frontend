@@ -115,6 +115,11 @@ export async function calculateLPTokenPrice(
       return null;
     }
 
+    // Cannot price LP token with zero liquidity
+    if (totalLiquidity === 0n) {
+      return null;
+    }
+
     // Calculate the total value of the pool in ALGO
     const asset1ValueInAlgo = Number(asset1Reserve) * asset1PriceInAlgo / (10 ** asset1.decimals);
     const asset2ValueInAlgo = Number(asset2Reserve) * asset2PriceInAlgo / (10 ** asset2.decimals);
@@ -123,6 +128,10 @@ export async function calculateLPTokenPrice(
     // Calculate the LP token price
     const lpTokenPriceInAlgo = totalPoolValueInAlgo / (Number(totalLiquidity) / (10 ** lpToken.decimals));
     const lpTokenPriceInUsd = lpTokenPriceInAlgo * algoPrice;
+
+    if (!isFinite(lpTokenPriceInAlgo) || !isFinite(lpTokenPriceInUsd)) {
+      return null;
+    }
 
     return {
       priceInAlgo: lpTokenPriceInAlgo,

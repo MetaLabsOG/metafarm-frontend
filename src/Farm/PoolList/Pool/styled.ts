@@ -2,12 +2,11 @@ import styled, { css } from 'styled-components';
 import { theme } from '../../../theme';
 import { getPerformanceManager } from '../../../utils/performanceCache';
 
-// Get performance settings
-const getPerformanceSettings = () => {
+// Compute performance settings once at module load (avoids recalculation in every styled-component)
+const PERF = (() => {
   try {
     return getPerformanceManager().getSettings();
   } catch {
-    // Fallback to conservative settings if performance manager fails
     return {
       animationsEnabled: false,
       transitionsEnabled: false,
@@ -15,7 +14,13 @@ const getPerformanceSettings = () => {
       blurEnabled: false,
     };
   }
-};
+})();
+
+const BLUR = PERF.blurEnabled ? 'blur(8px)' : 'none';
+const SHADOW = PERF.shadowsEnabled ? '0 8px 16px rgba(0, 0, 0, 0.1)' : 'none';
+const SHADOW_HOVER = PERF.shadowsEnabled ? '0 12px 20px rgba(0, 255, 41, 0.1)' : 'none';
+const TRANSITION = PERF.transitionsEnabled ? 'all 0.3s ease' : 'none';
+const HOVER_TRANSFORM = PERF.animationsEnabled ? 'translateY(-2px)' : 'none';
 
 export const PoolContainer = styled.div`
     display: flex;
@@ -29,32 +34,17 @@ export const PoolContainer = styled.div`
     padding: 15px 0 15px 0; /* Reduced vertical padding from 20px to 15px */
     border-radius: 10px;
     background: linear-gradient(270deg, rgba(10, 10, 10, 0.01) 0%, rgba(10, 10, 10, 0.01) 30.46%), rgba(10, 10, 10, 0.05);
-    backdrop-filter: ${() => {
-        const settings = getPerformanceSettings();
-        return settings.blurEnabled ? 'blur(8px)' : 'none';
-    }};
+    backdrop-filter: ${BLUR};
     backdrop-saturate: 150%;
     border: 1px solid rgba(0, 0, 0, 0.2);
-    box-shadow: ${() => {
-        const settings = getPerformanceSettings();
-        return settings.shadowsEnabled ? '0 8px 16px rgba(0, 0, 0, 0.1)' : 'none';
-    }};
+    box-shadow: ${SHADOW};
     /* Removed will-change to prevent GPU layer creation */
-    transition: ${() => {
-        const settings = getPerformanceSettings();
-        return settings.transitionsEnabled ? 'all 0.3s ease' : 'none';
-    }};
+    transition: ${TRANSITION};
     translate: z-0;
 
     &:hover {
-        transform: ${() => {
-            const settings = getPerformanceSettings();
-            return settings.animationsEnabled ? 'translateY(-2px)' : 'none';
-        }};
-        box-shadow: ${() => {
-            const settings = getPerformanceSettings();
-            return settings.shadowsEnabled ? '0 12px 20px rgba(0, 255, 41, 0.1)' : 'none';
-        }};
+        transform: ${HOVER_TRANSFORM};
+        box-shadow: ${SHADOW_HOVER};
         border: 1px solid rgba(66, 201, 63, 0.2);
         background: linear-gradient(270deg, rgba(10, 10, 10, 0.02) 0%, rgba(10, 10, 10, 0.02) 30.46%), rgba(10, 10, 10, 0.1);
     }
@@ -189,16 +179,10 @@ export const PoolPropertyValue = styled.div<{ isDollarValue?: boolean }>`
     font-weight: 700;
     font-size: 18px; /* Make all values the same size - 18px for desktop */
     text-shadow: ${props => {
-        const settings = getPerformanceSettings();
-        if (!settings.shadowsEnabled) return 'none';
-        return props.isDollarValue 
-            ? 'none' /* Remove glow from dollar values */
-            : '0 0 12px rgba(255, 255, 255, 0.3)';
+        if (!PERF.shadowsEnabled) return 'none';
+        return props.isDollarValue ? 'none' : '0 0 12px rgba(255, 255, 255, 0.3)';
     }};
-    transition: ${() => {
-        const settings = getPerformanceSettings();
-        return settings.transitionsEnabled ? 'all 0.3s ease' : 'none';
-    }};
+    transition: ${TRANSITION};
     margin-top: 3px;
     letter-spacing: 0.3px;
     text-align: center; /* Center the value text */
@@ -207,8 +191,7 @@ export const PoolPropertyValue = styled.div<{ isDollarValue?: boolean }>`
     align-items: center;
     width: 100%;
     animation: ${props => {
-        const settings = getPerformanceSettings();
-        if (!settings.animationsEnabled || props.isDollarValue) return 'none'; /* No animation for dollar values */
+        if (!PERF.animationsEnabled || props.isDollarValue) return 'none';
         return 'subtle-glow';
     }} 3s infinite alternate;
 

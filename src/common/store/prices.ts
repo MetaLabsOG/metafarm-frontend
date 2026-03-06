@@ -2,7 +2,7 @@ import { createStore, createEffect, createEvent, combine, sample, Store } from '
 
 import { Map } from 'immutable';
 import { META_TOKEN_ID } from '../../AppContext';
-import { $assets, assetLoaded, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
+import { $assets, assetLoaded, assetAvailable, ALGO_ASSET, $pricedAlgo, registerAsset } from './assets';
 import { Asset, AssetId, Priced } from './types';
 import { nonConcurrent } from './utils';
 import { getAssetPriceInAlgo } from '../../providers/tinymanPriceProvider';
@@ -40,10 +40,20 @@ export const fetchAssetPriceFx = createEffect(
     })
 );
 
-export const $assetAlgoPrices = createStore(Map<AssetId, number>()).on(
-    fetchAssetPriceFx.done,
-    (prices, { params, result }) => prices.set(params.id, result)
-);
+// Pre-populate prices from enriched endpoint (avoids per-asset Vestige calls)
+export const prePopulateAssetPrices = createEvent<Array<{ id: AssetId; priceInAlgo: number }>>();
+
+export const $assetAlgoPrices = createStore(Map<AssetId, number>())
+    .on(fetchAssetPriceFx.done, (prices, { params, result }) => prices.set(params.id, result))
+    .on(prePopulateAssetPrices, (prices, batch) => {
+        let updated = prices;
+        for (const { id, priceInAlgo } of batch) {
+            if (!updated.has(id)) {
+                updated = updated.set(id, priceInAlgo);
+            }
+        }
+        return updated;
+    });
 
 // Bool flags needed to not fetch swap prices of LP tokens for example
 export const requireAssetPrice = createEvent<AssetId>();
@@ -57,11 +67,12 @@ sample({
 
 registerPricedAsset(META_TOKEN_ID);
 
-// Automatically fetch necessary assets prices when info about them is getting loaded first time
+// Automatically fetch necessary assets prices when asset becomes available (fetched or found in store)
 sample({
-    clock: assetLoaded,
-    source: $assetIsPriced,
-    filter: (pricedFlags, asset) => pricedFlags.get(asset.id, false),
+    clock: assetAvailable,
+    source: { pricedFlags: $assetIsPriced, existingPrices: $assetAlgoPrices },
+    filter: ({ pricedFlags, existingPrices }, asset) =>
+        pricedFlags.get(asset.id, false) && !existingPrices.has(asset.id),
     fn: (_, asset) => asset,
     target: fetchAssetPriceFx,
 });
@@ -80,12 +91,9 @@ export const $pricedAssets: Store<Map<AssetId, Priced<Asset>>> = combine(
         }
 
         return assetAlgoPrices
+            .filter((_, assetId) => assets.has(assetId))
             .map((priceInAlgo, assetId) => {
-                const asset = assets.get(assetId);
-                if (!asset) {
-                    throw new Error(`impossible: having price ${priceInAlgo} for unfetched asset ${assetId}`);
-                }
-
+                const asset = assets.get(assetId)!;
                 const price = priceInAlgo * pricedAlgo.price;
                 return { ...asset, priceInAlgo, price };
             })

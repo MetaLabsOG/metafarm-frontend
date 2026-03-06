@@ -317,19 +317,60 @@ export interface BackendLPTokenInfo {
     seconds_since_update: number;
 }
 
-export async function fetchLPTokenInfoFromBackendApi(lpTokenId: AssetId): Promise<BackendLPTokenInfo> {
-    const url = `https://api.cometa.farm/lp/state/priced?lp_token_id=${lpTokenId}`;
+// Enriched farm response — combines contracts, assets, and prices in one request
+export interface EnrichedAssetPrice {
+    asset_id: number;
+    asset_name: string;
+    price_usd: number;
+    price_algo: number;
+    last_update_round: number;
+    seconds_since_update: number;
+}
+
+export interface EnrichedAssetDetails {
+    id: number;
+    name: string;
+    unit_name: string;
+    decimals: number;
+    creator: string;
+    reserve: string;
+    total_supply: number;
+    logo_url: string;
+}
+
+export interface EnrichedContract {
+    type: string;
+    id: number;
+    version: string;
+    deployed_timestamp: number;
+    description: string;
+    metadata: Record<string, any>;
+    begin_date: string | null;
+    end_date: string | null;
+}
+
+export interface FarmEnrichedResponse {
+    contracts: EnrichedContract[];
+    assets: Record<string, EnrichedAssetDetails>;
+    prices: Record<string, EnrichedAssetPrice>;
+    lp_states?: Record<string, BackendLPTokenInfo>;
+}
+
+export async function getFarmEnriched(): Promise<FarmEnrichedResponse | null> {
     try {
-        const response = await fetch(url, {
-            method: 'POST',
-        });
-        if (!response.ok) {
-            throw new Error(`Backend API request failed with status ${response.status} for LP token ${lpTokenId}`);
-        }
-        const data = await response.json();
-        return data as BackendLPTokenInfo;
+        const { data } = await instance.get<FarmEnrichedResponse>('/contracts/farm/enriched');
+        return data;
     } catch (error) {
-        console.error(`Failed to fetch LP token info from backend API for ${lpTokenId}:`, error);
-        throw error; // Re-throw to be caught by the caller
+        console.error('Failed to fetch enriched farm data:', error);
+        return null;
     }
+}
+
+export async function fetchLPTokenInfoFromBackendApi(lpTokenId: AssetId): Promise<BackendLPTokenInfo> {
+    const { data } = await instance.post<BackendLPTokenInfo>(
+        '/lp/state/priced',
+        null,
+        { params: { lp_token_id: lpTokenId } }
+    );
+    return data;
 }

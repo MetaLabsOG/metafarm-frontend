@@ -1,10 +1,46 @@
-# CLAUDE.md
+# Cometa Frontend (Metafarm)
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+React-based DeFi frontend for Cometa — a yield farm and intelligent yield optimizer for the Algorand blockchain. Features farming pools, staking, swapping, zapping, and LaaS (Liquidity as a Service).
 
-## Project Overview
+## Linked Projects
 
-This is a React-based DeFi frontend application called Metafarm/Cometa - a yield farm and intelligent yield optimizer for the Algorand blockchain. It features farming pools, staking, swapping, zapping, and LaaS (Liquidity as a Service) functionality.
+### Backend: cometa-backend
+
+- **Path**: `~/metapunks/cometa-backend`
+- **Repo**: `MetaLabsOG/cometa-backend`
+- **Stack**: Python 3.12, FastAPI, MongoDB, Redis, Algorand SDK
+- **Connection**: `REACT_APP_COMETA_API_URL` → backend (prod: `https://api.cometa.farm/`)
+
+Both projects are developed in parallel. **Any API change in the frontend must be verified against the backend and vice versa.** Backend API routes are in `app.py` + `flex/api.py`.
+
+### API Integration Layer
+
+Frontend API providers in `src/providers/`:
+
+| Provider | Backend Route | Purpose |
+|----------|--------------|---------|
+| `apiProvider.ts` | `GET /contracts` | Pool/contract list |
+| `apiProvider.ts` | `GET /wallet/{addr}/assets` | Wallet assets |
+| `apiProvider.ts` | `GET /wallet/{addr}/nfts` | Wallet NFTs |
+| `apiProvider.ts` | `GET /wallet/{addr}/pools` | User pool states |
+| `apiProvider.ts` | `GET /humble/pools/all` | Humble DEX pools |
+| `apiProvider.ts` | `POST /contract/register` | Deploy new pool |
+| `apiProvider.ts` | `POST /lottery/swap`, `/lottery/staking` | NFT lottery |
+| `apiProvider.ts` | `PATCH /lottery/claim` | Claim NFT prize |
+| `flexApiProvider.ts` | `POST /asset`, `/assets` | Asset info |
+| `flexApiProvider.ts` | `POST /asset/price`, `/assets/price` | Asset prices |
+| `apiProvider.ts` | `POST /lp/state/priced` | LP token pricing |
+
+External APIs (not our backend):
+- `api.vestigelabs.org` — token prices (via `coinPriceProvider.ts`)
+- `api.nf.domains` — NFD wallet names (via `nfdProvider.ts`)
+- Algorand node/indexer — direct SDK calls via `AppContext.ts`
+
+### Cross-Project Workflow
+
+- **New backend endpoint**: add provider function in `src/providers/` → wire into effector store or react-query → use in component
+- **Changed response shape**: update types in `src/common/store/types.ts` → update store/provider
+- **Price data flow**: backend `flex/data/` → `flexApiProvider.ts` → `src/common/store/prices.ts` → UI components
 
 ## Key Commands
 
@@ -135,3 +171,7 @@ The app integrates with multiple DEXes on Algorand:
 - Mobile-specific CSS optimizations injected at runtime
 - Performance scoring system adapts to device capabilities
 - Crash detection and recovery for struggling devices
+
+## Task Board
+
+Tasks in `BOARD.md`. Format: pantheon.

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
-interface WindowSize {
+export interface WindowSize {
   width: number | undefined;
   height: number | undefined;
   isMobile: boolean;
@@ -8,41 +8,63 @@ interface WindowSize {
   isDesktop: boolean;
 }
 
-export function useWindowSize(): WindowSize {
-  // Initialize with undefined width/height so server and client match during SSR
-  const [windowSize, setWindowSize] = useState<WindowSize>({
-    width: undefined,
-    height: undefined,
-    isMobile: false,
-    isTablet: false,
-    isDesktop: false,
-  });
+const DEFAULT_SIZE: WindowSize = {
+  width: undefined,
+  height: undefined,
+  isMobile: false,
+  isTablet: false,
+  isDesktop: false,
+};
+
+function computeSize(): WindowSize {
+  if (typeof window === 'undefined') return DEFAULT_SIZE;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  return {
+    width,
+    height,
+    isMobile: width < 768,
+    isTablet: width >= 768 && width < 1120,
+    isDesktop: width >= 1120,
+  };
+}
+
+export const WindowSizeContext = createContext<WindowSize>(DEFAULT_SIZE);
+
+/**
+ * Hook for WindowSizeProvider — manages the single resize listener with debounce.
+ * Use this inside WindowSizeProvider only.
+ */
+export function useWindowSizeProvider(debounceMs = 200): WindowSize {
+  const [size, setSize] = useState<WindowSize>(computeSize);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleResize = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      setSize(computeSize());
+    }, debounceMs);
+  }, [debounceMs]);
 
   useEffect(() => {
-    // Handler to call on window resize
-    function handleResize() {
-      // Set window width/height to state
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      
-      setWindowSize({
-        width,
-        height,
-        isMobile: width < 768,
-        isTablet: width >= 768 && width < 1120,
-        isDesktop: width >= 1120,
-      });
-    }
-
-    // Add event listener
     window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [handleResize]);
 
-    // Call handler right away so state gets updated with initial window size
-    handleResize();
+  return size;
+}
 
-    // Remove event listener on cleanup
-    return () => window.removeEventListener('resize', handleResize);
-  }, []); // Empty array ensures that effect is only run on mount
-
-  return windowSize;
-} 
+/**
+ * Reads window size from Context (single listener, debounced).
+ * Requires WindowSizeContext.Provider — returns DEFAULT_SIZE without one.
+ */
+export function useWindowSize(): WindowSize {
+  return useContext(WindowSizeContext);
+}

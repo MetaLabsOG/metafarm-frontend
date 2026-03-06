@@ -1,5 +1,5 @@
 import { Map } from 'immutable';
-import { createEffect, createEvent, createStore, sample, combine, split, Store, restore } from 'effector';
+import { createEffect, createEvent, createStore, sample, combine, split, Store, restore, merge } from 'effector';
 import { algod, USDT_TOKEN_ID } from '../../AppContext';
 import { getAlgoRateFromVestige } from '../../providers/coinPriceProvider';
 import { pactDex } from '../../dexes';
@@ -75,6 +75,10 @@ const fetchAssetFx = createEffect(
 
 export const assetLoaded = fetchAssetFx.doneData;
 
+// Unified event: fires when asset becomes available (fetched from algod OR found in store)
+// Use this instead of assetLoaded when you need to react to asset availability regardless of source
+export const assetAvailable = createEvent<Asset>();
+
 const loadAssetsFromLocalStorage = (): Map<AssetId, Asset> => {
     const assets = Map<AssetId, Asset>();
     for (let i = 0; i < localStorage.length; i++) {
@@ -90,9 +94,23 @@ const loadAssetsFromLocalStorage = (): Map<AssetId, Asset> => {
     return assets;
 };
 
-export const $assets = createStore(loadAssetsFromLocalStorage().set(0, ALGO_ASSET)).on(assetLoaded, (assets, a) =>
-    assets.set(a.id, a)
-);
+// Pre-populate assets from enriched endpoint (avoids per-asset algod calls)
+export const prePopulateAssets = createEvent<Asset[]>();
+
+export const $assets = createStore(loadAssetsFromLocalStorage().set(0, ALGO_ASSET))
+    .on(assetLoaded, (assets, a) => assets.set(a.id, a))
+    .on(prePopulateAssets, (assets, batch) => {
+        let updated = assets;
+        for (const asset of batch) {
+            if (!updated.has(asset.id)) {
+                updated = updated.set(asset.id, asset);
+                try {
+                    localStorage.setItem(`asset_${asset.id}`, JSON.stringify(asset));
+                } catch { /* localStorage quota exceeded — asset is still in memory */ }
+            }
+        }
+        return updated;
+    });
 
 const queryAsset = createEvent<AssetId>();
 const assetFoundInStore = createEvent<Asset>();
@@ -106,6 +124,10 @@ split({
         return: assetFoundInStore,
     },
 });
+
+// Wire both paths into assetAvailable
+sample({ clock: assetLoaded, target: assetAvailable });
+sample({ clock: assetFoundInStore, target: assetAvailable });
 
 // Fetch asset info from algod on asset registration
 sample({

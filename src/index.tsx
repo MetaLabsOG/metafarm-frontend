@@ -1,5 +1,9 @@
 // Import polyfills first
 import './polyfills';
+import { runCacheMigration } from './cacheMigration';
+
+// Clear stale caches before anything else reads localStorage
+runCacheMigration();
 
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
@@ -9,43 +13,46 @@ import { BrowserTracing } from '@sentry/tracing';
 
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useModal, ModalProvider } from 'react-hooks-use-modal';
 import { useStoreMap, useUnit } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
 import ReactGA from 'react-ga';
+import ReactTooltip from 'react-tooltip';
 import GlobalStyle from './common/globalStyles';
 import { MeteorsBackground } from './Components/ui/MeteorsBackground';
 import { injectMobileOptimizations } from './utils/mobileOptimizations';
 import { usePerformanceOptimization } from './hooks';
+import { WindowSizeContext, useWindowSizeProvider } from './hooks/useWindowSize';
 import { PerformanceIndicator } from './Components/PerformanceIndicator';
 
 import { Menu } from './Menu';
-import { Farm } from './Farm';
-import { Swap } from './Swap';
-import { Zap } from './Zap';
-
-import { MetaDAO } from './MetaDAO';
-import PriceTest from './pages/PriceTest';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
 import { $account, ContractInfo, fetchAllPricesFx } from './common/store';
-import { Stake } from './Stake/Stake';
-
 import './css/index.css';
 import './css/tailwind.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { setPoolInfos } from './Farm/store';
-import { getContracts } from './providers/apiProvider';
+import { setPoolInfos, prePopulateLpTokenInfos } from './Farm/store';
+import { getContracts, getFarmEnriched } from './providers/apiProvider';
+import { prePopulateAssets, prePopulateAssetPrices, $assets } from './common/store';
 import { setDistributionPoolInfos } from './Stake/store';
 import { WelcomeModal } from './WelcomeModal';
 import { Footer } from './Menu/Footer';
 import { notify } from './Components/Notification';
-import { AddFarm } from './Farm/AddFarm';
-import { LaaS } from './LaaS/LaaS';
 import { setLaasPoolInfos } from './LaaS/store';
-import { AddLaaS } from './LaaS/AddLaaS';
-import { Metapunks } from './Metapunks/Metapunks';
+import { ErrorBoundary } from './ErrorBoundary';
+
+const Farm = lazy(() => import('./Farm').then(m => ({ default: m.Farm })));
+const Swap = lazy(() => import('./Swap').then(m => ({ default: m.Swap })));
+const Zap = lazy(() => import('./Zap').then(m => ({ default: m.Zap })));
+const MetaDAO = lazy(() => import('./MetaDAO').then(m => ({ default: m.MetaDAO })));
+const PriceTest = lazy(() => import('./pages/PriceTest'));
+const Stake = lazy(() => import('./Stake/Stake').then(m => ({ default: m.Stake })));
+const AddFarm = lazy(() => import('./Farm/AddFarm').then(m => ({ default: m.AddFarm })));
+const LaaS = lazy(() => import('./LaaS/LaaS').then(m => ({ default: m.LaaS })));
+const AddLaaS = lazy(() => import('./LaaS/AddLaaS').then(m => ({ default: m.AddLaaS })));
+const Metapunks = lazy(() => import('./Metapunks/Metapunks').then(m => ({ default: m.Metapunks })));
 
 Sentry.init({
     dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',
@@ -71,7 +78,14 @@ window.open = (function (open) {
     };
 })(window.open);
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            refetchOnWindowFocus: false,
+            retry: 1,
+        },
+    },
+});
 
 void fetchAllPricesFx();
 
@@ -150,53 +164,88 @@ function App() {
     }, [farmsFetch.isSuccess, distrFetch.isSuccess, reportSuccessfulLoad, reportCrash]);
 
     useEffect(() => {
-        if (farmsFetch.isSuccess) {
-            const data = farmsFetch.data! as Array<ContractInfo<'farm'>>;
+        if (farmsFetch.isSuccess && farmsFetch.data) {
+            const data = farmsFetch.data as Array<ContractInfo<'farm'>>;
             setPoolInfosEvent(data);
         }
-    }, [farmsFetch, setPoolInfosEvent]);
+    }, [farmsFetch.isSuccess, farmsFetch.data]);
 
-    // useEffect(() => {
-    //     const isWelcomeShowed = localStorage.getItem(WELCOME_MODAL_KEY);
-    //     if (!isWelcomeShowed) {
-    //         localStorage.setItem(WELCOME_MODAL_KEY, '1');
-    //         openWelcomeModal();
-    //     }
-    // }, []);
+    // Pre-populate assets, prices, and LP states from enriched endpoint to avoid per-asset HTTP requests
+    useEffect(() => {
+        getFarmEnriched().then((enriched) => {
+            if (!enriched) return;
+
+            // Pre-populate asset details (avoids individual algod calls)
+            const assetsList = Object.values(enriched.assets).map((a) => ({
+                id: a.id,
+                name: a.name,
+                unitName: a.unit_name,
+                creator: a.creator,
+                reserve: a.reserve,
+                decimals: a.decimals,
+            }));
+            if (assetsList.length > 0) {
+                prePopulateAssets(assetsList);
+            }
+
+            // Pre-populate asset prices (avoids individual Vestige/Tinyman calls)
+            const prices = Object.values(enriched.prices)
+                .filter((p) => p.price_algo > 0)
+                .map((p) => ({ id: p.asset_id, priceInAlgo: p.price_algo }));
+            if (prices.length > 0) {
+                prePopulateAssetPrices(prices);
+            }
+
+            // Pre-populate LP token states (avoids DEX SDK calls and individual /lp/state/priced calls)
+            if (enriched.lp_states) {
+                const assetsMap = $assets.getState();
+                const lpItems = Object.values(enriched.lp_states).map((lpState) => ({
+                    lpState,
+                    asset: assetsMap.get(lpState.token_id) ?? null,
+                }));
+                if (lpItems.length > 0) {
+                    prePopulateLpTokenInfos(lpItems);
+                }
+            }
+        });
+    }, []);
 
     useEffect(() => {
-        if (distrFetch.isSuccess) {
-            const data = distrFetch.data! as Array<ContractInfo<'distribution'>>;
+        if (distrFetch.isSuccess && distrFetch.data) {
+            const data = distrFetch.data as Array<ContractInfo<'distribution'>>;
             setDistributionPoolInfosEvent(data);
         }
-    }, [distrFetch, setDistributionPoolInfosEvent]);
+    }, [distrFetch.isSuccess, distrFetch.data]);
 
     return (
         <>
             <GlobalStyle />
             <PerformanceIndicator />
             <ToastContainer limit={3} theme="colored" position="bottom-right" transition={Flip} />
+            <ReactTooltip clickable place="top" type="light" effect="solid" className="custom-tooltip" backgroundColor="rgba(255, 255, 255, 0.9)" />
             <ThemeProvider theme={theme}>
                 <ModalProvider preventScroll components={modalComponents}>
                     <MeteorsBackground>
                         <Container>
                             <Menu />
                             <ContentContainer>
-                                <Routes>
-                                    <Route path="/" element={<Farm />} />
-                                    {/*<Route path="/fomo" element={<Fomo />} />*/}
-                                    <Route path="/laas" element={<LaaS />} />
-                                    <Route path="/farm" element={<Farm />} />
-                                    <Route path="/stake" element={<Stake />} />
-                                    <Route path="/swap" element={<Swap />} />
-                                    <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
-                                    <Route path="/meta-dao" element={<MetaDAO />} />
-                                    <Route path="/metapunks" element={<Metapunks />} />
-                                    <Route path="/addfarm" element={<AddFarm type="farm" />} />
-                                    <Route path="/addstake" element={<AddFarm type="stake" />} />
-                                    <Route path="/addlaas" element={<AddLaaS />} />
-                                    <Route path="/price-test" element={<PriceTest />} />
-                                </Routes>
+                                <Suspense fallback={<div style={{ color: '#8bff74', textAlign: 'center', padding: '40px' }}>Loading...</div>}>
+                                    <Routes>
+                                        <Route path="/" element={<Farm />} />
+                                        {/*<Route path="/fomo" element={<Fomo />} />*/}
+                                        <Route path="/laas" element={<LaaS />} />
+                                        <Route path="/farm" element={<Farm />} />
+                                        <Route path="/stake" element={<Stake />} />
+                                        <Route path="/swap" element={<Swap />} />
+                                        <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
+                                        <Route path="/meta-dao" element={<MetaDAO />} />
+                                        <Route path="/metapunks" element={<Metapunks />} />
+                                        <Route path="/addfarm" element={<AddFarm type="farm" />} />
+                                        <Route path="/addstake" element={<AddFarm type="stake" />} />
+                                        <Route path="/addlaas" element={<AddLaaS />} />
+                                        <Route path="/price-test" element={<PriceTest />} />
+                                    </Routes>
+                                </Suspense>
                             </ContentContainer>
                             <Modal>
                                 <WelcomeModal />
@@ -214,10 +263,21 @@ const container = document.getElementById('root');
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const root = createRoot(container!);
 
-root.render(
-    <BrowserRouter>
-        <QueryClientProvider client={queryClient}>
+function Root() {
+    const windowSize = useWindowSizeProvider();
+    return (
+        <WindowSizeContext.Provider value={windowSize}>
             <App />
-        </QueryClientProvider>
-    </BrowserRouter>
+        </WindowSizeContext.Provider>
+    );
+}
+
+root.render(
+    <ErrorBoundary>
+        <BrowserRouter>
+            <QueryClientProvider client={queryClient}>
+                <Root />
+            </QueryClientProvider>
+        </BrowserRouter>
+    </ErrorBoundary>
 );

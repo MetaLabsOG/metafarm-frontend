@@ -1,4 +1,3 @@
-import ReactTooltip from 'react-tooltip';
 import { getAssetLogo, getTokenLink } from '../../Farm/PoolList/Pool/utils';
 import verified from '../../imgs/verified.svg';
 import info from '../../imgs/info.svg';
@@ -126,7 +125,6 @@ export function PoolHeader({
                     )}
                 </div>
             </PoolInfo>
-            <ReactTooltip clickable place="top" type="light" effect="solid" />
         </PoolHeaderContainer>
     );
 }

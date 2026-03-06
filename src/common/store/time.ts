@@ -24,7 +24,7 @@ export const doEachTick = (period: number, unit: Unit<any>): Event<void> => {
     const startCounter = createEvent();
     const stopCounter = createEvent();
     const { tick } = interval({
-        timeout: 5000,
+        timeout: period,
         start: startCounter,
         stop: stopCounter,
     });

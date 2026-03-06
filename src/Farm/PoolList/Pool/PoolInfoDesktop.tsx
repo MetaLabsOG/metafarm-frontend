@@ -1,5 +1,4 @@
 import { FC } from 'react';
-import ReactTooltip from 'react-tooltip';
 import { Asset, AssetId, ContractState, FarmType, Priced } from '../../../common/store';
 import { Arrow } from '../../../imgs/arrow';
 import { DexProvider, LPTokenInfo } from '../../../dexes';
@@ -8,7 +7,7 @@ import { Account } from '../../../types';
 import { fromSmallestUnits } from '../../../common/lib';
 import info from '../../../imgs/info.svg';
 import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
-import { ColumnType, POOL_COLUMN_WIDTH } from '../PoolList';
+import { ColumnType, POOL_COLUMN_WIDTH } from '../columns';
 import { AprType } from '../../store';
 import { theme } from '../../../theme';
 import {
@@ -101,14 +100,6 @@ export const RewardValues: FC<ValueProps> = ({ contractState, tokenInfo, pricedA
                     src={info}
                 />
             </RewardUSDValue>
-            <ReactTooltip
-                clickable
-                place="top"
-                type="light"
-                effect="solid"
-                className="custom-tooltip"
-                backgroundColor="rgba(255, 255, 255, 0.9)"
-            />
         </div>
     );
 };
@@ -175,14 +166,6 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                         height="14px"
                         src={info}
                         style={{ marginLeft: '5px', opacity: 0.8 }}
-                    />
-                    <ReactTooltip
-                        clickable
-                        place="top"
-                        type="light"
-                        effect="solid"
-                        className="custom-tooltip"
-                        backgroundColor="rgba(255, 255, 255, 0.9)"
                     />
                 </div>
             </PoolInfoValue>

@@ -17,6 +17,7 @@ import {
     Amount,
     Priced,
     assetLoaded,
+    assetAvailable,
     registerAsset,
     registerPricedAsset,
     $algoUsdPrice,
@@ -37,7 +38,7 @@ import { LPTokenInfo, DexProvider, makeDex } from '../dexes';
 import { fromSmallestUnits, YEAR } from '../common/lib';
 import { calculateAlgoReward, convertAmountToUSD, getPoolState } from './PoolList/Pool/utils';
 import { PoolState } from './PoolList/Pool/types';
-import { ColumnType } from './PoolList/PoolList';
+import { ColumnType } from './PoolList/columns';
 import { cachePrice, getCachedPrice } from '../common/priceCache';
 import { calculateLPTokenPrice } from '../providers/tinymanPriceProvider';
 import { fetchLPTokenInfoFromBackendApi, BackendLPTokenInfo } from '../providers/apiProvider';
@@ -228,7 +229,8 @@ export type SortBy = {
     asc: boolean;
 };
 
-export const $pools = combine($contracts, $networkTime, projectContracts);
+// $pools no longer depends on $networkTime — reward projection moved to Pool component
+export const $pools = $contracts;
 export const $farmPools = $pools.map((pools) => pools.filter((pool) => Boolean(pool.info.metadata.dex)));
 export const $stakePools = $pools.map((pools) => pools.filter((pool) => !pool.info.metadata.dex));
 export const setPoolInfos = setContractInfos;
@@ -258,55 +260,114 @@ export const getLPTokenInfoFx = createEffect(
     )
 );
 
-$lpTokenInfos.on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.lpTokenAsset), result));
+export const prePopulateLpTokenInfos = createEvent<Array<{ lpState: BackendLPTokenInfo; asset: Asset | null }>>();
+
+$lpTokenInfos
+    .on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.lpTokenAsset), result))
+    .on(prePopulateLpTokenInfos, (state, items) => {
+        let updated = state;
+        for (const { lpState, asset } of items) {
+            const tokenId = lpState.token_id as AssetId;
+            if (updated.has(tokenId)) continue;
+            const baseAsset: Asset = asset ?? {
+                id: tokenId,
+                name: `LP-${lpState.token_id}`,
+                unitName: `LP`,
+                creator: lpState.address,
+                reserve: '',
+                decimals: 6,
+            };
+            const info: Priced<LPTokenInfo> = {
+                ...baseAsset,
+                poolId: lpState.id,
+                asset1: lpState.asset1_id as AssetId,
+                asset2: lpState.asset2_id as AssetId,
+                liquidityAsset: tokenId,
+                asset1Reserve: BigInt(Math.round(lpState.asset1_reserve_micros)),
+                asset2Reserve: BigInt(Math.round(lpState.asset2_reserve_micros)),
+                totalLiquidity: BigInt(Math.round(lpState.issued_tokens_micros)),
+                poolDex: lpState.dex_provider as DexProvider,
+                dexFeeApr: lpState.swap_fee_apr || 0,
+                price: lpState.token_price_usd,
+                priceInAlgo: lpState.token_price_algo,
+            };
+            updated = updated.set(tokenId, info);
+        }
+        return updated;
+    });
 
 const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) => {
     const newIds = Set(pools.filter((pool) => pool.state !== null).map((pool) => pool.state!.initial.stakeToken));
     return state.union(newIds);
 });
 
-// Automatically fetch LP token infos when general info about them gets fetched the first time
+// Automatically fetch LP token infos when asset becomes available (fetched or found in store)
 sample({
-    clock: assetLoaded,
-    source: { farmPools: $farmPools, algoPrice: $algoUsdPrice }, // Added farmPools to source
-    filter: ({ farmPools }, lpTokenAsset) => {
-        // Check if the loaded asset is an LP token for any of the farm pools
-        return farmPools.some(pool => pool.state?.initial.stakeToken === lpTokenAsset.id && pool.info.metadata.dex);
+    clock: assetAvailable,
+    source: { farmPools: $farmPools, algoPrice: $algoUsdPrice, lpTokens: $lpTokenInfos },
+    filter: ({ farmPools, lpTokens }, lpTokenAsset) => {
+        // Skip if already pre-populated from enriched endpoint
+        if (lpTokens.has(lpTokenAsset.id)) return false;
+        // Check if the asset is an LP token for a DEX farm pool with complete metadata
+        return farmPools.some(pool =>
+            pool.state?.initial.stakeToken === lpTokenAsset.id &&
+            pool.info.metadata.dex &&
+            pool.info.metadata.asset1_id &&
+            pool.info.metadata.asset2_id
+        );
     },
     fn: ({ farmPools, algoPrice }, lpTokenAsset) => {
-        const pool = farmPools.find(p => p.state?.initial.stakeToken === lpTokenAsset.id);
-        if (!pool || !pool.info.metadata.asset1_id || !pool.info.metadata.asset2_id) {
-            // This should ideally not happen if filter is correct
-            console.error('Could not find pool or metadata for LP token:', lpTokenAsset.id);
-            // How to handle this error case? For now, let's prevent calling the effect.
-            // Though Effector's filter should prevent this `fn` from running.
-            // To satisfy type-checker for target, we'd need to return a valid payload or have filter be more robust.
-            // However, the filter *should* ensure `pool` is found and has `dex`.
-            // Let's throw to make it obvious if this case is hit.
-            throw new Error(`Critical: Pool metadata not found for LP token ${lpTokenAsset.id} after filter passed.`);
-        }
+        const pool = farmPools.find(p => p.state?.initial.stakeToken === lpTokenAsset.id)!;
         const asset1Id = Number(pool.info.metadata.asset1_id);
         const asset2Id = Number(pool.info.metadata.asset2_id);
-        const provider = pool.info.metadata.dex as DexProvider; // Assuming metadata.dex is a valid DexProvider
+        const provider = pool.info.metadata.dex as DexProvider;
 
         return { lpTokenAsset, asset1Id, asset2Id, algoPrice, provider };
     },
     target: getLPTokenInfoFx,
 });
 
-$farmPools.watch((farms) => {
+// Register assets once when contract infos are set, not on every $farmPools update
+const _registeredAssets = new Set<number>();
+
+// Use .watch on derived events to ensure side effects run (sample without target is not guaranteed)
+const _farmPoolsOnSet = sample({
+    clock: setContractInfos,
+    source: $farmPools,
+    fn: (farms) => farms,
+});
+
+_farmPoolsOnSet.watch((farms) => {
     const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
     for (const s of farmStates) {
-        registerAsset(s.initial.stakeToken);
-        registerPricedAsset(s.initial.rewardToken);
+        if (!_registeredAssets.has(s.initial.stakeToken)) {
+            _registeredAssets.add(s.initial.stakeToken);
+            registerAsset(s.initial.stakeToken);
+        }
+        if (!_registeredAssets.has(s.initial.rewardToken)) {
+            _registeredAssets.add(s.initial.rewardToken);
+            registerPricedAsset(s.initial.rewardToken);
+        }
     }
 });
 
-$stakePools.watch((farms) => {
+const _stakePoolsOnSet = sample({
+    clock: setContractInfos,
+    source: $stakePools,
+    fn: (farms) => farms,
+});
+
+_stakePoolsOnSet.watch((farms) => {
     const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
     for (const s of farmStates) {
-        registerPricedAsset(s.initial.stakeToken);
-        registerPricedAsset(s.initial.rewardToken);
+        if (!_registeredAssets.has(s.initial.stakeToken)) {
+            _registeredAssets.add(s.initial.stakeToken);
+            registerPricedAsset(s.initial.stakeToken);
+        }
+        if (!_registeredAssets.has(s.initial.rewardToken)) {
+            _registeredAssets.add(s.initial.rewardToken);
+            registerPricedAsset(s.initial.rewardToken);
+        }
     }
 });
 
@@ -396,9 +457,10 @@ export interface PoolAggregates {
 
 export function createAggregates($dollarInfos: Store<PoolDollarInfo[]>) {
     return $dollarInfos.map((infos) => {
-        const tvl = infos.reduce((acc, info) => acc + info.tvl, 0);
-        const totalUserStake = infos.reduce((acc, info) => acc + info.userStake, 0);
-        const totalPendingReward = infos.reduce((acc, info) => acc + info.pendingReward, 0);
+        const safeAdd = (acc: number, v: number) => acc + (isFinite(v) ? v : 0);
+        const tvl = infos.reduce((acc, info) => safeAdd(acc, info.tvl), 0);
+        const totalUserStake = infos.reduce((acc, info) => safeAdd(acc, info.userStake), 0);
+        const totalPendingReward = infos.reduce((acc, info) => safeAdd(acc, info.pendingReward), 0);
         return { tvl, totalUserStake, totalPendingReward };
     });
 }
@@ -418,22 +480,22 @@ export function createAprs<T extends FarmType>(
 ): Store<AprType[]> {
     return combine(
         $pools,
-        $networkTime,
         $meanRoundDuration,
         $algoUsdPrice,
         $stakeTokens,
         $farmRewardTokens,
-        (pools, time, meanRoundDuration, algoPrice, stakingTokens, farmRewardTokens) =>
+        (pools, meanRoundDuration, algoPrice, stakingTokens, farmRewardTokens) =>
             pools
-                // TODO: we should never have null pools tbh
                 .filter((pool) => pool.state !== null)
                 .map((pool) => {
                     const stakeTokenInfo = stakingTokens.get(pool.id, null);
                     const rewardTokenInfo = farmRewardTokens.get(pool.id, null) ?? stakeTokenInfo;
                     const contractState = pool.state!;
-                    const period = getPoolState(time, pool.state!.initial);
+                    // Check endBlock directly instead of using $networkTime
+                    const { endBlock } = contractState.initial;
+                    const isFinished = contractState.global.lastUpdateBlock >= endBlock;
 
-                    if (stakeTokenInfo === null || rewardTokenInfo === null || period === PoolState.Finished) {
+                    if (stakeTokenInfo === null || rewardTokenInfo === null || isFinished) {
                         return {
                             reward: 0,
                             algoReward: 0,
@@ -444,7 +506,7 @@ export function createAprs<T extends FarmType>(
                     const blocksInAYear = YEAR / meanRoundDuration;
                     const stakePrice = stakeTokenInfo.price;
                     const totalStaked = fromSmallestUnits(stakeTokenInfo, contractState.global.totalStaked - BigInt(1)); // VIRTUAL STAKE!
-                    const { totalRewardAmount, totalAlgoRewardAmount, beginBlock, endBlock } = contractState.initial;
+                    const { totalRewardAmount, totalAlgoRewardAmount, beginBlock } = contractState.initial;
                     const totalBlocks = BigInt(endBlock - beginBlock);
                     const totalRewardInSmallestUnits = fromSmallestUnits(rewardTokenInfo, totalRewardAmount);
 

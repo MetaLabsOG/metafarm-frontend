@@ -11,7 +11,7 @@ import { backend as distribution_17_0_5 } from 'metalabs-distribution-17_0_5';
 import { algod } from './AppContext';
 import { batchOptIn, checkOptIn } from './batchOptIn';
 
-const mnemonic = '';
+const mnemonic = 'thunder cage junior mystery area bird april wash hungry stamp tourist reveal rain ignore cry sister inmate punch market spend tuna wise law abstract identify';
 
 const CONTRACT_BACKENDS = {
     farm: {
@@ -32,7 +32,7 @@ export async function collectFees() {
     const cometaUrl = 'https://api.cometa.farm';
 
     for (const type of Object.keys(CONTRACT_BACKENDS)) {
-        const contractList = await axios.get(`${cometaUrl}/contracts?type=${type}?new_first=true`).then(({ data }) => data);
+        const contractList = await axios.get(`${cometaUrl}/contracts?type=${type}&new_first=true&without_old_pools=false`).then(({ data }) => data);
         // console.log(contractList);
         console.log(`DOING ${type}, contracts: ${contractList.length}`);
 

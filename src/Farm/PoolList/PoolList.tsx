@@ -1,6 +1,7 @@
 import { useUnit } from 'effector-react';
-import React, { ChangeEvent, useEffect, useState, useMemo } from 'react';
+import React, { ChangeEvent, useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useModal } from 'react-hooks-use-modal';
 import { PoolWithStats, sortPools } from '../store';
 import swapArrow from '../../imgs/swapArrow.svg';
 import { theme } from '../../theme';
@@ -12,6 +13,7 @@ import { VerifiedSwitchDesktop } from '../../Components/SwitchSelect/VerifiedSwi
 import DropdownButton from '../../Components/DropdownButton/Dropdown';
 
 import { $networkTime, ContractInfo, FarmType } from '../../common/store';
+import { ConnectWalletModal } from '../../wallet/ConnectWalletModal';
 import { useWalletPersistedState } from '../utils';
 import { PoolSearchInput } from '../styled';
 import { VirtualizedPoolList } from './VirtualizedPoolList';
@@ -34,24 +36,7 @@ import {
     HorizontalSpacer,
 } from './styled';
 // Pool component is now used in VirtualizedPoolList
-
-export enum ColumnType {
-    Name = 'Pool',
-    Tvl = 'TVL',
-    Apr = 'APR',
-    Stake = 'Staked',
-    Reward = 'Reward',
-    Ends = 'Ends',
-}
-
-export const POOL_COLUMN_WIDTH: Record<ColumnType, string> = {
-    [ColumnType.Name]: '300px',
-    [ColumnType.Tvl]: '130px',
-    [ColumnType.Apr]: '130px',
-    [ColumnType.Stake]: '120px',
-    [ColumnType.Reward]: '150px', // Adjusted width for better alignment
-    [ColumnType.Ends]: '170px',
-};
+import { ColumnType, POOL_COLUMN_WIDTH } from './columns';
 
 const AddFarmButton = ({ addFarmType }: { addFarmType: string }) => {
     return (
@@ -78,12 +63,32 @@ export function PoolList({
 }) {
     const query = useQuery();
     const priorityPoolId = query.get('pool_id');
-    const currentBlock = useUnit($networkTime);
+    // Throttle $networkTime: update state at most every 30 seconds (was every 5 sec via useUnit)
+    const [currentBlock, setCurrentBlock] = useState(() => $networkTime.getState());
+    const lastBlockUpdateRef = useRef(0);
+    useEffect(() => {
+        const unsub = $networkTime.watch((time: number) => {
+            if (time === 0) return;
+            const now = Date.now();
+            // Update immediately on first non-zero value, then every 30 seconds
+            if (lastBlockUpdateRef.current === 0 || now - lastBlockUpdateRef.current >= 30000) {
+                lastBlockUpdateRef.current = now;
+                setCurrentBlock(time);
+            }
+        });
+        return unsub;
+    }, []);
+
+    const [ConnectWallet, openConnectWallet, closeConnectWallet, isConnectWalletOpen] = useModal('root');
+    // Stabilize openConnectWallet via ref (useModal returns unstable reference)
+    const openWalletRef = useRef(openConnectWallet);
+    openWalletRef.current = openConnectWallet;
+    const stableOpenConnectWallet = useMemo(() => () => openWalletRef.current(), []);
 
     const [sortKey, setSortKey] = useWalletPersistedState<ColumnType>('sortKey', ColumnType.Tvl);
     const [isAscSort, setIsAscSort] = useWalletPersistedState('isAscSort', false);
     const [showVerified, setShowVerified] = useWalletPersistedState('showVerified', false);
-    const [showEnded, setShowEnded] = useWalletPersistedState('showEnded', false);
+    const [showEnded, setShowEnded] = useWalletPersistedState('showEnded', true);
     const [poolSearch, setPoolSearch] = useWalletPersistedState('poolSearch', '');
     const [showMyPools, setShowMyPools] = useState(false);
 
@@ -152,13 +157,6 @@ export function PoolList({
     const onVerifiedButton = () => {
         setShowVerified(!showVerified);
     };
-
-    useEffect(() => {
-        const sortColumn = showEnded ? ColumnType.Stake : ColumnType.Tvl;
-        setSortKey(sortColumn);
-        setIsAscSort(false);
-        sortEvent({ type: sortColumn, asc: false });
-    }, [showEnded]);
 
     return (
         <div>
@@ -246,8 +244,13 @@ export function PoolList({
                     filteredPools={filteredPools}
                     initEvent={initEvent}
                     priorityPoolId={priorityPoolId}
+                    currentBlock={currentBlock}
+                    openConnectWallet={stableOpenConnectWallet}
                 />
             </PoolListContainer>
+            <ConnectWallet>
+                <ConnectWalletModal closeModal={closeConnectWallet} isModalOpen={isConnectWalletOpen} />
+            </ConnectWallet>
         </div>
     );
 }

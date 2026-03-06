@@ -299,6 +299,35 @@ module.exports = function (webpackEnv) {
         // This is only used in production mode
         new CssMinimizerPlugin(),
       ],
+      splitChunks: {
+        chunks: 'all',
+        maxInitialRequests: 20,
+        minSize: 20000,
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name(module) {
+              const match = module.context && module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/);
+              if (!match) return 'vendor-misc';
+              const packageName = match[1];
+              // Group heavy packages into their own chunks
+              if (packageName.startsWith('@reach-sh')) return 'vendor-reach';
+              if (packageName.startsWith('@google') || packageName === 'three') return 'vendor-3d';
+              if (packageName === 'chart.js') return 'vendor-charts';
+              if (packageName.startsWith('@sentry')) return 'vendor-sentry';
+              if (packageName.startsWith('@pactfi') || packageName.startsWith('@deflex')) return 'vendor-dex';
+              if (packageName === 'algosdk') return 'vendor-algo';
+              return 'vendor-misc';
+            },
+            priority: 10,
+          },
+          common: {
+            minChunks: 2,
+            priority: 5,
+            reuseExistingChunk: true,
+          },
+        },
+      },
     },
     resolve: {
       // This allows you to set a fallback for where webpack should look for modules.

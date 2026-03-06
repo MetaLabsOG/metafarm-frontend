@@ -1,5 +1,4 @@
 import { FC } from 'react';
-import ReactTooltip from 'react-tooltip';
 import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
 import info from '../../../imgs/info.svg';
 import {
@@ -126,14 +125,6 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                                 alt="APR info"
                                 height="14px"
                                 src={info}
-                            />
-                            <ReactTooltip
-                                clickable
-                                place="top"
-                                type="light"
-                                effect="solid"
-                                className="custom-tooltip"
-                                backgroundColor="rgba(255, 255, 255, 0.9)"
                             />
                         </span>
                     </PoolPropertyValue>

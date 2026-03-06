@@ -1,4 +1,3 @@
-import ReactTooltip from 'react-tooltip';
 import { TokensIcons } from '../Components/PoolHeader/PoolHeader';
 import { DexProvider } from '../dexes';
 import { PoolHeaderContainer, PoolInfo } from '../Components/PoolHeader/styled';
@@ -32,7 +31,6 @@ export const LaaSHeader = ({
                     </div>
                 )}
             </PoolInfo>
-            <ReactTooltip clickable place="top" type="light" effect="solid" />
         </PoolHeaderContainer>
     );
 };
