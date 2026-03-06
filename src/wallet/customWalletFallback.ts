@@ -182,8 +182,5 @@ const walletFallback_PeraOrDefly =
         return { ...wallet, _impl: innerWallet };
     };
 
-const walletFallback_WalletConnect = (opts: object) => walletFallback_PeraOrDefly(
-    new PeraWalletConnect({ bridge: 'https://wallet-connect-a.perawallet.app' }),
-    opts
-);
+const walletFallback_WalletConnect = (opts: object) => walletFallback_PeraOrDefly(new PeraWalletConnect(), opts);
 const walletFallback_WalletConnectDefly = (opts: object) => walletFallback_PeraOrDefly(new DeflyWalletConnect(), opts);
