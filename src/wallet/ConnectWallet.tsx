@@ -19,7 +19,27 @@ const browserInfoString =
         ? 'unknown'
         : `${BROWSER.name} ${BROWSER.version ?? 'UNKNOWN_VERSION'} ${BROWSER.os ?? 'UNKNOWN_OS'}`;
 
+// Connection state: prevent concurrent wallet connections
+let connectionGeneration = 0;
+
+function cleanupWalletModals() {
+    // Remove leftover Pera SDK modal
+    document.getElementById('pera-wallet-connect-modal-wrapper')?.remove();
+    document.getElementById('pera-wallet-redirect-modal-wrapper')?.remove();
+    document.getElementById('pera-wallet-sign-txn-toast-wrapper')?.remove();
+    // Remove leftover WalletConnect modal (used by DeflyWalletV2)
+    document.querySelector('wcm-modal')?.remove();
+    document.querySelector('w3m-modal')?.remove();
+}
+
 export const connectWallet = (walletType: WalletType) => {
+    // Increment generation to invalidate any in-flight connection
+    const thisGeneration = ++connectionGeneration;
+    console.log('[ConnectWallet] Starting connection for:', walletType, 'gen:', thisGeneration);
+
+    // Clean up modals from any previous attempt
+    cleanupWalletModals();
+
     reach.clearProvider();
     delete window.algorand;
 
@@ -33,9 +53,13 @@ export const connectWallet = (walletType: WalletType) => {
     reach
         .getDefaultAccount()
         .then((acc) => {
+            // Ignore result if a newer connection was started
+            if (thisGeneration !== connectionGeneration) {
+                console.log('[ConnectWallet] Stale connection result ignored, gen:', thisGeneration);
+                return;
+            }
             setAccount(acc);
             console.log('Address:', acc.networkAccount.addr);
-            console.log('Browser:', browserInfoString);
             logEvent(
                 acc.networkAccount.addr,
                 {
@@ -52,6 +76,7 @@ export const connectWallet = (walletType: WalletType) => {
             return acc;
         })
         .catch((error) => {
+            if (thisGeneration !== connectionGeneration) return;
             if (error instanceof Error) {
                 console.log('ERROR. ConnectWallet:', error);
                 logEvent('', { message: `ERROR. ConnectWallet: ${error.name}: ${error.message}` }, LogName.ERRORS);
@@ -106,7 +131,7 @@ export function ConnectWallet({
 
     useEffect(() => {
         const connectedWallet = getWalletType();
-        if (connectedWallet !== null && !window.algorand) {
+        if (connectedWallet !== null) {
             connectWallet(connectedWallet as WalletType);
         }
     }, []);

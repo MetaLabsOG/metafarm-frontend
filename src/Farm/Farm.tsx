@@ -8,8 +8,6 @@ import { PoolList } from './PoolList';
 import { $sortedPoolsWithStats, initializeFarmContract } from './store';
 import { BalanceContainer, FarmContainer, GovImg } from './styled';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
-import { Button } from '../Components/Button/Button';
-import { collectFees } from '../collectFees';
 import { useWindowSize } from '../hooks';
 
 export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
@@ -76,7 +74,6 @@ export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => {
 
     return (
         <FarmContainer>
-            <Button onClick={collectFees} buttonText={'COLLECT FEES'} />
             {isMobile && renderSliseAd()}
             <BalanceContainer>
                 <Balance kind={'farm' as FarmType} />

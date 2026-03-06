@@ -1,8 +1,8 @@
 import { Buffer } from 'buffer';
 import algosdk from 'algosdk';
-import { PeraWalletConnect } from '@perawallet/connect';
-import { DeflyWalletConnect } from '@blockshake/defly-connect';
+import { PeraWalletConnect } from '@perawallet/connect-beta';
 import { ALGO_MyAlgoConnect as MyAlgoConnect, ALGO_WalletConnect as WalletConnect } from '@reach-sh/stdlib';
+import { DeflyWalletV2 } from './deflyWalletV2';
 import type {
     ARC11_Wallet,
     EnableOpts,
@@ -15,12 +15,12 @@ import type {
 } from '../types';
 
 import { makeProviderByEnv } from '../reachRedefinitions';
-import { reach } from '../AppContext';
+import { reach, ALGONET, MAINNET } from '../AppContext';
 
 export type WalletType = 'MyAlgo' | 'WalletConnect' | 'WalletConnectDefly';
-export type WalletFallbackOpts = any & ({ MyAlgoConnect: MyAlgoConnect } | { WalletConnect: PeraWalletConnect });
+export type WalletFallbackOpts = any & ({ MyAlgoConnect: MyAlgoConnect } | { WalletConnect: PeraWalletConnect | DeflyWalletV2 });
 export type ARC11_Wallet_Disconnectable = ARC11_Wallet & { disconnect: () => Promise<void> };
-export type ARC11_Wallet_Exposed = ARC11_Wallet_Disconnectable & { _impl: MyAlgoConnect | PeraWalletConnect };
+export type ARC11_Wallet_Exposed = ARC11_Wallet_Disconnectable & { _impl: MyAlgoConnect | PeraWalletConnect | DeflyWalletV2 };
 
 /**
  * Another copypaste from Reach, but here we fix a bunch of stuff
@@ -143,17 +143,29 @@ const walletFallback_MyAlgoWallet = (options: object) => (): ARC11_Wallet_Expose
 };
 
 const walletFallback_PeraOrDefly =
-    (innerWallet: PeraWalletConnect | DeflyWalletConnect, options: object) => (): ARC11_Wallet_Exposed => {
+    (innerWallet: PeraWalletConnect | DeflyWalletV2, options: object) => (): ARC11_Wallet_Exposed => {
         const getAddr = async (): Promise<string> => {
-            let addrs;
-            try {
-                addrs = await innerWallet.reconnectSession();
-                if (addrs.length === 0) {
-                    throw new Error('could not reconnect');
+            // Check if there's a persisted session worth reconnecting to.
+            // Skip reconnect for fresh connections — saves 1-3 seconds of WC client init.
+            const hasPersistedSession = localStorage.getItem('PeraWallet.Wallet') !== null
+                || Object.keys(localStorage).some(k => k.startsWith('wc@2:'));
+
+            if (hasPersistedSession) {
+                try {
+                    console.log('[Wallet] Persisted session found, attempting reconnect...');
+                    const addrs = await innerWallet.reconnectSession();
+                    if (addrs.length > 0) {
+                        console.log('[Wallet] Reconnected:', addrs[0]);
+                        return addrs[0];
+                    }
+                } catch (e) {
+                    console.log('[Wallet] Reconnect failed:', e);
                 }
-            } catch {
-                addrs = await innerWallet.connect();
             }
+
+            console.log('[Wallet] Calling connect()...');
+            const addrs = await innerWallet.connect();
+            console.log('[Wallet] Connected:', addrs[0]);
             return addrs[0];
         };
 
@@ -182,5 +194,12 @@ const walletFallback_PeraOrDefly =
         return { ...wallet, _impl: innerWallet };
     };
 
-const walletFallback_WalletConnect = (opts: object) => walletFallback_PeraOrDefly(new PeraWalletConnect(), opts);
-const walletFallback_WalletConnectDefly = (opts: object) => walletFallback_PeraOrDefly(new DeflyWalletConnect(), opts);
+const WC_PROJECT_ID = 'bbdf45a3e6ca9f8da5738d7b854ff2c9';
+
+const PERA_NETWORK = ALGONET === MAINNET ? 'mainnet' : 'testnet';
+
+const walletFallback_WalletConnect = (opts: object) =>
+    walletFallback_PeraOrDefly(new PeraWalletConnect({ projectId: WC_PROJECT_ID, network: PERA_NETWORK as any }), opts);
+
+const walletFallback_WalletConnectDefly = (opts: object) =>
+    walletFallback_PeraOrDefly(new DeflyWalletV2({ projectId: WC_PROJECT_ID }), opts);

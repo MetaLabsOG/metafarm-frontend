@@ -24,10 +24,12 @@ export class ErrorBoundary extends Component<Props, State> {
         try {
             // Preserve wallet keys
             const walletAddress = localStorage.getItem('walletAddress');
-            const walletType = localStorage.getItem('walletType');
+            const walletType = localStorage.getItem('connectedWalletType');
+            const walletNfd = localStorage.getItem('walletNfdName');
             localStorage.clear();
             if (walletAddress) localStorage.setItem('walletAddress', walletAddress);
-            if (walletType) localStorage.setItem('walletType', walletType);
+            if (walletType) localStorage.setItem('connectedWalletType', walletType);
+            if (walletNfd) localStorage.setItem('walletNfdName', walletNfd);
         } catch {
             // If localStorage itself is broken, just proceed
         }
