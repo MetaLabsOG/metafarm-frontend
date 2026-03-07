@@ -356,6 +356,19 @@ export interface FarmEnrichedResponse {
     lp_states?: Record<string, BackendLPTokenInfo>;
 }
 
+export async function getUserContracts(
+    address: string,
+    type: string
+): Promise<JsonWithBignum> {
+    return instance
+        .get<Json>(`/contracts/user/${address}`, { params: { type } })
+        .then(({ data }) => resolveBignums(data))
+        .catch((error) => {
+            console.error('Failed to fetch user contracts:', error);
+            return [];
+        });
+}
+
 export async function getFarmEnriched(): Promise<FarmEnrichedResponse | null> {
     try {
         const { data } = await instance.get<FarmEnrichedResponse>('/contracts/farm/enriched');

@@ -12,7 +12,7 @@ import { VerifiedSwitchDesktop } from '../../Components/SwitchSelect/VerifiedSwi
 
 import DropdownButton from '../../Components/DropdownButton/Dropdown';
 
-import { $networkTime, ContractInfo, FarmType } from '../../common/store';
+import { $account, $networkTime, ContractInfo, FarmType } from '../../common/store';
 import { ConnectWalletModal } from '../../wallet/ConnectWalletModal';
 import { useWalletPersistedState } from '../utils';
 import { PoolSearchInput } from '../styled';
@@ -78,6 +78,9 @@ export function PoolList({
         });
         return unsub;
     }, []);
+
+    const account = useUnit($account);
+    const hasWallet = !!account?.networkAccount?.addr || !!localStorage.getItem('walletAddress');
 
     const [ConnectWallet, openConnectWallet, closeConnectWallet, isConnectWalletOpen] = useModal('root');
     // Stabilize openConnectWallet via ref (useModal returns unstable reference)
@@ -247,6 +250,16 @@ export function PoolList({
                     currentBlock={currentBlock}
                     openConnectWallet={stableOpenConnectWallet}
                 />
+                {showEnded && filteredPools.length === 0 && !hasWallet && (
+                    <div style={{
+                        textAlign: 'center',
+                        padding: '40px 20px',
+                        color: theme.gray,
+                        fontSize: '14px',
+                    }}>
+                        Connect wallet to see your ended pools
+                    </div>
+                )}
             </PoolListContainer>
             <ConnectWallet>
                 <ConnectWalletModal closeModal={closeConnectWallet} isModalOpen={isConnectWalletOpen} />

@@ -34,7 +34,7 @@ import './css/index.css';
 import './css/tailwind.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { setPoolInfos, prePopulateLpTokenInfos } from './Farm/store';
-import { getContracts, getFarmEnriched } from './providers/apiProvider';
+import { getContracts, getFarmEnriched, getUserContracts } from './providers/apiProvider';
 import { prePopulateAssets, prePopulateAssetPrices, $assets } from './common/store';
 import { setDistributionPoolInfos } from './Stake/store';
 import { WelcomeModal } from './WelcomeModal';
@@ -122,8 +122,20 @@ function App() {
     }
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
-    const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm', user_address));
-    const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution', user_address));
+    const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm'));
+    const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution'));
+
+    // User's contracts (active + ended) — loaded when wallet is connected
+    const userFarmsFetch = useQuery(
+        ['contracts', 'farm', 'user', user_address],
+        () => getUserContracts(user_address!, 'farm'),
+        { enabled: !!user_address, staleTime: 60_000 }
+    );
+    const userDistrFetch = useQuery(
+        ['contracts', 'distribution', 'user', user_address],
+        () => getUserContracts(user_address!, 'distribution'),
+        { enabled: !!user_address, staleTime: 60_000 }
+    );
 
     const [Modal, openWelcomeModal] = useModal('root');
 
@@ -226,19 +238,36 @@ function App() {
     }, []);
 
     // Set pool infos only AFTER enriched data is loaded to prevent DEX SDK cascade
+    // Merge active contracts + user's contracts (dedup by id)
     useEffect(() => {
-        if (enrichedLoaded && farmsFetch.isSuccess && farmsFetch.data) {
-            const data = farmsFetch.data as Array<ContractInfo<'farm'>>;
-            setPoolInfosEvent(data);
+        if (!enrichedLoaded || !farmsFetch.isSuccess || !farmsFetch.data) return;
+
+        const activeContracts = farmsFetch.data as Array<ContractInfo<'farm'>>;
+
+        if (userFarmsFetch.isSuccess && userFarmsFetch.data) {
+            const userContracts = userFarmsFetch.data as Array<ContractInfo<'farm'>>;
+            const activeIds = new Set(activeContracts.map((c: any) => c.id));
+            const userOnly = userContracts.filter((c: any) => !activeIds.has(c.id));
+            setPoolInfosEvent([...activeContracts, ...userOnly]);
+        } else {
+            setPoolInfosEvent(activeContracts);
         }
-    }, [enrichedLoaded, farmsFetch.isSuccess, farmsFetch.data]);
+    }, [enrichedLoaded, farmsFetch.isSuccess, farmsFetch.data, userFarmsFetch.isSuccess, userFarmsFetch.data]);
 
     useEffect(() => {
-        if (distrFetch.isSuccess && distrFetch.data) {
-            const data = distrFetch.data as Array<ContractInfo<'distribution'>>;
-            setDistributionPoolInfosEvent(data);
+        if (!distrFetch.isSuccess || !distrFetch.data) return;
+
+        const activeContracts = distrFetch.data as Array<ContractInfo<'distribution'>>;
+
+        if (userDistrFetch.isSuccess && userDistrFetch.data) {
+            const userContracts = userDistrFetch.data as Array<ContractInfo<'distribution'>>;
+            const activeIds = new Set(activeContracts.map((c: any) => c.id));
+            const userOnly = userContracts.filter((c: any) => !activeIds.has(c.id));
+            setDistributionPoolInfosEvent([...activeContracts, ...userOnly]);
+        } else {
+            setDistributionPoolInfosEvent(activeContracts);
         }
-    }, [distrFetch.isSuccess, distrFetch.data]);
+    }, [distrFetch.isSuccess, distrFetch.data, userDistrFetch.isSuccess, userDistrFetch.data]);
 
     return (
         <>
