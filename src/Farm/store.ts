@@ -309,11 +309,14 @@ sample({
         // Skip if already pre-populated from enriched endpoint
         if (lpTokens.has(lpTokenAsset.id)) return false;
         // Check if the asset is an LP token for a DEX farm pool with complete metadata
+        // Skip ended pools — no need to fetch real-time LP prices for them
+        const currentBlock = $networkTime.getState();
         return farmPools.some(pool =>
             pool.state?.initial.stakeToken === lpTokenAsset.id &&
             pool.info.metadata.dex &&
             pool.info.metadata.asset1_id &&
-            pool.info.metadata.asset2_id
+            pool.info.metadata.asset2_id &&
+            (currentBlock === 0 || !pool.info.metadata.end_block || Number(pool.info.metadata.end_block) > currentBlock)
         );
     },
     fn: ({ farmPools, algoPrice }, lpTokenAsset) => {
