@@ -197,8 +197,50 @@ const WC_PROJECT_ID = 'bbdf45a3e6ca9f8da5738d7b854ff2c9';
 
 const PERA_NETWORK = ALGONET === MAINNET ? 'mainnet' : 'testnet';
 
+// Pre-create wallet instances at module load so SignClient.init() runs in background
+// before the user clicks "Connect". This eliminates the 2-5s cold start delay.
+let _peraInstance: PeraWalletConnect | null = null;
+let _deflyInstance: DeflyWalletV2 | null = null;
+
+function getPeraInstance(): PeraWalletConnect {
+    if (!_peraInstance) {
+        _peraInstance = new PeraWalletConnect({ projectId: WC_PROJECT_ID, network: PERA_NETWORK as any });
+    }
+    return _peraInstance;
+}
+
+function getDeflyInstance(): DeflyWalletV2 {
+    if (!_deflyInstance) {
+        _deflyInstance = new DeflyWalletV2({ projectId: WC_PROJECT_ID });
+    }
+    return _deflyInstance;
+}
+
+// Warm up wallet clients in background after page load
+if (typeof window !== 'undefined') {
+    // Use requestIdleCallback or setTimeout to not block initial render
+    const warmUp = () => {
+        try { getPeraInstance(); } catch { /* ignore init errors */ }
+        try { getDeflyInstance(); } catch { /* ignore init errors */ }
+    };
+    if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(warmUp, { timeout: 5000 });
+    } else {
+        setTimeout(warmUp, 2000);
+    }
+}
+
+// Reset wallet instance after disconnect so next connect gets a fresh session
+export function resetPeraInstance(): void {
+    _peraInstance = null;
+}
+
+export function resetDeflyInstance(): void {
+    _deflyInstance = null;
+}
+
 const walletFallback_WalletConnect = (opts: object) =>
-    walletFallback_PeraOrDefly(new PeraWalletConnect({ projectId: WC_PROJECT_ID, network: PERA_NETWORK as any }), opts);
+    walletFallback_PeraOrDefly(getPeraInstance(), opts);
 
 const walletFallback_WalletConnectDefly = (opts: object) =>
-    walletFallback_PeraOrDefly(new DeflyWalletV2({ projectId: WC_PROJECT_ID }), opts);
+    walletFallback_PeraOrDefly(getDeflyInstance(), opts);
