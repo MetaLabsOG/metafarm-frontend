@@ -237,14 +237,62 @@ export const PoolInfoValue = styled.div<{ width?: string }>`
 
 export const PoolActionsDesktopContainer = styled.div`
     display: flex;
-    margin-top: 38px;
-    gap: 25px;
+    flex-direction: column;
+    gap: 16px;
     width: 100%;
-    padding: 0 20px;
+    padding: 0 24px 24px;
 
     @media (max-width: 1120px) {
         display: none;
     }
+`;
+
+export const ModalHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 0;
+    font-family: 'Montserrat';
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.3px;
+`;
+
+export const ModalCloseButton = styled.button`
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+    transition: color 0.2s;
+    &:hover {
+        color: rgba(255, 255, 255, 0.8);
+    }
+`;
+
+export const ModalDivider = styled.div`
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
+    margin: 4px 0;
+`;
+
+export const ActionSectionLabel = styled.div`
+    font-family: 'Montserrat';
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.35);
+    margin-bottom: 8px;
+`;
+
+export const ActionButtonsRow = styled.div`
+    display: flex;
+    gap: 10px;
+    width: 100%;
 `;
 
 export const BasicInfo = styled.div`

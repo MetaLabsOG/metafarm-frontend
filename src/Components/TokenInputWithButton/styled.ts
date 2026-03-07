@@ -4,7 +4,7 @@ import { ColorThemed } from '../../theme';
 export const TokenInputWithButtonContainer = styled.div`
     display: flex;
     flex-direction: column;
-    width: 240px;
+    width: 100%;
     height: 100%;
     justify-content: space-around;
 
@@ -49,7 +49,8 @@ export const Input = styled.input<{ isActive: boolean }>`
     border: 1px solid ${({ theme, isActive }: InputProps) => (isActive ? theme.lightGray : theme.gray)};
     border-radius: 4px 0 0 4px;
     border-right: none;
-    width: 60%;
+    flex: 1;
+    min-width: 0;
     font-size: 14px;
     padding-left: 10px;
     padding-right: 50px;
@@ -63,7 +64,7 @@ type MaxButtonProps = ColorThemed<unknown>;
 
 export const MaxButton = styled.div<{ isActive: boolean }>`
     position: absolute;
-    left: 35%;
+    right: 124px;
     top: 4px;
     padding: 6px;
     color: ${({ theme, isActive }: InputProps) => (isActive ? theme.lightGray : theme.gray)};

@@ -91,7 +91,7 @@ export function PoolList({
     const [sortKey, setSortKey] = useWalletPersistedState<ColumnType>('sortKey', ColumnType.Tvl);
     const [isAscSort, setIsAscSort] = useWalletPersistedState('isAscSort', false);
     const [showVerified, setShowVerified] = useWalletPersistedState('showVerified', false);
-    const [showEnded, setShowEnded] = useWalletPersistedState('showEnded', true);
+    const [showEnded, setShowEnded] = useWalletPersistedState('showEnded', false);
     const [poolSearch, setPoolSearch] = useWalletPersistedState('poolSearch', '');
     const [showMyPools, setShowMyPools] = useState(false);
 

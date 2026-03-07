@@ -15,6 +15,7 @@ import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
 import { GradientPoolContainer } from './GradientPoolCard';
+import { ModalCloseButton, ModalHeader } from './styled';
 import { LoadingSpinner } from '../../../Components/LoadingSpinner';
 import { convertAmountToUSD, getPoolState } from './utils';
 import { useWindowSize } from '../../../hooks';
@@ -142,12 +143,20 @@ function PoolInner({
                                 border: '1px solid rgba(255, 255, 255, 0.1)',
                                 boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
                                 width: '100%',
-                                maxWidth: isDesktop ? '600px' : '400px',
+                                maxWidth: isDesktop ? '480px' : '400px',
                                 maxHeight: '90vh',
                                 overflowY: 'auto',
                             }}
                             onClick={(e) => e.stopPropagation()}
                         >
+                            <ModalHeader>
+                                <span>
+                                    Stake {stakeTokenInfo.unitName} · Earn {rewardTokenInfo.unitName}
+                                </span>
+                                <ModalCloseButton onClick={() => setIsOpen(false)}>
+                                    ×
+                                </ModalCloseButton>
+                            </ModalHeader>
                             <PoolActions
                                 poolState={poolState}
                                 ctc={contract.ctc}

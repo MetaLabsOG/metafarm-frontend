@@ -11,7 +11,7 @@ import { algoexplorerContractLink } from '../../../common/lib';
 import { notify } from '../../../Components/Notification';
 import { NftLottery } from '../../../Swap/NftWinModal';
 import { isCompoundEnabled, runCompound } from './compound';
-import { ContractLink, PoolActionsDesktopContainer, TokenInfo } from './styled';
+import { ActionButtonsRow, ActionSectionLabel, ContractLink, ModalDivider, PoolActionsDesktopContainer } from './styled';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
 import { getDestroyLPLink, getLPTokenPoolLink, isLPTokenInfo } from './utils';
@@ -81,13 +81,16 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
 }) => {
     const account = useUnit($account);
 
+    const showCompound = canStake && canClaim && account && isCompoundEnabled(stakedToken, rewardTokenInfo.id);
+
     return (
         <PoolActionsDesktopContainer>
-            <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', marginBottom: '20px' }}>
-                <TokenInfo>
+            {/* Top row: Get Token + Contract links */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
                     {isLPTokenInfo(stakedToken) && canStake && (
                         <Button
-                            style={{ color: 'white' }}
+                            style={{ color: 'white', height: '36px', fontSize: '12px', width: 'auto', padding: '0 16px' }}
                             buttonText="Get LP Tokens"
                             onClick={getLPTokenAction(stakedToken, openZapModal)}
                         />
@@ -95,29 +98,32 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     {!isLPTokenInfo(stakedToken) && canStake && (
                         <a target="_blank" href={'https://app.cometa.farm/swap'} rel="noreferrer">
                             <Button
-                                style={{ color: 'white' }}
+                                style={{ color: 'white', height: '36px', fontSize: '12px', width: 'auto', padding: '0 16px' }}
                                 buttonText={'Get ' + stakedToken.unitName}
                                 onClick={() => {}}
                             />
                         </a>
                     )}
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
-                            <ContractLink>Сontract</ContractLink>
+                </div>
+                <div style={{ display: 'flex', gap: '16px' }}>
+                    <a target="_blank" href={algoexplorerContractLink(contractId)} rel="noreferrer">
+                        <ContractLink>Contract</ContractLink>
+                    </a>
+                    {isLPTokenInfo(stakedToken) && (
+                        <a target="_blank" href={getDestroyLPLink(stakedToken)} rel="noreferrer">
+                            <ContractLink>Destroy LP</ContractLink>
                         </a>
-                        {isLPTokenInfo(stakedToken) && (
-                            <a target="_blank" href={getDestroyLPLink(stakedToken)} rel="noreferrer">
-                                <ContractLink>Destroy LP</ContractLink>
-                            </a>
-                        )}
-                    </div>
-                </TokenInfo>
+                    )}
+                </div>
             </div>
 
-            <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', gap: '20px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: '1' }}>
+            <ModalDivider />
+
+            {/* Stake section */}
+            {canStake && (
+                <div>
+                    <ActionSectionLabel>Stake</ActionSectionLabel>
                     <TokenInputWithButton
-                        style={!canStake ? { visibility: 'hidden' } : {}}
                         token={stakedToken}
                         tokenMicroBalance={stakedTokenBalance}
                         balanceSuffix={balanceSuffix}
@@ -127,22 +133,33 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                         hasLock={hasLock}
                         isAutoClaim={isAutoClaim}
                     />
-                    <TokenInputWithButton
-                        token={stakedToken}
-                        tokenMicroBalance={contractState.local.staked}
-                        balanceSuffix={balanceSuffix}
-                        buttonName="Withdraw"
-                        optInId={rewardTokenInfo.id}
-                        actionEffect={ctc.apis.unstake}
-                        hasLock={hasLock}
-                        isAutoClaim={isAutoClaim}
-                    />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', minWidth: '150px' }}>
+            )}
+
+            {/* Withdraw section */}
+            <div>
+                <ActionSectionLabel>Withdraw</ActionSectionLabel>
+                <TokenInputWithButton
+                    token={stakedToken}
+                    tokenMicroBalance={contractState.local.staked}
+                    balanceSuffix={balanceSuffix}
+                    buttonName="Withdraw"
+                    optInId={rewardTokenInfo.id}
+                    actionEffect={ctc.apis.unstake}
+                    hasLock={hasLock}
+                    isAutoClaim={isAutoClaim}
+                />
+            </div>
+
+            <ModalDivider />
+
+            {/* Claim / Compound buttons */}
+            {canClaim && (
+                <ActionButtonsRow>
                     <PacmanButton
-                        style={!canClaim ? { visibility: 'hidden' } : {}}
                         buttonText="Claim"
                         buttonStyle="claim_button"
+                        style={{ flex: 1, width: '100%' }}
                         isInactive={!isActiveClaim}
                         onClickAction={async () =>
                             onClickClaim(
@@ -156,19 +173,21 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                             )
                         }
                     />
-                    <UnlockTimer unlockTimer={unlockTimer} />
-                    {canStake && canClaim && account && isCompoundEnabled(stakedToken, rewardTokenInfo.id) && (
+                    {showCompound && (
                         <PacmanButton
                             buttonText="Compound"
                             buttonStyle="claim_button"
+                            style={{ flex: 1, width: '100%' }}
                             isInactive={!isActiveClaim}
                             onClickAction={async () =>
                                 runCompound(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)
                             }
                         />
                     )}
-                </div>
-            </div>
+                </ActionButtonsRow>
+            )}
+
+            <UnlockTimer unlockTimer={unlockTimer} />
         </PoolActionsDesktopContainer>
     );
 };
