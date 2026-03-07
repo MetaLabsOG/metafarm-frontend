@@ -6,8 +6,8 @@ WORKDIR /app
 # Install git for dependencies that require it
 RUN apk add --no-cache git
 
-# Copy package files and scripts first
-COPY package.json yarn.lock ./
+# Copy package files, config, and scripts first
+COPY package.json yarn.lock .npmrc ./
 COPY scripts ./scripts
 COPY src/vendor ./src/vendor
 
