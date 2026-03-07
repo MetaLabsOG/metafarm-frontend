@@ -243,8 +243,15 @@ export const getTinymanPools = nonConcurrent(async (limit: number, search = '', 
     }
 
     const poolsResponse = await fetch(tinymanUrl);
+    if (!poolsResponse.ok) {
+        console.warn(`Tinyman API error: ${poolsResponse.status} ${poolsResponse.statusText}`);
+        if (poolsResponse.status === 429) {
+            throw new Error('Tinyman API rate limited (429)');
+        }
+        return [];
+    }
     const pools = await poolsResponse.json();
-    return pools.results;
+    return pools.results ?? [];
 });
 
 export const getPactPools = nonConcurrent(async (limit: number, search = ''): Promise<any[]> => {

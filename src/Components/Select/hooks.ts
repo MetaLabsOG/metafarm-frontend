@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useUnit } from 'effector-react';
 import { algod } from '../../AppContext';
 import { Amount, AssetId, $balances } from '../../common/store';
@@ -48,6 +48,8 @@ async function filterOptions(
     return options.filter((option) => option.name.toLowerCase().includes(tokenSearchInput.toLowerCase())) || options;
 }
 
+const SEARCH_DEBOUNCE_MS = 350;
+
 const useFilteredTokenOptions = (
     initialOptions: SelectOptionType[],
     tokenSearchInput: string,
@@ -56,6 +58,7 @@ const useFilteredTokenOptions = (
 ) => {
     const balances = useUnit($balances);
     const [currentOptions, setCurrentOptions] = useState<SelectOptionType[]>(initialOptions);
+    const debounceTimer = useRef<ReturnType<typeof setTimeout>>();
 
     const fetchOptions = useCallback(async () => {
         if (getOptions && selectedOption) {
@@ -68,8 +71,15 @@ const useFilteredTokenOptions = (
     }, [tokenSearchInput, initialOptions, balances, getOptions, selectedOption]);
 
     useEffect(() => {
-        fetchOptions();
-    }, [fetchOptions]);
+        if (!tokenSearchInput) {
+            fetchOptions();
+            return;
+        }
+
+        clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(fetchOptions, SEARCH_DEBOUNCE_MS);
+        return () => clearTimeout(debounceTimer.current);
+    }, [fetchOptions, tokenSearchInput]);
 
     return currentOptions;
 };

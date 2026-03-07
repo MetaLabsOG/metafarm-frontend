@@ -420,29 +420,34 @@ function PoolInfo({
 
 function getTinymanPoolOptions(selectedOption?: SelectOptionType) {
     return (query: string) => {
-        return getTinymanPools(50, query, true).then((pools) => {
-            const options: PoolOptionType[] = pools.map((pool) => {
-                return {
-                    value: pool.liquidity_asset.id.toString(),
-                    name: pool.asset_1.unit_name + '-' + pool.asset_2.unit_name + ' LP',
-                    poolId: 0,
-                    poolDex: 'T3',
-                    asset1: pool.asset_1.id,
-                    asset2: pool.asset_2.id,
-                    liquidityAsset: pool.liquidity_asset.id,
-                    asset1Reserve: BigInt(0),
-                    asset2Reserve: BigInt(0),
-                    totalLiquidity: BigInt(Math.round(pool.liquidity_in_usd)),
-                    dexFeeApr: pool.annual_percentage_rate,
-                };
+        return getTinymanPools(50, query, true)
+            .then((pools) => {
+                const options: PoolOptionType[] = pools.map((pool) => {
+                    return {
+                        value: pool.liquidity_asset.id.toString(),
+                        name: pool.asset_1.unit_name + '-' + pool.asset_2.unit_name + ' LP',
+                        poolId: 0,
+                        poolDex: 'T3',
+                        asset1: pool.asset_1.id,
+                        asset2: pool.asset_2.id,
+                        liquidityAsset: pool.liquidity_asset.id,
+                        asset1Reserve: BigInt(0),
+                        asset2Reserve: BigInt(0),
+                        totalLiquidity: BigInt(Math.round(pool.liquidity_in_usd)),
+                        dexFeeApr: pool.annual_percentage_rate,
+                    };
+                });
+
+                if (selectedOption && selectedOption.value && !options.includes(selectedOption as PoolOptionType)) {
+                    options.push(selectedOption as PoolOptionType);
+                }
+
+                return options;
+            })
+            .catch((error) => {
+                console.warn('Tinyman pool search failed:', error.message);
+                return [];
             });
-
-            if (selectedOption && selectedOption.value && !options.includes(selectedOption as PoolOptionType)) {
-                options.push(selectedOption as PoolOptionType);
-            }
-
-            return options;
-        });
     };
 }
 
