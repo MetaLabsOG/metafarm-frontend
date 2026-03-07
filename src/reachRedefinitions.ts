@@ -21,7 +21,7 @@ import {
  * Should not lead to many bugs; if it does, we probably should
  * invalidate the request cache after doing POST requests or something.
  */
-const REACH_GET_REQUEST_CACHE_PERIOD = 1000;
+const REACH_GET_REQUEST_CACHE_PERIOD = 5000;
 
 /**
  * Lots of copy-paste from Reach here, but this allows us to easily

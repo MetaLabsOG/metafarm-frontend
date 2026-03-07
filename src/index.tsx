@@ -254,8 +254,9 @@ function App() {
         }
     }, [enrichedLoaded, farmsFetch.isSuccess, farmsFetch.data, userFarmsFetch.isSuccess, userFarmsFetch.data]);
 
+    // Distribution pools also wait for enriched to prevent asset registration race
     useEffect(() => {
-        if (!distrFetch.isSuccess || !distrFetch.data) return;
+        if (!enrichedLoaded || !distrFetch.isSuccess || !distrFetch.data) return;
 
         const activeContracts = distrFetch.data as Array<ContractInfo<'distribution'>>;
 
@@ -267,7 +268,7 @@ function App() {
         } else {
             setDistributionPoolInfosEvent(activeContracts);
         }
-    }, [distrFetch.isSuccess, distrFetch.data, userDistrFetch.isSuccess, userDistrFetch.data]);
+    }, [enrichedLoaded, distrFetch.isSuccess, distrFetch.data, userDistrFetch.isSuccess, userDistrFetch.data]);
 
     return (
         <>

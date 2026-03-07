@@ -38,8 +38,8 @@ export const doEachTick = (period: number, unit: Unit<any>): Event<void> => {
     return stopCounter;
 };
 
-// Updating network time once in 5 secs - seems like an okay trade-off
-void doEachTick(5000, queryTimeUpdate);
+// Updating network time once in 30 secs — reduced from 5s to lower indexer request volume
+void doEachTick(30_000, queryTimeUpdate);
 
 // Also do once on page load immediately
 queryTimeUpdate();

@@ -25,8 +25,6 @@ import {
 import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
-import { withAlgodConcurrency } from './algodQueue';
-
 // I'm sorry for this mess.... It can be done better I do believe.
 // In the end, it was not particularly necessary (I thought I would need more specific Reach
 // types to enable type-based parsing decisions, I don't remember in detail really),
@@ -297,20 +295,20 @@ export function buildContractsStore<T extends ContractType>(
                 ctc: SomeContract;
                 account: Account | null;
             }): Promise<ContractState<T>> => {
-                return withAlgodConcurrency(async () => ({
+                return {
                     initial: await (ctc.views.initial as ViewVal)(),
                     global: await (ctc.views.global as ViewVal)(),
                     local: account ? await (ctc.views.local as ViewVal)(account.networkAccount.addr) : null,
-                }));
+                };
             }
         )
     );
 
     const ctcInitialized = sample({
         clock: initializeContract,
-        source: $account,
-        filter: (account, _) => account !== null,
-        fn: (account, { id, version }): [AppId, SomeContract] => [
+        source: { account: $account, ctcs: $contractCtcs },
+        filter: ({ account, ctcs }, { id }) => account !== null && !ctcs.has(id),
+        fn: ({ account }, { id, version }): [AppId, SomeContract] => [
             id,
             makeWrappedCtc(type, account, getBackendVersion(version), id, async (id) => {
                 triggerStateUpdate(id);

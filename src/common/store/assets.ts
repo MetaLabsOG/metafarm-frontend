@@ -6,7 +6,6 @@ import { pactDex } from '../../dexes';
 import { $accountInfo } from './account';
 import { Asset, AssetId, Amount, Priced } from './types';
 import { nonConcurrent, fetchStore } from './utils';
-import { withAlgodConcurrency } from './algodQueue';
 import { doEachTick } from './time';
 import { cachePrice, getCachedPrice } from '../priceCache';
 
@@ -51,7 +50,7 @@ const fetchAssetFx = createEffect(
         if (savedAssetString) {
             return JSON.parse(savedAssetString) as Asset;
         }
-        const { params } = await withAlgodConcurrency(() => algod.getAssetByID(id).do());
+        const { params } = await algod.getAssetByID(id).do();
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const { creator, reserve, decimals } = params;
 
