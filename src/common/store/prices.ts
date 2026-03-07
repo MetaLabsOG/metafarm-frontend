@@ -7,6 +7,12 @@ import { Asset, AssetId, Priced } from './types';
 import { nonConcurrent } from './utils';
 import { getAssetPriceInAlgo } from '../../providers/tinymanPriceProvider';
 import { cachePrice, getCachedPrice } from '../priceCache';
+import { doEachTick } from './time';
+
+// Sentinel value: fetchAssetPriceFx returns -1 when price fetch fails.
+// This is distinct from 0 (legitimate zero price) and prevents storing
+// failed fetches as real prices in $assetAlgoPrices.
+const PRICE_FETCH_FAILED = -1;
 
 export const fetchAssetPriceFx = createEffect(
     nonConcurrent(async (asset: Asset): Promise<number> => {
@@ -17,25 +23,23 @@ export const fetchAssetPriceFx = createEffect(
         try {
             // Try to get price from cache first
             const cachedPrice = getCachedPrice(asset.id);
-            if (cachedPrice) {
-                console.log(`Using cached price for asset ${asset.id}: ${cachedPrice.priceInAlgo.price}`);
+            if (cachedPrice && cachedPrice.priceInAlgo.price > 0) {
                 return cachedPrice.priceInAlgo.price;
             }
 
-            // If not in cache, fetch from Tinyman or Vestige
+            // If not in cache, fetch from Vestige
             const priceInAlgo = await getAssetPriceInAlgo(asset);
 
-            if (priceInAlgo !== null) {
-                // Cache the price
+            if (priceInAlgo !== null && priceInAlgo > 0) {
                 cachePrice(asset.id, priceInAlgo);
                 return priceInAlgo;
             }
 
-            console.error(`Failed to fetch price for asset ${asset.id} from all sources`);
-            return 0;
+            console.warn(`Price fetch returned ${priceInAlgo} for asset ${asset.id}`);
+            return PRICE_FETCH_FAILED;
         } catch (e) {
-            console.error('Failed to fetch price for asset', asset, e);
-            return 0;
+            console.error('Failed to fetch price for asset', asset.id, e);
+            return PRICE_FETCH_FAILED;
         }
     })
 );
@@ -44,7 +48,11 @@ export const fetchAssetPriceFx = createEffect(
 export const prePopulateAssetPrices = createEvent<Array<{ id: AssetId; priceInAlgo: number }>>();
 
 export const $assetAlgoPrices = createStore(Map<AssetId, number>())
-    .on(fetchAssetPriceFx.done, (prices, { params, result }) => prices.set(params.id, result))
+    .on(fetchAssetPriceFx.done, (prices, { params, result }) => {
+        // Don't store failed fetches — leave the slot empty so retry can pick it up
+        if (result === PRICE_FETCH_FAILED) return prices;
+        return prices.set(params.id, result);
+    })
     .on(prePopulateAssetPrices, (prices, batch) => {
         let updated = prices;
         for (const { id, priceInAlgo } of batch) {
@@ -80,6 +88,36 @@ sample({
 fetchAssetPriceFx.fail.watch((v) => {
     console.log('ASSET PRICE FETCHING FAILED', v);
 });
+
+// Periodic refresh: re-fetch prices for all registered priced assets every 3 minutes.
+// This ensures prices stay fresh AND retries any that failed on initial load.
+const refreshAllAssetPrices = createEffect(async () => {
+    const pricedFlags = $assetIsPriced.getState();
+    const existingPrices = $assetAlgoPrices.getState();
+    const assets = $assets.getState();
+
+    const assetsToRefresh: Asset[] = [];
+    pricedFlags.forEach((isPriced, assetId) => {
+        if (!isPriced || assetId === 0) return;
+        // Re-fetch if: price is missing, or price cache TTL expired (3 min)
+        const hasFreshPrice = existingPrices.has(assetId) && getCachedPrice(assetId) !== null;
+        if (!hasFreshPrice) {
+            const asset = assets.get(assetId);
+            if (asset) assetsToRefresh.push(asset);
+        }
+    });
+
+    // Fetch sequentially to avoid hammering Vestige
+    for (const asset of assetsToRefresh) {
+        try {
+            await fetchAssetPriceFx(asset);
+        } catch {
+            // Individual failures are fine — next cycle will retry
+        }
+    }
+});
+
+void doEachTick(3 * 60 * 1000, refreshAllAssetPrices);
 
 export const $pricedAssets: Store<Map<AssetId, Priced<Asset>>> = combine(
     $pricedAlgo,

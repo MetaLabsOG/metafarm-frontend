@@ -297,10 +297,57 @@ const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) =>
     return state.union(newIds);
 });
 
-// LP token info comes ONLY from the enriched backend endpoint (prePopulateLpTokenInfos).
+// LP token info comes primarily from the enriched backend endpoint (prePopulateLpTokenInfos).
 // We no longer auto-fetch LP info via DEX SDKs on page load — those calls hit Tinyman Analytics API
 // with no rate limiting, causing hundreds of parallel requests → 429 → crash.
-// If LP info is missing from enriched, the pool shows with TVL/APR = 0 but remains functional.
+// Missing LP tokens are fetched individually via backend API (/lp/state/priced) as a fallback.
+
+// Fetch missing LP token infos from backend API (not DEX SDK — safe, no rate limit issues)
+const fetchMissingLpTokensFx = createEffect(async (missingTokenIds: AssetId[]) => {
+    const results: Array<{ lpState: BackendLPTokenInfo; asset: Asset | null }> = [];
+    for (const tokenId of missingTokenIds) {
+        try {
+            const lpState = await fetchLPTokenInfoFromBackendApi(tokenId);
+            const asset = await fetchAsset(tokenId).catch(() => null);
+            results.push({ lpState, asset });
+        } catch (e) {
+            console.warn(`Failed to fetch LP token ${tokenId} from backend API:`, e);
+        }
+    }
+    return results;
+});
+
+$lpTokenInfos.on(fetchMissingLpTokensFx.doneData, (state, items) => {
+    let updated = state;
+    for (const { lpState, asset } of items) {
+        const tokenId = lpState.token_id as AssetId;
+        if (updated.has(tokenId)) continue;
+        const baseAsset: Asset = asset ?? {
+            id: tokenId,
+            name: `LP-${lpState.token_id}`,
+            unitName: `LP`,
+            creator: lpState.address,
+            reserve: '',
+            decimals: 6,
+        };
+        const info: Priced<LPTokenInfo> = {
+            ...baseAsset,
+            poolId: lpState.id,
+            asset1: lpState.asset1_id as AssetId,
+            asset2: lpState.asset2_id as AssetId,
+            liquidityAsset: tokenId,
+            asset1Reserve: BigInt(Math.round(lpState.asset1_reserve_micros)),
+            asset2Reserve: BigInt(Math.round(lpState.asset2_reserve_micros)),
+            totalLiquidity: BigInt(Math.round(lpState.issued_tokens_micros)),
+            poolDex: lpState.dex_provider as DexProvider,
+            dexFeeApr: lpState.swap_fee_apr || 0,
+            price: lpState.token_price_usd,
+            priceInAlgo: lpState.token_price_algo,
+        };
+        updated = updated.set(tokenId, info);
+    }
+    return updated;
+});
 
 // Register assets once when contract infos are set, not on every $farmPools update
 const _registeredAssets = new Set<number>();
@@ -314,6 +361,7 @@ const _farmPoolsOnSet = sample({
 
 _farmPoolsOnSet.watch((farms) => {
     const farmStates = farms.map((farm) => farm.state).filter((s): s is ContractState<'farm'> => s !== null);
+    const missingLpTokenIds: AssetId[] = [];
     for (const s of farmStates) {
         if (!_registeredAssets.has(s.initial.stakeToken)) {
             _registeredAssets.add(s.initial.stakeToken);
@@ -323,6 +371,18 @@ _farmPoolsOnSet.watch((farms) => {
             _registeredAssets.add(s.initial.rewardToken);
             registerPricedAsset(s.initial.rewardToken);
         }
+    }
+
+    // After registration, check which LP tokens are missing from $lpTokenInfos
+    const currentLpInfos = $lpTokenInfos.getState();
+    for (const s of farmStates) {
+        const stakeToken = s.initial.stakeToken;
+        if (!currentLpInfos.has(stakeToken)) {
+            missingLpTokenIds.push(stakeToken);
+        }
+    }
+    if (missingLpTokenIds.length > 0) {
+        void fetchMissingLpTokensFx(missingLpTokenIds);
     }
 });
 
@@ -347,6 +407,62 @@ _stakePoolsOnSet.watch((farms) => {
 });
 
 export const $lpAndSimpleTokens = combine($lpTokenInfos, $pricedAssets, (lpTokens, tokens) => tokens.merge(lpTokens));
+
+// Periodic LP price refresh: re-fetch all known LP tokens from backend API every 3 minutes.
+// Backend API is lightweight (no DEX SDK calls) and keeps reserves/prices up to date.
+import { doEachTick } from '../common/store/time';
+
+const refreshLpTokenPricesFx = createEffect(async () => {
+    const currentLpInfos = $lpTokenInfos.getState();
+    if (currentLpInfos.size === 0) return;
+
+    const tokenIds = currentLpInfos.keySeq().toArray();
+    // Fetch in batches to avoid hammering the backend
+    const results: Array<{ lpState: BackendLPTokenInfo; asset: Asset | null }> = [];
+    for (const tokenId of tokenIds) {
+        try {
+            const lpState = await fetchLPTokenInfoFromBackendApi(tokenId);
+            results.push({ lpState, asset: currentLpInfos.get(tokenId) ?? null });
+        } catch {
+            // Individual failures are fine — current cached value persists
+        }
+    }
+    return results;
+});
+
+$lpTokenInfos.on(refreshLpTokenPricesFx.doneData, (state, items) => {
+    if (!items) return state;
+    let updated = state;
+    for (const { lpState, asset } of items) {
+        const tokenId = lpState.token_id as AssetId;
+        const baseAsset: Asset = asset ?? {
+            id: tokenId,
+            name: `LP-${lpState.token_id}`,
+            unitName: `LP`,
+            creator: lpState.address,
+            reserve: '',
+            decimals: 6,
+        };
+        const info: Priced<LPTokenInfo> = {
+            ...baseAsset,
+            poolId: lpState.id,
+            asset1: lpState.asset1_id as AssetId,
+            asset2: lpState.asset2_id as AssetId,
+            liquidityAsset: tokenId,
+            asset1Reserve: BigInt(Math.round(lpState.asset1_reserve_micros)),
+            asset2Reserve: BigInt(Math.round(lpState.asset2_reserve_micros)),
+            totalLiquidity: BigInt(Math.round(lpState.issued_tokens_micros)),
+            poolDex: lpState.dex_provider as DexProvider,
+            dexFeeApr: lpState.swap_fee_apr || 0,
+            price: lpState.token_price_usd,
+            priceInAlgo: lpState.token_price_algo,
+        };
+        updated = updated.set(tokenId, info);
+    }
+    return updated;
+});
+
+void doEachTick(3 * 60 * 1000, refreshLpTokenPricesFx);
 
 // These substores avoid a bug when token infos are not updated in components
 export const $farmStakeTokens: Store<Map<number, Priced<LPTokenInfo> | Priced<Asset> | null>> = combine(
