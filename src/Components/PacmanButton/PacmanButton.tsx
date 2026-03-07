@@ -28,7 +28,7 @@ export function PacmanButton({
 
     return (
         <button
-            style={isInactive ? {} : style}
+            style={style}
             className={classNames(buttonStyle, {
                 loading: isLoading,
                 inactive: isInactive,

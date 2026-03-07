@@ -17,7 +17,7 @@ import { PoolActions } from './PoolActions';
 import { GradientPoolContainer } from './GradientPoolCard';
 import { ModalCloseButton, ModalHeader } from './styled';
 import { LoadingSpinner } from '../../../Components/LoadingSpinner';
-import { convertAmountToUSD, getPoolState } from './utils';
+import { convertAmountToUSD, formatLPTokenName, getPoolState, isLPTokenInfo } from './utils';
 import { useWindowSize } from '../../../hooks';
 
 function PoolInner({
@@ -151,7 +151,11 @@ function PoolInner({
                         >
                             <ModalHeader>
                                 <span>
-                                    Stake {stakeTokenInfo.unitName} · Earn {rewardTokenInfo.unitName}
+                                    {isLPTokenInfo(stakeTokenInfo)
+                                        ? `Farm ${formatLPTokenName(stakeTokenInfo)}`
+                                        : `Stake ${stakeTokenInfo.unitName}`}
+                                    {' · Earn '}
+                                    {rewardTokenInfo.unitName}
                                 </span>
                                 <ModalCloseButton onClick={() => setIsOpen(false)}>
                                     ×
