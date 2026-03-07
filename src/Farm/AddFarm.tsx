@@ -240,7 +240,7 @@ const createFarm = async (
 
     logEvent(
         account.networkAccount.addr,
-        { status: '[ADDFARM START]', contractType, params: JSON.stringify(contractParameters) },
+        { status: '[ADDFARM START]', contractType, params: JSON.stringify(contractParameters, (_, v) => typeof v === 'bigint' ? v.toString() : v) },
         LogName.ADDFARM
     );
 
@@ -271,7 +271,7 @@ const createFarm = async (
                 status: '[ADDFARM OK]',
                 contractType,
                 contractId: Number(contractId),
-                params: JSON.stringify(contractParameters),
+                params: JSON.stringify(contractParameters, (_, v) => typeof v === 'bigint' ? v.toString() : v),
             },
             LogName.ADDFARM
         );
@@ -294,7 +294,7 @@ const createFarm = async (
                 status: '[ADDFARM ERROR]',
                 contractType,
                 error: String(error) + ': ' + additionalInfo,
-                params: JSON.stringify(contractParameters),
+                params: JSON.stringify(contractParameters, (_, v) => typeof v === 'bigint' ? v.toString() : v),
             },
             LogName.ADDFARM
         );
