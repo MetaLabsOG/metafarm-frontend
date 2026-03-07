@@ -16,16 +16,12 @@ import {
     ContractState,
     Amount,
     Priced,
-    assetLoaded,
-    assetAvailable,
     registerAsset,
     registerPricedAsset,
     $algoUsdPrice,
     fetchAsset,
     ALGO_ASSET,
-    fetchAlgoPriceFx,
     $pricedAssets,
-    $networkTime,
     Contract,
     FarmType,
     hasLocalState,
@@ -301,34 +297,10 @@ const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) =>
     return state.union(newIds);
 });
 
-// Automatically fetch LP token infos when asset becomes available (fetched or found in store)
-sample({
-    clock: assetAvailable,
-    source: { farmPools: $farmPools, algoPrice: $algoUsdPrice, lpTokens: $lpTokenInfos },
-    filter: ({ farmPools, lpTokens }, lpTokenAsset) => {
-        // Skip if already pre-populated from enriched endpoint
-        if (lpTokens.has(lpTokenAsset.id)) return false;
-        // Check if the asset is an LP token for a DEX farm pool with complete metadata
-        // Skip ended pools — no need to fetch real-time LP prices for them
-        const currentBlock = $networkTime.getState();
-        return farmPools.some(pool =>
-            pool.state?.initial.stakeToken === lpTokenAsset.id &&
-            pool.info.metadata.dex &&
-            pool.info.metadata.asset1_id &&
-            pool.info.metadata.asset2_id &&
-            (currentBlock === 0 || !pool.info.metadata.end_block || Number(pool.info.metadata.end_block) > currentBlock)
-        );
-    },
-    fn: ({ farmPools, algoPrice }, lpTokenAsset) => {
-        const pool = farmPools.find(p => p.state?.initial.stakeToken === lpTokenAsset.id)!;
-        const asset1Id = Number(pool.info.metadata.asset1_id);
-        const asset2Id = Number(pool.info.metadata.asset2_id);
-        const provider = pool.info.metadata.dex as DexProvider;
-
-        return { lpTokenAsset, asset1Id, asset2Id, algoPrice, provider };
-    },
-    target: getLPTokenInfoFx,
-});
+// LP token info comes ONLY from the enriched backend endpoint (prePopulateLpTokenInfos).
+// We no longer auto-fetch LP info via DEX SDKs on page load — those calls hit Tinyman Analytics API
+// with no rate limiting, causing hundreds of parallel requests → 429 → crash.
+// If LP info is missing from enriched, the pool shows with TVL/APR = 0 but remains functional.
 
 // Register assets once when contract infos are set, not on every $farmPools update
 const _registeredAssets = new Set<number>();

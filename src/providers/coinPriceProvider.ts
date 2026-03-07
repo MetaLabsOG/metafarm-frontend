@@ -57,3 +57,16 @@ export async function getAssetRateFromVestige(assetId: AssetId): Promise<number 
         return null;
     }
 }
+
+export async function getAssetAlgoPriceFromVestige(assetId: AssetId): Promise<number | null> {
+    try {
+        const response = await instance.get<VestigePriceResponse[]>(`assets/price?asset_ids=${assetId}&network_id=0&denominating_asset_id=0`);
+        if (response.data && response.data.length > 0) {
+            return response.data[0].price;
+        }
+        return null;
+    } catch (error) {
+        console.error(`Failed to fetch asset ${assetId} ALGO price from Vestige:`, error);
+        return null;
+    }
+}

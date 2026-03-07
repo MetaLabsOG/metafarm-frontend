@@ -1,8 +1,8 @@
-import { algod, ALGONET, TESTNET } from '../AppContext';
+import { ALGONET, TESTNET } from '../AppContext';
 import { Asset, AssetId } from '../common/store/types';
 import { fetchAsset } from '../common/store/assets';
 import { retryWithExponentialBackoff } from '../common/priceCache';
-import { getAssetRateFromVestige } from './coinPriceProvider';
+import { getAssetAlgoPriceFromVestige } from './coinPriceProvider';
 import { makeDex, DexProvider } from '../dexes';
 
 // ALGO asset ID is always 0
@@ -56,32 +56,24 @@ export async function getAssetPriceFromTinyman(asset: Asset | AssetId): Promise<
 }
 
 /**
- * Gets the price of an asset in ALGO with fallback to Vestige API
- * @param asset The asset to get the price for
- * @returns The price in ALGO or null if all methods fail
+ * Gets the price of an asset in ALGO.
+ * Uses Vestige API only — Tinyman DEX SDK calls are too expensive for page load
+ * (each call hits mainnet.analytics.tinyman.org + algod, causing 429s at scale).
+ * Tinyman price fetching is only used for explicit user actions (swap/zap).
  */
 export async function getAssetPriceInAlgo(asset: Asset | AssetId): Promise<number | null> {
   try {
-    // Try Tinyman first
-    const tinymanPrice = await retryWithExponentialBackoff(
-      () => getAssetPriceFromTinyman(asset),
-      2 // Max 2 retries
-    );
+    const id = typeof asset === 'number' ? asset : asset.id;
+    if (id === 0) return 1;
 
-    if (tinymanPrice !== null) {
-      return tinymanPrice;
-    }
-
-    // If Tinyman fails, try Vestige
-    const assetId = typeof asset === 'number' ? asset : asset.id;
     const vestigePrice = await retryWithExponentialBackoff(
-      () => getAssetRateFromVestige(assetId),
-      2 // Max 2 retries
+      () => getAssetAlgoPriceFromVestige(id),
+      2
     );
 
     return vestigePrice;
   } catch (error) {
-    console.error('All price fetching methods failed:', error);
+    console.error('Price fetching failed for asset', typeof asset === 'number' ? asset : asset.id, error);
     return null;
   }
 }
