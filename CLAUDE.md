@@ -8,6 +8,10 @@ React-based DeFi frontend for Cometa — a yield farm and intelligent yield opti
 
 The build pipeline is intentionally lenient: `TSC_COMPILE_ON_ERROR=true` means TypeScript errors do not block builds, and many ESLint rules are set to "warn". **Claude must enforce stricter standards than the toolchain does.** Write code that would pass `tsc --noEmit` with zero errors. Treat ESLint warnings as errors.
 
+## Cross-Project Sync
+
+**Read `~/cometa/dev/COMETA.md` at session start.** It contains shared API contract, deploy state, and breaking changes log between frontend and backend. Update it after any API or deploy change.
+
 ## Linked Projects
 
 ### Backend: cometa-backend
