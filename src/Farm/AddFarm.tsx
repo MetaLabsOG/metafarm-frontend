@@ -31,7 +31,7 @@ import {
     Time,
 } from '../common/store';
 import { Heading2, ModalContainer, ModalTitle, ModalSubtitle } from '../common/styled';
-import { DAY, formatDecimalsMeaningful, getSmallestUnits, unsafeFromBigint } from '../common/lib';
+import { DAY, formatDecimalsMeaningful, getSmallestUnits } from '../common/lib';
 import { deployContractToBackend, getPactPools, getTinymanPools, getHumblePools } from '../providers/apiProvider';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { notify } from '../Components/Notification';
@@ -159,10 +159,10 @@ const getContractAndParams = (
     extraAlgoRewardAmount: number,
     lockLengthBlocks: number
 ): [Contract, InitialFarmState | InitialDistributionState] => {
-    const totalRewardAmount = unsafeFromBigint(getSmallestUnits(rewardToken, rewardAmount));
-    const totalAlgoRewardAmount = unsafeFromBigint(getSmallestUnits(ALGO_ASSET, extraAlgoRewardAmount));
+    const totalRewardAmount = getSmallestUnits(rewardToken, rewardAmount);
+    const totalAlgoRewardAmount = getSmallestUnits(ALGO_ASSET, extraAlgoRewardAmount);
     const flatAlgoFeeAmount = getFlatAlgoFee(stakeToken);
-    const flatAlgoCreationFee = unsafeFromBigint(getSmallestUnits(ALGO_ASSET, Number(flatAlgoFeeAmount)));
+    const flatAlgoCreationFee = getSmallestUnits(ALGO_ASSET, Number(flatAlgoFeeAmount));
     const creationFee = getFee(stakeToken);
 
     console.log(

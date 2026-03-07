@@ -25,6 +25,7 @@ import {
 import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
+import { withAlgodConcurrency } from './algodQueue';
 
 // I'm sorry for this mess.... It can be done better I do believe.
 // In the end, it was not particularly necessary (I thought I would need more specific Reach
@@ -296,11 +297,11 @@ export function buildContractsStore<T extends ContractType>(
                 ctc: SomeContract;
                 account: Account | null;
             }): Promise<ContractState<T>> => {
-                return {
+                return withAlgodConcurrency(async () => ({
                     initial: await (ctc.views.initial as ViewVal)(),
                     global: await (ctc.views.global as ViewVal)(),
                     local: account ? await (ctc.views.local as ViewVal)(account.networkAccount.addr) : null,
-                };
+                }));
             }
         )
     );

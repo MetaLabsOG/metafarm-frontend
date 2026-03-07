@@ -179,10 +179,9 @@ const walletFallback_PeraOrDefly =
                 .signTransaction([peraTxns])
                 .then((stxns) => stxns.map((stxn) => Buffer.from(stxn).toString('base64')));
 
-            return txns.reduce((allStxns: string[], { stxn }) => {
-                allStxns.push(stxn ? stxn : signedTxns.shift()!);
-                return allStxns;
-            }, []);
+            // Use index-based access: wallet returns one entry per txn in order.
+            // Pre-signed txns keep their original stxn; others use wallet-signed value.
+            return txns.map((wt, i) => wt.stxn ? wt.stxn : signedTxns[i]);
         };
 
         const wallet = doCustomWalletFallback(options, getAddr, signTxns, async () => {

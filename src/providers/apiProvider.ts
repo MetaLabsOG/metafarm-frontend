@@ -255,15 +255,21 @@ export const getTinymanPools = nonConcurrent(async (limit: number, search = '', 
 });
 
 export const getPactPools = nonConcurrent(async (limit: number, search = ''): Promise<any[]> => {
-    // const response = await pactDex.pact.listPools();
     const prefix = ALGONET === TESTNET ? 'testnet.' : '';
     let pactUrl = `https://api.${prefix}pact.fi/api/pools?limit=${limit}&offset=0&ordering=-tvl_usd`;
     if (search) {
         pactUrl += `&details=${search}`;
     }
     const poolsResponse = await fetch(pactUrl);
+    if (!poolsResponse.ok) {
+        console.warn(`Pact API error: ${poolsResponse.status} ${poolsResponse.statusText}`);
+        if (poolsResponse.status === 429) {
+            throw new Error('Pact API rate limited (429)');
+        }
+        return [];
+    }
     const pools = await poolsResponse.json();
-    return pools.results;
+    return pools.results ?? [];
 });
 
 export const getHumblePools = nonConcurrent(async (): Promise<MiniHumble.PoolDetails[]> => {

@@ -135,12 +135,21 @@ export function expBackoff<V, T>(
                 return await eff(v);
             } catch (error) {
                 numberTries++;
+                const is429 = error instanceof Error && (
+                    error.message.includes('429') ||
+                    error.message.includes('Too Many Requests') ||
+                    error.message.includes('rate limit')
+                );
                 if (numberTries > maxTries) {
                     console.log('END BACKOFF AND THROW', error);
                     throw error;
                 }
-                console.log(`EXP BACKOFF RETRY (${numberTries} ${delay})`, v);
-                await sleep(delay);
+                // On rate limit, use longer delay with jitter to avoid thundering herd
+                const effectiveDelay = is429
+                    ? delay * 3 + Math.random() * 1000
+                    : delay;
+                console.log(`EXP BACKOFF RETRY (${numberTries} ${Math.round(effectiveDelay)}${is429 ? ' rate-limited' : ''})`, v);
+                await sleep(effectiveDelay);
                 delay *= multiplier;
             }
         }

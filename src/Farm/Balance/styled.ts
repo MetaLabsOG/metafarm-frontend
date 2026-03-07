@@ -48,7 +48,6 @@ export const AmountContainer = styled.div`
 
     @media (max-width: 1120px) {
         justify-content: space-between;
-        perspective: 1000px;
         width: 30%;
     }
 `;
@@ -147,11 +146,8 @@ export const BalanceList = styled.div`
         height: 80px;
         justify-content: center;
         line-height: 18px;
-        background: rgba(10, 10, 10, 0.15); /* Almost black and more transparent */
-        backdrop-filter: blur(10px);
-        perspective: 1000px;
-        transition: transform 0.6s;
-        transform-style: preserve-3d;
+        background: rgba(10, 10, 10, 0.4);
+        backdrop-filter: none;
         border-radius: 12px;
     }
 `;

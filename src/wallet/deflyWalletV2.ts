@@ -87,7 +87,11 @@ export class DeflyWalletV2 {
         modal.openModal({ uri });
 
         try {
-            this.session = await approval();
+            const APPROVAL_TIMEOUT_MS = 180_000;
+            const approvalTimeout = new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error('WalletConnect approval timed out after 180s')), APPROVAL_TIMEOUT_MS)
+            );
+            this.session = await Promise.race([approval(), approvalTimeout]);
             return this.getAccountsFromSession(this.session);
         } finally {
             modal.closeModal();
@@ -133,14 +137,21 @@ export class DeflyWalletV2 {
         );
 
         // client.request returns the JSON-RPC result directly: (string | null)[]
-        const signedArray = (await this.client.request({
-            topic: this.session.topic,
-            chainId: ALGORAND_CHAIN,
-            request: {
-                method: 'algo_signTxn',
-                params: [wcTxns],
-            },
-        })) as (string | null)[];
+        const SIGN_TIMEOUT_MS = 120_000;
+        const timeout = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('WalletConnect sign request timed out after 120s')), SIGN_TIMEOUT_MS)
+        );
+        const signedArray = (await Promise.race([
+            this.client.request({
+                topic: this.session.topic,
+                chainId: ALGORAND_CHAIN,
+                request: {
+                    method: 'algo_signTxn',
+                    params: [wcTxns],
+                },
+            }),
+            timeout,
+        ])) as (string | null)[];
 
         return signedArray.map((stxn) => {
             if (!stxn) return new Uint8Array();
