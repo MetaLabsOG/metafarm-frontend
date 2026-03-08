@@ -412,13 +412,15 @@ export async function fetchLPTokenInfoFromBackendApi(lpTokenId: AssetId): Promis
         throw new Error(`LP circuit breaker open — skipping request for ${lpTokenId}`);
     }
     try {
-        const { data } = await instance.post<BackendLPTokenInfo>(
+        // Backend now uses batch format only — wrap single ID in array
+        const { data } = await instance.post<{ results: Record<string, BackendLPTokenInfo | null> }>(
             '/lp/state/priced',
-            null,
-            { params: { lp_token_id: lpTokenId } }
+            { lp_token_ids: [lpTokenId] }
         );
         lpConsecutiveFailures = 0;
-        return data;
+        const result = data.results[String(lpTokenId)];
+        if (!result) throw new Error(`LP token ${lpTokenId} not found`);
+        return result;
     } catch (error) {
         lpConsecutiveFailures++;
         if (lpConsecutiveFailures >= LP_MAX_FAILURES) {
@@ -442,18 +444,15 @@ export async function fetchLPTokenInfoBatchFromBackendApi(
         );
         lpConsecutiveFailures = 0;
         return data.results;
-    } catch {
-        // Batch endpoint may not exist yet — fall back to individual requests
-        console.warn('Batch LP endpoint failed, falling back to individual requests');
-        const results: Record<string, BackendLPTokenInfo | null> = {};
-        for (const id of lpTokenIds) {
-            try {
-                results[String(id)] = await fetchLPTokenInfoFromBackendApi(id);
-            } catch {
-                results[String(id)] = null;
-            }
-            if (isLpCircuitOpen()) break;
+    } catch (error) {
+        lpConsecutiveFailures++;
+        if (lpConsecutiveFailures >= LP_MAX_FAILURES) {
+            lpCircuitOpenUntil = Date.now() + LP_CIRCUIT_OPEN_MS;
+            console.warn(`LP backend circuit breaker OPEN — pausing for ${LP_CIRCUIT_OPEN_MS / 1000}s`);
         }
+        // No fallback — batch is the only format now
+        const results: Record<string, BackendLPTokenInfo | null> = {};
+        for (const id of lpTokenIds) results[String(id)] = null;
         return results;
     }
 }
