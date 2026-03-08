@@ -1,6 +1,6 @@
 # Cometa Frontend — Task Board
 
-> Last updated: 2026-03-08
+> Last updated: 2026-03-09
 
 ## Conventions
 
@@ -8,7 +8,7 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-037**
+- Next available ID: **MF-041**
 
 ---
 
@@ -20,6 +20,9 @@
 | MF-035 | Eliminate Tinyman API calls on page load (Phase 3 crash fix) | done | critical | performance | Removed assetAvailable→getLPTokenInfoFx chain. LP info from enriched only. 2026-03-08 |
 | MF-026 | Server-side pagination: `GET /contracts?page=1&limit=50&sort=tvl` + `useInfiniteQuery` | todo | critical | performance | Currently loads all 700 pools at once. Need backend endpoint + frontend infinite scroll |
 | MF-027 | Evaluate self-hosted Algorand node vs paid API provider | in_progress | high | devops | Docker Compose already has Conduit. Research: algod resource requirements, throughput gains |
+| MF-037 | Recover 802.6 ALGO from NFT sale contract App 509206311 | blocked | critical | safety | Step 6 closeTo confirmed, payment simulated. Blocked: AVM v5 ref limit (need 9, max 8). See `memory/nft-sale-recovery.md` |
+| MF-038 | Identify buyer O5XYX4J3...AMMKA from NFT sale records | todo | high | safety | Buyer's cooperation needed to sign recovery txn. Check internal records, NFD, on-chain history |
+| MF-039 | Recover NFTs from raffle contracts (974xxx, 832xxx) | todo | medium | safety | 8 MetaPunks NFTs in 6 expired raffle contracts. Need deployer LT5ZQINW4... mnemonic |
 | MF-028 | Meteors: pause animations on `document.hidden`, consolidate resize listeners | todo | high | performance | 3 resize listeners without coordination, no visibilitychange handler. See MF-018 |
 | MF-029 | CSP headers for WalletConnect: add frame-src verify.walletconnect.org to nginx | todo | high | devops | CSP violation blocks WC verify iframe. Add to nginx.conf on deploy |
 | MF-030 | WebSocket for real-time pool price updates (replace polling) | todo | medium | performance | Polling 700 pools every 15s is unsustainable at 7000. Backend WS + delta updates |
@@ -71,3 +74,4 @@
 | MF-033 | Fix staking pool TVL: prices inflated by millions | done | critical | safety | Enriched duplicate price filter + backend fix. 2026-03-08 |
 | MF-034 | Fix wallet connect delay: 5s lag before QR code | done | high | ux | Pre-warm PeraWalletConnect/DeflyWalletV2 via requestIdleCallback. 2026-03-08 |
 | MF-036 | Batch Vestige/LP requests + circuit breakers | done | critical | performance | coinPriceProvider: batch queue 250ms flush. apiProvider: batch LP endpoint. Circuit breakers for both. 2026-03-08 |
+| MF-040 | Fix lock-pool stake confirmation hidden behind pool modal | done | critical | ux | `TokenInputWithButton.tsx` now renders the lock warning in a higher body portal, restoring stake/withdraw actions for locked pools like app 3470288517. 2026-03-09 |

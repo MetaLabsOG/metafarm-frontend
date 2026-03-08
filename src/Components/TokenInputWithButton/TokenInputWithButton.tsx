@@ -1,9 +1,9 @@
 import React, { FC, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import { useStore, useUnit } from 'effector-react';
 import { Effect } from 'effector';
 import { BigNumberish } from '@ethersproject/bignumber';
-import { useModal } from 'react-hooks-use-modal';
 import { LPTokenInfo } from '../../dexes';
 import { $account, Asset, Priced } from '../../common/store';
 import { fromSmallestUnits, getSmallestUnits } from '../../common/lib';
@@ -17,6 +17,23 @@ import { reach } from '../../AppContext';
 import { Button } from '../Button/Button';
 import { ModalCloseButton, ModalContainer, ModalSubtitle, ModalTitle } from '../../common/styled';
 import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from './styled';
+
+const warningOverlayStyle: React.CSSProperties = {
+    position: 'fixed',
+    inset: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.86)',
+    zIndex: 1100,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '16px',
+};
+
+const warningModalStyle: React.CSSProperties = {
+    marginTop: 0,
+    width: 'min(420px, calc(100vw - 32px))',
+    gap: '16px',
+};
 
 export interface InputWithButtonProps {
     token: LPTokenInfo | Priced<Asset>;
@@ -71,7 +88,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     const buttonType = buttonName.toLowerCase();
     const balanceField = buttonType === 'stake' ? 'Balance' : 'In Pool';
 
-    const [WarningModal, openWarningModal, closeWarningModal] = useModal('root');
+    const [isWarningOpen, setIsWarningOpen] = useState(false);
     const warningText =
         buttonName === 'Stake'
             ? "It's locked pool. You can claim rewards only after lock period. If you stake again your lock period will be reset."
@@ -153,7 +170,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                     isInactive={!isValidInput || !isActive}
                     onClickAction={async () => {
                         if (hasLock) {
-                            openWarningModal();
+                            setIsWarningOpen(true);
                         } else {
                             await onClick();
                         }
@@ -173,20 +190,42 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                     setShowConfetti(false);
                 }}
             />
-            <WarningModal>
-                <ModalContainer>
-                    <ModalCloseButton src={closeButton} alt="close" onClick={closeWarningModal} />
-                    <ModalTitle style={{ textAlign: 'center' }}>⚠️ WARNING</ModalTitle>
-                    <ModalSubtitle style={{ fontSize: '18px', width: '300px' }}>{warningText}</ModalSubtitle>
-                    <Button
-                        buttonText="OK"
-                        onClick={async () => {
-                            closeWarningModal();
-                            await onClick();
+            {isWarningOpen &&
+                createPortal(
+                    <div
+                        style={warningOverlayStyle}
+                        onClick={(event) => {
+                            if (event.target === event.currentTarget) {
+                                setIsWarningOpen(false);
+                            }
                         }}
-                    />
-                </ModalContainer>
-            </WarningModal>
+                    >
+                        <ModalContainer
+                            style={warningModalStyle}
+                            onClick={(event) => {
+                                event.stopPropagation();
+                            }}
+                        >
+                            <ModalCloseButton
+                                src={closeButton}
+                                alt="close"
+                                onClick={() => {
+                                    setIsWarningOpen(false);
+                                }}
+                            />
+                            <ModalTitle style={{ textAlign: 'center' }}>⚠️ WARNING</ModalTitle>
+                            <ModalSubtitle style={{ fontSize: '18px', width: '300px' }}>{warningText}</ModalSubtitle>
+                            <Button
+                                buttonText="OK"
+                                onClick={async () => {
+                                    setIsWarningOpen(false);
+                                    await onClick();
+                                }}
+                            />
+                        </ModalContainer>
+                    </div>,
+                    document.body
+                )}
         </TokenInputWithButtonContainer>
     );
 };
