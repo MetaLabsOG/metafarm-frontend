@@ -8,7 +8,7 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-036**
+- Next available ID: **MF-037**
 
 ---
 
@@ -17,8 +17,6 @@
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
 | MF-025 | Enriched endpoint: include on-chain state in `/contracts/farm/enriched` response | todo | critical | performance | Backend: add global/initial state to enriched response, eliminate client-side view calls |
-| MF-033 | Fix staking pool TVL: prices inflated by millions (decimals/calculation bug) | in_progress | critical | safety | Distribution pools show $2.9M TVL instead of ~$100. Likely decimals mismatch |
-| MF-034 | Fix wallet connect delay: 5s lag before QR code appears | in_progress | high | ux | Pera wallet connect takes ~5s before QR modal. Investigate initialization bottleneck |
 | MF-035 | Eliminate Tinyman API calls on page load (Phase 3 crash fix) | done | critical | performance | Removed assetAvailable→getLPTokenInfoFx chain. LP info from enriched only. 2026-03-08 |
 | MF-026 | Server-side pagination: `GET /contracts?page=1&limit=50&sort=tvl` + `useInfiniteQuery` | todo | critical | performance | Currently loads all 700 pools at once. Need backend endpoint + frontend infinite scroll |
 | MF-027 | Evaluate self-hosted Algorand node vs paid API provider | in_progress | high | devops | Docker Compose already has Conduit. Research: algod resource requirements, throughput gains |
@@ -70,3 +68,6 @@
 | MF-024g | Fix Tinyman API cascade: remove assetAvailable→getLPTokenInfoFx, use enriched only | done | critical | performance | `Farm/store.ts` — removed sample chain causing 100s of parallel Tinyman requests. 2026-03-08 |
 | MF-024h | Fix price denomination: use ALGO-denominated Vestige API for getAssetPriceInAlgo | done | critical | safety | `coinPriceProvider.ts` + `tinymanPriceProvider.ts` — was using USDt denomination. 2026-03-08 |
 | MF-024i | Fix farm creation BigInt serialization crash | done | critical | safety | `AddFarm.tsx` — JSON.stringify(contractParameters) crashed on BigInt values. 2026-03-08 |
+| MF-033 | Fix staking pool TVL: prices inflated by millions | done | critical | safety | Enriched duplicate price filter + backend fix. 2026-03-08 |
+| MF-034 | Fix wallet connect delay: 5s lag before QR code | done | high | ux | Pre-warm PeraWalletConnect/DeflyWalletV2 via requestIdleCallback. 2026-03-08 |
+| MF-036 | Batch Vestige/LP requests + circuit breakers | done | critical | performance | coinPriceProvider: batch queue 250ms flush. apiProvider: batch LP endpoint. Circuit breakers for both. 2026-03-08 |
