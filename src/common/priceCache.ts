@@ -104,19 +104,30 @@ export function clearPriceCache(): void {
  */
 export async function retryWithExponentialBackoff<T>(
   operation: () => Promise<T>,
-  maxRetries: number = 3,
+  maxRetries: number = 2,
   baseDelay: number = 500
 ): Promise<T> {
   let retries = 0;
-  
+
   while (true) {
     try {
       return await operation();
-    } catch (error) {
+    } catch (error: unknown) {
+      // Don't retry on rate limits — back off immediately and let circuit breaker handle it
+      const isRateLimit = error instanceof Error && (
+        error.message.includes('429') ||
+        error.message.includes('Too Many Requests') ||
+        error.message.includes('rate limit')
+      );
+      if (isRateLimit) {
+        console.warn('Rate limited — skipping retry');
+        throw error;
+      }
+
       if (retries >= maxRetries) {
         throw error;
       }
-      
+
       const delay = baseDelay * Math.pow(2, retries);
       console.log(`Retrying operation after ${delay}ms (attempt ${retries + 1}/${maxRetries})`);
       await new Promise(resolve => setTimeout(resolve, delay));

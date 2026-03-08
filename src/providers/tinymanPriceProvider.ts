@@ -1,7 +1,6 @@
 import { ALGONET, TESTNET } from '../AppContext';
 import { Asset, AssetId } from '../common/store/types';
 import { fetchAsset } from '../common/store/assets';
-import { retryWithExponentialBackoff } from '../common/priceCache';
 import { getAssetAlgoPriceFromVestige } from './coinPriceProvider';
 import { makeDex, DexProvider } from '../dexes';
 
@@ -66,12 +65,9 @@ export async function getAssetPriceInAlgo(asset: Asset | AssetId): Promise<numbe
     const id = typeof asset === 'number' ? asset : asset.id;
     if (id === 0) return 1;
 
-    const vestigePrice = await retryWithExponentialBackoff(
-      () => getAssetAlgoPriceFromVestige(id),
-      2
-    );
-
-    return vestigePrice;
+    // No retry — Vestige calls are batched with circuit breaker in coinPriceProvider.
+    // Retries here would just create duplicate batches and worsen rate limits.
+    return await getAssetAlgoPriceFromVestige(id);
   } catch (error) {
     console.error('Price fetching failed for asset', typeof asset === 'number' ? asset : asset.id, error);
     return null;

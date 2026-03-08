@@ -37,7 +37,7 @@ import { PoolState } from './PoolList/Pool/types';
 import { ColumnType } from './PoolList/columns';
 import { cachePrice, getCachedPrice } from '../common/priceCache';
 import { calculateLPTokenPrice } from '../providers/tinymanPriceProvider';
-import { fetchLPTokenInfoFromBackendApi, BackendLPTokenInfo } from '../providers/apiProvider';
+import { fetchLPTokenInfoFromBackendApi, fetchLPTokenInfoBatchFromBackendApi, BackendLPTokenInfo } from '../providers/apiProvider';
 
 const FARM_BACKENDS = {
     '17.2.4': farmBackend_17_2_4 as Backend,
@@ -74,27 +74,6 @@ export async function getLPTokenInfo(
         // This is the primary logic using DEX SDKs
         if (provider === undefined) {
             provider = detectAssetProvider(lpTokenAsset);
-        }
-
-        const cachedPrice = getCachedPrice(lpTokenAsset.id);
-        if (cachedPrice && cachedPrice.priceInAlgo && cachedPrice.priceInUsd && algoPrice) {
-            console.log(`Using cached LP token price for ${lpTokenAsset.id}: ${cachedPrice.priceInAlgo.price} ALGO (DEX path)`);
-            const dex = makeDex(provider);
-            const pool = await dex.getPoolByAssets(asset1Id, asset2Id);
-            return {
-                ...lpTokenAsset,
-                poolId: pool.poolId,
-                asset1: pool.asset1,
-                asset2: pool.asset2,
-                liquidityAsset: lpTokenAsset.id,
-                asset1Reserve: pool.asset1Reserve,
-                asset2Reserve: pool.asset2Reserve,
-                totalLiquidity: pool.totalLiquidity,
-                poolDex: provider,
-                dexFeeApr: pool.dexFeeApr || 0,
-                price: cachedPrice.priceInUsd.price,
-                priceInAlgo: cachedPrice.priceInAlgo.price,
-            };
         }
 
         const dex = makeDex(provider);
@@ -170,9 +149,6 @@ export async function getLPTokenInfo(
             throw dexError; 
         }
     }
-    // Old LP token price calculation code has been replaced with the new implementation above
-    // This comment seems out of place now, as the function has significant logic.
-    // Consider removing or updating it.
 }
 
 const BIG_NUM = BigInt('1000000000000000000');
@@ -302,18 +278,22 @@ const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) =>
 // with no rate limiting, causing hundreds of parallel requests → 429 → crash.
 // Missing LP tokens are fetched individually via backend API (/lp/state/priced) as a fallback.
 
-// Fetch missing LP token infos from backend API (not DEX SDK — safe, no rate limit issues)
+// Fetch missing LP token infos from backend API (batch request, with circuit breaker)
 const fetchMissingLpTokensFx = createEffect(async (missingTokenIds: AssetId[]) => {
     const results: Array<{ lpState: BackendLPTokenInfo; asset: Asset | null }> = [];
-    for (const tokenId of missingTokenIds) {
-        try {
-            const lpState = await fetchLPTokenInfoFromBackendApi(tokenId);
+
+    try {
+        const batchResults = await fetchLPTokenInfoBatchFromBackendApi(missingTokenIds);
+        for (const tokenId of missingTokenIds) {
+            const lpState = batchResults[String(tokenId)];
+            if (!lpState) continue;
             const asset = await fetchAsset(tokenId).catch(() => null);
             results.push({ lpState, asset });
-        } catch (e) {
-            console.warn(`Failed to fetch LP token ${tokenId} from backend API:`, e);
         }
+    } catch (e) {
+        console.warn('Failed to fetch LP tokens from backend API:', e);
     }
+
     return results;
 });
 
@@ -417,16 +397,19 @@ const refreshLpTokenPricesFx = createEffect(async () => {
     if (currentLpInfos.size === 0) return;
 
     const tokenIds = currentLpInfos.keySeq().toArray();
-    // Fetch in batches to avoid hammering the backend
     const results: Array<{ lpState: BackendLPTokenInfo; asset: Asset | null }> = [];
-    for (const tokenId of tokenIds) {
-        try {
-            const lpState = await fetchLPTokenInfoFromBackendApi(tokenId);
+
+    try {
+        const batchResults = await fetchLPTokenInfoBatchFromBackendApi(tokenIds);
+        for (const tokenId of tokenIds) {
+            const lpState = batchResults[String(tokenId)];
+            if (!lpState) continue;
             results.push({ lpState, asset: currentLpInfos.get(tokenId) ?? null });
-        } catch {
-            // Individual failures are fine — current cached value persists
         }
+    } catch {
+        // Backend down — current cached values persist until next cycle
     }
+
     return results;
 });
 

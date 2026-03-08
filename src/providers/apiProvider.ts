@@ -392,11 +392,68 @@ export async function getFarmEnriched(): Promise<FarmEnrichedResponse | null> {
     }
 }
 
+// Circuit breaker for backend LP endpoint
+let lpConsecutiveFailures = 0;
+let lpCircuitOpenUntil = 0;
+const LP_MAX_FAILURES = 3;
+const LP_CIRCUIT_OPEN_MS = 60_000; // 1 minute cooldown
+
+function isLpCircuitOpen(): boolean {
+    if (lpConsecutiveFailures < LP_MAX_FAILURES) return false;
+    if (Date.now() > lpCircuitOpenUntil) {
+        lpConsecutiveFailures = LP_MAX_FAILURES - 1;
+        return false;
+    }
+    return true;
+}
+
 export async function fetchLPTokenInfoFromBackendApi(lpTokenId: AssetId): Promise<BackendLPTokenInfo> {
-    const { data } = await instance.post<BackendLPTokenInfo>(
-        '/lp/state/priced',
-        null,
-        { params: { lp_token_id: lpTokenId } }
-    );
-    return data;
+    if (isLpCircuitOpen()) {
+        throw new Error(`LP circuit breaker open — skipping request for ${lpTokenId}`);
+    }
+    try {
+        const { data } = await instance.post<BackendLPTokenInfo>(
+            '/lp/state/priced',
+            null,
+            { params: { lp_token_id: lpTokenId } }
+        );
+        lpConsecutiveFailures = 0;
+        return data;
+    } catch (error) {
+        lpConsecutiveFailures++;
+        if (lpConsecutiveFailures >= LP_MAX_FAILURES) {
+            lpCircuitOpenUntil = Date.now() + LP_CIRCUIT_OPEN_MS;
+            console.warn(`LP backend circuit breaker OPEN — pausing for ${LP_CIRCUIT_OPEN_MS / 1000}s`);
+        }
+        throw error;
+    }
+}
+
+export async function fetchLPTokenInfoBatchFromBackendApi(
+    lpTokenIds: AssetId[]
+): Promise<Record<string, BackendLPTokenInfo | null>> {
+    if (isLpCircuitOpen()) {
+        throw new Error('LP circuit breaker open — skipping batch request');
+    }
+    try {
+        const { data } = await instance.post<{ results: Record<string, BackendLPTokenInfo | null> }>(
+            '/lp/state/priced',
+            { lp_token_ids: lpTokenIds }
+        );
+        lpConsecutiveFailures = 0;
+        return data.results;
+    } catch {
+        // Batch endpoint may not exist yet — fall back to individual requests
+        console.warn('Batch LP endpoint failed, falling back to individual requests');
+        const results: Record<string, BackendLPTokenInfo | null> = {};
+        for (const id of lpTokenIds) {
+            try {
+                results[String(id)] = await fetchLPTokenInfoFromBackendApi(id);
+            } catch {
+                results[String(id)] = null;
+            }
+            if (isLpCircuitOpen()) break;
+        }
+        return results;
+    }
 }
