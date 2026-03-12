@@ -14,7 +14,7 @@ export function Footer() {
                 <FooterItem>powered by Algonode.io</FooterItem>
             </a>
             <FooterText>
-                <FooterItem>© Cometa 2022 — 2024. </FooterItem>
+                <FooterItem>© Cometa 2022 — 2026. </FooterItem>
                 <a
                     target="_blank"
                     rel="noreferrer"

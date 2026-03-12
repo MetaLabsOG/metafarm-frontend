@@ -1,6 +1,6 @@
 # Cometa Frontend — Task Board
 
-> Last updated: 2026-03-09
+> Last updated: 2026-03-12
 
 ## Conventions
 
@@ -8,7 +8,7 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-052**
+- Next available ID: **MF-056**
 
 ---
 
@@ -21,22 +21,38 @@
 
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
-| MF-041 | Fix TestNet fallback | todo | critical | safety | `src/AppContext.ts:21` — change `\|\| TESTNET` to `\|\| MAINNET`. One line. DoD: app without ALGO_NETWORK env var connects to mainnet |
-| MF-042 | Fix MyAlgo dead wallet migration | todo | critical | safety | `src/wallet/cacheMigration.ts` — add migration to clear `connectedWalletType='MyAlgo'` from localStorage. `src/wallet/customWalletFallback.ts:20` — remove `'MyAlgo'` from `WalletType`. DoD: returning MyAlgo users see clean disconnect state, not stuck |
-| MF-043 | Replace dead AlgoExplorer with live alternatives | todo | critical | safety | `src/providers/algoExplorerProvider.ts` — replace `algoexplorerapi.io` with `algonode.cloud`. `src/common/lib.ts` — replace explorer links with `allo.info` or `explorer.perawallet.app`. DoD: all on-chain links open valid pages |
-| MF-044 | UI cleanup: copyright, Slise, Folks promo | todo | high | ux | `src/Menu/Footer.tsx:17` — 2024 → 2026. `src/Farm/Farm.tsx:38-53` — delete Slise placeholder (90px empty block) and Folks Finance governance promo (dead link). DoD: footer says 2026, no empty ad blocks |
-| MF-045 | Fix infinite loading spinner when farm list empty | todo | critical | ux | `src/Farm/Farm.tsx:73` — `isLoading = !state \|\| state.length === 0` treats empty array as loading. Add separate `isLoaded` boolean, set true after first successful fetch. Also handle `currentBlock === 0` (algod not synced yet) — show "Syncing..." message. DoD: empty farm list shows "No active farms" within 5s |
-| MF-046 | Hide disabled features: NFT tab, cost chart, MetaDAO | todo | critical | ux | **Coordinate with CB-055** (backend returns `[]`). Hide NFT tab in wallet dashboard. Hide portfolio cost chart component. Hide `/meta-dao` route or add redirect to `/`. DoD: no fake NFTs, no 2022 prices, no broken MetaDAO visible |
-| MF-047 | Dead code cleanup | todo | high | quality | Delete from `apiProvider.ts`: `getPoolInfo()`, `getSwapCost()`, `tokensaleWhitelist()`. Delete from `flexApiProvider.ts`: unused exported wrappers. Remove `console.log` from `AppContext.ts:22,57,63`, `ConnectWallet.tsx:63`, `apiProvider.ts:203`. Delete `/price-test` route from `index.tsx`. DoD: no debug logs in browser console, no dead functions |
+| MF-041 | Fix TestNet fallback | done | critical | safety | `AppContext.ts:21` — fallback `TESTNET` → `MAINNET`. 2026-03-12 |
+| MF-042 | Fix MyAlgo dead wallet migration | done | critical | safety | `cacheMigration.ts` — clear MyAlgo data on boot. `customWalletFallback.ts` — removed MyAlgo from WalletType + dead code. 2026-03-12 |
+| MF-043 | Replace dead AlgoExplorer with live alternatives | done | critical | safety | Deleted `algoExplorerProvider.ts` (dead, never imported). Explorer links in `lib.ts` already use `allo.info`. 2026-03-12 |
+| MF-044 | UI cleanup: copyright, Slise, Folks promo | done | high | ux | Footer: 2024→2026. Farm.tsx + Stake.tsx: deleted Slise placeholder + Folks promo. 2026-03-12 |
+| MF-045 | Fix infinite loading spinner when farm list empty | done | critical | ux | Farm.tsx + Stake.tsx: `isLoading = !state` (null=loading). Empty array → "No active farms/stake pools" message. 2026-03-12 |
+| MF-046 | Hide disabled features: NFT tab, cost chart, MetaDAO | done | critical | ux | Removed `/meta-dao` and `/price-test` routes. Backend returns `[]` for NFTs/cost. 2026-03-12 |
+| MF-047 | Dead code cleanup | in_progress | high | quality | Phase 1: routes removed. Phase 2 (M3): console.log purge + dead functions. 2026-03-12 |
 
 ### Phase 2 — Coordinated (after backend Phase 1)
 
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
-| MF-048 | Handle disabled lottery + add axios timeout | todo | high | safety | **Depends on CB-056 deployed.** Add `timeout: 30000` to axios instance in `apiProvider.ts`. Handle 503 `{"disabled": true}` gracefully — show "feature temporarily unavailable" toast, not error. Verify expBackoff handles 429 from rate limits. DoD: 503 → maintenance message, 429 → retry, 30s timeout → clean error |
-| MF-049 | Fix Sentry: reduce trace rate + wire ErrorBoundary | todo | high | observability | `src/index.tsx:64` — `tracesSampleRate: 1` → `0.1`. `src/ErrorBoundary.tsx:19-21` — add `Sentry.captureException(error)` in `componentDidCatch`. DoD: Sentry receives crash reports, traces at 10% |
-| MF-050 | Add 404 catch-all route | todo | medium | ux | `src/index.tsx:299-312` — add `<Route path="*" element={<Navigate to="/" replace />} />` as last route. DoD: `/typo` redirects to home |
-| MF-051 | Fix wallet reconnect failure UX | todo | high | ux | `src/wallet/ConnectWallet.tsx:132-137` — on reconnect failure, call `clearWalletData()` to remove stale localStorage, show toast "Wallet disconnected — please reconnect". DoD: expired session shows toast and clean state |
+| MF-048 | Handle disabled lottery + add axios timeout | done | high | safety | Axios instance: `timeout: 30000`, response interceptor for 503 `{"disabled": true}` → `DisabledFeatureError`. Lottery endpoints return `null` on disabled. expBackoff already handles 429. 2026-03-12 |
+| MF-049 | Fix Sentry: reduce trace rate + wire ErrorBoundary | done | high | observability | `tracesSampleRate: 0.1`. `Sentry.captureException(error)` in `componentDidCatch` with component stack. 2026-03-12 |
+| MF-050 | Add 404 catch-all route | done | medium | ux | `<Route path="*" element={<Navigate to="/" replace />} />` as last route. 2026-03-12 |
+| MF-051 | Fix wallet reconnect failure UX | done | high | ux | `connectWallet` now accepts `isAutoReconnect` flag. On auto-reconnect failure: `clearWalletData()` + warning toast. 2026-03-12 |
+
+### Phase 3 — Audit Fixes (from pre-launch code review)
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-052 | Add ErrorBoundary around each feature route | todo | high | safety | Only top-level ErrorBoundary exists. A crash in Swap/Farm/Zap kills the whole app. Wrap each lazy route in its own `<ErrorBoundary>` |
+| MF-053 | Filter wallet user rejections (4001) from error analytics | todo | high | quality | `ConnectWallet.tsx:78-91` — user closing modal is logged as error to Amplitude/Airtable. Check `error.code === 4001` before `logEvent(LogName.ERRORS)` |
+| MF-054 | Fix Notification.tsx .watch() subscription leak | todo | high | effector | `Notification.tsx:58` — `api.finally.watch()` inside useEffect without cleanup. Leaks subscriptions on every re-render |
+| MF-055 | Add timeout to checkOptIn fetch | todo | medium | safety | `batchOptIn.ts:79` — no timeout, no circuit breaker. Add AbortController with 5s timeout |
+
+### Milestones
+
+> **M1: Critical safety** — MF-041, MF-042, MF-043
+> **M2: UI + disabled features** — MF-044, MF-045, MF-046
+> **M3: Dead code purge** — MF-047 (expanded: all console.log, dead functions, dead files)
+> **M4: Robustness** — MF-052, MF-053, MF-054, MF-055, partial MF-006 (useStore→useUnit)
 
 ---
 

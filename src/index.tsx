@@ -6,7 +6,7 @@ import { runCacheMigration } from './cacheMigration';
 runCacheMigration();
 
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import * as Sentry from '@sentry/react';
 import { BrowserTracing } from '@sentry/tracing';
@@ -46,8 +46,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 const Farm = lazy(() => import('./Farm').then(m => ({ default: m.Farm })));
 const Swap = lazy(() => import('./Swap').then(m => ({ default: m.Swap })));
 const Zap = lazy(() => import('./Zap').then(m => ({ default: m.Zap })));
-const MetaDAO = lazy(() => import('./MetaDAO').then(m => ({ default: m.MetaDAO })));
-const PriceTest = lazy(() => import('./pages/PriceTest'));
+// MetaDAO and PriceTest disabled for pre-launch (MF-046, MF-047)
 const Stake = lazy(() => import('./Stake/Stake').then(m => ({ default: m.Stake })));
 const AddFarm = lazy(() => import('./Farm/AddFarm').then(m => ({ default: m.AddFarm })));
 const LaaS = lazy(() => import('./LaaS/LaaS').then(m => ({ default: m.LaaS })));
@@ -58,10 +57,7 @@ Sentry.init({
     dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',
     integrations: [new BrowserTracing()],
 
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
-    tracesSampleRate: 1,
+    tracesSampleRate: 0.1,
 });
 ReactGA.initialize('G-P19KGXJGTP');
 
@@ -303,12 +299,11 @@ function App() {
                                         <Route path="/stake" element={<Stake />} />
                                         <Route path="/swap" element={<Swap />} />
                                         <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
-                                        <Route path="/meta-dao" element={<MetaDAO />} />
                                         <Route path="/metapunks" element={<Metapunks />} />
                                         <Route path="/addfarm" element={<AddFarm type="farm" />} />
                                         <Route path="/addstake" element={<AddFarm type="stake" />} />
                                         <Route path="/addlaas" element={<AddLaaS />} />
-                                        <Route path="/price-test" element={<PriceTest />} />
+                                        <Route path="*" element={<Navigate to="/" replace />} />
                                     </Routes>
                                 </Suspense>
                             </ContentContainer>
