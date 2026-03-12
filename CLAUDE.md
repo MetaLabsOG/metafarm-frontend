@@ -10,13 +10,13 @@ The build pipeline is intentionally lenient: `TSC_COMPILE_ON_ERROR=true` means T
 
 ## Cross-Project Sync
 
-**Read `~/cometa/dev/COMETA.md` at session start.** It contains shared API contract, deploy state, and breaking changes log between frontend and backend. Update it after any API or deploy change.
+The parent `~/dev/cometa/CLAUDE.md` is loaded automatically (Claude Code ancestor chain). It contains shared API contract, deploy state, and breaking changes log. Update it after any API or deploy change.
 
 ## Linked Projects
 
 ### Backend: cometa-backend
 
-- **Path**: `~/metapunks/cometa-backend`
+- **Path**: `~/dev/cometa/cometa-backend`
 - **Repo**: `MetaLabsOG/cometa-backend`
 - **Stack**: Python 3.12, FastAPI, MongoDB, Redis, Algorand SDK
 - **Connection**: `REACT_APP_COMETA_API_URL` -> backend (prod: `https://api.cometa.farm/`)
@@ -407,3 +407,7 @@ When upgrading: diff all exports, verify contract ABI compatibility.
 ## Task Board
 
 Tasks in `BOARD.md`. Format: pantheon.
+
+## Code Review Tools
+
+After writing significant code, use **Codex MCP** `review` tool for second-opinion review (GPT-5.x). Codex reviews uncommitted changes by default. Synthesize findings with your own analysis — don't blindly apply.

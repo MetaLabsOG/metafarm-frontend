@@ -8,7 +8,35 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-041**
+- Next available ID: **MF-052**
+
+---
+
+## Pre-Launch Sprint (March 17 Comeback)
+
+> Full context: `~/dev/cometa/cometa-strategy/research/pre-launch-final-plan.md`
+> Cross-project sync: `~/dev/cometa/CLAUDE.md` → "Pre-Launch Coordination" section
+
+### Phase 1 — Independent (no cross-project deps)
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-041 | Fix TestNet fallback | todo | critical | safety | `src/AppContext.ts:21` — change `\|\| TESTNET` to `\|\| MAINNET`. One line. DoD: app without ALGO_NETWORK env var connects to mainnet |
+| MF-042 | Fix MyAlgo dead wallet migration | todo | critical | safety | `src/wallet/cacheMigration.ts` — add migration to clear `connectedWalletType='MyAlgo'` from localStorage. `src/wallet/customWalletFallback.ts:20` — remove `'MyAlgo'` from `WalletType`. DoD: returning MyAlgo users see clean disconnect state, not stuck |
+| MF-043 | Replace dead AlgoExplorer with live alternatives | todo | critical | safety | `src/providers/algoExplorerProvider.ts` — replace `algoexplorerapi.io` with `algonode.cloud`. `src/common/lib.ts` — replace explorer links with `allo.info` or `explorer.perawallet.app`. DoD: all on-chain links open valid pages |
+| MF-044 | UI cleanup: copyright, Slise, Folks promo | todo | high | ux | `src/Menu/Footer.tsx:17` — 2024 → 2026. `src/Farm/Farm.tsx:38-53` — delete Slise placeholder (90px empty block) and Folks Finance governance promo (dead link). DoD: footer says 2026, no empty ad blocks |
+| MF-045 | Fix infinite loading spinner when farm list empty | todo | critical | ux | `src/Farm/Farm.tsx:73` — `isLoading = !state \|\| state.length === 0` treats empty array as loading. Add separate `isLoaded` boolean, set true after first successful fetch. Also handle `currentBlock === 0` (algod not synced yet) — show "Syncing..." message. DoD: empty farm list shows "No active farms" within 5s |
+| MF-046 | Hide disabled features: NFT tab, cost chart, MetaDAO | todo | critical | ux | **Coordinate with CB-055** (backend returns `[]`). Hide NFT tab in wallet dashboard. Hide portfolio cost chart component. Hide `/meta-dao` route or add redirect to `/`. DoD: no fake NFTs, no 2022 prices, no broken MetaDAO visible |
+| MF-047 | Dead code cleanup | todo | high | quality | Delete from `apiProvider.ts`: `getPoolInfo()`, `getSwapCost()`, `tokensaleWhitelist()`. Delete from `flexApiProvider.ts`: unused exported wrappers. Remove `console.log` from `AppContext.ts:22,57,63`, `ConnectWallet.tsx:63`, `apiProvider.ts:203`. Delete `/price-test` route from `index.tsx`. DoD: no debug logs in browser console, no dead functions |
+
+### Phase 2 — Coordinated (after backend Phase 1)
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-048 | Handle disabled lottery + add axios timeout | todo | high | safety | **Depends on CB-056 deployed.** Add `timeout: 30000` to axios instance in `apiProvider.ts`. Handle 503 `{"disabled": true}` gracefully — show "feature temporarily unavailable" toast, not error. Verify expBackoff handles 429 from rate limits. DoD: 503 → maintenance message, 429 → retry, 30s timeout → clean error |
+| MF-049 | Fix Sentry: reduce trace rate + wire ErrorBoundary | todo | high | observability | `src/index.tsx:64` — `tracesSampleRate: 1` → `0.1`. `src/ErrorBoundary.tsx:19-21` — add `Sentry.captureException(error)` in `componentDidCatch`. DoD: Sentry receives crash reports, traces at 10% |
+| MF-050 | Add 404 catch-all route | todo | medium | ux | `src/index.tsx:299-312` — add `<Route path="*" element={<Navigate to="/" replace />} />` as last route. DoD: `/typo` redirects to home |
+| MF-051 | Fix wallet reconnect failure UX | todo | high | ux | `src/wallet/ConnectWallet.tsx:132-137` — on reconnect failure, call `clearWalletData()` to remove stale localStorage, show toast "Wallet disconnected — please reconnect". DoD: expired session shows toast and clean state |
 
 ---
 
