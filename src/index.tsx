@@ -40,7 +40,6 @@ import { setDistributionPoolInfos } from './Stake/store';
 import { WelcomeModal } from './WelcomeModal';
 import { Footer } from './Menu/Footer';
 import { notify } from './Components/Notification';
-import { setLaasPoolInfos } from './LaaS/store';
 import { ErrorBoundary } from './ErrorBoundary';
 
 const Farm = lazy(() => import('./Farm').then(m => ({ default: m.Farm })));
@@ -49,8 +48,6 @@ const Zap = lazy(() => import('./Zap').then(m => ({ default: m.Zap })));
 // MetaDAO and PriceTest disabled for pre-launch (MF-046, MF-047)
 const Stake = lazy(() => import('./Stake/Stake').then(m => ({ default: m.Stake })));
 const AddFarm = lazy(() => import('./Farm/AddFarm').then(m => ({ default: m.AddFarm })));
-const LaaS = lazy(() => import('./LaaS/LaaS').then(m => ({ default: m.LaaS })));
-const AddLaaS = lazy(() => import('./LaaS/AddLaaS').then(m => ({ default: m.AddLaaS })));
 const Metapunks = lazy(() => import('./Metapunks/Metapunks').then(m => ({ default: m.Metapunks })));
 
 Sentry.init({
@@ -294,7 +291,6 @@ function App() {
                                     <Routes>
                                         <Route path="/" element={<ErrorBoundary><Farm /></ErrorBoundary>} />
                                         {/*<Route path="/fomo" element={<Fomo />} />*/}
-                                        <Route path="/laas" element={<ErrorBoundary><LaaS /></ErrorBoundary>} />
                                         <Route path="/farm" element={<ErrorBoundary><Farm /></ErrorBoundary>} />
                                         <Route path="/stake" element={<ErrorBoundary><Stake /></ErrorBoundary>} />
                                         <Route path="/swap" element={<ErrorBoundary><Swap /></ErrorBoundary>} />
@@ -302,7 +298,6 @@ function App() {
                                         <Route path="/metapunks" element={<ErrorBoundary><Metapunks /></ErrorBoundary>} />
                                         <Route path="/addfarm" element={<ErrorBoundary><AddFarm type="farm" /></ErrorBoundary>} />
                                         <Route path="/addstake" element={<ErrorBoundary><AddFarm type="stake" /></ErrorBoundary>} />
-                                        <Route path="/addlaas" element={<ErrorBoundary><AddLaaS /></ErrorBoundary>} />
                                         <Route path="*" element={<Navigate to="/" replace />} />
                                     </Routes>
                                 </Suspense>

@@ -183,24 +183,6 @@ export const deployContractToBackend = async (
     await instance.post('/contract/register', request);
 };
 
-export const deployVaultToBackend = async (
-    accountAddress: string,
-    contractId: number,
-    contractType: ContractType,
-    asset1: TokenOptionType,
-    asset2: TokenOptionType
-) => {
-    const request: AddContractType = {
-        type: contractType,
-        id: contractId,
-        version: '1.0.0',
-        description: `${asset1.unitName}/${asset2.unitName} laas vault`,
-        metadata: {},
-    };
-
-    await instance.post('/contract/register', request);
-};
-
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types
 export const getTinymanPools = nonConcurrent(async (limit: number, search = '', v2 = false): Promise<TinymanPool[]> => {
     const prefix = ALGONET.toLowerCase();

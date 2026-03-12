@@ -35,7 +35,7 @@ export type AllBignums<T> = T extends number | bigint
 
 // TODO: there should be a better way to add new contract types
 // We should explore the possibility of providing types from the _contract packages_.
-export type ContractType = 'farm' | 'distribution' | 'laas';
+export type ContractType = 'farm' | 'distribution';
 // | 'fomo'
 
 export type FarmType = 'farm' | 'distribution';
@@ -93,26 +93,22 @@ export type ContractMetadata = {
     distribution: { verified?: boolean };
     crowdsale: { whitelist: string[] };
     fomo: unknown;
-    laas: { verified?: boolean };
 };
 
 export type InitialInfo = {
     farm: FarmInitialInfo;
     distribution: DistributionInitialInfo;
-    laas: LaasInitialInfo;
     whitelist: string[];
 };
 
 export type GlobalInfo = {
     farm: FarmGlobalInfo;
     distribution: FarmGlobalInfo;
-    laas: LaasGlobalInfo;
 };
 
 export type LocalInfo = {
     farm: FarmLocalInfo;
     distribution: FarmLocalInfo;
-    laas: LaasLocalInfo;
 };
 
 // Farm types
@@ -154,59 +150,6 @@ export type FarmLocalInfo = {
     lockTimestamp: Time; // Lock BEGINS from this block
     rewardPerTokenPaid: Amount;
 };
-
-// LaaS types
-export type LaasInitialInfo = {
-    startBlock: Time;
-    // сколько всего длится vault со старта до начала аукциона
-    vaultRunBlocks: Time;
-    // сколько максимально длится subscription
-    subscriptionBlock: Time; // TODO add s
-    initialABalance: Amount;
-    aToken: AssetId;
-    // токен пользователя
-    bToken: AssetId;
-    lpToken: AssetId;
-    // токен, который мы предоставляем
-    slpToken: AssetId;
-    liquidityPoolApp: AppId;
-    creator: string;
-    liquidityPoolAddr: string;
-    auctionLength: Time;
-};
-
-export type LaasGlobalInfo = {
-    // сколько предоставили в DEX, чтобы считать trading fees
-    totalALiqProvided: Amount;
-    totalBLiqProvided: Amount;
-
-    isFullySubscribed: boolean;
-
-    // балансы ликвидити сикера, которые он может снять, обычно они не 0 когда кончается волт
-    lsAAccumulator: Amount;
-    lsBAccumulator: Amount;
-    priorityAddress: string;
-
-    // кол-во токенов, которые смогут снять провайдеры
-    totalBToWithdraw: Amount | null;
-
-    auctionInitMarketPrice: Amount | null;
-    auctionStartBlock: Time | null;
-    // сколько токенов B осталось получить
-    auctionLeftToRaise: Amount | null;
-    // сколько всего токенов B надо было покрыть
-    auctionLeftToRaiseInitial: Amount | null;
-
-    // TODO: это можно взять как баланс кошелька
-    aBalance: Amount;
-    bBalance: Amount;
-    lpBalance: Amount;
-
-    currentBlock: Time;
-};
-
-// empty, no local state
-export type LaasLocalInfo = Record<string, never>;
 
 // CONVERSIONS
 // I wish it could be done better, if only I had normal fucking typeclasses...
@@ -335,18 +278,6 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
                 //@ts-ignore
                 return parseFarmLocalInfo(obj);
             }
-        } else if (contractType === 'laas') {
-            // no parsing, everything is produced as necessary
-            if (viewType === 'initial') {
-                //@ts-ignore
-                return obj as LaasInitialInfo;
-            } else if (viewType === 'global') {
-                //@ts-ignore
-                return obj as LaasGlobalInfo;
-            } else {
-                //@ts-ignore
-                return obj as LaasLocalInfo;
-            }
         }
 
         throw new Error('impossible: not matched any type');
@@ -359,8 +290,6 @@ export function parseInitialInfo(contractType: ContractType, obj: any): InitialI
         // ... existing farm code ...
     } else if (contractType === 'distribution') {
         // ... existing distribution code ...
-    } else {
-        // ... existing laas code ...
     }
 }
 
@@ -369,8 +298,6 @@ export function parseGlobalInfo(contractType: ContractType, obj: any): GlobalInf
         // ... existing farm code ...
     } else if (contractType === 'distribution') {
         // ... existing distribution code ...
-    } else {
-        // ... existing laas code ...
     }
 }
 
@@ -379,7 +306,5 @@ export function parseLocalInfo(contractType: ContractType, obj: any): LocalInfo 
         // ... existing farm code ...
     } else if (contractType === 'distribution') {
         // ... existing distribution code ...
-    } else {
-        // ... existing laas code ...
     }
 }
