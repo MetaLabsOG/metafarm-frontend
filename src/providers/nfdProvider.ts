@@ -8,8 +8,5 @@ export async function getNfd(address: string): Promise<string | undefined> {
     return await instance
         .get(`/nfd/lookup?address=${address}`)
         .then(({ data }) => data[address]['name'])
-        .catch((error) => {
-            console.log('ERR', error);
-            return undefined;
-        });
+        .catch(() => undefined);
 }

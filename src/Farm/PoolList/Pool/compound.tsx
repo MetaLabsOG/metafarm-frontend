@@ -80,7 +80,6 @@ export const runCompound = async (
     const startBalance = balances[stakedAsset.id];
 
     const compoundAmount = convertAmountToUSD(rewardAsset, claimRewards);
-    console.log('COMPOUND', stakedAsset, rewardAsset, compoundAmount);
     if (isLPTokenInfo(stakedAsset) && !isCompoundEnabled(stakedAsset, rewardAsset.id)) {
         notify('Different assets for compound.', 'error');
         return;

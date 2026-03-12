@@ -15,7 +15,32 @@ import { DexProvider } from '../dexes';
 
 export const instance = axios.create({
     baseURL: process.env.REACT_APP_COMETA_API_URL,
+    timeout: 30_000,
 });
+
+// Handle 503 {"disabled": true} responses from gated endpoints (lottery, etc.)
+instance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (axios.isAxiosError(error) && error.response?.status === 503) {
+            const data = error.response.data as Record<string, unknown> | undefined;
+            if (data?.disabled === true) {
+                const message = typeof data.message === 'string'
+                    ? data.message
+                    : 'This feature is temporarily unavailable';
+                return Promise.reject(new DisabledFeatureError(message));
+            }
+        }
+        return Promise.reject(error);
+    },
+);
+
+export class DisabledFeatureError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'DisabledFeatureError';
+    }
+}
 
 type cost = { usd: number; microalgo: number };
 
@@ -28,10 +53,7 @@ export async function getTotalCost(address: string, weeks = 6): Promise<TotalCos
     return instance
         .get<TotalCost[]>(`wallet/${address}/total_cost`, { params: { weeks_count: weeks } })
         .then(({ data }) => data)
-        .catch((error) => {
-            console.log('ERR', error);
-            return [];
-        });
+        .catch(() => []);
 }
 
 type Asset = {
@@ -39,18 +61,6 @@ type Asset = {
     ticker: string;
     amount: number;
     price: cost;
-};
-
-export type PoolInfo = {
-    name: string;
-    asset1_reserve: number;
-    asset2_reserve: number;
-    total_lp_tokens: number;
-};
-
-export type SwapCost = {
-    res_tokens: number;
-    price_per_token: number;
 };
 
 export type TinymanPool = {
@@ -65,10 +75,7 @@ export async function getAssets(address: string): Promise<Asset[]> {
     return instance
         .get<Asset[]>(`wallet/${address}/assets`)
         .then(({ data }) => data)
-        .catch((error) => {
-            console.log('ERR', error);
-            return [];
-        });
+        .catch(() => []);
 }
 
 export type WalletNFT = {
@@ -87,13 +94,9 @@ export async function getWalletNFTs(wallet: string): Promise<WalletNFT[]> {
     return instance
         .get<WalletNFT[]>(`wallet/${wallet}/nfts`)
         .then(({ data }) => data)
-        .catch((error) => {
-            console.log('ERR', error);
-            return [];
-        });
+        .catch(() => []);
 }
 
-// TODO maybe typing could be improved
 export async function getContracts(
     type: string,
     user_address: string | undefined = undefined
@@ -108,39 +111,10 @@ export async function getContracts(
         params['max_count'] = API_CONTRACTS_MAX_COUNT;
     }
 
-    // TODO: remove after testing
-    // ...
-    // ...
-    // params['max_count'] = 5;
-    // params['new_first'] = true;
-
     return instance
         .get<Json>(`/contracts`, { params })
         .then(({ data }) => resolveBignums(data))
-        .catch((error) => {
-            console.log('ERR', error);
-            return null;
-        });
-}
-
-// LP token price calculation is now handled by tinymanPriceProvider.ts
-
-// Price fetching is now handled by tinymanPriceProvider.ts
-
-export async function getPoolInfo(asset1: number, asset2: number): Promise<PoolInfo> {
-    return instance.get<PoolInfo>(`/pool?asset_1_id=${asset1}&asset_2_id=${asset2}`).then(({ data }) => data);
-}
-
-export async function getSwapCost(asset1: number, asset2: number, amount: number): Promise<SwapCost> {
-    return instance
-        .get<SwapCost>(`/asset_swap_cost?address=asdf?asset1_id=${asset1}&asset2_id=${asset2}&asset1_amount=${amount}`)
-        .then(({ data }) => data);
-}
-
-export async function tokensaleWhitelist(contractId: number, address: string): Promise<boolean> {
-    return instance
-        .put<boolean>(`/whitelist_confirm?contract_id=${contractId}&address=${address}`)
-        .then(({ data }) => data);
+        .catch(() => null);
 }
 
 type AddContractType = {
@@ -200,7 +174,6 @@ export const deployContractToBackend = async (
             lock_length_blocks: lockLengthBlocks,
         },
     };
-    console.log('/contract/register', request);
     logEvent(
         accountAddress,
         { status: '[ADDFARM DEPLOY]', contractType, contractId: Number(contractId), params: JSON.stringify(request) },
@@ -224,7 +197,6 @@ export const deployVaultToBackend = async (
         description: `${asset1.unitName}/${asset2.unitName} laas vault`,
         metadata: {},
     };
-    console.log('/contract/register', request);
 
     await instance.post('/contract/register', request);
 };
@@ -293,7 +265,12 @@ export async function checkNftLottery(
         asset2_amount,
     };
 
-    return instance.post('/lottery/swap', request).then(({ data }) => data);
+    return instance.post('/lottery/swap', request)
+        .then(({ data }) => data)
+        .catch((error) => {
+            if (error instanceof DisabledFeatureError) return null;
+            throw error;
+        });
 }
 
 export async function nftClaim(wallet: string): Promise<string> {
@@ -301,12 +278,12 @@ export async function nftClaim(wallet: string): Promise<string> {
 }
 
 export async function checkClaimLottery(address: string, pool_id: number): Promise<NftLottery | null> {
-    const request = {
-        address,
-        pool_id,
-    };
-
-    return instance.post(`lottery/staking?address=${address}&pool_id=${pool_id}`).then(({ data }) => data);
+    return instance.post(`lottery/staking?address=${address}&pool_id=${pool_id}`)
+        .then(({ data }) => data)
+        .catch((error) => {
+            if (error instanceof DisabledFeatureError) return null;
+            throw error;
+        });
 }
 
 // Add this interface for the backend API response

@@ -19,7 +19,6 @@ export const TESTNET: NetworkName = 'TestNet';
 export const MAINNET: NetworkName = 'MainNet';
 
 export const ALGONET: NetworkName = (process.env.ALGO_NETWORK as NetworkName) || MAINNET;
-console.log(ALGONET);
 
 const META_TOKEN_IDS = {
     TestNet: 85951079,
@@ -54,13 +53,11 @@ export function isMobile(): boolean {
 }
 
 export const IS_MOBILE = isMobile();
-console.log('Is mobile:', IS_MOBILE);
 
 export const FARM_BENEFICIARY_ADDR = process.env.REACT_APP_BENEFICIARY_ADDR;
 
 export const FARM_CREATION_FEE = process.env.REACT_APP_FARM_CREATION_FEE;
 export const FARM_FLAT_ALGO_CREATION_FEE = process.env.REACT_APP_FARM_FLAT_ALGO_CREATION_FEE;
-console.log('FARM_FLAT_ALGO_CREATION_FEE', FARM_FLAT_ALGO_CREATION_FEE);
 
 export const UNVERIFIED_FARM_CREATION_FEE = process.env.REACT_APP_UNVERIFIED_FARM_CREATION_FEE;
 export const UNVERIFIED_FARM_FLAT_ALGO_CREATION_FEE = process.env.REACT_APP_UNVERIFIED_FARM_FLAT_ALGO_CREATION_FEE;

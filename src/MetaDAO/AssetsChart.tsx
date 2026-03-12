@@ -12,7 +12,6 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 export function AssetsChart() {
     const assetsQuery = useQuery(['assets', METAWALLET], async () => getAssets(METAWALLET));
     const dataset = assetsQuery.data ?? [];
-    console.log('DATASET', dataset);
 
     const data = {
         labels: dataset.map(

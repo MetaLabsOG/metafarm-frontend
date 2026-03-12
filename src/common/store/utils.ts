@@ -104,9 +104,7 @@ export function createNonConcurrentEffect<V, T>(callback: (a: V) => Promise<T>):
                         innerFx.doneData.watch(resolve);
                         innerFx.failData.watch(reject);
                     })
-                    .catch((error) => {
-                        console.log('failed to fetch', error);
-                    });
+                    .catch(() => {});
             })
     );
 }
@@ -141,14 +139,14 @@ export function expBackoff<V, T>(
                     error.message.includes('rate limit')
                 );
                 if (numberTries > maxTries) {
-                    console.log('END BACKOFF AND THROW', error);
+                    console.warn('Backoff exhausted, throwing:', error);
                     throw error;
                 }
                 // On rate limit, use longer delay with jitter to avoid thundering herd
                 const effectiveDelay = is429
                     ? delay * 3 + Math.random() * 1000
                     : delay;
-                console.log(`EXP BACKOFF RETRY (${numberTries} ${Math.round(effectiveDelay)}${is429 ? ' rate-limited' : ''})`, v);
+                // Retry silently — backoff logic handles delays
                 await sleep(effectiveDelay);
                 delay *= multiplier;
             }

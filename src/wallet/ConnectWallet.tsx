@@ -32,11 +32,9 @@ function cleanupWalletModals() {
     document.querySelector('w3m-modal')?.remove();
 }
 
-export const connectWallet = (walletType: WalletType) => {
+export const connectWallet = (walletType: WalletType, isAutoReconnect = false) => {
     // Increment generation to invalidate any in-flight connection
     const thisGeneration = ++connectionGeneration;
-    console.log('[ConnectWallet] Starting connection for:', walletType, 'gen:', thisGeneration);
-
     // Clean up modals from any previous attempt
     cleanupWalletModals();
 
@@ -54,12 +52,8 @@ export const connectWallet = (walletType: WalletType) => {
         .getDefaultAccount()
         .then((acc) => {
             // Ignore result if a newer connection was started
-            if (thisGeneration !== connectionGeneration) {
-                console.log('[ConnectWallet] Stale connection result ignored, gen:', thisGeneration);
-                return;
-            }
+            if (thisGeneration !== connectionGeneration) return;
             setAccount(acc);
-            console.log('Address:', acc.networkAccount.addr);
             logEvent(
                 acc.networkAccount.addr,
                 {
@@ -78,15 +72,19 @@ export const connectWallet = (walletType: WalletType) => {
         .catch((error) => {
             if (thisGeneration !== connectionGeneration) return;
             if (error instanceof Error) {
-                console.log('ERROR. ConnectWallet:', error);
                 logEvent('', { message: `ERROR. ConnectWallet: ${error.name}: ${error.message}` }, LogName.ERRORS);
             } else {
-                console.log('ERROR (of unexpected type!). ConnectWallet:', error);
                 logEvent(
                     '',
                     { message: `ERROR (of unexpected type!). ConnectWallet: ${String(error)}` },
                     LogName.ERRORS
                 );
+            }
+
+            // On auto-reconnect failure: clear stale session data and notify the user
+            if (isAutoReconnect) {
+                clearWalletData();
+                notify('Wallet disconnected — please reconnect', 'warning');
             }
         });
 };
@@ -132,7 +130,7 @@ export function ConnectWallet({
     useEffect(() => {
         const connectedWallet = getWalletType();
         if (connectedWallet !== null) {
-            connectWallet(connectedWallet as WalletType);
+            connectWallet(connectedWallet as WalletType, true);
         }
     }, []);
 

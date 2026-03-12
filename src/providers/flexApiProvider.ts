@@ -1,8 +1,6 @@
 import { AssetId } from '../common/store';
 import { instance } from './apiProvider';
 
-// LP token price calculation is now handled by tinymanPriceProvider.ts
-
 export type AssetDetails = {
     id: AssetId;
     name: string;
@@ -17,21 +15,12 @@ export type AssetDetails = {
 export async function getAsset(asset_id: number): Promise<AssetDetails> {
     return await instance
         .post<AssetDetails>(`/asset?asset_id=${asset_id}`)
-        .then(({ data }) => data)
-        .catch((error) => {
-            console.log('ERR', error);
-            throw error;
-        });
+        .then(({ data }) => data);
 }
 
 export async function getAllAssets(asset_ids: number[] | null = null): Promise<AssetDetails[]> {
-    try {
-        const response = await instance.post<AssetDetails[]>(`/assets`, { ids: asset_ids });
-        return response.data;
-    } catch (error) {
-        console.error('Failed to fetch assets from API:', error);
-        throw error; // Rethrow the error to be handled by the effect
-    }
+    const response = await instance.post<AssetDetails[]>(`/assets`, { ids: asset_ids });
+    return response.data;
 }
 
 export type AssetPriceInfo = {
@@ -46,19 +35,10 @@ export type AssetPriceInfo = {
 export async function getAssetPrice(asset_id: number): Promise<AssetPriceInfo> {
     return await instance
         .post<AssetPriceInfo>(`/asset/price?asset_id=${asset_id}`)
-        .then(({ data }) => data)
-        .catch((error) => {
-            console.log('ERR', error);
-            throw error;
-        });
+        .then(({ data }) => data);
 }
 
 export async function getAllAssetPrices(asset_ids: number[] | null = null): Promise<AssetPriceInfo[]> {
-    try {
-        const response = await instance.post<AssetPriceInfo[]>(`/assets/price`, { ids: asset_ids });
-        return response.data;
-    } catch (error) {
-        console.error('Failed to fetch assets from API:', error);
-        throw error; // Rethrow the error to be handled by the effect
-    }
+    const response = await instance.post<AssetPriceInfo[]>(`/assets/price`, { ids: asset_ids });
+    return response.data;
 }

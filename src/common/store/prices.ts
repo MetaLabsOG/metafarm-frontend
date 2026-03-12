@@ -85,8 +85,8 @@ sample({
     target: fetchAssetPriceFx,
 });
 
-fetchAssetPriceFx.fail.watch((v) => {
-    console.log('ASSET PRICE FETCHING FAILED', v);
+fetchAssetPriceFx.fail.watch(({ error }) => {
+    console.warn('Asset price fetch failed:', error);
 });
 
 // Periodic refresh: re-fetch prices for all registered priced assets every 3 minutes.

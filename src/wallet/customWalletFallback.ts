@@ -116,20 +116,16 @@ const walletFallback_PeraOrDefly =
 
             if (hasPersistedSession) {
                 try {
-                    console.log('[Wallet] Persisted session found, attempting reconnect...');
                     const addrs = await innerWallet.reconnectSession();
                     if (addrs.length > 0) {
-                        console.log('[Wallet] Reconnected:', addrs[0]);
                         return addrs[0];
                     }
-                } catch (e) {
-                    console.log('[Wallet] Reconnect failed:', e);
+                } catch {
+                    // Reconnect failed — will fall through to fresh connect
                 }
             }
 
-            console.log('[Wallet] Calling connect()...');
             const addrs = await innerWallet.connect();
-            console.log('[Wallet] Connected:', addrs[0]);
             return addrs[0];
         };
 

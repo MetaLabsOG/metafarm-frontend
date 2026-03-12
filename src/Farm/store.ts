@@ -115,8 +115,7 @@ export async function getLPTokenInfo(
             priceInAlgo: lpPrice.priceInAlgo,
         };
     } catch (dexError) {
-        console.warn(`Primary DEX SDK method failed for LP token ${lpTokenAsset.id}:`, dexError);
-        console.log(`Attempting fallback to backend API for LP token ${lpTokenAsset.id}...`);
+        console.warn(`DEX SDK failed for LP ${lpTokenAsset.id}, trying backend fallback`);
 
         try {
             const backendData = await fetchLPTokenInfoFromBackendApi(lpTokenAsset.id);
@@ -140,7 +139,6 @@ export async function getLPTokenInfo(
             
             // Optionally, cache this backend-derived price too
             cachePrice(lpTokenAsset.id, transformedData.priceInAlgo, transformedData.price);
-            console.log(`Successfully fetched LP token ${lpTokenAsset.id} info from backend API fallback.`);
             return transformedData;
         } catch (fallbackError) {
             console.error(`Fallback backend API method also failed for LP token ${lpTokenAsset.id}:`, fallbackError);

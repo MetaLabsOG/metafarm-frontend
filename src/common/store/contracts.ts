@@ -346,8 +346,8 @@ export function buildContractsStore<T extends ContractType>(
         target: updateContractStateFx,
     });
 
-    updateContractStateFx.fail.watch((p) => {
-        console.log('UPDATE CONTRACT FAILED', p);
+    updateContractStateFx.fail.watch(({ error }) => {
+        console.warn('Contract state update failed:', error);
     });
 
     const contractStateUpdated = sample({

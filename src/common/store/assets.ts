@@ -168,7 +168,6 @@ export const fetchAlgoPriceFx = createEffect(
             // Try to get price from cache first
             const cachedPrice = getCachedPrice(0);
             if (cachedPrice && cachedPrice.priceInUsd) {
-                console.log(`Using cached ALGO price: ${cachedPrice.priceInUsd.price}`);
                 return cachedPrice.priceInUsd.price;
             }
 
@@ -194,14 +193,9 @@ export const fetchAlgoPriceFx = createEffect(
 export const $algoUsdPrice = restore(fetchAlgoPriceFx.doneData, 0.24); // Initialize with default
 
 export const fetchAllPricesFx = createEffect(async () => {
-    //console.log('fetching prices...');
-    return fetchAlgoPriceFx()
-        .then(() => {
-            // console.log('prices fetched');
-        })
-        .catch(() => {
-            console.log('failed to fetch prices :(');
-        });
+    return fetchAlgoPriceFx().catch(() => {
+        console.warn('Failed to fetch prices');
+    });
 });
 
 // Re-fetch prices once every 3 minutes (same as cache TTL)

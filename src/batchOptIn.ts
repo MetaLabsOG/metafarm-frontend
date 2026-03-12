@@ -50,33 +50,23 @@ export async function batchOptIn(reach: ReachStdlib, addr: Address, asaIds: Asse
 
     if (waitConfirmation) {
         const txId = txns[0].txID().toString();
-        console.log('Waiting for confirmation of opt-in');
         await withAlgodEncoding(algodClient, IntDecoding.DEFAULT, async (algodClient) => {
             return waitForConfirmation(algodClient, txId, 4);
         });
-        console.log('Confirmed');
     }
 
     return true; // We don't need this but have to send something to make contract wait
 }
 
-export async function multiBatchOptIn(reach: ReachStdlib, addr: Address) {
-    // Const { BATCH_IDS: asaIds } = await import('./bigbrains_100');
-    const asaIds: AssetId[] = [];
-    const BATCH_SIZE = 16;
-    const asaIdsCount = asaIds.length;
-    console.log(asaIdsCount);
-    for (let i = 0; i < asaIdsCount; i += BATCH_SIZE) {
-        const batch = asaIds.slice(i, Math.min(asaIdsCount, i + BATCH_SIZE));
-        console.log(i, Math.min(asaIdsCount, i + BATCH_SIZE));
-        // eslint-disable-next-line no-await-in-loop -- we want to wait for confirmation
-        await batchOptIn(reach, addr, batch, false);
-    }
-}
-
 export async function checkOptIn(addr: Address, asaId: AssetId) {
-    const preffix = ALGONET === TESTNET ? 'testnet' : 'mainnet';
-    return fetch('https://' + preffix + '-idx.algonode.cloud/v2/accounts/' + addr, { method: 'GET' })
+    const prefix = ALGONET === TESTNET ? 'testnet' : 'mainnet';
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    return fetch(`https://${prefix}-idx.algonode.cloud/v2/accounts/${addr}`, {
+        method: 'GET',
+        signal: controller.signal,
+    })
         .then(async (res) => res.json())
         .then((data) => {
             if (!data.account || !data.account.assets) {
@@ -91,8 +81,6 @@ export async function checkOptIn(addr: Address, asaId: AssetId) {
 
             return false;
         })
-        .catch((error) => {
-            console.log('ERR', error);
-            return false;
-        });
+        .catch(() => false)
+        .finally(() => clearTimeout(timeoutId));
 }
