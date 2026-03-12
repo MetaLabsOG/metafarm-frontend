@@ -18,7 +18,7 @@ export const METAWALLET = 'METAWEJ6MAPBIZBKZBX2RTGVEG4SFTB5BRJRKL3UYVXA6TT5YVWUA
 export const TESTNET: NetworkName = 'TestNet';
 export const MAINNET: NetworkName = 'MainNet';
 
-export const ALGONET: NetworkName = (process.env.ALGO_NETWORK as NetworkName) || TESTNET;
+export const ALGONET: NetworkName = (process.env.ALGO_NETWORK as NetworkName) || MAINNET;
 console.log(ALGONET);
 
 const META_TOKEN_IDS = {

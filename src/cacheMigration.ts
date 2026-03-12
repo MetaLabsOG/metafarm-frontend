@@ -5,7 +5,7 @@
  */
 
 // Bump this whenever a deploy needs a cache reset
-const CACHE_VERSION = '4';
+const CACHE_VERSION = '5';
 const CACHE_VERSION_KEY = 'cometa_cache_version';
 
 // Keys to preserve across cache resets (wallet state + user prefs)
@@ -24,15 +24,30 @@ function shouldPreserve(key: string): boolean {
     return PRESERVED_PREFIXES.some(prefix => key.startsWith(prefix));
 }
 
+/**
+ * Clear stale MyAlgo wallet data — MyAlgo Connect was discontinued.
+ * Users with 'MyAlgo' in localStorage will be stuck in a broken reconnect loop.
+ */
+function migrateMyAlgoUsers(): void {
+    const walletType = localStorage.getItem('connectedWalletType');
+    if (walletType === 'MyAlgo') {
+        localStorage.removeItem('connectedWalletType');
+        localStorage.removeItem('walletAddress');
+        localStorage.removeItem('walletNfdName');
+        localStorage.removeItem('MyAlgoConnect_addr');
+    }
+}
+
 export function runCacheMigration(): void {
     try {
+        // Always run MyAlgo migration regardless of cache version
+        migrateMyAlgoUsers();
+
         const currentVersion = localStorage.getItem(CACHE_VERSION_KEY);
 
         if (currentVersion === CACHE_VERSION) {
             return; // Already on current version
         }
-
-        console.log(`Cache migration: ${currentVersion ?? 'none'} → ${CACHE_VERSION}`);
 
         // Collect keys to remove (don't mutate while iterating)
         const keysToRemove: string[] = [];
@@ -45,8 +60,6 @@ export function runCacheMigration(): void {
 
         keysToRemove.forEach(key => localStorage.removeItem(key));
         localStorage.setItem(CACHE_VERSION_KEY, CACHE_VERSION);
-
-        console.log(`Cache migration complete: cleared ${keysToRemove.length} stale entries`);
     } catch (error) {
         console.error('Cache migration failed:', error);
         // Non-fatal — app can still work with stale cache

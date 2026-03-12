@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import algosdk from 'algosdk';
 import { PeraWalletConnect } from '@perawallet/connect-beta';
-import { ALGO_MyAlgoConnect as MyAlgoConnect, ALGO_WalletConnect as WalletConnect } from '@reach-sh/stdlib';
+import { ALGO_WalletConnect as WalletConnect } from '@reach-sh/stdlib';
 import { DeflyWalletV2 } from './deflyWalletV2';
 import type {
     ARC11_Wallet,
@@ -17,10 +17,10 @@ import type {
 import { makeProviderByEnv } from '../reachRedefinitions';
 import { reach, ALGONET, MAINNET } from '../AppContext';
 
-export type WalletType = 'MyAlgo' | 'WalletConnect' | 'WalletConnectDefly';
-export type WalletFallbackOpts = any & ({ MyAlgoConnect: MyAlgoConnect } | { WalletConnect: PeraWalletConnect | DeflyWalletV2 });
+export type WalletType = 'WalletConnect' | 'WalletConnectDefly';
+export type WalletFallbackOpts = any & { WalletConnect: PeraWalletConnect | DeflyWalletV2 };
 export type ARC11_Wallet_Disconnectable = ARC11_Wallet & { disconnect: () => Promise<void> };
-export type ARC11_Wallet_Exposed = ARC11_Wallet_Disconnectable & { _impl: MyAlgoConnect | PeraWalletConnect | DeflyWalletV2 };
+export type ARC11_Wallet_Exposed = ARC11_Wallet_Disconnectable & { _impl: PeraWalletConnect | DeflyWalletV2 };
 
 /**
  * Another copypaste from Reach, but here we fix a bunch of stuff
@@ -96,9 +96,6 @@ export const doCustomWalletFallback = (
 };
 
 export const customWalletFallback = (options: any & { walletType: WalletType }) => {
-    if (options.walletType === 'MyAlgo') {
-        return walletFallback_MyAlgoWallet(options);
-    }
     if (options.walletType === 'WalletConnect') {
         return walletFallback_WalletConnect(options);
     }
@@ -107,39 +104,6 @@ export const customWalletFallback = (options: any & { walletType: WalletType }) 
     }
 
     throw new TypeError(`Invalid wallet type: ${options.walletType}`);
-};
-
-const walletFallback_MyAlgoWallet = (options: object) => (): ARC11_Wallet_Exposed => {
-    if (!window.Buffer) window.Buffer = Buffer;
-
-    const LOCAL_STORAGE_KEY = 'MyAlgoConnect_addr';
-    const mac: any = new MyAlgoConnect();
-
-    const getAddr = async (): Promise<string> => {
-        const savedAddr = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (savedAddr !== null) {
-            return savedAddr;
-        }
-
-        const accts = await mac.connect({ shouldSelectOneAccount: true });
-        const addr = accts[0].address;
-        localStorage.setItem(LOCAL_STORAGE_KEY, addr);
-        return addr;
-    };
-    const signTxns = async (txns: WalletTransaction[]): Promise<string[]> => {
-        const toSign = txns.filter(({ stxn }) => !stxn).map(({ txn }) => txn);
-        const signedTxns: Array<{ blob: Uint8Array }> = await mac.signTransaction(toSign);
-        return txns.reduce((allStxns: string[], { stxn }) => {
-            allStxns.push(
-                stxn ? stxn : Buffer.from((signedTxns.shift() as { blob: Uint8Array }).blob).toString('base64')
-            );
-            return allStxns;
-        }, []);
-    };
-    const wallet = doCustomWalletFallback(options, getAddr, signTxns, async () => {
-        localStorage.removeItem(LOCAL_STORAGE_KEY);
-    });
-    return { ...wallet, _impl: mac };
 };
 
 const walletFallback_PeraOrDefly =
