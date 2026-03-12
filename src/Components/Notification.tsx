@@ -54,22 +54,23 @@ export const useToasts = ({ api, pendingStatus, action, text, isAutoClaim = fals
     }, [action, pendingStatus, notificationText, toastIds]);
 
     useEffect(() => {
-        if (!isNil(toastIds[action])) {
-            api.finally.watch(({ status }: { status: string }) => {
-                const toastId = toastIds[action]!;
-                const type = status === 'done' ? 'success' : 'error';
-                toast.update(toastId, {
-                    render: <Notification action={action} status={status} text={notificationText} />,
-                    type,
-                    icon: NOTIFICATION_ICONS[type],
-                    isLoading: false,
-                    autoClose: 5000,
-                    closeOnClick: true,
-                    draggable: true,
-                });
-                setToastIds({ ...toastIds, [action]: null });
+        if (isNil(toastIds[action])) return;
+
+        const unsub = api.finally.watch(({ status }: { status: string }) => {
+            const toastId = toastIds[action]!;
+            const type = status === 'done' ? 'success' : 'error';
+            toast.update(toastId, {
+                render: <Notification action={action} status={status} text={notificationText} />,
+                type,
+                icon: NOTIFICATION_ICONS[type],
+                isLoading: false,
+                autoClose: 5000,
+                closeOnClick: true,
+                draggable: true,
             });
-        }
+            setToastIds({ ...toastIds, [action]: null });
+        });
+        return unsub;
     }, [action, api, notificationText, toastIds]);
 
     return setNotificationText;
@@ -117,7 +118,7 @@ export const notify = (text: string, type: TypeOptions, link?: string) => {
         isLoading: false,
         autoClose: 5000,
         closeOnClick: true,
-        position: type === 'success' || type == 'info' ? toast.POSITION.BOTTOM_RIGHT : toast.POSITION.TOP_CENTER,
+        position: type === 'success' || type === 'info' ? toast.POSITION.BOTTOM_RIGHT : toast.POSITION.TOP_CENTER,
         hideProgressBar: true,
         theme: type === 'success' ? 'colored' : 'light',
     });

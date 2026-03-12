@@ -27,7 +27,7 @@
 | MF-044 | UI cleanup: copyright, Slise, Folks promo | done | high | ux | Footer: 2024→2026. Farm.tsx + Stake.tsx: deleted Slise placeholder + Folks promo. 2026-03-12 |
 | MF-045 | Fix infinite loading spinner when farm list empty | done | critical | ux | Farm.tsx + Stake.tsx: `isLoading = !state` (null=loading). Empty array → "No active farms/stake pools" message. 2026-03-12 |
 | MF-046 | Hide disabled features: NFT tab, cost chart, MetaDAO | done | critical | ux | Removed `/meta-dao` and `/price-test` routes. Backend returns `[]` for NFTs/cost. 2026-03-12 |
-| MF-047 | Dead code cleanup | in_progress | high | quality | Phase 1: routes removed. Phase 2 (M3): console.log purge + dead functions. 2026-03-12 |
+| MF-047 | Dead code cleanup | done | high | quality | Removed dead functions (getPoolInfo, getSwapCost, tokensaleWhitelist, multiBatchOptIn), deleted algoExplorerProvider.ts, purged 30+ console.log from critical paths. 2026-03-12 |
 
 ### Phase 2 — Coordinated (after backend Phase 1)
 
@@ -42,10 +42,10 @@
 
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
-| MF-052 | Add ErrorBoundary around each feature route | todo | high | safety | Only top-level ErrorBoundary exists. A crash in Swap/Farm/Zap kills the whole app. Wrap each lazy route in its own `<ErrorBoundary>` |
-| MF-053 | Filter wallet user rejections (4001) from error analytics | todo | high | quality | `ConnectWallet.tsx:78-91` — user closing modal is logged as error to Amplitude/Airtable. Check `error.code === 4001` before `logEvent(LogName.ERRORS)` |
-| MF-054 | Fix Notification.tsx .watch() subscription leak | todo | high | effector | `Notification.tsx:58` — `api.finally.watch()` inside useEffect without cleanup. Leaks subscriptions on every re-render |
-| MF-055 | Add timeout to checkOptIn fetch | todo | medium | safety | `batchOptIn.ts:79` — no timeout, no circuit breaker. Add AbortController with 5s timeout |
+| MF-052 | Add ErrorBoundary around each feature route | done | high | safety | Each lazy route wrapped in `<ErrorBoundary>`. Crash in one module doesn't kill the app. 2026-03-12 |
+| MF-053 | Filter wallet user rejections (4001) from error analytics | done | high | quality | Check error.code 4001 + rejection message patterns before logging to Amplitude/Airtable. 2026-03-12 |
+| MF-054 | Fix Notification.tsx .watch() subscription leak | done | high | effector | `api.finally.watch()` now returns unsub as useEffect cleanup. Fixed `==` to `===`. 2026-03-12 |
+| MF-055 | Add timeout to checkOptIn fetch | done | medium | safety | AbortController with 5s timeout. Also deleted dead `multiBatchOptIn`. 2026-03-12 |
 
 ### Milestones
 

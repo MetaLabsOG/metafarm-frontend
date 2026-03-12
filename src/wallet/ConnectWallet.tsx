@@ -71,14 +71,20 @@ export const connectWallet = (walletType: WalletType, isAutoReconnect = false) =
         })
         .catch((error) => {
             if (thisGeneration !== connectionGeneration) return;
-            if (error instanceof Error) {
-                logEvent('', { message: `ERROR. ConnectWallet: ${error.name}: ${error.message}` }, LogName.ERRORS);
-            } else {
-                logEvent(
-                    '',
-                    { message: `ERROR (of unexpected type!). ConnectWallet: ${String(error)}` },
-                    LogName.ERRORS
-                );
+
+            // User closing the wallet modal is expected flow — don't log as error
+            const isUserRejection = (error as any)?.code === 4001
+                || (error instanceof Error && (
+                    error.message.includes('rejected') ||
+                    error.message.includes('cancelled') ||
+                    error.message.includes('closed')
+                ));
+
+            if (!isUserRejection) {
+                const message = error instanceof Error
+                    ? `ERROR. ConnectWallet: ${error.name}: ${error.message}`
+                    : `ERROR (unexpected type). ConnectWallet: ${String(error)}`;
+                logEvent('', { message }, LogName.ERRORS);
             }
 
             // On auto-reconnect failure: clear stale session data and notify the user

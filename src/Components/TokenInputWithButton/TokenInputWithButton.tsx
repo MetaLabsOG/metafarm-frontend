@@ -1,7 +1,7 @@
 import React, { FC, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { useStore, useUnit } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { Effect } from 'effector';
 import { BigNumberish } from '@ethersproject/bignumber';
 import { LPTokenInfo } from '../../dexes';
@@ -74,7 +74,7 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
     hasLock,
 }) => {
     const account = useUnit($account);
-    const isPending = useStore(actionEffect.pending);
+    const isPending = useUnit(actionEffect.pending);
     // TODO
     // const actionEffectEvent = useUnit(actionEffect);
 

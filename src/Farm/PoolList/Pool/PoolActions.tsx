@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
-import { useStore, useStoreMap, useUnit } from 'effector-react';
+import { useStoreMap, useUnit } from 'effector-react';
 import { useModal } from 'react-hooks-use-modal';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { AllDefined } from '../../../types';
@@ -94,7 +94,7 @@ export function PoolActions({
     const isFarm = isLPTokenInfo(stakeTokenInfo);
     const { isDesktop } = useWindowSize();
 
-    const pendingClaim = useStore(ctc.apis.claim.pending);
+    const pendingClaim = useUnit(ctc.apis.claim.pending);
     const meanRoundDuration = useUnit($meanRoundDuration);
 
     const unlockTime =

@@ -292,17 +292,17 @@ function App() {
                             <ContentContainer>
                                 <Suspense fallback={<div style={{ color: '#8bff74', textAlign: 'center', padding: '40px' }}>Loading...</div>}>
                                     <Routes>
-                                        <Route path="/" element={<Farm />} />
+                                        <Route path="/" element={<ErrorBoundary><Farm /></ErrorBoundary>} />
                                         {/*<Route path="/fomo" element={<Fomo />} />*/}
-                                        <Route path="/laas" element={<LaaS />} />
-                                        <Route path="/farm" element={<Farm />} />
-                                        <Route path="/stake" element={<Stake />} />
-                                        <Route path="/swap" element={<Swap />} />
-                                        <Route path="/zap" element={<Zap inputDexProvider="T2" />} />
-                                        <Route path="/metapunks" element={<Metapunks />} />
-                                        <Route path="/addfarm" element={<AddFarm type="farm" />} />
-                                        <Route path="/addstake" element={<AddFarm type="stake" />} />
-                                        <Route path="/addlaas" element={<AddLaaS />} />
+                                        <Route path="/laas" element={<ErrorBoundary><LaaS /></ErrorBoundary>} />
+                                        <Route path="/farm" element={<ErrorBoundary><Farm /></ErrorBoundary>} />
+                                        <Route path="/stake" element={<ErrorBoundary><Stake /></ErrorBoundary>} />
+                                        <Route path="/swap" element={<ErrorBoundary><Swap /></ErrorBoundary>} />
+                                        <Route path="/zap" element={<ErrorBoundary><Zap inputDexProvider="T2" /></ErrorBoundary>} />
+                                        <Route path="/metapunks" element={<ErrorBoundary><Metapunks /></ErrorBoundary>} />
+                                        <Route path="/addfarm" element={<ErrorBoundary><AddFarm type="farm" /></ErrorBoundary>} />
+                                        <Route path="/addstake" element={<ErrorBoundary><AddFarm type="stake" /></ErrorBoundary>} />
+                                        <Route path="/addlaas" element={<ErrorBoundary><AddLaaS /></ErrorBoundary>} />
                                         <Route path="*" element={<Navigate to="/" replace />} />
                                     </Routes>
                                 </Suspense>
