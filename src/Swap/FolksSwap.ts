@@ -4,12 +4,38 @@ import { SwapMode, SwapParams, SwapQuote } from '@folks-router/js-sdk';
 import { WalletTransactionGroup } from '../types';
 import { DexProvider, Operation } from '../dexes';
 import { Amount, Asset } from '../common/store';
-import { folksRouterClient, METAWALLET } from '../AppContext';
+import { algod, folksRouterClient, METAWALLET } from '../AppContext';
 import { fromSmallestUnits } from '../common/lib';
 
 export const FOLKS_FEE_BPS = 30; // 0.3% integrator fee
 export const FOLKS_SLIPPAGE_BPS = 100; // 1% default slippage
 export const FOLKS_REFERRER = METAWALLET; // Cometa treasury receives 50% of fees
+
+// Lsig address derived from METAWALLET via Folks Router SDK getReferrerLogicSig()
+const REFERRER_LSIG = 'HOBWJ2VFJD6JGDSEU32OL2IMSPZHUUVNGW35MFJCYZS72XP33GXKWXUJQE';
+
+let lsigAssetsCache: Set<number> | null = null;
+let lsigCacheTime = 0;
+const LSIG_CACHE_TTL = 60_000; // refresh every 60s
+
+async function getReferrerLsigAssets(): Promise<Set<number>> {
+    const now = Date.now();
+    if (lsigAssetsCache && now - lsigCacheTime < LSIG_CACHE_TTL) {
+        return lsigAssetsCache;
+    }
+    try {
+        const info: any = await algod.accountInformation(REFERRER_LSIG).do();
+        const assets = new Set<number>([0]); // ALGO is native — always available
+        for (const a of info.assets ?? []) {
+            assets.add(a['asset-id']);
+        }
+        lsigAssetsCache = assets;
+        lsigCacheTime = now;
+        return assets;
+    } catch {
+        return new Set([0]);
+    }
+}
 
 export async function fetchFolksQuote(
     assetA: Asset,
@@ -23,13 +49,13 @@ export async function fetchFolksQuote(
         swapMode: SwapMode.FIXED_INPUT,
     };
 
-    const quote = await folksRouterClient.fetchSwapQuote(
-        swapParams,
-        undefined, // maxGroupSize
-        FOLKS_FEE_BPS,
-        undefined, // maxGroupSize for referrer
-        FOLKS_REFERRER,
-    );
+    // Only charge referrer fee if lsig can receive both tokens
+    const lsigAssets = await getReferrerLsigAssets();
+    const useReferrer = lsigAssets.has(assetA.id) && lsigAssets.has(assetB.id);
+
+    const quote = useReferrer
+        ? await folksRouterClient.fetchSwapQuote(swapParams, undefined, FOLKS_FEE_BPS, undefined, FOLKS_REFERRER)
+        : await folksRouterClient.fetchSwapQuote(swapParams);
 
     if (quote.quoteAmount <= 0n) {
         throw new Error('No liquidity available for this pair');
