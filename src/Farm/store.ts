@@ -232,39 +232,45 @@ export const getLPTokenInfoFx = createEffect(
 
 export const prePopulateLpTokenInfos = createEvent<Array<{ lpState: BackendLPTokenInfo; asset: Asset | null }>>();
 
+function backendLpToInfo(lpState: BackendLPTokenInfo, asset: Asset | null): Priced<LPTokenInfo> {
+    const tokenId = lpState.token_id as AssetId;
+    const baseAsset: Asset = asset ?? {
+        id: tokenId,
+        name: `LP-${lpState.token_id}`,
+        unitName: `LP`,
+        creator: lpState.address,
+        reserve: '',
+        decimals: 6,
+    };
+    return {
+        ...baseAsset,
+        poolId: lpState.id,
+        asset1: lpState.asset1_id as AssetId,
+        asset2: lpState.asset2_id as AssetId,
+        liquidityAsset: tokenId,
+        asset1Reserve: BigInt(Math.round(lpState.asset1_reserve_micros)),
+        asset2Reserve: BigInt(Math.round(lpState.asset2_reserve_micros)),
+        totalLiquidity: BigInt(Math.round(lpState.issued_tokens_micros)),
+        poolDex: lpState.dex_provider as DexProvider,
+        dexFeeApr: lpState.swap_fee_apr || 0,
+        price: lpState.token_price_usd,
+        priceInAlgo: lpState.token_price_algo,
+    };
+}
+
+function mergeLpItems(state: LPTokenStore, items: Array<{ lpState: BackendLPTokenInfo; asset: Asset | null }>, skipExisting: boolean): LPTokenStore {
+    let updated = state;
+    for (const { lpState, asset } of items) {
+        const tokenId = lpState.token_id as AssetId;
+        if (skipExisting && updated.has(tokenId)) continue;
+        updated = updated.set(tokenId, backendLpToInfo(lpState, asset));
+    }
+    return updated;
+}
+
 $lpTokenInfos
     .on(getLPTokenInfoFx.done, (state, { params, result }) => state.set(assetId(params.lpTokenAsset), result))
-    .on(prePopulateLpTokenInfos, (state, items) => {
-        let updated = state;
-        for (const { lpState, asset } of items) {
-            const tokenId = lpState.token_id as AssetId;
-            if (updated.has(tokenId)) continue;
-            const baseAsset: Asset = asset ?? {
-                id: tokenId,
-                name: `LP-${lpState.token_id}`,
-                unitName: `LP`,
-                creator: lpState.address,
-                reserve: '',
-                decimals: 6,
-            };
-            const info: Priced<LPTokenInfo> = {
-                ...baseAsset,
-                poolId: lpState.id,
-                asset1: lpState.asset1_id as AssetId,
-                asset2: lpState.asset2_id as AssetId,
-                liquidityAsset: tokenId,
-                asset1Reserve: BigInt(Math.round(lpState.asset1_reserve_micros)),
-                asset2Reserve: BigInt(Math.round(lpState.asset2_reserve_micros)),
-                totalLiquidity: BigInt(Math.round(lpState.issued_tokens_micros)),
-                poolDex: lpState.dex_provider as DexProvider,
-                dexFeeApr: lpState.swap_fee_apr || 0,
-                price: lpState.token_price_usd,
-                priceInAlgo: lpState.token_price_algo,
-            };
-            updated = updated.set(tokenId, info);
-        }
-        return updated;
-    });
+    .on(prePopulateLpTokenInfos, (state, items) => mergeLpItems(state, items, true));
 
 const $lpTokenIds = createStore(Set<AssetId>()).on($farmPools, (state, pools) => {
     const newIds = Set(pools.filter((pool) => pool.state !== null).map((pool) => pool.state!.initial.stakeToken));
@@ -295,37 +301,7 @@ const fetchMissingLpTokensFx = createEffect(async (missingTokenIds: AssetId[]) =
     return results;
 });
 
-$lpTokenInfos.on(fetchMissingLpTokensFx.doneData, (state, items) => {
-    let updated = state;
-    for (const { lpState, asset } of items) {
-        const tokenId = lpState.token_id as AssetId;
-        if (updated.has(tokenId)) continue;
-        const baseAsset: Asset = asset ?? {
-            id: tokenId,
-            name: `LP-${lpState.token_id}`,
-            unitName: `LP`,
-            creator: lpState.address,
-            reserve: '',
-            decimals: 6,
-        };
-        const info: Priced<LPTokenInfo> = {
-            ...baseAsset,
-            poolId: lpState.id,
-            asset1: lpState.asset1_id as AssetId,
-            asset2: lpState.asset2_id as AssetId,
-            liquidityAsset: tokenId,
-            asset1Reserve: BigInt(Math.round(lpState.asset1_reserve_micros)),
-            asset2Reserve: BigInt(Math.round(lpState.asset2_reserve_micros)),
-            totalLiquidity: BigInt(Math.round(lpState.issued_tokens_micros)),
-            poolDex: lpState.dex_provider as DexProvider,
-            dexFeeApr: lpState.swap_fee_apr || 0,
-            price: lpState.token_price_usd,
-            priceInAlgo: lpState.token_price_algo,
-        };
-        updated = updated.set(tokenId, info);
-    }
-    return updated;
-});
+$lpTokenInfos.on(fetchMissingLpTokensFx.doneData, (state, items) => mergeLpItems(state, items, true));
 
 // Register assets once when contract infos are set, not on every $farmPools update
 const _registeredAssets = new Set<number>();
@@ -413,34 +389,7 @@ const refreshLpTokenPricesFx = createEffect(async () => {
 
 $lpTokenInfos.on(refreshLpTokenPricesFx.doneData, (state, items) => {
     if (!items) return state;
-    let updated = state;
-    for (const { lpState, asset } of items) {
-        const tokenId = lpState.token_id as AssetId;
-        const baseAsset: Asset = asset ?? {
-            id: tokenId,
-            name: `LP-${lpState.token_id}`,
-            unitName: `LP`,
-            creator: lpState.address,
-            reserve: '',
-            decimals: 6,
-        };
-        const info: Priced<LPTokenInfo> = {
-            ...baseAsset,
-            poolId: lpState.id,
-            asset1: lpState.asset1_id as AssetId,
-            asset2: lpState.asset2_id as AssetId,
-            liquidityAsset: tokenId,
-            asset1Reserve: BigInt(Math.round(lpState.asset1_reserve_micros)),
-            asset2Reserve: BigInt(Math.round(lpState.asset2_reserve_micros)),
-            totalLiquidity: BigInt(Math.round(lpState.issued_tokens_micros)),
-            poolDex: lpState.dex_provider as DexProvider,
-            dexFeeApr: lpState.swap_fee_apr || 0,
-            price: lpState.token_price_usd,
-            priceInAlgo: lpState.token_price_algo,
-        };
-        updated = updated.set(tokenId, info);
-    }
-    return updated;
+    return mergeLpItems(state, items, false);
 });
 
 void doEachTick(3 * 60 * 1000, refreshLpTokenPricesFx);

@@ -79,8 +79,6 @@ const queryClient = new QueryClient({
 
 void fetchAllPricesFx();
 
-const WELCOME_MODAL_KEY = `welcome_cosmaud`;
-
 const modalComponents = {
     Overlay: () => {
         return (
