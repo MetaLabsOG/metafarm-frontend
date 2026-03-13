@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useUnit } from 'effector-react';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { theme } from '../theme';
@@ -50,7 +50,10 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     672913181: 144971339, // goUSD
 };
 
-export const SLIPPAGE = FOLKS_SLIPPAGE_BPS / 10_000; // 1% as decimal for display
+const SLIPPAGE_PRESETS = [50, 100, 200] as const; // 0.5%, 1%, 2% in bps
+const QUOTE_REFRESH_INTERVAL = 15_000; // 15 seconds
+
+export const SLIPPAGE = FOLKS_SLIPPAGE_BPS / 10_000; // 1% as decimal for display (used by compound.tsx)
 
 export enum QueryType {
     swap,
@@ -354,24 +357,107 @@ export function formatNumber(x: number) {
     return x > 100 ? Math.floor(x) : Math.floor(x * 100) / 100;
 }
 
+function getPriceImpactColor(impactPercent: number): string {
+    if (impactPercent >= 5) return '#E1636B';     // red — high impact
+    if (impactPercent >= 3) return '#E8A317';     // yellow — moderate
+    return theme.lightGray;                       // default
+}
+
+function getPriceImpactWarning(impactPercent: number): string | null {
+    if (impactPercent >= 10) return 'Very high price impact! You may lose significant value.';
+    if (impactPercent >= 5) return 'High price impact. Consider reducing the amount.';
+    return null;
+}
+
+function SlippageSelector({
+    slippageBps,
+    setSlippageBps,
+}: {
+    slippageBps: number;
+    setSlippageBps: (bps: number) => void;
+}) {
+    const [customValue, setCustomValue] = useState('');
+    const isCustom = !SLIPPAGE_PRESETS.includes(slippageBps as typeof SLIPPAGE_PRESETS[number]);
+
+    const handleCustomChange = (value: string) => {
+        setCustomValue(value);
+        const parsed = Number.parseFloat(value);
+        if (parsed > 0 && parsed <= 50) {
+            setSlippageBps(Math.round(parsed * 100));
+        }
+    };
+
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, marginBottom: 4 }}>
+            <span style={{ color: theme.lightGray, fontSize: 12, fontFamily: 'Montserrat', marginRight: 4 }}>
+                Slippage:
+            </span>
+            {SLIPPAGE_PRESETS.map((bps) => (
+                <button
+                    key={bps}
+                    onClick={() => { setSlippageBps(bps); setCustomValue(''); }}
+                    style={{
+                        padding: '4px 10px',
+                        borderRadius: 8,
+                        border: slippageBps === bps ? '1px solid #42C93F' : '1px solid ' + theme.gray,
+                        background: slippageBps === bps ? 'rgba(66, 201, 63, 0.15)' : 'transparent',
+                        color: slippageBps === bps ? theme.niceGreen : theme.lightGray,
+                        fontSize: 12,
+                        fontFamily: 'Montserrat',
+                        cursor: 'pointer',
+                    }}
+                >
+                    {bps / 100}%
+                </button>
+            ))}
+            <input
+                type="number"
+                placeholder="Custom"
+                value={isCustom ? (customValue || (slippageBps / 100).toString()) : customValue}
+                onChange={(e) => handleCustomChange(e.target.value)}
+                onFocus={() => { if (!isCustom) setCustomValue(''); }}
+                style={{
+                    width: 60,
+                    padding: '4px 6px',
+                    borderRadius: 8,
+                    border: isCustom ? '1px solid #42C93F' : '1px solid ' + theme.gray,
+                    background: isCustom ? 'rgba(66, 201, 63, 0.15)' : 'transparent',
+                    color: theme.newWhite,
+                    fontSize: 12,
+                    fontFamily: 'Montserrat',
+                    outline: 'none',
+                    textAlign: 'center',
+                }}
+            />
+            {isCustom && <span style={{ color: theme.lightGray, fontSize: 12 }}>%</span>}
+        </div>
+    );
+}
+
 function BestTokenPrice({
     isLoading,
     token1Amount,
     swapInfo,
     token1,
     token2,
+    slippageBps,
 }: {
     isLoading: boolean;
     token1Amount: string;
     swapInfo: FolksSwap | BestSwap | null;
     token1: TokenOptionType;
     token2: TokenOptionType;
+    slippageBps: number;
 }) {
     const best_swap = swapInfo ? swapInfo.amountOut : 0;
     const priceImpact = swapInfo ? swapInfo.getPriceImpact() : 0;
+    const priceImpactPercent = priceImpact * 100;
     const pricePerToken = Number.parseFloat(token1Amount) > 0 ? best_swap / Number.parseFloat(token1Amount) : 0;
     const networkFee = swapInfo instanceof FolksSwap ? swapInfo.networkFeeMicroAlgo / 1e6 : 0;
     const route = swapInfo ? swapInfo.pathString : '';
+    const slippageDecimal = slippageBps / 10_000;
+    const impactColor = getPriceImpactColor(priceImpactPercent);
+    const impactWarning = getPriceImpactWarning(priceImpactPercent);
 
     return (
         <LoadingSpinner
@@ -383,12 +469,26 @@ function BestTokenPrice({
             <div style={{ minHeight: '152px' }}>
                 <InfoRow
                     title="Minimum received"
-                    value={numberRound(best_swap * (1 - SLIPPAGE)) + ' ' + token2.unitName}
+                    value={numberRound(best_swap * (1 - slippageDecimal)) + ' ' + token2.unitName}
                     valueStyle={{ fontSize: '16px', color: theme.newWhite, fontWeight: 600 }}
                 />
                 <InfoRow title="Rate" value={`1 ${token1.unitName} = ${numberRound(pricePerToken)} ${token2.unitName}`} />
-                <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
-                <InfoRow title="Price impact" value={`${numberRound(priceImpact * 100)}%`} />
+                <InfoRow title="Max slippage" value={`${slippageBps / 100}%`} valueStyle={{ fontSize: '14px' }} />
+                <InfoRow
+                    title="Price impact"
+                    value={`${numberRound(priceImpactPercent)}%`}
+                    valueStyle={{ color: impactColor, fontWeight: priceImpactPercent >= 3 ? 600 : 400 }}
+                />
+                {impactWarning && (
+                    <div style={{
+                        color: priceImpactPercent >= 10 ? '#E1636B' : '#E8A317',
+                        fontSize: 12,
+                        fontFamily: 'Montserrat',
+                        padding: '4px 0',
+                    }}>
+                        {impactWarning}
+                    </div>
+                )}
                 {networkFee > 0 && (
                     <InfoRow title="Network fee" value={`${numberRound(networkFee)} ALGO`} />
                 )}
@@ -409,6 +509,8 @@ export function Swap() {
     const [bestSwap, setBestSwap] = useState<FolksSwap | null>(null);
     const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [slippageBps, setSlippageBps] = useState<number>(FOLKS_SLIPPAGE_BPS);
+    const [refreshCountdown, setRefreshCountdown] = useState<number>(0);
 
     useEffect(() => {
         getTokens(account, balances).then((res) => {
@@ -419,11 +521,45 @@ export function Swap() {
     }, [balances, account]);
 
     const getSwapTimeout = useRef<any>();
+    const refreshInterval = useRef<any>();
+    const countdownInterval = useRef<any>();
+
+    const startAutoRefresh = useCallback((token1Id: string, token2Id: string, amount: string) => {
+        clearInterval(refreshInterval.current);
+        clearInterval(countdownInterval.current);
+
+        if (!token1Id || !token2Id || !amount) return;
+
+        setRefreshCountdown(QUOTE_REFRESH_INTERVAL / 1000);
+        countdownInterval.current = setInterval(() => {
+            setRefreshCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+        }, 1000);
+
+        refreshInterval.current = setInterval(() => {
+            setRefreshCountdown(QUOTE_REFRESH_INTERVAL / 1000);
+            getBestSwap(account, Number.parseInt(token1Id), Number.parseInt(token2Id), amount).then((res) => {
+                setBestSwap(res);
+                if (res) setToken2Amount(numberRound(res.amountOut));
+            }).catch((error) => {
+                console.error('[SWAP] Auto-refresh failed:', error);
+            });
+        }, QUOTE_REFRESH_INTERVAL);
+    }, [account]);
+
+    useEffect(() => {
+        return () => {
+            clearInterval(refreshInterval.current);
+            clearInterval(countdownInterval.current);
+        };
+    }, []);
 
     function getBestSwapThrottled(token1_id: string, token2_id: string, amount: string, delay: number) {
         if (!token1_id || !token2_id || !amount) {
             setToken2Amount('');
             setBestSwap(null);
+            clearInterval(refreshInterval.current);
+            clearInterval(countdownInterval.current);
+            setRefreshCountdown(0);
             return;
         }
         clearTimeout(getSwapTimeout.current);
@@ -434,6 +570,7 @@ export function Swap() {
                 const best_swap = res ? res.amountOut : 0;
                 setToken2Amount(numberRound(best_swap));
                 setIsLoading(false);
+                startAutoRefresh(token1_id, token2_id, amount);
             }).catch((error) => {
                 console.error('[SWAP] Failed to get best swap:', error);
                 setIsLoading(false);
@@ -466,17 +603,37 @@ export function Swap() {
         getBestSwapThrottled(newToken1.value, newToken2.value, token2Amount, 50);
     };
 
+    const parsedAmount = Number.parseFloat(token1Amount);
+    const hasInsufficientBalance = parsedAmount > 0 && token1.balance < parsedAmount;
+    const isSwapDisabled = !bestSwap || isLoading || !token1Amount || hasInsufficientBalance;
+
     const SwapButtonOnClick = async () => {
         if (!isSwapZapDataValid(token1.value, token2.value, token1Amount)) {
             return;
         }
         if (bestSwap !== null) {
+            bestSwap.slippageBps = slippageBps;
+            clearInterval(refreshInterval.current);
+            clearInterval(countdownInterval.current);
             const res = await runTransactions(account, bestSwap, token1.balance);
             if (res !== null) {
                 const txId = res[0];
                 notify('Done!', 'success', algoexplorerTxLink(txId));
+                setToken1Amount('');
+                setToken2Amount('');
+                setBestSwap(null);
+            } else {
+                startAutoRefresh(token1.value, token2.value, token1Amount);
             }
         }
+    };
+
+    const getButtonText = (): string => {
+        if (isLoading) return 'SWAP';
+        if (!token1Amount) return 'ENTER AMOUNT';
+        if (hasInsufficientBalance) return 'INSUFFICIENT BALANCE';
+        if (!bestSwap) return 'SWAP';
+        return 'SWAP';
     };
 
     return (
@@ -504,18 +661,33 @@ export function Swap() {
                     inputOnChange={() => {}}
                     inputDisabled={true}
                 />
+                <SlippageSelector slippageBps={slippageBps} setSlippageBps={setSlippageBps} />
                 <BestTokenPrice
                     isLoading={isLoading}
                     token1Amount={token1Amount}
                     swapInfo={bestSwap}
                     token1={token1}
                     token2={token2}
+                    slippageBps={slippageBps}
                 />
+                {refreshCountdown > 0 && bestSwap && !isLoading && (
+                    <div style={{
+                        color: theme.gray,
+                        fontSize: 11,
+                        fontFamily: 'Montserrat',
+                        textAlign: 'right',
+                        marginTop: -4,
+                        marginBottom: 4,
+                    }}>
+                        Quote refreshes in {refreshCountdown}s
+                    </div>
+                )}
                 <PacmanButton
-                    buttonText="SWAP"
+                    buttonText={getButtonText()}
                     buttonStyle="swap_button"
                     onClickAction={SwapButtonOnClick}
-                    style={{ marginTop: 20 }}
+                    isInactive={isSwapDisabled}
+                    style={{ marginTop: 12 }}
                 />
                 <a target="_blank" href="https://folksrouter.io/" rel="noreferrer" style={{ textDecoration: 'none' }}>
                     <DexName>Powered by Folks Router</DexName>

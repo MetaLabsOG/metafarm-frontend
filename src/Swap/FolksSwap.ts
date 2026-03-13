@@ -47,6 +47,7 @@ export class FolksSwap implements Operation {
     networkFeeMicroAlgo: number;
     pathString: string;
     dex: DexProvider;
+    slippageBps: number;
 
     private swapParams: SwapParams;
     private swapQuote: SwapQuote;
@@ -65,6 +66,7 @@ export class FolksSwap implements Operation {
         this.assetB = assetB;
         this.microAmountIn = microAmountIn;
         this.dex = 'FR';
+        this.slippageBps = FOLKS_SLIPPAGE_BPS;
 
         this.quoteAmount = swapQuote.quoteAmount;
         this.amountOut = fromSmallestUnits(assetB, swapQuote.quoteAmount);
@@ -83,7 +85,7 @@ export class FolksSwap implements Operation {
         const txnStrings = await folksRouterClient.prepareSwapTransactions(
             this.swapParams,
             sender,
-            FOLKS_SLIPPAGE_BPS,
+            this.slippageBps,
             this.swapQuote,
         );
 
