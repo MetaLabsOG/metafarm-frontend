@@ -23,12 +23,11 @@ export async function fetchFolksQuote(
         swapMode: SwapMode.FIXED_INPUT,
     };
 
+    // Referrer disabled until logic sig account is funded (needs prepareReferrerOptIntoAsset)
+    // TODO: fund referrer lsig, then re-enable: FOLKS_FEE_BPS, undefined, FOLKS_REFERRER
     const quote = await folksRouterClient.fetchSwapQuote(
         swapParams,
         undefined, // maxGroupSize
-        FOLKS_FEE_BPS,
-        undefined, // userFeeDiscount
-        FOLKS_REFERRER,
     );
 
     if (quote.quoteAmount <= 0n) {
