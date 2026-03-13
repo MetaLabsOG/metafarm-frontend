@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useUnit } from 'effector-react';
 import { Account } from '@reach-sh/stdlib/ALGO';
-import { DeflexQuote } from '@deflex/deflex-sdk-js';
 import { theme } from '../theme';
-import { ALGONET, deflexClient, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
+import { ALGONET, MAINNET, META_TOKEN_ID, reach, TESTNET } from '../AppContext';
 import { $account, $balances, Amount, Asset, AssetId, fetchAsset, refreshAccountInfo } from '../common/store';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
 
@@ -28,15 +27,14 @@ import {
     SwapChartContainer,
     SwapContainer,
 } from '../common/styled';
-import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
 import { TokenOptionType } from '../Components/Select/types';
 import { BestSwap, Mint, tinymanDex, Zap } from '../dexes';
 import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
-import { getTokenLink, numberRound } from '../Farm/PoolList/Pool/utils';
+import { numberRound } from '../Farm/PoolList/Pool/utils';
 import swap from '../imgs/swap.svg';
 import { Token } from './types';
-import { DeflexSwap } from './DeflexSwap';
+import { FolksSwap, fetchFolksQuote, FOLKS_SLIPPAGE_BPS } from './FolksSwap';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 
@@ -52,13 +50,13 @@ const MAINNET_TO_TESTNET_ASA_ID: Record<string, number> = {
     672913181: 144971339, // goUSD
 };
 
-export const SLIPPAGE = 0.01;
+export const SLIPPAGE = FOLKS_SLIPPAGE_BPS / 10_000; // 1% as decimal for display
 
 export enum QueryType {
     swap,
     zap,
     mint,
-    alammexSwap,
+    folksSwap,
 }
 
 export const getNetworkAssetId = (asset_id: number) => {
@@ -96,7 +94,7 @@ export async function getBestSwap(
     asset1_id: number | undefined,
     asset2_id: number | undefined,
     asset1_amount: string
-): Promise<DeflexSwap | null> {
+): Promise<FolksSwap | null> {
     if (!isSwapZapDataValid(asset1_id?.toString(), asset2_id?.toString(), asset1_amount)) {
         return null;
     }
@@ -110,19 +108,12 @@ export async function getBestSwap(
         const asset2 = await fetchAsset(asset2_id);
         const amountIn = getSmallestUnits(asset1, Number.parseFloat(asset1_amount));
 
-        const amountInNum = Number(amountIn);
-        if (!Number.isSafeInteger(amountInNum) && amountIn > BigInt(Number.MAX_SAFE_INTEGER)) {
-            notify('Amount too large for this swap route. Try a smaller amount.', 'warning');
+        if (amountIn <= 0n) {
+            notify('Please enter a valid amount.', 'warning');
             return null;
         }
 
-        const deflexQuote: DeflexQuote = await deflexClient.getFixedInputSwapQuote(
-            asset1_id,
-            asset2_id,
-            amountInNum
-        );
-        // const bestSwap = await tinymanDex.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
-        const bestSwap = new DeflexSwap(deflexQuote, asset1, asset2, amountIn);
+        const bestSwap = await fetchFolksQuote(asset1, asset2, amountIn);
 
         logEvent(
             account?.networkAccount.addr,
@@ -143,7 +134,13 @@ export async function getBestSwap(
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
         console.error(error);
-        notify('Fail to find the best swap.', 'error');
+
+        if (error_message.includes('No liquidity')) {
+            notify('No liquidity available for this pair.', 'error');
+        } else {
+            notify('Failed to get swap quote. Please try again.', 'error');
+        }
+
         logEvent(
             account?.networkAccount.addr,
             {
@@ -161,7 +158,7 @@ export async function getBestSwap(
 
 export async function runTransactions(
     account: Account | null,
-    operation: BestSwap | Zap | Mint | DeflexSwap,
+    operation: BestSwap | Zap | Mint | FolksSwap,
     token1Balance?: number
 ): Promise<string[] | null> {
     if (!account) {
@@ -196,7 +193,7 @@ export async function runTransactions(
         ];
     } else {
         [type, token1, token2, token1AmountBig] = [
-            QueryType.alammexSwap,
+            QueryType.folksSwap,
             operation.assetA,
             operation.assetB,
             operation.microAmountIn,
@@ -366,19 +363,20 @@ function BestTokenPrice({
 }: {
     isLoading: boolean;
     token1Amount: string;
-    swapInfo: DeflexSwap | BestSwap | null;
+    swapInfo: FolksSwap | BestSwap | null;
     token1: TokenOptionType;
     token2: TokenOptionType;
 }) {
     const best_swap = swapInfo ? swapInfo.amountOut : 0;
-    // const best_path = swapInfo ? swapInfo.pathString : '';
     const priceImpact = swapInfo ? swapInfo.getPriceImpact() : 0;
     const pricePerToken = Number.parseFloat(token1Amount) > 0 ? best_swap / Number.parseFloat(token1Amount) : 0;
+    const networkFee = swapInfo instanceof FolksSwap ? swapInfo.networkFeeMicroAlgo / 1e6 : 0;
+    const route = swapInfo ? swapInfo.pathString : '';
 
     return (
         <LoadingSpinner
             isLoading={isLoading}
-            text="Calculating best swap..."
+            text="Finding best route..."
             size="small"
             overlay={true}
         >
@@ -388,10 +386,13 @@ function BestTokenPrice({
                     value={numberRound(best_swap * (1 - SLIPPAGE)) + ' ' + token2.unitName}
                     valueStyle={{ fontSize: '16px', color: theme.newWhite, fontWeight: 600 }}
                 />
-                <InfoRow title="Price" value={`${numberRound(pricePerToken)} ${token2.unitName} per ${token1.unitName}`} />
+                <InfoRow title="Rate" value={`1 ${token1.unitName} = ${numberRound(pricePerToken)} ${token2.unitName}`} />
                 <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} valueStyle={{ fontSize: '14px' }} />
                 <InfoRow title="Price impact" value={`${numberRound(priceImpact * 100)}%`} />
-                {/*<InfoRow title="Route" value={best_path} />*/}
+                {networkFee > 0 && (
+                    <InfoRow title="Network fee" value={`${numberRound(networkFee)} ALGO`} />
+                )}
+                {route && <InfoRow title="Route" value={route} />}
             </div>
         </LoadingSpinner>
     );
@@ -405,7 +406,7 @@ export function Swap() {
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token1Amount, setToken1Amount] = useState<string>('');
     const [token2Amount, setToken2Amount] = useState<string>('');
-    const [bestSwap, setBestSwap] = useState<DeflexSwap | null>(null);
+    const [bestSwap, setBestSwap] = useState<FolksSwap | null>(null);
     const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -516,8 +517,8 @@ export function Swap() {
                     onClickAction={SwapButtonOnClick}
                     style={{ marginTop: 20 }}
                 />
-                <a target="_blank" href="https://www.deflex.fi/" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                    <DexName>via Deflex</DexName>
+                <a target="_blank" href="https://folksrouter.io/" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                    <DexName>Powered by Folks Router</DexName>
                 </a>
             </ModalContainer>
             <StyledVestigeChart

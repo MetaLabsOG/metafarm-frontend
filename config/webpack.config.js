@@ -388,6 +388,14 @@ module.exports = function (webpackEnv) {
     module: {
       strictExportPresence: true,
       rules: [
+        // Disable fullySpecified for ESM packages in node_modules
+        // (fixes process/browser resolution in @folks-router/js-sdk's algosdk)
+        {
+          test: /\.m?js/,
+          resolve: {
+            fullySpecified: false,
+          },
+        },
         // Handle node_modules packages that contain sourcemaps
         shouldUseSourceMap && {
           enforce: 'pre',

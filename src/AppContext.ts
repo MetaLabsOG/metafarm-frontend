@@ -1,6 +1,6 @@
 import algosdk from 'algosdk';
 
-import { DeflexOrderRouterClient } from '@deflex/deflex-sdk-js';
+import { FolksRouterClient, Network } from '@folks-router/js-sdk';
 import type { Provider, ReachStdlib } from './types';
 import { loadStdlibShimmed, makeProviderByEnv } from './reachRedefinitions';
 
@@ -64,23 +64,6 @@ export const UNVERIFIED_FARM_FLAT_ALGO_CREATION_FEE = process.env.REACT_APP_UNVE
 
 export const API_CONTRACTS_MAX_COUNT = process.env.API_CONTRACTS_MAX_COUNT;
 
-const ALAMMEX_API_KEY = process.env.REACT_APP_ALAMMEX_API_KEY;
-
-export const deflexClient =
-    ALGONET === TESTNET
-        ? DeflexOrderRouterClient.fetchTestnetClient(
-              process.env.ALGO_SERVER,
-              process.env.ALGO_TOKEN,
-              '',
-              undefined,
-              undefined,
-              ALAMMEX_API_KEY
-          )
-        : DeflexOrderRouterClient.fetchMainnetClient(
-              process.env.ALGO_SERVER,
-              process.env.ALGO_TOKEN,
-              '',
-              undefined,
-              undefined,
-              ALAMMEX_API_KEY
-          );
+export const folksRouterClient = new FolksRouterClient(
+    ALGONET === MAINNET ? Network.MAINNET : Network.TESTNET,
+);

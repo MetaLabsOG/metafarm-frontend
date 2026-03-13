@@ -10,6 +10,7 @@ export type DexProvider =
     | 'T3' // Tinyman v2.0
     | 'PT' // Pact
     | 'H2' // Humble
+    | 'FR' // Folks Router (aggregator)
     | 'MOCK'; // Mock dex (random tokens are staked)
 
 export interface PoolInfo {

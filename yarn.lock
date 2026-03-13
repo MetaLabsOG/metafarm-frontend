@@ -1226,14 +1226,6 @@
   resolved "https://registry.yarnpkg.com/@csstools/selector-specificity/-/selector-specificity-2.2.0.tgz#2cbcf822bf3764c9658c4d2e568bd0c0cb748016"
   integrity sha512-+OJ9konv95ClSTOJCmMZqpd5+YGsB2S+x6w3E1oaM8UuR5j8nTNHYSz8c9BEPGDOCMQYIEEGlVPj/VY64iTbGw==
 
-"@deflex/deflex-sdk-js@^2.0.5":
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/@deflex/deflex-sdk-js/-/deflex-sdk-js-2.0.5.tgz#10489858c2fc5b2fa2a80227f0f46b1d2e60a5fd"
-  integrity sha512-nf+v8O3xEWlqSKS9AUJxcAQ29Ky1tZkubeUwuQFYg/hwcGzqsUHQFhSzkWI48E2BPsgAa6DpSEKj9PyCUxPUFA==
-  dependencies:
-    algosdk "2.6.0"
-    axios "^0.27.2"
-
 "@dimforge/rapier3d-compat@^0.12.0":
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/@dimforge/rapier3d-compat/-/rapier3d-compat-0.12.0.tgz#7b3365e1dfdc5cd957b45afe920b4ac06c7cd389"
@@ -1696,6 +1688,14 @@
   version "0.2.9"
   resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.9.tgz#50dea3616bc8191fb8e112283b49eaff03e78429"
   integrity sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==
+
+"@folks-router/js-sdk@^0.5.1":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@folks-router/js-sdk/-/js-sdk-0.5.1.tgz#188ac9eb86a331b48d5a78f24854da2642a13f18"
+  integrity sha512-MaqCTVjqxN3ckvZyYha+DoQj2NXoyGBG16Ge06x+3aUuodsqVPPCW6hLzhW60a2YLuhLMgfRaoyIqSIZcqmnUw==
+  dependencies:
+    algosdk "^3.5.2"
+    axios "^1.13.2"
 
 "@gar/promisify@^1.1.3":
   version "1.1.3"
@@ -5132,6 +5132,11 @@ algo-msgpack-with-bigint@^2.1.1:
   resolved "https://registry.yarnpkg.com/algo-msgpack-with-bigint/-/algo-msgpack-with-bigint-2.1.1.tgz#38bb717220525b3ff42232eefdcd9efb9ad405d6"
   integrity sha512-F1tGh056XczEaEAqu7s+hlZUDWwOBT70Eq0lfMpBP2YguSQVyxRbprLq5rELXKQOyOaixTWYhMeMQMzP0U5FoQ==
 
+algorand-msgpack@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/algorand-msgpack/-/algorand-msgpack-1.1.0.tgz#46c67c7232a3ee1bafc3c64b67fefbdb504e6560"
+  integrity sha512-08k7pBQnkaUB5p+jL7f1TRaUIlTSDE0cesFu1mD7llLao+1cAhtvvZmGE3OnisTd0xOn118QMw74SRqddqaYvw==
+
 algorand-walletconnect-qrcode-modal@^1.6.1, algorand-walletconnect-qrcode-modal@^1.7.4:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/algorand-walletconnect-qrcode-modal/-/algorand-walletconnect-qrcode-modal-1.8.0.tgz#fa539ca3168a5423fd355e1fe8073dd0bca1b6b1"
@@ -5143,22 +5148,6 @@ algorand-walletconnect-qrcode-modal@^1.6.1, algorand-walletconnect-qrcode-modal@
     copy-to-clipboard "^3.3.1"
     preact "10.4.1"
     qrcode "1.4.4"
-
-algosdk@2.6.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/algosdk/-/algosdk-2.6.0.tgz#78794a632ec2c7be209db4951e2f706b2b7f27dc"
-  integrity sha512-xYSb2xPG4nLPlJvqjA4ebR0s++YrjZK1+UfaEV84u2HkIwuRhEUmryDPcAuLIfTp3eyY99v/FduOK02K2Hnu8Q==
-  dependencies:
-    algo-msgpack-with-bigint "^2.1.1"
-    buffer "^6.0.3"
-    cross-fetch "^4.0.0"
-    hi-base32 "^0.5.1"
-    js-sha256 "^0.9.0"
-    js-sha3 "^0.8.0"
-    js-sha512 "^0.8.0"
-    json-bigint "^1.0.0"
-    tweetnacl "^1.0.3"
-    vlq "^2.0.4"
 
 algosdk@^1.14.0, algosdk@^1.15.0, algosdk@^1.18.1:
   version "1.24.1"
@@ -5183,6 +5172,20 @@ algosdk@^2.7.0:
   dependencies:
     algo-msgpack-with-bigint "^2.1.1"
     buffer "^6.0.3"
+    hi-base32 "^0.5.1"
+    js-sha256 "^0.9.0"
+    js-sha3 "^0.8.0"
+    js-sha512 "^0.8.0"
+    json-bigint "^1.0.0"
+    tweetnacl "^1.0.3"
+    vlq "^2.0.4"
+
+algosdk@^3.5.2:
+  version "3.5.2"
+  resolved "https://registry.yarnpkg.com/algosdk/-/algosdk-3.5.2.tgz#2e980f56d832cbb58defcd25334373d5c334ddce"
+  integrity sha512-frhGtZl1JvfrLRKmMvUm880wj4OiWsWo2FhbreNWh7pdFsKuWPj60fV682wt/CYefLI70iwHavPOwGBkTVt0VA==
+  dependencies:
+    algorand-msgpack "^1.1.0"
     hi-base32 "^0.5.1"
     js-sha256 "^0.9.0"
     js-sha3 "^0.8.0"
@@ -5531,6 +5534,15 @@ axios@^1.0.0:
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
+
+axios@^1.13.2:
+  version "1.13.6"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.13.6.tgz#c3f92da917dc209a15dd29936d20d5089b6b6c98"
+  integrity sha512-ChTCHMouEe2kn713WHbQGcuYrr6fXTBiu460OTwWrWob16g1bXn4vtz07Ope7ewMozJAnEquLk5lWQWtBig9DQ==
+  dependencies:
+    follow-redirects "^1.15.11"
+    form-data "^4.0.5"
     proxy-from-env "^1.1.0"
 
 axobject-query@^4.1.0:
@@ -6762,13 +6774,6 @@ cross-fetch@^3.1.5:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-3.2.0.tgz#34e9192f53bc757d6614304d9e5e6fb4edb782e3"
   integrity sha512-Q+xVJLoGOeIMXZmbUK4HYk+69cQH6LudR0Vu/pRm2YlU/hDV9CiS0gKUMaWY5f2NeUH9C1nV3bsTlCo0FsTV1Q==
-  dependencies:
-    node-fetch "^2.7.0"
-
-cross-fetch@^4.0.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/cross-fetch/-/cross-fetch-4.1.0.tgz#8f69355007ee182e47fa692ecbaa37a52e43c3d2"
-  integrity sha512-uKm5PU+MHTootlWEY+mZ4vvXoCn4fLQxT9dSc1sXVMSFkINTJVN8cAQROpwcKm8bJ/c7rgZVIBWzH5T78sNZZw==
   dependencies:
     node-fetch "^2.7.0"
 
@@ -8716,6 +8721,11 @@ follow-redirects@^1.0.0, follow-redirects@^1.14.9, follow-redirects@^1.15.6:
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.9.tgz#a604fa10e443bf98ca94228d9eebcc2e8a2c8ee1"
   integrity sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==
 
+follow-redirects@^1.15.11:
+  version "1.15.11"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.11.tgz#777d73d72a92f8ec4d2e410eb47352a56b8e8340"
+  integrity sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==
+
 for-each@^0.3.3, for-each@^0.3.5:
   version "0.3.5"
   resolved "https://registry.yarnpkg.com/for-each/-/for-each-0.3.5.tgz#d650688027826920feeb0af747ee7b9421a41d47"
@@ -8768,6 +8778,17 @@ form-data@^4.0.0:
     asynckit "^0.4.0"
     combined-stream "^1.0.8"
     es-set-tostringtag "^2.1.0"
+    mime-types "^2.1.12"
+
+form-data@^4.0.5:
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/form-data/-/form-data-4.0.5.tgz#b49e48858045ff4cbf6b03e1805cebcad3679053"
+  integrity sha512-8RipRLol37bNs2bhoV67fiTEvdTrbMUYcFTiy3+wuuOnUog2QBHCZWXDRijWQfAkhBj2Uf5UnVaiWwA5vdd82w==
+  dependencies:
+    asynckit "^0.4.0"
+    combined-stream "^1.0.8"
+    es-set-tostringtag "^2.1.0"
+    hasown "^2.0.2"
     mime-types "^2.1.12"
 
 formidable@^1.2.2:
