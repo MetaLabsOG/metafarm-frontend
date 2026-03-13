@@ -29,12 +29,30 @@ import {
 } from '../common/styled';
 import { TokenOptionType } from '../Components/Select/types';
 import { BestSwap, Mint, tinymanDex, Zap } from '../dexes';
-import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
 import { numberRound } from '../Farm/PoolList/Pool/utils';
 import swap from '../imgs/swap.svg';
 import { Token } from './types';
 import { FolksSwap, fetchFolksQuote, FOLKS_SLIPPAGE_BPS } from './FolksSwap';
+import {
+    SwapDetailsPanel,
+    SlippageSection,
+    SlippageLabel,
+    SlippageBtnGroup,
+    SlippageBtn,
+    CustomSlippageInput,
+    RateValue,
+    InvertIcon,
+    PanelDivider,
+    DetailsSection,
+    DetailRow,
+    DetailLabel,
+    DetailValue,
+    ImpactWarning,
+    RefreshSection,
+    PulseDot,
+    RefreshText,
+} from './styled';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
 
@@ -360,7 +378,8 @@ export function formatNumber(x: number) {
 function getPriceImpactColor(impactPercent: number): string {
     if (impactPercent >= 5) return '#E1636B';     // red — high impact
     if (impactPercent >= 3) return '#E8A317';     // yellow — moderate
-    return theme.lightGray;                       // default
+    if (impactPercent < 1) return '#42C93F';      // green — negligible
+    return theme.lightGray;                       // 1-3% — neutral
 }
 
 function getPriceImpactWarning(impactPercent: number): string | null {
@@ -388,53 +407,33 @@ function SlippageSelector({
     };
 
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, marginBottom: 4 }}>
-            <span style={{ color: theme.lightGray, fontSize: 12, fontFamily: 'Montserrat', marginRight: 4 }}>
-                Slippage:
-            </span>
-            {SLIPPAGE_PRESETS.map((bps) => (
-                <button
-                    key={bps}
-                    onClick={() => { setSlippageBps(bps); setCustomValue(''); }}
-                    style={{
-                        padding: '4px 10px',
-                        borderRadius: 8,
-                        border: slippageBps === bps ? '1px solid #42C93F' : '1px solid ' + theme.gray,
-                        background: slippageBps === bps ? 'rgba(66, 201, 63, 0.15)' : 'transparent',
-                        color: slippageBps === bps ? theme.niceGreen : theme.lightGray,
-                        fontSize: 12,
-                        fontFamily: 'Montserrat',
-                        cursor: 'pointer',
-                    }}
-                >
-                    {bps / 100}%
-                </button>
-            ))}
-            <input
-                type="number"
-                placeholder="Custom"
-                value={isCustom ? (customValue || (slippageBps / 100).toString()) : customValue}
-                onChange={(e) => handleCustomChange(e.target.value)}
-                onFocus={() => { if (!isCustom) setCustomValue(''); }}
-                style={{
-                    width: 60,
-                    padding: '4px 6px',
-                    borderRadius: 8,
-                    border: isCustom ? '1px solid #42C93F' : '1px solid ' + theme.gray,
-                    background: isCustom ? 'rgba(66, 201, 63, 0.15)' : 'transparent',
-                    color: theme.newWhite,
-                    fontSize: 12,
-                    fontFamily: 'Montserrat',
-                    outline: 'none',
-                    textAlign: 'center',
-                }}
-            />
-            {isCustom && <span style={{ color: theme.lightGray, fontSize: 12 }}>%</span>}
-        </div>
+        <SlippageSection>
+            <SlippageLabel>Slippage</SlippageLabel>
+            <SlippageBtnGroup>
+                {SLIPPAGE_PRESETS.map((bps) => (
+                    <SlippageBtn
+                        key={bps}
+                        type="button"
+                        $active={slippageBps === bps}
+                        onClick={() => { setSlippageBps(bps); setCustomValue(''); }}
+                    >
+                        {bps / 100}%
+                    </SlippageBtn>
+                ))}
+                <CustomSlippageInput
+                    type="number"
+                    placeholder="Custom"
+                    $active={isCustom}
+                    value={isCustom ? (customValue || (slippageBps / 100).toString()) : customValue}
+                    onChange={(e) => handleCustomChange(e.target.value)}
+                    onFocus={() => { if (!isCustom) setCustomValue(''); }}
+                />
+            </SlippageBtnGroup>
+        </SlippageSection>
     );
 }
 
-function BestTokenPrice({
+function SwapDetails({
     isLoading,
     token1Amount,
     swapInfo,
@@ -449,6 +448,8 @@ function BestTokenPrice({
     token2: TokenOptionType;
     slippageBps: number;
 }) {
+    const [rateInverted, setRateInverted] = useState(false);
+
     const best_swap = swapInfo ? swapInfo.amountOut : 0;
     const priceImpact = swapInfo ? swapInfo.getPriceImpact() : 0;
     const priceImpactPercent = priceImpact * 100;
@@ -459,41 +460,51 @@ function BestTokenPrice({
     const impactColor = getPriceImpactColor(priceImpactPercent);
     const impactWarning = getPriceImpactWarning(priceImpactPercent);
 
+    const rateDisplay = pricePerToken > 0
+        ? rateInverted
+            ? `1 ${token2.unitName} = ${numberRound(1 / pricePerToken)} ${token1.unitName}`
+            : `1 ${token1.unitName} = ${numberRound(pricePerToken)} ${token2.unitName}`
+        : '—';
+
     return (
-        <LoadingSpinner
-            isLoading={isLoading}
-            text="Finding best route..."
-            size="small"
-            overlay={true}
-        >
-            <div style={{ minHeight: '152px' }}>
-                <InfoRow
-                    title="Minimum received"
-                    value={numberRound(best_swap * (1 - slippageDecimal)) + ' ' + token2.unitName}
-                    valueStyle={{ fontSize: '16px', color: theme.newWhite, fontWeight: 600 }}
-                />
-                <InfoRow title="Rate" value={`1 ${token1.unitName} = ${numberRound(pricePerToken)} ${token2.unitName}`} />
-                <InfoRow title="Max slippage" value={`${slippageBps / 100}%`} valueStyle={{ fontSize: '14px' }} />
-                <InfoRow
-                    title="Price impact"
-                    value={`${numberRound(priceImpactPercent)}%`}
-                    valueStyle={{ color: impactColor, fontWeight: priceImpactPercent >= 3 ? 600 : 400 }}
-                />
+        <LoadingSpinner isLoading={isLoading} text="Finding best route..." size="small" overlay={true}>
+            <DetailsSection>
+                <DetailRow>
+                    <DetailLabel>Rate</DetailLabel>
+                    <RateValue onClick={() => setRateInverted((v) => !v)}>
+                        {rateDisplay} <InvertIcon>⇄</InvertIcon>
+                    </RateValue>
+                </DetailRow>
+                <DetailRow>
+                    <DetailLabel>Price impact</DetailLabel>
+                    <DetailValue $color={impactColor} $highlight={priceImpactPercent >= 3}>
+                        {numberRound(priceImpactPercent)}%
+                    </DetailValue>
+                </DetailRow>
                 {impactWarning && (
-                    <div style={{
-                        color: priceImpactPercent >= 10 ? '#E1636B' : '#E8A317',
-                        fontSize: 12,
-                        fontFamily: 'Montserrat',
-                        padding: '4px 0',
-                    }}>
+                    <ImpactWarning $critical={priceImpactPercent >= 10}>
                         {impactWarning}
-                    </div>
+                    </ImpactWarning>
                 )}
+                <DetailRow>
+                    <DetailLabel>Min. received</DetailLabel>
+                    <DetailValue $highlight $color={theme.newWhite}>
+                        {numberRound(best_swap * (1 - slippageDecimal))} {token2.unitName}
+                    </DetailValue>
+                </DetailRow>
                 {networkFee > 0 && (
-                    <InfoRow title="Network fee" value={`${numberRound(networkFee)} ALGO`} />
+                    <DetailRow>
+                        <DetailLabel>Network fee</DetailLabel>
+                        <DetailValue>{numberRound(networkFee)} ALGO</DetailValue>
+                    </DetailRow>
                 )}
-                {route && <InfoRow title="Route" value={route} />}
-            </div>
+                {route && (
+                    <DetailRow>
+                        <DetailLabel>Route</DetailLabel>
+                        <DetailValue>{route}</DetailValue>
+                    </DetailRow>
+                )}
+            </DetailsSection>
         </LoadingSpinner>
     );
 }
@@ -661,27 +672,28 @@ export function Swap() {
                     inputOnChange={() => {}}
                     inputDisabled={true}
                 />
-                <SlippageSelector slippageBps={slippageBps} setSlippageBps={setSlippageBps} />
-                <BestTokenPrice
-                    isLoading={isLoading}
-                    token1Amount={token1Amount}
-                    swapInfo={bestSwap}
-                    token1={token1}
-                    token2={token2}
-                    slippageBps={slippageBps}
-                />
-                {refreshCountdown > 0 && bestSwap && !isLoading && (
-                    <div style={{
-                        color: theme.gray,
-                        fontSize: 11,
-                        fontFamily: 'Montserrat',
-                        textAlign: 'right',
-                        marginTop: -4,
-                        marginBottom: 4,
-                    }}>
-                        Quote refreshes in {refreshCountdown}s
-                    </div>
-                )}
+                <SwapDetailsPanel>
+                    <SlippageSelector slippageBps={slippageBps} setSlippageBps={setSlippageBps} />
+                    {(bestSwap || isLoading) && (
+                        <>
+                            <PanelDivider />
+                            <SwapDetails
+                                isLoading={isLoading}
+                                token1Amount={token1Amount}
+                                swapInfo={bestSwap}
+                                token1={token1}
+                                token2={token2}
+                                slippageBps={slippageBps}
+                            />
+                        </>
+                    )}
+                    {refreshCountdown > 0 && bestSwap && !isLoading && (
+                        <RefreshSection>
+                            <PulseDot />
+                            <RefreshText>Refreshes in {refreshCountdown}s</RefreshText>
+                        </RefreshSection>
+                    )}
+                </SwapDetailsPanel>
                 <PacmanButton
                     buttonText={getButtonText()}
                     buttonStyle="swap_button"
