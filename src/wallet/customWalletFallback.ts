@@ -40,7 +40,11 @@ export const doCustomWalletFallback = (
     const _env = typeof base === 'string' ? reach.providerEnvByName(base) : base;
     const enableNetwork = async (eopts?: EnableOpts): Promise<EnableNetworkResult> => {
         p = makeProviderByEnv(_env);
-        const { genesisID, genesisHash } = await p.algodClient.getTransactionParams().do();
+        // Genesis params are static per network — skip the blocking algod call
+        const genesisID = ALGONET === MAINNET ? 'mainnet-v1.0' : 'testnet-v1.0';
+        const genesisHash = ALGONET === MAINNET
+            ? 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8='
+            : 'SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=';
         return { genesisID, genesisHash };
     };
     const enableAccounts = async (eopts?: EnableAccountsOpts): Promise<EnableAccountsResult> => {

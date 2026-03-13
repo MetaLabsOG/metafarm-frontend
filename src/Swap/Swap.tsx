@@ -35,9 +35,7 @@ import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { notify } from '../Components/Notification';
 import { getTokenLink, numberRound } from '../Farm/PoolList/Pool/utils';
 import swap from '../imgs/swap.svg';
-import { checkNftLottery } from '../providers/apiProvider';
 import { Token } from './types';
-import { NftLottery, NftWinModal } from './NftWinModal';
 import { DeflexSwap } from './DeflexSwap';
 
 export const ASSETS_PATH = 'https://asa-list.tinyman.org/assets.json';
@@ -107,17 +105,21 @@ export async function getBestSwap(
         return null;
     }
 
-    console.log('[SWAP] get data:', asset1_id, asset2_id, asset1_amount);
-
     try {
         const asset1 = await fetchAsset(asset1_id);
         const asset2 = await fetchAsset(asset2_id);
         const amountIn = getSmallestUnits(asset1, Number.parseFloat(asset1_amount));
 
+        const amountInNum = Number(amountIn);
+        if (!Number.isSafeInteger(amountInNum) && amountIn > BigInt(Number.MAX_SAFE_INTEGER)) {
+            notify('Amount too large for this swap route. Try a smaller amount.', 'warning');
+            return null;
+        }
+
         const deflexQuote: DeflexQuote = await deflexClient.getFixedInputSwapQuote(
             asset1_id,
             asset2_id,
-            Number(amountIn)
+            amountInNum
         );
         // const bestSwap = await tinymanDex.getBestSwapQuote(asset1, asset2, amountIn, SLIPPAGE);
         const bestSwap = new DeflexSwap(deflexQuote, asset1, asset2, amountIn);
@@ -407,8 +409,6 @@ export function Swap() {
     const [options, setOptions] = useState<TokenOptionType[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const [nft, setNft] = useState<NftLottery | null>(null);
-
     useEffect(() => {
         getTokens(account, balances).then((res) => {
             setOptions(res);
@@ -443,7 +443,7 @@ export function Swap() {
     const select1OnChange = (option: TokenOptionType) => {
         setToken1(option);
         setToken1Amount('');
-        getBestSwapThrottled(option.value, token2.value, token1Amount, 50);
+        getBestSwapThrottled(option.value, token2.value, '', 50);
     };
 
     const select2OnChange = (option: TokenOptionType) => {
@@ -474,26 +474,9 @@ export function Swap() {
             if (res !== null) {
                 const txId = res[0];
                 notify('Done!', 'success', algoexplorerTxLink(txId));
-
-                // Check NFT winning
-                const nft = await checkNftLottery(
-                    res,
-                    account?.networkAccount.addr ?? '',
-                    bestSwap.assetA.id,
-                    bestSwap.assetB.id,
-                    Number(token1Amount),
-                    Number(token2Amount)
-                );
-                if (nft) {
-                    setNft(nft);
-                }
             }
         }
     };
-
-    if (nft) {
-        return <NftWinModal nft={nft} />;
-    }
 
     return (
         <SwapChartContainer>

@@ -15,8 +15,7 @@ import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
 import { PoolActions } from './PoolActions';
 import { GradientPoolContainer } from './GradientPoolCard';
-import { ModalCloseButton, ModalHeader } from './styled';
-import { LoadingSpinner } from '../../../Components/LoadingSpinner';
+import { ModalCloseButton, ModalHeader, SkeletonLine, SkeletonBlock } from './styled';
 import { convertAmountToUSD, formatLPTokenName, getPoolState, isLPTokenInfo } from './utils';
 import { useWindowSize } from '../../../hooks';
 
@@ -62,12 +61,10 @@ function PoolInner({
 
     if (isLoading) {
         return (
-            <GradientPoolContainer>
-                <LoadingSpinner
-                    isLoading={true}
-                    size="small"
-                    text="Loading pool data..."
-                />
+            <GradientPoolContainer style={{ padding: '20px' }}>
+                <SkeletonLine style={{ width: '60%', height: '16px', marginBottom: '12px' }} />
+                <SkeletonBlock style={{ height: '40px', marginBottom: '8px' }} />
+                <SkeletonLine style={{ width: '40%', height: '12px' }} />
             </GradientPoolContainer>
         );
     }

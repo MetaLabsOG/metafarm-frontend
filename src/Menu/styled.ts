@@ -255,15 +255,23 @@ export const FooterContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 100px;
+    margin-top: 40px;
     margin-bottom: 10px;
     padding: 15px 30px 15px 30px;
     font-family: 'Montserrat', serif;
-    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.5)', 'rgba(30, 30, 30, 0.8)')}; /* More solid on mobile */
+    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.5)', 'rgba(30, 30, 30, 0.8)')};
     backdrop-filter: ${getOptimizedBackdropFilter('blur(8px)')};
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
     z-index: 5;
     position: relative;
+
+    .footer-social {
+        opacity: 0.6;
+        transition: opacity 0.2s;
+        &:hover {
+            opacity: 1;
+        }
+    }
 
     @media (max-width: 640px) {
         flex-direction: column;

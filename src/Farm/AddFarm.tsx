@@ -121,7 +121,7 @@ const checkFarmParams = (
     }
 
     if (!Number.isNaN(rewardToken.balance) && rewardToken.balance < rewardAmount) {
-        notify('Reward tokens amount is less than the wallet balance.', 'warning');
+        notify('Not enough reward tokens in your wallet.', 'warning');
         return false;
     }
 
@@ -510,7 +510,7 @@ function getHumblePoolOptions(selectedOption?: SelectOptionType) {
             liquidityAsset: Number(pool.poolTokenId),
             asset1Reserve: BigInt(0),
             asset2Reserve: BigInt(0),
-            totalLiquidity: BigInt(Math.round(Number(pool.mintedLiquidityTokens))),
+            totalLiquidity: BigInt(0), // Humble API doesn't provide USD TVL
             dexFeeApr: 0, // Is it important here?
         }));
 
@@ -585,7 +585,7 @@ export function AddFarm({ type }: { type: AddFarmType }) {
             setPoolOptions(options);
             setSelectedPool(options[0]);
         });
-    }, [getPoolOptions]);
+    }, [selectedDex]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         getTokens(account, balances).then((res) => {

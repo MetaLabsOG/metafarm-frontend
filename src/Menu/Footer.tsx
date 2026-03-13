@@ -25,16 +25,16 @@ export function Footer() {
                 </a>
             </FooterText>
             <div style={{ display: 'flex', gap: '20px' }}>
-                <a target="_blank" href="https://twitter.com/CometaHub" rel="noreferrer">
+                <a target="_blank" href="https://twitter.com/CometaHub" rel="noreferrer" className="footer-social">
                     <Logo src={twitter} alt="twitter" height="17px" />
                 </a>
-                <a target="_blank" href="https://discord.gg/u7JgwAcUwp" rel="noreferrer">
+                <a target="_blank" href="https://discord.gg/u7JgwAcUwp" rel="noreferrer" className="footer-social">
                     <Logo src={discord} alt="discord" height="17px" />
                 </a>
-                <a target="_blank" href="mailto:team@cometa.wtf" rel="noreferrer">
+                <a target="_blank" href="mailto:team@cometa.wtf" rel="noreferrer" className="footer-social">
                     <Logo src={email} alt="email" height="17px" />
                 </a>
-                <a target="_blank" href="https://t.me/cometahub" rel="noreferrer">
+                <a target="_blank" href="https://t.me/cometahub" rel="noreferrer" className="footer-social">
                     <Logo src={telegram} alt="telegram" height="17px" />
                 </a>
             </div>

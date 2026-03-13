@@ -27,14 +27,22 @@ import {
 } from './styled';
 
 const formatPrice = (price: number | null): { formatted: string; isNonZero: boolean } => {
-    if (price === null) return { formatted: '0.00', isNonZero: false };
+    if (price === null) return { formatted: '—', isNonZero: false };
+    if (price === 0) return { formatted: '0.00', isNonZero: false };
 
-    // For values less than 1, show 3 decimal places, otherwise 2
-    const decimalPlaces = price < 1 ? 3 : 2;
-    const formatted = price.toFixed(decimalPlaces);
-    const isNonZero = price > 0;
+    // Dynamic precision: enough significant digits for micro-cap tokens
+    let decimals: number;
+    if (price < 0.0001) {
+        decimals = Math.min(Math.abs(Math.floor(Math.log10(price))) + 2, 10);
+    } else if (price < 0.01) {
+        decimals = 5;
+    } else if (price < 1) {
+        decimals = 4;
+    } else {
+        decimals = 2;
+    }
 
-    return { formatted, isNonZero };
+    return { formatted: price.toFixed(decimals), isNonZero: true };
 };
 
 function MenuItems() {
@@ -53,7 +61,7 @@ function MenuItems() {
 
 function ExchangeRates({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) {
     const algoFormatted = formatPrice(ALGOPrice);
-    const metaPrice = METAPrice?.price ?? 0;
+    const metaPrice = METAPrice?.price ?? null;
     const metaFormatted = formatPrice(metaPrice);
 
     return (

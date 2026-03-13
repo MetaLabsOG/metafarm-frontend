@@ -240,7 +240,7 @@ export const PoolActionsDesktopContainer = styled.div`
     flex-direction: column;
     gap: 16px;
     width: 100%;
-    padding: 0 24px 24px;
+    padding: 16px 24px 24px;
 
     @media (max-width: 1120px) {
         display: none;
@@ -275,7 +275,7 @@ export const ModalCloseButton = styled.button`
 
 export const ModalDivider = styled.div`
     height: 1px;
-    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
     margin: 4px 0;
 `;
 
@@ -285,7 +285,7 @@ export const ActionSectionLabel = styled.div`
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.55);
     margin-bottom: 8px;
 `;
 
@@ -631,11 +631,34 @@ export const PoolTitle = styled.div`
 
 // Update the APR percentage styling
 export const APRPercentage = styled.span`
-    font-size: 14px; /* Smaller font for APR percentage */
+    font-size: 14px;
     font-weight: 600;
-    
+
     @media (max-width: 700px) {
-        font-size: 12px; /* Even smaller on mobile */
+        font-size: 12px;
     }
+`;
+
+const skeletonPulse = css`
+    @keyframes skeleton-pulse {
+        0% { opacity: 0.15; }
+        50% { opacity: 0.25; }
+        100% { opacity: 0.15; }
+    }
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+`;
+
+export const SkeletonLine = styled.div`
+    ${skeletonPulse}
+    width: 100%;
+    height: 14px;
+`;
+
+export const SkeletonBlock = styled.div`
+    ${skeletonPulse}
+    width: 100%;
+    height: 24px;
 `;
 

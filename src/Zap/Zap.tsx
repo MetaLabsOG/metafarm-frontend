@@ -266,7 +266,6 @@ export function Zap({
                     }
                 }
                 setOptions(filteredRes);
-                console.log(filteredRes);
                 filteredRes[0] && setToken1(filteredRes[0]);
                 filteredRes[1] && setToken2(filteredRes[1]);
             })
@@ -280,7 +279,7 @@ export function Zap({
                     `Failed to fetch options: ${String(error)}`
                 );
             });
-    }, [balances]);
+    }, [account, balances]);
 
     const getZapTimeout = useRef<NodeJS.Timeout>();
 

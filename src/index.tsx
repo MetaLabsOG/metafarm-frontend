@@ -24,8 +24,6 @@ import { MeteorsBackground } from './Components/ui/MeteorsBackground';
 import { injectMobileOptimizations } from './utils/mobileOptimizations';
 import { usePerformanceOptimization } from './hooks';
 import { WindowSizeContext, useWindowSizeProvider } from './hooks/useWindowSize';
-import { PerformanceIndicator } from './Components/PerformanceIndicator';
-
 import { Menu } from './Menu';
 import { theme } from './theme';
 import { Container, ContentContainer } from './common/styled';
@@ -45,7 +43,6 @@ import { ErrorBoundary } from './ErrorBoundary';
 const Farm = lazy(() => import('./Farm').then(m => ({ default: m.Farm })));
 const Swap = lazy(() => import('./Swap').then(m => ({ default: m.Swap })));
 const Zap = lazy(() => import('./Zap').then(m => ({ default: m.Zap })));
-// MetaDAO and PriceTest disabled for pre-launch (MF-046, MF-047)
 const Stake = lazy(() => import('./Stake/Stake').then(m => ({ default: m.Stake })));
 const AddFarm = lazy(() => import('./Farm/AddFarm').then(m => ({ default: m.AddFarm })));
 const Metapunks = lazy(() => import('./Metapunks/Metapunks').then(m => ({ default: m.Metapunks })));
@@ -278,7 +275,6 @@ function App() {
     return (
         <>
             <GlobalStyle />
-            <PerformanceIndicator />
             <ToastContainer limit={3} theme="colored" position="bottom-right" transition={Flip} />
             <ReactTooltip clickable place="top" type="light" effect="solid" className="custom-tooltip" backgroundColor="rgba(255, 255, 255, 0.9)" />
             <ThemeProvider theme={theme}>
