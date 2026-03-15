@@ -85,7 +85,7 @@ function ExchangeRates({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; MET
 function BurgerMenu({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) {
 
     return (
-        <BurgerMenuContainer>
+        <BurgerMenuContainer aria-label="Navigation menu">
             <MenuItemsBurger>
                 <MenuItems />
 
@@ -155,7 +155,7 @@ export function Menu() {
                     <ConnectWallet />
                 </MainMenu>
             </MenuContainer>
-            {isBurgerOpen && <BurgerMenu ALGOPrice={ALGOPrice} METAPrice={METAPrice} aria-label="Navigation menu" />}
+            {isBurgerOpen && <BurgerMenu ALGOPrice={ALGOPrice} METAPrice={METAPrice} />}
         </>
     );
 }

@@ -47,6 +47,7 @@ export function ConnectWalletModal({ closeModal, isModalOpen }: { closeModal: ()
                 aria-label="Close dialog"
                 onClick={closeModal}
                 tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); closeModal(); } }}
             />
             <WalletHeader>Connect Wallet</WalletHeader>
             <PeraButton

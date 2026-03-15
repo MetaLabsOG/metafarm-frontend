@@ -188,7 +188,7 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
             </SelectContainer>
             <SelectModal>
                 <SelectModalContainer role="dialog" aria-label="Select token" aria-modal="true">
-                    <ModalCloseButton src={closeButton} alt="Close" role="button" aria-label="Close dialog" onClick={closeSelectModal} tabIndex={0} />
+                    <ModalCloseButton src={closeButton} alt="Close" role="button" aria-label="Close dialog" onClick={closeSelectModal} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); closeSelectModal(); } }} />
                     <Loupe alt="" src={loupe} aria-hidden="true" />
                     <SelectSearch
                         placeholder="Search token name or ASA ID"
