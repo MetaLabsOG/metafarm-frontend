@@ -163,7 +163,7 @@ export const ContractLockSuffix = styled.div`
     margin-right: 3px;
     color: var(--gray);
     @media (max-width: 1120px) {
-        color: #cccccc;
+        color: var(--lightGray);
     }
     @media (max-width: 700px) {
         font-size: 7px; /* Even smaller font for mobile */

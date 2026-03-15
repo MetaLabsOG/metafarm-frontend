@@ -47,16 +47,16 @@ export class ErrorBoundary extends Component<Props, State> {
                     alignItems: 'center',
                     justifyContent: 'center',
                     minHeight: '100vh',
-                    backgroundColor: '#121212',
+                    backgroundColor: 'var(--background)',
                     color: '#fff',
                     fontFamily: 'system-ui, -apple-system, sans-serif',
                     padding: '20px',
                     textAlign: 'center',
                 }}>
-                    <h1 style={{ fontSize: '24px', marginBottom: '16px', color: '#8bff74' }}>
+                    <h1 style={{ fontSize: '24px', marginBottom: '16px', color: 'var(--accent-muted)' }}>
                         Something went wrong
                     </h1>
-                    <p style={{ fontSize: '14px', color: '#999', marginBottom: '24px', maxWidth: '400px' }}>
+                    <p style={{ fontSize: '14px', color: 'var(--newnewGray)', marginBottom: '24px', maxWidth: '400px' }}>
                         The app encountered an error. Clearing cached data usually fixes this.
                     </p>
                     <button
@@ -65,8 +65,8 @@ export class ErrorBoundary extends Component<Props, State> {
                             padding: '12px 32px',
                             fontSize: '16px',
                             fontWeight: 600,
-                            color: '#121212',
-                            backgroundColor: '#8bff74',
+                            color: 'var(--background)',
+                            backgroundColor: 'var(--accent-muted)',
                             border: 'none',
                             borderRadius: '8px',
                             cursor: 'pointer',
@@ -74,7 +74,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     >
                         Clear cache & reload
                     </button>
-                    <p style={{ fontSize: '12px', color: '#666', marginTop: '16px' }}>
+                    <p style={{ fontSize: '12px', color: 'var(--gray)', marginTop: '16px' }}>
                         Your wallet connection will be preserved.
                     </p>
                 </div>

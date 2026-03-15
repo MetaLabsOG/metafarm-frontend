@@ -281,7 +281,7 @@ function App() {
                         <Container>
                             <Menu />
                             <ContentContainer>
-                                <Suspense fallback={<div style={{ color: '#8bff74', textAlign: 'center', padding: '40px' }}>Loading...</div>}>
+                                <Suspense fallback={<div style={{ color: 'var(--accent-muted)', textAlign: 'center', padding: '40px' }}>Loading...</div>}>
                                     <Routes>
                                         <Route path="/" element={<ErrorBoundary><Farm /></ErrorBoundary>} />
                                         {/*<Route path="/fomo" element={<Fomo />} />*/}

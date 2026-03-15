@@ -5,8 +5,9 @@ const GlobalStyle = createGlobalStyle`
     background-color: var(--background);
     width: 100%;
     height: 100%;
-    color: #5cfc3c;
+    color: var(--text-primary);
     font-family: 'Korona One';
+    font-variant-numeric: tabular-nums;
 
     @media (max-width: 768px) {
       /* Ensure the body doesn't override the background image */

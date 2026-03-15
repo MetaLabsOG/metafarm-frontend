@@ -425,7 +425,7 @@ export const PoolLoadingAnimation = styled.img`
 `;
 
 export const RewardUSDValue = styled.div`
-    color: #8bff74;
+    color: var(--accent-muted);
     font-weight: 600;
     font-size: 18px; /* Match other desktop values */
     text-shadow: 0 0 12px rgba(139, 255, 116, 0.4);
@@ -457,7 +457,7 @@ export const RewardUSDValue = styled.div`
 export const RewardTokenValue = styled.div`
     white-space: nowrap;
     font-size: 13px;
-    color: #8bff74; // light green tODO: to constants
+    color: var(--accent-muted);
     display: flex;
     font-weight: 500;
     text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
@@ -609,7 +609,7 @@ export const PoolInfoGridCell = styled(PoolInfoValue)`
 
 export const PoolInfoGridCellSmall = styled(PoolInfoGridCell)`
     font-size: 90%;
-    color: #a1a1a1;
+    color: var(--newLightGray);
     background: linear-gradient(270deg, rgba(81, 221, 78, 0.02) 0%, rgba(10, 10, 10, 0.02) 30.46%), rgba(0, 0, 0, 0.1);
     min-height: 55px;
 `;

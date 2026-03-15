@@ -86,7 +86,7 @@ export const PunkImage = styled.img`
     border-radius: 10px;
     margin-top: 50px;
     border: 2px solid var(--green);
-    box-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
+    box-shadow: 0 4px 28px var(--text-primary), 0 2px 10px rgba(29, 247, 3, 0.3);
 
     @media (max-width: 1506px) {
         width: 280px;

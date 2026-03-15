@@ -136,7 +136,7 @@ export const ModalCloseButton = styled.img`
     }
 
     :focus {
-        outline: 2px solid var(--lightGreen, #5cfc3c);
+        outline: 2px solid var(--lightGreen);
         border-radius: 4px;
     }
 
@@ -229,12 +229,12 @@ export const WalletActionButton = styled.a`
 
     :hover {
         color: var(--lightGreen);
-        text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
+        text-shadow: 0 4px 28px var(--text-primary), 0 2px 10px rgba(29, 247, 3, 0.3);
     }
 
     &.active {
         color: var(--lightGreen);
-        text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
+        text-shadow: 0 4px 28px var(--text-primary), 0 2px 10px rgba(29, 247, 3, 0.3);
     }
 
     :hover,

@@ -36,7 +36,7 @@ export const SpinnerOverlay = styled.div<{ fullScreen?: boolean }>`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(18, 18, 18, 0.7);
+  background-color: rgba(18, 18, 18, 0.7); /* ~var(--background) with opacity */
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -66,7 +66,7 @@ export const Spinner = styled.div<{ size: 'small' | 'medium' | 'large' }>`
 
 export const SpinnerText = styled.div`
   margin-top: 10px;
-  color: #05ff00;
+  color: var(--green);
   font-size: 14px;
   font-weight: 500;
 `;

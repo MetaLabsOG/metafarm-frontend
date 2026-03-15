@@ -77,7 +77,7 @@ export const PeraButton = styled.button`
     }
     
     &:focus {
-        outline: 2px solid var(--lightGreen, #5cfc3c);
+        outline: 2px solid var(--lightGreen);
     }
     
     &:focus:not(:focus-visible) {
@@ -104,7 +104,7 @@ export const DeflyButton = styled.button`
     }
     
     &:focus {
-        outline: 2px solid var(--lightGreen, #5cfc3c);
+        outline: 2px solid var(--lightGreen);
     }
     
     &:focus:not(:focus-visible) {

@@ -1,27 +1,15 @@
 @font-face {
-    font-family: 'Mandinor';
-    src: url('../fonts/Mandinor-Italian-FY-Regular.woff');
-    src: url('../fonts/Mandinor-Italian-FY-Regular.woff2');
-    src: url('../fonts/Mandinor.ttf');
-}
-
-@font-face {
-    font-family: 'Inter';
-    src: url('../fonts/Inter-Regular.woff');
-    src: url('../fonts/Inter-Regular.woff2');
-    src: url('../fonts/Inter-VariableFont_slnt\,wght.ttf');
-}
-
-@font-face {
     font-family: 'Korona One';
-    src: url('../fonts/krona-one-v9-latin-regular.woff');
-    src: url('../fonts/krona-one-v9-latin-regular.woff2');
-    src: url('../fonts/KronaOne-Regular.ttf');
+    font-display: swap;
+    src: url('../fonts/krona-one-v9-latin-regular.woff2') format('woff2'),
+         url('../fonts/krona-one-v9-latin-regular.woff') format('woff'),
+         url('../fonts/KronaOne-Regular.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: 'Montserrat';
-  src: url('../fonts/Montserrat-VariableFont_wght.ttf');
+    font-family: 'Montserrat';
+    font-display: swap;
+    src: url('../fonts/Montserrat-VariableFont_wght.ttf') format('truetype');
 }
 
 * {
@@ -31,30 +19,58 @@
 }
 
 :root {
+    /* ── Brand / Accent ── */
     --green: #05FF00;
-    --white: #E0E0E0;
-    --lightGray: #B6B9BD;
-    --gray: #676767;
+    --lightGreen: #A1FF8E;
+    --accent-muted: #8bff74;
     --darkGray: #1F1F1F;
     --red: #E1636B;
     --toastify-color-error: #FF394A !important;
 
-    --newDarkGray: #0F0F0F;
-    --lightGreen: #A1FF8E;
-    --newGray: #181818;
-    --darkGreen: #03a100;
+    /* ── Text ── */
+    --text-primary: #5cfc3c;
+    --white: #E0E0E0;
+    --newWhite: #E2E2E2;
+    --lightGray: #B6B9BD;
+    --newLightGray: #A2A2A2;
+    --newnewGray: #828282;
+    --gray: #676767;
 
-    --backgroundColor: #272727;
-
+    /* ── Surfaces ── */
     --background: #121212;
-    --backgroundPool: #141414;
     --backgroundCard: #1E1E1E;
     --backgroundModal: #2C2C2C;
     --backgroundHover: #363636;
-    --newWhite: #E2E2E2;
-    --newLightGray: #A2A2A2;
-    --newnewGray: #828282;
     --borderColor: #484848;
+
+    /* ── Semantic ── */
+    --warning: #E8A317;
+    --success: #42C93F;
+
+    /* ── Button (green family) ── */
+    --btn-border: #009427;
+
+    /* ── Type scale ── */
+    --font-xs: 11px;
+    --font-sm: 13px;
+    --font-base: 14px;
+    --font-md: 16px;
+    --font-lg: 18px;
+    --font-xl: 20px;
+    --font-2xl: 22px;
+    --font-3xl: 30px;
+
+    /* ── Spacing (4pt grid) ── */
+    --space-1: 4px;
+    --space-2: 6px;
+    --space-3: 8px;
+    --space-4: 10px;
+    --space-5: 12px;
+    --space-6: 16px;
+    --space-7: 20px;
+    --space-8: 24px;
+    --space-9: 32px;
+    --space-10: 40px;
 }
 
 .mobile {

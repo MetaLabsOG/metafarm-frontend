@@ -376,9 +376,9 @@ export function formatNumber(x: number) {
 }
 
 function getPriceImpactColor(impactPercent: number): string {
-    if (impactPercent >= 5) return '#E1636B';     // red — high impact
-    if (impactPercent >= 3) return '#E8A317';     // yellow — moderate
-    if (impactPercent < 1) return '#42C93F';      // green — negligible
+    if (impactPercent >= 5) return 'var(--red)';       // red — high impact
+    if (impactPercent >= 3) return 'var(--warning)';   // yellow — moderate
+    if (impactPercent < 1) return 'var(--success)';    // green — negligible
     return theme.lightGray;                       // 1-3% — neutral
 }
 

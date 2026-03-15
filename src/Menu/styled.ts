@@ -49,7 +49,7 @@ export const MenuItem = styled(NavLink as any)`
     ${!isTouchDevice() && css`
         :hover {
             color: var(--lightGreen);
-            text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
+            text-shadow: 0 4px 28px var(--text-primary), 0 2px 10px rgba(29, 247, 3, 0.3);
             animation: ${wobble} 0.5s;
 
             &::after {
@@ -62,7 +62,7 @@ export const MenuItem = styled(NavLink as any)`
     /* Always show active state */
     &.active {
         color: var(--lightGreen);
-        text-shadow: 0 4px 28px #5cfc3c, 0 2px 10px rgba(29, 247, 3, 0.3);
+        text-shadow: 0 4px 28px var(--text-primary), 0 2px 10px rgba(29, 247, 3, 0.3);
 
         &::after {
             width: 80%;

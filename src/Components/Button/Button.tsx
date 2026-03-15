@@ -25,7 +25,7 @@ export const SecondaryButton = styled.button`
     position: relative;
 
     :hover {
-        border: 1px solid #009427;
+        border: 1px solid var(--btn-border);
         color: black !important;
         background-color: transparent;
         text-shadow: none;
@@ -55,7 +55,7 @@ export const SecondaryButton = styled.button`
 
 export const PrimaryButton = styled(SecondaryButton)`
     background: rgba(66, 201, 63, 0.7);
-    border: 1px solid #009427;
+    border: 1px solid var(--btn-border);
     color: var(--newWhite);
 
     :hover {

@@ -49,7 +49,7 @@ export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => {
                 size="medium"
             >
                 {state && state.length === 0 ? (
-                    <div style={{ color: '#999', textAlign: 'center', padding: '40px', fontSize: '16px' }}>
+                    <div style={{ color: 'var(--newnewGray)', textAlign: 'center', padding: '40px', fontSize: '16px' }}>
                         No active farms
                     </div>
                 ) : (

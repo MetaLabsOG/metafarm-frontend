@@ -1,7 +1,7 @@
 .swap_button {
     height: 50px;
     width: 100%;
-    border: 1px solid #009427;
+    border: 1px solid var(--btn-border);
     color: var(--newWhite);
     background: rgba(66, 201, 63, 0.7);
     border-radius: 16px;
@@ -75,7 +75,7 @@
 }
 
 .claim_button:hover {
-    border: 1px solid #009427;
+    border: 1px solid var(--btn-border);
     color: black !important;
     background-color: transparent;
     text-shadow: none;
@@ -103,7 +103,7 @@
 
 .claim_button.loading {
     color: var(--gray);
-    border: 1px solid #676767;
+    border: 1px solid var(--gray);
     position: relative;
     transition: none;
 }
@@ -111,7 +111,7 @@
 .claim_button.loading:hover {
     background: transparent;
     cursor: default;
-    border: 1px solid #676767;
+    border: 1px solid var(--gray);
 }
 
 .claim_button.loading:hover:before {
@@ -127,7 +127,7 @@
 
 .claim_button.inactive:hover {
     background: transparent;
-    border: 1px solid #676767;
+    border: 1px solid var(--gray);
 }
 
 .claim_button.inactive:hover:before {
@@ -150,7 +150,7 @@
 }
 
 .token_input_button:hover {
-    border: 1px solid #009427;
+    border: 1px solid var(--btn-border);
     color: black !important;
     background-color: transparent;
     text-shadow: none;
@@ -177,14 +177,14 @@
 }
 
 .token_input_button.loading {
-    color: #828282;
+    color: var(--newnewGray);
     position: relative;
     cursor: default;
     transition: none;
 }
 
 .token_input_button.loading:hover {
-    border: 1px solid #676767;
+    border: 1px solid var(--gray);
 }
 
 .token_input_button.loading:hover:before {
@@ -201,7 +201,7 @@
 
 .token_input_button.inactive:hover {
     background: transparent;
-    border: 1px solid #676767;
+    border: 1px solid var(--gray);
 }
 
 .token_input_button.inactive:hover:before {

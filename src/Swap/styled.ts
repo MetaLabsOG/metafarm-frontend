@@ -149,7 +149,7 @@ export const ImpactWarning = styled.div<{ $critical: boolean }>`
     line-height: 1.4;
     background: ${({ $critical }) =>
         $critical ? 'rgba(225, 99, 107, 0.08)' : 'rgba(232, 163, 23, 0.08)'};
-    color: ${({ $critical }) => ($critical ? '#E1636B' : '#E8A317')};
+    color: ${({ $critical }) => ($critical ? 'var(--red)' : 'var(--warning)')};
     border: 1px solid
         ${({ $critical }) =>
             $critical ? 'rgba(225, 99, 107, 0.15)' : 'rgba(232, 163, 23, 0.15)'};
