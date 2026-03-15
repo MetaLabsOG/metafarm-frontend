@@ -79,7 +79,7 @@ export const PoolSearchInput = styled.input`
 
     border: 1px solid rgba(80, 80, 80, 0.7);
     border-radius: 15px;
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 
     @media (max-width: 860px) {

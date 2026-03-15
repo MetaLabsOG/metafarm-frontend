@@ -415,12 +415,12 @@ export const PoolLoadingAnimation = styled.img`
 
     @media (prefers-reduced-motion: reduce) {
         animation: none !important;
-        margin-left: 45%; /* Center it statically */
+        margin-left: 45%;
     }
 
     @media (max-width: 700px) {
-        animation: none !important; /* Disable animation on mobile */
-        margin-left: 45%; /* Center it statically */
+        animation: none !important;
+        margin-left: 45%;
     }
 `;
 

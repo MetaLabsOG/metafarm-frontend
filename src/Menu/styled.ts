@@ -32,17 +32,18 @@ export const MenuItem = styled(NavLink as any)`
     letter-spacing: 0.06em;
     position: relative;
     padding: 5px 0;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
 
     &::after {
         content: '';
         position: absolute;
         bottom: 0;
-        left: 50%;
-        width: 0;
+        left: 10%;
+        width: 80%;
         height: 2px;
         background: rgba(144, 238, 144, 0.7);
-        transition: width 0.3s ease, left 0.3s ease;
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
     }
 
     /* Hover effects only on non-touch devices */
@@ -53,8 +54,7 @@ export const MenuItem = styled(NavLink as any)`
             animation: ${wobble} 0.5s;
 
             &::after {
-                width: 80%;
-                left: 10%;
+                transform: scaleX(1);
             }
         }
     `}
@@ -65,8 +65,7 @@ export const MenuItem = styled(NavLink as any)`
         text-shadow: 0 4px 28px var(--text-primary), 0 2px 10px rgba(29, 247, 3, 0.3);
 
         &::after {
-            width: 80%;
-            left: 10%;
+            transform: scaleX(1);
         }
     }
 `;

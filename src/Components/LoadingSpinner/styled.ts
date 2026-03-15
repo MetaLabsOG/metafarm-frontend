@@ -62,6 +62,7 @@ export const Spinner = styled.div<{ size: 'small' | 'medium' | 'large' }>`
   border-top: 3px solid rgba(5, 255, 0, 0.8);
   border-radius: 50%;
   animation: ${spin} 1s linear infinite, ${pulse} 2s infinite;
+  will-change: transform;
 `;
 
 export const SpinnerText = styled.div`

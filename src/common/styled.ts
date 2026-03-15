@@ -278,6 +278,10 @@ export const PrettyButtonContainer = styled(WalletActionButton)`
         background-color: rgba(30, 30, 30, 0.7);
         border-color: ${theme.lightGreen};
     }
+
+    @media (max-width: 700px) {
+        backdrop-filter: none;
+    }
 `;
 
 export const StyledVestigeChart = styled.div`

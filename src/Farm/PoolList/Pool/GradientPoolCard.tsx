@@ -11,7 +11,7 @@ const GradientPoolContainer = styled(PoolContainer)`
   ), rgba(10, 10, 10, 0.15);
   backdrop-filter: blur(8px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 0 20px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 
   &:hover {
     background: linear-gradient(

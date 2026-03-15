@@ -34,16 +34,16 @@ export const AmountContainer = styled.div`
         content: '';
         position: absolute;
         bottom: -4px;
-        left: 50%;
-        width: 0;
+        left: 20%;
+        width: 60%;
         height: 2px;
         background: rgba(144, 238, 144, 0.5);
-        transition: width 0.3s ease, left 0.3s ease;
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
     }
 
     &:hover::after {
-        width: 60%;
-        left: 20%;
+        transform: scaleX(1);
     }
 
     @media (max-width: 1120px) {
@@ -83,7 +83,7 @@ export const AmountValue = styled.div`
     text-align: center;
     letter-spacing: 0.04em;
     text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, text-shadow 0.3s ease;
     font-feature-settings: "tnum" on, "lnum" on;
     font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
     ${AmountContainer}:hover & {
@@ -119,7 +119,7 @@ export const BalanceList = styled.div`
     border-radius: 16px;
     border: none; /* Made border invisible */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     overflow: hidden;
 

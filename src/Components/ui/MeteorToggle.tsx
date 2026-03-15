@@ -32,12 +32,13 @@ const ToggleSwitch = styled.div<{ enabled: boolean }>`
     content: '';
     position: absolute;
     top: 2px;
-    left: ${props => props.enabled ? '18px' : '2px'};
+    left: 2px;
     width: 14px;
     height: 14px;
     border-radius: 50%;
     background-color: white;
-    transition: left 0.3s ease;
+    transform: translateX(${props => props.enabled ? '16px' : '0'});
+    transition: transform 0.3s ease;
   }
 `;
 
