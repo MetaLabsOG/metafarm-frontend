@@ -46,9 +46,14 @@ export const SelectSearch = styled.input`
     font-family: 'Montserrat';
     font-size: 14px;
     color: var(--newWhite);
-    outline: none;
     margin-bottom: 10px;
     margin-top: 35px;
+
+    &:focus {
+        outline: none;
+        border-color: rgba(144, 238, 144, 0.4);
+        box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.2);
+    }
 `;
 
 export const SelectOptionContainer = styled.div`

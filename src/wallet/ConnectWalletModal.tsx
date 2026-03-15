@@ -38,11 +38,13 @@ export function ConnectWalletModal({ closeModal, isModalOpen }: { closeModal: ()
     };
 
     return (
-        <WalletModalContainer finishedOpening={finishedOpening}>
+        <WalletModalContainer finishedOpening={finishedOpening} role="dialog" aria-label="Connect wallet" aria-modal="true">
             <ModalCloseButton
                 ref={closeButtonRef}
                 src={closeButton}
-                alt="close"
+                alt="Close"
+                role="button"
+                aria-label="Close dialog"
                 onClick={closeModal}
                 tabIndex={0}
             />

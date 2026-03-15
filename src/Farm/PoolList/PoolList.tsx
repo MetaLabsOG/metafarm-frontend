@@ -177,7 +177,7 @@ export function PoolList({
 
                     <MobileFilterRow>
                         <PoolSearchInput
-                            placeholder="Search token..."
+                            placeholder="Search token..." aria-label="Search pools by token name"
                             value={poolSearch}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
                         />
@@ -217,7 +217,7 @@ export function PoolList({
                             <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
                             <SwitchSelectPools onChange={onChangePoolType} isEnabled={showMyPools} />
                             <PoolSearchInput
-                                placeholder="Search token..."
+                                placeholder="Search token..." aria-label="Search pools by token name"
                                 value={poolSearch}
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
                             />

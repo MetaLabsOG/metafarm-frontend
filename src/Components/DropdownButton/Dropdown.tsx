@@ -48,57 +48,35 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
     return (
         <div>
             <div style={{ position: 'relative' }} ref={dropdownRef}>
-                {isOpen ? (
-                    <button
-                        onClick={toggleDropdown}
-                        style={{
-                            height: 30,
-                            backgroundColor: 'rgba(30, 30, 30, 0.25)',
-                            color: 'white',
-                            fontSize: '13px',
-                            fontWeight: 500,
-                            letterSpacing: '0.02em',
-                            borderRadius: '15px',
-                            padding: '7px 15px',
-                            width: '140px',
-                            border: 'rgba(80, 80, 80, 0.7) 1px solid',
-                            cursor: 'pointer',
-                            outline: 'none',
-                            transition: 'all 0.3s ease',
-                            fontFamily: 'Montserrat',
-                            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
-                            textAlign: 'center',
-                        }}
-                    >
-                       Sort By
-                    </button>
-                ) : (
-                    <button
-                        onClick={toggleDropdown}
-                        style={{
-                            height: 30,
-                            backgroundColor: 'rgba(30, 30, 30, 0.25)',
-                            color: 'white',
-                            borderRadius: '15px',
-                            fontSize: '13px',
-                            fontWeight: 500,
-                            letterSpacing: '0.02em',
-                            padding: '7px 15px',
-                            width: '140px',
-                            border: 'rgba(80, 80, 80, 0.7) 1px solid',
-                            cursor: 'pointer',
-                            outline: 'none',
-                            transition: 'all 0.3s ease',
-                            fontFamily: 'Montserrat',
-                            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
-                            textAlign: 'center',
-                        }}
-                    >
-                        Sort By ↓
-                    </button>
-                )}
+                <button
+                    onClick={toggleDropdown}
+                    aria-expanded={isOpen}
+                    aria-haspopup="listbox"
+                    aria-label="Sort pools"
+                    style={{
+                        height: 30,
+                        backgroundColor: 'rgba(30, 30, 30, 0.25)',
+                        color: 'white',
+                        fontSize: '13px',
+                        fontWeight: 500,
+                        letterSpacing: '0.02em',
+                        borderRadius: '15px',
+                        padding: '7px 15px',
+                        width: '140px',
+                        border: 'rgba(80, 80, 80, 0.7) 1px solid',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        fontFamily: 'Montserrat',
+                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
+                        textAlign: 'center',
+                    }}
+                >
+                    {isOpen ? 'Sort By' : 'Sort By ↓'}
+                </button>
                 {isOpen && (
                     <div
+                        role="listbox"
+                        aria-label="Sort options"
                         style={{
                             position: 'absolute',
                             zIndex: 100,
@@ -122,6 +100,8 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                                 }}
                             >
                                 <div
+                                    role="option"
+                                    aria-selected={sortKey === type}
                                     onClick={() => {
                                         onColumnClick(type);
                                     }}

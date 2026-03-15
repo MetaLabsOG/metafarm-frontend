@@ -190,7 +190,6 @@ export const AddFarmButtonContainer = styled(PrettyButtonContainer)`
     border: 2px solid rgba(255, 255, 255, 0.9);
     text-decoration: none;
     background-color: transparent;
-    outline: none;
     font-size: 13px;
     font-weight: 500;
     letter-spacing: 0.02em;

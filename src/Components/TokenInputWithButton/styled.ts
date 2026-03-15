@@ -57,12 +57,15 @@ export const Input = styled.input<{ isActive: boolean }>`
     font-family: 'Montserrat';
     :focus {
         outline: none;
+        border-color: rgba(144, 238, 144, 0.4);
+        box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.2);
     }
 `;
 
 type MaxButtonProps = ColorThemed<unknown>;
 
-export const MaxButton = styled.div<{ isActive: boolean }>`
+export const MaxButton = styled.button<{ isActive: boolean }>`
+    border: none;
     position: absolute;
     right: 124px;
     top: 4px;

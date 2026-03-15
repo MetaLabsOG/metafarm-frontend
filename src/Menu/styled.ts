@@ -71,7 +71,7 @@ export const MenuItem = styled(NavLink as any)`
     }
 `;
 
-export const MenuItemsContainer = styled.div`
+export const MenuItemsContainer = styled.nav`
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -108,6 +108,16 @@ export const Logo = styled.img`
 export const Burger = styled.img`
     display: none;
     cursor: pointer;
+
+    &:focus {
+        outline: 2px solid var(--lightGreen);
+        border-radius: 4px;
+    }
+
+    &:focus:not(:focus-visible) {
+        outline: none;
+    }
+
     @media (max-width: 970px) {
         display: flex;
         margin-left: 20px;
@@ -136,7 +146,7 @@ export const MainMenu = styled.div`
     }
 `;
 
-export const MenuContainer = styled.div`
+export const MenuContainer = styled.header`
     left: 0;
     position: fixed;
     width: 100%;
@@ -223,7 +233,7 @@ export const ExchangeRate = styled.span`
     }
 `;
 
-export const BurgerMenuContainer = styled.div`
+export const BurgerMenuContainer = styled.nav`
     margin-top: 50px;
     width: 100%;
     position: fixed;
@@ -250,7 +260,7 @@ export const BurgerMenuContainer = styled.div`
     }
 `;
 
-export const FooterContainer = styled.div`
+export const FooterContainer = styled.footer`
     width: 100% !important;
     display: flex;
     justify-content: space-between;

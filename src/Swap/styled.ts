@@ -63,7 +63,6 @@ export const CustomSlippageInput = styled.input<{ $active: boolean }>`
     font-size: 13px;
     font-family: 'Montserrat';
     font-weight: 500;
-    outline: none;
     text-align: center;
     transition: all 0.15s ease;
 
@@ -72,7 +71,9 @@ export const CustomSlippageInput = styled.input<{ $active: boolean }>`
     }
 
     &:focus {
+        outline: none;
         border-color: rgba(66, 201, 63, 0.4);
+        box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.2);
     }
 `;
 

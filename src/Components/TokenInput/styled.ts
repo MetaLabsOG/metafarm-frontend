@@ -27,10 +27,13 @@ export const Input = styled.input<{ isActive: boolean }>`
 
     :focus {
         outline: none;
+        border-color: rgba(144, 238, 144, 0.4);
+        box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.2);
     }
 `;
 
-export const MaxButton = styled.div`
+export const MaxButton = styled.button`
+    border: none;
     position: absolute;
     right: 3%;
     top: 7px;

@@ -180,11 +180,13 @@ export function ConnectWallet({
                     </button>
                 ) : (
                     <>
-                        <PrettyButtonContainer href="/" onClick={toggleDropdown}>
+                        <PrettyButtonContainer href="/" onClick={toggleDropdown} aria-expanded={accDropdownOpen} aria-haspopup="true" aria-label="Account menu">
                             {walletNfd ?? shortenAddress(account.networkAccount.addr)}
                         </PrettyButtonContainer>
                         <div
                             className="account_dropdown_container"
+                            role="menu"
+                            aria-label="Account options"
                             style={{
                                 display: accDropdownOpen ? 'flex' : 'none',
                             }}

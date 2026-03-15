@@ -187,11 +187,12 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
                 <img style={{ width: '15px', marginRight: '16px' }} alt="select" src={select} />
             </SelectContainer>
             <SelectModal>
-                <SelectModalContainer>
-                    <ModalCloseButton src={closeButton} alt="close" onClick={closeSelectModal} />
-                    <Loupe alt="search" src={loupe} />
+                <SelectModalContainer role="dialog" aria-label="Select token" aria-modal="true">
+                    <ModalCloseButton src={closeButton} alt="Close" role="button" aria-label="Close dialog" onClick={closeSelectModal} tabIndex={0} />
+                    <Loupe alt="" src={loupe} aria-hidden="true" />
                     <SelectSearch
                         placeholder="Search token name or ASA ID"
+                        aria-label="Search token name or ASA ID"
                         value={tokenSearchInput}
                         onChange={(e) => setTokenSearchInput(e.target.value)}
                     />

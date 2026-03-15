@@ -44,7 +44,7 @@ export const Container = styled.div`
     padding: 0 20px;
 `;
 
-export const ContentContainer = styled.div`
+export const ContentContainer = styled.main`
     margin-top: 50px;
     display: flex;
     justify-content: center;
@@ -79,7 +79,11 @@ export const ModalContainer = styled.div`
     position: relative;
 
     input {
-        outline: none;
+        &:focus {
+            outline: none;
+            border-color: rgba(144, 238, 144, 0.4);
+            box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.2);
+        }
     }
 
     @media (max-width: 390px) {
@@ -249,7 +253,15 @@ export const PrettyButtonContainer = styled(WalletActionButton)`
     border: 2px solid ${theme.newLightGray};
     text-decoration: none;
     background-color: rgba(30, 30, 30, 0.5);
-    outline: none;
+
+    &:focus {
+        outline: 2px solid var(--lightGreen);
+        outline-offset: 2px;
+    }
+
+    &:focus:not(:focus-visible) {
+        outline: none;
+    }
     border-radius: 15px;
     font-family: 'Montserrat';
     font-size: 14px;

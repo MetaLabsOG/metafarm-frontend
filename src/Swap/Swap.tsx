@@ -423,6 +423,7 @@ function SlippageSelector({
                 <CustomSlippageInput
                     type="number"
                     placeholder="Custom"
+                    aria-label="Custom slippage percentage"
                     $active={isCustom}
                     value={isCustom ? (customValue || (slippageBps / 100).toString()) : customValue}
                     onChange={(e) => handleCustomChange(e.target.value)}
@@ -661,7 +662,7 @@ export function Swap() {
                     inputOnChange={input1OnChange}
                 />
                 <SwapContainer>
-                    <SwapArrow alt="arrow" src={swap} onClick={swapTokens} />
+                    <SwapArrow alt="Swap token order" src={swap} role="button" tabIndex={0} aria-label="Swap token order" onClick={swapTokens} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); swapTokens(); } }} />
                 </SwapContainer>
                 <SelectInputGroup
                     options={options}

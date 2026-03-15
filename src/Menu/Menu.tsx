@@ -128,11 +128,22 @@ export function Menu() {
                     </MenuItem>
                     <Burger
                         src={burger}
-                        alt="logo"
+                        alt="Open menu"
                         height="20px"
+                        role="button"
+                        tabIndex={0}
+                        aria-expanded={isBurgerOpen}
+                        aria-label="Toggle navigation menu"
                         onClick={(e) => {
                             e.stopPropagation();
                             setIsBurgerOpen(!isBurgerOpen);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsBurgerOpen(!isBurgerOpen);
+                            }
                         }}
                     />
                     <MenuItemsContainer>
@@ -144,7 +155,7 @@ export function Menu() {
                     <ConnectWallet />
                 </MainMenu>
             </MenuContainer>
-            {isBurgerOpen && <BurgerMenu ALGOPrice={ALGOPrice} METAPrice={METAPrice} />}
+            {isBurgerOpen && <BurgerMenu ALGOPrice={ALGOPrice} METAPrice={METAPrice} aria-label="Navigation menu" />}
         </>
     );
 }

@@ -104,9 +104,9 @@ export const PoolSearchInput = styled.input`
 
     &:focus {
         outline: none;
-        border-color: rgba(100, 100, 100, 0.9);
+        border-color: rgba(144, 238, 144, 0.4);
         background-color: rgba(30, 30, 30, 0.4);
-        box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.2);
+        box-shadow: 0 0 0 2px rgba(144, 238, 144, 0.2);
     }
 
     &:hover {
