@@ -36,6 +36,11 @@ export class DeflyWalletV2 {
         this.projectId = options.projectId;
     }
 
+    /** Expose the underlying SignClient for relay warm-up / keepalive. */
+    getClient(): InstanceType<typeof SignClient> | null {
+        return this.client;
+    }
+
     private async initClient(): Promise<InstanceType<typeof SignClient>> {
         if (this.client) return this.client;
 

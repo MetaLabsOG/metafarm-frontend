@@ -180,34 +180,78 @@ function getDeflyInstance(): DeflyWalletV2 {
     return _deflyInstance;
 }
 
-// Warm up wallet clients in background after page load.
-// The PeraWalletConnect constructor registers a DOMContentLoaded listener for createClient(),
-// but by the time this runs the event has already fired — so client stays null.
-// Fix: explicitly call reconnectSession() which triggers createClient() internally,
-// then pre-open the relay WebSocket so connect() only needs to create a pairing topic.
+// --- Pera config cache ---
+// The Pera SDK fetches https://wc.perawallet.app/config-staging.json with {cache:"no-store"}
+// on EVERY connect() call, adding 200-3000ms of blocking network time.
+// We pre-fetch it once at module load and intercept subsequent requests to return the cached copy.
+const PERA_CONFIG_HOST = 'wc.perawallet.app/config';
+let _peraConfigCached: string | null = null;
+
 if (typeof window !== 'undefined') {
-    const warmUp = async () => {
-        // Prefetch Pera config so browser HTTP cache has it ready
-        try { void fetch('https://wc.perawallet.app/config-staging.json'); } catch {}
-
-        try {
-            const pera = getPeraInstance();
-            // reconnectSession() calls createClient() → initializes SignClient
-            // For new users: returns [] (no sessions). For returning: reconnects.
-            await pera.reconnectSession().catch(() => {});
-            // Pre-open relay WebSocket (eliminates 0.5–1.5s on connect click)
-            if (pera.client) {
-                await (pera.client as any).core?.relayer?.transportOpen?.().catch(() => {});
+    const _nativeFetch = window.fetch.bind(window);
+    window.fetch = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+        if (_peraConfigCached) {
+            const url = typeof input === 'string' ? input
+                : input instanceof URL ? input.href
+                : (input as Request).url;
+            if (url.includes(PERA_CONFIG_HOST)) {
+                return Promise.resolve(new Response(_peraConfigCached, {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' },
+                }));
             }
-        } catch { /* ignore init errors */ }
+        }
+        return _nativeFetch(input, init);
+    } as typeof window.fetch;
 
+    // Pre-fetch config immediately (before warm-up, before user interaction)
+    _nativeFetch('https://wc.perawallet.app/config-staging.json')
+        .then(r => r.ok ? r.text() : null)
+        .then(text => { if (text) _peraConfigCached = text; })
+        .catch(() => {});
+}
+
+// --- Relay WebSocket keepalive ---
+// WC relay has an idle timeout (~60-300s). If the user clicks "Connect" after that,
+// transportOpen() adds 500-1500ms. Keep-alive prevents this.
+function keepRelayAlive(client: unknown): void {
+    const relayer = (client as any)?.core?.relayer;
+    if (!relayer) return;
+    setInterval(async () => {
         try {
-            const defly = getDeflyInstance();
-            await defly.reconnectSession().catch(() => {});
-        } catch { /* ignore init errors */ }
+            if (!relayer.connected) {
+                await relayer.transportOpen();
+            }
+        } catch { /* ignore */ }
+    }, 25_000);
+}
+
+// --- Warm-up ---
+// Initialize both SignClients and pre-open relay WebSockets in parallel.
+// reconnectSession() triggers createClient() internally (the PeraWalletConnect constructor's
+// DOMContentLoaded listener has already fired by now, so client stays null without this call).
+if (typeof window !== 'undefined') {
+    const warmUpPera = async () => {
+        const pera = getPeraInstance();
+        await pera.reconnectSession().catch(() => {});
+        if (pera.client) {
+            await (pera.client as any).core?.relayer?.transportOpen?.().catch(() => {});
+            keepRelayAlive(pera.client);
+        }
     };
-    // Start 500ms after load — enough for critical render, but much faster than requestIdleCallback(5s)
-    setTimeout(() => void warmUp(), 500);
+
+    const warmUpDefly = async () => {
+        const defly = getDeflyInstance();
+        await defly.reconnectSession().catch(() => {});
+        const client = defly.getClient();
+        if (client) {
+            await (client as any).core?.relayer?.transportOpen?.().catch(() => {});
+            keepRelayAlive(client);
+        }
+    };
+
+    // Start ASAP — setTimeout(0) defers to after current task (initial render) completes
+    setTimeout(() => void Promise.allSettled([warmUpPera(), warmUpDefly()]), 0);
 }
 
 // Reset wallet instance after disconnect so next connect gets a fresh session
