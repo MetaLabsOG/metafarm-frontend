@@ -1,14 +1,17 @@
-import { createComponent, useUnit } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { ContractInfo, FarmType } from '../common/store';
 import { Balance } from '../Farm/Balance';
 import { PoolList } from '../Farm/PoolList';
 import { BalanceContainer, FarmContainer } from '../Farm/styled';
 import { InfoCards } from '../Farm/Farm';
-import { initializeFarmContract } from '../Farm/store';
-import { $sortedStakePoolsWithStats, initializeDistributionContract } from './store';
+import { $farmPoolsLoaded, initializeFarmContract } from '../Farm/store';
+import { $sortedStakePoolsWithStats, $distributionPoolsLoaded, initializeDistributionContract } from './store';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
 
-export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state) => {
+export function Stake() {
+    const state = useUnit($sortedStakePoolsWithStats);
+    const farmLoaded = useUnit($farmPoolsLoaded);
+    const distrLoaded = useUnit($distributionPoolsLoaded);
     const initStake = useUnit(initializeFarmContract);
     const initDistr = useUnit(initializeDistributionContract);
     const initStakeOrDistr = (info: ContractInfo<FarmType>) => {
@@ -21,7 +24,7 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
         }
     };
 
-    const isLoading = !state;
+    const isLoading = !farmLoaded && !distrLoaded;
 
     return (
         <FarmContainer>
@@ -34,7 +37,7 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
                 text="Loading stake pools..."
                 size="medium"
             >
-                {state && state.length === 0 ? (
+                {(farmLoaded || distrLoaded) && state.length === 0 ? (
                     <div style={{ color: 'var(--newnewGray)', textAlign: 'center', padding: '40px', fontSize: '16px' }}>
                         No active stake pools
                     </div>
@@ -46,4 +49,4 @@ export const Stake = createComponent($sortedStakePoolsWithStats, (_props, state)
             <InfoCards addFarmType="stake" />
         </FarmContainer>
     );
-});
+}

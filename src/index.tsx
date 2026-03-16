@@ -110,8 +110,8 @@ function App() {
     }
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
-    const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm'));
-    const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution'));
+    const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm'), { staleTime: 30_000 });
+    const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution'), { staleTime: 30_000 });
 
     // User's contracts (active + ended) — loaded when wallet is connected
     const userFarmsFetch = useQuery(
@@ -180,14 +180,9 @@ function App() {
     const [enrichedLoaded, setEnrichedLoaded] = useState(false);
 
     useEffect(() => {
-        getFarmEnriched().then((enriched) => {
-            if (!enriched) {
-                setEnrichedLoaded(true);
-                return;
-            }
-
+        const applyEnriched = (enriched: any) => {
             // Pre-populate asset details (avoids individual algod calls)
-            const assetsList = Object.values(enriched.assets).map((a) => ({
+            const assetsList = Object.values(enriched.assets).map((a: any) => ({
                 id: a.id,
                 name: a.name,
                 unitName: a.unit_name,
@@ -202,19 +197,17 @@ function App() {
             // Pre-populate asset prices (avoids individual Vestige/Tinyman calls)
             // Backend bug: assigns default META price to tokens without real price data.
             // Detect and filter out suspiciously common prices (>10 tokens sharing exact same price).
-            const allPrices = Object.values(enriched.prices).filter((p) => p.price_algo > 0);
+            const allPrices = Object.values(enriched.prices).filter((p: any) => p.price_algo > 0);
             const priceFrequency = new window.Map<number, number>();
             for (const p of allPrices) {
-                priceFrequency.set(p.price_algo, (priceFrequency.get(p.price_algo) ?? 0) + 1);
+                priceFrequency.set((p as any).price_algo, (priceFrequency.get((p as any).price_algo) ?? 0) + 1);
             }
             const prices = allPrices
-                .filter((p) => {
-                    // ALGO (id=0, price=1.0) is always valid
+                .filter((p: any) => {
                     if (p.asset_id === 0) return true;
-                    // If >10 different tokens share the exact same price, it's a backend default — skip
                     return (priceFrequency.get(p.price_algo) ?? 0) <= 10;
                 })
-                .map((p) => ({ id: p.asset_id, priceInAlgo: p.price_algo }));
+                .map((p: any) => ({ id: p.asset_id, priceInAlgo: p.price_algo }));
             if (prices.length > 0) {
                 prePopulateAssetPrices(prices);
             }
@@ -222,7 +215,7 @@ function App() {
             // Pre-populate LP token states (avoids DEX SDK calls and individual /lp/state/priced calls)
             if (enriched.lp_states) {
                 const assetsMap = $assets.getState();
-                const lpItems = Object.values(enriched.lp_states).map((lpState) => ({
+                const lpItems = Object.values(enriched.lp_states).map((lpState: any) => ({
                     lpState,
                     asset: assetsMap.get(lpState.token_id) ?? null,
                 }));
@@ -230,7 +223,29 @@ function App() {
                     prePopulateLpTokenInfos(lpItems);
                 }
             }
+        };
 
+        // Instant display from sessionStorage cache (stale-while-revalidate)
+        try {
+            const cached = sessionStorage.getItem('cometa_enriched');
+            if (cached) {
+                applyEnriched(JSON.parse(cached));
+                setEnrichedLoaded(true);
+            }
+        } catch { /* corrupt cache — ignore */ }
+
+        // Fetch fresh enriched data (updates cache + applies any new data)
+        getFarmEnriched().then((enriched) => {
+            if (!enriched) {
+                setEnrichedLoaded(true);
+                return;
+            }
+
+            try {
+                sessionStorage.setItem('cometa_enriched', JSON.stringify(enriched));
+            } catch { /* quota exceeded — ignore */ }
+
+            applyEnriched(enriched);
             setEnrichedLoaded(true);
         }).catch(() => {
             setEnrichedLoaded(true);

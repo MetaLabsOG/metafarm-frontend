@@ -180,18 +180,34 @@ function getDeflyInstance(): DeflyWalletV2 {
     return _deflyInstance;
 }
 
-// Warm up wallet clients in background after page load
+// Warm up wallet clients in background after page load.
+// The PeraWalletConnect constructor registers a DOMContentLoaded listener for createClient(),
+// but by the time this runs the event has already fired — so client stays null.
+// Fix: explicitly call reconnectSession() which triggers createClient() internally,
+// then pre-open the relay WebSocket so connect() only needs to create a pairing topic.
 if (typeof window !== 'undefined') {
-    // Use requestIdleCallback or setTimeout to not block initial render
-    const warmUp = () => {
-        try { getPeraInstance(); } catch { /* ignore init errors */ }
-        try { getDeflyInstance(); } catch { /* ignore init errors */ }
+    const warmUp = async () => {
+        // Prefetch Pera config so browser HTTP cache has it ready
+        try { void fetch('https://wc.perawallet.app/config-staging.json'); } catch {}
+
+        try {
+            const pera = getPeraInstance();
+            // reconnectSession() calls createClient() → initializes SignClient
+            // For new users: returns [] (no sessions). For returning: reconnects.
+            await pera.reconnectSession().catch(() => {});
+            // Pre-open relay WebSocket (eliminates 0.5–1.5s on connect click)
+            if (pera.client) {
+                await (pera.client as any).core?.relayer?.transportOpen?.().catch(() => {});
+            }
+        } catch { /* ignore init errors */ }
+
+        try {
+            const defly = getDeflyInstance();
+            await defly.reconnectSession().catch(() => {});
+        } catch { /* ignore init errors */ }
     };
-    if ('requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(warmUp, { timeout: 5000 });
-    } else {
-        setTimeout(warmUp, 2000);
-    }
+    // Start 500ms after load — enough for critical render, but much faster than requestIdleCallback(5s)
+    setTimeout(() => void warmUp(), 500);
 }
 
 // Reset wallet instance after disconnect so next connect gets a fresh session

@@ -207,6 +207,11 @@ export const setPoolInfos = setContractInfos;
 export const triggerPoolUpdate = triggerStateUpdate;
 export const initializeFarmContract = initializeContract;
 
+// Loading flag: true once setPoolInfos has been called at least once.
+// Distinguishes "data not loaded yet" from "loaded but genuinely empty".
+export const $farmPoolsLoaded = createStore(false)
+    .on(setContractInfos, () => true);
+
 // LP token info store
 type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
 

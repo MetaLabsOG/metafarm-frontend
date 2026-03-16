@@ -1,9 +1,9 @@
-import { createComponent, useUnit } from 'effector-react';
+import { useUnit } from 'effector-react';
 import { FarmType } from '../common/store';
 import { InfoCard } from '../Components/InfoCard/InfoCard';
 import { Balance } from './Balance';
 import { PoolList } from './PoolList';
-import { $sortedPoolsWithStats, initializeFarmContract } from './store';
+import { $sortedPoolsWithStats, $farmPoolsLoaded, initializeFarmContract } from './store';
 import { BalanceContainer, FarmContainer } from './styled';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
 import { useWindowSize } from '../hooks';
@@ -33,9 +33,11 @@ export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
     );
 };
 
-export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => {
+export function Farm() {
+    const state = useUnit($sortedPoolsWithStats);
+    const poolsLoaded = useUnit($farmPoolsLoaded);
     const initEvent = useUnit(initializeFarmContract);
-    const isLoading = !state;
+    const isLoading = !poolsLoaded;
 
     return (
         <FarmContainer>
@@ -48,7 +50,7 @@ export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => {
                 text="Loading farm pools..."
                 size="medium"
             >
-                {state && state.length === 0 ? (
+                {poolsLoaded && state.length === 0 ? (
                     <div style={{ color: 'var(--newnewGray)', textAlign: 'center', padding: '40px', fontSize: '16px' }}>
                         No active farms
                     </div>
@@ -60,4 +62,4 @@ export const Farm = createComponent($sortedPoolsWithStats, (_props, state) => {
             <InfoCards addFarmType="farm" />
         </FarmContainer>
     );
-});
+}

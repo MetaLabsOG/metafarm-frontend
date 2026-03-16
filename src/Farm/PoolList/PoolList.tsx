@@ -98,11 +98,6 @@ export function PoolList({
     // Filter pools based on user criteria
     const filteredPools = useMemo(() => {
         return pools.filter((pws: PoolWithStats) => {
-            if (currentBlock === 0) {
-                // Current time is not updated yet. Do not try to show the pools
-                return false;
-            }
-
             if (priorityPoolId) {
                 return pws.pool.id === Number(priorityPoolId);
             }
@@ -123,9 +118,16 @@ export function PoolList({
             if (showVerified) {
                 isShown = Boolean(pws.pool.info.metadata.verified);
             }
-            const endBlock = pws.pool.state?.initial?.endBlock ?? 1e9;
-            const statusFilter = showEnded ? currentBlock > endBlock : currentBlock <= endBlock;
-            isShown = isShown && statusFilter;
+            // Apply endBlock filter only when currentBlock is known.
+            // When currentBlock === 0 (indexer not yet responded), show all pools as active.
+            if (currentBlock > 0) {
+                const endBlock = pws.pool.state?.initial?.endBlock ?? 1e9;
+                const statusFilter = showEnded ? currentBlock > endBlock : currentBlock <= endBlock;
+                isShown = isShown && statusFilter;
+            } else if (showEnded) {
+                // Can't determine ended pools without currentBlock — hide them
+                isShown = false;
+            }
             return isShown;
         });
     }, [pools, currentBlock, priorityPoolId, showMyPools, poolSearch, showVerified, showEnded]);
