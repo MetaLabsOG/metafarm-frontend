@@ -8,7 +8,7 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-087**
+- Next available ID: **MF-094**
 
 ---
 
@@ -133,6 +133,38 @@
 > **M5: Quick wins** — MF-060, MF-065–071 (batch commit, ~1.5 hr total)
 > **M6: Polish sprint** — MF-072–079 + MF-057 + MF-061 (~8 hr total)
 > **M7: Systemic** — MF-080–086 + MF-062 + MF-063 + MF-064 + MF-028 (~20 hr total)
+
+---
+
+## UI Overhaul (March 2026)
+
+> Source: 4-agent parallel analysis (UX Explorer, DeFi Researcher, UX Architect, Visual Designer)
+> Iteration tracker: `docs/iteration-ui-overhaul.md`
+> Phases: A (Visual Polish) → B (UX Foundation) → C (Key Features) → D (Advanced)
+
+### Phase A — Bug Fixes + Visual Polish (current)
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-087 | Fix body text defaults: color #5cfc3c→white, font Korona→Montserrat, min sizes | done | critical | ux | globalStyles.ts body uses acid green + display font. PoolSubtitle 6px on mobile |
+| MF-088 | Fix "Get Token" external link → React Router Link | done | critical | ux | `PoolActionsDesktop.tsx:99` — `<a target="_blank" href="app.cometa.farm/swap">` reloads page |
+| MF-089 | Fix search input hidden at 700-820px breakpoint | done | high | ux | `PoolSearchInput` display:none at 820px, reappears at 700px — gap with no search |
+| MF-090 | Increase surface layer contrast between backgrounds | done | medium | ux | #0D0D0D→#1A1A1A→#282828 (wider gaps) |
+| MF-091 | Modal overlay: softer opacity + backdrop blur | done | medium | ux | 0.86→0.72 + blur(4px) |
+| MF-092 | Meteor threshold 768→960px | done | medium | performance | Raised threshold so medium screens get static background |
+| MF-093 | Pool card green hover border | done | medium | ux | rgba(0,230,118,0.15) border on hover |
+
+### Phase B — UX Foundation (next)
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-094 | Unified "Earn" page (Farm+Stake merged with filter tabs) | todo | critical | ux | Stake already imports Farm components — low complexity. Reduces nav to 4 items |
+
+### Milestones
+
+> **M8: Text defaults** — MF-087 (body font/color/sizes)
+> **M9: Navigation & breakpoints** — MF-088, MF-089
+> **M10: Visual depth + polish** — MF-090, MF-091, MF-092, MF-093
 > **Expected result after M5+M6**: design rating 5.5 → ~7.0
 > **Expected result after M7**: ~7.5–8.0
 
