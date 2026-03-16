@@ -23,13 +23,12 @@ const browserInfoString =
 let connectionGeneration = 0;
 
 function cleanupWalletModals() {
-    // Remove leftover Pera SDK modal
+    // Remove leftover Pera SDK modals (no longer used but may linger from old sessions)
     document.getElementById('pera-wallet-connect-modal-wrapper')?.remove();
     document.getElementById('pera-wallet-redirect-modal-wrapper')?.remove();
     document.getElementById('pera-wallet-sign-txn-toast-wrapper')?.remove();
-    // Remove leftover WalletConnect modal (used by DeflyWalletV2)
-    document.querySelector('wcm-modal')?.remove();
-    document.querySelector('w3m-modal')?.remove();
+    // NOTE: Do NOT remove <wcm-modal> — walletConnectService manages its lifecycle.
+    // Removing it breaks WalletConnectModal's internal state, preventing reopens.
 }
 
 export const connectWallet = (walletType: WalletType, isAutoReconnect = false) => {

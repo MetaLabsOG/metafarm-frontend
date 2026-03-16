@@ -117,8 +117,11 @@ class WalletConnectService {
             approval = result.approval;
         }
 
-        // Show QR code immediately
         const modal = this.getModal();
+        let unsubscribe: (() => void) | undefined;
+
+        // Ensure clean state before opening
+        try { modal.closeModal(); } catch { /* may not be open */ }
         modal.openModal({ uri });
 
         try {
@@ -130,13 +133,14 @@ class WalletConnectService {
                     180_000
                 );
 
-                modal.subscribeModal(({ open }: { open: boolean }) => {
+                unsubscribe = modal.subscribeModal(({ open }: { open: boolean }) => {
                     if (!open) reject(new Error('User closed wallet connect modal'));
                 });
             });
 
             return this.getAccountsFromSession(this.session);
         } finally {
+            unsubscribe?.();
             modal.closeModal();
             void this.preparePairing();
         }
