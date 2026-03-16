@@ -44,7 +44,7 @@ export const SlippageBtn = styled.button<{ $active: boolean }>`
     font-family: 'Montserrat';
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
 
     &:hover {
         border-color: rgba(66, 201, 63, 0.3);
@@ -64,7 +64,7 @@ export const CustomSlippageInput = styled.input<{ $active: boolean }>`
     font-family: 'Montserrat';
     font-weight: 500;
     text-align: center;
-    transition: all 0.15s ease;
+    transition: border-color 0.15s ease, background 0.15s ease;
 
     &::placeholder {
         color: ${theme.gray};

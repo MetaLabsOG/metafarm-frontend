@@ -340,7 +340,7 @@ export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
     :disabled {
@@ -640,25 +640,30 @@ export const APRPercentage = styled.span<{ $isHighAPR?: boolean }>`
     }
 `;
 
-const skeletonPulse = css`
-    @keyframes skeleton-pulse {
-        0% { opacity: 0.15; }
-        50% { opacity: 0.25; }
-        100% { opacity: 0.15; }
+const skeletonShimmer = css`
+    @keyframes skeleton-shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
     }
-    animation: skeleton-pulse 1.5s ease-in-out infinite;
-    background: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.06) 25%,
+        rgba(255, 255, 255, 0.12) 50%,
+        rgba(255, 255, 255, 0.06) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.8s ease-in-out infinite;
     border-radius: 4px;
 `;
 
 export const SkeletonLine = styled.div`
-    ${skeletonPulse}
+    ${skeletonShimmer}
     width: 100%;
     height: 14px;
 `;
 
 export const SkeletonBlock = styled.div`
-    ${skeletonPulse}
+    ${skeletonShimmer}
     width: 100%;
     height: 24px;
 `;

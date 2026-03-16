@@ -20,7 +20,7 @@ export type ColorTheme = {
 export type ColorThemed<T> = T & { theme: ColorTheme };
 
 export const theme: ColorTheme = {
-    green: '#05FF00',
+    green: '#00E676',
     white: '#E0E0E0',
     lightGray: '#B6B9BD',
     gray: '#7d7d7d',

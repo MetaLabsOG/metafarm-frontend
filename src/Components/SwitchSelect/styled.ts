@@ -7,7 +7,7 @@ export const MyVerifiedSwitchWrapper = styled.div`
     font-family: 'Montserrat';
     font-weight: 500;
     letter-spacing: 0.02em;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -46,7 +46,7 @@ export const PoolStateWrapper = styled.div`
     font-family: 'Montserrat';
     font-weight: 500;
     letter-spacing: 0.02em;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -69,7 +69,7 @@ export const SwitchSelectWrapper = styled.div`
     font-family: 'Montserrat';
     font-weight: 500;
     letter-spacing: 0.02em;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     border-radius: 15px;
     overflow: hidden;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);

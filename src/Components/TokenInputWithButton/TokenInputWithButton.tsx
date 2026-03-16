@@ -6,7 +6,7 @@ import { Effect } from 'effector';
 import { BigNumberish } from '@ethersproject/bignumber';
 import { LPTokenInfo } from '../../dexes';
 import { $account, Asset, Priced } from '../../common/store';
-import { fromSmallestUnits, getSmallestUnits } from '../../common/lib';
+import { formatDecimalsMeaningful, fromSmallestUnits, getSmallestUnits } from '../../common/lib';
 import { notify, ToastTypes, useToasts } from '../Notification';
 import { PacmanButton } from '../PacmanButton/PacmanButton';
 import { logFarmActionData } from '../../logEvent';
@@ -180,8 +180,8 @@ export const TokenInputWithButton: FC<InputWithButtonProps> = ({
                     MAX
                 </MaxButton>
             </Action>
-            <Balance isValid={isValidInput}>
-                {balanceField}: {fromSmallestUnits(token, tokenMicroBalance)} {balanceSuffix}{' '}
+            <Balance isValid={isValidInput} title={`${fromSmallestUnits(token, tokenMicroBalance)} ${balanceSuffix}`}>
+                {balanceField}: {formatDecimalsMeaningful(fromSmallestUnits(token, tokenMicroBalance), 2)} {balanceSuffix}{' '}
                 {isValidInput ? '' : '(Not enough)'}
             </Balance>
             <Confetti

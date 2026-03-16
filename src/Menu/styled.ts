@@ -158,7 +158,7 @@ export const MenuContainer = styled.header`
     backdrop-filter: ${getOptimizedBackdropFilter('blur(10px)')};
     border-bottom: none; /* Made border invisible */
     box-shadow: ${getOptimizedBoxShadow('0 8px 24px rgba(0, 0, 0, 0.15)')};
-    transition: all 0.3s ease;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
 
     &::after {
         content: '';
@@ -223,7 +223,7 @@ export const ExchangeRate = styled.span`
     color: white;
     letter-spacing: 0.02em;
     font-feature-settings: "tnum" on, "lnum" on;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
 
     /* White color for all values with subtle text shadow */
     &.non-zero {
@@ -301,9 +301,19 @@ export const FooterItem = styled.div`
 
 export const FooterText = styled.div`
     display: flex;
+    align-items: center;
     gap: 4px;
 
     @media (max-width: 640px) {
         flex-direction: column;
     }
+`;
+
+export const FooterPoweredBy = styled.div`
+    font-family: 'Montserrat';
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--gray);
+    opacity: 0.6;
+    letter-spacing: 0.02em;
 `;

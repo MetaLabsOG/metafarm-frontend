@@ -142,7 +142,7 @@ const wobble = keyframes`
 const GradientStakeButton = styled(StakeButtonMobile)`
   background: linear-gradient(135deg, rgba(144, 238, 144, 0.9) 0%, rgba(144, 238, 144, 0.8) 100%);
   box-shadow: 0 2px 8px rgba(144, 238, 144, 0.3);
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 
   &:not(:disabled):hover {
     background: linear-gradient(135deg, rgba(144, 238, 144, 1) 0%, rgba(144, 238, 144, 0.9) 100%);

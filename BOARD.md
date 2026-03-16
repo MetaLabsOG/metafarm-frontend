@@ -65,7 +65,7 @@
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
 | MF-056 | SelectContainer keyboard accessibility | todo | high | ux | `SelectContainer` is `styled.div` with onClick but no tabIndex, role="button", onKeyDown. Primary token select control in Swap/Farm. `src/Components/Select/Select.tsx:185` |
-| MF-057 | Fix transition:all on MenuContainer and ExchangeRate | todo | high | performance | `MenuContainer` (fixed header, repaints on scroll) and `ExchangeRate` (updates on price ticks) both use `transition: all`. Replace with specific properties. `src/Menu/styled.ts:161,226` |
+| MF-057 | Fix transition:all on MenuContainer and ExchangeRate | done | high | performance | MenuContainer → `background, box-shadow`. ExchangeRate → `color, text-shadow` |
 | MF-058 | Replace mobileOptimizations.ts JS checks with CSS media queries | todo | high | performance | `isMobileDevice()` called at styled-component creation time — value freezes on first render, ignores resize. Should be `@media (max-width: 768px)` in CSS. `src/utils/mobileOptimizations.ts` |
 | MF-059 | MeteorToggle ARIA attributes | todo | medium | ux | No `role="switch"`, `aria-checked`, `tabIndex` on toggle. Invisible to screen readers, no keyboard access. `src/Components/ui/MeteorToggle.tsx` |
 | MF-060 | Fix logo alt text | done | low | ux | `alt="logo"` → `alt="Algorand"`, `alt="Cometa"` etc. `src/Menu/Menu.tsx:70,76,127` |
@@ -74,7 +74,7 @@
 
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
-| MF-061 | Remaining transition:all in medium-traffic components | todo | medium | performance | `GradientStakeButton`, `MobileFilterContainer`, `MobileFilterRow`, `AddFarmButtonContainer`, SwitchSelect, InfoCard, PacmanButton |
+| MF-061 | Remaining transition:all in medium-traffic components | done | medium | performance | Fixed in SwitchSelect, GradientStakeButton, MobileFilter*, AddFarmButton, Swap, wallet.css, StakeButtonMobile |
 | MF-062 | Hardcoded hex colors → CSS vars | todo | low | quality | `#90ee90`→`var(--lightGreen)`, `#1e1e1e`→`var(--darkGray)`, `#121212`→`var(--background)` in ~10 files. See audit for full list |
 | MF-063 | theme.ts → CSS vars migration (46 usages) | todo | low | quality | 46 places use `theme.XYZ` in styled-components when CSS vars exist. Two sources of truth. Not broken but inconsistent |
 
@@ -107,14 +107,14 @@
 
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
-| MF-072 | Skeleton shimmer animation | todo | critical | ux | Replace flat yellow-green bars with CSS shimmer gradient. Currently looks like rendering bug. Absorbs MF-019 |
-| MF-073 | Footer redesign: single-line, brand-first layout | todo | high | ux | Brand+copyright left, social center/right 24-28px, "powered by" demoted to small text, subtle `border-top` |
-| MF-074 | Soften green accent: CTA `#00E676`, keep `#05FF00` for profit/delta only | todo | high | ux | Green currently serves 6 semantic roles — hierarchy collapses. Differentiate CTA vs earn vs link |
-| MF-075 | Stake modal: visual divider between Stake and Withdraw sections | todo | medium | ux | Opposite actions in one block without separation. Add `border-top` or tabbed sections |
-| MF-076 | Balance formatting: comma separators, 2 decimals, full precision on hover | todo | medium | ux | "126789.117334" → "126,789.12". Partial MF-020 |
+| MF-072 | Skeleton shimmer animation | done | critical | ux | CSS shimmer gradient replaces flat pulse. Absorbs MF-019 |
+| MF-073 | Footer redesign: single-line, brand-first layout | done | high | ux | Copyright+Terms first, socials center, "Algorand Mainnet · Algonode.io" demoted to small text |
+| MF-074 | Soften green accent: CTA `#00E676`, keep `#05FF00` for profit/delta only | done | high | ux | `--green` and `theme.green` changed from `#05FF00` to `#00E676` |
+| MF-075 | Stake modal: visual divider between Stake and Withdraw sections | done | medium | ux | Added ModalDivider between Stake and Withdraw sections |
+| MF-076 | Balance formatting: comma separators, 2 decimals, full precision on hover | done | medium | ux | TokenInputWithButton balance now formatted with commas, 2 decimals, full precision in title |
 | MF-077 | Filter pill groups: `|` divider + micro-labels "Status" / "View" | todo | medium | ux | Two independent filter dimensions with no visual separator — confusing for new users |
-| MF-078 | Info cards polish: subtle border, hover state, green accent line | todo | medium | ux | "How to create a pool?" cards look flat and detached from content |
-| MF-079 | Fix `<a>` used as button: PrettyButtonContainer, SwitchersContainer | todo | high | quality | `styled.a` without href or with preventDefault — should be `<button>`. Screen reader announces as link |
+| MF-078 | Info cards polish: subtle border, hover state, green accent line | done | medium | ux | Green accent line on left, subtle border, improved hover |
+| MF-079 | Fix `<a>` used as button: SwitchersContainer and layout containers | done | high | quality | `SwitchersContainer`, `SwitchersAndSearchContainer`, `TopTwoButtonsMobileContainer`: `styled.a` → `styled.div` |
 
 ### M7 — Systemic Improvements (2-4 hr each)
 

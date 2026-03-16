@@ -136,6 +136,8 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                 </div>
             )}
 
+            <ModalDivider />
+
             {/* Withdraw section */}
             <div>
                 <ActionSectionLabel>Withdraw</ActionSectionLabel>

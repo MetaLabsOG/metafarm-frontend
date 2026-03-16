@@ -66,8 +66,8 @@ export const MobileFilterContainer = styled.div`
         border-radius: 16px;
         padding-top: 15px;
         padding-bottom: 15px;
-        transition: all 0.3s ease;
-        border: none; /* Invisible border */
+        transition: box-shadow 0.2s ease;
+        border: none;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
@@ -81,7 +81,7 @@ export const MobileFilterRow = styled.div`
     flex-direction: row;
     justify-content: space-between;
     width: 325px;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease;
 
     &:hover {
         transform: translateY(-1px);
@@ -196,7 +196,7 @@ export const AddFarmButtonContainer = styled(PrettyButtonContainer)`
     height: 30px;
     text-align: center;
     font-family: 'Montserrat';
-    transition: all 0.3s ease;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, text-shadow 0.2s ease;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 
     &:hover {
@@ -211,7 +211,7 @@ export const AddFarmButtonContainer = styled(PrettyButtonContainer)`
     }
 `;
 
-export const SwitchersContainer = styled.a`
+export const SwitchersContainer = styled.div`
     display: flex;
     flex-direction: row;
     gap: 40px;
@@ -231,7 +231,7 @@ export const SwitchersContainer = styled.a`
     }
 `;
 
-export const SwitchersAndSearchContainer = styled.a`
+export const SwitchersAndSearchContainer = styled.div`
     display: flex;
     flex-direction: row;
     gap: 20px;
@@ -258,7 +258,7 @@ export const SwitchersAndSearchContainer = styled.a`
     }
 `;
 
-export const TopTwoButtonsMobileContainer = styled.a`
+export const TopTwoButtonsMobileContainer = styled.div`
     display: flex;
     margin-bottom: 5px;
 
