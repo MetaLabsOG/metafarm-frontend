@@ -1,8 +1,4 @@
 import { Buffer } from 'buffer';
-import algosdk from 'algosdk';
-import { PeraWalletConnect } from '@perawallet/connect-beta';
-import { ALGO_WalletConnect as WalletConnect } from '@reach-sh/stdlib';
-import { DeflyWalletV2 } from './deflyWalletV2';
 import type {
     ARC11_Wallet,
     EnableOpts,
@@ -16,18 +12,14 @@ import type {
 
 import { makeProviderByEnv } from '../reachRedefinitions';
 import { reach, ALGONET, MAINNET } from '../AppContext';
+import { walletConnectService } from './walletConnectService';
 
 export type WalletType = 'WalletConnect' | 'WalletConnectDefly';
-export type WalletFallbackOpts = any & { WalletConnect: PeraWalletConnect | DeflyWalletV2 };
 export type ARC11_Wallet_Disconnectable = ARC11_Wallet & { disconnect: () => Promise<void> };
-export type ARC11_Wallet_Exposed = ARC11_Wallet_Disconnectable & { _impl: PeraWalletConnect | DeflyWalletV2 };
 
 /**
- * Another copypaste from Reach, but here we fix a bunch of stuff
- * @param opts
- * @param getAddr
- * @param signTxns_
- * @returns
+ * Reach ARC-11 integration layer.
+ * Wraps getAddr/signTxns into the wallet interface that Reach stdlib expects.
  */
 export const doCustomWalletFallback = (
     options: any,
@@ -79,7 +71,7 @@ export const doCustomWalletFallback = (
         void popts;
         const bs = stxns.map((stxn) => Buffer.from(stxn, 'base64'));
         await p.algodClient.sendRawTransaction(bs).do();
-        return {}; // TODO
+        return {};
     };
     const signAndPostTxns = async (txns: WalletTransaction[], spopts?: object) => {
         const stxns = await signTxns(txns, spopts);
@@ -100,171 +92,54 @@ export const doCustomWalletFallback = (
 };
 
 export const customWalletFallback = (options: any & { walletType: WalletType }) => {
-    if (options.walletType === 'WalletConnect') {
-        return walletFallback_WalletConnect(options);
-    }
-    if (options.walletType === 'WalletConnectDefly') {
-        return walletFallback_WalletConnectDefly(options);
+    if (options.walletType === 'WalletConnect' || options.walletType === 'WalletConnectDefly') {
+        return walletFallback_WC(options);
     }
 
     throw new TypeError(`Invalid wallet type: ${options.walletType}`);
 };
 
-const walletFallback_PeraOrDefly =
-    (innerWallet: PeraWalletConnect | DeflyWalletV2, options: object) => (): ARC11_Wallet_Exposed => {
-        const getAddr = async (): Promise<string> => {
-            // Check if there's a persisted session worth reconnecting to.
-            // Skip reconnect for fresh connections — saves 1-3 seconds of WC client init.
-            const hasPersistedSession = localStorage.getItem('PeraWallet.Wallet') !== null
-                || Object.keys(localStorage).some(k => k.startsWith('wc@2:'));
-
-            if (hasPersistedSession) {
-                try {
-                    const addrs = await innerWallet.reconnectSession();
-                    if (addrs.length > 0) {
-                        return addrs[0];
-                    }
-                } catch {
-                    // Reconnect failed — will fall through to fresh connect
-                }
-            }
-
-            const addrs = await innerWallet.connect();
-            return addrs[0];
-        };
-
-        const signTxns = async (txns: WalletTransaction[]): Promise<string[]> => {
-            const peraTxns = txns.map((wt) => {
-                const txn = algosdk.decodeUnsignedTransaction(Buffer.from(wt.txn, 'base64'));
-                return wt.stxn ? { txn, signers: [] } : { txn };
-            });
-
-            const signedTxns: string[] = await innerWallet
-                .signTransaction([peraTxns])
-                .then((stxns) => stxns.map((stxn) => Buffer.from(stxn).toString('base64')));
-
-            // Use index-based access: wallet returns one entry per txn in order.
-            // Pre-signed txns keep their original stxn; others use wallet-signed value.
-            return txns.map((wt, i) => wt.stxn ? wt.stxn : signedTxns[i]);
-        };
-
-        const wallet = doCustomWalletFallback(options, getAddr, signTxns, async () => {
-            const dc = innerWallet.disconnect();
-            if (dc) {
-                await dc;
-            }
-        });
-        return { ...wallet, _impl: innerWallet };
-    };
-
-const WC_PROJECT_ID = 'bbdf45a3e6ca9f8da5738d7b854ff2c9';
-
-const PERA_NETWORK = ALGONET === MAINNET ? 'mainnet' : 'testnet';
-
-// Pre-create wallet instances at module load so SignClient.init() runs in background
-// before the user clicks "Connect". This eliminates the 2-5s cold start delay.
-let _peraInstance: PeraWalletConnect | null = null;
-let _deflyInstance: DeflyWalletV2 | null = null;
-
-function getPeraInstance(): PeraWalletConnect {
-    if (!_peraInstance) {
-        _peraInstance = new PeraWalletConnect({ projectId: WC_PROJECT_ID, network: PERA_NETWORK as any });
-    }
-    return _peraInstance;
-}
-
-function getDeflyInstance(): DeflyWalletV2 {
-    if (!_deflyInstance) {
-        _deflyInstance = new DeflyWalletV2({ projectId: WC_PROJECT_ID });
-    }
-    return _deflyInstance;
-}
-
-// --- Pera config cache ---
-// The Pera SDK fetches https://wc.perawallet.app/config-staging.json with {cache:"no-store"}
-// on EVERY connect() call, adding 200-3000ms of blocking network time.
-// We pre-fetch it once at module load and intercept subsequent requests to return the cached copy.
-const PERA_CONFIG_HOST = 'wc.perawallet.app/config';
-let _peraConfigCached: string | null = null;
-
-if (typeof window !== 'undefined') {
-    const _nativeFetch = window.fetch.bind(window);
-    window.fetch = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-        if (_peraConfigCached) {
-            const url = typeof input === 'string' ? input
-                : input instanceof URL ? input.href
-                : (input as Request).url;
-            if (url.includes(PERA_CONFIG_HOST)) {
-                return Promise.resolve(new Response(_peraConfigCached, {
-                    status: 200,
-                    headers: { 'Content-Type': 'application/json' },
-                }));
-            }
-        }
-        return _nativeFetch(input, init);
-    } as typeof window.fetch;
-
-    // Pre-fetch config immediately (before warm-up, before user interaction)
-    _nativeFetch('https://wc.perawallet.app/config-staging.json')
-        .then(r => r.ok ? r.text() : null)
-        .then(text => { if (text) _peraConfigCached = text; })
-        .catch(() => {});
-}
-
-// --- Relay WebSocket keepalive ---
-// WC relay has an idle timeout (~60-300s). If the user clicks "Connect" after that,
-// transportOpen() adds 500-1500ms. Keep-alive prevents this.
-function keepRelayAlive(client: unknown): void {
-    const relayer = (client as any)?.core?.relayer;
-    if (!relayer) return;
-    setInterval(async () => {
+/**
+ * Unified WalletConnect v2 fallback for both Pera and Defly.
+ * Uses a single shared SignClient with pre-generated pairing URI
+ * so the QR code appears instantly on click.
+ */
+const walletFallback_WC = (options: object) => (): ARC11_Wallet_Disconnectable => {
+    const getAddr = async (): Promise<string> => {
+        // Try reconnecting to an existing session first
         try {
-            if (!relayer.connected) {
-                await relayer.transportOpen();
-            }
-        } catch { /* ignore */ }
-    }, 25_000);
-}
-
-// --- Warm-up ---
-// Initialize both SignClients and pre-open relay WebSockets in parallel.
-// reconnectSession() triggers createClient() internally (the PeraWalletConnect constructor's
-// DOMContentLoaded listener has already fired by now, so client stays null without this call).
-if (typeof window !== 'undefined') {
-    const warmUpPera = async () => {
-        const pera = getPeraInstance();
-        await pera.reconnectSession().catch(() => {});
-        if (pera.client) {
-            await (pera.client as any).core?.relayer?.transportOpen?.().catch(() => {});
-            keepRelayAlive(pera.client);
+            const addrs = await walletConnectService.reconnect();
+            if (addrs.length > 0) return addrs[0];
+        } catch {
+            // No active session — will show QR modal
         }
+
+        const addrs = await walletConnectService.connect();
+        return addrs[0];
     };
 
-    const warmUpDefly = async () => {
-        const defly = getDeflyInstance();
-        await defly.reconnectSession().catch(() => {});
-        const client = defly.getClient();
-        if (client) {
-            await (client as any).core?.relayer?.transportOpen?.().catch(() => {});
-            keepRelayAlive(client);
-        }
+    const signTxns = async (txns: WalletTransaction[]): Promise<string[]> => {
+        // ARC-0025 format: base64 txn strings sent directly (no decode needed)
+        const wcTxns = txns.map((wt) =>
+            wt.stxn
+                ? { txn: wt.txn, signers: [] as string[] }
+                : { txn: wt.txn }
+        );
+
+        const signedArray = await walletConnectService.signTransaction(wcTxns);
+
+        return txns.map((wt, i) => {
+            if (wt.stxn) return wt.stxn;
+            const signed = signedArray[i];
+            if (!signed) throw new Error(`Wallet returned null for unsigned transaction at index ${i}`);
+            return signed;
+        });
     };
 
-    // Start ASAP — setTimeout(0) defers to after current task (initial render) completes
-    setTimeout(() => void Promise.allSettled([warmUpPera(), warmUpDefly()]), 0);
-}
-
-// Reset wallet instance after disconnect so next connect gets a fresh session
-export function resetPeraInstance(): void {
-    _peraInstance = null;
-}
-
-export function resetDeflyInstance(): void {
-    _deflyInstance = null;
-}
-
-const walletFallback_WalletConnect = (opts: object) =>
-    walletFallback_PeraOrDefly(getPeraInstance(), opts);
-
-const walletFallback_WalletConnectDefly = (opts: object) =>
-    walletFallback_PeraOrDefly(getDeflyInstance(), opts);
+    return doCustomWalletFallback(
+        options,
+        getAddr,
+        signTxns,
+        () => walletConnectService.disconnect()
+    );
+};
