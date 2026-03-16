@@ -117,6 +117,7 @@ export const LPTokensIcon = styled.div<{ first?: boolean; isWhite?: boolean }>`
     position: absolute;
     left: ${({ first }) => (first ? '0' : '24px')};
     height: 100%;
+    aspect-ratio: 1;
     border-radius: 50px;
     background-color: ${({ isWhite }) => (isWhite ? 'white' : 'black')};
     overflow: hidden;

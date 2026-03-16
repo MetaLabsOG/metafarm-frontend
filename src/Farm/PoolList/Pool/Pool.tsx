@@ -13,6 +13,7 @@ import { $stakingTokens } from '../../../Stake/store';
 import { $farmRewardTokens, PoolWithStats, recalculatedReward } from '../../store';
 import { PoolState } from './types';
 import { PoolInfo } from './PoolInfo';
+import { PoolPreview } from './PoolPreview';
 import { PoolActions } from './PoolActions';
 import { GradientPoolContainer } from './GradientPoolCard';
 import { ModalCloseButton, ModalHeader, SkeletonLine, SkeletonBlock } from './styled';
@@ -56,15 +57,23 @@ function PoolInner({
         }
     }, [contract.state, currentBlock]);
 
-    const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
-    const isLoading = currentBlock === 0 || !projectedState || !is_info_loaded || !pricedAlgo;
-
-    if (isLoading) {
+    // No contract state at all — show skeleton
+    if (!projectedState) {
         return (
             <GradientPoolContainer style={{ padding: '20px' }}>
                 <SkeletonLine style={{ width: '60%', height: '16px', marginBottom: '12px' }} />
                 <SkeletonBlock style={{ height: '40px', marginBottom: '8px' }} />
                 <SkeletonLine style={{ width: '40%', height: '12px' }} />
+            </GradientPoolContainer>
+        );
+    }
+
+    // State exists but token info / prices / block not ready — show preview with header + placeholders
+    const is_info_loaded = rewardTokenInfo && stakeTokenInfo;
+    if (currentBlock === 0 || !is_info_loaded || !pricedAlgo) {
+        return (
+            <GradientPoolContainer>
+                <PoolPreview contractInfo={contract.info} />
             </GradientPoolContainer>
         );
     }
