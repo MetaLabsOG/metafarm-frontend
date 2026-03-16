@@ -1,20 +1,5 @@
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { ColorThemed } from '../../theme';
-
-const pulseAnimation = keyframes`
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.9;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-`;
 
 export const AmountContainer = styled.div`
     display: flex;
@@ -89,10 +74,6 @@ export const AmountValue = styled.div`
     ${AmountContainer}:hover & {
         text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
         transform: scale(1.05);
-    }
-
-    &.pulse {
-        animation: ${pulseAnimation} 1s ease;
     }
 
     &.non-zero {

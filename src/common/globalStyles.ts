@@ -28,6 +28,18 @@ const GlobalStyle = createGlobalStyle`
     }
   }
 
+  /* Flash highlight on value updates */
+  @keyframes flash-highlight {
+    0%   { background-color: rgba(0, 230, 118, 0); }
+    20%  { background-color: rgba(0, 230, 118, 0.15); }
+    100% { background-color: rgba(0, 230, 118, 0); }
+  }
+
+  .flash-update {
+    border-radius: 4px;
+    animation: flash-highlight 0.6s ease-out;
+  }
+
   /* Respect system reduced-motion preference */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

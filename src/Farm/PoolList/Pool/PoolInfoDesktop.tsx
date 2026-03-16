@@ -10,6 +10,7 @@ import { PoolHeader } from '../../../Components/PoolHeader/PoolHeader';
 import { ColumnType, POOL_COLUMN_WIDTH } from '../columns';
 import { AprType } from '../../store';
 import { theme } from '../../../theme';
+import { useFlashOnChange } from '../../../hooks/useFlashOnChange';
 import {
     PoolInfoDesktopContainer,
     ArrowIconsWrapper,
@@ -136,6 +137,11 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
     isGame,
     nftRewards,
 }) => {
+    const tvlValue = numberRound(convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked));
+    const aprValue = numberRound(APR.total);
+    const isTvlFlashing = useFlashOnChange(tvlValue);
+    const isAprFlashing = useFlashOnChange(aprValue);
+
     return (
         <PoolInfoDesktopContainer>
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Name]}>
@@ -153,17 +159,17 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
                 />
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Tvl]}>
-                <PoolPropertyValue isDollarValue>
-                    {`$${numberRound(convertAmountToUSD(stakeTokenInfo, contractState.global.totalStaked))}`}
+                <PoolPropertyValue isDollarValue className={isTvlFlashing ? 'flash-update' : ''}>
+                    {`$${tvlValue}`}
                 </PoolPropertyValue>
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Apr]}>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-                    <PoolPropertyValue style={{
+                    <PoolPropertyValue className={isAprFlashing ? 'flash-update' : ''} style={{
                         fontWeight: 700,
                         ...(APR.total > 20 ? { color: 'var(--accent-muted)', textShadow: '0 0 12px rgba(139, 255, 116, 0.3)' } : {}),
                     }}>
-                        {numberRound(APR.total)}%
+                        {aprValue}%
                     </PoolPropertyValue>
                     <img
                         data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
