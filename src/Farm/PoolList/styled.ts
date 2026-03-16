@@ -258,6 +258,39 @@ export const SwitchersAndSearchContainer = styled.div`
     }
 `;
 
+export const FilterDivider = styled.div`
+    width: 1px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    align-self: center;
+    margin-top: 8px;
+    flex-shrink: 0;
+
+    @media (max-width: 700px) {
+        display: none;
+    }
+`;
+
+export const FilterGroup = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`;
+
+export const FilterGroupLabel = styled.span`
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    opacity: 0.5;
+    display: block;
+    text-align: center;
+
+    @media (max-width: 700px) {
+        display: none;
+    }
+`;
+
 export const TopTwoButtonsMobileContainer = styled.div`
     display: flex;
     margin-bottom: 5px;

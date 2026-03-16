@@ -34,6 +34,9 @@ import {
     MobileFilterRow,
     VerticalSpacer,
     HorizontalSpacer,
+    FilterDivider,
+    FilterGroup,
+    FilterGroupLabel,
 } from './styled';
 // Pool component is now used in VirtualizedPoolList
 import { ColumnType, POOL_COLUMN_WIDTH } from './columns';
@@ -213,11 +216,22 @@ export function PoolList({
 
                     <PoolFiltersContainer>
                         <SwitchersContainer>
-                            <VerifiedSwitchDesktop onChange={onVerifiedButton} switchStatus={showVerified} />
+                            <FilterGroup>
+                                <FilterGroupLabel>Trust</FilterGroupLabel>
+                                <VerifiedSwitchDesktop onChange={onVerifiedButton} switchStatus={showVerified} />
+                            </FilterGroup>
                         </SwitchersContainer>
+                        <FilterDivider />
                         <SwitchersAndSearchContainer>
-                            <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
-                            <SwitchSelectPools onChange={onChangePoolType} isEnabled={showMyPools} />
+                            <FilterGroup>
+                                <FilterGroupLabel>Status</FilterGroupLabel>
+                                <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
+                            </FilterGroup>
+                            <FilterDivider />
+                            <FilterGroup>
+                                <FilterGroupLabel>View</FilterGroupLabel>
+                                <SwitchSelectPools onChange={onChangePoolType} isEnabled={showMyPools} />
+                            </FilterGroup>
                             <PoolSearchInput
                                 placeholder="Search token..." aria-label="Search pools by token name"
                                 value={poolSearch}
