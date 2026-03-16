@@ -225,10 +225,17 @@ function App() {
             }
         };
 
-        // Instant display from sessionStorage cache (stale-while-revalidate)
+        // Instant display from localStorage cache (stale-while-revalidate).
+        // localStorage persists across tabs and browser restarts, so only the
+        // very first visit ever is slow.  TTL prevents serving extremely stale data.
+        const ENRICHED_CACHE_KEY = 'cometa_enriched';
+        const ENRICHED_TS_KEY = 'cometa_enriched_ts';
+        const ENRICHED_MAX_AGE_MS = 30 * 60 * 1000; // 30 minutes
+
         try {
-            const cached = sessionStorage.getItem('cometa_enriched');
-            if (cached) {
+            const cached = localStorage.getItem(ENRICHED_CACHE_KEY);
+            const cachedTs = Number(localStorage.getItem(ENRICHED_TS_KEY) || '0');
+            if (cached && Date.now() - cachedTs < ENRICHED_MAX_AGE_MS) {
                 applyEnriched(JSON.parse(cached));
                 setEnrichedLoaded(true);
             }
@@ -242,7 +249,8 @@ function App() {
             }
 
             try {
-                sessionStorage.setItem('cometa_enriched', JSON.stringify(enriched));
+                localStorage.setItem(ENRICHED_CACHE_KEY, JSON.stringify(enriched));
+                localStorage.setItem(ENRICHED_TS_KEY, String(Date.now()));
             } catch { /* quota exceeded — ignore */ }
 
             applyEnriched(enriched);
