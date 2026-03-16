@@ -176,7 +176,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     {showCompound && (
                         <PacmanButton
                             buttonText="Compound"
-                            buttonStyle="claim_button"
+                            buttonStyle="compound_button"
                             style={{ flex: 1, width: '100%' }}
                             isInactive={!isActiveClaim}
                             onClickAction={async () =>

@@ -38,15 +38,13 @@ export const PoolContainer = styled.div`
     backdrop-saturate: 150%;
     border: 1px solid rgba(0, 0, 0, 0.2);
     box-shadow: ${SHADOW};
-    /* Removed will-change to prevent GPU layer creation */
     transition: ${TRANSITION};
-    translate: z-0;
 
     &:hover {
         transform: ${HOVER_TRANSFORM};
         box-shadow: ${SHADOW_HOVER};
-        border: 1px solid rgba(66, 201, 63, 0.2);
-        background: linear-gradient(270deg, rgba(10, 10, 10, 0.02) 0%, rgba(10, 10, 10, 0.02) 30.46%), rgba(10, 10, 10, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
     }
 
     @media (max-width: 1120px) {
@@ -629,10 +627,13 @@ export const PoolTitle = styled.div`
     }
 `;
 
-// Update the APR percentage styling
-export const APRPercentage = styled.span`
+export const APRPercentage = styled.span<{ $isHighAPR?: boolean }>`
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
+    ${({ $isHighAPR }) => $isHighAPR && `
+        color: var(--accent-muted);
+        text-shadow: 0 0 10px rgba(139, 255, 116, 0.3);
+    `}
 
     @media (max-width: 700px) {
         font-size: 12px;

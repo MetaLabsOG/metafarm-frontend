@@ -1,6 +1,6 @@
 # Cometa Frontend — Task Board
 
-> Last updated: 2026-03-12
+> Last updated: 2026-03-16
 
 ## Conventions
 
@@ -8,7 +8,7 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-056**
+- Next available ID: **MF-087**
 
 ---
 
@@ -53,6 +53,87 @@
 > **M2: UI + disabled features** — MF-044, MF-045, MF-046
 > **M3: Dead code purge** — MF-047 (expanded: all console.log, dead functions, dead files)
 > **M4: Robustness** — MF-052, MF-053, MF-054, MF-055, partial MF-006 (useStore→useUnit)
+
+---
+
+## UI Quality (Impeccable Analysis Follow-up)
+
+> Source: `docs/impeccable-analysis.md` audit. Phases 1-3 done, Phase 4 + audit fixes pending.
+
+### Audit Fixes (P1 — from Phase 1-3 review)
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-056 | SelectContainer keyboard accessibility | todo | high | ux | `SelectContainer` is `styled.div` with onClick but no tabIndex, role="button", onKeyDown. Primary token select control in Swap/Farm. `src/Components/Select/Select.tsx:185` |
+| MF-057 | Fix transition:all on MenuContainer and ExchangeRate | todo | high | performance | `MenuContainer` (fixed header, repaints on scroll) and `ExchangeRate` (updates on price ticks) both use `transition: all`. Replace with specific properties. `src/Menu/styled.ts:161,226` |
+| MF-058 | Replace mobileOptimizations.ts JS checks with CSS media queries | todo | high | performance | `isMobileDevice()` called at styled-component creation time — value freezes on first render, ignores resize. Should be `@media (max-width: 768px)` in CSS. `src/utils/mobileOptimizations.ts` |
+| MF-059 | MeteorToggle ARIA attributes | todo | medium | ux | No `role="switch"`, `aria-checked`, `tabIndex` on toggle. Invisible to screen readers, no keyboard access. `src/Components/ui/MeteorToggle.tsx` |
+| MF-060 | Fix logo alt text | done | low | ux | `alt="logo"` → `alt="Algorand"`, `alt="Cometa"` etc. `src/Menu/Menu.tsx:70,76,127` |
+
+### Audit Fixes (P2 — lower priority)
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-061 | Remaining transition:all in medium-traffic components | todo | medium | performance | `GradientStakeButton`, `MobileFilterContainer`, `MobileFilterRow`, `AddFarmButtonContainer`, SwitchSelect, InfoCard, PacmanButton |
+| MF-062 | Hardcoded hex colors → CSS vars | todo | low | quality | `#90ee90`→`var(--lightGreen)`, `#1e1e1e`→`var(--darkGray)`, `#121212`→`var(--background)` in ~10 files. See audit for full list |
+| MF-063 | theme.ts → CSS vars migration (46 usages) | todo | low | quality | 46 places use `theme.XYZ` in styled-components when CSS vars exist. Two sources of truth. Not broken but inconsistent |
+
+### Phase 4 — Polish
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-064 | Unified easing + Pool component consolidation | todo | medium | ux | Replace mixed `ease` with consistent cubic-bezier (ease-out-quart). Consolidate desktop/mobile Pool components |
+
+---
+
+## Design Polish (March 2026 Audit)
+
+> Source: `docs/design-audit-2026-03-16.md` — code audit (35 findings), visual critique (4 screens), DeFi trends research (13 sources).
+> Strategy: quick wins first (M5), then polish sprint (M6), then systemic (M7).
+
+### M5 — Visual Quick Wins (5-15 min each, batch commit)
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-065 | Remove `maximum-scale=1.0` from index.html | done | critical | ux | WCAG 1.4.4 violation — blocks pinch-to-zoom. One line in `public/index.html:6` |
+| MF-066 | Fix `translate: z-0` → `transform: translateZ(0)` | done | high | quality | Removed invalid CSS property from `src/Farm/PoolList/Pool/styled.ts` |
+| MF-067 | Fix `#121212` hardcode → `var(--background)` in MeteorsBackground | done | medium | quality | `src/Components/ui/MeteorsBackground.tsx:17` |
+| MF-068 | Footer social icons: 24px, opacity 0.55→1 on hover | done | high | ux | Icons 17px→24px, opacity 0.6→0.55 base with hover→1 |
+| MF-069 | Pool row hover state: subtle bg tint + border-radius | done | high | ux | Hover → `background: rgba(255,255,255,0.03)`, subtle white border |
+| MF-070 | APR column emphasis: weight 700, green tint for high APR | done | high | ux | APR >20% gets green accent color + text-shadow on desktop and mobile |
+| MF-071 | Claim/Compound button hierarchy: Compound primary, Claim secondary | done | medium | ux | Compound = green filled button, Claim = outline. Desktop + mobile |
+
+### M6 — Polish Sprint (30 min – 2 hr each, one commit per task)
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-072 | Skeleton shimmer animation | todo | critical | ux | Replace flat yellow-green bars with CSS shimmer gradient. Currently looks like rendering bug. Absorbs MF-019 |
+| MF-073 | Footer redesign: single-line, brand-first layout | todo | high | ux | Brand+copyright left, social center/right 24-28px, "powered by" demoted to small text, subtle `border-top` |
+| MF-074 | Soften green accent: CTA `#00E676`, keep `#05FF00` for profit/delta only | todo | high | ux | Green currently serves 6 semantic roles — hierarchy collapses. Differentiate CTA vs earn vs link |
+| MF-075 | Stake modal: visual divider between Stake and Withdraw sections | todo | medium | ux | Opposite actions in one block without separation. Add `border-top` or tabbed sections |
+| MF-076 | Balance formatting: comma separators, 2 decimals, full precision on hover | todo | medium | ux | "126789.117334" → "126,789.12". Partial MF-020 |
+| MF-077 | Filter pill groups: `|` divider + micro-labels "Status" / "View" | todo | medium | ux | Two independent filter dimensions with no visual separator — confusing for new users |
+| MF-078 | Info cards polish: subtle border, hover state, green accent line | todo | medium | ux | "How to create a pool?" cards look flat and detached from content |
+| MF-079 | Fix `<a>` used as button: PrettyButtonContainer, SwitchersContainer | todo | high | quality | `styled.a` without href or with preventDefault — should be `<button>`. Screen reader announces as link |
+
+### M7 — Systemic Improvements (2-4 hr each)
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-080 | Merge `--white`/`--newWhite` tokens: 4 white variants → 2 | todo | medium | quality | `--white: #E0E0E0`, `--newWhite: #E2E2E2` (2 units diff), `white` literal, `pureWhite: #FFF`. Consolidate |
+| MF-081 | Breakpoint unification: 20+ magic px values → 5 tokens from theme.ts | todo | high | quality | 979px vs 970px gap (menu hidden, burger not shown). 390/400/430/450/490/640/700/768/820+ chaos |
+| MF-082 | FarmContainer responsive: `width: 1114px` → `max-width: 1114px; width: 100%` | todo | high | ux | Fixed width causes horizontal scroll on viewport < 1114px |
+| MF-083 | Select dropdown: arrow key navigation + `role="option"` on items | todo | medium | ux | Token select is core flow — currently mouse-only after opening |
+| MF-084 | Trust signals: Algorand Mainnet badge in footer, contract links on pool cards | todo | medium | ux | No trust indicators in current UI. DeFi standard: audit badge, network, explorer links |
+| MF-085 | Flash animation on number updates (APY, price, balance) | todo | low | ux | Brief background highlight when data refreshes — helps users notice changes |
+| MF-086 | Font-family fallback: unify to `'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif` | todo | low | quality | 25+ components have `font-family: 'Montserrat'` without fallback. One has `serif` fallback (wrong) |
+
+### Milestones
+
+> **M5: Quick wins** — MF-060, MF-065–071 (batch commit, ~1.5 hr total)
+> **M6: Polish sprint** — MF-072–079 + MF-057 + MF-061 (~8 hr total)
+> **M7: Systemic** — MF-080–086 + MF-062 + MF-063 + MF-064 + MF-028 (~20 hr total)
+> **Expected result after M5+M6**: design rating 5.5 → ~7.0
 
 ---
 

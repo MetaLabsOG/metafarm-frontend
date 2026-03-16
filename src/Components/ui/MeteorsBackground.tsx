@@ -14,7 +14,7 @@ const BackgroundContainer = styled.div`
   height: 100%;
   min-height: 100vh;
   overflow: visible; /* Changed from hidden to allow background to repeat when scrolling */
-  background-color: #121212;
+  background-color: var(--background);
 
   @media (max-width: 768px) {
     background-image: url('/assets/background_2.png');

@@ -118,7 +118,7 @@ export const PoolInfoMobile: FC<PoolInfoDesktopProps> = ({
                     <PoolPropertyName>APR</PoolPropertyName>
                     <PoolPropertyValue>
                         <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <APRPercentage>{numberRound(APR.total)}%</APRPercentage>
+                            <APRPercentage $isHighAPR={APR.total > 20}>{numberRound(APR.total)}%</APRPercentage>
                             <img
                                 data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
                                 style={{ marginLeft: '5px', opacity: 0.8 }}

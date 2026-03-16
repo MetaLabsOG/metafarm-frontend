@@ -275,8 +275,8 @@ export const FooterContainer = styled.footer`
     position: relative;
 
     .footer-social {
-        opacity: 0.6;
-        transition: opacity 0.2s;
+        opacity: 0.55;
+        transition: opacity 0.2s ease;
         &:hover {
             opacity: 1;
         }

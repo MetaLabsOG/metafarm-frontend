@@ -126,7 +126,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                 {canStake && canClaim && account && isCompoundEnabled(stakedToken, rewardTokenInfo.id) && (
                     <PacmanButton
                         buttonText="Compound"
-                        buttonStyle="claim_button"
+                        buttonStyle="compound_button"
                         isInactive={!isActiveClaim}
                         onClickAction={async () =>
                             runCompound(account, ctc, stakedToken, rewardTokenInfo, contractState.local.reward)

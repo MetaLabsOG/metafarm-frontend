@@ -159,7 +159,12 @@ export const PoolInfoDesktop: FC<PoolInfoDesktopProps> = ({
             </PoolInfoValue>
             <PoolInfoValue width={POOL_COLUMN_WIDTH[ColumnType.Apr]}>
                 <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-                    <PoolPropertyValue>{numberRound(APR.total)}%</PoolPropertyValue>
+                    <PoolPropertyValue style={{
+                        fontWeight: 700,
+                        ...(APR.total > 20 ? { color: 'var(--accent-muted)', textShadow: '0 0 12px rgba(139, 255, 116, 0.3)' } : {}),
+                    }}>
+                        {numberRound(APR.total)}%
+                    </PoolPropertyValue>
                     <img
                         data-tip={getAPRTip(APR, rewardTokenInfo.unitName)}
                         alt="APR info"

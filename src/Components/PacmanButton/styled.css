@@ -134,6 +134,53 @@
     height: 0;
 }
 
+.compound_button {
+    width: 115px;
+    height: 40px;
+    background: rgba(66, 201, 63, 0.65);
+    color: white;
+    border: 1px solid rgba(66, 201, 63, 0.4);
+    font-size: 13px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: 'Korona One';
+    transition: background 0.2s ease, border-color 0.2s ease;
+    position: relative;
+}
+
+.compound_button:hover {
+    background: rgba(66, 201, 63, 0.8);
+    border-color: rgba(66, 201, 63, 0.6);
+}
+
+.compound_button.loading {
+    background: rgba(66, 201, 63, 0.3);
+    border: 1px solid rgba(66, 201, 63, 0.3);
+    position: relative;
+    cursor: default;
+    transition: none;
+}
+
+.compound_button.loading:hover {
+    background: rgba(66, 201, 63, 0.3);
+    cursor: default;
+}
+
+.compound_button.inactive {
+    background: rgba(66, 201, 63, 0.15);
+    border-color: rgba(66, 201, 63, 0.2);
+    color: var(--gray);
+    cursor: default;
+    transition: none;
+}
+
+.compound_button.inactive:hover {
+    background: rgba(66, 201, 63, 0.15);
+}
+
 .token_input_button {
     background-color: inherit;
     color: white;

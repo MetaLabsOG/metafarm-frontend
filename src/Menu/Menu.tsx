@@ -67,13 +67,13 @@ function ExchangeRates({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; MET
     return (
         <>
             <AssetPriceWithLogo href={getTokenLink(0)}>
-                <Logo src={algo_logo} alt="logo" height="24px" />
+                <Logo src={algo_logo} alt="Algorand" height="24px" />
                 <ExchangeRate className={algoFormatted.isNonZero ? 'non-zero' : ''}>
                     ${algoFormatted.formatted}
                 </ExchangeRate>
             </AssetPriceWithLogo>
             <AssetPriceWithLogo style={{ paddingRight: 30 }} href={getTokenLink(META_TOKEN_ID)}>
-                <Logo src={meta_logo} alt="logo" height="24px" />
+                <Logo src={meta_logo} alt="META token" height="24px" />
                 <ExchangeRate className={metaFormatted.isNonZero ? 'non-zero' : ''}>
                     ${metaFormatted.formatted}
                 </ExchangeRate>
@@ -124,7 +124,7 @@ export function Menu() {
             <MenuContainer>
                 <MainMenu>
                     <MenuItem to="/">
-                        <LogoWithMargin src={logo} alt="logo" height="40px" />
+                        <LogoWithMargin src={logo} alt="Cometa" height="40px" />
                     </MenuItem>
                     <Burger
                         src={burger}
