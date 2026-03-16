@@ -132,6 +132,25 @@ export const formatLPTokenName = (token: LPTokenInfo) => {
     return resName.replace('-', '/').replace('LP', '');
 };
 
+/**
+ * Extract a clean pair name from a raw asset name when LP metadata is unavailable.
+ * Returns null if the name doesn't match any known DEX LP pattern.
+ */
+export const formatRawLPTokenName = (name: string): string | null => {
+    const patterns: Array<[string, (s: string) => string]> = [
+        ['TinymanPool1.1 ', s => s.replace('TinymanPool1.1 ', '').replace('liquidity', '')],
+        ['TinymanPool2.0 ', s => s.replace('TinymanPool2.0 ', '').replace('liquidity', '')],
+        ['PACT LP Token', s => s.replace('PACT LP Token', '').replace('/', '-').replace('liquidity', '')],
+        ['HUMBLE', s => s.replace('HUMBLE', '').replace('LP', '').replace('-', '').replace('/', '-')],
+    ];
+    for (const [prefix, transform] of patterns) {
+        if (name.includes(prefix)) {
+            return transform(name).replace('-', '/').replace('LP', '').trim();
+        }
+    }
+    return null;
+};
+
 export const calculateAlgoReward = (initial: ContractState<FarmType>['initial'], tokenReward: Amount): Amount => {
     const { totalRewardAmount, totalAlgoRewardAmount } = initial;
     return (tokenReward * totalAlgoRewardAmount) / totalRewardAmount;

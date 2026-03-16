@@ -4,7 +4,7 @@ import { LPTokenInfo } from '../../../dexes';
 import { DAY, HOUR, MINUTE } from '../../../common/lib';
 import { AprType } from '../../store';
 import { calculateTimeByBlock } from '../../AddFarm';
-import { formatLPTokenName, isLPTokenInfo } from './utils';
+import { formatLPTokenName, formatRawLPTokenName, isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { PoolInfoDesktop } from './PoolInfoDesktop';
 import { PoolInfoMobile } from './PoolInfoMobile';
@@ -84,7 +84,9 @@ export function PoolInfo({
 
     const asset1_id = isFarm ? stakeTokenInfo.asset1 : stakeTokenInfo.id;
     const asset2_id = isFarm ? stakeTokenInfo.asset2 : rewardTokenInfo.id;
-    const pool_name = isFarm ? formatLPTokenName(stakeTokenInfo) : 'Stake ' + stakeTokenInfo.unitName;
+    const pool_name = isFarm
+        ? formatLPTokenName(stakeTokenInfo)
+        : formatRawLPTokenName(stakeTokenInfo.name) ?? 'Stake ' + stakeTokenInfo.unitName;
     // TODO: separate 0 from undefined in lpTokenInfo.asset
     const isMobileView = isMobile;
     const contractLockSuffix = contractState.initial.lockLengthBlocks

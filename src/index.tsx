@@ -34,6 +34,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { setPoolInfos, prePopulateLpTokenInfos } from './Farm/store';
 import { getContracts, getFarmEnriched, getUserContracts } from './providers/apiProvider';
 import { prePopulateAssets, prePopulateAssetPrices, $assets } from './common/store';
+import { resolveBignums } from './common/lib';
 import { setDistributionPoolInfos } from './Stake/store';
 import { WelcomeModal } from './WelcomeModal';
 import { Footer } from './Menu/Footer';
@@ -98,6 +99,31 @@ const modalComponents = {
     },
 };
 
+// localStorage cache for contracts (stale-while-revalidate, same as enriched cache).
+// ethers BigNumber.toJSON() produces {type:"BigNumber",hex:"0x..."} which resolveBignums restores.
+const CONTRACTS_MAX_AGE_MS = 30 * 60 * 1000;
+
+function readCachedContracts(type: string): any | undefined {
+    try {
+        const raw = localStorage.getItem(`cometa_contracts_${type}`);
+        const ts = Number(localStorage.getItem(`cometa_contracts_${type}_ts`) || '0');
+        if (raw && Date.now() - ts < CONTRACTS_MAX_AGE_MS) {
+            return resolveBignums(JSON.parse(raw));
+        }
+    } catch { /* corrupt cache */ }
+    return undefined;
+}
+
+function writeCachedContracts(type: string, data: any): void {
+    try {
+        localStorage.setItem(`cometa_contracts_${type}`, JSON.stringify(data));
+        localStorage.setItem(`cometa_contracts_${type}_ts`, String(Date.now()));
+    } catch { /* quota exceeded */ }
+}
+
+const _cachedFarm = readCachedContracts('farm');
+const _cachedDistribution = readCachedContracts('distribution');
+
 function App() {
     const account = useUnit($account);
     const { reportSuccessfulLoad, reportCrash, isFirstVisit, shouldUseConservativeMode } = usePerformanceOptimization();
@@ -112,8 +138,24 @@ function App() {
     }
     const setPoolInfosEvent = useUnit(setPoolInfos);
     const setDistributionPoolInfosEvent = useUnit(setDistributionPoolInfos);
-    const farmsFetch = useQuery(['contracts', 'farm'], async () => getContracts('farm'), { staleTime: 30_000 });
-    const distrFetch = useQuery(['contracts', 'distribution'], async () => getContracts('distribution'), { staleTime: 30_000 });
+    const farmsFetch = useQuery(
+        ['contracts', 'farm'],
+        async () => {
+            const data = await getContracts('farm');
+            writeCachedContracts('farm', data);
+            return data;
+        },
+        { staleTime: 30_000, initialData: _cachedFarm },
+    );
+    const distrFetch = useQuery(
+        ['contracts', 'distribution'],
+        async () => {
+            const data = await getContracts('distribution');
+            writeCachedContracts('distribution', data);
+            return data;
+        },
+        { staleTime: 30_000, initialData: _cachedDistribution },
+    );
 
     // User's contracts (active + ended) — loaded when wallet is connected
     const userFarmsFetch = useQuery(

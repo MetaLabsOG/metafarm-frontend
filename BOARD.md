@@ -8,7 +8,7 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-094**
+- Next available ID: **MF-096**
 
 ---
 
@@ -153,6 +153,12 @@
 | MF-091 | Modal overlay: softer opacity + backdrop blur | done | medium | ux | 0.86→0.72 + blur(4px) |
 | MF-092 | Meteor threshold 768→960px | done | medium | performance | Raised threshold so medium screens get static background |
 | MF-093 | Pool card green hover border | done | medium | ux | rgba(0,230,118,0.15) border on hover |
+
+### Pool Loading Fix
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-095 | Fix LP names "TMPOOL2" + instant repeat load via contracts cache | done | critical | performance | LP name fallback: `formatRawLPTokenName` extracts pair name from raw asset name when LP metadata unavailable. Contracts cached in localStorage (stale-while-revalidate, 30min TTL). Root cause: backend `lp_states` empty → needs CB-xxx |
 
 ### Phase B — UX Foundation (next)
 

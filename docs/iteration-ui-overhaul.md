@@ -43,6 +43,16 @@ Full task backlog covers Phases A–D (21 tasks). This iteration takes **Bug Fix
 | MF-092 | Meteor threshold raise (768→960px) | done |
 | MF-093 | Pool card green hover border | done |
 
+### Milestone 4 — Pool loading fix
+
+**Commit**: `fix LP token names and cache contracts for instant repeat loads`
+
+| ID | Task | Status |
+|----|------|--------|
+| MF-095 | LP name fallback: `formatRawLPTokenName` extracts pair name from raw asset name | done |
+| MF-095 | Contracts cached in localStorage (stale-while-revalidate, 30min TTL) | done |
+| MF-095 | Root cause: backend `lp_states` empty in enriched endpoint | blocked (backend) |
+
 ---
 
 ## Remaining Phases (not this iteration)
