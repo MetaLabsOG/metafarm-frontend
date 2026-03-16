@@ -53,6 +53,15 @@ Full task backlog covers Phases A–D (21 tasks). This iteration takes **Bug Fix
 | MF-095 | Contracts cached in localStorage (stale-while-revalidate, 30min TTL) | done |
 | MF-095 | Root cause: backend `lp_states` empty in enriched endpoint | blocked (backend) |
 
+### Milestone 5 — Progressive pool loading
+
+**Commit**: `remove enriched gate: show pool skeletons in ~0.5s instead of blocking 20s`
+
+| ID | Task | Status |
+|----|------|--------|
+| MF-095 | Remove `enrichedLoaded` gate — pools render from contracts (~0.5s) while enriched loads in background (~21s) | done |
+| MF-095 | Pool skeletons show immediately, fill in progressively as asset/price data arrives | done |
+
 ---
 
 ## Remaining Phases (not this iteration)
