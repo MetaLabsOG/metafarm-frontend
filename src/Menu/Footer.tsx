@@ -2,7 +2,7 @@ import twitter from '../imgs/twitter.svg';
 import discord from '../imgs/discord.svg';
 import email from '../imgs/email.svg';
 import telegram from '../imgs/telegram.svg';
-import { FooterContainer, FooterItem, FooterText, FooterPoweredBy, Logo } from './styled';
+import { FooterContainer, FooterItem, FooterText, FooterPoweredBy, NetworkBadge, Logo } from './styled';
 
 export function Footer() {
     return (
@@ -33,11 +33,14 @@ export function Footer() {
                     <Logo src={telegram} alt="Telegram" height="24px" />
                 </a>
             </div>
-            <FooterPoweredBy>
-                <a target="_blank" href="https://algonode.io/" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
-                    Algorand Mainnet · Algonode.io
-                </a>
-            </FooterPoweredBy>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <NetworkBadge>Algorand Mainnet</NetworkBadge>
+                <FooterPoweredBy>
+                    <a target="_blank" href="https://algonode.io/" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
+                        Algonode.io
+                    </a>
+                </FooterPoweredBy>
+            </div>
         </FooterContainer>
     );
 }

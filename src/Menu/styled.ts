@@ -317,3 +317,32 @@ export const FooterPoweredBy = styled.div`
     opacity: 0.6;
     letter-spacing: 0.02em;
 `;
+
+export const NetworkBadge = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--white);
+    opacity: 0.7;
+    letter-spacing: 0.02em;
+    padding: 4px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    &::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--green);
+        flex-shrink: 0;
+    }
+`;
