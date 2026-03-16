@@ -5,8 +5,8 @@ const GlobalStyle = createGlobalStyle`
     background-color: var(--background);
     width: 100%;
     height: 100%;
-    color: var(--text-primary);
-    font-family: 'Korona One';
+    color: var(--white);
+    font-family: var(--font-body);
     font-variant-numeric: tabular-nums;
 
     @media (max-width: 768px) {

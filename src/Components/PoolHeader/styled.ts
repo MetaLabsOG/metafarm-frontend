@@ -60,7 +60,7 @@ export const PoolTitle = styled.div`
     }
 
     @media (max-width: 700px) {
-        font-size: 9px;
+        font-size: 11px;
         max-width: 90px;
         line-height: 1.1;
         letter-spacing: 0;
@@ -78,10 +78,10 @@ export const PoolSubtitlesContainer = styled.div`
 `;
 
 export const PoolSubtitle = styled.div`
-    color: ${theme.niceGreen}; // light green
-    font-family: 'Korona One';
-    font-size: 8px;
-    line-height: 1.1;
+    color: ${theme.niceGreen};
+    font-family: var(--font-body);
+    font-size: 11px;
+    line-height: 1.2;
     word-wrap: break-word;
     word-break: break-word;
     white-space: normal;
@@ -89,15 +89,15 @@ export const PoolSubtitle = styled.div`
     letter-spacing: 0;
 
     @media (max-width: 1120px) {
-        font-size: 7px;
+        font-size: 11px;
         max-width: 140px;
     }
 
     @media (max-width: 700px) {
-        font-size: 6px;
+        font-size: 11px;
         max-width: 90px;
-        line-height: 1;
-        letter-spacing: -0.1px;
+        line-height: 1.1;
+        letter-spacing: 0;
     }
 `;
 
