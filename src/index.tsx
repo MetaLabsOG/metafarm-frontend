@@ -13,7 +13,7 @@ import { BrowserTracing } from '@sentry/tracing';
 
 import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { useModal, ModalProvider } from 'react-hooks-use-modal';
 import { useStoreMap, useUnit } from 'effector-react';
 import { Flip, ToastContainer } from 'react-toastify';
@@ -217,12 +217,8 @@ function App() {
         };
     }, [farmsFetch.isSuccess, distrFetch.isSuccess, reportSuccessfulLoad, reportCrash]);
 
-    // Pre-populate enriched data FIRST, then set pool infos.
-    // Order matters: enriched pre-populates assets, prices, and LP states so that
-    // when setPoolInfos triggers registerAsset → assetAvailable → LP sample,
-    // the LP data is already in $lpTokenInfos and the sample skips DEX SDK calls.
-    const [enrichedLoaded, setEnrichedLoaded] = useState(false);
-
+    // Pre-populate enriched data in background (assets, prices, LP states).
+    // Pools no longer wait for this — they render as skeletons and fill in progressively.
     useEffect(() => {
         const applyEnriched = (enriched: any) => {
             // Pre-populate asset details (avoids individual algod calls)
@@ -281,16 +277,13 @@ function App() {
             const cachedTs = Number(localStorage.getItem(ENRICHED_TS_KEY) || '0');
             if (cached && Date.now() - cachedTs < ENRICHED_MAX_AGE_MS) {
                 applyEnriched(JSON.parse(cached));
-                setEnrichedLoaded(true);
+
             }
         } catch { /* corrupt cache — ignore */ }
 
         // Fetch fresh enriched data (updates cache + applies any new data)
         getFarmEnriched().then((enriched) => {
-            if (!enriched) {
-                setEnrichedLoaded(true);
-                return;
-            }
+            if (!enriched) return;
 
             try {
                 localStorage.setItem(ENRICHED_CACHE_KEY, JSON.stringify(enriched));
@@ -298,16 +291,14 @@ function App() {
             } catch { /* quota exceeded — ignore */ }
 
             applyEnriched(enriched);
-            setEnrichedLoaded(true);
-        }).catch(() => {
-            setEnrichedLoaded(true);
-        });
+        }).catch(() => { /* enriched failed — pools already showing from contracts */ });
     }, []);
 
-    // Set pool infos only AFTER enriched data is loaded to prevent DEX SDK cascade
-    // Merge active contracts + user's contracts (dedup by id)
+    // Set pool infos as soon as contracts arrive — no enriched gate.
+    // Pools render as skeletons while individual asset/price data loads progressively.
+    // Enriched data pre-populates assets/prices in the background (speeds up fill-in).
     useEffect(() => {
-        if (!enrichedLoaded || !farmsFetch.isSuccess || !farmsFetch.data) return;
+        if (!farmsFetch.isSuccess || !farmsFetch.data) return;
 
         const activeContracts = farmsFetch.data as Array<ContractInfo<'farm'>>;
 
@@ -319,11 +310,11 @@ function App() {
         } else {
             setPoolInfosEvent(activeContracts);
         }
-    }, [enrichedLoaded, farmsFetch.isSuccess, farmsFetch.data, userFarmsFetch.isSuccess, userFarmsFetch.data]);
+    }, [farmsFetch.isSuccess, farmsFetch.data, userFarmsFetch.isSuccess, userFarmsFetch.data]);
 
-    // Distribution pools also wait for enriched to prevent asset registration race
+    // Distribution pools — same pattern, no enriched gate
     useEffect(() => {
-        if (!enrichedLoaded || !distrFetch.isSuccess || !distrFetch.data) return;
+        if (!distrFetch.isSuccess || !distrFetch.data) return;
 
         const activeContracts = distrFetch.data as Array<ContractInfo<'distribution'>>;
 
@@ -335,7 +326,7 @@ function App() {
         } else {
             setDistributionPoolInfosEvent(activeContracts);
         }
-    }, [enrichedLoaded, distrFetch.isSuccess, distrFetch.data, userDistrFetch.isSuccess, userDistrFetch.data]);
+    }, [distrFetch.isSuccess, distrFetch.data, userDistrFetch.isSuccess, userDistrFetch.data]);
 
     return (
         <>
