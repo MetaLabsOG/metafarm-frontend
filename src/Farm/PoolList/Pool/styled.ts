@@ -43,7 +43,7 @@ export const PoolContainer = styled.div`
     &:hover {
         transform: ${HOVER_TRANSFORM};
         box-shadow: ${SHADOW_HOVER};
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(0, 230, 118, 0.15);
         background: rgba(255, 255, 255, 0.03);
     }
 

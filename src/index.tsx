@@ -89,7 +89,9 @@ const modalComponents = {
                     left: 0,
                     bottom: 0,
                     right: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.86)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.72)',
+                    backdropFilter: 'blur(4px)',
+                    WebkitBackdropFilter: 'blur(4px)',
                 }}
             />
         );

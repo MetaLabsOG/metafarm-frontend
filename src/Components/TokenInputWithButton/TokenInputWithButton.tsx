@@ -21,7 +21,9 @@ import { Action, Balance, Input, MaxButton, TokenInputWithButtonContainer } from
 const warningOverlayStyle: React.CSSProperties = {
     position: 'fixed',
     inset: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.86)',
+    backgroundColor: 'rgba(0, 0, 0, 0.72)',
+    backdropFilter: 'blur(4px)',
+    WebkitBackdropFilter: 'blur(4px)',
     zIndex: 1100,
     display: 'flex',
     alignItems: 'center',

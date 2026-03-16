@@ -16,7 +16,7 @@ const BackgroundContainer = styled.div`
   overflow: visible; /* Changed from hidden to allow background to repeat when scrolling */
   background-color: var(--background);
 
-  @media (max-width: 768px) {
+  @media (max-width: 960px) {
     background-image: url('/assets/background_2.png');
     background-repeat: repeat-y; /* Ensure vertical repetition */
     background-size: 100% auto;
@@ -60,7 +60,7 @@ const ContentContainer = styled.div`
   width: 100%;
   height: 100%;
 
-  @media (max-width: 768px) {
+  @media (max-width: 960px) {
     /* Ensure content doesn't hide the repeating background */
     background-color: transparent;
   }
@@ -92,7 +92,7 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
         window.clearTimeout(resizeTimeoutRef.current);
       }
       resizeTimeoutRef.current = window.setTimeout(() => {
-        const mobile = window.innerWidth < 768;
+        const mobile = window.innerWidth < 960;
         setIsMobile(mobile);
 
         const enabled = !mobile && !isIosDevice();
@@ -106,7 +106,7 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
     };
 
     // Run immediately on mount (no debounce)
-    const mobile = window.innerWidth < 768;
+    const mobile = window.innerWidth < 960;
     setIsMobile(mobile);
     const enabled = !mobile && !isIosDevice();
     setMeteorsEnabled(enabled);
