@@ -1,6 +1,6 @@
 # Cometa Frontend — Task Board
 
-> Last updated: 2026-03-16
+> Last updated: 2026-03-17
 
 ## Conventions
 
@@ -112,7 +112,7 @@
 | MF-074 | Soften green accent: CTA `#00E676`, keep `#05FF00` for profit/delta only | done | high | ux | `--green` and `theme.green` changed from `#05FF00` to `#00E676` |
 | MF-075 | Stake modal: visual divider between Stake and Withdraw sections | done | medium | ux | Added ModalDivider between Stake and Withdraw sections |
 | MF-076 | Balance formatting: comma separators, 2 decimals, full precision on hover | done | medium | ux | TokenInputWithButton balance now formatted with commas, 2 decimals, full precision in title |
-| MF-077 | Filter pill groups: `|` divider + micro-labels "Status" / "View" | todo | medium | ux | Two independent filter dimensions with no visual separator — confusing for new users |
+| MF-077 | Filter pill groups: `|` divider + micro-labels "Status" / "View" | done | medium | ux | Vertical dividers + FilterGroupLabel (Trust/Status/View). Hidden on mobile. 2026-03-17 |
 | MF-078 | Info cards polish: subtle border, hover state, green accent line | done | medium | ux | Green accent line on left, subtle border, improved hover |
 | MF-079 | Fix `<a>` used as button: SwitchersContainer and layout containers | done | high | quality | `SwitchersContainer`, `SwitchersAndSearchContainer`, `TopTwoButtonsMobileContainer`: `styled.a` → `styled.div` |
 
@@ -124,8 +124,8 @@
 | MF-081 | Breakpoint unification: 20+ magic px values → 5 tokens from theme.ts | todo | high | quality | 979px vs 970px gap (menu hidden, burger not shown). 390/400/430/450/490/640/700/768/820+ chaos |
 | MF-082 | FarmContainer responsive: `width: 1114px` → `max-width: 1114px; width: 100%` | done | high | ux | `width` → `max-width` + `width: 100%`. No more horizontal scroll on narrow viewports. 2026-03-16 |
 | MF-083 | Select dropdown: arrow key navigation + `role="option"` on items | done | medium | ux | Arrow up/down navigation, Enter to select, `role="listbox"/"option"/"combobox"`, `aria-activedescendant`. 2026-03-16 |
-| MF-084 | Trust signals: Algorand Mainnet badge in footer, contract links on pool cards | todo | medium | ux | No trust indicators in current UI. DeFi standard: audit badge, network, explorer links |
-| MF-085 | Flash animation on number updates (APY, price, balance) | todo | low | ux | Brief background highlight when data refreshes — helps users notice changes |
+| MF-084 | Trust signals: Algorand Mainnet badge in footer, contract links on pool cards | done | medium | ux | NetworkBadge with green dot indicator in footer. 2026-03-17 |
+| MF-085 | Flash animation on number updates (APY, price, balance) | done | low | ux | `useFlashOnChange` hook + CSS `flash-highlight` keyframe. Applied to TVL, APR, balance. Respects prefers-reduced-motion. 2026-03-17 |
 | MF-086 | Font-family fallback: unify via `--font-body` CSS var | done | low | quality | Added `--font-body` and `--font-display` CSS vars in `:root`. Replaced all 55+ bare `'Montserrat'` across 22 files. Fixed `serif` fallback. 2026-03-16 |
 
 ### Milestones
