@@ -1,4 +1,5 @@
 import { Dispatch, FC, SetStateAction } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUnit } from 'effector-react';
 import { ALGONET, TESTNET } from '../../../AppContext';
 import { LPTokenInfo } from '../../../dexes';
@@ -80,6 +81,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     setNft,
 }) => {
     const account = useUnit($account);
+    const navigate = useNavigate();
 
     const showCompound = canStake && canClaim && account && isCompoundEnabled(stakedToken, rewardTokenInfo.id);
 
@@ -96,13 +98,11 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                         />
                     )}
                     {!isLPTokenInfo(stakedToken) && canStake && (
-                        <a target="_blank" href={'https://app.cometa.farm/swap'} rel="noreferrer">
-                            <Button
-                                style={{ color: 'white', height: '36px', fontSize: '12px', width: 'auto', padding: '0 16px' }}
-                                buttonText={'Get ' + stakedToken.unitName}
-                                onClick={() => {}}
-                            />
-                        </a>
+                        <Button
+                            style={{ color: 'white', height: '36px', fontSize: '12px', width: 'auto', padding: '0 16px' }}
+                            buttonText={'Get ' + stakedToken.unitName}
+                            onClick={() => navigate('/swap')}
+                        />
                     )}
                 </div>
                 <div style={{ display: 'flex', gap: '16px' }}>
