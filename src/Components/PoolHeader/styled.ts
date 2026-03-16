@@ -117,16 +117,17 @@ export const LPTokensIcon = styled.div<{ first?: boolean; isWhite?: boolean }>`
     position: absolute;
     left: ${({ first }) => (first ? '0' : '24px')};
     height: 100%;
-    border: 0 solid;
     border-radius: 50px;
     background-color: ${({ isWhite }) => (isWhite ? 'white' : 'black')};
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
 
     @media (max-width: 1120px) {
         left: ${({ first }) => (first ? '0px' : '24px')};
     }
 
     @media (max-width: 700px) {
-        left: ${({ first }) => (first ? '0px' : '18px')}; /* Adjust position for mobile */
+        left: ${({ first }) => (first ? '0px' : '18px')};
     }
 `;
 
