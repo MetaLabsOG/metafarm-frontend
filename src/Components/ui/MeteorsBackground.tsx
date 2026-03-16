@@ -71,13 +71,12 @@ interface MeteorsBackgroundProps {
 }
 
 export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }) => {
-  // Use a ref for the timeout to avoid TypeScript errors with window properties
   const resizeTimeoutRef = useRef<number | null>(null);
   const [meteorCount, setMeteorCount] = useState(DEFAULT_METEOR_COUNT);
   const [meteorsEnabled, setMeteorsEnabled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isPageVisible, setIsPageVisible] = useState(!document.hidden);
 
-  // Function to check if device is iOS
   const isIosDevice = (): boolean => {
     if (typeof navigator !== 'undefined' && navigator.userAgent) {
       const ua = navigator.userAgent.toLowerCase();
@@ -86,73 +85,37 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
     return false;
   };
 
-  // Initialize device type and meteor settings
+  // Consolidated resize handler: device type + meteor count
   useEffect(() => {
-    const checkDeviceType = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-
-      // ALWAYS disable meteors for mobile devices and iOS devices
-      // Only enable for desktop devices
-      const enabled = !mobile && !isIosDevice();
-      setMeteorsEnabled(enabled);
-
-      // Force update localStorage to match this policy
-      localStorage.setItem('cometa_meteor_enabled', enabled.toString());
-    };
-
-    // Initial check
-    checkDeviceType();
-
-    // Add resize listener
-    window.addEventListener('resize', checkDeviceType);
-    return () => {
-      window.removeEventListener('resize', checkDeviceType);
-    };
-  }, []);
-
-  // Force disable on resize for mobile
-  useEffect(() => {
-    if (isMobile) {
-      setMeteorsEnabled(false);
-      localStorage.setItem('cometa_meteor_enabled', 'false');
-    }
-  }, [isMobile]);
-
-  useEffect(() => {
-    // Function to determine device type and set appropriate meteor count
-    // Only relevant for desktop devices since mobile will never show meteors
-    const checkDeviceCapabilities = () => {
-      // Skip all checks for mobile devices
-      if (window.innerWidth < 768 || isIosDevice()) {
-        return;
-      }
-
-      // For desktop: check if it's a low-end device
-      if (isLowEndDevice()) {
-        setMeteorCount(DEFAULT_METEOR_COUNT);
-      } else {
-        // Regular desktop device
-        setMeteorCount(DESKTOP_METEOR_COUNT);
-      }
-    };
-
-    // Initial check
-    checkDeviceCapabilities();
-
-    // Add event listener for window resize with debounce
     const handleResize = () => {
-      // Clear any existing timeout
       if (resizeTimeoutRef.current !== null) {
         window.clearTimeout(resizeTimeoutRef.current);
       }
-      // Set new timeout
-      resizeTimeoutRef.current = window.setTimeout(checkDeviceCapabilities, 250);
+      resizeTimeoutRef.current = window.setTimeout(() => {
+        const mobile = window.innerWidth < 768;
+        setIsMobile(mobile);
+
+        const enabled = !mobile && !isIosDevice();
+        setMeteorsEnabled(enabled);
+        localStorage.setItem('cometa_meteor_enabled', enabled.toString());
+
+        if (enabled) {
+          setMeteorCount(isLowEndDevice() ? DEFAULT_METEOR_COUNT : DESKTOP_METEOR_COUNT);
+        }
+      }, 250);
     };
 
-    window.addEventListener('resize', handleResize);
+    // Run immediately on mount (no debounce)
+    const mobile = window.innerWidth < 768;
+    setIsMobile(mobile);
+    const enabled = !mobile && !isIosDevice();
+    setMeteorsEnabled(enabled);
+    localStorage.setItem('cometa_meteor_enabled', enabled.toString());
+    if (enabled) {
+      setMeteorCount(isLowEndDevice() ? DEFAULT_METEOR_COUNT : DESKTOP_METEOR_COUNT);
+    }
 
-    // Cleanup
+    window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
       if (resizeTimeoutRef.current !== null) {
@@ -161,10 +124,17 @@ export const MeteorsBackground: React.FC<MeteorsBackgroundProps> = ({ children }
     };
   }, []);
 
+  // Pause meteors when tab is hidden
+  useEffect(() => {
+    const handleVisibility = () => setIsPageVisible(!document.hidden);
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
+
   return (
     <BackgroundContainer>
-      {/* Meteors background - only render if enabled AND not on mobile */}
-      {meteorsEnabled && !isMobile && (
+      {/* Meteors background - only render if enabled, not mobile, and page visible */}
+      {meteorsEnabled && !isMobile && isPageVisible && (
         <MeteorsContainer>
           <Meteors number={meteorCount} />
         </MeteorsContainer>

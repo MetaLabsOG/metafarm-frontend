@@ -25,7 +25,7 @@ export const MenuItem = styled(NavLink as any)`
     color: white;
     text-decoration: none;
     text-transform: uppercase;
-    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 600;
     font-size: 15px;
@@ -214,7 +214,7 @@ export const AssetPriceWithLogo = styled(WalletActionButton)`
 `;
 
 export const ExchangeRate = styled.span`
-    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 600;
     margin: auto;
@@ -267,7 +267,7 @@ export const FooterContainer = styled.footer`
     margin-top: 40px;
     margin-bottom: 10px;
     padding: 15px 30px 15px 30px;
-    font-family: 'Montserrat', serif;
+    font-family: var(--font-body);
     background: ${getOptimizedGradient('rgba(30, 30, 30, 0.5)', 'rgba(30, 30, 30, 0.8)')};
     backdrop-filter: ${getOptimizedBackdropFilter('blur(8px)')};
     border-top: 1px solid rgba(255, 255, 255, 0.12);
@@ -291,7 +291,7 @@ export const FooterContainer = styled.footer`
 
 export const FooterItem = styled.div`
     text-align: center;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 400;
     font-size: 14px;
@@ -310,7 +310,7 @@ export const FooterText = styled.div`
 `;
 
 export const FooterPoweredBy = styled.div`
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 400;
     color: var(--gray);

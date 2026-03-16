@@ -34,7 +34,7 @@ export const TokenInput = styled.input`
     font-size: 18px;
     line-height: 28px;
     letter-spacing: 0.02em;
-    color: var(--newWhite);
+    color: var(--white);
     text-align: right;
 
     border: 1px solid var(--borderColor);
@@ -50,7 +50,7 @@ export const TokenInput = styled.input`
 export const TokenBalance = styled.div`
     color: var(--red);
     text-align: left;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 400;
     font-size: 13px;

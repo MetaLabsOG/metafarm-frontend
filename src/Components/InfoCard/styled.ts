@@ -20,7 +20,7 @@ export const InfoCardContainer = styled.div`
 `;
 
 export const InfoCardTitle = styled.div`
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 500;
     font-size: 18px;
@@ -34,7 +34,7 @@ export const InfoCardTitle = styled.div`
 `;
 
 export const InfoCardSubtitle = styled.div`
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 400;
     font-size: 14px;

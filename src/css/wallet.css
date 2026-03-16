@@ -46,7 +46,7 @@
     height: 32px;
     margin-left: auto;
     background: linear-gradient(135deg, rgba(144, 238, 144, 0.7) 0%, rgba(144, 238, 144, 0.6) 100%);
-    font-family: 'Korona One';
+    font-family: var(--font-display);
     font-size: 10px;
     text-transform: uppercase;
     color: #1a1a1a; /* Darker text for better contrast */

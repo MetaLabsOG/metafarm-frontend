@@ -9,7 +9,6 @@ export type ColorTheme = {
     lightGreen: string;
     niceGreen: string;
     pureWhite: string;
-    newWhite: string;
     backgroundModal: string;
     newLightGray: string;
     textPrimary: string;
@@ -29,7 +28,6 @@ export const theme: ColorTheme = {
     lightGreen: '#A1FF8E',
     niceGreen: '#8bff74',
     pureWhite: '#FFFFFF',
-    newWhite: '#E2E2E2',
     backgroundModal: '#2C2C2C',
     newLightGray: '#A2A2A2',
     textPrimary: '#5cfc3c',

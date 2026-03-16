@@ -11,7 +11,7 @@ export const PoolListHeader = styled.div`
     padding-right: 40px;
     padding-left: 20px;
 
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 400;
     font-size: 14px;
@@ -195,7 +195,7 @@ export const AddFarmButtonContainer = styled(PrettyButtonContainer)`
     letter-spacing: 0.02em;
     height: 30px;
     text-align: center;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, text-shadow 0.2s ease;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 

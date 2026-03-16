@@ -24,7 +24,7 @@ const EmptyState = styled.div`
   text-align: center;
   padding: 40px 0;
   color: var(--accent-muted);
-  font-family: 'Montserrat';
+  font-family: var(--font-body);
   font-size: 14px;
   opacity: 0.8;
 `;

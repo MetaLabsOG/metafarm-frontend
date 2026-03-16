@@ -23,7 +23,7 @@ export const SlippageSection = styled.div`
 export const SlippageLabel = styled.span`
     color: ${theme.lightGray};
     font-size: 13px;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-weight: 500;
 `;
 
@@ -41,7 +41,7 @@ export const SlippageBtn = styled.button<{ $active: boolean }>`
     background: ${({ $active }) => ($active ? 'rgba(66, 201, 63, 0.1)' : 'transparent')};
     color: ${({ $active }) => ($active ? theme.niceGreen : theme.lightGray)};
     font-size: 13px;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-weight: 500;
     cursor: pointer;
     transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
@@ -59,9 +59,9 @@ export const CustomSlippageInput = styled.input<{ $active: boolean }>`
     border: 1px solid
         ${({ $active }) => ($active ? 'rgba(66, 201, 63, 0.4)' : 'rgba(255, 255, 255, 0.08)')};
     background: ${({ $active }) => ($active ? 'rgba(66, 201, 63, 0.1)' : 'transparent')};
-    color: ${theme.newWhite};
+    color: ${theme.white};
     font-size: 13px;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-weight: 500;
     text-align: center;
     transition: border-color 0.15s ease, background 0.15s ease;
@@ -80,9 +80,9 @@ export const CustomSlippageInput = styled.input<{ $active: boolean }>`
 /* ── Clickable Rate ─────────────────────────────────────────── */
 
 export const RateValue = styled.span`
-    color: ${theme.newWhite};
+    color: ${theme.white};
     font-size: 13px;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-weight: 500;
     cursor: pointer;
     display: flex;
@@ -128,14 +128,14 @@ export const DetailRow = styled.div`
 export const DetailLabel = styled.span`
     color: ${theme.gray};
     font-size: 13px;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-weight: 400;
 `;
 
 export const DetailValue = styled.span<{ $color?: string; $highlight?: boolean }>`
     color: ${({ $color }) => $color ?? theme.lightGray};
     font-size: 13px;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-weight: ${({ $highlight }) => ($highlight ? 600 : 400)};
 `;
 
@@ -145,7 +145,7 @@ export const ImpactWarning = styled.div<{ $critical: boolean }>`
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 12px;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-weight: 500;
     line-height: 1.4;
     background: ${({ $critical }) =>
@@ -183,5 +183,5 @@ export const PulseDot = styled.span`
 export const RefreshText = styled.span`
     color: ${theme.gray};
     font-size: 11px;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
 `;

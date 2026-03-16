@@ -16,7 +16,7 @@ export function Footer() {
                     href="https://cometa.farm/terms-of-use"
                     style={{ textDecoration: 'none' }}
                 >
-                    <FooterItem style={{ color: 'var(--newWhite)' }}>Terms of Use</FooterItem>
+                    <FooterItem style={{ color: 'var(--white)' }}>Terms of Use</FooterItem>
                 </a>
             </FooterText>
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>

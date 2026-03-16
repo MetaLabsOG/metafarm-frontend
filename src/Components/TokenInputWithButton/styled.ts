@@ -54,7 +54,7 @@ export const Input = styled.input<{ isActive: boolean }>`
     font-size: 14px;
     padding-left: 10px;
     padding-right: 50px;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     :focus {
         outline: none;
         border-color: rgba(144, 238, 144, 0.4);
@@ -72,7 +72,7 @@ export const MaxButton = styled.button<{ isActive: boolean }>`
     padding: 6px;
     color: ${({ theme, isActive }: InputProps) => (isActive ? theme.lightGray : theme.gray)};
     cursor: pointer;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: normal;
     font-size: 12px;

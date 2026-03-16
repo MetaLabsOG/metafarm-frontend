@@ -170,7 +170,14 @@ function SelectOption({
 export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, selectOnChange, getOptions, style }) => {
     const [SelectModal, openSelectModal, closeSelectModal] = useModal('root');
     const [tokenSearchInput, setTokenSearchInput] = useState<string>('');
+    const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
     const currentOptions = useFilteredTokenOptions(options, tokenSearchInput, getOptions, selectedOption);
+    const visibleOptions = currentOptions?.slice(0, 10) ?? [];
+
+    // Reset highlight when options change
+    useEffect(() => {
+        setHighlightedIndex(-1);
+    }, [tokenSearchInput]);
 
     useEffect(() => {
         const keydownHandler = (e: KeyboardEvent) => {
@@ -180,11 +187,31 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
         return () => window.removeEventListener('keydown', keydownHandler);
     }, []);
 
+    const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setHighlightedIndex((prev) => Math.min(prev + 1, visibleOptions.length - 1));
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setHighlightedIndex((prev) => Math.max(prev - 1, 0));
+        } else if (e.key === 'Enter' && highlightedIndex >= 0 && highlightedIndex < visibleOptions.length) {
+            e.preventDefault();
+            selectOnChange(visibleOptions[highlightedIndex]);
+            closeSelectModal();
+        }
+    };
+
     return (
         <>
-            <SelectContainer style={style} onClick={openSelectModal}>
+            <SelectContainer
+                style={style}
+                onClick={openSelectModal}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSelectModal(); } }}
+            >
                 <SelectOption selectType={selectType} option={selectedOption} />
-                <img style={{ width: '15px', marginRight: '16px' }} alt="select" src={select} />
+                <img style={{ width: '15px', marginRight: '16px' }} alt="" src={select} aria-hidden="true" />
             </SelectContainer>
             <SelectModal>
                 <SelectModalContainer role="dialog" aria-label="Select token" aria-modal="true">
@@ -195,18 +222,29 @@ export const Select: FC<SelectProps> = ({ selectType, options, selectedOption, s
                         aria-label="Search token name or ASA ID"
                         value={tokenSearchInput}
                         onChange={(e) => setTokenSearchInput(e.target.value)}
+                        onKeyDown={handleSearchKeyDown}
+                        role="combobox"
+                        aria-expanded="true"
+                        aria-controls="select-options-list"
+                        aria-activedescendant={highlightedIndex >= 0 ? `select-option-${highlightedIndex}` : undefined}
                     />
-                    {currentOptions?.slice(0, 10).map((option: SelectOptionType) => (
-                        <SelectOptionContainer
-                            key={option.name}
-                            onClick={() => {
-                                selectOnChange(option);
-                                closeSelectModal();
-                            }}
-                        >
-                            <SelectOption searchModal selectType={selectType} option={option} />
-                        </SelectOptionContainer>
-                    ))}
+                    <div id="select-options-list" role="listbox">
+                        {visibleOptions.map((option: SelectOptionType, index: number) => (
+                            <SelectOptionContainer
+                                key={option.name}
+                                id={`select-option-${index}`}
+                                role="option"
+                                aria-selected={index === highlightedIndex}
+                                style={index === highlightedIndex ? { backgroundColor: 'var(--backgroundCard)' } : undefined}
+                                onClick={() => {
+                                    selectOnChange(option);
+                                    closeSelectModal();
+                                }}
+                            >
+                                <SelectOption searchModal selectType={selectType} option={option} />
+                            </SelectOptionContainer>
+                        ))}
+                    </div>
                 </SelectModalContainer>
             </SelectModal>
         </>

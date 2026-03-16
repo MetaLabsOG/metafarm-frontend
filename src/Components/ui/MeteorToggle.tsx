@@ -15,7 +15,7 @@ const ToggleText = styled.span`
   color: white;
   font-size: 17px;
   font-weight: 600;
-  font-family: 'Montserrat';
+  font-family: var(--font-body);
   letter-spacing: 0.08em;
   text-transform: capitalize;
 `;

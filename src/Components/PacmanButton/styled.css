@@ -2,7 +2,7 @@
     height: 50px;
     width: 100%;
     border: 1px solid var(--btn-border);
-    color: var(--newWhite);
+    color: var(--white);
     background: rgba(66, 201, 63, 0.7);
     border-radius: 16px;
 
@@ -61,7 +61,7 @@
     height: 40px;
     background-color: inherit;
     color: white;
-    border: 1px solid #B6B9BD;
+    border: 1px solid var(--lightGray);
     font-size: 13px;
     border-radius: 4px;
     display: flex;
@@ -190,7 +190,7 @@
     cursor: pointer;
     font-family: 'Korona One';
     font-size: 13px;
-    border: 1px solid #B6B9BD;
+    border: 1px solid var(--lightGray);
 
     transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
     position: relative;

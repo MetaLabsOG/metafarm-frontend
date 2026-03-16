@@ -95,7 +95,7 @@ export const PoolInfoDesktopContainer = styled.div`
     color: ${(props) => props.theme.white};
     height: 78%;
     width: 100%;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: normal;
     line-height: 22px;
@@ -112,7 +112,7 @@ export const PoolInfoMobileContainer = styled.div`
     width: 100%;
     padding-left: 2px; /* Reduced from 5px */
     padding-right: 2px; /* Reduced from 5px */
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: normal;
     line-height: 16px;
@@ -213,7 +213,7 @@ export const PoolInfoValue = styled.div<{ width?: string }>`
     align-items: center; /* Center align content */
     width: ${({ width }) => width};
     white-space: nowrap;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 500;
     font-size: 18px;
@@ -250,7 +250,7 @@ export const ModalHeader = styled.div`
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px 0;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-size: 16px;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.9);
@@ -278,7 +278,7 @@ export const ModalDivider = styled.div`
 `;
 
 export const ActionSectionLabel = styled.div`
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 500;
     text-transform: uppercase;
@@ -294,7 +294,7 @@ export const ActionButtonsRow = styled.div`
 `;
 
 export const BasicInfo = styled.div`
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: normal;
     font-size: 16px;
@@ -332,11 +332,11 @@ export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
     width: 50%; /* Reduced from 60% */
     height: 30px; /* Reduced from 34px */
     margin: 6px auto 0; /* Reduced from 8px */
-    background: #90ee90; /* Match filter color */
+    background: var(--lightGreen); /* Match filter color */
     font-family: 'Korona One';
     font-weight: 500;
     font-size: 16px; /* Reduced from 18px */
-    color: #1e1e1e; /* Dark text for better contrast */
+    color: var(--darkGray); /* Dark text for better contrast */
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -349,7 +349,7 @@ export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
     }
 
     :not(:disabled):hover {
-        color: #1e1e1e;
+        color: var(--darkGray);
         background: rgba(144, 238, 144, 0.8);
         transform: scale(1.03);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);

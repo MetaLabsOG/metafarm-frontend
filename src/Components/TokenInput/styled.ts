@@ -19,7 +19,7 @@ export const Input = styled.input<{ isActive: boolean }>`
     border-radius: 4px;
     padding-left: 10px;
 
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 600;
     font-size: 18px;
@@ -40,7 +40,7 @@ export const MaxButton = styled.button`
     padding: 6px;
     color: var(--lightGray);
     cursor: pointer;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 500;
     font-size: 16px;
@@ -54,7 +54,7 @@ export const MaxButton = styled.button`
 type BalanceProps = ColorThemed<{ isValid: boolean }>;
 
 export const Balance = styled.div<{ isValid: boolean }>`
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 400;
     font-size: 14px;

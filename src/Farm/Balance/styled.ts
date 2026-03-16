@@ -61,7 +61,7 @@ export const AmountTitle = styled.div`
     text-align: center;
     letter-spacing: 0.02em;
     transition: color 0.3s ease;
-    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-body);
     text-transform: uppercase;
     font-size: 14px;
 
@@ -85,7 +85,7 @@ export const AmountValue = styled.div`
     text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
     transition: transform 0.3s ease, text-shadow 0.3s ease;
     font-feature-settings: "tnum" on, "lnum" on;
-    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-body);
     ${AmountContainer}:hover & {
         text-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
         transform: scale(1.05);
@@ -110,7 +110,7 @@ export const BalanceList = styled.div`
     backdrop-saturate: 150%;
     height: 91px;
     align-items: center;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: normal;
     font-size: 18px;

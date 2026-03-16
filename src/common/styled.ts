@@ -103,7 +103,7 @@ export const SwapChartContainer = styled.div`
 `;
 
 export const ModalTitle = styled.h1`
-    color: var(--newWhite);
+    color: var(--white);
     width: 100%;
     text-align: left;
     margin-bottom: 20px;
@@ -117,7 +117,7 @@ export const ModalTitle = styled.h1`
 
 export const ModalSubtitle = styled.h3`
     color: var(--newnewGray);
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 400;
     font-size: 14px;
@@ -182,7 +182,7 @@ export const SwitchContainer = styled.div`
 
 export const SwitchText = styled.h3`
     color: var(--gray);
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-size: 16px;
     font-weight: normal;
     text-align: center;
@@ -210,22 +210,22 @@ export const DexSwitchContainer = styled.div`
 
 export const DexName = styled.div`
     color: var(--lightGray);
-    font-family: 'Montserrat', serif;
+    font-family: var(--font-body);
     font-size: 12px;
     margin-top: 5px;
 
     :hover {
-        color: var(--newWhite);
+        color: var(--white);
     }
 `;
 
 export const WelcomeText = styled.div`
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-size: 20px;
     text-align: left;
     width: 100%;
     padding: 10px;
-    color: var(--newWhite);
+    color: var(--white);
 `;
 
 export const WalletActionButton = styled.a`
@@ -263,7 +263,7 @@ export const PrettyButtonContainer = styled(WalletActionButton)`
         outline: none;
     }
     border-radius: 15px;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-size: 14px;
     font-weight: 500;
     height: 32px;

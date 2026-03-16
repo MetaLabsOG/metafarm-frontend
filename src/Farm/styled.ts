@@ -4,10 +4,11 @@ export const FarmContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 1114px;
+    max-width: 1114px;
+    width: 100%;
     height: 100%;
     margin-top: 35px;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     background-color: transparent;
     backdrop-filter: none;
     border-radius: 10px;
@@ -25,7 +26,7 @@ export const DateInput = styled.input`
     flex-shrink: 0;
     color-scheme: dark;
 
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-size: 18px;
 
     border: 1px solid rgba(125, 125, 125, 0.66);
@@ -72,7 +73,7 @@ export const PoolSearchInput = styled.input`
     backdrop-filter: blur(4px);
 
     text-align: center;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 500;
     letter-spacing: 0.02em;

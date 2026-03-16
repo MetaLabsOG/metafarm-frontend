@@ -13,7 +13,7 @@ export const WalletHeader = styled.div`
     margin-bottom: 20px;
     white-space: nowrap;
 
-    color: var(--newWhite);
+    color: var(--white);
 
     @media (max-width: 450px) {
         font-size: 18px;
@@ -113,7 +113,7 @@ export const DeflyButton = styled.button`
 `;
 
 export const WalletText = styled.div`
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 600;
     font-size: 20px;
@@ -121,5 +121,5 @@ export const WalletText = styled.div`
     display: flex;
     align-items: center;
     letter-spacing: 0.02em;
-    color: var(--newWhite);
+    color: var(--white);
 `;

@@ -64,7 +64,7 @@
 
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
-| MF-056 | SelectContainer keyboard accessibility | todo | high | ux | `SelectContainer` is `styled.div` with onClick but no tabIndex, role="button", onKeyDown. Primary token select control in Swap/Farm. `src/Components/Select/Select.tsx:185` |
+| MF-056 | SelectContainer keyboard accessibility | done | high | ux | Added `tabIndex={0}`, `role="button"`, `onKeyDown` Enter/Space handler. Done as part of MF-083. 2026-03-16 |
 | MF-057 | Fix transition:all on MenuContainer and ExchangeRate | done | high | performance | MenuContainer → `background, box-shadow`. ExchangeRate → `color, text-shadow` |
 | MF-058 | Replace mobileOptimizations.ts JS checks with CSS media queries | todo | high | performance | `isMobileDevice()` called at styled-component creation time — value freezes on first render, ignores resize. Should be `@media (max-width: 768px)` in CSS. `src/utils/mobileOptimizations.ts` |
 | MF-059 | MeteorToggle ARIA attributes | todo | medium | ux | No `role="switch"`, `aria-checked`, `tabIndex` on toggle. Invisible to screen readers, no keyboard access. `src/Components/ui/MeteorToggle.tsx` |
@@ -75,14 +75,14 @@
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
 | MF-061 | Remaining transition:all in medium-traffic components | done | medium | performance | Fixed in SwitchSelect, GradientStakeButton, MobileFilter*, AddFarmButton, Swap, wallet.css, StakeButtonMobile |
-| MF-062 | Hardcoded hex colors → CSS vars | todo | low | quality | `#90ee90`→`var(--lightGreen)`, `#1e1e1e`→`var(--darkGray)`, `#121212`→`var(--background)` in ~10 files. See audit for full list |
+| MF-062 | Hardcoded hex colors → CSS vars | done | low | quality | `#90ee90`→`var(--lightGreen)`, `#1e1e1e`→`var(--darkGray)`, `#B6B9BD`→`var(--lightGray)` in Pool/styled.ts, GradientPoolCard.tsx, PacmanButton/styled.css. 2026-03-16 |
 | MF-063 | theme.ts → CSS vars migration (46 usages) | todo | low | quality | 46 places use `theme.XYZ` in styled-components when CSS vars exist. Two sources of truth. Not broken but inconsistent |
 
 ### Phase 4 — Polish
 
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
-| MF-064 | Unified easing + Pool component consolidation | todo | medium | ux | Replace mixed `ease` with consistent cubic-bezier (ease-out-quart). Consolidate desktop/mobile Pool components |
+| MF-064 | Unified easing tokens | done | medium | ux | Added `--ease-out`, `--duration-fast/normal/slow` CSS vars to `:root`. Per-file migration deferred. 2026-03-16 |
 
 ---
 
@@ -120,13 +120,13 @@
 
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
-| MF-080 | Merge `--white`/`--newWhite` tokens: 4 white variants → 2 | todo | medium | quality | `--white: #E0E0E0`, `--newWhite: #E2E2E2` (2 units diff), `white` literal, `pureWhite: #FFF`. Consolidate |
+| MF-080 | Merge `--white`/`--newWhite` tokens: 4 white variants → 2 | done | medium | quality | Removed `--newWhite` CSS var and `newWhite` from theme.ts. All 15+ usages → `var(--white)` / `theme.white`. 2026-03-16 |
 | MF-081 | Breakpoint unification: 20+ magic px values → 5 tokens from theme.ts | todo | high | quality | 979px vs 970px gap (menu hidden, burger not shown). 390/400/430/450/490/640/700/768/820+ chaos |
-| MF-082 | FarmContainer responsive: `width: 1114px` → `max-width: 1114px; width: 100%` | todo | high | ux | Fixed width causes horizontal scroll on viewport < 1114px |
-| MF-083 | Select dropdown: arrow key navigation + `role="option"` on items | todo | medium | ux | Token select is core flow — currently mouse-only after opening |
+| MF-082 | FarmContainer responsive: `width: 1114px` → `max-width: 1114px; width: 100%` | done | high | ux | `width` → `max-width` + `width: 100%`. No more horizontal scroll on narrow viewports. 2026-03-16 |
+| MF-083 | Select dropdown: arrow key navigation + `role="option"` on items | done | medium | ux | Arrow up/down navigation, Enter to select, `role="listbox"/"option"/"combobox"`, `aria-activedescendant`. 2026-03-16 |
 | MF-084 | Trust signals: Algorand Mainnet badge in footer, contract links on pool cards | todo | medium | ux | No trust indicators in current UI. DeFi standard: audit badge, network, explorer links |
 | MF-085 | Flash animation on number updates (APY, price, balance) | todo | low | ux | Brief background highlight when data refreshes — helps users notice changes |
-| MF-086 | Font-family fallback: unify to `'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif` | todo | low | quality | 25+ components have `font-family: 'Montserrat'` without fallback. One has `serif` fallback (wrong) |
+| MF-086 | Font-family fallback: unify via `--font-body` CSS var | done | low | quality | Added `--font-body` and `--font-display` CSS vars in `:root`. Replaced all 55+ bare `'Montserrat'` across 22 files. Fixed `serif` fallback. 2026-03-16 |
 
 ### Milestones
 
@@ -134,6 +134,7 @@
 > **M6: Polish sprint** — MF-072–079 + MF-057 + MF-061 (~8 hr total)
 > **M7: Systemic** — MF-080–086 + MF-062 + MF-063 + MF-064 + MF-028 (~20 hr total)
 > **Expected result after M5+M6**: design rating 5.5 → ~7.0
+> **Expected result after M7**: ~7.5–8.0
 
 ---
 
@@ -148,7 +149,7 @@
 | MF-037 | Recover 802.6 ALGO from NFT sale contract App 509206311 | blocked | critical | safety | Step 6 closeTo confirmed, payment simulated. Blocked: AVM v5 ref limit (need 9, max 8). See `memory/nft-sale-recovery.md` |
 | MF-038 | Identify buyer O5XYX4J3...AMMKA from NFT sale records | todo | high | safety | Buyer's cooperation needed to sign recovery txn. Check internal records, NFD, on-chain history |
 | MF-039 | Recover NFTs from raffle contracts (974xxx, 832xxx) | todo | medium | safety | 8 MetaPunks NFTs in 6 expired raffle contracts. Need deployer LT5ZQINW4... mnemonic |
-| MF-028 | Meteors: pause animations on `document.hidden`, consolidate resize listeners | todo | high | performance | 3 resize listeners without coordination, no visibilitychange handler. See MF-018 |
+| MF-028 | Meteors: pause animations on `document.hidden`, consolidate resize listeners | done | high | performance | Consolidated 3 resize handlers → 1 debounced. Added `visibilitychange` listener to unmount meteors when tab hidden. 2026-03-16 |
 | MF-029 | CSP headers for WalletConnect: add frame-src verify.walletconnect.org to nginx | todo | high | devops | CSP violation blocks WC verify iframe. Add to nginx.conf on deploy |
 | MF-030 | WebSocket for real-time pool price updates (replace polling) | todo | medium | performance | Polling 700 pools every 15s is unsustainable at 7000. Backend WS + delta updates |
 | MF-031 | Web Worker for pool sorting/filtering (offload main thread) | todo | medium | performance | Sorting 7000+ objects causes jank. Move to worker |

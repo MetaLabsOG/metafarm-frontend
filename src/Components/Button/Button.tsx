@@ -56,11 +56,11 @@ export const SecondaryButton = styled.button`
 export const PrimaryButton = styled(SecondaryButton)`
     background: rgba(66, 201, 63, 0.7);
     border: 1px solid var(--btn-border);
-    color: var(--newWhite);
+    color: var(--white);
 
     :hover {
         background-color: rgba(66, 201, 63, 0.84);
-        color: var(--newWhite) !important;
+        color: var(--white) !important;
     }
 
     :hover:before {

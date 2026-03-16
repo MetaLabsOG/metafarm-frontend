@@ -14,7 +14,7 @@ export const InfoRowContainer = styled.div`
 
 export const InfoKey = styled.h3`
     color: var(--gray);
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 400;
     font-size: 14px;
@@ -24,7 +24,7 @@ export const InfoKey = styled.h3`
 
 export const InfoValue = styled.h3`
     color: inherit;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 400;
     font-size: 14px;

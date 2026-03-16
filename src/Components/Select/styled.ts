@@ -14,7 +14,7 @@ export const OptionContainer = styled.div`
     display: flex;
     width: 100%;
     align-items: center;
-    font-family: Montserrat;
+    font-family: var(--font-body);
     white-space: nowrap;
 `;
 
@@ -43,9 +43,9 @@ export const SelectSearch = styled.input`
     border: 1px solid var(--borderColor);
     border-radius: 12px;
     background-color: transparent;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-size: 14px;
-    color: var(--newWhite);
+    color: var(--white);
     margin-bottom: 10px;
     margin-top: 35px;
 
@@ -67,21 +67,21 @@ export const SelectInputGroupContainer = styled.div`
     pointer-events: none;
     display: flex;
     gap: 10px;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     color: white;
     align-items: center;
 `;
 
 export const OptionTitle = styled.div`
-    font-family: 'Montserrat';
-    color: var(--newWhite);
+    font-family: var(--font-body);
+    color: var(--white);
     font-size: 16px;
     text-align: left;
 `;
 
 export const OptionSubtitle = styled.div`
-    font-family: 'Montserrat';
-    color: var(--newWhite);
+    font-family: var(--font-body);
+    color: var(--white);
     font-size: 12px;
     text-align: left;
 `;
@@ -116,7 +116,7 @@ export const OptionAdditionalInfo = styled.div`
     margin-left: auto;
     margin-right: 20px;
     text-align: right;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-size: 14px;
     color: var(--newLightGray);
 `;

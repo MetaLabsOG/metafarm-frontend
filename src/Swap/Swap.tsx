@@ -489,7 +489,7 @@ function SwapDetails({
                 )}
                 <DetailRow>
                     <DetailLabel>Min. received</DetailLabel>
-                    <DetailValue $highlight $color={theme.newWhite}>
+                    <DetailValue $highlight $color={theme.white}>
                         {numberRound(best_swap * (1 - slippageDecimal))} {token2.unitName}
                     </DetailValue>
                 </DetailRow>

@@ -8,7 +8,7 @@ export const ProgressBarContainer = styled.div`
 `;
 
 export const ProgressBarTitleContainer = styled.div`
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: 500;
     font-size: 14px;

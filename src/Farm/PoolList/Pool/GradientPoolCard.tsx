@@ -148,7 +148,7 @@ const GradientStakeButton = styled(StakeButtonMobile)`
     background: linear-gradient(135deg, rgba(144, 238, 144, 1) 0%, rgba(144, 238, 144, 0.9) 100%);
     box-shadow: 0 4px 12px rgba(144, 238, 144, 0.5);
     transform: translateY(-1px) scale(1.03);
-    color: #1e1e1e;
+    color: var(--darkGray);
     animation: ${wobble} 1s ease;
   }
 

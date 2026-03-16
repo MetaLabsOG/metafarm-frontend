@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { theme } from '../../theme';
 
 export const PoolHeaderContainer = styled.div`
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: normal;
     font-size: 15px;

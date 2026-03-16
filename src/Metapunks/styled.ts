@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const MetapunksContainer = styled.div`
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     margin-top: 40px;
     color: var(--newLightGray);
     width: 90%;
@@ -14,8 +14,8 @@ export const MetapunksContainer = styled.div`
 `;
 
 export const Header = styled.div`
-    color: var(--newWhite);
-    font-family: 'Montserrat';
+    color: var(--white);
+    font-family: var(--font-body);
     font-size: 30px;
     margin-bottom: 10px;
     display: flex;
@@ -30,7 +30,7 @@ export const Header = styled.div`
 
 export const Subheader = styled.div`
     color: var(--newnewGray);
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-size: 20px;
     margin-bottom: 20px;
     padding: 20px;
@@ -50,7 +50,7 @@ export const Subheader = styled.div`
 
 export const Subheader2 = styled.div`
     color: var(--newnewGray);
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-size: 20px;
     margin-bottom: 20px;
     display: flex;
@@ -132,14 +132,14 @@ export const PunkName = styled.a`
     color: var(--newLightGray);
     text-transform: uppercase;
     text-decoration: none;
-    font-family: 'Montserrat';
+    font-family: var(--font-body);
     font-style: normal;
     font-weight: normal;
     text-align: left;
     margin-top: 30px;
 
     :hover {
-        color: var(--newWhite);
+        color: var(--white);
     }
 
     @media (max-width: 700px) {
@@ -151,7 +151,7 @@ export const PunkName = styled.a`
 
 export const PunkDownload = styled.a`
     font-family: 'Korona One';
-    color: var(--newWhite);
+    color: var(--white);
     font-size: 20px;
     font-style: normal;
     font-weight: normal;
