@@ -3,7 +3,7 @@ import { FarmType } from '../common/store';
 import { InfoCard } from '../Components/InfoCard/InfoCard';
 import { Balance } from './Balance';
 import { PoolList } from './PoolList';
-import { $sortedPoolsWithStats, $farmPoolsLoaded, initializeFarmContract } from './store';
+import { $sortedPoolsWithStats, $farmPoolsLoaded, $farmPoolsError, initializeFarmContract } from './store';
 import { BalanceContainer, FarmContainer } from './styled';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
 import { useWindowSize } from '../hooks';
@@ -36,8 +36,9 @@ export const InfoCards = ({ addFarmType }: { addFarmType: string }) => {
 export function Farm() {
     const state = useUnit($sortedPoolsWithStats);
     const poolsLoaded = useUnit($farmPoolsLoaded);
+    const poolsError = useUnit($farmPoolsError);
     const initEvent = useUnit(initializeFarmContract);
-    const isLoading = !poolsLoaded;
+    const isLoading = !poolsLoaded && !poolsError;
 
     return (
         <FarmContainer>
@@ -50,7 +51,11 @@ export function Farm() {
                 text="Loading farm pools..."
                 size="medium"
             >
-                {poolsLoaded && state.length === 0 ? (
+                {poolsError && !poolsLoaded ? (
+                    <div style={{ color: 'var(--newnewGray)', textAlign: 'center', padding: '40px', fontSize: '16px' }}>
+                        Failed to load pools. Please refresh the page.
+                    </div>
+                ) : poolsLoaded && state.length === 0 ? (
                     <div style={{ color: 'var(--newnewGray)', textAlign: 'center', padding: '40px', fontSize: '16px' }}>
                         No active farms
                     </div>

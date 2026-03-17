@@ -110,9 +110,9 @@ export function PoolInfo({
             contractLockSuffix={contractLockSuffix}
             isOpen={isOpen}
             dex={dex}
-            isVerified={poolMetadata.verified ?? false}
-            isGame={poolMetadata.game ?? false}
-            nftRewards={poolMetadata.nft_rewards ?? false}
+            isVerified={poolMetadata?.verified ?? false}
+            isGame={poolMetadata?.game ?? false}
+            nftRewards={poolMetadata?.nft_rewards ?? false}
         />
     ) : (
         <PoolInfoDesktop
@@ -129,9 +129,9 @@ export function PoolInfo({
             contractLockSuffix={contractLockSuffix}
             isOpen={isOpen}
             dex={dex}
-            isVerified={poolMetadata.verified ?? false}
-            isGame={poolMetadata.game ?? false}
-            nftRewards={poolMetadata.nft_rewards ?? false}
+            isVerified={poolMetadata?.verified ?? false}
+            isGame={poolMetadata?.game ?? false}
+            nftRewards={poolMetadata?.nft_rewards ?? false}
         />
     );
 }

@@ -8,7 +8,7 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-096**
+- Next available ID: **MF-101**
 
 ---
 
@@ -166,11 +166,22 @@
 |----|------|--------|----------|-----|-------|
 | MF-094 | Unified "Earn" page (Farm+Stake merged with filter tabs) | todo | critical | ux | Stake already imports Farm components — low complexity. Reduces nav to 4 items |
 
+### M11 — Post-Launch Robustness (from TIER 2 audit review)
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-096 | Null guard on `poolMetadata` in PoolInfo.tsx | done | high | safety | `poolMetadata.verified` → `poolMetadata?.verified`. Prevents crash when metadata is null/undefined. 2026-03-17 |
+| MF-097 | Fix `.replace` → `.replaceAll` in LP token name formatting | done | medium | quality | `utils.ts:132,148` — `.replace('-', '/')` only replaced first hyphen. Multi-hyphen LP names (e.g. three-asset pools) got partial formatting. 2026-03-17 |
+| MF-098 | Move analytics tokens from source code to env vars | done | high | safety | Airtable PAT and Amplitude API key moved from hardcoded `logEvent.tsx` to `REACT_APP_AIRTABLE_PAT` / `REACT_APP_AMPLITUDE_API_KEY` env vars. 2026-03-17 |
+| MF-099 | Fix desktop first visit getting conservative mode (no animations) | done | medium | ux | `performanceCache.ts` — first visit desktop now gets BALANCED (with animations), only mobile gets CONSERVATIVE. 2026-03-17 |
+| MF-100 | Add error state when API contracts fetch fails | done | high | ux | `$farmPoolsError` / `$distributionPoolsError` stores + error UI in Farm/Stake. React Query `onError` → sets error flag → spinner stops, shows "Failed to load". 2026-03-17 |
+
 ### Milestones
 
 > **M8: Text defaults** — MF-087 (body font/color/sizes)
 > **M9: Navigation & breakpoints** — MF-088, MF-089
 > **M10: Visual depth + polish** — MF-090, MF-091, MF-092, MF-093
+> **M11: Post-launch robustness** — MF-096–100 (TIER 2 audit fixes)
 > **Expected result after M5+M6**: design rating 5.5 → ~7.0
 > **Expected result after M7**: ~7.5–8.0
 

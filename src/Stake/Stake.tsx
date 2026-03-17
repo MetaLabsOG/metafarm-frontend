@@ -5,7 +5,7 @@ import { PoolList } from '../Farm/PoolList';
 import { BalanceContainer, FarmContainer } from '../Farm/styled';
 import { InfoCards } from '../Farm/Farm';
 import { $farmPoolsLoaded, initializeFarmContract } from '../Farm/store';
-import { $sortedStakePoolsWithStats, $distributionPoolsLoaded, initializeDistributionContract } from './store';
+import { $sortedStakePoolsWithStats, $distributionPoolsLoaded, $distributionPoolsError, initializeDistributionContract } from './store';
 import { LoadingSpinner } from '../Components/LoadingSpinner';
 
 export function Stake() {
@@ -24,7 +24,9 @@ export function Stake() {
         }
     };
 
-    const isLoading = !farmLoaded && !distrLoaded;
+    const distrError = useUnit($distributionPoolsError);
+    const hasError = distrError && !farmLoaded && !distrLoaded;
+    const isLoading = !farmLoaded && !distrLoaded && !hasError;
 
     return (
         <FarmContainer>
@@ -37,7 +39,11 @@ export function Stake() {
                 text="Loading stake pools..."
                 size="medium"
             >
-                {(farmLoaded || distrLoaded) && state.length === 0 ? (
+                {hasError ? (
+                    <div style={{ color: 'var(--newnewGray)', textAlign: 'center', padding: '40px', fontSize: '16px' }}>
+                        Failed to load pools. Please refresh the page.
+                    </div>
+                ) : (farmLoaded || distrLoaded) && state.length === 0 ? (
                     <div style={{ color: 'var(--newnewGray)', textAlign: 'center', padding: '40px', fontSize: '16px' }}>
                         No active stake pools
                     </div>

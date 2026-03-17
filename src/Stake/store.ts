@@ -1,4 +1,4 @@
-import { combine, createStore, sample, Store } from 'effector';
+import { combine, createEvent, createStore, sample, Store } from 'effector';
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-ignore
@@ -38,6 +38,11 @@ export const initializeDistributionContract = initializeContract;
 
 export const $distributionPoolsLoaded = createStore(false)
     .on(setContractInfos, () => true);
+
+export const setDistributionPoolsError = createEvent<boolean>();
+export const $distributionPoolsError = createStore(false)
+    .on(setDistributionPoolsError, (_, v) => v)
+    .on(setContractInfos, () => false);
 
 export const $allStakePools = combine(
     { stakePools: $stakePools, distributionPools: $distributionPools },

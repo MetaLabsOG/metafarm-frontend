@@ -129,7 +129,7 @@ export const formatLPTokenName = (token: LPTokenInfo) => {
     } else if (token.poolDex === 'H2') {
         resName = resName.replace('HUMBLE', '').replace('LP', '').replace('-', '').replace('/', '-');
     }
-    return resName.replace('-', '/').replace('LP', '');
+    return resName.replaceAll('-', '/').replace('LP', '');
 };
 
 /**
@@ -145,7 +145,7 @@ export const formatRawLPTokenName = (name: string): string | null => {
     ];
     for (const [prefix, transform] of patterns) {
         if (name.includes(prefix)) {
-            return transform(name).replace('-', '/').replace('LP', '').trim();
+            return transform(name).replaceAll('-', '/').replace('LP', '').trim();
         }
     }
     return null;

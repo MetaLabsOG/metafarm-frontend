@@ -42,26 +42,26 @@ export function logFarmActionData(
 }
 
 export function logEvent(address: string | undefined, parameters: Record<string, any>, logName: LogName) {
-    // console.log('LOG', address, parameters);
-    const event: string = parameters.message ?? parameters.status ?? ''; // TODO
-    const requestOptions = {
-        method: 'POST',
-        headers: {
-            Authorization: 'Bearer pattoCqV44GNxV1xK.467bab14578f66afa4d0ecde5c136b337c051328af65fe9ab9934958cafcfc06',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            fields: {
-                address: address ?? '',
-                timestamp: Date.now(),
-                date: new Date(Date.now()).toUTCString(),
-                algonet: ALGONET.toString(),
-                ...parameters,
-            },
-        }),
-    };
+    const event: string = parameters.message ?? parameters.status ?? '';
 
-    if (logName === LogName.ADDFARM) {
+    const airtablePat = process.env.REACT_APP_AIRTABLE_PAT;
+    if (logName === LogName.ADDFARM && airtablePat) {
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${airtablePat}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                fields: {
+                    address: address ?? '',
+                    timestamp: Date.now(),
+                    date: new Date(Date.now()).toUTCString(),
+                    algonet: ALGONET.toString(),
+                    ...parameters,
+                },
+            }),
+        };
         fetch('https://api.airtable.com/v0/app7KHOjfNZ8vVEGe/' + LogName[logName].toLowerCase(), requestOptions).catch(
             () => {
                 console.warn('Failed to log event to Airtable');
@@ -70,33 +70,35 @@ export function logEvent(address: string | undefined, parameters: Record<string,
     }
 
     // AMPLITUDE
-    const requestOptionsAmplitude = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Accept: '*/*',
-        },
-        body: JSON.stringify({
-            api_key: '91836797cfc6bdf5e35d828744747bb9',
-            events: [
-                {
-                    user_id: address ?? '',
-                    event_type: event,
-                    time: Date.now(),
-                    event_properties: {
-                        algonet: ALGONET.toString(),
-                        ...parameters,
+    const amplitudeKey = process.env.REACT_APP_AMPLITUDE_API_KEY;
+    if (amplitudeKey) {
+        const requestOptionsAmplitude = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: '*/*',
+            },
+            body: JSON.stringify({
+                api_key: amplitudeKey,
+                events: [
+                    {
+                        user_id: address ?? '',
+                        event_type: event,
+                        time: Date.now(),
+                        event_properties: {
+                            algonet: ALGONET.toString(),
+                            ...parameters,
+                        },
+                        platform: BROWSER?.name,
+                        os_name: BROWSER?.os,
                     },
-                    platform: BROWSER?.name,
-                    os_name: BROWSER?.os,
-                },
-            ],
-        }),
-    };
-
-    fetch('https://api2.amplitude.com/2/httpapi', requestOptionsAmplitude).catch(() => {
-        console.warn('Failed to log event to Amplitude');
-    });
+                ],
+            }),
+        };
+        fetch('https://api2.amplitude.com/2/httpapi', requestOptionsAmplitude).catch(() => {
+            console.warn('Failed to log event to Amplitude');
+        });
+    }
 
     ReactGA.event({
         category: 'User',

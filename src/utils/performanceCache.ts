@@ -133,10 +133,15 @@ class PerformanceManager {
   private determineInitialSettings(): PerformanceSettings {
     // Check if mobile device - force conservative settings
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    
-    // Always start conservative for first-time visitors or mobile devices
-    if (this.capability.isFirstVisit || isMobile) {
+
+    // Mobile always starts conservative (crash prevention)
+    if (isMobile) {
       return { ...CONSERVATIVE_SETTINGS };
+    }
+
+    // Desktop first visit: balanced (animations + transitions enabled)
+    if (this.capability.isFirstVisit) {
+      return { ...BALANCED_SETTINGS };
     }
 
     // If device has crashed before, be extra conservative

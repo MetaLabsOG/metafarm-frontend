@@ -31,11 +31,11 @@ import { $account, ContractInfo, fetchAllPricesFx } from './common/store';
 import './css/index.css';
 import './css/tailwind.css';
 import 'react-toastify/dist/ReactToastify.css';
-import { setPoolInfos, prePopulateLpTokenInfos } from './Farm/store';
+import { setPoolInfos, prePopulateLpTokenInfos, setFarmPoolsError } from './Farm/store';
 import { getContracts, getFarmEnriched, getUserContracts } from './providers/apiProvider';
 import { prePopulateAssets, prePopulateAssetPrices } from './common/store';
 import { resolveBignums } from './common/lib';
-import { setDistributionPoolInfos } from './Stake/store';
+import { setDistributionPoolInfos, setDistributionPoolsError } from './Stake/store';
 import { WelcomeModal } from './WelcomeModal';
 import { Footer } from './Menu/Footer';
 import { notify } from './Components/Notification';
@@ -145,7 +145,7 @@ function App() {
             writeCachedContracts('farm', data);
             return data;
         },
-        { staleTime: 30_000, initialData: _cachedFarm },
+        { staleTime: 30_000, initialData: _cachedFarm, onError: () => setFarmPoolsError(true) },
     );
     const distrFetch = useQuery(
         ['contracts', 'distribution'],
@@ -154,7 +154,7 @@ function App() {
             writeCachedContracts('distribution', data);
             return data;
         },
-        { staleTime: 30_000, initialData: _cachedDistribution },
+        { staleTime: 30_000, initialData: _cachedDistribution, onError: () => setDistributionPoolsError(true) },
     );
 
     // User's contracts (active + ended) — loaded when wallet is connected

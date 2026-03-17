@@ -213,6 +213,12 @@ export const initializeFarmContract = initializeContract;
 export const $farmPoolsLoaded = createStore(false)
     .on(setContractInfos, () => true);
 
+// Error flag: true when API fetch fails
+export const setFarmPoolsError = createEvent<boolean>();
+export const $farmPoolsError = createStore(false)
+    .on(setFarmPoolsError, (_, v) => v)
+    .on(setContractInfos, () => false);
+
 // LP token info store
 type LPTokenStore = Map<number, Priced<LPTokenInfo>>;
 
