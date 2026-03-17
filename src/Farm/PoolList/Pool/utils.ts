@@ -153,6 +153,7 @@ export const formatRawLPTokenName = (name: string): string | null => {
 
 export const calculateAlgoReward = (initial: ContractState<FarmType>['initial'], tokenReward: Amount): Amount => {
     const { totalRewardAmount, totalAlgoRewardAmount } = initial;
+    if (totalRewardAmount === BigInt(0)) return BigInt(0) as Amount;
     return (tokenReward * totalAlgoRewardAmount) / totalRewardAmount;
 };
 

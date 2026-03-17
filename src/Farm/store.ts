@@ -155,6 +155,7 @@ export const recalculatedReward = (contractState: AllDefined<ContractState<FarmT
     const { beginBlock, endBlock, totalRewardAmount } = contractState.initial;
     const { totalStaked, lastUpdateBlock, rewardPerTokenStored } = contractState.global;
     const { staked, reward, rewardPerTokenPaid } = contractState.local;
+    if (endBlock <= beginBlock) return reward;
     const rewardPerBlock = (totalRewardAmount * BIG_NUM) / BigInt(endBlock - beginBlock);
 
     if (lastUpdateBlock >= currentBlock || totalStaked === BigInt(0) || staked === BigInt(0)) {

@@ -33,7 +33,7 @@ import './css/tailwind.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { setPoolInfos, prePopulateLpTokenInfos } from './Farm/store';
 import { getContracts, getFarmEnriched, getUserContracts } from './providers/apiProvider';
-import { prePopulateAssets, prePopulateAssetPrices, $assets } from './common/store';
+import { prePopulateAssets, prePopulateAssetPrices } from './common/store';
 import { resolveBignums } from './common/lib';
 import { setDistributionPoolInfos } from './Stake/store';
 import { WelcomeModal } from './WelcomeModal';
@@ -238,7 +238,7 @@ function App() {
             // Backend bug: assigns default META price to tokens without real price data.
             // Detect and filter out suspiciously common prices (>10 tokens sharing exact same price).
             const allPrices = Object.values(enriched.prices).filter((p: any) => p.price_algo > 0);
-            const priceFrequency = new window.Map<number, number>();
+            const priceFrequency = new Map<number, number>();
             for (const p of allPrices) {
                 priceFrequency.set((p as any).price_algo, (priceFrequency.get((p as any).price_algo) ?? 0) + 1);
             }
@@ -254,10 +254,10 @@ function App() {
 
             // Pre-populate LP token states (avoids DEX SDK calls and individual /lp/state/priced calls)
             if (enriched.lp_states) {
-                const assetsMap = $assets.getState();
+                const assetsLookup = new Map<number, any>(assetsList.map((a: any) => [a.id, a]));
                 const lpItems = Object.values(enriched.lp_states).map((lpState: any) => ({
                     lpState,
-                    asset: assetsMap.get(lpState.token_id) ?? null,
+                    asset: assetsLookup.get(lpState.token_id) ?? null,
                 }));
                 if (lpItems.length > 0) {
                     prePopulateLpTokenInfos(lpItems);
