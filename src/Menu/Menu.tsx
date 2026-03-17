@@ -54,7 +54,6 @@ function MenuItems() {
             </MenuItem>
             <MenuItem to="/farm">farm</MenuItem>
             <MenuItem to="/stake">stake</MenuItem>
-            <MenuItem to="/metapunks">NFTs</MenuItem>
         </>
     );
 }

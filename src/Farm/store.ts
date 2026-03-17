@@ -27,6 +27,7 @@ import {
     hasLocalState,
     Time,
     $meanRoundDuration,
+    $networkTime,
 } from '../common/store';
 import { nonConcurrent } from '../common/store/utils';
 import { AllDefined, Backend } from '../types';
@@ -498,7 +499,49 @@ export function createAggregates($dollarInfos: Store<PoolDollarInfo[]>) {
     });
 }
 
-export const $farmPoolAggregates: Store<PoolAggregates> = createAggregates($farmPoolDollarInfos);
+// Projected aggregates: uses $networkTime to project pending rewards to current block.
+// Individual pool dollarInfos stay static (Pool component handles its own projection).
+export function createProjectedAggregates<T extends FarmType>(
+    $pools: Store<Array<Contract<T>>>,
+    $baseInfos: Store<PoolDollarInfo[]>
+): Store<PoolAggregates> {
+    return combine(
+        $pools,
+        $baseInfos,
+        $networkTime,
+        $pricedAssets,
+        (pools, infos, currentBlock, tokens) => {
+            const safeAdd = (acc: number, v: number) => acc + (isFinite(v) ? v : 0);
+            const tvl = infos.reduce((acc, info) => safeAdd(acc, info.tvl), 0);
+            const totalUserStake = infos.reduce((acc, info) => safeAdd(acc, info.userStake), 0);
+
+            let totalPendingReward = 0;
+            for (let i = 0; i < infos.length; i++) {
+                const pool = pools[i];
+                const state = pool?.state;
+                if (state && hasLocalState(state) && currentBlock > 0) {
+                    try {
+                        const projected = recalculatedReward(state, currentBlock);
+                        const token = 'token' in state.initial ? state.initial.token : state.initial.rewardToken;
+                        const tokenInfo = tokens.get(token, null);
+                        const algoInfo = tokens.get(0, null);
+                        if (tokenInfo && algoInfo) {
+                            const algoReward = calculateAlgoReward(state.initial, projected);
+                            const reward = convertAmountToUSD(tokenInfo, projected) + convertAmountToUSD(algoInfo, algoReward);
+                            totalPendingReward = safeAdd(totalPendingReward, reward);
+                            continue;
+                        }
+                    } catch { /* projection failed — fall through to static value */ }
+                }
+                totalPendingReward = safeAdd(totalPendingReward, infos[i]?.pendingReward ?? 0);
+            }
+
+            return { tvl, totalUserStake, totalPendingReward };
+        }
+    );
+}
+
+export const $farmPoolAggregates: Store<PoolAggregates> = createProjectedAggregates($farmPools, $farmPoolDollarInfos);
 
 export type AprType = {
     reward: number;

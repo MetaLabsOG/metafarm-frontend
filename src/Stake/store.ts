@@ -11,7 +11,7 @@ import {
     $stakePools,
     $farmStakeTokens,
     PoolAggregates,
-    createAggregates,
+    createProjectedAggregates,
     PoolDollarInfo,
     createDollarInfos,
     createAprs,
@@ -74,7 +74,7 @@ export const $distributedTokens = combine($pricedAssets, $contractStatesWithCach
 export const $stakingTokens = combine($distributedTokens, $farmStakeTokens, (distr, farm) => distr.merge(farm));
 
 export const $distributionPoolDollarInfos: Store<PoolDollarInfo[]> = createDollarInfos($allStakePools);
-export const $distributionPoolAggregates: Store<PoolAggregates> = createAggregates($distributionPoolDollarInfos);
+export const $distributionPoolAggregates: Store<PoolAggregates> = createProjectedAggregates($allStakePools, $distributionPoolDollarInfos);
 
 export const $stakeAprs = createAprs($allStakePools, $stakingTokens);
 
