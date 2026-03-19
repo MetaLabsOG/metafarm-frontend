@@ -125,7 +125,11 @@ export function PoolList({
             // When currentBlock === 0 (indexer not yet responded), show all pools as active.
             if (currentBlock > 0) {
                 const endBlock = pws.pool.state?.initial?.endBlock ?? 1e9;
-                const statusFilter = showEnded ? currentBlock > endBlock : currentBlock <= endBlock;
+                const isEnded = currentBlock > endBlock;
+                const hasUserFunds = pws.dollarInfo.userStake > 0 || pws.dollarInfo.pendingReward > 0;
+                // Live mode: active pools + ended pools where user has funds
+                // Ended mode: only ended pools
+                const statusFilter = showEnded ? isEnded : (!isEnded || hasUserFunds);
                 isShown = isShown && statusFilter;
             } else if (showEnded) {
                 // Can't determine ended pools without currentBlock — hide them
