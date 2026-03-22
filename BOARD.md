@@ -8,7 +8,7 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-101**
+- Next available ID: **MF-105**
 
 ---
 
@@ -184,6 +184,19 @@
 > **M11: Post-launch robustness** — MF-096–100 (TIER 2 audit fixes)
 > **Expected result after M5+M6**: design rating 5.5 → ~7.0
 > **Expected result after M7**: ~7.5–8.0
+
+---
+
+## Incident Recovery (2026-03-23)
+
+> Source: IPT-ALGO farm creation failure — backend 422 on `/contract/register` after auth was added without updating frontend. Full details in `memory/project_farm_creation_incident_2026_03_23.md`.
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-101 | Deploy X-API-Key fix: commit + push + rebuild frontend on VPS | done | critical | devops | `apiProvider.ts:183` — added `X-API-Key` header. `.env`/`.env.prod`/`Dockerfile` updated. Deployed `b4d7179` → `main.0a9bf7a8.js`. Also hardened: skip 4xx retries, auth error differentiation, contractId persistence (`a1206b6`). 2026-03-23 |
+| MF-102 | Increase backend `pids_limit` from 50 to 150 in docker-compose.yml | todo | critical | devops | PID exhaustion caused `BlockingIOError: [Errno 11]` — subprocess.Popen couldn't fork. Fix in `~/cometa/docker-compose.yml` on VPS |
+| MF-103 | Fix Airtable logging 422 errors | todo | medium | observability | `logEvent.tsx` — Airtable API returns 422. Likely schema mismatch in the Airtable table. Errors swallowed silently |
+| MF-104 | Investigate farm visibility: stale localStorage cache after backend registration | todo | high | ux | Farm 3489163121 is in API response but not rendering. Suspected: stale `cometa_contracts_farm` localStorage (30-min TTL). May need cache bust on new farm creation |
 
 ---
 
