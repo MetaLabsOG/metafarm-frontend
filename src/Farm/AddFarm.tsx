@@ -50,6 +50,7 @@ import { DexSwitch } from '../Zap/Zap';
 import * as MiniHumble from '../dexes/humbleReexports';
 import { InfoCard } from '../Components/InfoCard/InfoCard';
 import { AddFarmRow, DateInput } from './styled';
+import { BigNumberish } from '@ethersproject/bignumber';
 import { deployFarm, getDexName, InitialDistributionState, InitialFarmState } from './utils';
 import { numberRound } from './PoolList/Pool/utils';
 
@@ -244,8 +245,9 @@ const createFarm = async (
         LogName.ADDFARM
     );
 
+    let contractId: BigNumberish | undefined;
     try {
-        const contractId = await deployFarm(ctc, contractParameters);
+        contractId = await deployFarm(ctc, contractParameters);
 
         const deployToBackendWithBackoffFun = expBackoff(async () =>
             deployContractToBackend(
@@ -277,7 +279,7 @@ const createFarm = async (
         );
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
-        console.log(error);
+        console.error('[ADDFARM]', error);
         const additionalInfo = error instanceof AxiosError && error.response ? error.response.data.detail : '';
         if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
             notify('Operation is cancelled.', 'warning');
@@ -285,6 +287,12 @@ const createFarm = async (
             notify('Popups are blocked. Please, allow popups in your browser.', 'error');
         } else if (error_message.includes('below min')) {
             notify('Not enough ALGOs in the wallet.', 'error');
+        } else if (contractId !== undefined) {
+            notify(
+                `Farm deployed on-chain (ID: ${Number(contractId)}) but failed to register on backend. ` +
+                `Please contact us with this contract ID so we can add it manually.`,
+                'error'
+            );
         } else {
             notify(`Something went wrong, please contact us on twitter or discord!`, 'error');
         }
@@ -293,6 +301,7 @@ const createFarm = async (
             {
                 status: '[ADDFARM ERROR]',
                 contractType,
+                contractId: contractId !== undefined ? Number(contractId) : undefined,
                 error: String(error) + ': ' + additionalInfo,
                 params: JSON.stringify(contractParameters, (_, v) => typeof v === 'bigint' ? v.toString() : v),
             },
