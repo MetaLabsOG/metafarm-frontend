@@ -249,6 +249,15 @@ const createFarm = async (
     try {
         contractId = await deployFarm(ctc, contractParameters);
 
+        // Persist contract ID so it can be recovered if browser closes before backend registration
+        try {
+            localStorage.setItem('pending_farm_contract', JSON.stringify({
+                contractId: Number(contractId),
+                contractType,
+                timestamp: Date.now(),
+            }));
+        } catch { /* localStorage may be full — non-critical */ }
+
         const deployToBackendWithBackoffFun = expBackoff(async () =>
             deployContractToBackend(
                 account.networkAccount.addr,
@@ -266,6 +275,7 @@ const createFarm = async (
         );
 
         await deployToBackendWithBackoffFun(null);
+        localStorage.removeItem('pending_farm_contract');
         notify(`Done! Contract id is ${Number(contractId)}. Please, update the page.`, 'success');
         logEvent(
             account.networkAccount.addr,
@@ -287,6 +297,13 @@ const createFarm = async (
             notify('Popups are blocked. Please, allow popups in your browser.', 'error');
         } else if (error_message.includes('below min')) {
             notify('Not enough ALGOs in the wallet.', 'error');
+        } else if (error instanceof AxiosError && (error.response?.status === 401 || error.response?.status === 403)) {
+            notify(
+                contractId !== undefined
+                    ? `Farm deployed on-chain (ID: ${Number(contractId)}) but backend auth failed. Please contact us with this contract ID.`
+                    : 'Backend authentication failed. Please contact us.',
+                'error'
+            );
         } else if (contractId !== undefined) {
             notify(
                 `Farm deployed on-chain (ID: ${Number(contractId)}) but failed to register on backend. ` +

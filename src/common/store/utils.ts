@@ -138,6 +138,11 @@ export function expBackoff<V, T>(
                     error.message.includes('Too Many Requests') ||
                     error.message.includes('rate limit')
                 );
+                // Don't retry client errors (4xx) except 429 — they won't succeed on retry
+                const status = (error as any)?.response?.status as number | undefined;
+                if (status && status >= 400 && status < 500 && !is429) {
+                    throw error;
+                }
                 if (numberTries > maxTries) {
                     console.warn('Backoff exhausted, throwing:', error);
                     throw error;
