@@ -3,6 +3,7 @@ import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit } from 'effector-react';
 import { logEvent, logFarmActionData, LogName } from '../logEvent';
 import { $account, $balances, fetchAsset } from '../common/store';
+import { algod } from '../AppContext';
 import { formatNumber, getTokens, isSwapZapDataValid, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
 import { TOKEN_OPTION } from '../Components/Select/Select';
@@ -226,10 +227,12 @@ export function Zap({
     inputDexProvider,
     filteredOptions,
     closeModal,
+    onAutoStake,
 }: {
     inputDexProvider: DexProvider;
     filteredOptions?: number[];
     closeModal?: () => void;
+    onAutoStake?: (lpTokenId: number, mintedAmount: bigint) => Promise<void>;
 }) {
     const account = useUnit($account);
     const balances = useUnit($balances);
@@ -245,6 +248,8 @@ export function Zap({
 
     const [halfSwap, setHalfSwap] = useState(false);
     const zapButtonText = !halfSwap ? 'GET LP' : 'CONVERT ' + token1.unitName + ' TO LP';
+
+    const [autoStake, setAutoStake] = useState(Boolean(onAutoStake));
 
     const [dexProvider, setDexProvider] = useState<DexProvider>(inputDexProvider);
     const [pool, setPool] = useState<DexPool | null>(null);
@@ -368,6 +373,8 @@ export function Zap({
         getZapThrottled(token1.value, token2.value, token1Amount, dex, halfSwap, 50);
     };
 
+    const zapData = quoteToZapData(token1.id, zapOp);
+
     const ZapButtonOnClick = async () => {
         if (!isSwapZapDataValid(token1.value, token2.value, token1Amount)) {
             return;
@@ -379,16 +386,46 @@ export function Zap({
         }
 
         if (zapOp !== null) {
+            const lpTokenId = zapData.pool_lp_id;
+            const lpBalanceBefore = lpTokenId ? BigInt(balances[lpTokenId] ?? 0) : BigInt(0);
+
             const res = await runTransactions(account, zapOp, token1.balance);
             if (res !== null) {
                 const txIds = res;
-                notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
+
+                if (autoStake && onAutoStake && lpTokenId && account) {
+                    notify('LP tokens minted! Signing stake...', 'info', algoexplorerTxLink(txIds[0]));
+                    try {
+                        const accountInfo = await algod.accountInformation(account.networkAccount.addr).do();
+                        const lpAsset = (accountInfo.assets as Array<Record<string, unknown>>)?.find(
+                            (a) => a['asset-id'] === lpTokenId
+                        );
+                        const balanceAfter = BigInt((lpAsset?.amount as number) ?? 0);
+                        const mintedAmount = balanceAfter - lpBalanceBefore;
+
+                        if (mintedAmount > BigInt(0)) {
+                            await onAutoStake(lpTokenId, mintedAmount);
+                            notify('LP minted and staked!', 'success', algoexplorerTxLink(txIds[0]));
+                        } else {
+                            notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
+                        }
+                    } catch (error) {
+                        const msg = error instanceof Error ? error.message : String(error);
+                        if (msg.includes('cancelled') || msg.includes('rejected')) {
+                            notify('Auto-stake cancelled. LP tokens are in your wallet.', 'warning');
+                        } else {
+                            notify('Auto-stake failed. You can stake manually.', 'warning');
+                            console.error('[ZAP] Auto-stake error:', msg);
+                        }
+                    }
+                } else {
+                    notify('Done!', 'success', algoexplorerTxLink(txIds[0]));
+                }
+
                 closeModal && closeModal();
             }
         }
     };
-
-    const zapData = quoteToZapData(token1.id, zapOp);
 
     return (
         <ModalContainer>
@@ -419,6 +456,13 @@ export function Zap({
                 onChange={handleChangeHalfSwap}
                 switchText={'auto-convert half ' + token1.unitName + ' to ' + token2.unitName}
             />
+            {onAutoStake && (
+                <SwitchSelect
+                    switchStatus={autoStake}
+                    onChange={setAutoStake}
+                    switchText="auto-stake LP into farm"
+                />
+            )}
             <ZapResult
                 isLoading={isLoading}
                 zap_data={zapData}

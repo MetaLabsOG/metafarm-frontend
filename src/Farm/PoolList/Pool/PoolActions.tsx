@@ -4,6 +4,7 @@ import { useModal } from 'react-hooks-use-modal';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { AllDefined } from '../../../types';
 import {
+    $account,
     $balances,
     ContractState,
     Priced,
@@ -120,7 +121,19 @@ export function PoolActions({
 
     const isAutoClaim = contractVersion.replace('^', '') === '17.2.4';
 
+    const account = useUnit($account);
+
     const [nft, setNft] = useState<NftLottery | null>(null);
+
+    const handleAutoStake = async (_lpTokenId: number, mintedAmount: bigint): Promise<void> => {
+        if (account) {
+            const isTokenOptIn = await checkOptIn(account.networkAccount.addr, rewardTokenInfo.id);
+            if (!isTokenOptIn) {
+                await batchOptIn(reach, account.networkAccount.addr, [Number(rewardTokenInfo.id)], true);
+            }
+        }
+        await ctc.apis.stake([mintedAmount]);
+    };
 
     useToasts({
         api: ctc.apis.claim,
@@ -182,6 +195,7 @@ export function PoolActions({
                         inputDexProvider={stakeTokenInfo.poolDex}
                         filteredOptions={[stakeTokenInfo.asset1, stakeTokenInfo.asset2]}
                         closeModal={closeZapModal}
+                        onAutoStake={canStake && !hasLock ? handleAutoStake : undefined}
                     />
                 </Modal>
             )}
