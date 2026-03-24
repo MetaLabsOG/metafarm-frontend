@@ -181,7 +181,7 @@ function PoolInner({
                             />
                         </div>
                     </div>,
-                    document.body
+                    document.getElementById('root')!
                 )}
             </GradientPoolContainer>
         );
