@@ -100,64 +100,38 @@ export function prepareSwapTransactions({
 }: SwapTxArgs): MaybeSignedTx[] {
     const poolLogicSig = getPoolLogicSig(a1, a2, validatorAppId);
     const poolAddress = poolLogicSig.address();
-    const assetOutId = assetInId === a1 ? a2 : a1;
-    const feeNote = toUint8Array('fee');
-    const validatorArgs = ['swap', swapType].map(toUint8Array);
-    const foreignAssets = [a1, a2, lpTokenId].filter((id) => id !== 0);
+    const swapTypeArg = swapType === 'fi' ? 'fixed-input' : 'fixed-output';
+    const validatorArgs = ['swap', swapTypeArg].map(toUint8Array);
+    const foreignAssets = [a1, a2].filter((id) => id !== 0);
 
     let txns = [
-        algosdk.makePaymentTxnWithSuggestedParams(sender, poolAddress, 2000, undefined, feeNote, suggestedParams),
+        // Fee payment to cover validator inner txn (output transfer)
+        algosdk.makePaymentTxnWithSuggestedParams(
+            sender, poolAddress, suggestedParams.minFee, undefined, undefined, suggestedParams
+        ),
+        // AppCall from USER to validator (v2 format)
         algosdk.makeApplicationNoOpTxn(
-            poolAddress,
+            sender,
             suggestedParams,
             validatorAppId,
             validatorArgs,
-            [sender],
+            [poolAddress],
             undefined,
             foreignAssets
         ),
+        // Input asset transfer
         assetInId === 0
             ? algosdk.makePaymentTxnWithSuggestedParams(
-                  sender,
-                  poolAddress,
-                  assetInAmount,
-                  undefined,
-                  undefined,
-                  suggestedParams
+                  sender, poolAddress, assetInAmount, undefined, undefined, suggestedParams
               )
             : algosdk.makeAssetTransferTxnWithSuggestedParams(
-                  sender,
-                  poolAddress,
-                  undefined,
-                  undefined,
-                  assetInAmount,
-                  undefined,
-                  assetInId,
-                  suggestedParams
+                  sender, poolAddress, undefined, undefined, assetInAmount, undefined, assetInId, suggestedParams
               ),
-        assetOutId === 0
-            ? algosdk.makePaymentTxnWithSuggestedParams(
-                  poolAddress,
-                  sender,
-                  assetOutAmount,
-                  undefined,
-                  undefined,
-                  suggestedParams
-              )
-            : algosdk.makeAssetTransferTxnWithSuggestedParams(
-                  poolAddress,
-                  sender,
-                  undefined,
-                  undefined,
-                  assetOutAmount,
-                  undefined,
-                  assetOutId,
-                  suggestedParams
-              ),
+        // Output is handled by validator via inner transaction — no 4th txn needed
     ];
 
     txns = algosdk.assignGroupID(txns);
-    return signWithLogicSig(poolLogicSig, txns);
+    return txns.map((txn) => ({ txn, signedTxn: null }));
 }
 
 export function prepareMintTransactions({
@@ -171,7 +145,7 @@ export function prepareMintTransactions({
     sender,
     suggestedParams,
 }: MintTxArgs): MaybeSignedTx[] {
-    // To ensure that a1 is not algo
+    // Ensure a1 > a2 (a1 is the non-ALGO asset)
     if (a1 < a2) {
         const a = a2;
         a2 = a1;
@@ -182,64 +156,41 @@ export function prepareMintTransactions({
     }
     const poolLogicSig = getPoolLogicSig(a1, a2, validatorAppId);
     const poolAddress = poolLogicSig.address();
-    const feeNote = toUint8Array('fee');
-    const validatorArgs = ['mint'].map(toUint8Array);
+    const validatorArgs = ['add_liquidity', 'flexible'].map(toUint8Array);
     const foreignAssets = [a1, a2, lpTokenId].filter((id) => id !== 0);
 
     let txns = [
-        algosdk.makePaymentTxnWithSuggestedParams(sender, poolAddress, 2000, undefined, feeNote, suggestedParams),
+        // Fee payment to cover validator inner txns (LP mint + change return)
+        algosdk.makePaymentTxnWithSuggestedParams(
+            sender, poolAddress, 2 * suggestedParams.minFee, undefined, undefined, suggestedParams
+        ),
+        // AppCall from USER to validator (v2 format)
         algosdk.makeApplicationNoOpTxn(
-            poolAddress,
+            sender,
             suggestedParams,
             validatorAppId,
             validatorArgs,
-            [sender],
+            [poolAddress],
             undefined,
             foreignAssets
         ),
+        // Asset 1 transfer (non-ALGO)
         algosdk.makeAssetTransferTxnWithSuggestedParams(
-            sender,
-            poolAddress,
-            undefined,
-            undefined,
-            assetInAmount,
-            undefined,
-            a1,
-            suggestedParams
+            sender, poolAddress, undefined, undefined, assetInAmount, undefined, a1, suggestedParams
         ),
+        // Asset 2 transfer (ALGO or ASA)
         a2 === 0
             ? algosdk.makePaymentTxnWithSuggestedParams(
-                  sender,
-                  poolAddress,
-                  assetOutAmount,
-                  undefined,
-                  undefined,
-                  suggestedParams
+                  sender, poolAddress, assetOutAmount, undefined, undefined, suggestedParams
               )
             : algosdk.makeAssetTransferTxnWithSuggestedParams(
-                  sender,
-                  poolAddress,
-                  undefined,
-                  undefined,
-                  assetOutAmount,
-                  undefined,
-                  a2,
-                  suggestedParams
+                  sender, poolAddress, undefined, undefined, assetOutAmount, undefined, a2, suggestedParams
               ),
-        algosdk.makeAssetTransferTxnWithSuggestedParams(
-            poolAddress,
-            sender,
-            undefined,
-            undefined,
-            lpAmount,
-            undefined,
-            lpTokenId,
-            suggestedParams
-        ),
+        // LP tokens are sent by validator via inner transaction — no 5th txn needed
     ];
 
     txns = algosdk.assignGroupID(txns);
-    return signWithLogicSig(poolLogicSig, txns);
+    return txns.map((txn) => ({ txn, signedTxn: null }));
 }
 
 export function prepareRedeemTransactions({

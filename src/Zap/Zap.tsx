@@ -393,6 +393,7 @@ export function Zap({
             const lpTokenId = zapData.pool_lp_id;
             const lpBalanceBefore = lpTokenId ? BigInt(balances[lpTokenId] ?? 0) : BigInt(0);
 
+            notify('Please sign the transaction in your wallet...', 'info');
             const res = await runTransactions(account, zapOp, token1.balance);
             if (res !== null) {
                 const txIds = res;
