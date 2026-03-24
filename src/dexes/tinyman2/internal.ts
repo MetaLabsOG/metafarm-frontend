@@ -106,15 +106,19 @@ export function prepareSwapTransactions({
         encodeUint64(assetOutAmount),  // minimum output (slippage protection)
     ];
     const foreignAssets = [a1, a2].filter((id) => id !== 0);
-    // AppCall needs extra fee to cover 1 inner txn (output transfer) via fee pooling
+    // AppCall fee covers itself + 1 inner txn (output transfer) via fee pooling
     const appCallParams = { ...suggestedParams, fee: suggestedParams.minFee * 2, flatFee: true };
 
     let txns = [
-        // Fee payment to pool
-        algosdk.makePaymentTxnWithSuggestedParams(
-            sender, poolAddress, suggestedParams.minFee, undefined, undefined, suggestedParams
-        ),
-        // AppCall from USER to validator (v2 format)
+        // Txn 0: Input asset transfer (must precede AppCall — validator uses GroupIndex-1)
+        assetInId === 0
+            ? algosdk.makePaymentTxnWithSuggestedParams(
+                  sender, poolAddress, assetInAmount, undefined, undefined, suggestedParams
+              )
+            : algosdk.makeAssetTransferTxnWithSuggestedParams(
+                  sender, poolAddress, undefined, undefined, assetInAmount, undefined, assetInId, suggestedParams
+              ),
+        // Txn 1: AppCall — last in group, output sent via inner transaction
         algosdk.makeApplicationNoOpTxn(
             sender,
             appCallParams,
@@ -124,15 +128,6 @@ export function prepareSwapTransactions({
             undefined,
             foreignAssets
         ),
-        // Input asset transfer
-        assetInId === 0
-            ? algosdk.makePaymentTxnWithSuggestedParams(
-                  sender, poolAddress, assetInAmount, undefined, undefined, suggestedParams
-              )
-            : algosdk.makeAssetTransferTxnWithSuggestedParams(
-                  sender, poolAddress, undefined, undefined, assetInAmount, undefined, assetInId, suggestedParams
-              ),
-        // Output is handled by validator via inner transaction — no 4th txn needed
     ];
 
     txns = algosdk.assignGroupID(txns);
@@ -166,15 +161,23 @@ export function prepareMintTransactions({
         encodeUint64(lpAmount),  // minimum LP tokens (slippage protection)
     ];
     const foreignAssets = [a1, a2, lpTokenId].filter((id) => id !== 0);
-    // AppCall needs extra fee to cover 2 inner txns (LP mint + change return) via fee pooling
+    // AppCall fee covers itself + 2 inner txns (LP mint + change return) via fee pooling
     const appCallParams = { ...suggestedParams, fee: suggestedParams.minFee * 3, flatFee: true };
 
     let txns = [
-        // Fee payment to pool
-        algosdk.makePaymentTxnWithSuggestedParams(
-            sender, poolAddress, 2 * suggestedParams.minFee, undefined, undefined, suggestedParams
+        // Txn 0: Asset 1 transfer (must precede AppCall — validator uses GroupIndex-2)
+        algosdk.makeAssetTransferTxnWithSuggestedParams(
+            sender, poolAddress, undefined, undefined, assetInAmount, undefined, a1, suggestedParams
         ),
-        // AppCall from USER to validator (v2 format)
+        // Txn 1: Asset 2 transfer (validator uses GroupIndex-1)
+        a2 === 0
+            ? algosdk.makePaymentTxnWithSuggestedParams(
+                  sender, poolAddress, assetOutAmount, undefined, undefined, suggestedParams
+              )
+            : algosdk.makeAssetTransferTxnWithSuggestedParams(
+                  sender, poolAddress, undefined, undefined, assetOutAmount, undefined, a2, suggestedParams
+              ),
+        // Txn 2: AppCall — last in group, LP tokens sent via inner transaction
         algosdk.makeApplicationNoOpTxn(
             sender,
             appCallParams,
@@ -184,19 +187,6 @@ export function prepareMintTransactions({
             undefined,
             foreignAssets
         ),
-        // Asset 1 transfer (non-ALGO)
-        algosdk.makeAssetTransferTxnWithSuggestedParams(
-            sender, poolAddress, undefined, undefined, assetInAmount, undefined, a1, suggestedParams
-        ),
-        // Asset 2 transfer (ALGO or ASA)
-        a2 === 0
-            ? algosdk.makePaymentTxnWithSuggestedParams(
-                  sender, poolAddress, assetOutAmount, undefined, undefined, suggestedParams
-              )
-            : algosdk.makeAssetTransferTxnWithSuggestedParams(
-                  sender, poolAddress, undefined, undefined, assetOutAmount, undefined, a2, suggestedParams
-              ),
-        // LP tokens are sent by validator via inner transaction — no 5th txn needed
     ];
 
     txns = algosdk.assignGroupID(txns);
