@@ -106,16 +106,18 @@ export function prepareSwapTransactions({
         encodeUint64(assetOutAmount),  // minimum output (slippage protection)
     ];
     const foreignAssets = [a1, a2].filter((id) => id !== 0);
+    // AppCall needs extra fee to cover 1 inner txn (output transfer) via fee pooling
+    const appCallParams = { ...suggestedParams, fee: suggestedParams.minFee * 2, flatFee: true };
 
     let txns = [
-        // Fee payment to cover validator inner txn (output transfer)
+        // Fee payment to pool
         algosdk.makePaymentTxnWithSuggestedParams(
             sender, poolAddress, suggestedParams.minFee, undefined, undefined, suggestedParams
         ),
         // AppCall from USER to validator (v2 format)
         algosdk.makeApplicationNoOpTxn(
             sender,
-            suggestedParams,
+            appCallParams,
             validatorAppId,
             validatorArgs,
             [poolAddress],
@@ -164,16 +166,18 @@ export function prepareMintTransactions({
         encodeUint64(lpAmount),  // minimum LP tokens (slippage protection)
     ];
     const foreignAssets = [a1, a2, lpTokenId].filter((id) => id !== 0);
+    // AppCall needs extra fee to cover 2 inner txns (LP mint + change return) via fee pooling
+    const appCallParams = { ...suggestedParams, fee: suggestedParams.minFee * 3, flatFee: true };
 
     let txns = [
-        // Fee payment to cover validator inner txns (LP mint + change return)
+        // Fee payment to pool
         algosdk.makePaymentTxnWithSuggestedParams(
             sender, poolAddress, 2 * suggestedParams.minFee, undefined, undefined, suggestedParams
         ),
         // AppCall from USER to validator (v2 format)
         algosdk.makeApplicationNoOpTxn(
             sender,
-            suggestedParams,
+            appCallParams,
             validatorAppId,
             validatorArgs,
             [poolAddress],
