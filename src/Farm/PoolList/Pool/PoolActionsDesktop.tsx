@@ -33,9 +33,7 @@ export const getLPTokenAction = (lpToken: LPTokenInfo, openModal: () => void) =>
             window.open(`https://${humbleUrl}/pool/add/${lpToken.poolId}`, '_blank');
         };
     } else if (lpToken.poolDex === 'T3') {
-        return () => {
-            window.open(getLPTokenPoolLink(lpToken.poolDex, lpToken.poolId, lpToken.asset1, lpToken.asset2), '_blank');
-        };
+        return openModal;
     }
 
     return () => {
