@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Account } from '@reach-sh/stdlib/ALGO';
 import { useUnit } from 'effector-react';
+import Switch from 'react-switch';
 import { logEvent, logFarmActionData, LogName } from '../logEvent';
 import { $account, $balances, fetchAsset } from '../common/store';
 import { algod } from '../AppContext';
@@ -10,30 +11,50 @@ import { TOKEN_OPTION } from '../Components/Select/Select';
 import { SelectInputGroup } from '../Components/SelectInputGroup/SelectInputGroup';
 import {
     DexButton,
-    DexName,
     DexSwitchContainer,
     Heading2,
-    ModalContainer,
-    ModalSubtitle,
-    ModalTitle,
-    Plus,
 } from '../common/styled';
-import { InfoPanel } from '../Components/InfoPanel/InfoPanel';
-import { InfoRow } from '../Components/InfoRow/InfoRow';
 import { TokenOptionType } from '../Components/Select/types';
-import { Zap as ZapOperation, DexProvider, makeDex, Mint, MintQuote, DexPool, Dex } from '../dexes';
+import { Zap as ZapOperation, DexProvider, makeDex, Mint, MintQuote, DexPool } from '../dexes';
 import { algoexplorerTxLink, fromSmallestUnits, getSmallestUnits } from '../common/lib';
 import { notify } from '../Components/Notification';
-import plus from '../imgs/plus.svg';
 import pact from '../imgs/dexes/pact.png';
 import tinyman from '../imgs/dexes/tinyman.png';
 import tinymanOld from '../imgs/dexes/tinymanOld.png';
 import humble from '../imgs/dexes/humble.png';
+import pacman from '../imgs/loader.gif';
 import { theme } from '../theme';
-import { SwitchSelect } from '../Components/SwitchSelect/SwitchSelect';
 import { getLPTokenPoolLink } from '../Farm/PoolList/Pool/utils';
 import { getDexName } from '../Farm/utils';
 import { ZapData } from './types';
+import {
+    ZapContainer,
+    ZapTitle,
+    ZapSubtitle,
+    FlowSeparator,
+    FlowLine,
+    FlowIcon,
+    FeatureToggles,
+    FeatureCard,
+    FeatureLabel,
+    FeatureTitle,
+    FeatureHint,
+    OutputPanel,
+    OutputLabel,
+    OutputHero,
+    OutputBreakdown,
+    OutputMeta,
+    OutputMetaItem,
+    OutputMetaLabel,
+    OutputMetaValue,
+    DetailsButton,
+    DetailsContent,
+    DetailItem,
+    DetailKey,
+    DetailVal,
+    ManualLink,
+    OutputSkeleton,
+} from './styled';
 
 export function quoteToZapData(asset1Id: number, inputQuote: ZapOperation | MintQuote | null): ZapData {
     if (inputQuote === null) {
@@ -95,15 +116,14 @@ export async function loadZapData(
             account?.networkAccount.addr,
             {
                 message: '[ZAP] get data',
-                asset1_id: zapData.asset1_id.toString(), // FIXME: airtable has string
+                asset1_id: zapData.asset1_id.toString(),
                 asset1_amount: zapData.asset1_amount,
-                asset2_id: zapData.asset2_id.toString(), // FIXME: airtable has string
+                asset2_id: zapData.asset2_id.toString(),
                 asset2_amount: zapData.asset2_amount,
                 lp_amount: zapData.lp_amount,
                 pool_lp_id: zapData.pool_lp_id,
                 asset1: asset1.unitName,
                 asset2: asset2.unitName,
-                // ...zap_data,
                 swapHalf: Number(swapHalf),
                 dex: dexProvider,
             },
@@ -135,52 +155,6 @@ export async function loadZapData(
         );
         return null;
     }
-}
-
-export function ZapResult({
-    isLoading,
-    zap_data,
-    token1,
-    token2,
-    dexProvider,
-    lpMicroBalance,
-}: {
-    isLoading: boolean;
-    zap_data: ZapData;
-    token1: TokenOptionType;
-    token2: TokenOptionType;
-    dexProvider: DexProvider;
-    lpMicroBalance: bigint;
-}) {
-    const [token1Amount, token2Amount] =
-        token1.id === zap_data.asset1_id
-            ? [zap_data.asset1_amount, zap_data.asset2_amount]
-            : [zap_data.asset2_amount, zap_data.asset1_amount];
-    const lpTokens =
-        `${formatNumber(token1Amount ?? 0)} ${token1.unitName}` +
-        ' + ' +
-        `${formatNumber(token2Amount ?? 0)} ${token2.unitName}`;
-
-    return (
-        <InfoPanel isLoading={isLoading} minHeight={175}>
-            <InfoRow
-                title={'Minimum received'}
-                value={formatNumber(zap_data.lp_amount ?? 0) + ' LP'}
-                valueStyle={{ fontSize: '18px', color: 'white' }}
-                style={{ marginBottom: '5px' }}
-            />
-            <InfoRow title=" " value={lpTokens} valueStyle={{ fontSize: '14px' }} />
-            <InfoRow
-                title="Current LP balance"
-                value={fromSmallestUnits({ decimals: zap_data.pool_lp_decimals }, lpMicroBalance)}
-            />
-            <InfoRow
-                title="LP ASA ID"
-                value={formatNumber(zap_data.pool_lp_id ?? 0) + ` (${getDexName(dexProvider)})`}
-            />
-            <InfoRow title="Max slippage" value={`${SLIPPAGE * 100}%`} />
-        </InfoPanel>
-    );
 }
 
 export function DexSwitch({
@@ -247,9 +221,8 @@ export function Zap({
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const [halfSwap, setHalfSwap] = useState(false);
-    const zapButtonText = !halfSwap ? 'GET LP' : 'CONVERT ' + token1.unitName + ' TO LP';
-
     const [autoStake, setAutoStake] = useState(Boolean(onAutoStake));
+    const [showDetails, setShowDetails] = useState(false);
 
     const [dexProvider, setDexProvider] = useState<DexProvider>(inputDexProvider);
     const [pool, setPool] = useState<DexPool | null>(null);
@@ -379,6 +352,22 @@ export function Zap({
 
     const zapData = quoteToZapData(token1.id, zapOp);
 
+    const zapButtonText = !halfSwap ? 'GET LP' : 'CONVERT ' + token1.unitName + ' TO LP';
+
+    // Compute display values for output panel
+    const [token1DisplayAmount, token2DisplayAmount] =
+        token1.id === zapData.asset1_id
+            ? [zapData.asset1_amount, zapData.asset2_amount]
+            : [zapData.asset2_amount, zapData.asset1_amount];
+    const lpTokensBreakdown =
+        `${formatNumber(token1DisplayAmount ?? 0)} ${token1.unitName}` +
+        ' + ' +
+        `${formatNumber(token2DisplayAmount ?? 0)} ${token2.unitName}`;
+    const currentLpBalance = fromSmallestUnits(
+        { decimals: zapData.pool_lp_decimals },
+        zapData.pool_lp_id ? balances[zapData.pool_lp_id] : BigInt(0)
+    );
+
     const ZapButtonOnClick = async () => {
         if (!isSwapZapDataValid(token1.value, token2.value, token1Amount)) {
             return;
@@ -432,10 +421,13 @@ export function Zap({
         }
     };
 
+    const hasOutput = zapData.pool_lp_id > 0;
+
     return (
-        <ModalContainer>
-            <ModalTitle style={{ textAlign: 'center', marginBottom: 0 }}>ZAP</ModalTitle>
-            <ModalSubtitle>Add liquidity and get LP tokens in one click</ModalSubtitle>
+        <ZapContainer>
+            <ZapTitle>ZAP</ZapTitle>
+            <ZapSubtitle>Add liquidity and get LP tokens in one click</ZapSubtitle>
+
             <SelectInputGroup
                 options={options}
                 selectedOption={token1}
@@ -444,9 +436,13 @@ export function Zap({
                 selectOnChange={select1OnChange}
                 inputOnChange={input1OnChange}
             />
-            <div style={{ marginBottom: '10px' }}>
-                <Plus alt="plus" src={plus} />
-            </div>
+
+            <FlowSeparator>
+                <FlowLine />
+                <FlowIcon>+</FlowIcon>
+                <FlowLine />
+            </FlowSeparator>
+
             <SelectInputGroup
                 options={options}
                 selectedOption={token2}
@@ -456,26 +452,91 @@ export function Zap({
                 inputOnChange={input2OnChange}
                 inputDisabled={halfSwap}
             />
-            <SwitchSelect
-                switchStatus={halfSwap}
-                onChange={handleChangeHalfSwap}
-                switchText={'auto-convert half ' + token1.unitName + ' to ' + token2.unitName}
-            />
-            {onAutoStake && (
-                <SwitchSelect
-                    switchStatus={autoStake}
-                    onChange={setAutoStake}
-                    switchText="auto-stake LP into farm"
-                />
+
+            <FeatureToggles>
+                <FeatureCard $isActive={halfSwap} onClick={() => handleChangeHalfSwap(!halfSwap)}>
+                    <FeatureLabel>
+                        <FeatureTitle>Auto-convert</FeatureTitle>
+                        <FeatureHint>Swap half {token1.unitName}</FeatureHint>
+                    </FeatureLabel>
+                    <div onClick={(e) => e.stopPropagation()}>
+                        <Switch
+                            onChange={handleChangeHalfSwap}
+                            checked={halfSwap}
+                            onColor={theme.green}
+                            offColor={theme.gray}
+                            onHandleColor={theme.darkGray}
+                            offHandleColor={theme.darkGray}
+                            uncheckedIcon={false}
+                            checkedIcon={false}
+                            height={18}
+                            width={34}
+                        />
+                    </div>
+                </FeatureCard>
+                {onAutoStake && (
+                    <FeatureCard $isActive={autoStake} onClick={() => setAutoStake(!autoStake)}>
+                        <FeatureLabel>
+                            <FeatureTitle>Auto-stake</FeatureTitle>
+                            <FeatureHint>Stake LP into farm</FeatureHint>
+                        </FeatureLabel>
+                        <div onClick={(e) => e.stopPropagation()}>
+                            <Switch
+                                onChange={setAutoStake}
+                                checked={autoStake}
+                                onColor={theme.green}
+                                offColor={theme.gray}
+                                onHandleColor={theme.darkGray}
+                                offHandleColor={theme.darkGray}
+                                uncheckedIcon={false}
+                                checkedIcon={false}
+                                height={18}
+                                width={34}
+                            />
+                        </div>
+                    </FeatureCard>
+                )}
+            </FeatureToggles>
+
+            {isLoading && (
+                <OutputSkeleton>
+                    <img style={{ width: 40, height: 40 }} alt="loading" src={pacman} />
+                </OutputSkeleton>
             )}
-            <ZapResult
-                isLoading={isLoading}
-                zap_data={zapData}
-                token1={token1}
-                token2={token2}
-                dexProvider={dexProvider}
-                lpMicroBalance={zapData.pool_lp_id ? balances[zapData.pool_lp_id] : BigInt(0)}
-            />
+
+            {!isLoading && hasOutput && (
+                <OutputPanel>
+                    <OutputLabel>You will receive</OutputLabel>
+                    <OutputHero>{formatNumber(zapData.lp_amount ?? 0)} LP</OutputHero>
+                    <OutputBreakdown>{lpTokensBreakdown}</OutputBreakdown>
+                    <OutputMeta>
+                        <OutputMetaItem>
+                            <OutputMetaLabel>Slippage</OutputMetaLabel>
+                            <OutputMetaValue>{SLIPPAGE * 100}%</OutputMetaValue>
+                        </OutputMetaItem>
+                        <OutputMetaItem>
+                            <OutputMetaLabel>Current LP</OutputMetaLabel>
+                            <OutputMetaValue>{formatNumber(currentLpBalance)}</OutputMetaValue>
+                        </OutputMetaItem>
+                        <OutputMetaItem>
+                            <OutputMetaLabel>DEX</OutputMetaLabel>
+                            <OutputMetaValue>{getDexName(dexProvider)}</OutputMetaValue>
+                        </OutputMetaItem>
+                    </OutputMeta>
+                    <DetailsButton onClick={() => setShowDetails(!showDetails)}>
+                        {showDetails ? '- Hide details' : '+ Details'}
+                    </DetailsButton>
+                    {showDetails && (
+                        <DetailsContent>
+                            <DetailItem>
+                                <DetailKey>LP ASA ID </DetailKey>
+                                <DetailVal>{formatNumber(zapData.pool_lp_id)}</DetailVal>
+                            </DetailItem>
+                        </DetailsContent>
+                    )}
+                </OutputPanel>
+            )}
+
             {!closeModal && (
                 <DexSwitch
                     dexes={['T2', 'PT']}
@@ -484,22 +545,23 @@ export function Zap({
                     dexOnChange={dexOnChange}
                 />
             )}
+
             <PacmanButton
                 buttonText={zapButtonText}
                 buttonStyle="swap_button"
                 onClickAction={ZapButtonOnClick}
-                style={{ marginTop: 20 }}
+                style={{ marginTop: 20, width: '100%' }}
             />
+
             {pool && (
-                <a
+                <ManualLink
                     target="_blank"
                     href={getLPTokenPoolLink(dexProvider, pool.poolId, token1.id, token2.id)}
                     rel="noreferrer"
-                    style={{ color: theme.lightGray }}
                 >
-                    <DexName>or do it manually</DexName>
-                </a>
+                    or do it manually
+                </ManualLink>
             )}
-        </ModalContainer>
+        </ZapContainer>
     );
 }
