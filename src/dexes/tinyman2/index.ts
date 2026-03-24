@@ -275,7 +275,7 @@ export class TinymanSwap implements Swap {
         });
 
         const group = encodeMaybeTxs(txs);
-        group.usedApps = [this.pool.dex.validatorAppId];
+        // No usedApps — user does NOT opt into the v2 validator (only pools do)
         group.usedAssets = [this.pool.asset1, this.pool.asset2];
         return [group];
     }
@@ -322,7 +322,7 @@ export class TinymanMint implements Mint {
         });
 
         const group = encodeMaybeTxs(txs);
-        group.usedApps = [this.pool.dex.validatorAppId];
+        // No usedApps — user does NOT opt into the v2 validator (only pools do)
         group.usedAssets = [this.pool.asset1, this.pool.asset2, this.pool.liquidityAsset];
         return [group];
     }
