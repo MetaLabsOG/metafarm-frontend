@@ -101,7 +101,10 @@ export function prepareSwapTransactions({
     const poolLogicSig = getPoolLogicSig(a1, a2, validatorAppId);
     const poolAddress = poolLogicSig.address();
     const swapTypeArg = swapType === 'fi' ? 'fixed-input' : 'fixed-output';
-    const validatorArgs = ['swap', swapTypeArg].map(toUint8Array);
+    const validatorArgs: Uint8Array[] = [
+        ...['swap', swapTypeArg].map(toUint8Array),
+        encodeUint64(assetOutAmount),  // minimum output (slippage protection)
+    ];
     const foreignAssets = [a1, a2].filter((id) => id !== 0);
 
     let txns = [
@@ -156,7 +159,10 @@ export function prepareMintTransactions({
     }
     const poolLogicSig = getPoolLogicSig(a1, a2, validatorAppId);
     const poolAddress = poolLogicSig.address();
-    const validatorArgs = ['add_liquidity', 'flexible'].map(toUint8Array);
+    const validatorArgs: Uint8Array[] = [
+        ...['add_liquidity', 'flexible'].map(toUint8Array),
+        encodeUint64(lpAmount),  // minimum LP tokens (slippage protection)
+    ];
     const foreignAssets = [a1, a2, lpTokenId].filter((id) => id !== 0);
 
     let txns = [
