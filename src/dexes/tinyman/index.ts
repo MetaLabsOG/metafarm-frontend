@@ -69,7 +69,7 @@ export class TinymanPool implements DexPool {
         this.asset1Reserve = BigInt(s1);
         this.asset2Reserve = BigInt(s2);
         this.totalLiquidity = BigInt(appState.ilt);
-        this.dexFeeApr = tinymanStatsData.annual_percentage_rate;
+        this.dexFeeApr = tinymanStatsData?.annual_percentage_rate ?? 0;
     }
 
     async getSwap(assetIn: AssetId | Asset, amountIn: Amount, slippage: number): Promise<Swap> {
