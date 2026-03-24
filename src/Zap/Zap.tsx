@@ -255,9 +255,13 @@ export function Zap({
     const [pool, setPool] = useState<DexPool | null>(null);
 
     useEffect(() => {
+        if (!token1.value || !token2.value) {
+            return;
+        }
         makeDex(dexProvider)
             .getPoolByAssets(token1.id, token2.id)
-            .then((pool) => setPool(pool));
+            .then((pool) => setPool(pool))
+            .catch(() => setPool(null));
     }, [dexProvider, token1, token2]);
 
     useEffect(() => {
