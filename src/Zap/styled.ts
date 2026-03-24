@@ -249,6 +249,25 @@ export const ManualLink = styled.a`
     }
 `;
 
+// USD hint below token inputs
+export const UsdHint = styled.div`
+    width: 100%;
+    text-align: right;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--gray);
+    padding: 4px 16px 0;
+    min-height: 20px;
+`;
+
+// Price impact indicator
+export const PriceImpact = styled.span<{ $severity: 'low' | 'medium' | 'high' }>`
+    color: ${({ $severity }) =>
+        $severity === 'low' ? '#4ade80' :
+        $severity === 'medium' ? '#f59e0b' :
+        '#ef4444'};
+`;
+
 // Loading skeleton for output panel
 export const OutputSkeleton = styled.div`
     width: 100%;

@@ -4,6 +4,7 @@ import { useUnit } from 'effector-react';
 import Switch from 'react-switch';
 import { logEvent, logFarmActionData, LogName } from '../logEvent';
 import { $account, $balances, fetchAsset } from '../common/store';
+import { $pricedAssets } from '../common/store/prices';
 import { algod } from '../AppContext';
 import { formatNumber, getTokens, isSwapZapDataValid, runTransactions, SLIPPAGE } from '../Swap/Swap';
 import { PacmanButton } from '../Components/PacmanButton/PacmanButton';
@@ -54,6 +55,8 @@ import {
     DetailVal,
     ManualLink,
     OutputSkeleton,
+    UsdHint,
+    PriceImpact,
 } from './styled';
 
 export function quoteToZapData(asset1Id: number, inputQuote: ZapOperation | MintQuote | null): ZapData {
@@ -210,6 +213,7 @@ export function Zap({
 }) {
     const account = useUnit($account);
     const balances = useUnit($balances);
+    const pricedAssets = useUnit($pricedAssets);
 
     const [token1, setToken1] = useState<TokenOptionType>(TOKEN_OPTION);
     const [token2, setToken2] = useState<TokenOptionType>(TOKEN_OPTION);
@@ -352,7 +356,27 @@ export function Zap({
 
     const zapData = quoteToZapData(token1.id, zapOp);
 
-    const zapButtonText = !halfSwap ? 'GET LP' : 'CONVERT ' + token1.unitName + ' TO LP';
+    // USD prices
+    const token1Price = pricedAssets.get(token1.id)?.price ?? 0;
+    const token2Price = pricedAssets.get(token2.id)?.price ?? 0;
+    const token1UsdValue = Number(token1Amount) * token1Price;
+    const token2UsdValue = Number(token2Amount) * token2Price;
+    const formatUsd = (value: number): string =>
+        value > 0 ? `≈ $${value < 0.01 ? value.toFixed(4) : value.toFixed(2)}` : '';
+
+    // Progressive CTA button text
+    const hasInput = token1Amount !== '' && Number(token1Amount) > 0;
+    const hasQuote = zapData.pool_lp_id > 0;
+    let zapButtonText: string;
+    if (!hasInput) {
+        zapButtonText = 'Enter Amount';
+    } else if (isLoading) {
+        zapButtonText = 'Getting Quote...';
+    } else if (hasQuote) {
+        zapButtonText = autoStake && onAutoStake ? 'ZAP & Stake' : 'ZAP — Get LP';
+    } else {
+        zapButtonText = halfSwap ? 'CONVERT ' + token1.unitName + ' TO LP' : 'GET LP';
+    }
 
     // Compute display values for output panel
     const [token1DisplayAmount, token2DisplayAmount] =
@@ -367,6 +391,16 @@ export function Zap({
         { decimals: zapData.pool_lp_decimals },
         zapData.pool_lp_id ? balances[zapData.pool_lp_id] : BigInt(0)
     );
+
+    // Price impact calculation
+    const inputUsd = halfSwap
+        ? token1UsdValue
+        : token1UsdValue + token2UsdValue;
+    const outputUsd =
+        (token1DisplayAmount ?? 0) * token1Price + (token2DisplayAmount ?? 0) * token2Price;
+    const priceImpact = inputUsd > 0 ? ((inputUsd - outputUsd) / inputUsd) * 100 : 0;
+    const priceImpactSeverity: 'low' | 'medium' | 'high' =
+        priceImpact < 0.5 ? 'low' : priceImpact < 2 ? 'medium' : 'high';
 
     const ZapButtonOnClick = async () => {
         if (!isSwapZapDataValid(token1.value, token2.value, token1Amount)) {
@@ -421,8 +455,6 @@ export function Zap({
         }
     };
 
-    const hasOutput = zapData.pool_lp_id > 0;
-
     return (
         <ZapContainer>
             <ZapTitle>ZAP</ZapTitle>
@@ -436,6 +468,7 @@ export function Zap({
                 selectOnChange={select1OnChange}
                 inputOnChange={input1OnChange}
             />
+            <UsdHint>{formatUsd(token1UsdValue)}</UsdHint>
 
             <FlowSeparator>
                 <FlowLine />
@@ -452,6 +485,7 @@ export function Zap({
                 inputOnChange={input2OnChange}
                 inputDisabled={halfSwap}
             />
+            <UsdHint>{formatUsd(token2UsdValue)}</UsdHint>
 
             <FeatureToggles>
                 <FeatureCard $isActive={halfSwap} onClick={() => handleChangeHalfSwap(!halfSwap)}>
@@ -504,12 +538,21 @@ export function Zap({
                 </OutputSkeleton>
             )}
 
-            {!isLoading && hasOutput && (
+            {!isLoading && hasQuote && (
                 <OutputPanel>
                     <OutputLabel>You will receive</OutputLabel>
                     <OutputHero>{formatNumber(zapData.lp_amount ?? 0)} LP</OutputHero>
                     <OutputBreakdown>{lpTokensBreakdown}</OutputBreakdown>
                     <OutputMeta>
+                        <OutputMetaItem>
+                            <OutputMetaLabel>Price Impact</OutputMetaLabel>
+                            <OutputMetaValue>
+                                <PriceImpact $severity={priceImpactSeverity}>
+                                    {priceImpact > 0 ? `${priceImpact.toFixed(2)}%` : '—'}
+                                    {priceImpactSeverity === 'high' && ' ⚠'}
+                                </PriceImpact>
+                            </OutputMetaValue>
+                        </OutputMetaItem>
                         <OutputMetaItem>
                             <OutputMetaLabel>Slippage</OutputMetaLabel>
                             <OutputMetaValue>{SLIPPAGE * 100}%</OutputMetaValue>
@@ -550,6 +593,7 @@ export function Zap({
                 buttonText={zapButtonText}
                 buttonStyle="swap_button"
                 onClickAction={ZapButtonOnClick}
+                isInactive={!hasInput || isLoading}
                 style={{ marginTop: 20, width: '100%' }}
             />
 
