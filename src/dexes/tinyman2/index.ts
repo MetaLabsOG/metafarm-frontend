@@ -154,7 +154,7 @@ export class Tinyman2Pool implements DexPool {
         }
 
         const liqA = (amount1 * this.totalLiquidity) / this.asset1Reserve;
-        const liqB = (amount2 * this.totalLiquidity) / this.asset1Reserve;
+        const liqB = (amount2 * this.totalLiquidity) / this.asset2Reserve;
         const liquidityIssued = liqA < liqB ? liqA : liqB;
         const bigintSlippage = BigInt(slippage * 1000);
         const minimalLiquidityIssued = liquidityIssued - (liquidityIssued * bigintSlippage) / BigInt(1000);
