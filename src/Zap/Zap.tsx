@@ -57,6 +57,9 @@ import {
     OutputSkeleton,
     UsdHint,
     PriceImpact,
+    EmptyNudge,
+    EmptyNudgeText,
+    SwapLink,
 } from './styled';
 
 export function quoteToZapData(asset1Id: number, inputQuote: ZapOperation | MintQuote | null): ZapData {
@@ -364,6 +367,11 @@ export function Zap({
     const formatUsd = (value: number): string =>
         value > 0 ? `≈ $${value < 0.01 ? value.toFixed(4) : value.toFixed(2)}` : '';
 
+    // Check if user has neither token
+    const hasNoTokens = token1.value && token2.value &&
+        (token1.balance === 0 || Number.isNaN(token1.balance)) &&
+        (token2.balance === 0 || Number.isNaN(token2.balance));
+
     // Progressive CTA button text
     const hasInput = token1Amount !== '' && Number(token1Amount) > 0;
     const hasQuote = zapData.pool_lp_id > 0;
@@ -531,6 +539,17 @@ export function Zap({
                     </FeatureCard>
                 )}
             </FeatureToggles>
+
+            {hasNoTokens && !isLoading && !hasQuote && (
+                <EmptyNudge>
+                    <EmptyNudgeText>
+                        You don't have {token1.unitName} or {token2.unitName} in your wallet
+                    </EmptyNudgeText>
+                    <SwapLink href="/swap">
+                        Buy on Swap →
+                    </SwapLink>
+                </EmptyNudge>
+            )}
 
             {isLoading && (
                 <OutputSkeleton>

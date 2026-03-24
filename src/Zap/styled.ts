@@ -268,6 +268,48 @@ export const PriceImpact = styled.span<{ $severity: 'low' | 'medium' | 'high' }>
         '#ef4444'};
 `;
 
+// Empty state nudge
+export const EmptyNudge = styled.div`
+    width: 100%;
+    padding: 20px;
+    background: var(--backgroundCard);
+    border-radius: 12px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+`;
+
+export const EmptyNudgeText = styled.p`
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--gray);
+    margin: 0;
+    line-height: 1.5;
+`;
+
+export const SwapLink = styled.a`
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(66, 201, 63, 0.9);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgba(66, 201, 63, 0.08);
+    border: 1px solid rgba(66, 201, 63, 0.15);
+    transition: background 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+        background: rgba(66, 201, 63, 0.12);
+        border-color: rgba(66, 201, 63, 0.25);
+    }
+`;
+
 // Loading skeleton for output panel
 export const OutputSkeleton = styled.div`
     width: 100%;
