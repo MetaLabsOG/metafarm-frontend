@@ -17,10 +17,14 @@ export const PoolHeaderContainer = styled.div`
     }
 
     @media (max-width: 700px) {
-        margin-bottom: 2px; /* Reduced margin for mobile */
-        line-height: 16px; /* Reduced line height for mobile */
-        font-size: 13px; /* Smaller font for mobile */
-        padding: 0 2px; /* Add minimal padding */
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 4px;
+        line-height: 16px;
+        font-size: 13px;
+        padding: 0 2px;
+        gap: 2px;
     }
 `;
 
@@ -33,8 +37,9 @@ export const PoolInfo = styled.div`
     margin-top: 4px;
 
     @media (max-width: 700px) {
-        margin-left: 12px;
-        margin-top: 3px;
+        margin-left: 0;
+        margin-top: 2px;
+        align-items: center;
     }
 `;
 
@@ -60,11 +65,12 @@ export const PoolTitle = styled.div`
     }
 
     @media (max-width: 700px) {
-        font-size: 11px;
-        max-width: 90px;
-        line-height: 1.1;
+        font-size: 12px;
+        max-width: none;
+        line-height: 1.2;
         letter-spacing: 0;
         font-weight: 700;
+        justify-content: center;
     }
 `;
 
@@ -75,6 +81,12 @@ export const PoolSubtitlesContainer = styled.div`
     justify-content: left;
     width: 100%;
     margin-top: 3px;
+
+    @media (max-width: 700px) {
+        padding-top: 1px;
+        margin-top: 1px;
+        justify-content: center;
+    }
 `;
 
 export const PoolSubtitle = styled.div`
@@ -94,10 +106,15 @@ export const PoolSubtitle = styled.div`
     }
 
     @media (max-width: 700px) {
-        font-size: 11px;
-        max-width: 90px;
-        line-height: 1.1;
+        font-size: 10px;
+        max-width: none;
+        line-height: 1.2;
         letter-spacing: 0;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
     }
 `;
 
@@ -168,13 +185,14 @@ export const ContractLockSuffix = styled.div`
         color: var(--lightGray);
     }
     @media (max-width: 700px) {
-        font-size: 7px; /* Even smaller font for mobile */
-        opacity: 0.7; /* More transparent */
-        max-width: 70px; /* Further limit width */
+        font-size: 7px;
+        opacity: 0.7;
+        max-width: 70px;
         overflow: hidden;
-        text-overflow: ellipsis; /* Add ellipsis for overflow */
+        text-overflow: ellipsis;
         white-space: nowrap;
-        letter-spacing: -0.1px; /* Tighter letter spacing */
+        letter-spacing: -0.1px;
+        text-align: center;
     }
 `;
 

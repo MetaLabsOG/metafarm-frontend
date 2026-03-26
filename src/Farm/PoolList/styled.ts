@@ -59,9 +59,9 @@ export const MobileFilterContainer = styled.div`
         flex-direction: column;
         align-items: center;
         width: 100%;
-        padding-left: 20px;
-        padding-right: 20px;
-        background-color: rgba(10, 10, 10, 0.15); /* Almost black and more transparent */
+        padding-left: 12px;
+        padding-right: 12px;
+        background-color: rgba(10, 10, 10, 0.15);
         backdrop-filter: blur(6px);
         border-radius: 16px;
         padding-top: 15px;
@@ -80,7 +80,8 @@ export const MobileFilterRow = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    width: 325px;
+    width: 100%;
+    max-width: 340px;
     transition: transform 0.2s ease;
 
     &:hover {

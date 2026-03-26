@@ -164,14 +164,15 @@ const GradientStakeButton = styled(StakeButtonMobile)`
   }
 
   @media (max-width: 700px) {
-    width: 60%;
-    height: 22px;
+    width: 70%;
+    height: 28px;
     font-size: 12px;
-    margin: 3px auto 0;
+    margin: 4px auto 0;
     padding: 0;
     background: rgba(144, 238, 144, 0.85);
     box-shadow: none;
     transition: none;
+    border-radius: 6px;
 
     &:disabled {
       background: rgba(100, 100, 100, 0.5);

@@ -157,14 +157,13 @@ export const PoolPropertyName = styled.div`
     }
 
     @media (max-width: 700px) {
-        font-size: 8px;
-        margin-bottom: 2px;
+        font-size: 9px;
+        margin-bottom: 1px;
         letter-spacing: 0.5px;
-        text-align: center; /* Ensure center alignment on mobile */
+        text-align: center;
 
         &::after {
-            width: 18px;
-            bottom: -1px;
+            display: none;
         }
     }
 `;
@@ -353,15 +352,15 @@ export const StakeButtonMobile = styled.button<{ disabled?: boolean }>`
     }
 
     @media (max-width: 700px) {
-        width: 70%; /* Wider button for better tap target */
-        height: 24px; /* Reduced height for mobile */
-        font-size: 13px; /* Smaller font for mobile */
-        margin: 4px auto 0; /* Reduced margin */
-        border-radius: 6px; /* Smaller border radius */
-        box-shadow: none; /* Remove shadow for performance */
+        width: 75%;
+        height: 28px;
+        font-size: 13px;
+        margin: 4px auto 0;
+        border-radius: 6px;
+        box-shadow: none;
 
         :not(:disabled):hover {
-            transform: none; /* Disable hover effect on mobile */
+            transform: none;
             box-shadow: none;
         }
     }
@@ -548,11 +547,10 @@ export const PoolInfoGrid = styled.div`
     @media (max-width: 700px) {
         gap: 6px;
         margin: 8px auto;
-        width: 98%; /* Increased from 94% */
+        width: 98%;
 
         &::after {
-            left: 3%;
-            right: 3%;
+            display: none;
         }
     }
 `;
