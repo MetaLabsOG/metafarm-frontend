@@ -68,19 +68,16 @@ export const PoolContainer = styled.div`
     }
 
     @media (max-width: 1120px) and (min-width: 701px) {
-        flex: 1 1 calc(50% - 20px);
-        margin-bottom: 16px; /* Increased spacing between cards */
+        width: 100%;
+        margin-bottom: 0;
     }
 
     @media (max-width: 700px) {
-        width: calc(50% - 2px); /* Further adjusted to fit two cards per row with a smaller gap */
-        max-width: 49.5%; /* Slightly increased percentage */
-        margin: 0 0 8px; /* Reduced bottom margin */
-        flex: 0 0 calc(50% - 2px); /* Force two cards per row with smaller gap */
-        box-sizing: border-box; /* Include padding in width calculation */
-        padding: 10px 0 10px 0; /* Further reduced padding for mobile */
-        min-width: 0; /* Prevent overflow */
-        /* Force disable expensive effects on mobile */
+        width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+        padding: 10px 0;
+        min-width: 0;
         backdrop-filter: none !important;
         box-shadow: none !important;
         transition: none !important;

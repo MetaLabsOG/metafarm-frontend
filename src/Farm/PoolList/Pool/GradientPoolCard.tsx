@@ -36,17 +36,15 @@ const GradientPoolContainer = styled(PoolContainer)`
     }
   }
 
-  /* Mobile — two cards per row */
+  /* Mobile — grid handles 2-column layout */
   @media (max-width: 700px) {
     background: rgba(10, 10, 10, 0.2);
     backdrop-filter: none;
     box-shadow: none;
     transition: none;
-    width: calc(50% - 4px) !important;
-    max-width: 49% !important;
-    margin: 0 0 8px 0 !important;
-    box-sizing: border-box !important;
-    flex: 0 0 calc(50% - 4px) !important;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
 
     &:hover {
       background: rgba(10, 10, 10, 0.2);
@@ -63,10 +61,9 @@ const CompactGradientPoolContainer = styled(GradientPoolContainer)`
   }
 
   @media (max-width: 700px) {
-    min-height: 100px; /* Further reduced height for mobile */
-    padding: 6px 0; /* Reduced padding */
-    width: calc(50% - 2px); /* Ensure width matches parent */
-    max-width: 49.5%; /* Use percentage instead of fixed width */
+    min-height: 100px;
+    padding: 6px 0;
+    width: 100%;
   }
 `;
 

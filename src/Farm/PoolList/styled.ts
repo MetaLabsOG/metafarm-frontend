@@ -110,40 +110,19 @@ export const PoolListContainer = styled.div`
     box-shadow: none;
 
     @media (max-width: 1120px) {
-        background-color: transparent;
-        backdrop-filter: none;
-        border: none;
-        box-shadow: none;
-        margin-top: 0;
         display: flex;
-        flex-wrap: wrap;
-        flex-direction: row;
-        justify-content: space-between;
-        gap: 20px;
+        flex-direction: column;
         align-items: center;
         min-width: unset;
         width: 100%;
+        margin-top: 0;
     }
 
     @media (max-width: 700px) {
-        margin-top: 36px;
-        display: flex;
-        flex-direction: column; /* Changed to column to ensure proper layout */
-        align-items: center; /* Center the content */
-        padding: 0 2px; /* Further reduced padding on the sides */
-        width: 100%; /* Ensure full width */
-        box-sizing: border-box; /* Include padding in width calculation */
-        max-width: 100%; /* Ensure container doesn't exceed viewport width */
-
-        /* Ensure the VirtualizedContainer inside gets proper styling */
-        & > div {
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 6px;
-        }
+        margin-top: 24px;
+        padding: 0;
+        width: 100%;
+        box-sizing: border-box;
     }
 `;
 

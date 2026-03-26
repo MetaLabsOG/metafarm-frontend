@@ -7,7 +7,6 @@ import { useWindowSize } from '../../hooks';
 import styled from 'styled-components';
 
 const DESKTOP_ITEM_HEIGHT = 130;
-const MOBILE_ITEM_HEIGHT = 160;
 const HEADER_OFFSET = 300;
 
 const VirtualizedContainer = styled.div`
@@ -17,6 +16,20 @@ const VirtualizedContainer = styled.div`
 
 const PoolRow = styled.div`
   padding: 0 2px;
+`;
+
+const MobilePoolGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  padding: 0 8px;
+  box-sizing: border-box;
+
+  @media (max-width: 700px) {
+    gap: 8px;
+    padding: 0 4px;
+  }
 `;
 
 const EmptyState = styled.div`
@@ -76,12 +89,14 @@ export const VirtualizedPoolList: React.FC<VirtualizedPoolListProps> = ({
 }) => {
   const listRef = useRef<List>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { isDesktop } = useWindowSize();
 
   const [listHeight, setListHeight] = useState(() =>
     typeof window !== 'undefined' ? window.innerHeight - HEADER_OFFSET : 600
   );
 
   useEffect(() => {
+    if (!isDesktop) return;
     const updateHeight = () => {
       const top = containerRef.current?.getBoundingClientRect().top ?? HEADER_OFFSET;
       setListHeight(Math.max(400, window.innerHeight - top - 20));
@@ -89,10 +104,9 @@ export const VirtualizedPoolList: React.FC<VirtualizedPoolListProps> = ({
     updateHeight();
     window.addEventListener('resize', updateHeight);
     return () => window.removeEventListener('resize', updateHeight);
-  }, []);
+  }, [isDesktop]);
 
-  const { isMobile } = useWindowSize();
-  const itemHeight = isMobile ? MOBILE_ITEM_HEIGHT : DESKTOP_ITEM_HEIGHT;
+  const itemHeight = DESKTOP_ITEM_HEIGHT;
 
   const priorityIndex = useMemo(() => {
     if (!priorityPoolId) return -1;
@@ -116,6 +130,25 @@ export const VirtualizedPoolList: React.FC<VirtualizedPoolListProps> = ({
     );
   }
 
+  // Mobile/tablet: CSS grid layout (2 columns, no virtualization needed for ~20 pools)
+  if (!isDesktop) {
+    return (
+      <MobilePoolGrid>
+        {filteredPools.map(pws => (
+          <Pool
+            key={pws.pool.id}
+            pws={pws}
+            isForcedOpen={priorityPoolId ? pws.pool.id === Number(priorityPoolId) : false}
+            initEvent={initEvent}
+            currentBlock={currentBlock}
+            openConnectWallet={openConnectWallet}
+          />
+        ))}
+      </MobilePoolGrid>
+    );
+  }
+
+  // Desktop: virtualized single-column list
   return (
     <VirtualizedContainer ref={containerRef}>
       <List
