@@ -14,7 +14,7 @@
     .wallet_container {
         padding-top: 0;
 				padding-right: 0;
-        margin: auto;
+        margin-left: auto;
         order: 2;
     }
 }

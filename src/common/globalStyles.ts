@@ -15,10 +15,11 @@ const GlobalStyle = createGlobalStyle`
     }
   }
 
-  /* Ensure html has proper height for background to repeat */
+  /* Ensure html has proper height and dark bg fallback */
   html {
     height: 100%;
     min-height: 100vh;
+    background-color: var(--background);
   }
 
   /* Hide column headers on mobile */

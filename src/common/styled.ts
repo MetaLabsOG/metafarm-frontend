@@ -48,6 +48,10 @@ export const ContentContainer = styled.main`
     margin-top: 50px;
     display: flex;
     justify-content: center;
+
+    @media (max-width: 979px) {
+        margin-top: 99px;
+    }
 `;
 
 export const InfoHeader = styled.h2`

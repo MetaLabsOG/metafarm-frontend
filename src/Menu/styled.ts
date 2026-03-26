@@ -1,5 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 
 import { WalletActionButton } from '../common/styled';
 import {
@@ -81,15 +81,6 @@ export const MenuItemsContainer = styled.nav`
     }
 `;
 
-export const MenuItemsBurger = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: space-between;
-    width: 500px;
-    padding: 20px;
-    gap: 30px;
-`;
 
 export const LogoWithMargin = styled.img`
     margin: auto;
@@ -104,27 +95,6 @@ export const Logo = styled.img`
     height: 20px; /* Reduced from 24px */
 `;
 
-export const Burger = styled.img`
-    display: none;
-    cursor: pointer;
-
-    &:focus {
-        outline: 2px solid var(--lightGreen);
-        border-radius: 4px;
-    }
-
-    &:focus:not(:focus-visible) {
-        outline: none;
-    }
-
-    @media (max-width: 970px) {
-        display: flex;
-        margin-left: 20px;
-    }
-    @media (max-width: 490px) {
-        order: 3;
-    }
-`;
 
 export const MainMenu = styled.div`
     display: flex;
@@ -154,11 +124,15 @@ export const MenuContainer = styled.header`
     justify-content: space-between;
     flex-direction: column;
     z-index: 10;
-    background: ${getOptimizedGradient('rgba(10, 10, 10, 0.3)', 'rgba(10, 10, 10, 0.4)')}; /* Less transparent for better visibility */
+    background: ${getOptimizedGradient('rgba(10, 10, 10, 0.3)', 'rgba(10, 10, 10, 0.4)')};
     backdrop-filter: ${getOptimizedBackdropFilter('blur(10px)')};
-    border-bottom: none; /* Made border invisible */
+    border-bottom: none;
     box-shadow: ${getOptimizedBoxShadow('0 8px 24px rgba(0, 0, 0, 0.15)')};
     transition: background 0.3s ease, box-shadow 0.3s ease;
+
+    @media (max-width: 979px) {
+        height: auto;
+    }
 
     &::after {
         content: '';
@@ -185,16 +159,6 @@ export const ExchangeRatesContainer = styled.div`
     }
 `;
 
-export const ExchangeRatesBurger = styled.div`
-    width: 200px;
-    padding: 20px;
-    display: flex;
-    justify-content: left;
-
-    @media (min-width: 490px) {
-        display: none;
-    }
-`;
 
 export const AssetPriceWithLogo = styled(WalletActionButton)`
     display: flex;
@@ -232,45 +196,18 @@ export const ExchangeRate = styled.span`
     }
 `;
 
-export const BurgerMenuContainer = styled.nav`
-    margin-top: 50px;
-    width: 100%;
-    position: fixed;
-    left: 0;
-    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.5)', 'rgba(30, 30, 30, 0.6)')}; /* Less transparent for better visibility */
-    backdrop-filter: ${getOptimizedBackdropFilter('blur(10px)')};
-    padding-left: 20px;
-    z-index: 10;
-    padding-bottom: 20px;
-    border-bottom: none; /* Made border invisible */
-    box-shadow: ${getOptimizedBoxShadow('0 8px 24px rgba(0, 0, 0, 0.15)')};
-
-    &::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.05) 50%,
-            rgba(255, 255, 255, 0) 100%);
-    }
-`;
 
 export const FooterContainer = styled.footer`
-    width: 100% !important;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 40px;
     margin-bottom: 10px;
-    padding: 15px 30px 15px 30px;
+    padding: 15px 30px;
     font-family: var(--font-body);
-    background: ${getOptimizedGradient('rgba(30, 30, 30, 0.5)', 'rgba(30, 30, 30, 0.8)')};
-    backdrop-filter: ${getOptimizedBackdropFilter('blur(8px)')};
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    background: transparent;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
     z-index: 5;
     position: relative;
 
@@ -316,6 +253,75 @@ export const FooterPoweredBy = styled.div`
     color: var(--gray);
     opacity: 0.6;
     letter-spacing: 0.02em;
+`;
+
+export const MobileNavRow = styled.div`
+    display: none;
+
+    @media (max-width: 979px) {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 44px;
+        gap: 12px;
+    }
+`;
+
+export const SegmentedControl = styled.div`
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 18px;
+    padding: 3px;
+`;
+
+export const NavPill = styled(Link)<{ $active: boolean }>`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0 20px;
+    border-radius: 15px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: ${({ $active }) => ($active ? 600 : 500)};
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+    background: ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.15)' : 'transparent')};
+    color: ${({ $active }) => ($active ? 'var(--lightGreen)' : 'rgba(255, 255, 255, 0.45)')};
+
+    @media (hover: hover) {
+        &:hover {
+            background: ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.15)' : 'rgba(255, 255, 255, 0.05)')};
+        }
+    }
+`;
+
+export const SwapNavButton = styled(Link)<{ $active: boolean }>`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0 20px;
+    border-radius: 15px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: ${({ $active }) => ($active ? 600 : 500)};
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    border: 1px solid ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.3)' : 'rgba(255, 255, 255, 0.08)')};
+    background: ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.15)' : 'transparent')};
+    color: ${({ $active }) => ($active ? 'var(--lightGreen)' : 'rgba(255, 255, 255, 0.45)')};
+
+    @media (hover: hover) {
+        &:hover {
+            border-color: ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.3)' : 'rgba(255, 255, 255, 0.15)')};
+            background: ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.15)' : 'rgba(255, 255, 255, 0.05)')};
+        }
+    }
 `;
 
 export const NetworkBadge = styled.div`

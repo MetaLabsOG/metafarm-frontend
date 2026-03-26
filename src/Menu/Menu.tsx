@@ -1,14 +1,12 @@
 import { useUnit, useStoreMap } from 'effector-react';
-import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import logo from '../imgs/logo.png';
 import meta_logo from '../imgs/meta_token.svg';
 import algo_logo from '../imgs/algo_token.svg';
-import burger from '../imgs/burger.svg';
 import { $algoUsdPrice, $pricedAssets, Asset, Priced } from '../common/store';
 import { ConnectWallet } from '../wallet/ConnectWallet';
 import { isMobile, META_TOKEN_ID } from '../AppContext';
 import { getTokenLink } from '../Farm/PoolList/Pool/utils';
-
 
 import {
     MenuItem,
@@ -19,11 +17,11 @@ import {
     MainMenu,
     Logo,
     LogoWithMargin,
-    Burger,
-    BurgerMenuContainer,
-    MenuItemsBurger,
-    ExchangeRatesBurger,
     AssetPriceWithLogo,
+    MobileNavRow,
+    SegmentedControl,
+    NavPill,
+    SwapNavButton,
 } from './styled';
 
 const formatPrice = (price: number | null): { formatted: string; isNonZero: boolean } => {
@@ -81,80 +79,48 @@ function ExchangeRates({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; MET
     );
 }
 
-function BurgerMenu({ ALGOPrice, METAPrice }: { ALGOPrice: number | null; METAPrice: Priced<Asset> | null }) {
+function MobileNav(): JSX.Element {
+    const path = useLocation().pathname;
+    const isFarmActive = path === '/' || path === '/farm';
+    const isStakeActive = path === '/stake';
+    const isSwapActive = path === '/swap';
 
     return (
-        <BurgerMenuContainer aria-label="Navigation menu">
-            <MenuItemsBurger>
-                <MenuItems />
-
-            </MenuItemsBurger>
-            <ExchangeRatesBurger>
-                <ExchangeRates ALGOPrice={ALGOPrice} METAPrice={METAPrice} />
-            </ExchangeRatesBurger>
-        </BurgerMenuContainer>
+        <MobileNavRow>
+            <SegmentedControl>
+                <NavPill to="/farm" $active={isFarmActive} aria-current={isFarmActive ? 'page' : undefined}>
+                    Farm
+                </NavPill>
+                <NavPill to="/stake" $active={isStakeActive} aria-current={isStakeActive ? 'page' : undefined}>
+                    Stake
+                </NavPill>
+            </SegmentedControl>
+            <SwapNavButton to="/swap" $active={isSwapActive} aria-current={isSwapActive ? 'page' : undefined}>
+                Swap
+            </SwapNavButton>
+        </MobileNavRow>
     );
 }
 
 export function Menu() {
     const ALGOPrice = useUnit($algoUsdPrice);
     const METAPrice = useStoreMap($pricedAssets, (as) => as.get(META_TOKEN_ID, null));
-    const [isBurgerOpen, setIsBurgerOpen] = useState(false);
-
-    useEffect(() => {
-        const clickHandler = () => {
-            isBurgerOpen && setIsBurgerOpen(!isBurgerOpen);
-        };
-
-        const keydownHandler = (e: KeyboardEvent) => {
-            e.key === 'Escape' && isBurgerOpen && setIsBurgerOpen(!isBurgerOpen);
-        };
-        window.addEventListener('click', clickHandler);
-        window.addEventListener('keydown', keydownHandler);
-
-        return () => {
-            window.removeEventListener('click', clickHandler);
-            window.removeEventListener('keydown', keydownHandler);
-        };
-    }, [isBurgerOpen]);
 
     return (
-        <>
-            <MenuContainer>
-                <MainMenu>
-                    <MenuItem to="/">
-                        <LogoWithMargin src={logo} alt="Cometa" height="40px" />
-                    </MenuItem>
-                    <Burger
-                        src={burger}
-                        alt="Open menu"
-                        height="20px"
-                        role="button"
-                        tabIndex={0}
-                        aria-expanded={isBurgerOpen}
-                        aria-label="Toggle navigation menu"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setIsBurgerOpen(!isBurgerOpen);
-                        }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setIsBurgerOpen(!isBurgerOpen);
-                            }
-                        }}
-                    />
-                    <MenuItemsContainer>
-                        <MenuItems />
-                    </MenuItemsContainer>
-                    <ExchangeRatesContainer>
-                        <ExchangeRates ALGOPrice={ALGOPrice} METAPrice={METAPrice} />
-                    </ExchangeRatesContainer>
-                    <ConnectWallet />
-                </MainMenu>
-            </MenuContainer>
-            {isBurgerOpen && <BurgerMenu ALGOPrice={ALGOPrice} METAPrice={METAPrice} />}
-        </>
+        <MenuContainer>
+            <MainMenu>
+                <MenuItem to="/">
+                    <LogoWithMargin src={logo} alt="Cometa" height="40px" />
+                </MenuItem>
+                <MenuItemsContainer>
+                    <MenuItems />
+                </MenuItemsContainer>
+                <ExchangeRatesContainer>
+                    <ExchangeRates ALGOPrice={ALGOPrice} METAPrice={METAPrice} />
+                </ExchangeRatesContainer>
+                <ConnectWallet />
+            </MainMenu>
+            <MobileNav />
+        </MenuContainer>
     );
 }

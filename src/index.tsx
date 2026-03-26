@@ -358,9 +358,9 @@ function App() {
                                 <WelcomeModal />
                             </Modal>
                         </Container>
+                        <Footer />
                     </MeteorsBackground>
                 </ModalProvider>
-                <Footer />
             </ThemeProvider>
         </>
     );
