@@ -290,7 +290,7 @@ const createFarm = async (
     } catch (error) {
         const error_message = error instanceof Error ? error.message : String(error);
         console.error('[ADDFARM]', error);
-        const additionalInfo = error instanceof AxiosError && error.response ? error.response.data.detail : '';
+        const additionalInfo = error instanceof AxiosError && error.response ? error.response.data?.detail ?? '' : '';
         if (error_message.includes('cancelled') || error_message.includes('The User has rejected')) {
             notify('Operation is cancelled.', 'warning');
         } else if (error_message.includes('popup')) {
