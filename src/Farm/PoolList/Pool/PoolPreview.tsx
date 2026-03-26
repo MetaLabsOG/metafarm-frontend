@@ -36,18 +36,7 @@ export function PoolPreview({ contractInfo }: { contractInfo: ContractInfo<FarmT
     const asset1_id = meta.asset1_id ? Number(meta.asset1_id) : 0;
     const asset2_id = meta.asset2_id ? Number(meta.asset2_id) : 0;
 
-    // No metadata for preview — fall back to skeleton
-    if (!asset1_id && !asset2_id) {
-        return (
-            <div style={{ padding: '20px' }}>
-                <SkeletonLine style={{ width: '60%', height: '16px', marginBottom: '12px' }} />
-                <SkeletonBlock style={{ height: '40px', marginBottom: '8px' }} />
-                <SkeletonLine style={{ width: '40%', height: '12px' }} />
-            </div>
-        );
-    }
-
-    const pool_name = parsePoolName(contractInfo.description) ?? '...';
+    const pool_name = parsePoolName(contractInfo.description) ?? (asset1_id || asset2_id ? '...' : `Farm #${contractInfo.id}`);
     const dex = (meta.dex as DexProvider) ?? null;
     const rewardTokenName = (meta.reward_token_name as string) ?? '...';
     const isVerified = Boolean(meta.verified);
