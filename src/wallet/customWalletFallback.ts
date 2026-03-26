@@ -12,7 +12,7 @@ import type {
 
 import { makeProviderByEnv } from '../reachRedefinitions';
 import { reach, ALGONET, MAINNET } from '../AppContext';
-import { walletConnectService } from './walletConnectService';
+import { walletConnectService, WalletTarget } from './walletConnectService';
 
 export type WalletType = 'WalletConnect' | 'WalletConnectDefly';
 export type ARC11_Wallet_Disconnectable = ARC11_Wallet & { disconnect: () => Promise<void> };
@@ -103,18 +103,22 @@ export const customWalletFallback = (options: any & { walletType: WalletType }) 
  * Unified WalletConnect v2 fallback for both Pera and Defly.
  * Uses a single shared SignClient with pre-generated pairing URI
  * so the QR code appears instantly on click.
+ * On mobile: opens wallet app directly via deep link instead of QR modal.
  */
 const walletFallback_WC = (options: object) => (): ARC11_Wallet_Disconnectable => {
+    const { walletType } = options as { walletType?: WalletType };
+    const walletTarget: WalletTarget = walletType === 'WalletConnectDefly' ? 'defly' : 'pera';
+
     const getAddr = async (): Promise<string> => {
         // Try reconnecting to an existing session first
         try {
             const addrs = await walletConnectService.reconnect();
             if (addrs.length > 0) return addrs[0];
         } catch {
-            // No active session — will show QR modal
+            // No active session — will connect (deep link on mobile, QR on desktop)
         }
 
-        const addrs = await walletConnectService.connect();
+        const addrs = await walletConnectService.connect(walletTarget);
         return addrs[0];
     };
 

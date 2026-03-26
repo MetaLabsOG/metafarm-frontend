@@ -20,6 +20,31 @@ const REQUIRED_NAMESPACES = {
     },
 };
 
+export type WalletTarget = 'pera' | 'defly';
+
+// User-agent based mobile detection (not screen width — deep links need actual mobile OS)
+function isMobileDevice(): boolean {
+    return typeof navigator !== 'undefined' && /iPhone|iPod|Android/i.test(navigator.userAgent);
+}
+
+function isAndroid(): boolean {
+    return typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
+}
+
+// Deep link schemes per wallet per platform (from @perawallet/connect-beta source)
+function getWalletDeepLink(wallet: WalletTarget, wcUri: string): string {
+    const scheme = wallet === 'pera'
+        ? (isAndroid() ? 'algorand://' : 'perawallet-wc://')
+        : (isAndroid() ? 'algorand://' : 'defly-wc://');
+    return `${scheme}wc?uri=${encodeURIComponent(wcUri)}`;
+}
+
+function getWalletScheme(wallet: WalletTarget): string {
+    return wallet === 'pera'
+        ? (isAndroid() ? 'algorand://' : 'perawallet-wc://')
+        : (isAndroid() ? 'algorand://' : 'defly-wc://');
+}
+
 interface PendingPairing {
     uri: string;
     approval: () => Promise<SessionTypes.Struct>;
@@ -34,6 +59,7 @@ class WalletConnectService {
     private modal: WalletConnectModal | null = null;
     private pendingPairing: PendingPairing | null = null;
     private initPromise: Promise<SignClient> | null = null;
+    private walletTarget: WalletTarget | null = null;
 
     constructor() {
         // Start SignClient init + pre-pairing immediately in background.
@@ -92,14 +118,19 @@ class WalletConnectService {
             this.modal = new WalletConnectModal({
                 projectId: WC_PROJECT_ID,
                 themeMode: 'dark',
+                explorerExcludedWalletIds: 'ALL',
             });
         }
 
         return this.modal;
     }
 
-    async connect(): Promise<string[]> {
+    async connect(walletTarget?: WalletTarget): Promise<string[]> {
         const client = await this.ensureClient();
+
+        if (walletTarget) {
+            this.walletTarget = walletTarget;
+        }
 
         let uri: string;
         let approval: () => Promise<SessionTypes.Struct>;
@@ -117,6 +148,26 @@ class WalletConnectService {
             approval = result.approval;
         }
 
+        // Mobile: open wallet app directly via deep link (skip QR modal)
+        if (isMobileDevice() && walletTarget) {
+            const deepLink = getWalletDeepLink(walletTarget, uri);
+            window.location.href = deepLink;
+
+            try {
+                this.session = await new Promise<SessionTypes.Struct>((resolve, reject) => {
+                    approval().then(resolve, reject);
+                    setTimeout(
+                        () => reject(new Error('WalletConnect approval timed out after 180s')),
+                        180_000
+                    );
+                });
+                return this.getAccountsFromSession(this.session);
+            } finally {
+                void this.preparePairing();
+            }
+        }
+
+        // Desktop: show QR code in WC modal
         const modal = this.getModal();
         let unsubscribe: (() => void) | undefined;
 
@@ -172,17 +223,23 @@ class WalletConnectService {
             setTimeout(() => reject(new Error('WalletConnect sign request timed out after 120s')), SIGN_TIMEOUT_MS)
         );
 
-        return (await Promise.race([
-            this.client.request({
-                topic: this.session.topic,
-                chainId: ALGORAND_CHAIN,
-                request: {
-                    method: 'algo_signTxn',
-                    params: [txns],
-                },
-            }),
-            timeout,
-        ])) as (string | null)[];
+        const requestPromise = this.client.request({
+            topic: this.session.topic,
+            chainId: ALGORAND_CHAIN,
+            request: {
+                method: 'algo_signTxn',
+                params: [txns],
+            },
+        });
+
+        // Mobile: open wallet app so user can see the pending sign request
+        if (isMobileDevice() && this.walletTarget) {
+            setTimeout(() => {
+                window.location.href = getWalletScheme(this.walletTarget!);
+            }, 500);
+        }
+
+        return (await Promise.race([requestPromise, timeout])) as (string | null)[];
     }
 
     async disconnect(): Promise<void> {
