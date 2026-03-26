@@ -6,7 +6,6 @@ import {
   getOptimizedBackdropFilter,
   getOptimizedBoxShadow,
   getOptimizedGradient,
-  isMobileDevice,
   isTouchDevice
 } from '../utils/mobileOptimizations';
 
@@ -255,7 +254,7 @@ export const FooterPoweredBy = styled.div`
     letter-spacing: 0.02em;
 `;
 
-export const MobileNavRow = styled.div`
+export const MobileNavRow = styled.nav`
     display: none;
 
     @media (max-width: 979px) {

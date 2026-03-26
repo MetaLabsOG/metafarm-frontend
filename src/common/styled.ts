@@ -50,7 +50,7 @@ export const ContentContainer = styled.main`
     justify-content: center;
 
     @media (max-width: 979px) {
-        margin-top: 99px;
+        margin-top: 99px; /* 55px header row + 44px mobile nav row */
     }
 `;
 
