@@ -8,30 +8,28 @@ interface SwitchSelectProps {
     compact?: boolean;
 }
 
-export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEnabled, compact }) => {
-    const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 700;
-    const fontSize = isMobileView ? '10px' : '13px';
+const options = [
+    {
+        label: 'All',
+        value: false,
+        selectedBackgroundColor: '#90ee90',
+        selectedFontColor: '#1e1e1e',
+        fontColor: 'white',
+        fontSize: '13px',
+        fontWeight: 500,
+    },
+    {
+        label: 'My Pools',
+        value: true,
+        selectedBackgroundColor: '#90ee90',
+        selectedFontColor: '#1e1e1e',
+        fontColor: 'white',
+        fontSize: '13px',
+        fontWeight: 500,
+    },
+];
 
-    const options = [
-        {
-            label: 'All',
-            value: false,
-            selectedBackgroundColor: '#90ee90',
-            selectedFontColor: '#1e1e1e',
-            fontColor: 'white',
-            fontSize,
-            fontWeight: 500,
-        },
-        {
-            label: isMobileView ? 'Mine' : 'My Pools',
-            value: true,
-            selectedBackgroundColor: '#90ee90',
-            selectedFontColor: '#1e1e1e',
-            fontColor: 'white',
-            fontSize,
-            fontWeight: 500,
-        },
-    ];
+export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEnabled, compact }) => {
 
     const init = options.findIndex(({ value }) => value === isEnabled);
     const [initialSelectedIndex, setInitialSelectedIndex] = useState(init);

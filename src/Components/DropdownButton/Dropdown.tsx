@@ -26,7 +26,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
             case ColumnType.Stake:
                 return 'MY STAKE';
             default:
-                return 'Unknown';
+                return 'TVL';
         }
     };
 
@@ -121,7 +121,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                                         padding: '8px 10px',
                                         cursor: 'pointer',
                                         color: 'white',
-                                        fontFamily: 'Montserrat',
+                                        fontFamily: 'var(--font-body)',
                                         fontWeight: 500,
                                         letterSpacing: '0.02em',
                                         marginTop: '2px',

@@ -196,6 +196,10 @@ export const AddFarmButtonContainer = styled(PrettyButtonContainer)`
         padding: 5px 14px;
         white-space: nowrap;
         flex-shrink: 0;
+
+        &::before {
+            display: none;
+        }
     }
 `;
 

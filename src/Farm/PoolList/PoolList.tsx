@@ -158,16 +158,16 @@ export function PoolList({
         }
     };
 
-    const onShowStatusClick = () => {
-        setShowEnded(!showEnded);
+    const onShowStatusClick = (ended: boolean) => {
+        setShowEnded(ended);
     };
 
-    const onChangePoolType = () => {
-        setShowMyPools(!showMyPools);
+    const onChangePoolType = (myPools: boolean) => {
+        setShowMyPools(myPools);
     };
 
-    const onVerifiedButton = () => {
-        setShowVerified(!showVerified);
+    const onVerifiedButton = (verified: boolean) => {
+        setShowVerified(verified);
     };
 
     return (
