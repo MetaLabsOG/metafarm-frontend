@@ -55,26 +55,31 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                     aria-haspopup="listbox"
                     aria-label="Sort pools"
                     style={{
-                        height: compact ? 28 : 30,
-                        backgroundColor: 'rgba(30, 30, 30, 0.25)',
-                        color: 'white',
+                        height: compact ? 26 : 30,
+                        backgroundColor: compact ? 'transparent' : 'rgba(30, 30, 30, 0.25)',
+                        color: compact ? 'rgba(255, 255, 255, 0.5)' : 'white',
                         fontSize: compact ? '11px' : '13px',
                         fontWeight: 500,
                         letterSpacing: '0.02em',
-                        borderRadius: '15px',
-                        padding: compact ? '5px 10px' : '7px 15px',
+                        borderRadius: compact ? '14px' : '15px',
+                        padding: compact ? '0 10px' : '7px 15px',
                         width: compact ? 'auto' : '140px',
                         minWidth: compact ? '60px' : undefined,
-                        border: 'rgba(80, 80, 80, 0.7) 1px solid',
+                        border: compact
+                            ? '1px solid rgba(255, 255, 255, 0.12)'
+                            : '1px solid rgba(80, 80, 80, 0.7)',
                         cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        fontFamily: 'Montserrat',
-                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.15s ease',
+                        fontFamily: 'var(--font-body)',
+                        boxShadow: compact ? 'none' : '0 2px 6px rgba(0, 0, 0, 0.1)',
                         textAlign: 'center',
                         whiteSpace: 'nowrap',
                     }}
                 >
-                    {isOpen ? (compact ? 'Sort' : 'Sort By') : (compact ? 'Sort ↓' : 'Sort By ↓')}
+                    {isOpen
+                        ? (compact ? 'Sort' : 'Sort By')
+                        : (compact ? `${getDisplayText(sortKey)} ↓` : `Sort By: ${getDisplayText(sortKey)} ↓`)
+                    }
                 </button>
                 {isOpen && (
                     <div
@@ -89,7 +94,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                             width: compact ? 'auto' : '100%',
                             minWidth: compact ? '120px' : undefined,
                             top: '120%',
-                            left: 0,
+                            ...(compact ? { right: 0 } : { left: 0 }),
                             borderRadius: '12px',
                             backdropFilter: 'blur(8px)',
                             border: '1px solid rgba(144, 238, 144, 0.2)',

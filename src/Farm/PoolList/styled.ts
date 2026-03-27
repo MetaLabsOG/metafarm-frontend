@@ -97,7 +97,8 @@ export const MobileFilterScrollArea = styled.div`
         display: none;
     }
 
-    & > div {
+    & > div,
+    & > button {
         flex-shrink: 0;
     }
 `;

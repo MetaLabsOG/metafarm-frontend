@@ -185,9 +185,9 @@ export function PoolList({
 
                     <MobileFilterBottomRow>
                         <MobileFilterScrollArea>
-                            <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
-                            <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
-                            <SwitchSelectPools onChange={onChangePoolType} isEnabled={showMyPools} />
+                            <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} compact />
+                            <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} compact />
+                            <SwitchSelectPools onChange={onChangePoolType} isEnabled={showMyPools} compact />
                         </MobileFilterScrollArea>
                         <DropdownButton
                             onColumnClick={onColumnClick}

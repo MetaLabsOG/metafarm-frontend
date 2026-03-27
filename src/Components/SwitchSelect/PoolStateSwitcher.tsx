@@ -1,19 +1,14 @@
 import { useEffect, useState } from 'react';
 import SwitchSelector from 'react-switch-selector';
-import PropTypes from 'prop-types';
-import { PoolStateWrapper } from './styled';
+import { PoolStateWrapper, MobileSegmentedControl, MobileSegmentOption } from './styled';
 
 interface PoolStateSwitcherProps {
     switchStatus: boolean;
     onChange: (status: boolean) => void;
+    compact?: boolean;
 }
 
-export const PoolStateSwitcher: React.FC<PoolStateSwitcherProps> = ({ switchStatus, onChange }) => {
-    PoolStateSwitcher.propTypes = {
-        switchStatus: PropTypes.bool.isRequired,
-        onChange: PropTypes.func.isRequired,
-    };
-
+export const PoolStateSwitcher: React.FC<PoolStateSwitcherProps> = ({ switchStatus, onChange, compact }) => {
     const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 700;
     const fontSize = isMobileView ? '10px' : '13px';
 
@@ -46,9 +41,29 @@ export const PoolStateSwitcher: React.FC<PoolStateSwitcherProps> = ({ switchStat
 
     useEffect(() => {
         const val = options.findIndex(({ value }) => value === switchStatus);
-
         setInitialSelectedIndex(val);
     }, [switchStatus]);
+
+    if (compact) {
+        return (
+            <MobileSegmentedControl>
+                <MobileSegmentOption
+                    $active={!switchStatus}
+                    onClick={() => { if (switchStatus) onChange(false); }}
+                    aria-pressed={!switchStatus}
+                >
+                    Live
+                </MobileSegmentOption>
+                <MobileSegmentOption
+                    $active={switchStatus}
+                    onClick={() => { if (!switchStatus) onChange(true); }}
+                    aria-pressed={switchStatus}
+                >
+                    Ended
+                </MobileSegmentOption>
+            </MobileSegmentedControl>
+        );
+    }
 
     return (
         <PoolStateWrapper>
@@ -59,7 +74,6 @@ export const PoolStateSwitcher: React.FC<PoolStateSwitcherProps> = ({ switchStat
                 backgroundColor={'rgba(30, 30, 30, 0.25)'}
                 fontColor={'white'}
                 selectedFontColor="#1e1e1e"
-                // borderColor and fontSize removed due to type errors
                 name="LiveSwitchSelector"
                 forcedSelectedIndex={initialSelectedIndex}
             />

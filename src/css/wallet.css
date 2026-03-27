@@ -71,20 +71,22 @@
 
 @media (max-width: 700px) {
     .connect_wallet {
-        width: 110px; /* Even smaller width for mobile */
-        height: 26px; /* Even smaller height for mobile */
-        font-size: 8px; /* Even smaller font for mobile */
-        border-radius: 5px; /* Smaller border radius */
-        background: rgba(144, 238, 144, 0.7); /* Slightly more opaque */
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Smaller shadow */
-        letter-spacing: 0.3px; /* Reduced letter spacing for mobile */
-        padding: 0 8px; /* Add horizontal padding */
+        width: auto;
+        height: 30px;
+        padding: 0 14px;
+        font-size: 10px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(144, 238, 144, 0.2), rgba(144, 238, 144, 0.15));
+        border: 1px solid rgba(144, 238, 144, 0.3);
+        color: var(--lightGreen);
+        box-shadow: none;
+        letter-spacing: 0.04em;
     }
 
     .connect_wallet:hover {
-        transform: none; /* Disable hover effect on mobile */
-        background: rgba(144, 238, 144, 0.8); /* Simplified hover background */
-        box-shadow: none; /* Remove shadow for performance */
+        transform: none;
+        background: linear-gradient(135deg, rgba(144, 238, 144, 0.25), rgba(144, 238, 144, 0.2));
+        box-shadow: none;
     }
 }
 

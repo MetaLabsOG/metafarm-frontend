@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import SwitchSelector from 'react-switch-selector';
-import { SwitchSelectWrapper } from './styled';
+import { SwitchSelectWrapper, MobileToggleChip } from './styled';
 
 interface SwitchSelectProps {
     onChange: (value: boolean) => void;
     isEnabled: boolean;
+    compact?: boolean;
 }
 
-export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEnabled }) => {
+export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEnabled, compact }) => {
     const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 700;
     const fontSize = isMobileView ? '10px' : '13px';
 
@@ -41,9 +42,20 @@ export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEna
 
     useEffect(() => {
         const val = options.findIndex(({ value }) => value === isEnabled);
-
         setInitialSelectedIndex(val);
     }, [isEnabled]);
+
+    if (compact) {
+        return (
+            <MobileToggleChip
+                $active={isEnabled}
+                onClick={() => onChange(!isEnabled)}
+                aria-pressed={isEnabled}
+            >
+                {isEnabled && '✓ '}Mine
+            </MobileToggleChip>
+        );
+    }
 
     return (
         <SwitchSelectWrapper>
@@ -54,7 +66,6 @@ export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEna
                 backgroundColor={'rgba(30, 30, 30, 0.25)'}
                 fontColor={'white'}
                 selectedFontColor="#1e1e1e"
-                // borderColor and fontSize removed due to type errors
                 name="PoolSwitchSelector"
                 forcedSelectedIndex={initialSelectedIndex}
             />

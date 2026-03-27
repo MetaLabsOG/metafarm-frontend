@@ -1,13 +1,14 @@
 import React from 'react';
 import SwitchSelector from 'react-switch-selector';
-import { MyVerifiedSwitchWrapper } from './styled';
+import { MyVerifiedSwitchWrapper, MobileToggleChip } from './styled';
 
 interface SwitchSelectProps {
     switchStatus: any;
     onChange: (status: boolean) => void;
+    compact?: boolean;
 }
 
-export const VerifiedSwitch: React.FC<SwitchSelectProps> = ({ onChange, switchStatus }) => {
+export const VerifiedSwitch: React.FC<SwitchSelectProps> = ({ onChange, switchStatus, compact }) => {
     const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 700;
     const fontSize = isMobileView ? '10px' : '13px';
 
@@ -38,6 +39,18 @@ export const VerifiedSwitch: React.FC<SwitchSelectProps> = ({ onChange, switchSt
         onChange(newValue.value);
     };
 
+    if (compact) {
+        return (
+            <MobileToggleChip
+                $active={switchStatus}
+                onClick={() => onChange(!switchStatus)}
+                aria-pressed={!!switchStatus}
+            >
+                {switchStatus && '✓ '}Verified
+            </MobileToggleChip>
+        );
+    }
+
     return (
         <MyVerifiedSwitchWrapper>
             <SwitchSelector
@@ -47,7 +60,6 @@ export const VerifiedSwitch: React.FC<SwitchSelectProps> = ({ onChange, switchSt
                 backgroundColor={'rgba(30, 30, 30, 0.25)'}
                 fontColor={'white'}
                 selectedFontColor="#1e1e1e"
-                // borderColor and fontSize removed due to type errors
                 name="VerifiedSwitcherSelect"
             />
         </MyVerifiedSwitchWrapper>
