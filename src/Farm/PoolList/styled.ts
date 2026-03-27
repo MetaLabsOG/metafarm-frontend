@@ -81,16 +81,22 @@ export const MobileFilterBottomRow = styled.div`
     gap: 6px;
     width: 100%;
     align-items: center;
+`;
+
+export const MobileFilterScrollArea = styled.div`
+    display: flex;
+    gap: 6px;
+    align-items: center;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding: 1px 0;
+    flex: 1;
+    min-width: 0;
 
     &::-webkit-scrollbar {
         display: none;
     }
 
-    /* Prevent switch wrappers from shrinking */
     & > div {
         flex-shrink: 0;
     }

@@ -33,6 +33,7 @@ import {
     MobileFilterContainer,
     MobileFilterTopRow,
     MobileFilterBottomRow,
+    MobileFilterScrollArea,
     FilterDivider,
     FilterGroup,
     FilterGroupLabel,
@@ -183,9 +184,11 @@ export function PoolList({
                     </MobileFilterTopRow>
 
                     <MobileFilterBottomRow>
-                        <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
-                        <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
-                        <SwitchSelectPools onChange={onChangePoolType} isEnabled={showMyPools} />
+                        <MobileFilterScrollArea>
+                            <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
+                            <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
+                            <SwitchSelectPools onChange={onChangePoolType} isEnabled={showMyPools} />
+                        </MobileFilterScrollArea>
                         <DropdownButton
                             onColumnClick={onColumnClick}
                             sortKey={sortKey}
