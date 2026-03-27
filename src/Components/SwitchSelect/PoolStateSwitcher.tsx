@@ -8,32 +8,36 @@ interface PoolStateSwitcherProps {
     onChange: (status: boolean) => void;
 }
 
-const options = [
-    {
-        label: 'Live',
-        value: false,
-        selectedBackgroundColor: '#90ee90',
-        selectedFontColor: '#1e1e1e',
-        fontColor: 'white',
-        fontSize: '13px',
-        fontWeight: 500,
-    },
-    {
-        label: 'Ended',
-        value: true,
-        selectedBackgroundColor: '#90ee90',
-        selectedFontColor: '#1e1e1e',
-        fontColor: 'white',
-        fontSize: '13px',
-        fontWeight: 500,
-    },
-];
-
 export const PoolStateSwitcher: React.FC<PoolStateSwitcherProps> = ({ switchStatus, onChange }) => {
     PoolStateSwitcher.propTypes = {
         switchStatus: PropTypes.bool.isRequired,
         onChange: PropTypes.func.isRequired,
     };
+
+    const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 700;
+    const fontSize = isMobileView ? '10px' : '13px';
+
+    const options = [
+        {
+            label: 'Live',
+            value: false,
+            selectedBackgroundColor: '#90ee90',
+            selectedFontColor: '#1e1e1e',
+            fontColor: 'white',
+            fontSize,
+            fontWeight: 500,
+        },
+        {
+            label: 'Ended',
+            value: true,
+            selectedBackgroundColor: '#90ee90',
+            selectedFontColor: '#1e1e1e',
+            fontColor: 'white',
+            fontSize,
+            fontWeight: 500,
+        },
+    ];
+
     const init = options.findIndex(({ value }) => value === switchStatus);
     const [initialSelectedIndex, setInitialSelectedIndex] = useState(init);
     const handleChange = (newValue: any) => {

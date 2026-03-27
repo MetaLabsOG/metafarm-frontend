@@ -8,6 +8,9 @@ interface SwitchSelectProps {
 }
 
 export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEnabled }) => {
+    const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 700;
+    const fontSize = isMobileView ? '10px' : '13px';
+
     const options = [
         {
             label: 'All',
@@ -15,16 +18,16 @@ export const SwitchSelectPools: React.FC<SwitchSelectProps> = ({ onChange, isEna
             selectedBackgroundColor: '#90ee90',
             selectedFontColor: '#1e1e1e',
             fontColor: 'white',
-            fontSize: '13px',
+            fontSize,
             fontWeight: 500,
         },
         {
-            label: 'My Pools',
+            label: isMobileView ? 'Mine' : 'My Pools',
             value: true,
             selectedBackgroundColor: '#90ee90',
             selectedFontColor: '#1e1e1e',
             fontColor: 'white',
-            fontSize: '13px',
+            fontSize,
             fontWeight: 500,
         },
     ];

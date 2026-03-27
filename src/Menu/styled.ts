@@ -261,8 +261,7 @@ export const MobileNavRow = styled.nav`
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 44px;
-        gap: 12px;
+        height: 36px;
     }
 `;
 
@@ -290,34 +289,14 @@ export const NavPill = styled(Link)<{ $active: boolean }>`
     background: ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.15)' : 'transparent')};
     color: ${({ $active }) => ($active ? 'var(--lightGreen)' : 'rgba(255, 255, 255, 0.45)')};
 
-    @media (hover: hover) {
-        &:hover {
-            background: ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.15)' : 'rgba(255, 255, 255, 0.05)')};
-        }
+    @media (max-width: 979px) {
+        height: 30px;
+        padding: 0 16px;
+        font-size: 12px;
     }
-`;
-
-export const SwapNavButton = styled(Link)<{ $active: boolean }>`
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 36px;
-    padding: 0 20px;
-    border-radius: 15px;
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: ${({ $active }) => ($active ? 600 : 500)};
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-    border: 1px solid ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.3)' : 'rgba(255, 255, 255, 0.08)')};
-    background: ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.15)' : 'transparent')};
-    color: ${({ $active }) => ($active ? 'var(--lightGreen)' : 'rgba(255, 255, 255, 0.45)')};
 
     @media (hover: hover) {
         &:hover {
-            border-color: ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.3)' : 'rgba(255, 255, 255, 0.15)')};
             background: ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.15)' : 'rgba(255, 255, 255, 0.05)')};
         }
     }

@@ -8,6 +8,9 @@ interface SwitchSelectProps {
 }
 
 export const VerifiedSwitch: React.FC<SwitchSelectProps> = ({ onChange, switchStatus }) => {
+    const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 700;
+    const fontSize = isMobileView ? '10px' : '13px';
+
     const options = [
         {
             label: 'All',
@@ -15,7 +18,7 @@ export const VerifiedSwitch: React.FC<SwitchSelectProps> = ({ onChange, switchSt
             selectedBackgroundColor: '#90ee90',
             selectedFontColor: '#1e1e1e',
             fontColor: 'white',
-            fontSize: '13px',
+            fontSize,
             fontWeight: 500,
         },
         {
@@ -24,7 +27,7 @@ export const VerifiedSwitch: React.FC<SwitchSelectProps> = ({ onChange, switchSt
             selectedBackgroundColor: '#90ee90',
             selectedFontColor: '#1e1e1e',
             fontColor: 'white',
-            fontSize: '13px',
+            fontSize,
             fontWeight: 500,
         },
     ];

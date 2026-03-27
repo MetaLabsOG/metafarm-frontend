@@ -15,6 +15,11 @@ export const FarmContainer = styled.div`
     padding: 20px;
     border: none;
     box-shadow: none;
+
+    @media (max-width: 979px) {
+        margin-top: 4px;
+        padding: 8px 12px 20px;
+    }
 `;
 
 export const DateInput = styled.input`
@@ -47,6 +52,11 @@ export const BalanceContainer = styled.div`
     align-items: center;
     margin-bottom: 20px;
     gap: 10px;
+
+    @media (max-width: 979px) {
+        margin-bottom: 10px;
+    }
+
     @media (max-width: 700px) {
         flex-direction: column;
         justify-content: center;
@@ -88,7 +98,9 @@ export const PoolSearchInput = styled.input`
     }
 
     @media (max-width: 700px) {
-        width: 140px;
+        width: auto;
+        flex: 1;
+        min-width: 0;
         margin: 0;
         padding: 0 10px;
         border-radius: 15px;

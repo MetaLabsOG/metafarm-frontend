@@ -31,9 +31,8 @@ import {
     TopTwoButtonsMobileContainer,
     DesktopFilterContainer,
     MobileFilterContainer,
-    MobileFilterRow,
-    VerticalSpacer,
-    HorizontalSpacer,
+    MobileFilterTopRow,
+    MobileFilterBottomRow,
     FilterDivider,
     FilterGroup,
     FilterGroupLabel,
@@ -174,43 +173,28 @@ export function PoolList({
         <div>
             <PoolTopLineContainer>
                 <MobileFilterContainer>
-                    <MobileFilterRow>
-                        <AddFarmButton addFarmType={poolType} />
-
-                        <HorizontalSpacer space="12px" />
-
-                        <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
-                    </MobileFilterRow>
-
-                    <VerticalSpacer space="12px" />
-
-                    <MobileFilterRow>
+                    <MobileFilterTopRow>
                         <PoolSearchInput
                             placeholder="Search token..." aria-label="Search pools by token name"
                             value={poolSearch}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => setPoolSearch(e.target.value)}
                         />
+                        <AddFarmButton addFarmType={poolType} />
+                    </MobileFilterTopRow>
 
-                        <HorizontalSpacer space="12px" />
-
+                    <MobileFilterBottomRow>
+                        <VerifiedSwitch onChange={onVerifiedButton} switchStatus={showVerified} />
                         <PoolStateSwitcher switchStatus={showEnded} onChange={onShowStatusClick} />
-                    </MobileFilterRow>
-
-                    <VerticalSpacer space="12px" />
-
-                    <MobileFilterRow>
+                        <SwitchSelectPools onChange={onChangePoolType} isEnabled={showMyPools} />
                         <DropdownButton
                             onColumnClick={onColumnClick}
                             sortKey={sortKey}
                             isAscSort={isAscSort}
                             swapArrow={swapArrow}
                             theme={theme}
+                            compact
                         />
-
-                        <HorizontalSpacer space="12px" />
-
-                        <SwitchSelectPools onChange={onChangePoolType} isEnabled={showMyPools} />
-                    </MobileFilterRow>
+                    </MobileFilterBottomRow>
                 </MobileFilterContainer>
 
                 <DesktopFilterContainer>

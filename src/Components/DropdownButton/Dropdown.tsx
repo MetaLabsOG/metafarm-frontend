@@ -7,9 +7,10 @@ interface DropdownButtonProps {
     isAscSort: boolean;
     swapArrow: string;
     theme: any;
+    compact?: boolean;
 }
 
-const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey, isAscSort, swapArrow, theme }) => {
+const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey, isAscSort, swapArrow, theme, compact }) => {
     const [isOpen, setIsOpen] = useState(false);
     const toggleDropdown = () => setIsOpen(!isOpen);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -54,24 +55,26 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                     aria-haspopup="listbox"
                     aria-label="Sort pools"
                     style={{
-                        height: 30,
+                        height: compact ? 28 : 30,
                         backgroundColor: 'rgba(30, 30, 30, 0.25)',
                         color: 'white',
-                        fontSize: '13px',
+                        fontSize: compact ? '11px' : '13px',
                         fontWeight: 500,
                         letterSpacing: '0.02em',
                         borderRadius: '15px',
-                        padding: '7px 15px',
-                        width: '140px',
+                        padding: compact ? '5px 10px' : '7px 15px',
+                        width: compact ? 'auto' : '140px',
+                        minWidth: compact ? '60px' : undefined,
                         border: 'rgba(80, 80, 80, 0.7) 1px solid',
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
                         fontFamily: 'Montserrat',
                         boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
                         textAlign: 'center',
+                        whiteSpace: 'nowrap',
                     }}
                 >
-                    {isOpen ? 'Sort By' : 'Sort By ↓'}
+                    {isOpen ? (compact ? 'Sort' : 'Sort By') : (compact ? 'Sort ↓' : 'Sort By ↓')}
                 </button>
                 {isOpen && (
                     <div
