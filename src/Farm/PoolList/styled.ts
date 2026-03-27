@@ -59,43 +59,41 @@ export const MobileFilterContainer = styled.div`
         flex-direction: column;
         align-items: center;
         width: 100%;
-        padding-left: 12px;
-        padding-right: 12px;
+        padding: 10px 8px;
         background-color: rgba(10, 10, 10, 0.15);
         backdrop-filter: blur(6px);
-        border-radius: 16px;
-        padding-top: 15px;
-        padding-bottom: 15px;
-        transition: box-shadow 0.2s ease;
+        border-radius: 12px;
+        gap: 8px;
         border: none;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-
-    &:hover {
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-    }
 `;
 
-export const MobileFilterRow = styled.div`
+export const MobileFilterTopRow = styled.div`
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    gap: 8px;
     width: 100%;
-    max-width: 340px;
-    transition: transform 0.2s ease;
+    align-items: center;
+`;
 
-    &:hover {
-        transform: translateY(-1px);
+export const MobileFilterBottomRow = styled.div`
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    align-items: center;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 1px 0;
+
+    &::-webkit-scrollbar {
+        display: none;
     }
-`;
 
-export const VerticalSpacer = styled.div<{ space?: string }>`
-    height: ${({ space }) => space};
-    width: 100%;
-`;
-
-export const HorizontalSpacer = styled.div<{ space?: string }>`
-    padding-left: ${({ space }) => space};
+    /* Prevent switch wrappers from shrinking */
+    & > div {
+        flex-shrink: 0;
+    }
 `;
 
 export const PoolListContainer = styled.div`
@@ -120,7 +118,7 @@ export const PoolListContainer = styled.div`
     }
 
     @media (max-width: 700px) {
-        margin-top: 24px;
+        margin-top: 12px;
         padding: 0;
         width: 100%;
         box-sizing: border-box;
@@ -187,7 +185,10 @@ export const AddFarmButtonContainer = styled(PrettyButtonContainer)`
     }
 
     @media (max-width: 700px) {
-        width: 140px;
+        width: auto;
+        padding: 5px 14px;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 `;
 
