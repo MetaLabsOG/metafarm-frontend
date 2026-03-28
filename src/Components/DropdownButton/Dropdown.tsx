@@ -7,9 +7,10 @@ interface DropdownButtonProps {
     isAscSort: boolean;
     swapArrow: string;
     theme: any;
+    compact?: boolean;
 }
 
-const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey, isAscSort, swapArrow, theme }) => {
+const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey, isAscSort, swapArrow, theme, compact }) => {
     const [isOpen, setIsOpen] = useState(false);
     const toggleDropdown = () => setIsOpen(!isOpen);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -25,7 +26,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
             case ColumnType.Stake:
                 return 'MY STAKE';
             default:
-                return 'Unknown';
+                return 'TVL';
         }
     };
 
@@ -54,24 +55,31 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                     aria-haspopup="listbox"
                     aria-label="Sort pools"
                     style={{
-                        height: 30,
-                        backgroundColor: 'rgba(30, 30, 30, 0.25)',
-                        color: 'white',
-                        fontSize: '13px',
+                        height: compact ? 26 : 30,
+                        backgroundColor: compact ? 'transparent' : 'rgba(30, 30, 30, 0.25)',
+                        color: compact ? 'rgba(255, 255, 255, 0.5)' : 'white',
+                        fontSize: compact ? '11px' : '13px',
                         fontWeight: 500,
                         letterSpacing: '0.02em',
-                        borderRadius: '15px',
-                        padding: '7px 15px',
-                        width: '140px',
-                        border: 'rgba(80, 80, 80, 0.7) 1px solid',
+                        borderRadius: compact ? '14px' : '15px',
+                        padding: compact ? '0 10px' : '7px 15px',
+                        width: compact ? 'auto' : '140px',
+                        minWidth: compact ? '60px' : undefined,
+                        border: compact
+                            ? '1px solid rgba(255, 255, 255, 0.12)'
+                            : '1px solid rgba(80, 80, 80, 0.7)',
                         cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        fontFamily: 'Montserrat',
-                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.15s ease',
+                        fontFamily: 'var(--font-body)',
+                        boxShadow: compact ? 'none' : '0 2px 6px rgba(0, 0, 0, 0.1)',
                         textAlign: 'center',
+                        whiteSpace: 'nowrap',
                     }}
                 >
-                    {isOpen ? 'Sort By' : 'Sort By ↓'}
+                    {isOpen
+                        ? (compact ? 'Sort' : 'Sort By')
+                        : (compact ? `${getDisplayText(sortKey)} ↓` : `Sort By: ${getDisplayText(sortKey)} ↓`)
+                    }
                 </button>
                 {isOpen && (
                     <div
@@ -83,9 +91,10 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                             backgroundColor: 'rgba(30, 30, 30, 0.9)',
                             fontSize: '13px',
                             boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
-                            width: '100%',
+                            width: compact ? 'auto' : '100%',
+                            minWidth: compact ? '120px' : undefined,
                             top: '120%',
-                            left: 0,
+                            ...(compact ? { right: 0 } : { left: 0 }),
                             borderRadius: '12px',
                             backdropFilter: 'blur(8px)',
                             border: '1px solid rgba(144, 238, 144, 0.2)',
@@ -112,7 +121,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = ({ onColumnClick, sortKey,
                                         padding: '8px 10px',
                                         cursor: 'pointer',
                                         color: 'white',
-                                        fontFamily: 'Montserrat',
+                                        fontFamily: 'var(--font-body)',
                                         fontWeight: 500,
                                         letterSpacing: '0.02em',
                                         marginTop: '2px',

@@ -35,6 +35,18 @@ export const AmountContainer = styled.div`
         justify-content: space-between;
         width: 30%;
     }
+
+    @media (max-width: 700px) {
+        padding: 6px 4px;
+
+        &:hover {
+            transform: none;
+        }
+
+        &::after {
+            display: none;
+        }
+    }
 `;
 
 export const AmountTitle = styled.div`
@@ -56,6 +68,11 @@ export const AmountTitle = styled.div`
 
     @media (max-width: 1120px) {
         font-size: 13px;
+    }
+
+    @media (max-width: 700px) {
+        font-size: 11px;
+        margin-bottom: 4px;
     }
 `;
 
@@ -79,6 +96,11 @@ export const AmountValue = styled.div`
     &.non-zero {
         color: white;
         text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+    }
+
+    @media (max-width: 700px) {
+        font-size: 16px;
+        line-height: 20px;
     }
 `;
 
@@ -123,12 +145,13 @@ export const BalanceList = styled.div`
     }
 
     @media (max-width: 700px) {
-        width: 325px;
-        height: 80px;
-        justify-content: center;
+        width: 100%;
+        height: 66px;
+        justify-content: space-evenly;
         line-height: 18px;
         background: rgba(10, 10, 10, 0.4);
         backdrop-filter: none;
         border-radius: 12px;
+        box-shadow: none;
     }
 `;

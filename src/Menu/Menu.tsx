@@ -21,7 +21,6 @@ import {
     MobileNavRow,
     SegmentedControl,
     NavPill,
-    SwapNavButton,
 } from './styled';
 
 const formatPrice = (price: number | null): { formatted: string; isNonZero: boolean } => {
@@ -94,10 +93,10 @@ function MobileNav(): JSX.Element {
                 <NavPill to="/stake" $active={isStakeActive} aria-current={isStakeActive ? 'page' : undefined}>
                     Stake
                 </NavPill>
+                <NavPill to="/swap" $active={isSwapActive} aria-current={isSwapActive ? 'page' : undefined}>
+                    Swap
+                </NavPill>
             </SegmentedControl>
-            <SwapNavButton to="/swap" $active={isSwapActive} aria-current={isSwapActive ? 'page' : undefined}>
-                Swap
-            </SwapNavButton>
         </MobileNavRow>
     );
 }

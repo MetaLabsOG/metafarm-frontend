@@ -28,14 +28,10 @@ export const MyVerifiedSwitchWrapper = styled.div`
     }
 
     @media (max-width: 700px) {
-        max-width: 700px;
-        width: 170px;
-        height: 30px;
+        width: 100px;
+        height: 28px;
         margin-top: 0;
-    }
-
-    @media (max-width: 430px) {
-        margin-left: 0;
+        font-size: 11px;
     }
 `;
 
@@ -57,8 +53,11 @@ export const PoolStateWrapper = styled.div`
     }
 
     @media (max-width: 700px) {
+        width: 100px;
+        height: 28px;
         margin-top: 0;
         margin-left: 0;
+        font-size: 11px;
     }
 `;
 
@@ -80,9 +79,58 @@ export const SwitchSelectWrapper = styled.div`
     }
 
     @media (max-width: 700px) {
-        width: 170px;
-        height: 30px;
+        width: 100px;
+        height: 28px;
         margin-top: 0;
         padding-left: 0;
+        font-size: 11px;
     }
+`;
+
+/* ── Mobile compact segmented control (Live / Ended) ── */
+
+export const MobileSegmentedControl = styled.div`
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 2px;
+    flex-shrink: 0;
+`;
+
+export const MobileSegmentOption = styled.button<{ $active: boolean }>`
+    height: 26px;
+    padding: 0 12px;
+    border-radius: 14px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: ${({ $active }) => ($active ? 600 : 500)};
+    letter-spacing: 0.02em;
+    background: ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.15)' : 'transparent')};
+    color: ${({ $active }) => ($active ? 'var(--lightGreen)' : 'rgba(255, 255, 255, 0.45)')};
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s ease, color 0.15s ease;
+`;
+
+/* ── Mobile toggle chip (Verified / Mine) ── */
+
+export const MobileToggleChip = styled.button<{ $active: boolean }>`
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 14px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    background: ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.08)' : 'transparent')};
+    color: ${({ $active }) => ($active ? 'var(--lightGreen)' : 'rgba(255, 255, 255, 0.5)')};
+    border: 1px solid ${({ $active }) => ($active ? 'rgba(144, 238, 144, 0.4)' : 'rgba(255, 255, 255, 0.12)')};
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 `;

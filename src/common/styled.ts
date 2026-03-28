@@ -50,7 +50,7 @@ export const ContentContainer = styled.main`
     justify-content: center;
 
     @media (max-width: 979px) {
-        margin-top: 99px; /* 55px header row + 44px mobile nav row */
+        margin-top: 86px; /* header row (auto) + 36px mobile nav row */
     }
 `;
 
@@ -285,6 +285,24 @@ export const PrettyButtonContainer = styled(WalletActionButton)`
 
     @media (max-width: 700px) {
         backdrop-filter: none;
+        height: 30px;
+        padding: 0 12px;
+        font-size: 11px;
+        border-radius: 16px;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        margin-right: 0;
+
+        &::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--lightGreen);
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
     }
 `;
 
