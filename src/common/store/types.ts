@@ -151,6 +151,35 @@ export type FarmLocalInfo = {
     rewardPerTokenPaid: Amount;
 };
 
+// Convert JSON-serialized BigNumber objects ({type: 'BigNumber', hex: '0x...'})
+// back to ethers BigNumber instances. Needed because the API cache returns plain JSON,
+// not live Reach objects with .toNumber()/.toBigInt() methods.
+function toBN(val: any): BigNumber {
+    if (val instanceof BigNumber) return val;
+    if (val && typeof val === 'object' && val.type === 'BigNumber' && val.hex) {
+        return BigNumber.from(val.hex);
+    }
+    if (typeof val === 'number' || typeof val === 'string' || typeof val === 'bigint') {
+        return BigNumber.from(val);
+    }
+    return BigNumber.from(0);
+}
+
+// Recursively convert all JSON BigNumber objects in a cache structure to ethers BigNumber instances.
+export function reviveBigNumbers(obj: any): any {
+    if (obj === null || obj === undefined) return obj;
+    if (typeof obj !== 'object') return obj;
+    if (obj.type === 'BigNumber' && obj.hex) {
+        return BigNumber.from(obj.hex);
+    }
+    if (Array.isArray(obj)) return obj.map(reviveBigNumbers);
+    const result: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+        result[key] = reviveBigNumbers(value);
+    }
+    return result;
+}
+
 // CONVERSIONS
 // I wish it could be done better, if only I had normal fucking typeclasses...
 // This is very boilerplate-y, it is probably possible to do such things generically
@@ -164,29 +193,29 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
 ): (obj: any) => AllDefined<ContractState<T>>[V] {
     const parseFarmInitialInfo = (obj: any): FarmInitialInfo => {
         const isOldContract = 'rewardPerBlock' in obj;
-        const endBlock = obj.endBlock.toNumber();
-        const beginBlock = obj.beginBlock.toNumber();
+        const endBlock = toBN(obj.endBlock).toNumber();
+        const beginBlock = toBN(obj.beginBlock).toNumber();
 
         return {
             beneficiary: obj.beneficiary,
-            creationFee: obj.creationFee.toBigInt(),
-            flatAlgoCreationFee: obj.flatAlgoCreationFee.toBigInt(),
-            stakeToken: obj.stakeToken.toNumber(),
-            rewardToken: obj.rewardToken.toNumber(),
+            creationFee: toBN(obj.creationFee).toBigInt(),
+            flatAlgoCreationFee: toBN(obj.flatAlgoCreationFee).toBigInt(),
+            stakeToken: toBN(obj.stakeToken || obj.token).toNumber(),
+            rewardToken: toBN(obj.rewardToken || obj.token).toNumber(),
             endBlock,
             beginBlock,
             totalRewardAmount: isOldContract
-                ? obj.rewardPerBlock.toBigInt() * BigInt(endBlock - beginBlock)
-                : obj.totalRewardAmount.toBigInt(),
+                ? toBN(obj.rewardPerBlock).toBigInt() * BigInt(endBlock - beginBlock)
+                : toBN(obj.totalRewardAmount).toBigInt(),
             totalAlgoRewardAmount: isOldContract
-                ? obj.extraAlgoRewardPerBlock.toBigInt() * BigInt(endBlock - beginBlock)
-                : obj.totalAlgoRewardAmount.toBigInt(),
-            lockLengthBlocks: obj.lockLengthBlocks.toBigInt(),
+                ? toBN(obj.extraAlgoRewardPerBlock).toBigInt() * BigInt(endBlock - beginBlock)
+                : toBN(obj.totalAlgoRewardAmount).toBigInt(),
+            lockLengthBlocks: toBN(obj.lockLengthBlocks).toBigInt(),
         };
     };
 
     const parseFarmGlobalInfo = (obj: any): FarmGlobalInfo => {
-        let totalStaked = obj.totalStaked.toBigInt();
+        let totalStaked = toBN(obj.totalStaked).toBigInt();
 
         // WARNING FIXME: ну это полная хуйня если честно
         if (totalStaked === BigInt(1)) {
@@ -196,54 +225,54 @@ export function parseView<T extends ContractType, V extends keyof ContractState<
 
         return {
             totalStaked,
-            lastUpdateBlock: obj.lastUpdateBlock.toNumber(),
-            rewardPerTokenStored: obj.rewardPerTokenStored.toBigInt(),
+            lastUpdateBlock: toBN(obj.lastUpdateBlock).toNumber(),
+            rewardPerTokenStored: toBN(obj.rewardPerTokenStored).toBigInt(),
         };
     };
 
     const parseFarmLocalInfo = (obj: any): FarmLocalInfo => ({
-        reward: obj.reward.toBigInt(),
-        staked: obj.staked.toBigInt(),
-        lockTimestamp: obj.lockTimestamp.toNumber(),
-        rewardPerTokenPaid: obj.rewardPerTokenPaid.toBigInt(),
+        reward: toBN(obj.reward).toBigInt(),
+        staked: toBN(obj.staked).toBigInt(),
+        lockTimestamp: toBN(obj.lockTimestamp).toNumber(),
+        rewardPerTokenPaid: toBN(obj.rewardPerTokenPaid).toBigInt(),
     });
 
     const parseDistributionInitialInfo = (obj: any): DistributionInitialInfo => {
         const isOldContract = 'rewardPerBlock' in obj;
-        const endBlock = obj.endBlock.toNumber();
-        const beginBlock = obj.beginBlock.toNumber();
+        const endBlock = toBN(obj.endBlock).toNumber();
+        const beginBlock = toBN(obj.beginBlock).toNumber();
 
         return {
             beneficiary: obj.beneficiary,
-            creationFee: obj.creationFee.toBigInt(),
-            flatAlgoCreationFee: obj.flatAlgoCreationFee.toBigInt(),
-            token: obj.token.toNumber(),
+            creationFee: toBN(obj.creationFee).toBigInt(),
+            flatAlgoCreationFee: toBN(obj.flatAlgoCreationFee).toBigInt(),
+            token: toBN(obj.token).toNumber(),
             endBlock,
             beginBlock,
             totalRewardAmount: isOldContract
-                ? obj.rewardPerBlock.toBigInt() * BigInt(endBlock - beginBlock)
-                : obj.totalRewardAmount.toBigInt(),
+                ? toBN(obj.rewardPerBlock).toBigInt() * BigInt(endBlock - beginBlock)
+                : toBN(obj.totalRewardAmount).toBigInt(),
             totalAlgoRewardAmount: isOldContract
-                ? obj.extraAlgoRewardPerBlock.toBigInt() * BigInt(endBlock - beginBlock)
-                : obj.totalAlgoRewardAmount.toBigInt(),
-            lockLengthBlocks: obj.lockLengthBlocks.toBigInt(),
+                ? toBN(obj.extraAlgoRewardPerBlock).toBigInt() * BigInt(endBlock - beginBlock)
+                : toBN(obj.totalAlgoRewardAmount).toBigInt(),
+            lockLengthBlocks: toBN(obj.lockLengthBlocks).toBigInt(),
         };
     };
 
     const parseCrowdsaleInitialInfo = (obj: any): CrowdsaleInitialInfo => ({
-        soldToken: obj.soldToken.toNumber(),
-        totalAmount: obj.totalAmount.toBigInt(),
-        rate: obj.rate.map((v: BigNumber) => v.toBigInt()),
-        individualCap: obj.individualCap.toBigInt(),
+        soldToken: toBN(obj.soldToken).toNumber(),
+        totalAmount: toBN(obj.totalAmount).toBigInt(),
+        rate: obj.rate.map((v: any) => toBN(v).toBigInt()),
+        individualCap: toBN(obj.individualCap).toBigInt(),
     });
 
     const parseCrowdsaleGlobalInfo = (obj: any): CrowdsaleGlobalInfo => ({
-        sold: obj.sold.toBigInt(),
+        sold: toBN(obj.sold).toBigInt(),
         revoked: obj.revoked,
     });
 
     const parseCrowdsaleLocalInfo = (obj: any): CrowdsaleLocalInfo => ({
-        alreadyBought: obj.alreadyBought.toBigInt(),
+        alreadyBought: toBN(obj.alreadyBought).toBigInt(),
     });
 
     return (obj: any): AllDefined<ContractState<T>>[V] => {

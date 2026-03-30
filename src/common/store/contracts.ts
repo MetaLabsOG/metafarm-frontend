@@ -22,7 +22,7 @@ import {
     signAndPostTxnGroups,
     toReachTxnGroup,
 } from '../lib';
-import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
+import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums, reviveBigNumbers } from './types';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
 // I'm sorry for this mess.... It can be done better I do believe.
@@ -249,7 +249,8 @@ export function buildContractsStore<T extends ContractType>(
                 (states, info) => {
                     if (!info.metadata.cache) return states;
                     try {
-                        return states.set(info.id, parseBignumState(type, info.metadata.cache));
+                        const revivedCache = reviveBigNumbers(info.metadata.cache);
+                        return states.set(info.id, parseBignumState(type, revivedCache));
                     } catch (e) {
                         console.warn(`Failed to parse cache for contract ${info.id}:`, e);
                         return states;
