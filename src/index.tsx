@@ -307,17 +307,13 @@ function App() {
         if (!farmsFetch.isSuccess || !farmsFetch.data) return;
 
         const activeContracts = farmsFetch.data as Array<ContractInfo<'farm'>>;
-        const withCache = activeContracts.filter((c: any) => c.metadata?.cache).length;
 
         if (userFarmsFetch.isSuccess && userFarmsFetch.data) {
             const userContracts = userFarmsFetch.data as Array<ContractInfo<'farm'>>;
             const activeIds = new Set(activeContracts.map((c: any) => c.id));
             const userOnly = userContracts.filter((c: any) => !activeIds.has(c.id));
-            const merged = [...activeContracts, ...userOnly];
-            console.log(`[DIAG] setPoolInfos: ${merged.length} contracts (${withCache}/${activeContracts.length} active with cache, ${userOnly.length} user-only)`);
-            setPoolInfosEvent(merged);
+            setPoolInfosEvent([...activeContracts, ...userOnly]);
         } else {
-            console.log(`[DIAG] setPoolInfos: ${activeContracts.length} active contracts (${withCache} with cache), no user data yet`);
             setPoolInfosEvent(activeContracts);
         }
     }, [farmsFetch.isSuccess, farmsFetch.data, userFarmsFetch.isSuccess, userFarmsFetch.data]);

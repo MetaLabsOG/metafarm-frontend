@@ -1,5 +1,5 @@
 import { useUnit } from 'effector-react';
-import { FarmType } from '../common/store';
+import { FarmType, $networkTime } from '../common/store';
 import { InfoCard } from '../Components/InfoCard/InfoCard';
 import { Balance } from './Balance';
 import { PoolList } from './PoolList';
@@ -37,8 +37,11 @@ export function Farm() {
     const state = useUnit($sortedPoolsWithStats);
     const poolsLoaded = useUnit($farmPoolsLoaded);
     const poolsError = useUnit($farmPoolsError);
+    const currentBlock = useUnit($networkTime);
     const initEvent = useUnit(initializeFarmContract);
-    const isLoading = !poolsLoaded && !poolsError;
+    // Wait for both pools AND currentBlock before rendering — prevents flash of
+    // unfiltered pools (all 98) that shrinks to 5 active once endBlock filter kicks in.
+    const isLoading = (!poolsLoaded && !poolsError) || (poolsLoaded && !poolsError && currentBlock === 0);
 
     return (
         <FarmContainer>
