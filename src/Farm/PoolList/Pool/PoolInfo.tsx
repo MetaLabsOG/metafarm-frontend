@@ -1,6 +1,6 @@
 import { useUnit } from 'effector-react';
 import { $account, $meanRoundDuration, Asset, ContractState, FarmType, Priced, Time } from '../../../common/store';
-import { LPTokenInfo } from '../../../dexes';
+import { DexProvider, LPTokenInfo } from '../../../dexes';
 import { DAY, HOUR, MINUTE } from '../../../common/lib';
 import { AprType } from '../../store';
 import { calculateTimeByBlock } from '../../AddFarm';
@@ -75,6 +75,7 @@ export function PoolInfo({
     apr: AprType;
 }) {
     const isFarm = isLPTokenInfo(stakeTokenInfo);
+    const hasFarmMetadata = poolMetadata?.dex && poolMetadata?.asset1_id;
     const account = useUnit($account);
     const meanRoundDuration = useUnit($meanRoundDuration);
     const { isMobile, isTablet } = useWindowSize();
@@ -82,8 +83,16 @@ export function PoolInfo({
 
     const timing = calculateTiming(poolState, currentBlock, beginBlock, endBlock, meanRoundDuration);
 
-    const asset1_id = isFarm ? stakeTokenInfo.asset1 : stakeTokenInfo.id;
-    const asset2_id = isFarm ? stakeTokenInfo.asset2 : rewardTokenInfo.id;
+    // For farm pools with LP token info resolved, use LP's asset1/asset2.
+    // When LP info is missing (backend returned null), fall back to metadata asset IDs
+    // which are always correct (set at farm creation time). Without this fallback,
+    // the LP token's own ID would be used as icon — showing a wrong/random image.
+    const asset1_id = isFarm
+        ? stakeTokenInfo.asset1
+        : (hasFarmMetadata ? Number(poolMetadata.asset1_id) : stakeTokenInfo.id);
+    const asset2_id = isFarm
+        ? stakeTokenInfo.asset2
+        : (hasFarmMetadata ? Number(poolMetadata.asset2_id) : rewardTokenInfo.id);
     const pool_name = isFarm
         ? formatLPTokenName(stakeTokenInfo)
         : formatRawLPTokenName(stakeTokenInfo.name) ?? 'Stake ' + stakeTokenInfo.unitName;
@@ -93,7 +102,7 @@ export function PoolInfo({
         ? 'with ' + blocksToText(Number(contractState.initial.lockLengthBlocks), meanRoundDuration, isMobileView) + ' lock'
         : '';
 
-    const dex = isFarm ? stakeTokenInfo.poolDex : null;
+    const dex = isFarm ? stakeTokenInfo.poolDex : (hasFarmMetadata ? poolMetadata.dex as DexProvider : null);
 
     return isMobile || isTablet ? (
         <PoolInfoMobile
