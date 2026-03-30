@@ -22,7 +22,7 @@ import {
     signAndPostTxnGroups,
     toReachTxnGroup,
 } from '../lib';
-import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums, reviveBigNumbers } from './types';
+import { Contract, ContractType, ContractInfo, ContractState, AppId, parseView, AllBignums } from './types';
 import { $account, fetchAccountInfoFx, refreshAccountInfo } from './account';
 import { expBackoff, waitForEvent } from './utils';
 // I'm sorry for this mess.... It can be done better I do believe.
@@ -249,8 +249,11 @@ export function buildContractsStore<T extends ContractType>(
                 (states, info) => {
                     if (!info.metadata.cache) return states;
                     try {
-                        const revivedCache = reviveBigNumbers(info.metadata.cache);
-                        return states.set(info.id, parseBignumState(type, revivedCache));
+                        // Note: info.metadata.cache already has live BigNumber instances
+                        // (revived by resolveBignums in getContracts/readCachedContracts).
+                        // Do NOT call reviveBigNumbers here — it destroys BigNumber instances
+                        // by iterating their internal properties (_hex, _isBigNumber).
+                        return states.set(info.id, parseBignumState(type, info.metadata.cache));
                     } catch (e) {
                         console.warn(`Failed to parse cache for contract ${info.id}:`, e);
                         return states;
