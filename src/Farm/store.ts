@@ -616,8 +616,12 @@ export const combinePoolsWithInfo = <T extends FarmType>(
 ) =>
     combine({ pools, aprs, dollarInfos }, ({ pools, aprs, dollarInfos }) => {
         if (pools.length !== aprs.length || pools.length !== dollarInfos.length) {
-            console.warn(`combinePoolsWithInfo: length mismatch pools=${pools.length} aprs=${aprs.length} dollarInfos=${dollarInfos.length}`);
+            console.warn(`[DIAG] combinePoolsWithInfo: length mismatch pools=${pools.length} aprs=${aprs.length} dollarInfos=${dollarInfos.length}`);
             return [];
+        }
+        const nullStates = pools.filter(p => p.state === null).length;
+        if (pools.length > 0) {
+            console.log(`[DIAG] combinePoolsWithInfo: ${pools.length} pools (${nullStates} null-state), ${aprs.length} aprs, ${dollarInfos.length} dollarInfos`);
         }
         return pools.map((pool, i): PoolWithStats => ({
             pool,

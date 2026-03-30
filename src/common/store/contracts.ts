@@ -243,26 +243,35 @@ export function buildContractsStore<T extends ContractType>(
     const $contractStates = createStore(Map<AppId, ContractState<T>>());
     const $contractCtcs = createStore(Map<AppId, any>());
 
-    const $contractStateCaches = $contractInfos.map((infos) =>
-        infos
+    const $contractStateCaches = $contractInfos.map((infos) => {
+        let parsed = 0;
+        let failed = 0;
+        let noCache = 0;
+        const result = infos
             .reduce(
                 (states, info) => {
-                    if (!info.metadata.cache) return states;
+                    if (!info.metadata.cache) { noCache++; return states; }
                     try {
                         // Note: info.metadata.cache already has live BigNumber instances
                         // (revived by resolveBignums in getContracts/readCachedContracts).
                         // Do NOT call reviveBigNumbers here — it destroys BigNumber instances
                         // by iterating their internal properties (_hex, _isBigNumber).
+                        parsed++;
                         return states.set(info.id, parseBignumState(type, info.metadata.cache));
                     } catch (e) {
+                        failed++;
                         console.warn(`Failed to parse cache for contract ${info.id}:`, e);
                         return states;
                     }
                 },
                 Map<AppId, ContractState<T>>().asMutable()
             )
-            .asImmutable()
-    );
+            .asImmutable();
+        if (infos.length > 0) {
+            console.log(`[DIAG] ${type} contractStateCaches: ${infos.length} infos → ${parsed} parsed, ${failed} failed, ${noCache} no cache`);
+        }
+        return result;
+    });
 
     const $contractStatesWithCache = combine($contractStateCaches, $contractStates, (caches, states) =>
         caches.merge(states)
