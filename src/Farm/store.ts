@@ -1,6 +1,6 @@
 import { Map, Set } from 'immutable';
 import { createEffect, createStore, sample, combine, Store, createEvent, restore } from 'effector';
-import { ascend, descend, min, Ord, sort, zip, zipWith } from 'ramda';
+import { ascend, descend, min, Ord, sort } from 'ramda';
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-ignore
@@ -419,24 +419,6 @@ export const $farmRewardTokens = combine($pricedAssets, $contractStatesWithCache
 );
 
 // Price aggregation
-const getDollarInfo = <T extends FarmType>(
-    states: Array<ContractState<T>>,
-    tokens: Map<AssetId, Priced<Asset>>,
-    getAmount: (s: ContractState<T>) => Amount | undefined,
-    getToken: (s: ContractState<T>) => AssetId
-): number[] =>
-    states.map((state) => {
-        const token = getToken(state);
-        const amount = getAmount(state);
-        const tokenInfo = tokens.get(token, null);
-
-        if (!amount || !token || !tokenInfo) {
-            return 0;
-        }
-
-        return convertAmountToUSD(tokenInfo, amount);
-    });
-
 export interface PoolDollarInfo {
     tvl: number;
     userStake: number;
@@ -445,38 +427,37 @@ export interface PoolDollarInfo {
 
 export function createDollarInfos<T extends FarmType>($pools: Store<Array<Contract<T>>>): Store<PoolDollarInfo[]> {
     return combine(
-        $pools.map((contracts) => contracts.map((c) => c.state).filter((s): s is ContractState<T> => s !== null)),
+        $pools,
         $lpTokenInfos,
         $pricedAssets,
-        (states, lpTokens, tokens) => {
-            const getToken = (s: ContractState<T>) => ('token' in s.initial ? s.initial.token : s.initial.stakeToken);
+        (pools, lpTokens, tokens) => {
             const allTokens = tokens.merge(lpTokens);
-            const tvls = getDollarInfo(states, allTokens, (s) => s.global.totalStaked, getToken);
-            const userStakes: number[] = getDollarInfo(states, allTokens, (s) => s.local?.staked, getToken);
-            const pendingRewards = states.map((state) => {
-                const token = 'token' in state.initial ? state.initial.token : state.initial.rewardToken;
-                const tokenInfo = tokens.get(token, null);
+            const zeroDollarInfo: PoolDollarInfo = { tvl: 0, userStake: 0, pendingReward: 0 };
+
+            return pools.map((pool) => {
+                const state = pool.state;
+                if (state === null) return zeroDollarInfo;
+
+                const stakeToken = 'token' in state.initial ? state.initial.token : state.initial.stakeToken;
+                const stakeTokenInfo = allTokens.get(stakeToken, null);
+
+                const tvl = stakeTokenInfo && state.global.totalStaked
+                    ? convertAmountToUSD(stakeTokenInfo, state.global.totalStaked)
+                    : 0;
+                const userStake = stakeTokenInfo && state.local?.staked
+                    ? convertAmountToUSD(stakeTokenInfo, state.local.staked)
+                    : 0;
+
+                const rewardToken = 'token' in state.initial ? state.initial.token : state.initial.rewardToken;
+                const rewardTokenInfo = tokens.get(rewardToken, null);
                 const algoInfo = tokens.get(0, null);
                 const tokenReward = state.local?.reward ?? BigInt(0);
+                const pendingReward = tokenReward && rewardToken && rewardTokenInfo && algoInfo
+                    ? convertAmountToUSD(rewardTokenInfo, tokenReward) + convertAmountToUSD(algoInfo, calculateAlgoReward(state.initial, tokenReward))
+                    : 0;
 
-                if (!tokenReward || !token || !tokenInfo || !algoInfo) {
-                    return 0;
-                }
-
-                const algoReward = calculateAlgoReward(state.initial, tokenReward);
-
-                return convertAmountToUSD(tokenInfo, tokenReward) + convertAmountToUSD(algoInfo, algoReward);
+                return { tvl, userStake, pendingReward };
             });
-
-            return zipWith(
-                (a, b: number[]) => ({
-                    tvl: a,
-                    userStake: b[0],
-                    pendingReward: b[1],
-                }),
-                tvls,
-                zip(userStakes, pendingRewards)
-            );
         }
     );
 }
@@ -562,11 +543,13 @@ export function createAprs<T extends FarmType>(
         $farmRewardTokens,
         (pools, meanRoundDuration, algoPrice, stakingTokens, farmRewardTokens) =>
             pools
-                .filter((pool) => pool.state !== null)
                 .map((pool) => {
+                    if (pool.state === null) {
+                        return { reward: 0, algoReward: 0, fees: 0, total: 0 };
+                    }
                     const stakeTokenInfo = stakingTokens.get(pool.id, null);
                     const rewardTokenInfo = farmRewardTokens.get(pool.id, null) ?? stakeTokenInfo;
-                    const contractState = pool.state!;
+                    const contractState = pool.state;
                     // Check endBlock directly instead of using $networkTime
                     const { endBlock } = contractState.initial;
                     const isFinished = contractState.global.lastUpdateBlock >= endBlock;
@@ -633,16 +616,14 @@ export const combinePoolsWithInfo = <T extends FarmType>(
 ) =>
     combine({ pools, aprs, dollarInfos }, ({ pools, aprs, dollarInfos }) => {
         if (pools.length !== aprs.length || pools.length !== dollarInfos.length) {
+            console.warn(`combinePoolsWithInfo: length mismatch pools=${pools.length} aprs=${aprs.length} dollarInfos=${dollarInfos.length}`);
             return [];
         }
-        return [...Array(pools.length).keys()].map((i) => {
-            const element: PoolWithStats = {
-                pool: pools[i],
-                apr: aprs[i],
-                dollarInfo: dollarInfos[i],
-            };
-            return element;
-        });
+        return pools.map((pool, i): PoolWithStats => ({
+            pool,
+            apr: aprs[i],
+            dollarInfo: dollarInfos[i],
+        }));
     });
 
 export const $farmsWithStats = combinePoolsWithInfo($farmPools, $farmAprs, $farmPoolDollarInfos);
