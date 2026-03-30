@@ -56,7 +56,10 @@ export const $assetAlgoPrices = createStore(Map<AssetId, number>())
     .on(prePopulateAssetPrices, (prices, batch) => {
         let updated = prices;
         for (const { id, priceInAlgo } of batch) {
-            if (!updated.has(id)) {
+            const existing = updated.get(id);
+            // Set if: no existing value, or existing is zero and new is non-zero
+            // (allows recovery when backend LP pricing starts working)
+            if (existing === undefined || (existing === 0 && priceInAlgo > 0)) {
                 updated = updated.set(id, priceInAlgo);
             }
         }

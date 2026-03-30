@@ -235,16 +235,22 @@ function App() {
             }
 
             // Pre-populate asset prices (avoids individual Vestige/Tinyman calls)
-            // Backend bug: assigns default META price to tokens without real price data.
-            // Detect and filter out suspiciously common prices (>10 tokens sharing exact same price).
-            const allPrices = Object.values(enriched.prices).filter((p: any) => p.price_algo > 0);
+            // Backend bug guard: >10 tokens sharing the exact same non-zero price means
+            // the backend assigned a default price (e.g. META) to unpriced tokens.
+            // Zero prices are allowed through — they mean "not priced yet" (e.g. LP tokens
+            // whose backend pricing worker hasn't run), not "incorrectly priced".
+            const allPrices = Object.values(enriched.prices);
             const priceFrequency = new Map<number, number>();
             for (const p of allPrices) {
-                priceFrequency.set((p as any).price_algo, (priceFrequency.get((p as any).price_algo) ?? 0) + 1);
+                const pa = (p as any).price_algo;
+                if (pa > 0) {
+                    priceFrequency.set(pa, (priceFrequency.get(pa) ?? 0) + 1);
+                }
             }
             const prices = allPrices
                 .filter((p: any) => {
                     if (p.asset_id === 0) return true;
+                    if (p.price_algo === 0) return true;
                     return (priceFrequency.get(p.price_algo) ?? 0) <= 10;
                 })
                 .map((p: any) => ({ id: p.asset_id, priceInAlgo: p.price_algo }));
