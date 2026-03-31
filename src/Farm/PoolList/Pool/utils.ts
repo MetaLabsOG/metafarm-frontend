@@ -8,6 +8,7 @@ import {
     FarmInitialInfo,
     DistributionInitialInfo,
     AssetId,
+    $assets,
 } from '../../../common/store';
 import { DexProvider, LPTokenInfo, makeDex, tinyman2Dex, tinymanDex } from '../../../dexes';
 import defaultLogo from '../../../imgs/icons/default.svg';
@@ -60,8 +61,13 @@ export const getLocalAssetIcon = (assetId: number): string | null => {
 };
 
 export const getAssetLogo = (input_asset_id: number) => {
+    // Check enriched logoUrl from the asset store first (most reliable source)
+    const asset = $assets.getState().get(input_asset_id);
+    if (asset?.logoUrl && !asset.logoUrl.includes('tokenPlaceholder')) {
+        return asset.logoUrl;
+    }
     const assetLogo = getLocalAssetIcon(input_asset_id) || getAssetLogoUrl(input_asset_id);
-    return assetLogo || require(`../../../imgs/icons/default.svg`);
+    return assetLogo || defaultLogo;
 };
 
 export const isLPTokenInfo = (tokenInfo: Priced<Asset> | Priced<LPTokenInfo>): tokenInfo is Priced<LPTokenInfo> => {

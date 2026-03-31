@@ -238,6 +238,7 @@ function App() {
                 creator: a.creator,
                 reserve: a.reserve,
                 decimals: a.decimals,
+                logoUrl: a.logo_url || undefined,
             }));
             if (assetsList.length > 0) {
                 prePopulateAssets(assetsList);

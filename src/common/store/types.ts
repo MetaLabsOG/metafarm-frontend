@@ -18,6 +18,7 @@ export type Asset = {
     creator: string;
     reserve: string;
     decimals: number;
+    logoUrl?: string;
 };
 
 export type Priced<T> = T & { price: number; priceInAlgo: number };

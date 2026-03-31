@@ -106,11 +106,14 @@ export const $assets = createStore(loadAssetsFromLocalStorage().set(0, ALGO_ASSE
     .on(prePopulateAssets, (assets, batch) => {
         let updated = assets;
         for (const asset of batch) {
-            if (!updated.has(asset.id)) {
+            const existing = updated.get(asset.id);
+            if (!existing) {
                 updated = updated.set(asset.id, asset);
                 try {
                     localStorage.setItem(`asset_${asset.id}`, JSON.stringify(asset));
                 } catch { /* localStorage quota exceeded — asset is still in memory */ }
+            } else if (asset.logoUrl && !existing.logoUrl) {
+                updated = updated.set(asset.id, { ...existing, logoUrl: asset.logoUrl });
             }
         }
         return updated;
