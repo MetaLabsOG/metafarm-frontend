@@ -303,7 +303,8 @@ const fetchMissingLpTokensFx = createEffect(async (missingTokenIds: AssetId[]) =
         const batchResults = await fetchLPTokenInfoBatchFromBackendApi(missingTokenIds);
         for (const tokenId of missingTokenIds) {
             const lpState = batchResults[String(tokenId)];
-            if (!lpState) continue;
+            // Skip entries missing required LP metadata (e.g. when backend only returns prices)
+            if (!lpState || !lpState.asset1_id || !lpState.dex_provider) continue;
             const asset = await fetchAsset(tokenId).catch(() => null);
             results.push({ lpState, asset });
         }

@@ -71,7 +71,7 @@ export const getAssetLogo = (input_asset_id: number) => {
 };
 
 export const isLPTokenInfo = (tokenInfo: Priced<Asset> | Priced<LPTokenInfo>): tokenInfo is Priced<LPTokenInfo> => {
-    return 'poolId' in tokenInfo;
+    return 'poolId' in tokenInfo && typeof (tokenInfo as any).poolId === 'number';
 };
 
 export const convertAmountToUSD = (lpToken: Priced<Asset>, amount: Amount) => {
