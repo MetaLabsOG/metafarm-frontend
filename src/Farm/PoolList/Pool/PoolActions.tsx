@@ -24,7 +24,7 @@ import { fromSmallestUnits } from '../../../common/lib';
 import { Zap } from '../../../Zap';
 import { NftLottery, NftWinModal } from '../../../Swap/NftWinModal';
 import { checkClaimLottery, checkNftLottery } from '../../../providers/apiProvider';
-import { isLPTokenInfo } from './utils';
+import { formatRawLPTokenName, isLPTokenInfo } from './utils';
 import { PoolState } from './types';
 import { PoolActionsDesktop } from './PoolActionsDesktop';
 import { PoolActionsMobile } from './PoolActionsMobile';
@@ -111,7 +111,8 @@ export function PoolActions({
     const [unlockTimer] = useTimer(unlockTime);
 
     const stakedTokenBalance = useStoreMap($balances, (bs) => bs[stakeTokenInfo.id] || BigInt(0));
-    const balanceSuffix = isFarm ? 'LP' : stakeTokenInfo.unitName;
+    const lpPairName = !isFarm ? formatRawLPTokenName(stakeTokenInfo.name) : null;
+    const balanceSuffix = isFarm ? 'LP' : (lpPairName ? `${lpPairName} LP` : stakeTokenInfo.unitName);
 
     const canStake = poolState !== PoolState.Finished;
     const canClaim = poolState > PoolState.Upcoming;

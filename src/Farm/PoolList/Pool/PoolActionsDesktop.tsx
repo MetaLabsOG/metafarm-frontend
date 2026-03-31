@@ -15,7 +15,7 @@ import { isCompoundEnabled, runCompound } from './compound';
 import { ActionButtonsRow, ActionSectionLabel, ContractLink, ModalDivider, PoolActionsDesktopContainer } from './styled';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
-import { getDestroyLPLink, getLPTokenPoolLink, isLPTokenInfo } from './utils';
+import { formatRawLPTokenName, getDestroyLPLink, getLPTokenPoolLink, isLPTokenInfo } from './utils';
 
 // NOTE: I will leave this function here in case we add more dexes and want to have fallback functionality
 // before zap support
@@ -98,7 +98,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     {!isLPTokenInfo(stakedToken) && canStake && (
                         <Button
                             style={{ color: 'white', height: '36px', fontSize: '12px', width: 'auto', padding: '0 16px' }}
-                            buttonText={'Get ' + stakedToken.unitName}
+                            buttonText={'Get ' + (formatRawLPTokenName(stakedToken.name) ?? stakedToken.unitName)}
                             onClick={() => navigate('/swap')}
                         />
                     )}

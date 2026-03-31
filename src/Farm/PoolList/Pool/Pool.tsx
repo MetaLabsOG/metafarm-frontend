@@ -17,7 +17,7 @@ import { PoolPreview } from './PoolPreview';
 import { PoolActions } from './PoolActions';
 import { GradientPoolContainer } from './GradientPoolCard';
 import { ModalCloseButton, ModalHeader, SkeletonLine, SkeletonBlock } from './styled';
-import { convertAmountToUSD, formatLPTokenName, getPoolState, isLPTokenInfo } from './utils';
+import { convertAmountToUSD, formatLPTokenName, formatRawLPTokenName, getPoolState, isLPTokenInfo } from './utils';
 import { useWindowSize } from '../../../hooks';
 
 function PoolInner({
@@ -159,7 +159,7 @@ function PoolInner({
                                 <span>
                                     {isLPTokenInfo(stakeTokenInfo)
                                         ? `Farm ${formatLPTokenName(stakeTokenInfo)}`
-                                        : `Stake ${stakeTokenInfo.unitName}`}
+                                        : `Stake ${formatRawLPTokenName(stakeTokenInfo.name) ?? stakeTokenInfo.unitName}`}
                                     {' · Earn '}
                                     {rewardTokenInfo.unitName}
                                 </span>
