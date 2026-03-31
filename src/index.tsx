@@ -115,6 +115,7 @@ function readCachedContracts(type: string): any | undefined {
 }
 
 function writeCachedContracts(type: string, data: any): void {
+    if (!Array.isArray(data) || data.length === 0) return;
     try {
         localStorage.setItem(`cometa_contracts_${type}`, JSON.stringify(data));
         localStorage.setItem(`cometa_contracts_${type}_ts`, String(Date.now()));
@@ -142,6 +143,9 @@ function App() {
         ['contracts', 'farm'],
         async () => {
             const data = await getContracts('farm');
+            if (!Array.isArray(data) || data.length === 0) {
+                throw new Error(`/contracts?type=farm returned ${data === null ? 'null' : 'empty'}`);
+            }
             writeCachedContracts('farm', data);
             return data;
         },
@@ -151,6 +155,9 @@ function App() {
         ['contracts', 'distribution'],
         async () => {
             const data = await getContracts('distribution');
+            if (!Array.isArray(data) || data.length === 0) {
+                throw new Error(`/contracts?type=distribution returned ${data === null ? 'null' : 'empty'}`);
+            }
             writeCachedContracts('distribution', data);
             return data;
         },
@@ -307,8 +314,9 @@ function App() {
         if (!farmsFetch.isSuccess || !farmsFetch.data) return;
 
         const activeContracts = farmsFetch.data as Array<ContractInfo<'farm'>>;
+        if (activeContracts.length === 0) return;
 
-        if (userFarmsFetch.isSuccess && userFarmsFetch.data) {
+        if (userFarmsFetch.isSuccess && userFarmsFetch.data && Array.isArray(userFarmsFetch.data) && userFarmsFetch.data.length > 0) {
             const userContracts = userFarmsFetch.data as Array<ContractInfo<'farm'>>;
             const activeIds = new Set(activeContracts.map((c: any) => c.id));
             const userOnly = userContracts.filter((c: any) => !activeIds.has(c.id));
@@ -323,8 +331,9 @@ function App() {
         if (!distrFetch.isSuccess || !distrFetch.data) return;
 
         const activeContracts = distrFetch.data as Array<ContractInfo<'distribution'>>;
+        if (activeContracts.length === 0) return;
 
-        if (userDistrFetch.isSuccess && userDistrFetch.data) {
+        if (userDistrFetch.isSuccess && userDistrFetch.data && Array.isArray(userDistrFetch.data) && userDistrFetch.data.length > 0) {
             const userContracts = userDistrFetch.data as Array<ContractInfo<'distribution'>>;
             const activeIds = new Set(activeContracts.map((c: any) => c.id));
             const userOnly = userContracts.filter((c: any) => !activeIds.has(c.id));

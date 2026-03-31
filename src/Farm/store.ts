@@ -609,6 +609,9 @@ export type PoolWithStats = {
     dollarInfo: PoolDollarInfo;
 };
 
+const zeroApr: AprType = { reward: 0, algoReward: 0, fees: 0, total: 0 };
+const zeroDollarInfo: PoolDollarInfo = { tvl: 0, userStake: 0, pendingReward: 0 };
+
 export const combinePoolsWithInfo = <T extends FarmType>(
     pools: Store<Array<Contract<T>>>,
     aprs: Store<AprType[]>,
@@ -616,13 +619,12 @@ export const combinePoolsWithInfo = <T extends FarmType>(
 ) =>
     combine({ pools, aprs, dollarInfos }, ({ pools, aprs, dollarInfos }) => {
         if (pools.length !== aprs.length || pools.length !== dollarInfos.length) {
-            console.warn(`combinePoolsWithInfo: length mismatch pools=${pools.length} aprs=${aprs.length} dollarInfos=${dollarInfos.length}`);
-            return [];
+            console.warn(`combinePoolsWithInfo: length mismatch pools=${pools.length} aprs=${aprs.length} dollarInfos=${dollarInfos.length} — padding with defaults`);
         }
         return pools.map((pool, i): PoolWithStats => ({
             pool,
-            apr: aprs[i],
-            dollarInfo: dollarInfos[i],
+            apr: aprs[i] ?? zeroApr,
+            dollarInfo: dollarInfos[i] ?? zeroDollarInfo,
         }));
     });
 
@@ -663,3 +665,30 @@ export const createSortedPoolsWithStats = ($source: Store<PoolWithStats[]>) => {
 };
 
 export const $sortedPoolsWithStats = createSortedPoolsWithStats($farmsWithStats);
+
+// Diagnostic: expose key stores on window for runtime debugging.
+// Check in browser console: __COMETA_DEBUG__.pools(), __COMETA_DEBUG__.stats()
+if (typeof window !== 'undefined') {
+    (window as any).__COMETA_DEBUG__ = {
+        pools: () => $farmPools.getState(),
+        aprs: () => $farmAprs.getState(),
+        dollarInfos: () => $farmPoolDollarInfos.getState(),
+        stats: () => $farmsWithStats.getState(),
+        sorted: () => $sortedPoolsWithStats.getState(),
+        loaded: () => $farmPoolsLoaded.getState(),
+    };
+
+    // Log transitions to empty — the exact moment pools disappear
+    let prevLen = 0;
+    $farmsWithStats.watch((stats) => {
+        if (prevLen > 0 && stats.length === 0) {
+            console.error(
+                '[COMETA DEBUG] $farmsWithStats went EMPTY!',
+                'pools:', $farmPools.getState().length,
+                'aprs:', $farmAprs.getState().length,
+                'dollarInfos:', $farmPoolDollarInfos.getState().length,
+            );
+        }
+        prevLen = stats.length;
+    });
+}

@@ -8,7 +8,7 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-105**
+- Next available ID: **MF-106**
 
 ---
 
@@ -158,7 +158,8 @@
 
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
-| MF-095 | Fix LP names "TMPOOL2" + instant repeat load via contracts cache | done | critical | performance | LP name fallback: `formatRawLPTokenName` extracts pair name from raw asset name when LP metadata unavailable. Contracts cached in localStorage (stale-while-revalidate, 30min TTL). Root cause: backend `lp_states` empty → needs CB-xxx |
+| MF-095 | Fix LP names "TMPOOL2" + instant repeat load via contracts cache | done | critical | performance | LP name fallback: `formatRawLPTokenName` extracts pair name from raw asset name when LP metadata unavailable. Contracts cached in localStorage (stale-while-revalidate, 30min TTL). Backend root cause fixed: CB-070 |
+| MF-105 | Fix pool icons showing wrong images when LP token info unavailable | done | critical | ux | PoolInfo.tsx: metadata fallback for `asset1_id`/`asset2_id`/`dex` when `isLPTokenInfo()` false. Commit `ac9680d`. Cross-ref: CB-070 (backend LP prices). 2026-03-31 |
 
 ### Phase B — UX Foundation (next)
 
