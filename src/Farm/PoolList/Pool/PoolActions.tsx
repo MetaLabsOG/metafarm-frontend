@@ -14,7 +14,8 @@ import {
     AppId,
     $meanRoundDuration,
 } from '../../../common/store';
-import { LPTokenInfo } from '../../../dexes';
+import { DexProvider, LPTokenInfo } from '../../../dexes';
+import { ContractMetadata } from '../../../common/store/types';
 import { notify, ToastTypes, useToasts } from '../../../Components/Notification';
 import { useTimer } from '../../../common/reachHooks';
 import { logFarmActionData } from '../../../logEvent';
@@ -80,6 +81,7 @@ export function PoolActions({
     contractId,
     contractVersion,
     pricedAlgo,
+    poolMetadata,
 }: {
     poolState: PoolState;
     ctc: any;
@@ -91,8 +93,10 @@ export function PoolActions({
     contractId: AppId;
     contractVersion: string;
     pricedAlgo: Priced<Asset>;
+    poolMetadata?: ContractMetadata['farm'];
 }) {
     const isFarm = isLPTokenInfo(stakeTokenInfo);
+    const hasMetadataForZap = !isFarm && Boolean(poolMetadata?.dex && poolMetadata?.asset1_id);
     const { isDesktop } = useWindowSize();
 
     const pendingClaim = useUnit(ctc.apis.claim.pending);
@@ -168,6 +172,7 @@ export function PoolActions({
                     hasLock={hasLock}
                     isAutoClaim={isAutoClaim}
                     setNft={setNft}
+                    hasZap={isFarm || hasMetadataForZap}
                 />
             ) : (
                 <PoolActionsDesktop
@@ -188,13 +193,17 @@ export function PoolActions({
                     hasLock={hasLock}
                     isAutoClaim={isAutoClaim}
                     setNft={setNft}
+                    hasZap={isFarm || hasMetadataForZap}
                 />
             )}
-            {isFarm && (
+            {(isFarm || hasMetadataForZap) && (
                 <Modal>
                     <Zap
-                        inputDexProvider={stakeTokenInfo.poolDex}
-                        filteredOptions={[stakeTokenInfo.asset1, stakeTokenInfo.asset2]}
+                        inputDexProvider={isFarm ? stakeTokenInfo.poolDex : poolMetadata!.dex as DexProvider}
+                        filteredOptions={isFarm
+                            ? [stakeTokenInfo.asset1, stakeTokenInfo.asset2]
+                            : [Number(poolMetadata!.asset1_id), Number(poolMetadata!.asset2_id)]
+                        }
                         closeModal={closeZapModal}
                         onAutoStake={canStake && !hasLock ? handleAutoStake : undefined}
                     />

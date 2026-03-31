@@ -159,7 +159,7 @@ function PoolInner({
                                 <span>
                                     {isLPTokenInfo(stakeTokenInfo)
                                         ? `Farm ${formatLPTokenName(stakeTokenInfo)}`
-                                        : `Stake ${formatRawLPTokenName(stakeTokenInfo.name) ?? stakeTokenInfo.unitName}`}
+                                        : `Stake ${formatRawLPTokenName(stakeTokenInfo.name) ? formatRawLPTokenName(stakeTokenInfo.name) + ' LP' : stakeTokenInfo.unitName}`}
                                     {' · Earn '}
                                     {rewardTokenInfo.unitName}
                                 </span>
@@ -178,6 +178,7 @@ function PoolInner({
                                 contractId={contract.id}
                                 contractVersion={contract.info.version}
                                 pricedAlgo={pricedAlgo}
+                                poolMetadata={contract.info.metadata}
                             />
                         </div>
                     </div>,

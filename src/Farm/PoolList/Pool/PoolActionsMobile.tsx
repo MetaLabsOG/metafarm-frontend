@@ -11,7 +11,7 @@ import { isCompoundEnabled, runCompound } from './compound';
 import { RewardValues, StakeValue } from './PoolInfoDesktop';
 import { UnlockTimer } from './UnlockTimer';
 import { onClickClaim } from './PoolActions';
-import { isLPTokenInfo } from './utils';
+import { formatRawLPTokenName, isLPTokenInfo } from './utils';
 import { PoolActionsDesktopProps, getLPTokenAction } from './PoolActionsDesktop';
 
 export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
@@ -32,6 +32,7 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
     hasLock,
     isAutoClaim,
     setNft,
+    hasZap,
 }) => {
     const account = useUnit($account);
     return (
@@ -50,6 +51,13 @@ export const PoolActionsMobile: FC<PoolActionsDesktopProps> = ({
                             style={{ color: 'white' }}
                             buttonText="Get LP Tokens"
                             onClick={getLPTokenAction(stakedToken, openZapModal)}
+                        />
+                    )}
+                    {!isLPTokenInfo(stakedToken) && canStake && hasZap && (
+                        <Button
+                            style={{ color: 'white' }}
+                            buttonText={'Get ' + (formatRawLPTokenName(stakedToken.name) ? formatRawLPTokenName(stakedToken.name) + ' LP' : stakedToken.unitName)}
+                            onClick={openZapModal}
                         />
                     )}
                 </TokenInfo>

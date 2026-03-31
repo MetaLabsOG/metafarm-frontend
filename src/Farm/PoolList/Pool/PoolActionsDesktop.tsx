@@ -59,6 +59,7 @@ export interface PoolActionsDesktopProps {
     hasLock: boolean;
     isAutoClaim: boolean;
     setNft: Dispatch<SetStateAction<NftLottery | null>>;
+    hasZap: boolean;
 }
 
 export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
@@ -77,6 +78,7 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
     hasLock,
     isAutoClaim,
     setNft,
+    hasZap,
 }) => {
     const account = useUnit($account);
     const navigate = useNavigate();
@@ -98,8 +100,8 @@ export const PoolActionsDesktop: FC<PoolActionsDesktopProps> = ({
                     {!isLPTokenInfo(stakedToken) && canStake && (
                         <Button
                             style={{ color: 'white', height: '36px', fontSize: '12px', width: 'auto', padding: '0 16px' }}
-                            buttonText={'Get ' + (formatRawLPTokenName(stakedToken.name) ?? stakedToken.unitName)}
-                            onClick={() => navigate('/swap')}
+                            buttonText={'Get ' + (formatRawLPTokenName(stakedToken.name) ? formatRawLPTokenName(stakedToken.name) + ' LP' : stakedToken.unitName)}
+                            onClick={hasZap ? openZapModal : () => navigate('/swap')}
                         />
                     )}
                 </div>
