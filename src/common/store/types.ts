@@ -152,12 +152,18 @@ export type FarmLocalInfo = {
     rewardPerTokenPaid: Amount;
 };
 
-// Convert JSON-serialized BigNumber objects ({type: 'BigNumber', hex: '0x...'})
-// back to ethers BigNumber instances. Needed because the API cache returns plain JSON,
-// not live Reach objects with .toNumber()/.toBigInt() methods.
+// Convert various BigNumber representations to ethers BigNumber instances.
+// Handles: same-package instances, cross-package instances (Reach stdlib),
+// JSON-serialized objects ({type:'BigNumber', hex}), and primitives.
 function toBN(val: any): BigNumber {
     if (val instanceof BigNumber) return val;
-    if (val && typeof val === 'object' && val.type === 'BigNumber' && val.hex) {
+    // Duck-type: BigNumber from a different package copy (e.g., Reach stdlib bundled separately).
+    // These fail instanceof but have the same internal structure.
+    if (val && typeof val === 'object' && val._isBigNumber === true && typeof val._hex === 'string') {
+        return BigNumber.from(val._hex);
+    }
+    // JSON-serialized BigNumber (from API responses, localStorage cache)
+    if (val && typeof val === 'object' && val.type === 'BigNumber' && typeof val.hex === 'string') {
         return BigNumber.from(val.hex);
     }
     if (typeof val === 'number' || typeof val === 'string' || typeof val === 'bigint') {
