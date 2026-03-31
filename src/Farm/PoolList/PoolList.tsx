@@ -100,13 +100,11 @@ export function PoolList({
 
     // Filter pools based on user criteria
     const filteredPools = useMemo(() => {
-        // Conservative block estimate when indexer hasn't responded yet.
-        // 3.8s/block overestimates block time (actual ~3.07s) so the estimate
-        // is always BELOW the real round — never accidentally hides active pools.
-        const ALGO_GENESIS_SECS = 1560211200;
-        const effectiveBlock = currentBlock > 0
-            ? currentBlock
-            : Math.floor((Date.now() / 1000 - ALGO_GENESIS_SECS) / 3.8);
+        // When indexer hasn't responded yet (currentBlock=0), skip ended/live filtering
+        // entirely — show all pools as live. The genesis-based estimate is unreliable
+        // because historical avg block time (~4.3s) differs from current (~3.07s),
+        // producing a block number higher than reality and hiding active pools.
+        const hasBlockData = currentBlock > 0;
 
         return pools.filter((pws: PoolWithStats) => {
             if (priorityPoolId) {
@@ -130,7 +128,7 @@ export function PoolList({
                 isShown = Boolean(pws.pool.info.metadata.verified);
             }
             const endBlock = Number(pws.pool.state?.initial?.endBlock ?? 1e9);
-            const isEnded = effectiveBlock > endBlock;
+            const isEnded = hasBlockData ? currentBlock > endBlock : false;
             const hasUserFunds = pws.dollarInfo.userStake > 0 || pws.dollarInfo.pendingReward > 0;
             const statusFilter = showEnded ? isEnded : (!isEnded || hasUserFunds);
             isShown = isShown && statusFilter;
