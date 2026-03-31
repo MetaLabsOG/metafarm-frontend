@@ -1,5 +1,5 @@
 import { useUnit } from 'effector-react';
-import { ContractInfo, FarmType, $networkTime } from '../common/store';
+import { ContractInfo, FarmType } from '../common/store';
 import { Balance } from '../Farm/Balance';
 import { PoolList } from '../Farm/PoolList';
 import { BalanceContainer, FarmContainer } from '../Farm/styled';
@@ -24,11 +24,10 @@ export function Stake() {
         }
     };
 
-    const currentBlock = useUnit($networkTime);
     const distrError = useUnit($distributionPoolsError);
     const hasError = distrError && !farmLoaded && !distrLoaded;
     const poolsReady = farmLoaded || distrLoaded;
-    const isLoading = (!poolsReady && !hasError) || (poolsReady && !hasError && currentBlock === 0);
+    const isLoading = !poolsReady && !hasError;
 
     return (
         <FarmContainer>

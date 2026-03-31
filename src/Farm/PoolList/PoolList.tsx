@@ -100,6 +100,14 @@ export function PoolList({
 
     // Filter pools based on user criteria
     const filteredPools = useMemo(() => {
+        // Conservative block estimate when indexer hasn't responded yet.
+        // 3.8s/block overestimates block time (actual ~3.07s) so the estimate
+        // is always BELOW the real round — never accidentally hides active pools.
+        const ALGO_GENESIS_SECS = 1560211200;
+        const effectiveBlock = currentBlock > 0
+            ? currentBlock
+            : Math.floor((Date.now() / 1000 - ALGO_GENESIS_SECS) / 3.8);
+
         return pools.filter((pws: PoolWithStats) => {
             if (priorityPoolId) {
                 return pws.pool.id === Number(priorityPoolId);
@@ -121,20 +129,11 @@ export function PoolList({
             if (showVerified) {
                 isShown = Boolean(pws.pool.info.metadata.verified);
             }
-            // Apply endBlock filter only when currentBlock is known.
-            // When currentBlock === 0 (indexer not yet responded), show all pools as active.
-            if (currentBlock > 0) {
-                const endBlock = pws.pool.state?.initial?.endBlock ?? 1e9;
-                const isEnded = currentBlock > endBlock;
-                const hasUserFunds = pws.dollarInfo.userStake > 0 || pws.dollarInfo.pendingReward > 0;
-                // Live mode: active pools + ended pools where user has funds
-                // Ended mode: only ended pools
-                const statusFilter = showEnded ? isEnded : (!isEnded || hasUserFunds);
-                isShown = isShown && statusFilter;
-            } else if (showEnded) {
-                // Can't determine ended pools without currentBlock — hide them
-                isShown = false;
-            }
+            const endBlock = Number(pws.pool.state?.initial?.endBlock ?? 1e9);
+            const isEnded = effectiveBlock > endBlock;
+            const hasUserFunds = pws.dollarInfo.userStake > 0 || pws.dollarInfo.pendingReward > 0;
+            const statusFilter = showEnded ? isEnded : (!isEnded || hasUserFunds);
+            isShown = isShown && statusFilter;
             return isShown;
         });
     }, [pools, currentBlock, priorityPoolId, showMyPools, poolSearch, showVerified, showEnded]);
