@@ -103,12 +103,14 @@ const modalComponents = {
 // ethers BigNumber.toJSON() produces {type:"BigNumber",hex:"0x..."} which resolveBignums restores.
 const CONTRACTS_MAX_AGE_MS = 30 * 60 * 1000;
 
-function readCachedContracts(type: string): any | undefined {
+function readCachedContracts(type: string): { data: any[]; ts: number } | undefined {
     try {
         const raw = localStorage.getItem(`cometa_contracts_${type}`);
         const ts = Number(localStorage.getItem(`cometa_contracts_${type}_ts`) || '0');
         if (raw && Date.now() - ts < CONTRACTS_MAX_AGE_MS) {
-            return resolveBignums(JSON.parse(raw));
+            const parsed = resolveBignums(JSON.parse(raw));
+            if (!Array.isArray(parsed) || parsed.length === 0) return undefined;
+            return { data: parsed, ts };
         }
     } catch { /* corrupt cache */ }
     return undefined;
@@ -149,7 +151,7 @@ function App() {
             writeCachedContracts('farm', data);
             return data;
         },
-        { staleTime: 30_000, initialData: _cachedFarm, onError: () => setFarmPoolsError(true) },
+        { staleTime: 30_000, initialData: _cachedFarm?.data, initialDataUpdatedAt: _cachedFarm?.ts, onError: () => setFarmPoolsError(true) },
     );
     const distrFetch = useQuery(
         ['contracts', 'distribution'],
@@ -161,7 +163,7 @@ function App() {
             writeCachedContracts('distribution', data);
             return data;
         },
-        { staleTime: 30_000, initialData: _cachedDistribution, onError: () => setDistributionPoolsError(true) },
+        { staleTime: 30_000, initialData: _cachedDistribution?.data, initialDataUpdatedAt: _cachedDistribution?.ts, onError: () => setDistributionPoolsError(true) },
     );
 
     // User's contracts (active + ended) — loaded when wallet is connected
