@@ -31,18 +31,19 @@ function isAndroid(): boolean {
     return typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
 }
 
-// Deep link schemes per wallet per platform (from @perawallet/connect-beta source)
+// Deep link schemes per wallet per platform.
+// iOS: wallet-specific scheme wrapping the WC URI.
+// Android: raw WC URI — the OS routes it via intent filters.
+// Source: @perawallet/connect src/util/peraWalletUtils.ts
 function getWalletDeepLink(wallet: WalletTarget, wcUri: string): string {
-    const scheme = wallet === 'pera'
-        ? (isAndroid() ? 'algorand://' : 'perawallet-wc://')
-        : (isAndroid() ? 'algorand://' : 'defly-wc://');
+    if (isAndroid()) return wcUri;
+    const scheme = wallet === 'pera' ? 'perawallet-wc://' : 'defly-wc://';
     return `${scheme}wc?uri=${encodeURIComponent(wcUri)}`;
 }
 
 function getWalletScheme(wallet: WalletTarget): string {
-    return wallet === 'pera'
-        ? (isAndroid() ? 'algorand://' : 'perawallet-wc://')
-        : (isAndroid() ? 'algorand://' : 'defly-wc://');
+    if (isAndroid()) return wallet === 'pera' ? 'algorand://' : 'defly://';
+    return wallet === 'pera' ? 'perawallet-wc://' : 'defly-wc://';
 }
 
 interface PendingPairing {
@@ -73,7 +74,6 @@ class WalletConnectService {
 
         this.initPromise = SignClient.init({
             projectId: WC_PROJECT_ID,
-            relayUrl: 'wss://relay.walletconnect.com',
             metadata: {
                 name: 'Cometa Farm',
                 description: 'Algorand DeFi Platform',
