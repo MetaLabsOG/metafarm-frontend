@@ -23,7 +23,7 @@
     "@vestigefi/widgets": "^1.0.0",
     "@walletconnect/encoding": "^1.0.1",
     "@walletconnect/modal": "2.7.0",
-    "@walletconnect/sign-client": "^2.23.9",
+    "@walletconnect/sign-client": "2.20.3",
     "ajv": "^8.12.0",
     "ajv-formats": "^2.1.1",
     "ajv-keywords": "^5.1.0",
