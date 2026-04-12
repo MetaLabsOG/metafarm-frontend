@@ -8,7 +8,7 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-108**
+- Next available ID: **MF-111**
 
 ---
 
@@ -200,6 +200,18 @@
 | MF-102 | Increase backend `pids_limit` from 50 to 150 in docker-compose.yml | todo | critical | devops | PID exhaustion caused `BlockingIOError: [Errno 11]` — subprocess.Popen couldn't fork. Fix in `~/cometa/docker-compose.yml` on VPS |
 | MF-103 | Fix Airtable logging 422 errors | todo | medium | observability | `logEvent.tsx` — Airtable API returns 422. Likely schema mismatch in the Airtable table. Errors swallowed silently |
 | MF-104 | Investigate farm visibility: stale localStorage cache after backend registration | todo | high | ux | Farm 3489163121 is in API response but not rendering. Suspected: stale `cometa_contracts_farm` localStorage (30-min TTL). May need cache bust on new farm creation |
+
+---
+
+## Wallet Connection (April 2026)
+
+> Source: WALLET_CONNECTION_AUDIT.md — 4+ user reports of broken Pera connection. Root cause: WC SDK + Pera namespace incompatibility.
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-108 | Fix wallet connection: update WC SDK, fix Android deep link, remove dead code | done | critical | safety | WC 2.17→2.20.3, Android deep link raw URI, removed relay override, deleted deflyWalletV2.ts + @perawallet/connect-beta. Commits `67c4412`, `aaf8ed8`. 2026-04-02 |
+| MF-109 | Wallet Phase 2: IndexedDB session cleanup on disconnect, surface init errors | todo | high | safety | `clearWalletData()` only clears 3 localStorage keys, not WC IndexedDB. `ensureClient().catch(() => {})` swallows errors silently |
+| MF-110 | Wallet architecture: migrate to @txnlab/use-wallet when Reach removed | todo | medium | ux | Blocked by algosdk v2→v3 (Reach pins v2). Dual-stack plan: new contracts on use-wallet, old on current shim. See `memory/project_wallet_architecture_decision.md` |
 
 ---
 
