@@ -47,6 +47,7 @@ const Zap = lazy(() => import('./Zap').then(m => ({ default: m.Zap })));
 const Stake = lazy(() => import('./Stake/Stake').then(m => ({ default: m.Stake })));
 const AddFarm = lazy(() => import('./Farm/AddFarm').then(m => ({ default: m.AddFarm })));
 const Metapunks = lazy(() => import('./Metapunks/Metapunks').then(m => ({ default: m.Metapunks })));
+const MyFunds = lazy(() => import('./MyFunds').then(m => ({ default: m.MyFunds })));
 
 Sentry.init({
     dsn: 'https://65dfff9b40a24539b633789b8cfba771@o1313570.ingest.sentry.io/6563864',
@@ -369,6 +370,7 @@ function App() {
                                         <Route path="/metapunks" element={<ErrorBoundary><Metapunks /></ErrorBoundary>} />
                                         <Route path="/addfarm" element={<ErrorBoundary><AddFarm type="farm" /></ErrorBoundary>} />
                                         <Route path="/addstake" element={<ErrorBoundary><AddFarm type="stake" /></ErrorBoundary>} />
+                                        <Route path="/my-funds" element={<ErrorBoundary><MyFunds /></ErrorBoundary>} />
                                         <Route path="*" element={<Navigate to="/" replace />} />
                                     </Routes>
                                 </Suspense>

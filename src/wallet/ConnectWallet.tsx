@@ -191,6 +191,12 @@ export function ConnectWallet({
                             }}
                         >
                             <WalletActionButton
+                                href="/my-funds"
+                                style={{ textDecoration: 'none' }}
+                            >
+                                <div className="account_item">Your Funds</div>
+                            </WalletActionButton>
+                            <WalletActionButton
                                 target="_blank"
                                 href={'https://allo.info/account/' + account.networkAccount.addr}
                                 rel="noreferrer"
