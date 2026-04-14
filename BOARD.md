@@ -8,7 +8,7 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-111**
+- Next available ID: **MF-117**
 
 ---
 
@@ -212,6 +212,21 @@
 | MF-108 | Fix wallet connection: update WC SDK, fix Android deep link, remove dead code | done | critical | safety | WC 2.17→2.20.3, Android deep link raw URI, removed relay override, deleted deflyWalletV2.ts + @perawallet/connect-beta. Commits `67c4412`, `aaf8ed8`. 2026-04-02 |
 | MF-109 | Wallet Phase 2: IndexedDB session cleanup on disconnect, surface init errors | todo | high | safety | `clearWalletData()` only clears 3 localStorage keys, not WC IndexedDB. `ensureClient().catch(() => {})` swallows errors silently |
 | MF-110 | Wallet architecture: migrate to @txnlab/use-wallet when Reach removed | todo | medium | ux | Blocked by algosdk v2→v3 (Reach pins v2). Dual-stack plan: new contracts on use-wallet, old on current shim. See `memory/project_wallet_architecture_decision.md` |
+| MF-111 | Fix ended pools hidden when user has funds (Bug #1) | done | critical | safety | `PoolList.tsx` hasUserFunds from raw BigInt local state; `index.tsx` defensive merge of farm+distribution lists so user-only pools surface. Commit `990fdff`. 2026-04-14 |
+| MF-112 | Fix iOS WalletConnect WebSocket suspension on deep-link return (Bug #2) | done | critical | safety | `walletConnectService.ts` installRelayerWakeListeners on visibilitychange/pageshow.persisted, restartTransport when relay disconnected. Listeners installed before deep-link navigation. Applied to connect() and signTransaction(). `deviceDetection.ts` shared UA helper. Commit `990fdff`. 2026-04-14 |
+| MF-113 | Close connect-wallet modal correctly on mobile vs desktop | done | high | ux | `ConnectWalletModal.tsx` — on mobile wait for connect promise then close; on desktop close after 300ms so WC QR modal is not obscured. `ConnectWallet.tsx` returns the promise. Commit `990fdff`. 2026-04-14 |
+
+### Stuck Funds Recovery UI
+
+> Safety net page that surfaces every pool where the user has non-zero on-chain stake or reward,
+> bypassing sort/search/ended filters from the main list. Scope covers opted-in-with-funds recovery
+> only — opt-out-with-funds is irrecoverable at the AVM level (see `memory/project_stuck_funds_ui.md`).
+
+| ID | Task | Status | Priority | Tag | Notes |
+|----|------|--------|----------|-----|-------|
+| MF-114 | Stuck Funds MVP: `/my-funds` route + component with on-chain BigInt filter | todo | high | safety | Read from existing `userFarmsFetch` + `userDistrFetch` (already fetched on mount). Filter: `state.local.staked > 0 \|\| state.local.reward > 0`. Group: Active-with-funds / Ended-with-funds / Locked. Per-pool actions: Unstake, Claim, link to pool detail |
+| MF-115 | Entry points for `/my-funds`: user dropdown + footer + alert when stuck pools exist | todo | medium | ux | Add "Your Funds" in `ConnectWallet.tsx` account dropdown. Footer link under main PoolList: "Missing a pool? → Your Funds". Banner on main page when count > 0 |
+| MF-116 | Fix `PoolList.tsx` statusFilter when `hasBlockData=false` and showEnded=true | todo | medium | ux | `showEnded ? (hasBlockData ? isEnded : hasUserFunds) : (!isEnded \|\| hasUserFunds)` — surface user-funds pools even before indexer responds |
 
 ---
 
