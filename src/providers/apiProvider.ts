@@ -334,13 +334,8 @@ export async function getUserContracts(
     address: string,
     type: string
 ): Promise<JsonWithBignum> {
-    return instance
-        .get<Json>(`/contracts/user/${address}`, { params: { type } })
-        .then(({ data }) => resolveBignums(data))
-        .catch((error) => {
-            console.error('Failed to fetch user contracts:', error);
-            return [];
-        });
+    const { data } = await instance.get<Json>(`/contracts/user/${address}`, { params: { type } });
+    return resolveBignums(data);
 }
 
 export async function getFarmEnriched(): Promise<FarmEnrichedResponse | null> {

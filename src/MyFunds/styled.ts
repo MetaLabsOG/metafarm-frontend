@@ -65,3 +65,43 @@ export const ConnectPrompt = styled.div`
     color: ${theme.gray};
     font-size: 15px;
 `;
+
+export const ErrorBox = styled.div`
+    margin: 24px auto;
+    max-width: 560px;
+    padding: 24px 20px;
+    border-radius: 12px;
+    background: rgba(255, 80, 80, 0.08);
+    border: 1px solid rgba(255, 80, 80, 0.28);
+    text-align: center;
+`;
+
+export const ErrorTitle = styled.div`
+    color: ${theme.pureWhite};
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 8px;
+`;
+
+export const ErrorMessage = styled.p`
+    color: ${theme.gray};
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 16px;
+`;
+
+export const RetryButton = styled.button`
+    background: rgba(255, 255, 255, 0.08);
+    color: ${theme.pureWhite};
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.14);
+    }
+`;
