@@ -2,6 +2,7 @@ import { SignClient } from '@walletconnect/sign-client';
 import { WalletConnectModal } from '@walletconnect/modal';
 import type { SessionTypes } from '@walletconnect/types';
 import { ALGONET, MAINNET } from '../AppContext';
+import { isAndroidDevice, isMobileWalletDevice } from './deviceDetection';
 
 const WC_PROJECT_ID = 'bbdf45a3e6ca9f8da5738d7b854ff2c9';
 
@@ -22,27 +23,18 @@ const REQUIRED_NAMESPACES = {
 
 export type WalletTarget = 'pera' | 'defly';
 
-// User-agent based mobile detection (not screen width — deep links need actual mobile OS)
-function isMobileDevice(): boolean {
-    return typeof navigator !== 'undefined' && /iPhone|iPod|Android/i.test(navigator.userAgent);
-}
-
-function isAndroid(): boolean {
-    return typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent);
-}
-
 // Deep link schemes per wallet per platform.
 // iOS: wallet-specific scheme wrapping the WC URI.
 // Android: raw WC URI — the OS routes it via intent filters.
 // Source: @perawallet/connect src/util/peraWalletUtils.ts
 function getWalletDeepLink(wallet: WalletTarget, wcUri: string): string {
-    if (isAndroid()) return wcUri;
+    if (isAndroidDevice()) return wcUri;
     const scheme = wallet === 'pera' ? 'perawallet-wc://' : 'defly-wc://';
     return `${scheme}wc?uri=${encodeURIComponent(wcUri)}`;
 }
 
 function getWalletScheme(wallet: WalletTarget): string {
-    if (isAndroid()) return wallet === 'pera' ? 'algorand://' : 'defly://';
+    if (isAndroidDevice()) return wallet === 'pera' ? 'algorand://' : 'defly://';
     return wallet === 'pera' ? 'perawallet-wc://' : 'defly-wc://';
 }
 
@@ -53,6 +45,42 @@ interface PendingPairing {
 }
 
 const PAIRING_MAX_AGE_MS = 4 * 60 * 1000; // Refresh before 5-min WC expiry
+
+// On iOS Safari the relay WebSocket is suspended while the user confirms in the
+// wallet app. When the tab returns to visible state and the relayer reports it
+// is disconnected, poke it to reopen its transport so pending approvals and
+// sign responses actually arrive. SDK heartbeat does this on its own every 5s;
+// we just make the reaction immediate on tab-return.
+//
+// Two wake signals:
+//  - visibilitychange → visible: covers app-switch return from deep-linked wallet.
+//  - pageshow with event.persisted: covers Safari bfcache restore (swipe-back);
+//    pageshow fires on every navigation, so without the persisted check we'd
+//    no-op-spam on normal page loads.
+function installRelayerWakeListeners(client: SignClient): () => void {
+    const relayer = (client as any).core?.relayer;
+    const wake = () => {
+        if (typeof document === 'undefined' || document.visibilityState !== 'visible') return;
+        if (!relayer || relayer.connected) return;
+        try {
+            const p = relayer.restartTransport?.();
+            if (p && typeof p.catch === 'function') {
+                p.catch((e: unknown) => console.warn('[WCS] restartTransport rejected:', e));
+            }
+        } catch (e) {
+            console.warn('[WCS] restartTransport threw:', e);
+        }
+    };
+    const onPageShow = (e: PageTransitionEvent) => {
+        if (e.persisted) wake();
+    };
+    document.addEventListener('visibilitychange', wake);
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+        document.removeEventListener('visibilitychange', wake);
+        window.removeEventListener('pageshow', onPageShow);
+    };
+}
 
 class WalletConnectService {
     private client: SignClient | null = null;
@@ -149,7 +177,11 @@ class WalletConnectService {
         }
 
         // Mobile: open wallet app directly via deep link (skip QR modal)
-        if (isMobileDevice() && walletTarget) {
+        if (isMobileWalletDevice() && walletTarget) {
+            // Install wake listeners BEFORE navigating away — visibilitychange
+            // can fire synchronously as the tab is backgrounded, and we need
+            // the handler registered so the relayer reopens on return.
+            const removeWakeListeners = installRelayerWakeListeners(client);
             const deepLink = getWalletDeepLink(walletTarget, uri);
             window.location.href = deepLink;
 
@@ -163,6 +195,7 @@ class WalletConnectService {
                 });
                 return this.getAccountsFromSession(this.session);
             } finally {
+                removeWakeListeners();
                 void this.preparePairing();
             }
         }
@@ -232,14 +265,22 @@ class WalletConnectService {
             },
         });
 
-        // Mobile: open wallet app so user can see the pending sign request
-        if (isMobileDevice() && this.walletTarget) {
+        // Mobile: switching to wallet backgrounds the tab and suspends the relay
+        // WebSocket, which can drop the sign response. Reopen the transport when
+        // the tab becomes visible again (same class of fix as in connect()).
+        let removeWakeListeners: (() => void) | undefined;
+        if (isMobileWalletDevice() && this.walletTarget) {
+            removeWakeListeners = installRelayerWakeListeners(this.client);
             setTimeout(() => {
                 window.location.href = getWalletScheme(this.walletTarget!);
             }, 500);
         }
 
-        return (await Promise.race([requestPromise, timeout])) as (string | null)[];
+        try {
+            return (await Promise.race([requestPromise, timeout])) as (string | null)[];
+        } finally {
+            removeWakeListeners?.();
+        }
     }
 
     async disconnect(): Promise<void> {

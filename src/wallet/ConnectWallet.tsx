@@ -47,7 +47,7 @@ export const connectWallet = (walletType: WalletType, isAutoReconnect = false) =
     if (walletType === 'WalletConnectDefly' && ALGONET === TESTNET) {
         notify('Please, switch you Defly wallet to testnet.', 'info');
     }
-    reach
+    return reach
         .getDefaultAccount()
         .then((acc) => {
             // Ignore result if a newer connection was started

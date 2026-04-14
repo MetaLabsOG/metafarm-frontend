@@ -111,8 +111,14 @@ export function PoolList({
                 return pws.pool.id === Number(priorityPoolId);
             }
 
-            // my pools = stake > 0 or reward > 0
-            if (showMyPools && pws.dollarInfo.userStake <= 0 && pws.dollarInfo.pendingReward <= 0) {
+            // Detect user funds from raw on-chain amounts (BigInt), not USD dollarInfo.
+            // LP token prices load asynchronously via background worker — checking USD
+            // first hides ended pools where user has real stake before prices arrive.
+            const rawStaked = pws.pool.state?.local?.staked ?? BigInt(0);
+            const rawReward = pws.pool.state?.local?.reward ?? BigInt(0);
+            const hasUserFunds = rawStaked > BigInt(0) || rawReward > BigInt(0);
+
+            if (showMyPools && !hasUserFunds) {
                 return false;
             }
 
@@ -129,7 +135,6 @@ export function PoolList({
             }
             const endBlock = Number(pws.pool.state?.initial?.endBlock ?? 1e9);
             const isEnded = hasBlockData ? currentBlock > endBlock : false;
-            const hasUserFunds = pws.dollarInfo.userStake > 0 || pws.dollarInfo.pendingReward > 0;
             const statusFilter = showEnded ? isEnded : (!isEnded || hasUserFunds);
             isShown = isShown && statusFilter;
             return isShown;

@@ -5,6 +5,7 @@ import closeButton from '../imgs/close.svg';
 import { ModalCloseButton } from '../common/styled';
 import { WalletType } from './customWalletFallback';
 import { connectWallet } from './ConnectWallet';
+import { isMobileWalletDevice } from './deviceDetection';
 import { DeflyButton, PeraButton, WalletHeader, WalletModalContainer, WalletText } from './styled';
 
 export function ConnectWalletModal({ closeModal, isModalOpen }: { closeModal: () => void; isModalOpen: boolean }) {
@@ -32,9 +33,18 @@ export function ConnectWalletModal({ closeModal, isModalOpen }: { closeModal: ()
     const walletClick = (walletType: WalletType) => {
         if (connecting) return;
         setConnecting(walletType);
-        connectWallet(walletType);
-        // Close our modal after a short delay to let the wallet SDK modal appear
-        setTimeout(closeModal, 300);
+        const result = Promise.resolve(connectWallet(walletType));
+
+        if (isMobileWalletDevice()) {
+            // Mobile: user leaves to Pera/Defly and comes back — keep modal open
+            // with the "Connecting..." state so they have feedback. Close only
+            // when the real connect flow resolves (success, rejection, timeout).
+            result.finally(() => closeModal());
+        } else {
+            // Desktop: WalletConnect opens its own QR modal on top — close ours
+            // after a short delay so only the QR is visible.
+            setTimeout(closeModal, 300);
+        }
     };
 
     return (

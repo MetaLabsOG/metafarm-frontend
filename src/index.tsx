@@ -314,36 +314,37 @@ function App() {
     // Pools render as skeletons while individual asset/price data loads progressively.
     // Enriched data pre-populates assets/prices in the background (speeds up fill-in).
     useEffect(() => {
-        if (!farmsFetch.isSuccess || !farmsFetch.data) return;
+        const hasFarms = farmsFetch.isSuccess && Array.isArray(farmsFetch.data);
+        const hasUser = userFarmsFetch.isSuccess && Array.isArray(userFarmsFetch.data);
+        if (!hasFarms && !hasUser) return;
 
-        const activeContracts = farmsFetch.data as Array<ContractInfo<'farm'>>;
-        if (activeContracts.length === 0) return;
+        const active = hasFarms ? (farmsFetch.data as Array<ContractInfo<'farm'>>) : [];
+        const user = hasUser ? (userFarmsFetch.data as Array<ContractInfo<'farm'>>) : [];
 
-        if (userFarmsFetch.isSuccess && userFarmsFetch.data && Array.isArray(userFarmsFetch.data) && userFarmsFetch.data.length > 0) {
-            const userContracts = userFarmsFetch.data as Array<ContractInfo<'farm'>>;
-            const activeIds = new Set(activeContracts.map((c: any) => c.id));
-            const userOnly = userContracts.filter((c: any) => !activeIds.has(c.id));
-            setPoolInfosEvent([...activeContracts, ...userOnly]);
-        } else {
-            setPoolInfosEvent(activeContracts);
-        }
+        // Defensive: never clear existing pool list if both sources are empty (backend hiccup).
+        // Merge whenever at least one source has data — user's opted-in ended pools must
+        // always surface even when active list is momentarily empty.
+        if (active.length === 0 && user.length === 0) return;
+
+        const activeIds = new Set(active.map((c: any) => c.id));
+        const userOnly = user.filter((c: any) => !activeIds.has(c.id));
+        setPoolInfosEvent([...active, ...userOnly]);
     }, [farmsFetch.isSuccess, farmsFetch.data, userFarmsFetch.isSuccess, userFarmsFetch.data]);
 
     // Distribution pools — same pattern, no enriched gate
     useEffect(() => {
-        if (!distrFetch.isSuccess || !distrFetch.data) return;
+        const hasDistr = distrFetch.isSuccess && Array.isArray(distrFetch.data);
+        const hasUser = userDistrFetch.isSuccess && Array.isArray(userDistrFetch.data);
+        if (!hasDistr && !hasUser) return;
 
-        const activeContracts = distrFetch.data as Array<ContractInfo<'distribution'>>;
-        if (activeContracts.length === 0) return;
+        const active = hasDistr ? (distrFetch.data as Array<ContractInfo<'distribution'>>) : [];
+        const user = hasUser ? (userDistrFetch.data as Array<ContractInfo<'distribution'>>) : [];
 
-        if (userDistrFetch.isSuccess && userDistrFetch.data && Array.isArray(userDistrFetch.data) && userDistrFetch.data.length > 0) {
-            const userContracts = userDistrFetch.data as Array<ContractInfo<'distribution'>>;
-            const activeIds = new Set(activeContracts.map((c: any) => c.id));
-            const userOnly = userContracts.filter((c: any) => !activeIds.has(c.id));
-            setDistributionPoolInfosEvent([...activeContracts, ...userOnly]);
-        } else {
-            setDistributionPoolInfosEvent(activeContracts);
-        }
+        if (active.length === 0 && user.length === 0) return;
+
+        const activeIds = new Set(active.map((c: any) => c.id));
+        const userOnly = user.filter((c: any) => !activeIds.has(c.id));
+        setDistributionPoolInfosEvent([...active, ...userOnly]);
     }, [distrFetch.isSuccess, distrFetch.data, userDistrFetch.isSuccess, userDistrFetch.data]);
 
     return (
