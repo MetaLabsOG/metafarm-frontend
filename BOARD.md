@@ -224,8 +224,8 @@
 
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
-| MF-114 | Stuck Funds MVP: `/my-funds` route + component with on-chain BigInt filter | todo | high | safety | Read from existing `userFarmsFetch` + `userDistrFetch` (already fetched on mount). Filter: `state.local.staked > 0 \|\| state.local.reward > 0`. Group: Active-with-funds / Ended-with-funds / Locked. Per-pool actions: Unstake, Claim, link to pool detail |
-| MF-115 | Entry points for `/my-funds`: user dropdown + footer + alert when stuck pools exist | todo | medium | ux | Add "Your Funds" in `ConnectWallet.tsx` account dropdown. Footer link under main PoolList: "Missing a pool? → Your Funds". Banner on main page when count > 0 |
+| MF-114 | Stuck Funds MVP: `/my-funds` route + component with on-chain BigInt filter | done | high | safety | `src/MyFunds/` groups user pools by Ended / Locked / Active via BigInt check on `state.local.staked/reward`. Reuses `VirtualizedPoolList` so existing unstake/claim popups work unchanged. Commit `034264d`. 2026-04-14 |
+| MF-115 | Entry points for `/my-funds`: user dropdown + footer + alert when stuck pools exist | partial | medium | ux | "Your Funds" link added to `ConnectWallet.tsx` account dropdown. Footer link under PoolList and conditional banner deferred to next iteration. Commit `034264d`. 2026-04-14 |
 | MF-116 | Fix `PoolList.tsx` statusFilter when `hasBlockData=false` and showEnded=true | todo | medium | ux | `showEnded ? (hasBlockData ? isEnded : hasUserFunds) : (!isEnded \|\| hasUserFunds)` — surface user-funds pools even before indexer responds |
 
 ---
