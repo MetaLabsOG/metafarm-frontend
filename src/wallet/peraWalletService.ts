@@ -55,21 +55,32 @@ export async function peraSignTxns(txns: WalletTransaction[]): Promise<string[]>
     // Reach hands us a flat ARC-0025 group: each .txn is a base64 unsigned txn,
     // and .stxn (when present) is a pre-signed slot (e.g. an lsig txn) we must NOT
     // re-sign. Pera's signTransaction wants algosdk.Transaction objects, so decode
-    // each one — the same call Reach itself uses on this format. signers:[signer]
-    // tells Pera to sign; signers:[] tells it to skip that slot.
+    // each one — the same call Reach itself uses on this format.
+    //
+    // Skip mechanism: @perawallet/connect@1.3.5 decides "skip this slot" from the
+    // signerAddress arg below — a txn is skipped when signerAddress is NOT in its
+    // signers[]. So pre-signed (stxn) slots get signers:[] (signer absent → skip)
+    // and user slots get signers:[signer] (signer present → sign). Passing
+    // signerAddress to signTransaction is REQUIRED for this to work in 1.3.5.
     const group = txns.map((wt) => {
         const txn = algosdk.decodeUnsignedTransaction(Buffer.from(wt.txn, 'base64'));
         return wt.stxn ? { txn, signers: [] as string[] } : { txn, signers: [signer] };
     });
 
-    // Pera returns ONLY the signed (non-skipped) txns, compacted in original order.
-    // Walk the original group and pull the next signed result for each slot we
-    // asked Pera to sign; pass pre-signed slots through unchanged.
     const signed = await peraWallet.signTransaction([group], signer);
+
+    // Pera returns signatures only for the slots it actually signed. The mobile
+    // path compacts (drops skipped slots); guard against a null-padded web-wallet
+    // response too by dropping empty slots before realigning. Then walk the
+    // original group, consuming the next signature for each slot we asked Pera to
+    // sign and passing pre-signed slots through unchanged.
+    const signedQueue = (signed as Array<Uint8Array | null | undefined>).filter(
+        (bytes): bytes is Uint8Array => bytes != null
+    );
 
     return txns.map((wt) => {
         if (wt.stxn) return wt.stxn;
-        const bytes = signed.shift();
+        const bytes = signedQueue.shift();
         if (!bytes) {
             throw new Error('Pera returned no signature for a transaction it was asked to sign');
         }
