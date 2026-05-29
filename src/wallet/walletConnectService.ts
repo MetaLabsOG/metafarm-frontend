@@ -1,8 +1,19 @@
 import { SignClient } from '@walletconnect/sign-client';
 import { WalletConnectModal } from '@walletconnect/modal';
-import type { SessionTypes } from '@walletconnect/types';
 import { ALGONET, MAINNET } from '../AppContext';
 import { isAndroidDevice, isMobileWalletDevice } from './deviceDetection';
+
+// Minimal structural type for the WC v2 session fields we use. We deliberately
+// do NOT import SessionTypes from '@walletconnect/types': Reach stdlib pulls WC
+// v1 (@walletconnect/client), which hoists @walletconnect/types@1.8.0 to the top
+// level — and v1 has no SessionTypes export, so the import silently fails type
+// checking (masked by TSC_COMPILE_ON_ERROR). sign-client's own nested v2 session
+// objects satisfy this shape structurally.
+type WCSession = {
+    topic: string;
+    expiry: number;
+    namespaces: Record<string, { accounts?: string[]; methods?: string[]; events?: string[] } | undefined>;
+};
 
 const WC_PROJECT_ID = 'bbdf45a3e6ca9f8da5738d7b854ff2c9';
 
@@ -20,6 +31,13 @@ const REQUIRED_NAMESPACES = {
         events: [],
     },
 };
+
+// Sent alongside requiredNamespaces. Today's Pera (iOS WalletConnectSwiftV2 1.9.9,
+// Android custom SDK) reads requiredNamespaces, so this is a no-op for current
+// wallets — but it is harmless on sign-client 2.20.3 (both fields are forwarded
+// verbatim, no auto-migration) and forward-compatible if a wallet later flips to
+// reading optionalNamespaces.
+const OPTIONAL_NAMESPACES = REQUIRED_NAMESPACES;
 
 export type WalletTarget = 'pera' | 'defly';
 
@@ -40,7 +58,7 @@ function getWalletScheme(wallet: WalletTarget): string {
 
 interface PendingPairing {
     uri: string;
-    approval: () => Promise<SessionTypes.Struct>;
+    approval: () => Promise<WCSession>;
     createdAt: number;
 }
 
@@ -61,7 +79,16 @@ function installRelayerWakeListeners(client: SignClient): () => void {
     const relayer = (client as any).core?.relayer;
     const wake = () => {
         if (typeof document === 'undefined' || document.visibilityState !== 'visible') return;
-        if (!relayer || relayer.connected) return;
+        // NB: do NOT also skip on relayer.connected — that getter reads
+        // socket.readyState===1 directly, which stays OPEN for ~5s after iOS WK
+        // WebView suspends the backgrounded tab (until the SDK heartbeat marks the
+        // socket dead). Skipping there left the transport NOT reopened in exactly
+        // the window when Pera's approval / session_settle arrives, dropping the
+        // response and producing Pera's "dApp is not responding, scan new QR".
+        // restartTransport is idempotent (guards concurrent attempts itself) and
+        // these listeners live only for the duration of an active connect/sign,
+        // so reopening unconditionally on tab-return is safe.
+        if (!relayer) return;
         try {
             const p = relayer.restartTransport?.();
             if (p && typeof p.catch === 'function') {
@@ -84,7 +111,7 @@ function installRelayerWakeListeners(client: SignClient): () => void {
 
 class WalletConnectService {
     private client: SignClient | null = null;
-    private session: SessionTypes.Struct | null = null;
+    private session: WCSession | null = null;
     private modal: WalletConnectModal | null = null;
     private pendingPairing: PendingPairing | null = null;
     private initPromise: Promise<SignClient> | null = null;
@@ -93,7 +120,9 @@ class WalletConnectService {
     constructor() {
         // Start SignClient init + pre-pairing immediately in background.
         // By the time the user clicks "Connect", client and URI should be ready.
-        this.ensureClient().catch(() => {});
+        // Log (don't swallow) init failures — relay/projectId problems here would
+        // otherwise be invisible and surface only as a hanging "Connecting...".
+        this.ensureClient().catch((e) => console.error('[WCS] background SignClient init failed:', e));
     }
 
     private async ensureClient(): Promise<SignClient> {
@@ -126,6 +155,7 @@ class WalletConnectService {
         try {
             const { uri, approval } = await this.client.connect({
                 requiredNamespaces: REQUIRED_NAMESPACES,
+                optionalNamespaces: OPTIONAL_NAMESPACES,
             });
 
             if (uri) {
@@ -161,7 +191,7 @@ class WalletConnectService {
         }
 
         let uri: string;
-        let approval: () => Promise<SessionTypes.Struct>;
+        let approval: () => Promise<WCSession>;
 
         // Use pre-generated pairing if available and fresh
         if (this.pendingPairing && Date.now() - this.pendingPairing.createdAt < PAIRING_MAX_AGE_MS) {
@@ -170,7 +200,7 @@ class WalletConnectService {
             this.pendingPairing = null;
         } else {
             this.pendingPairing = null;
-            const result = await client.connect({ requiredNamespaces: REQUIRED_NAMESPACES });
+            const result = await client.connect({ requiredNamespaces: REQUIRED_NAMESPACES, optionalNamespaces: OPTIONAL_NAMESPACES });
             if (!result.uri) throw new Error('Failed to generate WalletConnect URI');
             uri = result.uri;
             approval = result.approval;
@@ -186,7 +216,7 @@ class WalletConnectService {
             window.location.href = deepLink;
 
             try {
-                this.session = await new Promise<SessionTypes.Struct>((resolve, reject) => {
+                this.session = await new Promise<WCSession>((resolve, reject) => {
                     approval().then(resolve, reject);
                     setTimeout(
                         () => reject(new Error('WalletConnect approval timed out after 180s')),
@@ -209,7 +239,7 @@ class WalletConnectService {
         modal.openModal({ uri });
 
         try {
-            this.session = await new Promise<SessionTypes.Struct>((resolve, reject) => {
+            this.session = await new Promise<WCSession>((resolve, reject) => {
                 approval().then(resolve, reject);
 
                 setTimeout(
@@ -284,20 +314,33 @@ class WalletConnectService {
     }
 
     async disconnect(): Promise<void> {
-        if (this.client && this.session) {
+        const client = this.client;
+        const session = this.session;
+        if (client && session) {
             try {
-                await this.client.disconnect({
-                    topic: this.session.topic,
+                await client.disconnect({
+                    topic: session.topic,
                     reason: { code: 6000, message: 'User disconnected' },
                 });
-            } catch { /* session may already be expired */ }
-            this.session = null;
+            } catch {
+                // engine.disconnect() publishes wc_sessionDelete with
+                // throwOnFailedPublish:true BEFORE it deletes the local session, so
+                // a failed relay publish (remote session already gone — e.g. the
+                // wallet app was reinstalled/updated) leaves a dead-but-unexpired
+                // session in wc@2: localStorage that reconnect() would later treat
+                // as active. Force-remove it locally so reconnect() can't pick it up.
+                try {
+                    await client.session.delete(session.topic, { code: 6000, message: 'User disconnected' });
+                } catch { /* already gone */ }
+            } finally {
+                this.session = null;
+            }
         }
 
         void this.preparePairing();
     }
 
-    private getAccountsFromSession(session: SessionTypes.Struct): string[] {
+    private getAccountsFromSession(session: WCSession): string[] {
         const accounts = session.namespaces.algorand?.accounts ?? [];
         return accounts.map((account) => {
             const parts = account.split(':');

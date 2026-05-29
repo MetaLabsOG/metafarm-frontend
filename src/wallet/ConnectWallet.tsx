@@ -90,6 +90,10 @@ export const connectWallet = (walletType: WalletType, isAutoReconnect = false) =
             if (isAutoReconnect) {
                 clearWalletData();
                 notify('Wallet disconnected — please reconnect', 'warning');
+            } else if (!isUserRejection) {
+                // Interactive connect failed for a real reason (relay/init/timeout) —
+                // surface it instead of leaving the user on a silent dead "Connecting…".
+                notify('Wallet connection failed — please try again', 'error');
             }
         });
 };

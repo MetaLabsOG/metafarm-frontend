@@ -8,7 +8,7 @@
 - **Statuses**: `todo` | `in_progress` | `blocked` | `done`
 - **Priorities**: `critical` | `high` | `medium` | `low`
 - **Tags**: `observability` | `safety` | `performance` | `ux` | `quality` | `devops` | `effector`
-- Next available ID: **MF-117**
+- Next available ID: **MF-118**
 
 ---
 
@@ -210,11 +210,12 @@
 | ID | Task | Status | Priority | Tag | Notes |
 |----|------|--------|----------|-----|-------|
 | MF-108 | Fix wallet connection: update WC SDK, fix Android deep link, remove dead code | done | critical | safety | WC 2.17→2.20.3, Android deep link raw URI, removed relay override, deleted deflyWalletV2.ts + @perawallet/connect-beta. Commits `67c4412`, `aaf8ed8`. 2026-04-02 |
-| MF-109 | Wallet Phase 2: IndexedDB session cleanup on disconnect, surface init errors | todo | high | safety | `clearWalletData()` only clears 3 localStorage keys, not WC IndexedDB. `ensureClient().catch(() => {})` swallows errors silently |
+| MF-109 | Wallet Phase 2: WC session cleanup on disconnect, surface init errors | done | high | safety | `disconnect()` now force-removes the local session via `client.session.delete()` in the catch branch — engine publishes `wc_sessionDelete` with `throwOnFailedPublish:true` BEFORE `deleteSession`, so a failed relay publish (remote session gone after wallet reinstall/update) left dead-but-unexpired sessions in `wc@2:` storage that `reconnect()` treated as active. Constructor no longer swallows `SignClient.init` errors (`console.error`); interactive connect failures now surface a toast in `ConnectWallet.tsx`. `walletConnectService.ts`, `ConnectWallet.tsx`. 2026-05-29 |
 | MF-110 | Wallet architecture: migrate to @txnlab/use-wallet when Reach removed | todo | medium | ux | Blocked by algosdk v2→v3 (Reach pins v2). Dual-stack plan: new contracts on use-wallet, old on current shim. See `memory/project_wallet_architecture_decision.md` |
 | MF-111 | Fix ended pools hidden when user has funds (Bug #1) | done | critical | safety | `PoolList.tsx` hasUserFunds from raw BigInt local state; `index.tsx` defensive merge of farm+distribution lists so user-only pools surface. Commit `990fdff`. 2026-04-14 |
 | MF-112 | Fix iOS WalletConnect WebSocket suspension on deep-link return (Bug #2) | done | critical | safety | `walletConnectService.ts` installRelayerWakeListeners on visibilitychange/pageshow.persisted, restartTransport when relay disconnected. Listeners installed before deep-link navigation. Applied to connect() and signTransaction(). `deviceDetection.ts` shared UA helper. Commit `990fdff`. 2026-04-14 |
 | MF-113 | Close connect-wallet modal correctly on mobile vs desktop | done | high | ux | `ConnectWalletModal.tsx` — on mobile wait for connect promise then close; on desktop close after 300ms so WC QR modal is not obscured. `ConnectWallet.tsx` returns the promise. Commit `990fdff`. 2026-04-14 |
+| MF-117 | Fix Pera connect P0: complete iOS relay wake-listener (corrects MF-112) | done | critical | safety | `installRelayerWakeListeners` `wake()` dropped the `relayer.connected` guard — that getter reads `socket.readyState===1`, which stays OPEN ~5s during iOS WK WebView suspension, so `restartTransport` was skipped exactly when Pera's `session_settle` arrives → "dApp is not responding". MF-112 shipped the listener (990fdff) but the guard neutralized it, so the bug persisted past the Apr 15 deploy. Multi-agent diagnosis refuted the namespace-flip hypothesis (pera-ios reads only `requiredNamespaces`, 0 refs to `optionalNamespaces`) and the projectId-paused hypothesis (relay returns HTTP 101 for projectId `bbdf45a3…` with a valid JWT). Also added `optionalNamespaces` to both `connect()` calls (harmless forward-compat) and replaced the broken WC v1 `SessionTypes` import with an inline `WCSession` type. `walletConnectService.ts`. **Needs device verification** (iOS Safari+Pera). 2026-05-29 |
 
 ### Stuck Funds Recovery UI
 
