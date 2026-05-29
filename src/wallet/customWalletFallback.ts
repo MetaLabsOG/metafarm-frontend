@@ -13,6 +13,7 @@ import type {
 import { makeProviderByEnv } from '../reachRedefinitions';
 import { reach, ALGONET, MAINNET } from '../AppContext';
 import { walletConnectService, WalletTarget } from './walletConnectService';
+import { peraConnect, peraReconnect, peraDisconnect, peraSignTxns } from './peraWalletService';
 
 export type WalletType = 'WalletConnect' | 'WalletConnectDefly';
 export type ARC11_Wallet_Disconnectable = ARC11_Wallet & { disconnect: () => Promise<void> };
@@ -92,11 +93,39 @@ export const doCustomWalletFallback = (
 };
 
 export const customWalletFallback = (options: any & { walletType: WalletType }) => {
-    if (options.walletType === 'WalletConnect' || options.walletType === 'WalletConnectDefly') {
+    // Pera: native @perawallet/connect (WC v1 over Pera's bridge). Pera's app no
+    // longer reliably handles a raw WC v2 proposal — it freezes on connect.
+    if (options.walletType === 'WalletConnect') {
+        return walletFallback_Pera(options);
+    }
+    // Defly: raw WC v2 — Defly's app handles the proposal correctly.
+    if (options.walletType === 'WalletConnectDefly') {
         return walletFallback_WC(options);
     }
 
     throw new TypeError(`Invalid wallet type: ${options.walletType}`);
+};
+
+/**
+ * Native Pera wallet fallback via @perawallet/connect (WalletConnect v1 over
+ * Pera's own bridge servers). Mirrors the ARC-11 interface that Reach expects.
+ */
+const walletFallback_Pera = (options: object) => (): ARC11_Wallet_Disconnectable => {
+    const getAddr = async (): Promise<string> => {
+        // Try reconnecting to an existing Pera session first
+        try {
+            const addrs = await peraReconnect();
+            if (addrs.length > 0) return addrs[0];
+        } catch {
+            // No active session — fall through to a fresh connect
+        }
+
+        const addrs = await peraConnect();
+        if (addrs.length === 0) throw new Error('Pera returned no accounts');
+        return addrs[0];
+    };
+
+    return doCustomWalletFallback(options, getAddr, peraSignTxns, peraDisconnect);
 };
 
 /**
